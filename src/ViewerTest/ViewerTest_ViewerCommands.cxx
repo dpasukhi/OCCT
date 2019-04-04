@@ -90,7 +90,16 @@
 #include <V3d_Viewer.hxx>
 #include <UnitsAPI.hxx>
 
+#include <Vulkan_Caps.hxx>
+#include <Vulkan_GraphicDriver.hxx>
+
 #include <tcl.h>
+
+#ifdef _WIN32
+  #undef DrawText
+#endif
+
+#include <cstdlib>
 
 #if defined(_WIN32)
   #include <WNT_WClass.hxx>
@@ -13608,6 +13617,21 @@ static void ViewerTest_ExitProc(ClientData)
 
 //=================================================================================================
 
+static int VkInit(Draw_Interpretor&, Standard_Integer theArgsNb, const char** theArgVec)
+{
+  (void)theArgsNb;
+  (void)theArgVec;
+  Handle(Aspect_DisplayConnection) aDisp    = new Aspect_DisplayConnection();
+  const uint32_t                   anAppVer = Vulkan_GraphicDriver::DefineVersion(OCC_VERSION_MAJOR,
+                                                                OCC_VERSION_MINOR,
+                                                                OCC_VERSION_MAINTENANCE);
+  Handle(Vulkan_GraphicDriver) aDriver = new Vulkan_GraphicDriver("Draw Harness", anAppVer, aDisp);
+  aDriver->InitContext();
+  return 0;
+}
+
+//=================================================================================================
+
 void ViewerTest::ViewerCommands(Draw_Interpretor& theCommands)
 {
   static bool TheIsInitialized = false;
@@ -13626,6 +13650,8 @@ void ViewerTest::ViewerCommands(Draw_Interpretor& theCommands)
     [&](const char* theName, Draw_Interpretor::CommandFunction theFunc, const char* theHelp) {
       theCommands.Add(theName, theHelp, aFileName, theFunc, aGroup);
     };
+
+  theCommands.Add("vkinit", "vkinit", __FILE__, VkInit, group); ///
 
   addCmd("vdriver", VDriver, /* [vdriver] */ R"(
 vdriver [-list] [-default DriverName] [-load DriverName]

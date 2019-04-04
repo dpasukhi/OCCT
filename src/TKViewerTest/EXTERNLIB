@@ -17,6 +17,7 @@ TKOffset
 TKMesh
 TKV3d
 TKDraw
+TKVulkan
 CSF_TclLibs
 CSF_XwLibs
 CSF_user32

@@ -82,6 +82,9 @@ else()
   set (CSF_Draco)
 endif()
 
+# Vulkan
+set (CSF_vulkan "vulkan-1")
+
 if (WIN32)
   set (CSF_advapi32      "advapi32.lib")
   set (CSF_gdi32         "gdi32.lib")

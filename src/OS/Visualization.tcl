@@ -15,7 +15,7 @@
 ;# Liste des toolkits WOK sous forme de full path
 ;# 
 proc Visualization:toolkits { } {
-  set aResult [list TKService TKV3d TKMeshVS]
+  set aResult [list TKService TKV3d TKVulkan TKMeshVS]
 
   lappend aResult "TKOpenGl"
   if { [info exists ::env(HAVE_GLES2)] && "$::env(HAVE_GLES2)" == "true" } {
