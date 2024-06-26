@@ -24,10 +24,9 @@ jobs:
         if: steps.read_ids.outputs.skip_check != 'true'
         id: validate_creator
         run: |
-          PR_CREATOR_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}" | jq -r .user.id)
+          pr_user_id=$(jq -r '.pull_request.user.id' "${GITHUB_EVENT_PATH}")
           ids="${{ steps.read_ids.outputs.ids }}"
-          if [[ $ids =~ (^|[[:space:]])$PR_CREATOR_ID($|[[:space:]]) ]]; then
+          if [[ $ids =~ (^|[[:space:]])$pr_user_id($|[[:space:]]) ]]; then
             echo "PR creator is authorized as BUGMASTER."
           else
             echo "PR creator is not authorized as BUGMASTER."
