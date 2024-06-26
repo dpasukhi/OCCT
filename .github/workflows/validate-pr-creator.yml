@@ -25,8 +25,7 @@ jobs:
         id: validate_creator
         run: |
           PR_CREATOR_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}" | \
-            jq -r .user.id)
+          "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}" | jq -r .user.id)
           ids="${{ steps.read_ids.outputs.ids }}"
           if [[ $ids =~ (^|[[:space:]])$PR_CREATOR_ID($|[[:space:]]) ]]; then
             echo "PR creator is authorized as BUGMASTER."
