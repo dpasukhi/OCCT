@@ -31,6 +31,7 @@ jobs:
           else
             echo "PR creator is not authorized as BUGMASTER."
             echo "::set-output name=unauthorized::true"
+          fi
       - name: Post message if unauthorized
         if: steps.validate_creator.outputs.unauthorized == 'true'
         uses: actions/github-script@v4
