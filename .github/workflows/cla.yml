@@ -1,5 +1,4 @@
 name: CLA
-
 on:
   pull_request:
     types:
@@ -7,7 +6,54 @@ on:
       - synchronize
       
 jobs:
-  CLA:
-    name: CLA
-    uses: dpasukhi/.github/.github/workflows/cla.yml@master
-    secrets: inherit
+  check_user:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: read
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Read IDs from secrets
+        id: read_ids
+        env:
+          CONTRIBUTORS: ${{ secrets.CONTRIBUTORS }}
+        run: |
+          if [ -z "$CONTRIBUTORS" ]; then
+            echo "Secret CONTRIBUTORS is not set. Skipping ID check."
+            echo "::set-output name=skip_check::true"
+          else
+            echo "::set-output name=ids::$CONTRIBUTORS"
+          fi
+      - name: Check PR User
+        if: steps.read_ids.outputs.skip_check != 'true'
+        id: check_user
+        run: |
+          pr_user_id=$(jq -r '.pull_request.user.id' "${GITHUB_EVENT_PATH}")
+          ids="${{ steps.read_ids.outputs.ids }}"
+          if [[ $ids =~ (^|[[:space:]])$pr_user_id($|[[:space:]]) ]]; then
+            echo "PR user ID is listed in the CONTRIBUTORS secret"
+          else
+            echo "PR user ID is not listed in the CONTRIBUTORS secret"
+            echo "::set-output name=unauthorized::true"
+          fi
+      - name: Post message if unauthorized
+        if: steps.check_user.outputs.unauthorized == 'true'
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Use the PAT here
+          script: |
+            const issue_number = context.issue.number;
+            const message = `It appears that you have not signed our Contributor License Agreement (CLA). Please sign the CLA to proceed. You can find the CLA and instructions on how to sign it on our [DevPortal](https://dev.opencascade.org/get_involved). If you have already signed the CLA, please provide your CLA number and Github profile's ID(s) in the "Contact Us" form. Thank you for your contribution!`;
+            github.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: message
+            });
+      - name: Fail if unauthorized
+        if: steps.check_user.outputs.unauthorized == 'true'
+        run: |
+          echo "Failing the workflow because the PR user ID is not listed in the CONTRIBUTORS secret."
+          exit 1
