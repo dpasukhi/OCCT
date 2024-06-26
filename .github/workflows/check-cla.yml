@@ -57,3 +57,4 @@ jobs:
         run: |
           echo "Failing the workflow because the PR user ID is not listed in the CONTRIBUTORS secret."
           exit 1
+          

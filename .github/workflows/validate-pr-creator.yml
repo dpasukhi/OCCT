@@ -1,0 +1,52 @@
+name: PR Validation
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  check-pr-creator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check secrets availability
+        run: |
+          if [[ -z "${{ secrets.BUGMASTER }}" || -z "${{ secrets.GITHUB_TOKEN }}" ]]; then
+            echo "Secrets not provided. Skipping PR validation."
+            exit 0
+          fi
+      - name: Get PR creator ID
+        id: get-pr-creator
+        run: |
+          PR_CREATOR_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}" | \
+            jq -r .user.id)
+          echo "::set-output name=PR_CREATOR_ID::$PR_CREATOR_ID"
+      - name: Validate PR creator
+        if: ${{ github.base_ref == 'master' }}
+        run: |
+          IFS=$'\n' read -d '' -r -a bugmaster_ids <<< "${{ secrets.BUGMASTER }}"
+          PR_CREATOR_ID=${{ steps.get-pr-creator.outputs.PR_CREATOR_ID }}
+          if [[ " ${bugmaster_ids[*]} " =~ " ${PR_CREATOR_ID} " ]]; then
+            echo "PR to the master branch is allowed for BUGMASTER."
+          else
+            PR_COMMENT="PRs to the master branch are not allowed for non-BUGMASTER. Please change the target branch to IR-N or another appropriate branch."
+            echo "Creating a comment: $PR_COMMENT"
+            echo "::set-output name=PR_COMMENT::$PR_COMMENT"
+      - name: Post PR comment
+        if: ${{ steps.validate-pr-creator.outputs.PR_COMMENT }}
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue_number = context.issue.number;
+            const PR_COMMENT = `${{ steps.validate-pr-creator.outputs.PR_COMMENT }}`;
+            github.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue_number,
+              body: PR_COMMENT
+            });
+      - name: Fail if unauthorized 
+        if: ${{ steps.validate-pr-creator.outputs.PR_COMMENT }}
+        run: |
+          echo "Failing the workflow because the PR creator is not in the BUGMASTER list."
+          exit 1
