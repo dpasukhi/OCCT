@@ -1,0 +1,13 @@
+name: CLA
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      
+jobs:
+  CLA:
+    name: CLA
+    uses: dpasukhi/.github/.github/workflows/cla.yml@master
+    secrets: inherit
