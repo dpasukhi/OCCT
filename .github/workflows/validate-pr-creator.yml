@@ -7,46 +7,48 @@ jobs:
   check-pr-creator:
     runs-on: ubuntu-latest
     steps:
-      - name: Check secrets availability
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Read BUGMASTER IDs from secrets
+        id: read_ids
+        env:
+          BUGMASTER: ${{ secrets.BUGMASTER }}
         run: |
-          if [[ -z "${{ secrets.BUGMASTER }}" || -z "${{ secrets.GITHUB_TOKEN }}" ]]; then
-            echo "Secrets not provided. Skipping PR validation."
-            exit 0
+          if [ -z "$BUGMASTER" ]; then
+            echo "Secret BUGMASTER is not set. Skipping PR validation."
+            echo "::set-output name=skip_check::true"
+          else
+            echo "::set-output name=ids::$BUGMASTER"
           fi
-      - name: Get PR creator ID
-        id: get-pr-creator
+      - name: Validate PR creator
+        if: steps.read_ids.outputs.skip_check != 'true'
+        id: validate_creator
         run: |
           PR_CREATOR_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.number }}" | \
             jq -r .user.id)
-          echo "::set-output name=PR_CREATOR_ID::$PR_CREATOR_ID"
-      - name: Validate PR creator
-        if: ${{ github.base_ref == 'master' }}
-        run: |
-          IFS=$'\n' read -d '' -r -a bugmaster_ids <<< "${{ secrets.BUGMASTER }}"
-          PR_CREATOR_ID=${{ steps.get-pr-creator.outputs.PR_CREATOR_ID }}
-          if [[ " ${bugmaster_ids[*]} " =~ " ${PR_CREATOR_ID} " ]]; then
-            echo "PR to the master branch is allowed for BUGMASTER."
+          ids="${{ steps.read_ids.outputs.ids }}"
+          if [[ $ids =~ (^|[[:space:]])$PR_CREATOR_ID($|[[:space:]]) ]]; then
+            echo "PR creator is authorized as BUGMASTER."
           else
-            PR_COMMENT="PRs to the master branch are not allowed for non-BUGMASTER. Please change the target branch to IR-N or another appropriate branch."
-            echo "Creating a comment: $PR_COMMENT"
-            echo "::set-output name=PR_COMMENT::$PR_COMMENT"
-      - name: Post PR comment
-        if: ${{ steps.validate-pr-creator.outputs.PR_COMMENT }}
+            echo "PR creator is not authorized as BUGMASTER."
+            echo "::set-output name=unauthorized::true"
+      - name: Post message if unauthorized
+        if: steps.validate_creator.outputs.unauthorized == 'true'
         uses: actions/github-script@v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue_number = context.issue.number;
-            const PR_COMMENT = `${{ steps.validate-pr-creator.outputs.PR_COMMENT }}`;
+            const message = "PRs to the master branch are not allowed for non-BUGMASTER. Please change the target branch to IR-N or another appropriate branch.";
             github.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue_number,
-              body: PR_COMMENT
+              body: message
             });
-      - name: Fail if unauthorized 
-        if: ${{ steps.validate-pr-creator.outputs.PR_COMMENT }}
+      - name: Fail if unauthorized
+        if: steps.validate_creator.outputs.unauthorized == 'true'
         run: |
           echo "Failing the workflow because the PR creator is not in the BUGMASTER list."
           exit 1
