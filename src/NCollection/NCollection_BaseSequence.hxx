@@ -19,25 +19,7 @@
 #include <Standard.hxx>
 #include <NCollection_BaseAllocator.hxx>
 #include <NCollection_DefineAlloc.hxx>
-
-// **************************************** Class SeqNode ********************
-
-class NCollection_SeqNode 
-{
-public:
-  // define new operator for use with NCollection allocators
-  DEFINE_NCOLLECTION_ALLOC
-public:
-  NCollection_SeqNode () : myNext (NULL), myPrevious (NULL) {}
-  NCollection_SeqNode * Next      () const { return myNext; }
-  NCollection_SeqNode * Previous  () const { return myPrevious; }
-  void SetNext     (NCollection_SeqNode * theNext) { myNext = theNext; }
-  void SetPrevious (NCollection_SeqNode * thePrev) { myPrevious = thePrev; }
-  
- private:
-  NCollection_SeqNode* myNext;
-  NCollection_SeqNode* myPrevious;
-};
+#include <NCollection_SeqNode.hxx>
 
 typedef void (* NCollection_DelSeqNode) 
      (NCollection_SeqNode*, Handle(NCollection_BaseAllocator)& theAl);

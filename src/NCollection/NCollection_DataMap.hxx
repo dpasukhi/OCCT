@@ -58,7 +58,7 @@ public:
 
 public:
   // **************** Adaptation of the TListNode to the DATAmap
-  class DataMapNode : public NCollection_TListNode<TheItemType>
+  class DataMapNode : public NCollection_TListNode<std::pair<const TheKeyType, TheItemType>>
   {
   public:
     //! Constructor with 'Next'
@@ -91,7 +91,11 @@ public:
     {}
 
     //! Key
-    const TheKeyType& Key (void) const
+    const TheKeyType& Key () const
+    { return myKey; }
+
+    //! Key
+    const TheKeyType& Value (void) const
     { return myKey; }
     
     //! Static deleter to be passed to BaseMap
@@ -101,9 +105,6 @@ public:
       ((DataMapNode *) theNode)->~DataMapNode();
       theAl->Free(theNode);
     }
-
-  private:
-    TheKeyType    myKey;
   };
 
  public:

@@ -16,7 +16,7 @@
 // Purpose:     Implementation of the BaseMap class
 
 #include <NCollection_BaseMap.hxx>
-#include <TCollection.hxx>
+#include <NCollection_Primes.hxx>
 
 //=======================================================================
 //function : BeginResize
@@ -30,7 +30,7 @@ Standard_Boolean  NCollection_BaseMap::BeginResize
    NCollection_ListNode**& data2) const 
 {
   // get next size for the buckets array
-  N = NextPrimeForMap(NbBuckets);
+  N = NCollection_Primes::NextPrimeForMap(NbBuckets);
   if (N <= myNbBuckets)
   {
     if (!myData1)
@@ -39,14 +39,16 @@ Standard_Boolean  NCollection_BaseMap::BeginResize
       return Standard_False;
   }
   data1 = (NCollection_ListNode **)
-    Standard::Allocate((N+1)*sizeof(NCollection_ListNode *));
+    Standard::Reallocate(data1, (N+1)*sizeof(NCollection_ListNode *));
+  memset(data1, 0, (N + 1) * sizeof(NCollection_ListNode*));
   if (isDouble) 
   {
     data2 = (NCollection_ListNode **)
-      Standard::Allocate((N+1)*sizeof(NCollection_ListNode *));
+      Standard::Reallocate(data2, (N+1)*sizeof(NCollection_ListNode *));
+    memset(data2, 0, (N + 1) * sizeof(NCollection_ListNode*));
   }
   else
-    data2 = NULL;
+    data2 = nullptr;
   return Standard_True;
 }
 
@@ -61,14 +63,10 @@ void  NCollection_BaseMap::EndResize
    NCollection_ListNode** data1,
    NCollection_ListNode** data2)
 {
-  (void )theNbBuckets; // obsolete parameter
-  if (myData1) 
-    Standard::Free(myData1);
-  if (myData2 && isDouble)
-    Standard::Free(myData2);
+  (void)theNbBuckets; // obsolete parameter
+  (void)data1;
+  (void)data2;
   myNbBuckets = N;
-  myData1 = data1;
-  myData2 = data2;
 }
 
 
@@ -94,23 +92,25 @@ void  NCollection_BaseMap::Destroy (NCollection_DelMapNode fDel,
           fDel (aCur, myAllocator);
           aCur = aNext;
         }
-        myData1[anInd] = nullptr;
+        if (!doReleaseMemory)
+        {
+          myData1[anInd] = nullptr;
+        }
       }
     }
-    if (myData2)
+    if (!doReleaseMemory && myData2)
     {
       memset(myData2, 0, (aNbBuckets + 1) * sizeof(NCollection_ListNode*));
     }
+    mySize = 0;
   }
-
-  mySize = 0;
   if (doReleaseMemory)
   {
     if (myData1)
       Standard::Free(myData1);
     if (myData2)
       Standard::Free(myData2);
-    myData1 = myData2 = NULL;
+    myData1 = myData2 = nullptr;
   }
 }
 
@@ -166,15 +166,3 @@ void NCollection_BaseMap::Statistics(Standard_OStream& S) const
 
   delete [] sizes;
 }
-
-//=======================================================================
-//function : NextPrimeForMap
-//purpose  : 
-//=======================================================================
-
-Standard_Integer NCollection_BaseMap::NextPrimeForMap
-  (const Standard_Integer N) const
-{
-  return TCollection::NextPrimeForMap ( N );
-}
-

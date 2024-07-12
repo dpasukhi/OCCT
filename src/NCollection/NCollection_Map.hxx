@@ -18,6 +18,7 @@
 
 #include <NCollection_DataMap.hxx>
 #include <NCollection_TListNode.hxx>
+#include <NCollection_SeqNode.hxx>
 #include <NCollection_StlIterator.hxx>
 #include <NCollection_DefaultHasher.hxx>
 
@@ -63,21 +64,28 @@ public:
 
 public:
   //!   Adaptation of the TListNode to the map notations
-  class MapNode : public NCollection_TListNode<TheKeyType>
+  class MapNode : public NCollection_TListNode<TheKeyType>, private NCollection_SeqNode
   {
   public:
     //! Constructor with 'Next'
     MapNode (const TheKeyType& theKey, 
-             NCollection_ListNode* theNext) :
-      NCollection_TListNode<TheKeyType> (theKey, theNext) {}
+             NCollection_ListNode* theNext,
+             NCollection_SeqNode* theNextSeq,
+             NCollection_SeqNode* thePrevSeq) :
+      NCollection_TListNode<TheKeyType> (theKey, theNext),
+      NCollection_SeqNode(theNextSeq, thePrevSeq) {}
     //! Constructor with 'Next'
     MapNode (TheKeyType&& theKey,
-             NCollection_ListNode* theNext) :
-      NCollection_TListNode<TheKeyType> (std::forward<TheKeyType>(theKey), theNext) {}
+             NCollection_ListNode* theNext,
+             NCollection_SeqNode* theNextSeq,
+             NCollection_SeqNode* thePrevSeq) :) :
+      NCollection_TListNode<TheKeyType> (std::forward<TheKeyType>(theKey), theNext),
+      NCollection_SeqNode(theNextSeq, thePrevSeq) {}
     //! Key
     const TheKeyType& Key (void)
     { return this->Value(); }
-
+    //! Current seq node
+    NCollection_SeqNode* CurSeq () const { return static_cast<NCollection_SeqNode*> this; }
   };
 
  public:
