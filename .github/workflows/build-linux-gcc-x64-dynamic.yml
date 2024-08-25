@@ -19,7 +19,7 @@ jobs:
 
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y tcl cmake gcc g++ make libbtbb-dev \
-        libxmu-dev libxi-dev libx11-dev libxext-dev libglu1-mesa-dev
+        libxi-dev libx11-dev libxext-dev libglu1-mesa-dev
 
     - name: Configure OCCT
       run: |
