@@ -31,7 +31,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -T host=x64 -D USE_FREETYPE=OFF -D CMAKE_BUILD_TYPE=Release ..
+        cmake -T host=x64 -D USE_FREETYPE=OFF -D BUILD_MODULE_Draw=OFF -D CMAKE_BUILD_TYPE=Release ..
 
     - name: Build OCCT
       run: |
