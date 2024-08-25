@@ -1,0 +1,35 @@
+name: Build OCCT on Linux with Clang x64 dynamic
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build-linux-clang:
+    name: Build on Ubuntu with Clang
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y tcl cmake clang make tbb \
+        libfreetype6-dev libgl2ps-dev libxmu-dev libxi-dev libx11-dev libxext-dev \
+        libxft-dev libxpm-dev libxt-dev libxerces-c-dev libgl1-mesa-dev libglu1-mesa-dev
+
+    - name: Configure OCCT
+      run: |
+        mkdir -p build
+        cd build
+        cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=clang -D CMAKE_CXX_COMPILER=clang++ \
+        -D CMAKE_BUILD_TYPE=Release ..
+
+    - name: Build OCCT
+      run: |
+        cd build
+        make -j$(nproc)

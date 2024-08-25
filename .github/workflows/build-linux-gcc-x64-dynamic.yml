@@ -1,0 +1,35 @@
+name: Build OCCT on Linux with GCC x64 dynamic
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  build-linux-gcc:
+    name: Build on Ubuntu with GCC
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y tcl cmake gcc g++ make tbb \
+        libfreetype6-dev libgl2ps-dev libxmu-dev libxi-dev libx11-dev libxext-dev \
+        libxft-dev libxpm-dev libxt-dev libxerces-c-dev libgl1-mesa-dev libglu1-mesa-dev
+
+    - name: Configure OCCT
+      run: |
+        mkdir -p build
+        cd build
+        cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ \
+        -D CMAKE_BUILD_TYPE=Release ..
+
+    - name: Build OCCT
+      run: |
+        cd build
+        make -j$(nproc)
