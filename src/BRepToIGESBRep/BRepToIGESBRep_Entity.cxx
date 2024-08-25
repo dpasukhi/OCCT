@@ -117,14 +117,6 @@ void BRepToIGESBRep_Entity::TransferVertexList()
   Standard_Real Unit = GetUnit();
   Standard_Real X,Y,Z;
 
-  for (Standard_Integer ivertex = 1; ivertex <= nbvertices; ivertex++) {
-    TopoDS_Shape myshape = myVertices(ivertex);
-    TopoDS_Vertex myvertex = TopoDS::Vertex(myshape);
-    gp_Pnt Point = BRep_Tool::Pnt(myvertex);
-    Point.Coord(X,Y,Z);
-    vertices->SetValue(ivertex, gp_XYZ(X/Unit,Y/Unit,Z/Unit));
-  }
-
   myVertexList->Init(vertices);
 }
 
