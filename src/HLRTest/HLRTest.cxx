@@ -54,6 +54,8 @@ Standard_Boolean HLRTest::GetProjector (Standard_CString& Name,
   Handle(HLRTest_Projector) HP = 
     Handle(HLRTest_Projector)::DownCast(Draw::Get(Name));
   if (HP.IsNull()) return Standard_False;
+  HP.Nullify();
+  HP = nullptr;
   P = HP->Projector();
   return Standard_True;
   
