@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
-        choco install tcl -y
+        choco install magicsplat-tcl-tk -y
 
     - name: Configure OCCT
       run: |
@@ -29,6 +29,7 @@ jobs:
         cmake -G "Visual Studio 16 2019" \
               -A x64 \
               -T host=x64 \
+              -D USE_FREETYPE=OFF \
               -D CMAKE_BUILD_TYPE=Release ..
 
     - name: Build OCCT
