@@ -19,8 +19,8 @@ jobs:
 
     - name: Install dependencies
       run: sudo apt-get update && sudo apt-get install -y tcl cmake gcc g++ make libbtbb-dev \
-        libfreetype6-dev libgl2ps-dev libxmu-dev libxi-dev libx11-dev libxext-dev \
-        libxt-dev libxerces-c-dev libgl1-mesa-dev libglu1-mesa-dev
+        libgl2ps-dev libxmu-dev libxi-dev libx11-dev libxext-dev \
+        libgl1-mesa-dev libglu1-mesa-dev
 
     - name: Configure OCCT
       run: |
@@ -29,6 +29,7 @@ jobs:
         cmake -G "Unix Makefiles" \
               -D CMAKE_C_COMPILER=gcc \
               -D CMAKE_CXX_COMPILER=g++ \
+              -D USE_FREETYPE=OFF \
               -D CMAKE_BUILD_TYPE=Release ..
 
     - name: Build OCCT

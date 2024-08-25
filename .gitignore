@@ -7,8 +7,6 @@
 /doc
 /inc
 /work
-/.cache
-/.vscode
 
 # standard names of directories for objects and binaries on Windows
 win32
