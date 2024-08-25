@@ -26,10 +26,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -G "Visual Studio 16 2019"
-              -T host=x64
-              -D USE_FREETYPE=OFF
-              -D CMAKE_BUILD_TYPE=Release ..
+        cmake -G "Visual Studio 16 2019" -T host=x64 -D USE_FREETYPE=OFF -D CMAKE_BUILD_TYPE=Release ..
 
     - name: Build OCCT
       run: |
