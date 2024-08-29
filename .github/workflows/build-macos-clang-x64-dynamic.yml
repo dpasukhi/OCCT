@@ -34,7 +34,7 @@ jobs:
         cmake -G "Unix Makefiles" \
               -D CMAKE_C_COMPILER=clang \
               -D CMAKE_CXX_COMPILER=clang++ \
-              -D USE_FREETYPE=OFF \
+              -D USE_FREETYPE=ON \
               -D CMAKE_BUILD_TYPE=Release ..
 
     - name: Build OCCT
