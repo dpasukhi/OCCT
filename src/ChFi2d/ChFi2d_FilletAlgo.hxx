@@ -146,6 +146,9 @@ public:
   //! Creates a point on a first curve by parameter on this curve.
   FilletPoint(const Standard_Real theParam);
 
+  //! Resets a point to the default version
+  void Reset(const Standard_Real theParam);
+
   //! Changes the point position by changing point parameter on the first curve.
   void setParam(Standard_Real theParam) {myParam = theParam;}
 
@@ -190,6 +193,10 @@ public:
   //! Returns a pointer to created copy of the point
   //! warning: this is not the full copy! Copies only: myParam, myV, myD, myValid
   FilletPoint* Copy();
+
+  //! Fills up a given point as copy of the current.
+  //! Warning: this is not the full copy! Copies only: myParam, myV, myD, myValid
+  void Copy(FilletPoint& thePoint);
 
   //! Returns the index of the solution or zero if there is no solution
   Standard_Integer hasSolution(Standard_Real theRadius);

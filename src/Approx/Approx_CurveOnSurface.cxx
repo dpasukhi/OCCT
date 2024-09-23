@@ -37,6 +37,7 @@
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
 #include <Standard_ConstructionError.hxx>
+#include <Standard_MemoryUtils.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -445,13 +446,13 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
     ThreeDTol->Init(myTol/2);
   }
 
-  AdvApprox_Cutting* CutTool;
+  std::unique_ptr<AdvApprox_Cutting> aCutTool;
 
   if (aContinuity <= myC2D->Continuity() &&
       aContinuity <= mySurf->UContinuity() &&
       aContinuity <= mySurf->VContinuity())
   {
-    CutTool = new AdvApprox_DichoCutting();
+    aCutTool = opencascade::make_unique<AdvApprox_DichoCutting>();
   }
   else if (aContinuity == GeomAbs_C1)
   {
@@ -461,8 +462,8 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
     Standard_Integer NbInterv_C2 = HCOnS->NbIntervals(GeomAbs_C2);
     TColStd_Array1OfReal CutPnts_C2(1, NbInterv_C2 + 1);
     HCOnS->Intervals(CutPnts_C2, GeomAbs_C2);
-    
-    CutTool = new AdvApprox_PrefAndRec (CutPnts_C1, CutPnts_C2);
+
+    aCutTool = opencascade::make_unique<AdvApprox_PrefAndRec> (CutPnts_C1, CutPnts_C2);
   }
   else
   {
@@ -473,16 +474,16 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
     TColStd_Array1OfReal CutPnts_C3(1, NbInterv_C3 + 1);
     HCOnS->Intervals(CutPnts_C3, GeomAbs_C3);
     
-    CutTool = new AdvApprox_PrefAndRec (CutPnts_C2, CutPnts_C3);
+    aCutTool = opencascade::make_unique<AdvApprox_PrefAndRec> (CutPnts_C2, CutPnts_C3);
   }
 
   AdvApprox_ApproxAFunction aApprox (Num1DSS, Num2DSS, Num3DSS, 
 	      			     OneDTol, TwoDTolNul, ThreeDTol,
 				     myFirst, myLast, aContinuity,
 				     theMaxDegree, theMaxSegments,
-				     *EvalPtr, *CutTool);
+				     *EvalPtr, *aCutTool);
 
-  delete CutTool;
+  aCutTool.reset();
 
   myIsDone = aApprox.IsDone();
   myHasResult = aApprox.HasResult();

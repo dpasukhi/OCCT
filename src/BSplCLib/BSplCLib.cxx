@@ -1900,9 +1900,9 @@ void BSplCLib::InsertKnots
   // create local arrays
   // -------------------
 
-  Standard_Real *knots = new Standard_Real[2*Degree];
-  Standard_Real *poles = new Standard_Real[(2*Degree+1)*Dimension];
-  
+  NCollection_Array1<Standard_Real> knots (0, 2 * Degree);
+  NCollection_Array1<Standard_Real> poles (0, (2 * Degree + 1) * Dimension);
+
   //----------------------------
   // loop on the knots to insert
   //----------------------------
@@ -2016,7 +2016,7 @@ void BSplCLib::InsertKnots
     }
     if (depth <= 0) continue;
     
-    BuildKnots(Degree,curnk,Periodic,nknots,&nmults,*knots);
+    BuildKnots(Degree,curnk,Periodic,nknots,&nmults,knots.ChangeFirst());
 
     // copy the poles
 
@@ -2032,8 +2032,8 @@ void BSplCLib::InsertKnots
     // slice the poles to the current number of poles in case of periodic
     TColStd_Array1OfReal npoles(NewPoles(NewPoles.Lower()),NewPoles.Lower(),curnp-1);
 
-    BuildBoor(index,length,Dimension,npoles,*poles);
-    BoorScheme(u,Degree,*knots,Dimension,*poles,depth,length);
+    BuildBoor(index,length,Dimension,npoles,poles.ChangeFirst());
+    BoorScheme(u,Degree,knots.ChangeFirst(),Dimension,poles.ChangeFirst(),depth,length);
     
     //-------------------
     // copy the new poles
@@ -2044,7 +2044,7 @@ void BSplCLib::InsertKnots
     np = NewKnots.Lower()+(index+1)*Dimension;
 
     for (i = 1; i <= length + depth; i++)
-      GetPole(i,length,depth,Dimension,*poles,np,ThePoles);
+      GetPole(i,length,depth,Dimension,poles.ChangeFirst(),np,ThePoles);
     
     //-------------------
     // insert the knot
@@ -2088,12 +2088,12 @@ void BSplCLib::InsertKnots
       length = Degree - NewMults(curnk);
       depth  = firstmult;
 
-      BuildKnots(Degree,curnk,Periodic,NewKnots,&NewMults,*knots);
+      BuildKnots(Degree,curnk,Periodic,NewKnots,&NewMults,knots.ChangeFirst());
       TColStd_Array1OfReal npoles(NewPoles(NewPoles.Lower()),
 				  NewPoles.Lower(),
 				  NewPoles.Upper()-depth*Dimension);
-      BuildBoor(0,length,Dimension,npoles,*poles);
-      BoorScheme(NewKnots(curnk),Degree,*knots,Dimension,*poles,depth,length);
+      BuildBoor(0,length,Dimension,npoles,poles.ChangeFirst());
+      BoorScheme(NewKnots(curnk),Degree,knots.ChangeFirst(),Dimension,poles.ChangeFirst(),depth,length);
       
       //---------------------------
       // copy the new poles
@@ -2103,20 +2103,17 @@ void BSplCLib::InsertKnots
       np = NewPoles.Lower();
 
       for (i = depth; i < length + depth; i++)
-	GetPole(i,length,depth,Dimension,*poles,np,NewPoles);
+	GetPole(i,length,depth,Dimension,poles.ChangeFirst(),np,NewPoles);
 
       np = NewPoles.Upper() - depth*Dimension + 1;
 
       for (i = 0; i < depth; i++)
-	GetPole(i,length,depth,Dimension,*poles,np,NewPoles);
+	GetPole(i,length,depth,Dimension,poles.ChangeFirst(),np,NewPoles);
       
       NewMults(NewMults.Lower()) += depth;
       NewMults(NewMults.Upper()) += depth;
     }
   }
-  // free local arrays
-  delete [] knots;
-  delete [] poles;
 }
 
 //=======================================================================
@@ -2164,9 +2161,8 @@ Standard_Boolean BSplCLib::RemoveKnot
   // create local arrays
   // -------------------
 
-  Standard_Real *knots = new Standard_Real[4*Degree];
-  Standard_Real *poles = new Standard_Real[(2*Degree+1)*Dimension];
-  
+  NCollection_Array1<Standard_Real> knots (0, 4 * Degree);
+  NCollection_Array1<Standard_Real> poles (0, (2 * Degree + 1) * Dimension);
 
   // ------------------------------------
   // build the knots for anti Boor Scheme
@@ -2175,7 +2171,7 @@ Standard_Boolean BSplCLib::RemoveKnot
   // the new sequence of knots
   // is obtained from the knots at Index-1 and Index
   
-  BSplCLib::BuildKnots(Degree,TheIndex-1,Periodic,Knots,&Mults,*knots);
+  BSplCLib::BuildKnots(Degree,TheIndex-1,Periodic,Knots,&Mults,knots.ChangeFirst());
   index = PoleIndex(Degree,TheIndex-1,Periodic,Mults);
   BSplCLib::BuildKnots(Degree,TheIndex,Periodic,Knots,&Mults,knots[2*Degree]);
 
@@ -2209,8 +2205,8 @@ Standard_Boolean BSplCLib::RemoveKnot
   // Anti Boor Scheme
   // ----------------
 
-  Standard_Boolean result = AntiBoorScheme(Knots(TheIndex),Degree,*knots,
-					   Dimension,*poles,
+  Standard_Boolean result = AntiBoorScheme(Knots(TheIndex),Degree,knots.ChangeFirst(),
+					   Dimension, poles.ChangeFirst(),
 					   depth,length,Tolerance);
   
   // ----------------
@@ -2231,7 +2227,7 @@ Standard_Boolean BSplCLib::RemoveKnot
     // modified
 
     for (i = 1; i <= length; i++)
-      BSplCLib::GetPole(i,length,0,Dimension,*poles,np,NewPoles);
+      BSplCLib::GetPole(i,length,0,Dimension,poles.ChangeFirst(),np,NewPoles);
     p += (length + depth) * Dimension ;
     
     // unmodified poles after
@@ -2277,12 +2273,6 @@ Standard_Boolean BSplCLib::RemoveKnot
       }
     }
   }
-
-
-  // free local arrays
-  delete [] knots;
-  delete [] poles;
-  
   return result;
 }
 

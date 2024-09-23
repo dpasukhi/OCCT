@@ -99,11 +99,10 @@ void Bisector_Inter::Perform(const Bisector_Bisec&  C1,
 {
   Handle(Bisector_Curve)    Bis1  = Handle(Bisector_Curve)::DownCast( C1.Value()->BasisCurve()); 
   Handle(Bisector_Curve)    Bis2  = Handle(Bisector_Curve)::DownCast( C2.Value()->BasisCurve());
-
-  Handle(Geom2d_Curve)*  SBis1 = new Handle(Geom2d_Curve) [Bis1->NbIntervals()+1];
-  Handle(Geom2d_Curve)*  SBis2 = new Handle(Geom2d_Curve) [Bis2->NbIntervals()+1];
-  IntRes2d_Domain*       SD1   = new IntRes2d_Domain [Bis1->NbIntervals()+1];
-  IntRes2d_Domain*       SD2   = new IntRes2d_Domain [Bis2->NbIntervals()+1];
+  NCollection_Array1<Handle(Geom2d_Curve)>  anArrayOfCurveBis1 (1,Bis1->NbIntervals()+1);
+  NCollection_Array1<Handle(Geom2d_Curve)>  anArrayOfCurveBis2 (1,Bis2->NbIntervals()+1);
+  NCollection_Array1<IntRes2d_Domain>       anArrayOfDomainBis1  (1,Bis1->NbIntervals()+1);
+  NCollection_Array1<IntRes2d_Domain>       anArrayOfDomainBis2  (1,Bis2->NbIntervals()+1);
 
   Standard_Integer NB1 = 0; Standard_Integer NB2 = 0;
   Standard_Real    MinDomain,MaxDomain;
@@ -133,7 +132,7 @@ void Bisector_Inter::Perform(const Bisector_Bisec&  C1,
       UMax = Min (UMax,MaxDomain);
       PMin = Bis1->Value(UMin);
       PMax = Bis1->Value(UMax);
-      SD1 [IB1].SetValues(PMin,UMin,D1.FirstTolerance(),
+      anArrayOfDomainBis1 [IB1].SetValues(PMin,UMin,D1.FirstTolerance(),
 			  PMax,UMax,D1.LastTolerance());
 
       if ((IB1 == 1                   && Bis1->IsExtendAtStart()) || 
@@ -141,10 +140,10 @@ void Bisector_Inter::Perform(const Bisector_Bisec&  C1,
 	//--------------------------------------------------------
 	// Part corresponding to an extension is a segment.	
 	//--------------------------------------------------------
-	SBis1 [IB1] = ConstructSegment (PMin,PMax,UMin,UMax);
+	anArrayOfCurveBis1 [IB1] = ConstructSegment (PMin,PMax,UMin,UMax);
       }
       else {
-	SBis1 [IB1] = Bis1;
+	anArrayOfCurveBis1 [IB1] = Bis1;
       }
       NB1++;
     }
@@ -173,7 +172,7 @@ void Bisector_Inter::Perform(const Bisector_Bisec&  C1,
       UMax = Min (UMax,MaxDomain);
       PMin = Bis2->Value(UMin);
       PMax = Bis2->Value(UMax);
-      SD2 [IB2].SetValues(PMin,UMin,D2.FirstTolerance(),
+      anArrayOfDomainBis2 [IB2].SetValues(PMin,UMin,D2.FirstTolerance(),
 			  PMax,UMax,D2.LastTolerance());
 
       if ((IB2 == 1                   && Bis2->IsExtendAtStart()) || 
@@ -181,10 +180,10 @@ void Bisector_Inter::Perform(const Bisector_Bisec&  C1,
           //--------------------------------------------------------
           // Part corresponding to an extension is a segment.	
           //--------------------------------------------------------
-        SBis2 [IB2] = ConstructSegment (PMin,PMax,UMin,UMax);
+        anArrayOfCurveBis2 [IB2] = ConstructSegment (PMin,PMax,UMin,UMax);
       }
       else {
-	      SBis2 [IB2] = Bis2;
+	      anArrayOfCurveBis2 [IB2] = Bis2;
       }
       NB2++;
     }
@@ -195,14 +194,10 @@ void Bisector_Inter::Perform(const Bisector_Bisec&  C1,
   //--------------------------------------------------------------
   for ( IB1 = 1; IB1 <= NB1; IB1++) {
     for ( IB2 = 1; IB2 <= NB2; IB2++) {
-      SinglePerform(SBis1[IB1],SD1[IB1],
-		    SBis2[IB2],SD2[IB2],TolConf,Tol,ComunElement);
+      SinglePerform(anArrayOfCurveBis1[IB1],anArrayOfDomainBis1[IB1],
+		    anArrayOfCurveBis2[IB2],anArrayOfDomainBis2[IB2],TolConf,Tol,ComunElement);
     }
   }
-  delete [] SBis1;
-  delete [] SBis2;
-  delete [] SD1;
-  delete [] SD2;
 }
 
 //===================================================================================

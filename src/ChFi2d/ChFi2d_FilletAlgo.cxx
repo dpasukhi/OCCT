@@ -32,6 +32,7 @@
 
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepAdaptor_Curve.hxx>
+#include <Standard_MemoryUtils.hxx>
 
 ChFi2d_FilletAlgo::ChFi2d_FilletAlgo()
 : myStart1(0.0),
@@ -279,15 +280,14 @@ void ChFi2d_FilletAlgo::FillPoint(FilletPoint* thePoint, const Standard_Real the
 void ChFi2d_FilletAlgo::FillDiff(FilletPoint* thePoint, Standard_Real theDiffStep, Standard_Boolean theFront) 
 {
   Standard_Real aDelta = theFront?(theDiffStep):(-theDiffStep);
-  FilletPoint* aDiff = new FilletPoint(thePoint->getParam() + aDelta);
-  FillPoint(aDiff, aDelta * 999.);
-  if (!thePoint->calculateDiff(aDiff)) 
+  auto          aDiff  = opencascade::make_unique<FilletPoint> (thePoint->getParam() + aDelta);
+  FillPoint (aDiff.get(), aDelta * 999.);
+  if (!thePoint->calculateDiff(aDiff.get())) 
   {
     aDiff->setParam(thePoint->getParam() - aDelta);
-    FillPoint(aDiff,  - aDelta * 999);
-    thePoint->calculateDiff(aDiff);
+    FillPoint(aDiff.get(),  - aDelta * 999);
+    thePoint->calculateDiff(aDiff.get());
   }
-  delete aDiff;
 }
 
 // returns true, if at least one result was found
@@ -326,28 +326,27 @@ Standard_Boolean ChFi2d_FilletAlgo::Perform(const Standard_Real theRadius)
   int aCycle;
   for(aCycle = 2, myStartSide = Standard_False; aCycle; myStartSide = !myStartSide, aCycle--) 
   {
-    FilletPoint *aLeft = NULL, *aRight;
+    std::unique_ptr<FilletPoint> aLeft;
+    std::unique_ptr<FilletPoint> aRight;
     
     for(aParam = myStart1 + aStep; aParam < myEnd1 || Abs(myEnd1 - aParam) < Precision::Confusion(); aParam += aStep) 
     {
       if (!aLeft) 
       {
-        aLeft = new FilletPoint(aParam - aStep);
-        FillPoint(aLeft, aParam);
-        FillDiff(aLeft, aDStep, Standard_True);
+        aLeft = opencascade::make_unique<FilletPoint> (aParam - aStep);
+        FillPoint (aLeft.get(), aParam);
+        FillDiff(aLeft.get(), aDStep, Standard_True);
       }
+
+      aRight = opencascade::make_unique<FilletPoint> (aParam);
+      FillPoint(aRight.get(), aParam - aStep);
+      FillDiff(aRight.get(), aDStep, Standard_False);
       
-      aRight = new FilletPoint(aParam);
-      FillPoint(aRight, aParam - aStep);
-      FillDiff(aRight, aDStep, Standard_False);
-      
-      aLeft->FilterPoints(aRight);
-      PerformNewton(aLeft, aRight);
-      
-      delete aLeft;
-      aLeft = aRight;
+      aLeft->FilterPoints(aRight.get());
+      PerformNewton(aLeft.get(), aRight.get());
+
+      aLeft.swap(aRight);
     }//for
-    delete aLeft;
   }//for
 
   return !myResultParams.IsEmpty();
@@ -382,9 +381,9 @@ Standard_Boolean ChFi2d_FilletAlgo::ProcessPoint(FilletPoint* theLeft, FilletPoi
         }
       }
     }
-
-    FilletPoint* aPoint1 = theLeft->Copy();
-    FilletPoint* aPoint2 = new FilletPoint(theParameter);
+    auto aPoint1 = opencascade::make_unique<FilletPoint> (theLeft->getParam());
+    theLeft->Copy (aPoint1.get());
+    auto aPoint2 = opencascade::make_unique<FilletPoint> (theParameter);
     FillPoint(aPoint2, aPoint1->getParam());
     FillDiff(aPoint2, diffx, Standard_True);
     
@@ -393,8 +392,6 @@ Standard_Boolean ChFi2d_FilletAlgo::ProcessPoint(FilletPoint* theLeft, FilletPoi
     aPoint2->FilterPoints(theRight);
     PerformNewton(aPoint2, theRight);
 
-    delete aPoint1;
-    delete aPoint2;
     return Standard_True;
   }
 
@@ -645,6 +642,20 @@ FilletPoint::FilletPoint(const Standard_Real theParam)
 {
 }
 
+//=======================================================================
+//function : Reset
+//purpose  : 
+//=======================================================================
+void FilletPoint::Reset (const Standard_Real theParam)
+{
+  myParam = theParam;
+  myParam2 = 0.0;
+  myV.Clear();
+  myD.Clear();
+  myValid.Clear();
+  myNear.Clear();
+}
+
 void FilletPoint::appendValue(Standard_Real theValue, Standard_Boolean theValid) 
 {
   Standard_Integer a;
@@ -807,17 +818,26 @@ void FilletPoint::FilterPoints(FilletPoint* thePoint)
   }//for a...
 }
 
+//=======================================================================
+//function : Copy
+//purpose  : 
+//=======================================================================
 FilletPoint* FilletPoint::Copy() 
 {
   FilletPoint* aCopy = new FilletPoint(myParam);
-  Standard_Integer a;
-  for(a = 1; a <= myV.Length(); a++) 
-  {
-    aCopy->myV.Append(myV.Value(a));
-    aCopy->myD.Append(myD.Value(a));
-    aCopy->myValid.Append(myValid.Value(a));
-  }
+  Copy(*aCopy);
   return aCopy;
+}
+
+//=======================================================================
+//function : Copy
+//purpose  : 
+//=======================================================================
+void FilletPoint::Copy (FilletPoint& thePoint)
+{
+  thePoint.myV.Assign(myV);
+  thePoint.myD.Assign(myD);
+  thePoint.myValid.Assign(myValid);
 }
 
 int FilletPoint::hasSolution(const Standard_Real theRadius) 
