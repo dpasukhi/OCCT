@@ -396,20 +396,17 @@ void  TopOpeBRep_FacesIntersector::PrepareLines()
     IntPatch_SequenceOfLine aSeqOfLines, aSeqOfResultLines;
 
     Standard_Integer i ;
-//    Standard_Integer nbl=0;
-    IntPatch_LineConstructor **Ptr = 
-      (IntPatch_LineConstructor **)malloc(n*sizeof(IntPatch_LineConstructor *));
     for( i=1;i<=n;i++) { 
-      Ptr[i-1]=new IntPatch_LineConstructor(2);
-      Ptr[i-1]->Perform(myIntersector.SequenceOfLine(),
+      IntPatch_LineConstructor aLineConstructor(2);
+      aLineConstructor.Perform(myIntersector.SequenceOfLine(),
 			myIntersector.Line(i),
 			mySurface1,myDomain1,
 			mySurface2,myDomain2,
 			myTol1);
       // modified by NIZHNY-MKK  Mon Apr  2 12:16:26 2001.BEGIN
       aSeqOfLines.Clear();
-      for(Standard_Integer k=1; k<=Ptr[i-1]->NbLines(); k++) {
-	aSeqOfLines.Append(Ptr[i-1]->Line(k));
+      for(Standard_Integer k=1; k<=aLineConstructor.NbLines(); k++) {
+	aSeqOfLines.Append(aLineConstructor.Line(k));
       }
 
       TestWLinesToAnArc(aSeqOfLines, mySurface1, myDomain1, mySurface2, myDomain2, myTol1);
@@ -417,9 +414,6 @@ void  TopOpeBRep_FacesIntersector::PrepareLines()
       for(Standard_Integer j=1; j<=aSeqOfLines.Length(); j++) {
 	aSeqOfResultLines.Append(aSeqOfLines.Value(j));
       }
-      delete Ptr[i-1];      
-      //       nbl+=Ptr[i-1]->NbLines();
-      // modified by NIZHNY-MKK  Mon Apr  2 12:16:31 2001.END
     }
 
     // modified by NIZHNY-MKK  Mon Apr  2 12:17:22 2001.BEGIN
@@ -440,21 +434,6 @@ void  TopOpeBRep_FacesIntersector::PrepareLines()
 	LI.Index(index);
       }
     }
-    
-    //     nbl=1;
-    //     for(i=1;i<=n;i++) { 
-    //       for(Standard_Integer k=1;k<=Ptr[i-1]->NbLines();k++) {
-    // 	TopOpeBRep_LineInter& LI = myHAL->ChangeValue(nbl);
-    // 	const Handle(IntPatch_Line)& L = Ptr[i-1]->Line(k);
-    // 	LI.SetLine(L,S1,S2);
-    // 	LI.Index(nbl);
-    // 	myLineNb++;
-    // 	nbl++;
-    //       }
-    //       delete Ptr[i-1];
-    //     }
-    // modified by NIZHNY-MKK  Mon Apr  2 12:17:57 2001.END
-    free(Ptr);
   }
 }
 
