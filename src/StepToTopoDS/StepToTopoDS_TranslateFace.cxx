@@ -444,7 +444,8 @@ static inline Standard_Boolean isReversed(const Handle(StepGeom_Surface)& theSte
     return !aStepTorSur.IsNull() && aStepTorSur->MajorRadius() < 0.;
   }
 }
-
+#include <StepGeom_ToroidalSurface.hxx>
+#include <TCollection_HAsciiString.hxx>
 // ============================================================================
 // Method  : Init
 // Purpose : Init with a FaceSurface and a Tool
@@ -468,8 +469,9 @@ void StepToTopoDS_TranslateFace::Init (const Handle (StepShape_FaceSurface)& the
 
   // ----------------------------------------------
   // Map the Face Geometry and create a TopoDS_Face
-  // ----------------------------------------------
+  // ----------------------------------------------StepGeom_Surface
   Handle (StepGeom_Surface) aStepGeomSurface = theFaceSurface->FaceGeometry();
+  std::shared_ptr<StepGeom_Surface> aSurface = std::make_shared<StepGeom_ToroidalSurface>();
   // sln 01.10.2001 BUC61003. If corresponding entity was read with error StepSurface may be NULL.
   // In this case we exit from function
   if (aStepGeomSurface.IsNull())

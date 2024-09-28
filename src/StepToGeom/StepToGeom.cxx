@@ -90,6 +90,7 @@
 #include <StepGeom_Curve.hxx>
 #include <StepGeom_CurveReplica.hxx>
 #include <StepGeom_CylindricalSurface.hxx>
+#include <StepGeom_DegenerateToroidalSurface.hxx>
 #include <StepGeom_ElementarySurface.hxx>
 #include <StepGeom_Ellipse.hxx>
 #include <StepGeom_Hyperbola.hxx>
@@ -1681,12 +1682,20 @@ Handle(Geom_Surface) StepToGeom::MakeSurface (const Handle(StepGeom_Surface)& SS
     if (SS->IsKind(STANDARD_TYPE(StepGeom_BoundedSurface))) {
       return MakeBoundedSurface (Handle(StepGeom_BoundedSurface)::DownCast(SS), theLocalFactors);
     }
-    if (SS->IsKind(STANDARD_TYPE(StepGeom_ElementarySurface))) {
-      const Handle(StepGeom_ElementarySurface) S1 = Handle(StepGeom_ElementarySurface)::DownCast(SS);
-      if(S1->Position().IsNull())
+    if (SS->IsKind(STANDARD_TYPE(StepGeom_ElementarySurface)))
+    {
+      const Handle(StepGeom_ElementarySurface) aS1 = Handle(StepGeom_ElementarySurface)::DownCast(
+        SS);
+      if (aS1->Position().IsNull())
+      {
         return Handle(Geom_Surface)();
-
-      return MakeElementarySurface (S1, theLocalFactors);
+      }
+      if (aS1->IsKind(STANDARD_TYPE(StepGeom_DegenerateToroidalSurface)))
+      {
+        return MakeDegeneratedToroidalSurface(Handle(StepGeom_DegenerateToroidalSurface)::DownCast(aS1),
+                                              theLocalFactors);
+      }
+      return MakeElementarySurface(aS1, theLocalFactors);
     }
     if (SS->IsKind(STANDARD_TYPE(StepGeom_SweptSurface))) {
       return MakeSweptSurface (Handle(StepGeom_SweptSurface)::DownCast(SS), theLocalFactors);
@@ -1845,6 +1854,35 @@ Handle(Geom_ToroidalSurface) StepToGeom::MakeToroidalSurface (const Handle(StepG
     return new Geom_ToroidalSurface(A->Ax2(), Abs(SS->MajorRadius() * LF), Abs(SS->MinorRadius() * LF));
   }
   return 0;
+}
+
+//=======================================================================
+//function : MakeDegeneratedToroidalSurface
+//purpose  :
+//=======================================================================
+Handle(Geom_Surface) StepToGeom::MakeDegeneratedToroidalSurface(
+  const Handle(StepGeom_DegenerateToroidalSurface)& SS,
+  const StepData_Factors&                           theLocalFactors)
+{
+  Handle(Geom_ToroidalSurface) aTorus = MakeToroidalSurface(SS, theLocalFactors);
+  if (aTorus.IsNull())
+  {
+    return aTorus;
+  }
+  // Parametric limits for the rectangular trimming
+  const Standard_Real anUMin = 0.0;
+  const Standard_Real anUMax = 2 * M_PI;
+
+  // Adjusting the V limits for the outer (apple) surface
+  Standard_Real aVMax = 2 * M_PI / 3;
+  Standard_Real aVMin = -aVMax;
+  if (!SS->SelectOuter()) // Create the "lemon" surface
+  {
+    aVMax = 4 * M_PI / 3;
+    aVMin = 2 * M_PI / 3;
+  }
+  auto aRes = ShapeAlgo::AlgoContainer()->ConvertSurfaceToBSpline(aTorus, anUMin, anUMax, aVMin, aVMax);
+  return aRes;
 }
 
 //=======================================================================

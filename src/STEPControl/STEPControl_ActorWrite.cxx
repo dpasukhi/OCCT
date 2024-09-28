@@ -1004,17 +1004,7 @@ Handle(Transfer_Binder) STEPControl_ActorWrite::TransferShape
     {
       Standard_Real maxTol = aStepModel->InternalParameters.ReadMaxPrecisionVal;
 
-      aShape = XSAlgo::AlgoContainer()->ProcessShape(xShape, Tol, maxTol,
-        "write.step.resource.name",
-        "write.step.sequence", info,
-        aPS1.Next());
-      if (aPS1.UserBreak())
-        return Handle(Transfer_Binder)();
-    }
-
-    if (!isManifold) 
-    {
-      mergeInfoForNM(FP, info);
+      aShape = xShape;
     }
 
     // create a STEP entity corresponding to shape

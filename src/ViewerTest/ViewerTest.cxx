@@ -4959,6 +4959,14 @@ Standard_Boolean ViewerTest::ParseCorner (Standard_CString theArg,
   return Standard_True;
 }
 
+#include <BRepBuilderAPI_MakeFace.hxx>
+#include <Geom_ToroidalSurface.hxx>
+#include <Geom_RectangularTrimmedSurface.hxx>
+#include <V3d_View.hxx>
+#include <gp_Ax2.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Dir.hxx>
+
 //==============================================================================
 //function : VDisplay2
 //author   : ege
@@ -5256,8 +5264,44 @@ static int VDisplay2 (Draw_Interpretor& theDI,
     Handle(AIS_InteractiveObject) aShape;
     if (!GetMapOfAIS().Find2 (aName, aShape))
     {
-      // create the AIS_Shape from a name
-      TopoDS_Shape aDrawShape = DBRep::GetExisting (aName);
+// Define the parameters for the self-intersecting torus
+Standard_Real majorRadius = 0.26;
+Standard_Real minorRadius = 10.0;
+
+// Create the torus (self-intersecting)
+Handle(Geom_ToroidalSurface) aTorus = new Geom_ToroidalSurface(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), majorRadius, minorRadius);
+
+// Parametric limits
+const Standard_Real uMin = 0.0;
+const Standard_Real uMax = 2 * M_PI;
+
+  // Apple Surface (outer region, further expanded to cover more of the outer bulge)
+  const Standard_Real vMinApple = -2 * M_PI / 3;  // Further expand to cover more of the outer region
+  const Standard_Real vMaxApple = 2 * M_PI / 3;
+  Handle(Geom_RectangularTrimmedSurface) appleSurface = new Geom_RectangularTrimmedSurface(aTorus, uMin, uMax, vMinApple, vMaxApple);
+
+  // Lemon Surface (inner region, refined to avoid overlap)
+  const Standard_Real vMinLemon = 2 * M_PI / 3;   // Inner, self-intersecting area
+  const Standard_Real vMaxLemon = 4 * M_PI / 3;
+  Handle(Geom_RectangularTrimmedSurface) lemonSurface = new Geom_RectangularTrimmedSurface(aTorus, uMin, uMax, vMinLemon, vMaxLemon);
+
+
+// Create AIS_Shapes to display
+TopoDS_Shape appleShape = BRepBuilderAPI_MakeFace(appleSurface, Precision::Confusion()).Shape();
+TopoDS_Shape lemonShape = BRepBuilderAPI_MakeFace(lemonSurface, Precision::Confusion()).Shape();
+
+  // Create AIS_Shapes to display
+  TopoDS_Shape aDrawShape = lemonShape;
+  if (aName == "apple")
+  {
+    aDrawShape = appleShape;
+  }
+  else
+  {
+    aDrawShape = lemonShape;
+  }
+  //Handle(AIS_Shape) lemonShape = new AIS_Shape(BRepBuilderAPI_MakeFace(lemonSurface, Precision::Confusion()).Shape());
+  
       if (!aDrawShape.IsNull())
       {
         aShape = new AIS_Shape (aDrawShape);

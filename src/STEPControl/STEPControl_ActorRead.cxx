@@ -1554,13 +1554,6 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
     // Apply ShapeFix (on manifold shapes only. Non-manifold topology is processed separately: ssv; 13.11.2010)
     if (isManifold && aHasGeom) 
     {
-      Handle(Standard_Transient) info;
-      mappedShape = 
-        XSAlgo::AlgoContainer()->ProcessShape( mappedShape, myPrecision, myMaxTol,
-                                               "read.step.resource.name", 
-                                               "read.step.sequence", info,
-                                               aPS.Next());
-      XSAlgo::AlgoContainer()->MergeTransferInfo(TP, info, nbTPitems);
     }
   }
   found = !mappedShape.IsNull();
@@ -1727,15 +1720,7 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity
       TopoDS_Shape S = sb->Result();
 
       Handle(Standard_Transient) info;
-      TopoDS_Shape shape = XSAlgo::AlgoContainer()->ProcessShape(S, myPrecision, myMaxTol,
-        "read.step.resource.name",
-        "read.step.sequence", info,
-        theProgress);
-      //      TopoDS_Shape shape = XSAlgo::AlgoContainer()->PerformFixShape( S, TP, myPrecision, myMaxTol );
-      if (shape != S)
-        sb->SetResult(shape);
-
-      XSAlgo::AlgoContainer()->MergeTransferInfo(TP, info, nbTPitems);
+      TopoDS_Shape shape = S;
     }
 
 

@@ -83,6 +83,7 @@ class StepGeom_Conic;
 class StepGeom_ConicalSurface;
 class StepGeom_Curve;
 class StepGeom_CylindricalSurface;
+class StepGeom_DegenerateToroidalSurface;
 class StepGeom_ElementarySurface;
 class StepGeom_Ellipse;
 class StepGeom_Hyperbola;
@@ -193,6 +194,8 @@ public:
                                                                      const StepData_Factors& theLocalFactors = StepData_Factors());
   Standard_EXPORT static Handle(Geom_ToroidalSurface) MakeToroidalSurface (const Handle(StepGeom_ToroidalSurface)& SS,
                                                                            const StepData_Factors& theLocalFactors = StepData_Factors());
+  Standard_EXPORT static Handle(Geom_Surface) MakeDegeneratedToroidalSurface (const Handle(StepGeom_DegenerateToroidalSurface)& SS,
+                                                                              const StepData_Factors& theLocalFactors = StepData_Factors());
   Standard_EXPORT static Standard_Boolean MakeTransformation2d (const Handle(StepGeom_CartesianTransformationOperator2d)& SCTO, gp_Trsf2d& CT,
                                                                 const StepData_Factors& theLocalFactors = StepData_Factors());
   Standard_EXPORT static Standard_Boolean MakeTransformation3d (const Handle(StepGeom_CartesianTransformationOperator3d)& SCTO, gp_Trsf& CT,
