@@ -238,7 +238,7 @@ macro (COLLECT_AND_INSTALL_OCCT_HEADER_FILES ROOT_TARGET_OCCT_DIR OCCT_BUILD_TOO
 
   foreach (OCCT_USED_TOOLKIT ${OCCT_BUILD_TOOLKITS})
     # append all required package folders
-    set (OCCT_TOOLKIT_PACKAGES)
+    set (OCCT_TOOLKIT_PACKAGES "")
     if (BUILD_PATCH AND EXISTS "${BUILD_PATCH}/src/${OCCT_USED_TOOLKIT}/PACKAGES")
       file (STRINGS "${BUILD_PATCH}/src/${OCCT_USED_TOOLKIT}/PACKAGES" OCCT_TOOLKIT_PACKAGES)
     elseif (EXISTS "${OCCT_COLLECT_SOURCE_DIR}/${OCCT_USED_TOOLKIT}/PACKAGES")
@@ -246,6 +246,7 @@ macro (COLLECT_AND_INSTALL_OCCT_HEADER_FILES ROOT_TARGET_OCCT_DIR OCCT_BUILD_TOO
     endif()
 
     list (APPEND OCCT_USED_PACKAGES ${OCCT_TOOLKIT_PACKAGES})
+    set_property(GLOBAL PROPERTY OCCT_TOOLKIT_${OCCT_USED_TOOLKIT}_PACKAGES "${OCCT_TOOLKIT_PACKAGES}")
   endforeach()
 
   list (REMOVE_DUPLICATES OCCT_USED_PACKAGES)
@@ -266,13 +267,14 @@ macro (COLLECT_AND_INSTALL_OCCT_HEADER_FILES ROOT_TARGET_OCCT_DIR OCCT_BUILD_TOO
       message (WARNING "FILES has not been found in ${OCCT_COLLECT_SOURCE_DIR}/${OCCT_PACKAGE}")
       continue()
     endif()
-
     list (LENGTH OCCT_ALL_FILE_NAMES ALL_FILES_NB)
     math (EXPR ALL_FILES_NB "${ALL_FILES_NB} - 1" )
 
     # emit warnings if there are unprocessed headers
     file (GLOB OCCT_ALL_FILES_IN_DIR "${OCCT_COLLECT_SOURCE_DIR}/${OCCT_PACKAGE}/*.*")
-    file (GLOB OCCT_ALL_FILES_IN_PATCH_DIR "${BUILD_PATCH}/src/${OCCT_PACKAGE}/*.*")
+    if (BUILD_PATCH AND EXISTS "${BUILD_PATCH}/src/${OCCT_PACKAGE}")
+      file (GLOB OCCT_ALL_FILES_IN_PATCH_DIR "${BUILD_PATCH}/src/${OCCT_PACKAGE}/*.*")
+    endif()
 
     # use patched header files
     foreach (OCCT_FILE_IN_PATCH_DIR ${OCCT_ALL_FILES_IN_PATCH_DIR})
@@ -326,52 +328,34 @@ macro (COLLECT_AND_INSTALL_OCCT_HEADER_FILES ROOT_TARGET_OCCT_DIR OCCT_BUILD_TOO
         endif()
       endif()
     endforeach()
-  endforeach()
-  
-  # create new file including found header
-  string(TIMESTAMP CURRENT_TIME "%H:%M:%S")
-  message (STATUS "Info: \(${CURRENT_TIME}\) Create header-links in inc folder...")
-
-  foreach (OCCT_HEADER_FILE ${OCCT_HEADER_FILES_COMPLETE})
-    get_filename_component (HEADER_FILE_NAME ${OCCT_HEADER_FILE} NAME)
-    set (OCCT_HEADER_FILE_CONTENT "#include \"${OCCT_HEADER_FILE}\"")
-    configure_file ("${TEMPLATE_HEADER_PATH}" "${ROOT_TARGET_OCCT_DIR}/${OCCT_INSTALL_DIR_PREFIX}/${HEADER_FILE_NAME}" @ONLY)
-  endforeach()
-  
-  install (FILES ${OCCT_HEADER_FILES_COMPLETE} DESTINATION "${INSTALL_DIR}/${OCCT_INSTALL_DIR_PREFIX}")
-  
-  string(TIMESTAMP CURRENT_TIME "%H:%M:%S")
-  message (STATUS "Info: \(${CURRENT_TIME}\) Checking headers in inc folder...")
-    
-  file (GLOB OCCT_HEADER_FILES_OLD "${ROOT_TARGET_OCCT_DIR}/${OCCT_INSTALL_DIR_PREFIX}/*")
-  foreach (OCCT_HEADER_FILE_OLD ${OCCT_HEADER_FILES_OLD})
-    get_filename_component (HEADER_FILE_NAME ${OCCT_HEADER_FILE_OLD} NAME)
-    string (REGEX MATCH "^[a-zA-Z0-9]+" PACKAGE_NAME "${HEADER_FILE_NAME}")
-    
-    list (FIND OCCT_USED_PACKAGES ${PACKAGE_NAME} IS_HEADER_FOUND)
-    if (NOT ${IS_HEADER_FOUND} EQUAL -1)
-      if (NOT EXISTS "${OCCT_COLLECT_SOURCE_DIR}/${PACKAGE_NAME}/${HEADER_FILE_NAME}")
-        message (STATUS "Warning. ${OCCT_HEADER_FILE_OLD} is not present in the sources and will be removed from ${ROOT_TARGET_OCCT_DIR}/inc")
-        file (REMOVE "${OCCT_HEADER_FILE_OLD}")
-      else()
-        list (FIND OCCT_HEADER_FILE_NAMES_NOT_IN_FILES ${PACKAGE_NAME} IS_HEADER_FOUND)
-        if (NOT ${IS_HEADER_FOUND} EQUAL -1)
-          message (STATUS "Warning. ${OCCT_HEADER_FILE_OLD} is present in the sources but not involved in FILES and will be removed from ${ROOT_TARGET_OCCT_DIR}/inc")
-          file (REMOVE "${OCCT_HEADER_FILE_OLD}")
-        endif()
-      endif()
-    else()
-      set (IS_HEADER_FOUND -1)
-      if (NOT "${OCCT_HEADER_FILE_WITH_PROPER_NAMES}" STREQUAL "")
-        list (FIND OCCT_HEADER_FILE_WITH_PROPER_NAMES ${HEADER_FILE_NAME} IS_HEADER_FOUND)
-      endif()
-      
-      if (${IS_HEADER_FOUND} EQUAL -1)
-        message (STATUS "Warning. \(${PACKAGE_NAME}\) ${OCCT_HEADER_FILE_OLD} is not used and will be removed from ${ROOT_TARGET_OCCT_DIR}/inc")
-        file (REMOVE "${OCCT_HEADER_FILE_OLD}")
-      endif()
+    # Getting the include directories for each package
+    set (OCCT_PACKAGE_${OCCT_PACKAGE}_INCLUDE_DIR "${OCCT_COLLECT_SOURCE_DIR}/${OCCT_PACKAGE}")
+    if (BUILD_PATCH AND EXISTS "${BUILD_PATCH}/src/${OCCT_PACKAGE}")
+      list (APPEND OCCT_PACKAGE_${OCCT_PACKAGE}_INCLUDE_DIR "${BUILD_PATCH}/src/${OCCT_PACKAGE}")
     endif()
+
+    set_property(GLOBAL PROPERTY OCCT_PACKAGE_${OCCT_PACKAGE}_INCLUDE_DIR "${OCCT_PACKAGE_${OCCT_PACKAGE}_INCLUDE_DIR}")
   endforeach()
+
+  foreach (OCCT_USED_TOOLKIT ${OCCT_BUILD_TOOLKITS})
+    get_property(TK_PACKAGES GLOBAL PROPERTY OCCT_TOOLKIT_${OCCT_USED_TOOLKIT}_PACKAGES)
+    if (NOT TK_PACKAGES)
+      continue()
+    endif()
+    set (TK_INCLUDE_DIR "")
+    foreach(OCCT_TOOLKIT_PACKAGE ${TK_PACKAGES})
+      get_property(OCCT_PACKAGE_INCLUDE_DIR GLOBAL PROPERTY OCCT_PACKAGE_${OCCT_TOOLKIT_PACKAGE}_INCLUDE_DIR)
+      if (NOT OCCT_PACKAGE_INCLUDE_DIR)
+        continue()
+      endif()
+      foreach(OCCT_INCLUDE_DIR ${OCCT_PACKAGE_INCLUDE_DIR})
+        list (APPEND TK_INCLUDE_DIR ${OCCT_INCLUDE_DIR})
+      endforeach()
+    endforeach()
+    set_property(GLOBAL PROPERTY OCCT_TOOLKIT_${OCCT_USED_TOOLKIT}_INCLUDE_DIRS "${TK_INCLUDE_DIR}")
+  endforeach()
+
+  install (FILES ${OCCT_HEADER_FILES_COMPLETE} DESTINATION "${INSTALL_DIR}/${OCCT_INSTALL_DIR_PREFIX}")
 endmacro()
 
 macro (OCCT_COPY_FILE_OR_DIR BEING_COPIED_OBJECT DESTINATION_PATH)
