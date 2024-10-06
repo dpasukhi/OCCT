@@ -47,7 +47,6 @@ endif()
 # Get all used packages from toolkit
 UNSET(RESOURCE_FILES)
 foreach (OCCT_PACKAGE ${USED_PACKAGES})
-
   #remove part after "/" in the OCCT_PACKAGE variable if exists
   string (FIND "${OCCT_PACKAGE}" "/" _index)
   if (_index GREATER -1)
@@ -63,94 +62,6 @@ foreach (OCCT_PACKAGE ${USED_PACKAGES})
 
   set (SOURCE_FILES)
   set (HEADER_FILES)
-
-  # Generate Flex and Bison files
-  if (${BUILD_YACCLEX})
-    # flex files
-    OCCT_ORIGIN_AND_PATCHED_FILES ("${RELATIVE_SOURCES_DIR}/${OCCT_PACKAGE}" "*[.]lex" SOURCE_FILES_FLEX)
-    list (LENGTH SOURCE_FILES_FLEX SOURCE_FILES_FLEX_LEN)
-
-    # remove old general version of FlexLexer
-    if (EXISTS ${CMAKE_SOURCE_DIR}/${RELATIVE_SOURCES_DIR}/FlexLexer/FlexLexer.h)
-      message (STATUS "Info: remove old FLEX header file: ${CMAKE_SOURCE_DIR}/${RELATIVE_SOURCES_DIR}/FlexLexer/FlexLexer.h")
-      file(REMOVE ${CMAKE_SOURCE_DIR}/${RELATIVE_SOURCES_DIR}/FlexLexer/FlexLexer.h)
-    endif()
-    # install copy of FlexLexer.h locally to allow further building without flex
-    if (FLEX_INCLUDE_DIR AND EXISTS "${FLEX_INCLUDE_DIR}/FlexLexer.h")
-      configure_file("${FLEX_INCLUDE_DIR}/FlexLexer.h" "${CMAKE_SOURCE_DIR}/${RELATIVE_SOURCES_DIR}/FlexLexer/FlexLexer.h" @ONLY NEWLINE_STYLE LF)
-    endif()
-
-    # bison files
-    OCCT_ORIGIN_AND_PATCHED_FILES ("${RELATIVE_SOURCES_DIR}/${OCCT_PACKAGE}" "*[.]yacc" SOURCE_FILES_BISON)
-    list (LENGTH SOURCE_FILES_BISON SOURCE_FILES_BISON_LEN)
-
-    if (${SOURCE_FILES_FLEX_LEN} EQUAL ${SOURCE_FILES_BISON_LEN} AND NOT ${SOURCE_FILES_FLEX_LEN} EQUAL 0)
-      
-      list (SORT SOURCE_FILES_FLEX)
-      list (SORT SOURCE_FILES_BISON)
-
-      math (EXPR SOURCE_FILES_FLEX_LEN "${SOURCE_FILES_FLEX_LEN} - 1")
-      foreach (FLEX_FILE_INDEX RANGE ${SOURCE_FILES_FLEX_LEN})
-
-        list (GET SOURCE_FILES_FLEX ${FLEX_FILE_INDEX} CURRENT_FLEX_FILE)
-        get_filename_component (CURRENT_FLEX_FILE_NAME ${CURRENT_FLEX_FILE} NAME_WE)
-
-        list (GET SOURCE_FILES_BISON ${FLEX_FILE_INDEX} CURRENT_BISON_FILE)
-        get_filename_component (CURRENT_BISON_FILE_NAME ${CURRENT_BISON_FILE} NAME_WE)
-          
-        string (COMPARE EQUAL ${CURRENT_FLEX_FILE_NAME} ${CURRENT_BISON_FILE_NAME} ARE_FILES_EQUAL)
-
-        if (EXISTS "${CURRENT_FLEX_FILE}" AND EXISTS "${CURRENT_BISON_FILE}" AND ${ARE_FILES_EQUAL})
-
-          # Note: files are generated in original source directory (not in patch!)
-          set (FLEX_BISON_TARGET_DIR "${CMAKE_SOURCE_DIR}/${RELATIVE_SOURCES_DIR}/${OCCT_PACKAGE}")
-
-          # choose appropriate extension for generated files: "cxx" if source file contains
-          # instruction to generate C++ code, "c" otherwise
-          set (BISON_OUTPUT_FILE_EXT "c")
-          set (FLEX_OUTPUT_FILE_EXT "c")
-          file (STRINGS "${CURRENT_BISON_FILE}" FILE_BISON_CONTENT)
-          foreach (FILE_BISON_CONTENT_LINE ${FILE_BISON_CONTENT})
-            string (REGEX MATCH "%language \"C\\+\\+\"" CXX_BISON_LANGUAGE_FOUND ${FILE_BISON_CONTENT_LINE})
-            if (CXX_BISON_LANGUAGE_FOUND)
-              set (BISON_OUTPUT_FILE_EXT "cxx")
-            endif()
-          endforeach()
-
-          file (STRINGS "${CURRENT_FLEX_FILE}" FILE_FLEX_CONTENT)
-          foreach (FILE_FLEX_CONTENT_LINE ${FILE_FLEX_CONTENT})
-            string (REGEX MATCH "%option c\\+\\+" CXX_FLEX_LANGUAGE_FOUND ${FILE_FLEX_CONTENT_LINE})
-            if (CXX_FLEX_LANGUAGE_FOUND)
-              set (FLEX_OUTPUT_FILE_EXT "cxx")
-            endif()
-          endforeach()
-          set (BISON_OUTPUT_FILE ${CURRENT_BISON_FILE_NAME}.tab.${BISON_OUTPUT_FILE_EXT})
-          set (FLEX_OUTPUT_FILE lex.${CURRENT_FLEX_FILE_NAME}.${FLEX_OUTPUT_FILE_EXT})
-
-          if (EXISTS ${FLEX_BISON_TARGET_DIR}/${CURRENT_BISON_FILE_NAME}.tab.${BISON_OUTPUT_FILE_EXT})
-            message (STATUS "Info: remove old output BISON file: ${FLEX_BISON_TARGET_DIR}/${CURRENT_BISON_FILE_NAME}.tab.${BISON_OUTPUT_FILE_EXT}")
-            file(REMOVE ${FLEX_BISON_TARGET_DIR}/${CURRENT_BISON_FILE_NAME}.tab.${BISON_OUTPUT_FILE_EXT})
-          endif()
-          if (EXISTS ${FLEX_BISON_TARGET_DIR}/${CURRENT_BISON_FILE_NAME}.tab.hxx)
-            message (STATUS "Info: remove old output BISON file: ${FLEX_BISON_TARGET_DIR}/${CURRENT_BISON_FILE_NAME}.tab.hxx")
-            file(REMOVE ${FLEX_BISON_TARGET_DIR}/${CURRENT_BISON_FILE_NAME}.tab.hxx)
-          endif()
-          if (EXISTS ${FLEX_BISON_TARGET_DIR}/${FLEX_OUTPUT_FILE})
-            message (STATUS "Info: remove old output FLEX file: ${FLEX_BISON_TARGET_DIR}/${FLEX_OUTPUT_FILE}")
-            file(REMOVE ${FLEX_BISON_TARGET_DIR}/${FLEX_OUTPUT_FILE})
-          endif()
-
-          BISON_TARGET (Parser_${CURRENT_BISON_FILE_NAME} ${CURRENT_BISON_FILE} "${FLEX_BISON_TARGET_DIR}/${BISON_OUTPUT_FILE}"
-                        COMPILE_FLAGS "-p ${CURRENT_BISON_FILE_NAME} -l -M ${CMAKE_SOURCE_DIR}/${RELATIVE_SOURCES_DIR}/=")
-          FLEX_TARGET  (Scanner_${CURRENT_FLEX_FILE_NAME} ${CURRENT_FLEX_FILE} "${FLEX_BISON_TARGET_DIR}/${FLEX_OUTPUT_FILE}"
-                        COMPILE_FLAGS "-P${CURRENT_FLEX_FILE_NAME} -L")
-          ADD_FLEX_BISON_DEPENDENCY (Scanner_${CURRENT_FLEX_FILE_NAME} Parser_${CURRENT_BISON_FILE_NAME})
-           
-          list (APPEND SOURCE_FILES ${BISON_OUTPUT_FILE} ${FLEX_OUTPUT_FILE})
-        endif()
-      endforeach()
-    endif()
-  endif()
 
   EXTRACT_PACKAGE_FILES (${RELATIVE_SOURCES_DIR} ${OCCT_PACKAGE} ALL_FILES INCLUDE_FOLDER)
 
