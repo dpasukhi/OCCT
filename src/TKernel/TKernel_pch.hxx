@@ -4,8 +4,14 @@
 // Standard library headers
 #include <type_traits>
 
-// TKernel headers
+// Windows-specific headers (for MSVC)
+#ifdef _WIN32
+#define NOMINMAX
+#include <windows.h>        // For Windows API functions like WideCharToMultiByte
+#include <tchar.h>          // For Unicode/MBCS mappings
+#endif
 
+// TKernel headers
 #include <Standard.hxx>
 #include <Standard_Type.hxx>
 #include <Standard_DefineHandle.hxx>
