@@ -6,14 +6,14 @@
 
 // Windows-specific headers (for MSVC)
 #ifdef _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
 #ifndef NOMINMAX
 #define NOMINMAX
 #endif
 #include <windows.h>        // For Windows API functions like WideCharToMultiByte
 #include <tchar.h>          // For Unicode/MBCS mappings
+#ifdef GetObject
+#undef GetObject
+#endif
 #endif
 
 // TKernel headers
