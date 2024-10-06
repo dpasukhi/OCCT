@@ -6,7 +6,9 @@
 
 // Windows-specific headers (for MSVC)
 #ifdef _WIN32
+ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>        // For Windows API functions like WideCharToMultiByte
 #include <tchar.h>          // For Unicode/MBCS mappings
 #endif
