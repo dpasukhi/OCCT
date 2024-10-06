@@ -12,3 +12,6 @@ elseif ("${USE_MMGR_TYPE}" STREQUAL "JEMALLOC")
 else ()
   message (STATUS "Info: Used native memory manager")
 endif()
+
+# Add the precompiled header
+add_precompiled_header(TKernel "${CMAKE_CURRENT_SOURCE_DIR}/TKernel_pch.hxx")

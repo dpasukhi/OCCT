@@ -335,11 +335,6 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   endif()
 endif()
 
-# use pch to accelerate build via usage of precompiled headers
-if (BUILD_USE_PCH)
-
-endif()
-
 # Ensure the target directory exists
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${INSTALL_DIR_INCLUDE}")
 

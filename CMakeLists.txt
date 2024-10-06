@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.16 FATAL_ERROR)
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/adm/cmake")
 
@@ -145,11 +145,7 @@ endif()
 
 # option to enable or disable use of precompiled headers
 if (NOT DEFINED BUILD_USE_PCH)
-  set (BUILD_USE_PCH OFF CACHE BOOL "${BUILD_USE_PCH_DESCR}")
-endif()
-
-if (BUILD_USE_PCH)
-
+  set (BUILD_USE_PCH ON CACHE BOOL "${BUILD_USE_PCH_DESCR}")
 endif()
 
 # copy samples to install directory
