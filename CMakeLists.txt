@@ -879,6 +879,9 @@ if (3RDPARTY_INCLUDE_DIRS)
   include_directories (${3RDPARTY_INCLUDE_DIRS})
 endif()
 
+# include <cmake binary folder>/inc
+include_directories (${CMAKE_BINARY_DIR}/${INSTALL_DIR_INCLUDE})
+
 # check all 3rdparty library paths
 string (REGEX REPLACE ";" " " 3RDPARTY_NO_LIBS "${3RDPARTY_NO_LIBS}")
 if (3RDPARTY_NO_LIBS)
@@ -931,9 +934,6 @@ endif()
 
 string(TIMESTAMP CURRENT_TIME "%H:%M:%S")
 message (STATUS "\nInfo: \(${CURRENT_TIME}\) Start collecting all OCCT header files into ${CMAKE_BINARY_DIR}/inc ...")
-
-# collect all the headers to <binary dir>/inc folder
-COLLECT_AND_INSTALL_OCCT_HEADER_FILES ("${CMAKE_BINARY_DIR}" "${BUILD_TOOLKITS}" "${CMAKE_SOURCE_DIR}/src" "${INSTALL_DIR_INCLUDE}")
 
 string(TIMESTAMP CURRENT_TIME "%H:%M:%S")
 message (STATUS "Info: \(${CURRENT_TIME}\) End the collecting")
