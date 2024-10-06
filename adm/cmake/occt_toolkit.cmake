@@ -335,12 +335,4 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   endif()
 endif()
 
-# Ensure the target directory exists
-file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${INSTALL_DIR_INCLUDE}")
-
-# installing headers and creating symlink in the single include directory
-foreach(INC_FILE ${USED_INCFILES})
-  get_filename_component(INC_FILE_NAME ${INC_FILE} NAME)
-  file (CREATE_LINK "${INC_FILE}" "${CMAKE_BINARY_DIR}/${INSTALL_DIR_INCLUDE}/${INC_FILE_NAME}" SYMBOLIC)
-  install (FILES ${OCCT_INCLUDE_LIST} DESTINATION "${INSTALL_DIR}/${INSTALL_DIR_INCLUDE}")
-endforeach()
+PREPARE_OCCT_INCLUDE_FILE ("${USED_INCFILES}")

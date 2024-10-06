@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.16 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.5 FATAL_ERROR)
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/adm/cmake")
 
@@ -145,7 +145,15 @@ endif()
 
 # option to enable or disable use of precompiled headers
 if (NOT DEFINED BUILD_USE_PCH)
-  set (BUILD_USE_PCH ON CACHE BOOL "${BUILD_USE_PCH_DESCR}")
+  if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.16")
+    set (BUILD_USE_PCH ON CACHE BOOL "${BUILD_USE_PCH_DESCR}")
+  else()
+    set (BUILD_USE_PCH OFF CACHE BOOL "${BUILD_USE_PCH_DESCR}")
+  endif()
+endif()
+
+if (CMAKE_VERSION VERSION_LESS "3.16")
+  OCCT_CHECK_AND_UNSET (BUILD_USE_PCH)
 endif()
 
 # copy samples to install directory
@@ -858,6 +866,9 @@ if (3RDPARTY_INCLUDE_DIRS)
   message (STATUS "Info: The directories of 3rdparty headers: \n\t${3RDPARTY_INCLUDE_DIRS_WITH_ENDS}")
   include_directories (${3RDPARTY_INCLUDE_DIRS})
 endif()
+
+# Ensure the include directory exists
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${INSTALL_DIR_INCLUDE}")
 
 # include <cmake binary folder>/inc
 include_directories (${CMAKE_BINARY_DIR}/${INSTALL_DIR_INCLUDE})
