@@ -334,5 +334,3 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     message (STATUS "Warning: internal deprecation warnings by Standard_DEPRECATED have been disabled due to old gcc version being used")
   endif()
 endif()
-
-REGISTER_TOOLKIT_HEADERS (${PROJECT_NAME} "${USED_INCFILES}")
