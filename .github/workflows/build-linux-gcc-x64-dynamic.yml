@@ -22,7 +22,7 @@ jobs:
       uses: actions/checkout@v4.1.7
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y tcl-dev tk-dev cmake gcc g++ make libbtbb-dev libx11-dev libglu1-mesa-dev
+      run: sudo apt-get update && sudo apt-get install -y tcl-dev tk-dev cmake gcc g++ make libbtbb-dev libx11-dev libglu1-mesa-dev tcllib tcl-thread tcl
 
     - name: Configure OCCT
       run: |
@@ -37,8 +37,8 @@ jobs:
               -D USE_TK=OFF \
               -D USE_FREETYPE=OFF \
               -D CMAKE_BUILD_TYPE=Release \
-              -D CMAKE_C_FLAGS="-Werror -Wno-clobbered -Wno-maybe-uninitialized -Wno-odr -Wno-alloc-size-larger-than" \
-              -D CMAKE_CXX_FLAGS="-Werror -Wno-clobbered -Wno-maybe-uninitialized -Wno-odr -Wno-dangling-pointer" ..
+              -D CMAKE_C_FLAGS="  -Werror -Wno-clobbered -Wno-maybe-uninitialized -Wno-odr -Wno-dangling-pointer -Wno-alloc-size-larger-than" \
+              -D CMAKE_CXX_FLAGS="-Werror -Wno-clobbered -Wno-maybe-uninitialized -Wno-odr -Wno-dangling-pointer -Wno-alloc-size-larger-than" ..
 
     - name: Build OCCT
       run: |
@@ -51,12 +51,22 @@ jobs:
         wget https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_8_0/opencascade-dataset-7.8.0.tar.xz
         tar -xf opencascade-dataset-7.8.0.tar.xz
 
+    - name: Install Xvfb
+      run: sudo apt-get install -y xvfb
+
+    - name: Start Xvfb
+      run: Xvfb :99 -screen 0 1920x1080x24 &
+
+    - name: Set DISPLAY environment variable
+      run: echo "DISPLAY=:99" >> $GITHUB_ENV
+
     - name: Run tests
       run: |
          cd build
-         export DISPLAY=:0
          source env.sh
          DRAWEXE -v -c testgrid boolean volumemaker E1
+      env:
+        DISPLAY: :99
 
     - name: Upload test results
       uses: actions/upload-artifact@v4.4.3
