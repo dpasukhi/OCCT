@@ -65,7 +65,7 @@ jobs:
       run: |
          cd build
          source env.sh
-         DRAWEXE -v -c testgrid boolean volumemaker E1
+         DRAWEXE -v -c testgrid
       env:
         DISPLAY: :99
 

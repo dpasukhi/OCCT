@@ -57,7 +57,7 @@ jobs:
       run: |
          cd build
          source env.sh
-         DRAWEXE -v -c testgrid boolean volumemaker E1
+         DRAWEXE -v -c testgrid
 
     - name: Upload test results
       uses: actions/upload-artifact@v4.4.3
