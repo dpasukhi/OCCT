@@ -54,7 +54,7 @@ jobs:
     - name: Run tests
       run: |
          cd build
-         env.bat vc14 win64 release
+         ./env.bat vc14 win64 release
          DRAWEXE -v -c testgrid boolean volumemaker E1
 
     - name: Upload test results
