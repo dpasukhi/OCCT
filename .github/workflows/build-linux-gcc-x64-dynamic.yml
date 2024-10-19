@@ -16,6 +16,9 @@ jobs:
   build-linux-gcc:
     name: Build on Ubuntu with GCC
     runs-on: ubuntu-24.04
+    concurrency:
+      group: ${{ github.workflow }}-build-linux-gcc-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
 
     steps:
     - name: Checkout repository

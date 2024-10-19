@@ -16,6 +16,9 @@ jobs:
   build-linux-clang:
     name: Build on Ubuntu with Clang
     runs-on: ubuntu-24.04
+    concurrency:
+      group: ${{ github.workflow }}-build-linux-clang-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
 
     steps:
     - name: Checkout repository
