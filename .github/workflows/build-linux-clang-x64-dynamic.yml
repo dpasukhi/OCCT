@@ -15,7 +15,7 @@ on:
 jobs:
   build-linux-clang:
     name: Build on Ubuntu with Clang
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Checkout repository

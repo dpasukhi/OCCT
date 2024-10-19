@@ -16,7 +16,7 @@ on:
 jobs:
   build-windows-msvc:
     name: Build on Windows with MSVC
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - name: Checkout repository
@@ -36,7 +36,7 @@ jobs:
       run: |
           mkdir build
           cd build
-          cmake -T host=x64 -D USE_FREETYPE=OFF -D BUILD_USE_PCH=ON -D BUILD_OPT_PROFILE=Production -D BUILD_INCLUDE_SYMLINK=ON -D BUILD_MODULE_Draw=OFF -D CMAKE_BUILD_TYPE=Release -D ..
+          cmake -T host=x64 -D USE_FREETYPE=OFF -D BUILD_USE_PCH=ON -D BUILD_OPT_PROFILE=Production -D BUILD_INCLUDE_SYMLINK=ON -D BUILD_MODULE_Draw=OFF -D CMAKE_BUILD_TYPE=Release ..
   
     - name: Build OCCT
       run: |

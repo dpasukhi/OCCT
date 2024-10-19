@@ -14,7 +14,7 @@ on:
 jobs:
   build-macos-clang:
     name: Build on macOS with Clang
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
     - name: Checkout repository
