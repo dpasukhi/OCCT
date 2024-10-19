@@ -58,7 +58,8 @@ jobs:
       run: |
         cd build
         dir
-        env.bat vc14 win64 release && DRAWEXE.exe -v -c testgrid
+        call env.bat vc14 win64 release
+        DRAWEXE.exe -v -c testgrid
       shell: cmd
 
     - name: Upload test results
