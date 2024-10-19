@@ -13,19 +13,21 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <BinLDrivers_DocumentStorageDriver.hxx>
 
 #include <BinLDrivers.hxx>
-#include <BinLDrivers_DocumentStorageDriver.hxx>
 #include <BinLDrivers_Marker.hxx>
 #include <BinMDF_ADriverTable.hxx>
 #include <BinObjMgt_Persistent.hxx>
 #include <BinObjMgt_Position.hxx>
 #include <CDM_Application.hxx>
-#include <Message_Messenger.hxx>
 #include <FSD_BinaryFile.hxx>
 #include <FSD_FileHeader.hxx>
+#include <Message_Messenger.hxx>
+#include <Message_ProgressScope.hxx>
 #include <OSD_FileSystem.hxx>
 #include <PCDM_ReadWriter.hxx>
+#include <Standard_MemoryUtils.hxx>
 #include <Standard_Type.hxx>
 #include <Storage_Schema.hxx>
 #include <TCollection_AsciiString.hxx>
@@ -36,7 +38,6 @@
 #include <TDF_Label.hxx>
 #include <TDF_Tool.hxx>
 #include <TDocStd_Document.hxx>
-#include <Message_ProgressScope.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(BinLDrivers_DocumentStorageDriver,PCDM_StorageDriver)
 
@@ -125,12 +126,14 @@ void BinLDrivers_DocumentStorageDriver::Write (const Handle(CDM_Document)&  theD
       anIterS.ChangeValue().WriteTOC (theOStream, aDocVer);
 
     EnableQuickPartWriting (myMsgDriver, IsQuickPart (aDocVer));
-    BinLDrivers_DocumentSection* aShapesSection = 0;
+    
+    std::unique_ptr<BinLDrivers_DocumentSection> aShapesSection;
     Standard_Boolean aQuickPart = IsQuickPart (aDocVer);
     if (!aQuickPart)
     {
       // Shapes Section is the last one, it indicates the end of the table.
-      aShapesSection = new BinLDrivers_DocumentSection (SHAPESECTION_POS, Standard_False);
+      aShapesSection = opencascade::make_unique<BinLDrivers_DocumentSection> (SHAPESECTION_POS,
+                                                                              Standard_False);
       aShapesSection->WriteTOC (theOStream, aDocVer);
     }
     else
@@ -162,7 +165,7 @@ void BinLDrivers_DocumentStorageDriver::Write (const Handle(CDM_Document)&  theD
     if (!aQuickPart)
     {
       WriteShapeSection (*aShapesSection, theOStream, aDocVer, aPS.Next());
-      delete aShapesSection;
+      aShapesSection.reset();
     }
     else
       Clear();
