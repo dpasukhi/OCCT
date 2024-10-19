@@ -31,9 +31,11 @@ jobs:
         cmake -G "Unix Makefiles" \
               -D CMAKE_C_COMPILER=gcc \
               -D CMAKE_CXX_COMPILER=g++ \
-              -D USE_FREETYPE=OFF \
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
+              -D BUILD_OPT_PROFILE=Production \
+              -D USE_TK=OFF \
+              -D USE_FREETYPE=OFF \
               -D CMAKE_BUILD_TYPE=Release \
               -D CMAKE_C_FLAGS="-Werror -Wno-clobbered -Wmaybe-uninitialized -Wodr -Wno-alloc-size-larger-than" \
               -D CMAKE_CXX_FLAGS="-Werror -Wno-clobbered -Wno-dangling-pointer" ..
@@ -42,3 +44,24 @@ jobs:
       run: |
         cd build
         make -j$(nproc)
+
+    - name: Dowload test data
+      run: |
+        cd data
+        wget https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_8_0/opencascade-dataset-7.8.0.tar.xz
+        tar -xf opencascade-dataset-7.8.0.tar.xz
+
+    - name: Run tests
+      run: |
+         cd build
+         export DISPLAY=:0
+         source env.sh
+         DRAWEXE -b -c testgrid
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4.4.3
+      id: artifact-upload-step
+      with:
+        name: results
+        path: build/results
+        retention-days: 7

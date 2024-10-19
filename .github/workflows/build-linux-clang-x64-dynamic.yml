@@ -34,6 +34,7 @@ jobs:
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
               -D BUILD_OPT_PROFILE=Production \
+              -D USE_TK=OFF \
               -D USE_FREETYPE=OFF \
               -D CMAKE_BUILD_TYPE=Release ..
 
@@ -51,6 +52,7 @@ jobs:
     - name: Run tests
       run: |
          cd build
+         export DISPLAY=:0
          source env.sh
          DRAWEXE -b -c testgrid
 
