@@ -37,8 +37,8 @@ jobs:
               -D USE_TK=OFF \
               -D USE_FREETYPE=OFF \
               -D CMAKE_BUILD_TYPE=Release \
-              -D CMAKE_C_FLAGS="-Werror -Wno-clobbered -Wmaybe-uninitialized -Wodr -Wno-alloc-size-larger-than" \
-              -D CMAKE_CXX_FLAGS="-Werror -Wno-clobbered -Wno-dangling-pointer" ..
+              -D CMAKE_C_FLAGS="-Werror -Wno-clobbered -Wno-maybe-uninitialized -Wodr -Wno-alloc-size-larger-than" \
+              -D CMAKE_CXX_FLAGS="-Werror -Wno-clobbered -Wno-maybe-uninitialized -Wno-dangling-pointer" ..
 
     - name: Build OCCT
       run: |
