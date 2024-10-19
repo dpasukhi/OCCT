@@ -33,8 +33,10 @@ jobs:
     - name: Download and extract 3rdparty dependencies
       run: |
           Invoke-WebRequest -Uri https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_8_0/3rdparty-vc14-64.zip -OutFile 3rdparty-vc14-64.zip
-          Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath 3rdparty
+          Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
           Remove-Item 3rdparty-vc14-64.zip
+          ls
+          cd 3rdparty-vc14-64
           ls
       shell: pwsh
 
@@ -43,7 +45,7 @@ jobs:
       run: |
           mkdir build
           cd build
-          cmake -T host=x64 -D USE_FREETYPE=OFF -D USE_TK=OFF -D BUILD_USE_PCH=ON -D BUILD_OPT_PROFILE=Production -D BUILD_INCLUDE_SYMLINK=ON -D CMAKE_BUILD_TYPE=Release -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty ..
+          cmake -T host=x64 -D USE_FREETYPE=OFF -D USE_TK=OFF -D BUILD_USE_PCH=ON -D BUILD_OPT_PROFILE=Production -D BUILD_INCLUDE_SYMLINK=ON -D CMAKE_BUILD_TYPE=Release -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 ..
   
     - name: Build OCCT
       run: |
