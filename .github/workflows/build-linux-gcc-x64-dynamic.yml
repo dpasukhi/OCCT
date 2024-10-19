@@ -43,7 +43,7 @@ jobs:
     - name: Build OCCT
       run: |
         cd build
-        make -j$(nproc)
+        make -j"$(nproc)"
 
     - name: Dowload test data
       run: |

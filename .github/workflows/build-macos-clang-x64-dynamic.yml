@@ -43,3 +43,23 @@ jobs:
       run: |
         cd build
         make -j$(sysctl -n hw.logicalcpu)
+
+    - name: Dowload test data
+      run: |
+        cd data
+        curl -L -O https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_8_0/opencascade-dataset-7.8.0.tar.xz
+        tar -xf opencascade-dataset-7.8.0.tar.xz
+
+    - name: Run tests
+      run: |
+         cd build
+         source env.sh
+         DRAWEXE -v -c testgrid boolean volumemaker E1
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4.4.3
+      id: artifact-upload-step
+      with:
+        name: results
+        path: build/results
+        retention-days: 7
