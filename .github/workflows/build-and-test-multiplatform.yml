@@ -97,12 +97,6 @@ jobs:
       with:
         arch: x64
 
-    # Step: Set up Clang environment
-    - name: Set up Clang
-      run: |
-        choco install llvm -y
-        refreshenv
-
     # Step: Download and extract 3rdparty dependencies
     - name: Download and extract 3rdparty dependencies
       run: |
@@ -426,12 +420,6 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1.13.0
       with:
         arch: x64
-
-    # Step: Set up Clang environment
-    - name: Set up Clang
-      run: |
-        choco install llvm -y
-        refreshenv
 
     # Step: Download and extract 3rdparty dependencies
     - name: Download and extract 3rdparty dependencies
