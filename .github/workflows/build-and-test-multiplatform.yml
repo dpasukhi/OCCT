@@ -322,13 +322,18 @@ jobs:
     - name: Set LIBGL_ALWAYS_SOFTWARE environment variable
       run: echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
+    # Step: Set execute permissions on DRAWEXE
+    - name: Set execute permissions on DRAWEXE
+      run: chmod +x install/bin/DRAWEXE
+
     # Step: Run tests
     - name: Run tests
       run: |
          cd install
          cd bin
          source env.sh
-         DRAWEXE -v -c testgrid
+         ./DRAWEXE -v -c testgrid
+      shell: bash
       env:
         LIBGL_ALWAYS_SOFTWARE: 1
         CSF_TestScriptsPath: ${{ github.workspace }}/tests
@@ -389,13 +394,18 @@ jobs:
     - name: Set LIBGL_ALWAYS_SOFTWARE environment variable
       run: echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
+    # Step: Set execute permissions on DRAWEXE
+    - name: Set execute permissions on DRAWEXE
+      run: chmod +x install/bin/DRAWEXE
+
     # Step: Run tests
     - name: Run tests
       run: |
          cd install
          cd bin
          source env.sh
-         DRAWEXE -v -c testgrid
+         ./DRAWEXE -v -c testgrid
+      shell: bash
       env:
         DISPLAY: :99
         LIBGL_ALWAYS_SOFTWARE: 1
@@ -457,13 +467,18 @@ jobs:
     - name: Set LIBGL_ALWAYS_SOFTWARE environment variable
       run: echo "LIBGL_ALWAYS_SOFTWARE=1" >> $GITHUB_ENV
 
+    # Step: Set execute permissions on DRAWEXE
+    - name: Set execute permissions on DRAWEXE
+      run: chmod +x install/bin/DRAWEXE
+
     # Step: Run tests
     - name: Run tests
       run: |
          cd install
          cd bin
          source env.sh
-         DRAWEXE -v -c testgrid
+         ./DRAWEXE -v -c testgrid
+      shell: bash
       env:
         DISPLAY: :99
         LIBGL_ALWAYS_SOFTWARE: 1
