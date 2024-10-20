@@ -38,18 +38,42 @@ jobs:
           Remove-Item 3rdparty-vc14-64.zip
       shell: pwsh
 
-    # Step: Configure OCCT with CMake
+# Step: Configure OCCT with CMake
     - name: Configure OCCT
       run: |
           mkdir build
           cd build
-          cmake -T host=x64 -D USE_FREETYPE=OFF -D USE_TK=OFF -D BUILD_USE_PCH=ON -D BUILD_OPT_PROFILE=Production -D BUILD_INCLUDE_SYMLINK=ON -D CMAKE_BUILD_TYPE=Release -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 ..
-  
+          cmake -T host=x64 `
+                -D USE_FREETYPE=ON `
+                -D USE_TK=OFF `
+                -D BUILD_USE_PCH=ON `
+                -D BUILD_OPT_PROFILE=Production `
+                -D BUILD_INCLUDE_SYMLINK=ON `
+                -D CMAKE_BUILD_TYPE=Release `
+                -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
+                -D INSTALL_DIR=${{ github.workspace }}/install `
+                -D USE_DRACO=ON `
+                -D USE_FFMPEG=ON `
+                -D USE_FREEIMAGE=ON `
+                -D USE_GL2PS=ON `
+                -D USE_OPENVR=ON `
+                -D USE_VTK=ON `
+                -D USE_TBB=ON `
+                -D USE_RAPIDJSON=ON `
+                -D USE_OPENGL=ON ..
+      shell: pwsh
+
     # Step: Build OCCT
     - name: Build OCCT
       run: |
           cd build
           cmake --build . --config Release -- /m
+
+    # Step: Install OCCT
+    - name: Install OCCT
+      run: |
+          cd build
+          cmake --install . --config Release
 
   prepare-and-build-macos-x64:
     name: Prepare and Build on macOS with Clang (x64)
@@ -79,13 +103,20 @@ jobs:
               -D USE_FREETYPE=OFF \
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
-              -D CMAKE_BUILD_TYPE=Release ..
+              -D CMAKE_BUILD_TYPE=Release \
+              -D INSTALL_DIR=${{ github.workspace }}/install ..
 
     # Step: Build OCCT
     - name: Build OCCT
       run: |
         cd build
         make -j$(sysctl -n hw.logicalcpu)
+
+    # Step: Install OCCT
+    - name: Install OCCT
+      run: |
+        cd build
+        make install
 
   prepare-and-build-linux-clang-x64:
     name: Prepare and Build on Ubuntu with Clang (x64)
@@ -113,13 +144,20 @@ jobs:
               -D BUILD_OPT_PROFILE=Production \
               -D USE_TK=OFF \
               -D USE_FREETYPE=OFF \
-              -D CMAKE_BUILD_TYPE=Release ..
+              -D CMAKE_BUILD_TYPE=Release \
+              -D INSTALL_DIR=${{ github.workspace }}/install ..
 
     # Step: Build OCCT
     - name: Build OCCT
       run: |
         cd build
         make -j"$(nproc)"
+
+    # Step: Install OCCT
+    - name: Install OCCT
+      run: |
+        cd build
+        make install
 
   prepare-and-build-linux-gcc-x64:
     name: Prepare and Build on Ubuntu with GCC (x64)
@@ -147,13 +185,20 @@ jobs:
               -D BUILD_OPT_PROFILE=Production \
               -D USE_TK=OFF \
               -D USE_FREETYPE=OFF \
-              -D CMAKE_BUILD_TYPE=Release ..
+              -D CMAKE_BUILD_TYPE=Release \
+              -D INSTALL_DIR=${{ github.workspace }}/install ..
 
     # Step: Build OCCT
     - name: Build OCCT
       run: |
         cd build
         make -j"$(nproc)"
+
+    # Step: Install OCCT
+    - name: Install OCCT
+      run: |
+        cd build
+        make install
 
   test-windows-x64:
     name: Test on Windows (x64)
