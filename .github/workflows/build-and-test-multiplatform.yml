@@ -5,6 +5,10 @@ on:
     branches:
       - '**'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   prepare-and-build-windows-x64:
     name: Prepare and Build on Windows with MSVC (x64)
