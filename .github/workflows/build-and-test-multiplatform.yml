@@ -3,7 +3,7 @@
 # The workflow includes steps to prepare and build the project on each platform, run tests, and upload the results.
 # Concurrency is set to ensure that only one instance of the workflow runs per pull request at a time.
 
-name: Build and Test OCCT
+name: Build and Test OCCT on Multiple Platforms
 
 on:
   pull_request:
@@ -82,7 +82,7 @@ jobs:
         name: install-windows-x64
         path: install
 
-  repare-and-build-windows-clang-x64:
+  prepare-and-build-windows-clang-x64:
     name: Prepare and Build on Windows with Clang (x64)
     runs-on: windows-2022
 
@@ -91,11 +91,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
 
-    # Step: Set up Clang environment
-    - name: Set up Clang
-      run: |
-        choco install llvm -y
-        refreshenv
+    # Step: Set up MSVC environment
+    - name: Set up MSVC
+      uses: ilammy/msvc-dev-cmd@v1.13.0
+      with:
+        arch: x64
 
     # Step: Download and extract 3rdparty dependencies
     - name: Download and extract 3rdparty dependencies
@@ -110,7 +110,7 @@ jobs:
       run: |
           mkdir build
           cd build
-          cmake -G "Ninja" -T ClangCL `
+          cmake -T ClangCL `
                 -D USE_FREETYPE=ON `
                 -D USE_TK=OFF `
                 -D BUILD_USE_PCH=ON `
@@ -118,7 +118,16 @@ jobs:
                 -D BUILD_INCLUDE_SYMLINK=ON `
                 -D CMAKE_BUILD_TYPE=Release `
                 -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
-                -D INSTALL_DIR=${{ github.workspace }}/install ..
+                -D INSTALL_DIR=${{ github.workspace }}/install `
+                -D USE_DRACO=ON `
+                -D USE_FFMPEG=ON `
+                -D USE_FREEIMAGE=ON `
+                -D USE_GLES2=ON `
+                -D USE_OPENVR=ON `
+                -D USE_VTK=ON `
+                -D USE_TBB=ON `
+                -D USE_RAPIDJSON=ON `
+                -D USE_OPENGL=ON ..
       shell: pwsh
 
     # Step: Build OCCT
@@ -213,8 +222,8 @@ jobs:
         mkdir -p build
         cd build
         cmake -G "Unix Makefiles" \
-              -D CMAKE_C_COMPILER=gcc-11 \
-              -D CMAKE_CXX_COMPILER=g++-11 \
+              -D CMAKE_C_COMPILER=gcc \
+              -D CMAKE_CXX_COMPILER=g++ \
               -D USE_FREETYPE=OFF \
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
@@ -406,11 +415,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4.1.7
 
-    # Step: Set up Clang environment
-    - name: Set up Clang
-      run: |
-        choco install llvm -y
-        refreshenv
+    # Step: Set up MSVC environment
+    - name: Set up MSVC
+      uses: ilammy/msvc-dev-cmd@v1.13.0
+      with:
+        arch: x64
 
     # Step: Download and extract 3rdparty dependencies
     - name: Download and extract 3rdparty dependencies
