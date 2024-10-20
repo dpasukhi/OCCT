@@ -126,7 +126,7 @@ jobs:
                 -D USE_FREEIMAGE=ON `
                 -D USE_GLES2=OFF `
                 -D USE_OPENVR=ON `
-                -D USE_VTK=ON `
+                -D USE_VTK=OFF `
                 -D USE_TBB=ON `
                 -D USE_RAPIDJSON=ON `
                 -D USE_OPENGL=ON ..
