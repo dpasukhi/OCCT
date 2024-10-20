@@ -326,6 +326,7 @@ jobs:
     - name: Run tests
       run: |
          cd install
+         cd bin
          source env.sh
          DRAWEXE -v -c testgrid
       env:
@@ -392,6 +393,7 @@ jobs:
     - name: Run tests
       run: |
          cd install
+         cd bin
          source env.sh
          DRAWEXE -v -c testgrid
       env:
@@ -459,6 +461,7 @@ jobs:
     - name: Run tests
       run: |
          cd install
+         cd bin
          source env.sh
          DRAWEXE -v -c testgrid
       env:
