@@ -110,7 +110,9 @@ jobs:
       run: |
           mkdir build
           cd build
-          cmake -G "Ninja" -T ClangCL `
+          cmake -G "Ninja" `
+                -D CMAKE_C_COMPILER=clang-cl `
+                -D CMAKE_CXX_COMPILER=clang-cl `
                 -D USE_FREETYPE=ON `
                 -D USE_TK=OFF `
                 -D BUILD_USE_PCH=ON `
@@ -402,7 +404,7 @@ jobs:
       id: artifact-upload-step
       with:
         name: results-windows-x64
-        path: build/results
+        path: install/results
         retention-days: 7
 
   test-windows-clang-x64:
@@ -462,7 +464,7 @@ jobs:
       id: artifact-upload-step
       with:
         name: results-windows-clang-x64
-        path: build/results
+        path: install/results
         retention-days: 7
 
   test-macos-x64:
@@ -522,7 +524,7 @@ jobs:
       id: artifact-upload-step
       with:
         name: results-macos-x64
-        path: build/results
+        path: install/results
         retention-days: 7
 
   test-macos-gcc-x64:
@@ -582,7 +584,7 @@ jobs:
       id: artifact-upload-step
       with:
         name: results-macos-gcc-x64
-        path: build/results
+        path: install/results
         retention-days: 7
 
   test-linux-clang-x64:
@@ -655,7 +657,7 @@ jobs:
       id: artifact-upload-step
       with:
         name: results-linux-clang-x64
-        path: build/results
+        path: install/results
         retention-days: 7
 
   test-linux-gcc-x64:
@@ -728,7 +730,7 @@ jobs:
       id: artifact-upload-step
       with:
         name: results-linux-gcc-x64
-        path: build/results
+        path: install/results
         retention-days: 7
 
   summarize:
