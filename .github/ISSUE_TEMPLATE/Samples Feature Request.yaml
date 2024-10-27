@@ -1,18 +1,11 @@
 name: "Samples Feature Request"
 description: "Request a new feature or enhancement for Samples"
-labels: ["1. Samples", "Enhancement"]
+labels: ["1. Samples", "2. Enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
         **Please provide the following information:**
-  - type: input
-    id: title
-    attributes:
-      label: Title
-      description: "A brief title for the feature request"
-    validations:
-      required: true
   - type: textarea
     id: description
     attributes:

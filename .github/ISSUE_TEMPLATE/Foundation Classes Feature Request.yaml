@@ -1,18 +1,11 @@
 name: "Foundation Classes Feature Request"
 description: "Request a new feature or enhancement for Foundation Classes"
-labels: ["1. Foundation Classes", "Enhancement"]
+labels: ["1. Foundation Classes", "2. Enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
         **Please provide the following information:**
-  - type: input
-    id: title
-    attributes:
-      label: Title
-      description: "A brief title for the feature request"
-    validations:
-      required: true
   - type: textarea
     id: description
     attributes:
