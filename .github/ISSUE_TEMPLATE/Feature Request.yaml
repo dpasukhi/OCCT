@@ -7,6 +7,7 @@ body:
       value: |
         **Please provide the following information:**
   - type: dropdown
+    attributes:
       label: Category
       description: "Select the bug category"
       options:
