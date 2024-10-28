@@ -90,7 +90,7 @@ body:
         - GCC
         - Clang
         - MSVC
-      default: 1
+      default: 0
     validations:
       required: true
   - type: input
@@ -122,9 +122,9 @@ body:
         - 7.8
         - 7.9
         - latest
+      default: 6
     validations:
       required: true
-    default: 6
   - type: input
     id: precise_occt_version
     attributes:
