@@ -605,17 +605,18 @@ Standard_EXPORT Handle(AIS_InteractiveContext)& TheAISContext(){
   return aContext;
 }
 
+static Handle(V3d_View) THE_MAGIC_NAME_FOR_VIEWER = nullptr;
 const Handle(V3d_View)& ViewerTest::CurrentView()
 {
-  static Handle(V3d_View) Viou;
-  Message::SendWarning() << "Getting current view to " << reinterpret_cast<size_t>(Viou.get());
-  return Viou;
+  Message::SendWarning() << "Getting current view to " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
+  return THE_MAGIC_NAME_FOR_VIEWER;
 }
 
 void ViewerTest::CurrentView(const Handle(V3d_View)& V)
 {
+    Message::SendWarning() << "The prev value: current view to" << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
   Message::SendWarning() << "Setting current view to " << reinterpret_cast<size_t>(V.get());
-  const_cast<Handle(V3d_View)&>(CurrentView()) = V;
+  THE_MAGIC_NAME_FOR_VIEWER = V;
 }
 
 const Handle(AIS_InteractiveContext)& ViewerTest::GetAISContext()

@@ -3,7 +3,7 @@
 if { [array get Draw_Groups "DF basic commands"] == "" } {
 	pload DCAF
 }
-
+pload OPENGL
 chrono qat start
 # Create a new document and set UndoLimit
 NewDocument D BinOcaf
