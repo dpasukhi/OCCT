@@ -622,11 +622,16 @@ void ViewerTest::CurrentView(const Handle(V3d_View)& V)
 
 const Handle(AIS_InteractiveContext)& ViewerTest::GetAISContext()
 {
+  Message::SendWarning() << "CNTS: The prev value: current view to" << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
+  Message::SendWarning() << "Getting AIS context to " << reinterpret_cast<size_t>(TheAISContext().get());
   return TheAISContext();
 }
 
 void ViewerTest::SetAISContext (const Handle(AIS_InteractiveContext)& aCtx)
 {
+  Message::SendWarning() << "The prev value: Setting AIS context to " << reinterpret_cast<size_t>(TheAISContext().get());
+  Message::SendWarning() << "Setting AIS context to " << reinterpret_cast<size_t>(aCtx.get());
+  Message::SendWarning() << "CNTS: The prev value: current view to" << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
   TheAISContext() = aCtx;
   ViewerTest::ResetEventManager();
 }

@@ -56,12 +56,13 @@ static Standard_Integer DPrsStd_AISInitViewer (Draw_Interpretor& theDI,
 
   TDF_Label aRoot = aDoc->GetData()->Root();
   Handle(TPrsStd_AISViewer) aDocViewer;
-  TCollection_AsciiString   aViewName = TCollection_AsciiString ("Driver1/Document_") + theArgVec[1] + "/View1";
+  TCollection_AsciiString   aViewName = TCollection_AsciiString ("vinit Driver1/Document_") + theArgVec[1] + "/View1";
   if (!TPrsStd_AISViewer::Find (aRoot, aDocViewer))
   {
-    Message::SendWarning() << "Viewer before: " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
-    ViewerTest::ViewerInit (aViewName);
-    Message::SendWarning() << "Viewer after: " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
+    theDI.Eval (aViewName.ToCString());
+    // Message::SendWarning() << "Viewer before: " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
+    // ViewerTest::ViewerInit (aViewName);
+    // Message::SendWarning() << "Viewer after: " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
     aDocViewer = TPrsStd_AISViewer::New (aRoot, ViewerTest::GetAISContext());
   }
 
