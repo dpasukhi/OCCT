@@ -600,17 +600,6 @@ Standard_EXPORT Standard_Boolean VDisplayAISObject (const TCollection_AsciiStrin
 
 static NCollection_List<Handle(ViewerTest_EventManager)> theEventMgrs;
 
-namespace
-{
-static Handle(V3d_View)&  a3DView()
-{
-  static Handle(V3d_View) Viou;
-  Message::SendWarning() << "Getting current view to " << reinterpret_cast<size_t>(Viou.get());
-  return Viou;
-}
-}
-
-
 Standard_EXPORT Handle(AIS_InteractiveContext)& TheAISContext(){
   static Handle(AIS_InteractiveContext) aContext;
   return aContext;
@@ -618,12 +607,15 @@ Standard_EXPORT Handle(AIS_InteractiveContext)& TheAISContext(){
 
 const Handle(V3d_View)& ViewerTest::CurrentView()
 {
-  return a3DView();
+  static Handle(V3d_View) Viou;
+  Message::SendWarning() << "Getting current view to " << reinterpret_cast<size_t>(Viou.get());
+  return Viou;
 }
+
 void ViewerTest::CurrentView(const Handle(V3d_View)& V)
 {
   Message::SendWarning() << "Setting current view to " << reinterpret_cast<size_t>(V.get());
-  a3DView() = V;
+  const_cast<Handle(V3d_View)&>(CurrentView()) = V;
 }
 
 const Handle(AIS_InteractiveContext)& ViewerTest::GetAISContext()
@@ -695,7 +687,7 @@ static Standard_Boolean getCtxAndView (Handle(AIS_InteractiveContext)& theCtx,
 //==============================================================================
 void ViewerTest::Clear()
 {
-  if (a3DView().IsNull())
+  if (CurrentView().IsNull())
   {
     return;
   }

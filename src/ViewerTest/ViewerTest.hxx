@@ -69,7 +69,7 @@ public:
   Standard_EXPORT static TCollection_AsciiString ViewerInit (const ViewerTest_VinitParams& theParams);
 
   //! Creates view.
-  static TCollection_AsciiString ViewerInit (const TCollection_AsciiString& theViewName = "")
+  Standard_EXPORT static TCollection_AsciiString ViewerInit (const TCollection_AsciiString& theViewName = "")
   {
     ViewerTest_VinitParams aParams;
     aParams.ViewName = theViewName;
@@ -77,7 +77,7 @@ public:
   }
 
   //! Creates view.
-  static TCollection_AsciiString ViewerInit (const Standard_Integer thePxLeft,
+  Standard_EXPORT static TCollection_AsciiString ViewerInit (const Standard_Integer thePxLeft,
                                              const Standard_Integer thePxTop,
                                              const Standard_Integer thePxWidth,
                                              const Standard_Integer thePxHeight,
