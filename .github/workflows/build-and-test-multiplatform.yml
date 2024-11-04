@@ -132,7 +132,6 @@ jobs:
       env:
         DISPLAY: :99
         LIBGL_ALWAYS_SOFTWARE: 1
-        LIBGL_ALWAYS_INDIRECT: 1
         CSF_TestScriptsPath: ${{ github.workspace }}/tests
         CSF_TestDataPath: ${{ github.workspace }}/data
 
