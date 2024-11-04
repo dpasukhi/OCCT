@@ -28,12 +28,15 @@
 #include <V3d_View.hxx>
 #include <TPrsStd_AISPresentation.hxx>
 #include <TPrsStd_AISViewer.hxx>
-#include <AIS_InteractiveContext.hxx> 
+#include <AIS_InteractiveContext.hxx>
+#include <Message.hxx>
 
 //=======================================================================
 //function : DPrsStd_AISInitViewer
 //purpose  : AISInitViewer (DOC)
 //=======================================================================
+
+extern Handle(V3d_View) THE_MAGIC_NAME_FOR_VIEWER;
 
 static Standard_Integer DPrsStd_AISInitViewer (Draw_Interpretor& theDI,
                                                Standard_Integer  theArgNb,
@@ -56,7 +59,9 @@ static Standard_Integer DPrsStd_AISInitViewer (Draw_Interpretor& theDI,
   TCollection_AsciiString   aViewName = TCollection_AsciiString ("Driver1/Document_") + theArgVec[1] + "/View1";
   if (!TPrsStd_AISViewer::Find (aRoot, aDocViewer))
   {
+    Message::SendWarning() << "Viewer before: " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
     ViewerTest::ViewerInit (aViewName);
+    Message::SendWarning() << "Viewer after: " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
     aDocViewer = TPrsStd_AISViewer::New (aRoot, ViewerTest::GetAISContext());
   }
 
