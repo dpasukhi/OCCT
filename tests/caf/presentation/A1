@@ -11,3 +11,4 @@ puts "caf003-A1"
 AISInitViewer D
 
 puts "There is the empty 3D viewer"
+vinit
