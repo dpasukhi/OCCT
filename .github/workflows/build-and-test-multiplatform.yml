@@ -126,7 +126,7 @@ jobs:
       run: |
          cd install
          cd bin
-         source env.sh
+         source env.sh debug
          ./DRAWEXE -v -c testgrid caf presentation
       shell: bash
       env:
