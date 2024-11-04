@@ -31,8 +31,13 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y tcl-dev tk-dev cmake clang gcc g++ make libbtbb-dev libx11-dev libglu1-mesa-dev tcllib tcl-thread tcl libvtk9-dev libopenvr-dev libdraco-dev libfreeimage-dev libegl1-mesa-dev libgles2-mesa-dev libfreetype-dev mesa-utils libgl1-mesa-dev libxext-dev libxrandr-dev vulkan-tools libvulkan-dev xvfb mesa-utils libgl1-mesa-dri xkb-data
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -y xserver-xorg-video-dummy
+      run: sudo apt-get update && sudo apt-get install -y xserver-xorg-video-dummy ninja-build
 
+    - name: Install clang
+      run: |
+         wget https://apt.llvm.org/llvm.sh
+         chmod +x llvm.sh
+         sudo ./llvm.sh 20
 
     - name: Start Xvfb
       run: Xvfb :99 -screen 0 1920x1080x24 &
@@ -47,13 +52,13 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake -G "Unix Makefiles" \
+        cmake -G "Ninja" \
               -D CMAKE_C_COMPILER=clang \
               -D CMAKE_CXX_COMPILER=clang++ \
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
               -D USE_TK=ON \
-              -D CMAKE_BUILD_TYPE=Debug \
+              -D CMAKE_BUILD_TYPE=Release \
               -D INSTALL_DIR=${{ github.workspace }}/install \
               -D 3RDPARTY_RAPIDJSON_DIR=${{ github.workspace }}/rapidjson-858451e5b7d1c56cf8f6d58f88cf958351837e53 \
               -D USE_FREETYPE=ON \
