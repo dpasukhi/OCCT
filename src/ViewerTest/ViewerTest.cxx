@@ -606,7 +606,7 @@ Standard_EXPORT Handle(AIS_InteractiveContext)& TheAISContext(){
 }
 
 static Handle(V3d_View) THE_MAGIC_NAME_FOR_VIEWER = nullptr;
-const Handle(V3d_View)& ViewerTest::CurrentView()
+const Handle(V3d_View) ViewerTest::CurrentView()
 {
   Message::SendWarning() << "Getting current view to " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
   return THE_MAGIC_NAME_FOR_VIEWER;

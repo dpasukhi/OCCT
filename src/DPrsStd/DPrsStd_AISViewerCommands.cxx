@@ -54,7 +54,7 @@ static Standard_Integer DPrsStd_AISInitViewer (Draw_Interpretor& theDI,
   TDF_Label aRoot = aDoc->GetData()->Root();
   Handle(TPrsStd_AISViewer) aDocViewer;
   TCollection_AsciiString   aViewName = TCollection_AsciiString ("Driver1/Document_") + theArgVec[1] + "/View1";
-  //if (!TPrsStd_AISViewer::Find (aRoot, aDocViewer))
+  if (!TPrsStd_AISViewer::Find (aRoot, aDocViewer))
   {
     ViewerTest::ViewerInit (aViewName);
     aDocViewer = TPrsStd_AISViewer::New (aRoot, ViewerTest::GetAISContext());

@@ -163,7 +163,7 @@ public:
 
   Standard_EXPORT static void SetAISContext (const Handle(AIS_InteractiveContext)& aContext);
 
-  Standard_EXPORT static const Handle(V3d_View)& CurrentView();
+  Standard_EXPORT static const Handle(V3d_View) CurrentView();
 
   Standard_EXPORT static void CurrentView (const Handle(V3d_View)& aViou);
 
