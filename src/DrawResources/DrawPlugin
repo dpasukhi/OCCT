@@ -40,7 +40,7 @@ XDE                : DATAEXCHANGEKERNEL, XDEDRAW, STEP, IGES, GLTF, OBJ, PLY, ST
 ALL                : MODELING, OCAFKERNEL, DATAEXCHANGE
 
 TOPTEST            : TKTopTest
-DCAF               : TKDCAF
+DCAF               : VISUALIZATION TKDCAF
 AISV               : TKViewerTest
 GL                 : TKOpenGlTest
 OPENGL             : TKOpenGlTest

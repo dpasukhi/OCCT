@@ -67,17 +67,32 @@ public:
   Standard_EXPORT static TCollection_AsciiString ViewerInit (const ViewerTest_VinitParams& theParams);
 
   //! Creates view.
-  Standard_EXPORT static TCollection_AsciiString ViewerInit (const TCollection_AsciiString& theViewName = "");
+  static TCollection_AsciiString ViewerInit (const TCollection_AsciiString& theViewName = "")
+  {
+    ViewerTest_VinitParams aParams;
+    aParams.ViewName = theViewName;
+    return ViewerInit (aParams);
+  }
 
   //! Creates view.
-  Standard_EXPORT static TCollection_AsciiString ViewerInit (const Standard_Integer thePxLeft,
+  static TCollection_AsciiString ViewerInit (const Standard_Integer thePxLeft,
                                              const Standard_Integer thePxTop,
                                              const Standard_Integer thePxWidth,
                                              const Standard_Integer thePxHeight,
                                              const TCollection_AsciiString& theViewName,
                                              const TCollection_AsciiString& theDisplayName = "",
                                              const Handle(V3d_View)& theViewToClone = Handle(V3d_View)(),
-                                             const Standard_Boolean theIsVirtual = false);
+                                             const Standard_Boolean theIsVirtual = false)
+  {
+    ViewerTest_VinitParams aParams;
+    aParams.Offset.SetValues ((float )thePxLeft, (float)thePxTop);
+    aParams.Size.SetValues ((float)thePxWidth, (float)thePxHeight);
+    aParams.ViewName = theViewName;
+    aParams.DisplayName = theDisplayName;
+    aParams.ViewToClone = theViewToClone;
+    aParams.IsVirtual = theIsVirtual;
+    return ViewerInit (aParams);
+  }
 
   Standard_EXPORT static void RemoveViewName (const TCollection_AsciiString& theName);
 
