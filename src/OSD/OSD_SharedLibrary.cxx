@@ -111,7 +111,7 @@ void  OSD_SharedLibrary::SetName(const Standard_CString aName)  {
 // ----------------------------------------------------------------
 Standard_Boolean  OSD_SharedLibrary::DlOpen(const OSD_LoadMode aMode ) {
 if (aMode == OSD_RTLD_LAZY){
-  myHandle = dlopen (myName,RTLD_LAZY | RTLD_GLOBAL);
+  myHandle = dlopen (myName,RTLD_LAZY);
 }
 else if (aMode == OSD_RTLD_NOW){
   myHandle = dlopen (myName,RTLD_NOW);
