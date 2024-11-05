@@ -60,8 +60,6 @@
 #include <TopTools_MapOfShape.hxx>
 #include <V3d_Viewer.hxx>
 
-#include <Message.hxx>
-
 #include <stdio.h>
 
 #include <Draw_Interpretor.hxx>
@@ -600,38 +598,34 @@ Standard_EXPORT Standard_Boolean VDisplayAISObject (const TCollection_AsciiStrin
 
 static NCollection_List<Handle(ViewerTest_EventManager)> theEventMgrs;
 
+static Handle(V3d_View)&  a3DView()
+{
+  static Handle(V3d_View) Viou;
+  return Viou;
+}
+
+
 Standard_EXPORT Handle(AIS_InteractiveContext)& TheAISContext(){
   static Handle(AIS_InteractiveContext) aContext;
   return aContext;
 }
 
-Handle(V3d_View) THE_MAGIC_NAME_FOR_VIEWER = nullptr;
-
-const Handle(V3d_View) ViewerTest::CurrentView()
+const Handle(V3d_View)& ViewerTest::CurrentView()
 {
-  Message::SendWarning() << "Getting current view to " << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
-  return THE_MAGIC_NAME_FOR_VIEWER;
+  return a3DView();
 }
-
 void ViewerTest::CurrentView(const Handle(V3d_View)& V)
 {
-    Message::SendWarning() << "The prev value: current view to" << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
-  Message::SendWarning() << "Setting current view to " << reinterpret_cast<size_t>(V.get());
-  THE_MAGIC_NAME_FOR_VIEWER = V;
+  a3DView() = V;
 }
 
-const Handle(AIS_InteractiveContext) ViewerTest::GetAISContext()
+const Handle(AIS_InteractiveContext)& ViewerTest::GetAISContext()
 {
-  Message::SendWarning() << "CNTS: The prev value: current view to" << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
-  Message::SendWarning() << "Getting AIS context to " << reinterpret_cast<size_t>(TheAISContext().get());
   return TheAISContext();
 }
 
 void ViewerTest::SetAISContext (const Handle(AIS_InteractiveContext)& aCtx)
 {
-  Message::SendWarning() << "The prev value: Setting AIS context to " << reinterpret_cast<size_t>(TheAISContext().get());
-  Message::SendWarning() << "Setting AIS context to " << reinterpret_cast<size_t>(aCtx.get());
-  Message::SendWarning() << "CNTS: The prev value: current view to" << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
   TheAISContext() = aCtx;
   ViewerTest::ResetEventManager();
 }
@@ -694,7 +688,7 @@ static Standard_Boolean getCtxAndView (Handle(AIS_InteractiveContext)& theCtx,
 //==============================================================================
 void ViewerTest::Clear()
 {
-  if (CurrentView().IsNull())
+  if (a3DView().IsNull())
   {
     return;
   }
