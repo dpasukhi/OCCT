@@ -620,7 +620,7 @@ void ViewerTest::CurrentView(const Handle(V3d_View)& V)
   THE_MAGIC_NAME_FOR_VIEWER = V;
 }
 
-const Handle(AIS_InteractiveContext)& ViewerTest::GetAISContext()
+const Handle(AIS_InteractiveContext) ViewerTest::GetAISContext()
 {
   Message::SendWarning() << "CNTS: The prev value: current view to" << reinterpret_cast<size_t>(THE_MAGIC_NAME_FOR_VIEWER.get());
   Message::SendWarning() << "Getting AIS context to " << reinterpret_cast<size_t>(TheAISContext().get());

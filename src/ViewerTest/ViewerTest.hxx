@@ -62,19 +62,12 @@ public:
   //! Loads all Draw commands of  V2d & V3d. Used for plugin.
   Standard_EXPORT static void Factory (Draw_Interpretor& theDI);
 
-
-
   //! Creates view with default or custom name and adds this name in map to manage multiple views.
   //! Implemented in ViewerTest_ViewerCommands.cxx.
   Standard_EXPORT static TCollection_AsciiString ViewerInit (const ViewerTest_VinitParams& theParams);
 
   //! Creates view.
-  Standard_EXPORT static TCollection_AsciiString ViewerInit (const TCollection_AsciiString& theViewName = "")
-  {
-    ViewerTest_VinitParams aParams;
-    aParams.ViewName = theViewName;
-    return ViewerInit (aParams);
-  }
+  Standard_EXPORT static TCollection_AsciiString ViewerInit (const TCollection_AsciiString& theViewName = "");
 
   //! Creates view.
   Standard_EXPORT static TCollection_AsciiString ViewerInit (const Standard_Integer thePxLeft,
@@ -84,17 +77,7 @@ public:
                                              const TCollection_AsciiString& theViewName,
                                              const TCollection_AsciiString& theDisplayName = "",
                                              const Handle(V3d_View)& theViewToClone = Handle(V3d_View)(),
-                                             const Standard_Boolean theIsVirtual = false)
-  {
-    ViewerTest_VinitParams aParams;
-    aParams.Offset.SetValues ((float )thePxLeft, (float)thePxTop);
-    aParams.Size.SetValues ((float)thePxWidth, (float)thePxHeight);
-    aParams.ViewName = theViewName;
-    aParams.DisplayName = theDisplayName;
-    aParams.ViewToClone = theViewToClone;
-    aParams.IsVirtual = theIsVirtual;
-    return ViewerInit (aParams);
-  }
+                                             const Standard_Boolean theIsVirtual = false);
 
   Standard_EXPORT static void RemoveViewName (const TCollection_AsciiString& theName);
 
@@ -159,7 +142,7 @@ public:
 
   Standard_EXPORT static Handle(V3d_Viewer) GetCollectorFromContext();
 
-  Standard_EXPORT static const Handle(AIS_InteractiveContext)& GetAISContext();
+  Standard_EXPORT static const Handle(AIS_InteractiveContext) GetAISContext();
 
   Standard_EXPORT static void SetAISContext (const Handle(AIS_InteractiveContext)& aContext);
 

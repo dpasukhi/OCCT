@@ -452,6 +452,25 @@ Standard_Boolean IsWindowOverlapped (const Standard_Integer thePxLeft,
   return Standard_False;
 }
 
+TCollection_AsciiString ViewerTest::ViewerInit(const Standard_Integer         thePxLeft,
+                                                               const Standard_Integer         thePxTop,
+                                                               const Standard_Integer         thePxWidth,
+                                                               const Standard_Integer         thePxHeight,
+                                                               const TCollection_AsciiString& theViewName,
+                                                               const TCollection_AsciiString& theDisplayName,
+                                                               const Handle(V3d_View)&        theViewToClone,
+                                                               const Standard_Boolean         theIsVirtual)
+{
+  ViewerTest_VinitParams aParams;
+  aParams.Offset.SetValues ((float )thePxLeft, (float)thePxTop);
+  aParams.Size.SetValues ((float)thePxWidth, (float)thePxHeight);
+  aParams.ViewName = theViewName;
+  aParams.DisplayName = theDisplayName;
+  aParams.ViewToClone = theViewToClone;
+  aParams.IsVirtual = theIsVirtual;
+  return ViewerInit (aParams);
+}
+
 // Workaround: to create and delete non-orthographic views outside ViewerTest
 void ViewerTest::RemoveViewName (const TCollection_AsciiString& theName)
 {
@@ -805,6 +824,13 @@ TCollection_AsciiString ViewerTest::ViewerInit (const ViewerTest_VinitParams& th
   a3DViewer.Nullify();
 
   return aViewNames.GetViewName();
+}
+
+TCollection_AsciiString ViewerTest::ViewerInit(const TCollection_AsciiString& theViewName)
+{
+  ViewerTest_VinitParams aParams;
+  aParams.ViewName = theViewName;
+  return ViewerInit (aParams);
 }
 
 //==============================================================================
