@@ -36,12 +36,11 @@ OCAFKERNEL         : DCAF
 DATAEXCHANGEKERNEL : XSDRAW, DE
 OCAF               : VISUALIZATION, OCAFKERNEL
 DATAEXCHANGE       : XDE, VISUALIZATION
-DCAF               : VISUALIZATION OCAF DRAWCAF
 XDE                : DATAEXCHANGEKERNEL, XDEDRAW, STEP, IGES, GLTF, OBJ, PLY, STL, VRML
 ALL                : MODELING, OCAFKERNEL, DATAEXCHANGE
 
 TOPTEST            : TKTopTest
-DRAWCAF            : TKDCAF
+DCAF               : TKDCAF
 AISV               : TKViewerTest
 GL                 : TKOpenGlTest
 OPENGL             : TKOpenGlTest
