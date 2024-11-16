@@ -1,7 +1,6 @@
 #ifndef TKSERVICE_PCH_H
 #define TKSERVICE_PCH_H
 
-#include <Aspect_Window.hxx>
 #include <Graphic3d_ArrayOfPrimitives.hxx>
 #include <Graphic3d_Aspects.hxx>
 #include <Graphic3d_BoundBuffer.hxx>
@@ -21,7 +20,5 @@
 #include <Graphic3d_TransformPers.hxx>
 #include <Graphic3d_WorldViewProjState.hxx>
 #include <Graphic3d_ZLayerSettings.hxx>
-#include <Image_PixMap.hxx>
-#include <Image_PixMapData.hxx>
 
 #endif // TKSERVICE_PCH_H

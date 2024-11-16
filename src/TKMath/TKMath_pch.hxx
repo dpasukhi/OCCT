@@ -1,9 +1,6 @@
 #ifndef TKMATH_PCH_H
 #define TKMATH_PCH_H
 
-// Standard library headers
-#include <type_traits>
-
 #include <gp_Ax1.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Ax3.hxx>
