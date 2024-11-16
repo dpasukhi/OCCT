@@ -3,13 +3,7 @@
 
 // Standard library headers
 #include <atomic>
-#include <iostream>
-#include <limits>
-#include <ostream>
-#include <sstream>
-#include <string>
 #include <type_traits>
-#include <vector>
 
 // Windows-specific headers (for MSVC)
 #ifdef _WIN32
@@ -37,12 +31,8 @@
 
 #include <Quantity_Color.hxx>
 #include <Quantity_ColorRGBA.hxx>
-#include <Quantity_HArray1OfColor.hxx>
 #include <Quantity_TypeOfColor.hxx>
 
-#include <TColStd_HArray1OfInteger.hxx>
-#include <TColStd_HSequenceOfHAsciiString.hxx>
-#include <TColStd_HSequenceOfTransient.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_HAsciiString.hxx>
