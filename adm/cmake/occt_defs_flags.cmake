@@ -147,8 +147,8 @@ elseif (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX OR (CMAKE_CXX_COMPIL
     # /GL (whole program optimization) is similar to -flto (Link Time Optimization) in GCC/Clang.
     # /GF (eliminate duplicate strings) doesn't have a direct equivalent in GCC/Clang, but the compilers do string pooling automatically.
     # /Gy (enable function-level linking) is similar to -ffunction-sections in GCC/Clang.
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -fomit-frame-pointer -flto -ffunction-sections")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -fomit-frame-pointer -flto -ffunction-sections")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -fomit-frame-pointer -flto -ffunction-sections")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -fomit-frame-pointer -flto -ffunction-sections")
 
     # Link-Time Code Generation(LTCG) is requared for Whole Program Optimisation(GL)
     set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -flto")
@@ -175,17 +175,15 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "[Cc][Ll][Aa][Nn][Gg]")
   endif()
   # Optimize size of binaries
   set (CMAKE_SHARED_LINKER_FLAGS_RELEASE "-Wl,-s ${CMAKE_SHARED_LINKER_FLAGS_RELEASE}")
-elseif(MINGW)
+endif()
+if(MINGW)
   add_definitions(-D_WIN32_WINNT=0x0601)
   # _WIN32_WINNT=0x0601 (use Windows 7 SDK)
   #set (CMAKE_SYSTEM_VERSION "6.1")
   # workaround bugs in mingw with vtable export
   set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--export-all-symbols")
-
-  # Optimize size of binaries
-  set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
-  set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
-elseif (DEFINED CMAKE_COMPILER_IS_GNUCXX)
+endif()
+if (DEFINED CMAKE_COMPILER_IS_GNUCXX)
   # Optimize size of binaries
   set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
   set (CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")

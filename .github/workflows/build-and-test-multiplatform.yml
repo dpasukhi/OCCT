@@ -39,13 +39,29 @@ jobs:
           Remove-Item 3rdparty-vc14-64.zip
       shell: pwsh
 
+    - name: Install Tcl/Tk
+      run: |
+        choco install -y magicsplat-tcl-tk
+      shell: cmd
+
+    - name: Download and extract Mesa3D
+      run: |
+        curl -L -o mesa3d.7z https://github.com/pal1000/mesa-dist-win/releases/download/24.2.5/mesa3d-24.2.5-release-msvc.7z
+        7z x mesa3d.7z -omesa3d
+
+    - name: Run system-wide deployment
+      run: |
+        cd mesa3d
+        .\systemwidedeploy.cmd 1
+      shell: cmd
+
     - name: Configure OCCT
       run: |
           mkdir build
           cd build
           cmake -T host=x64 `
                 -D USE_FREETYPE=ON `
-                -D USE_TK=OFF `
+                -D USE_TK=ON `
                 -D BUILD_USE_PCH=ON `
                 -D BUILD_OPT_PROFILE=Production `
                 -D BUILD_INCLUDE_SYMLINK=ON `
@@ -66,12 +82,7 @@ jobs:
     - name: Build OCCT
       run: |
           cd build
-          cmake --build . --config Release -- /m
-
-    - name: Install OCCT
-      run: |
-          cd build
-          cmake --install . --config Release
+          cmake --build . --target install --config Release
 
     - name: Upload install directory
       uses: actions/upload-artifact@v4.4.3
@@ -101,6 +112,17 @@ jobs:
           Remove-Item 3rdparty-vc14-64.zip
       shell: pwsh
 
+    - name: Download and extract Mesa3D
+      run: |
+        curl -L -o mesa3d.7z https://github.com/pal1000/mesa-dist-win/releases/download/24.2.5/mesa3d-24.2.5-release-msvc.7z
+        7z x mesa3d.7z -omesa3d
+
+    - name: Run system-wide deployment
+      run: |
+        cd mesa3d
+        .\systemwidedeploy.cmd 1
+      shell: cmd
+
     - name: Configure OCCT
       run: |
           mkdir build
@@ -109,7 +131,7 @@ jobs:
                 -D CMAKE_C_COMPILER=clang `
                 -D CMAKE_CXX_COMPILER=clang++ `
                 -D USE_FREETYPE=ON `
-                -D USE_TK=OFF `
+                -D USE_TK=ON `
                 -D BUILD_USE_PCH=ON `
                 -D BUILD_OPT_PROFILE=Production `
                 -D BUILD_INCLUDE_SYMLINK=ON `
@@ -130,12 +152,7 @@ jobs:
     - name: Build OCCT
       run: |
           cd build
-          cmake --build . --config Release
-
-    - name: Install OCCT
-      run: |
-          cd build
-          cmake --install . --config Release
+          cmake --build . --target install --config Release
 
     - name: Upload install directory
       uses: actions/upload-artifact@v4.4.3
@@ -186,12 +203,7 @@ jobs:
     - name: Build OCCT
       run: |
         cd build
-        make -j$(sysctl -n hw.logicalcpu)
-
-    - name: Install OCCT
-      run: |
-        cd build
-        make install
+        make install -j$(sysctl -n hw.logicalcpu)
 
     - name: Upload install directory
       uses: actions/upload-artifact@v4.4.3
@@ -242,12 +254,7 @@ jobs:
     - name: Build OCCT
       run: |
         cd build
-        make -j$(sysctl -n hw.logicalcpu)
-
-    - name: Install OCCT
-      run: |
-        cd build
-        make install
+        make install -j$(sysctl -n hw.logicalcpu)
 
     - name: Upload install directory
       uses: actions/upload-artifact@v4.4.3
@@ -283,7 +290,7 @@ jobs:
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
               -D BUILD_OPT_PROFILE=Production \
-              -D USE_TK=OFF \
+              -D USE_TK=ON \
               -D CMAKE_BUILD_TYPE=Release \
               -D INSTALL_DIR=${{ github.workspace }}/install \
               -D 3RDPARTY_RAPIDJSON_DIR=${{ github.workspace }}/rapidjson-858451e5b7d1c56cf8f6d58f88cf958351837e53 \
@@ -301,12 +308,7 @@ jobs:
     - name: Build OCCT
       run: |
         cd build
-        make -j"$(nproc)"
-
-    - name: Install OCCT
-      run: |
-        cd build
-        make install
+        cmake --build . --target install --config Release -- -j
 
     - name: Upload install directory
       uses: actions/upload-artifact@v4.4.3
@@ -342,7 +344,7 @@ jobs:
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
               -D BUILD_OPT_PROFILE=Production \
-              -D USE_TK=OFF \
+              -D USE_TK=ON \
               -D CMAKE_BUILD_TYPE=Release \
               -D INSTALL_DIR=${{ github.workspace }}/install \
               -D 3RDPARTY_RAPIDJSON_DIR=${{ github.workspace }}/rapidjson-858451e5b7d1c56cf8f6d58f88cf958351837e53 \
@@ -360,12 +362,7 @@ jobs:
     - name: Build OCCT
       run: |
         cd build
-        make -j"$(nproc)"
-
-    - name: Install OCCT
-      run: |
-        cd build
-        make install
+        cmake --build . --target install --config Release -- -j
 
     - name: Upload install directory
       uses: actions/upload-artifact@v4.4.3
@@ -408,6 +405,29 @@ jobs:
       with:
         name: install-windows-x64
         path: install
+
+    - name: Download and extract Mesa3D
+      run: |
+        curl -L -o mesa3d.7z https://github.com/pal1000/mesa-dist-win/releases/download/24.2.5/mesa3d-24.2.5-release-msvc.7z
+        7z x mesa3d.7z -omesa3d
+
+    - name: Run system-wide deployment
+      run: |
+        cd mesa3d
+        .\systemwidedeploy.cmd 1
+      shell: cmd
+
+    - name: Install Tcl/Tk
+      run: |
+        choco install -y magicsplat-tcl-tk
+        refreshenv
+      shell: cmd
+    
+    - name: Install Visual C++ 2010 Redistributable
+      run: |
+        choco install -y vcredist2010
+        refreshenv
+      shell: cmd
 
     - name: Run tests
       run: |
@@ -462,6 +482,17 @@ jobs:
       with:
         name: install-windows-clang-x64
         path: install
+
+    - name: Download and extract Mesa3D
+      run: |
+        curl -L -o mesa3d.7z https://github.com/pal1000/mesa-dist-win/releases/download/24.2.5/mesa3d-24.2.5-release-msvc.7z
+        7z x mesa3d.7z -omesa3d
+
+    - name: Run system-wide deployment
+      run: |
+        cd mesa3d
+        .\systemwidedeploy.cmd 1
+      shell: cmd
 
     - name: Run tests
       run: |
@@ -520,7 +551,7 @@ jobs:
          cd install
          cd bin
          source env.sh
-         ./DRAWEXE -v -c testgrid
+         ./DRAWEXE -v -c testgrid caf basic
       shell: bash
       env:
         LIBGL_ALWAYS_SOFTWARE: 1
@@ -575,7 +606,7 @@ jobs:
          cd install
          cd bin
          source env.sh
-         ./DRAWEXE -v -c testgrid
+         ./DRAWEXE -v -c testgrid caf basic
       shell: bash
       env:
         LIBGL_ALWAYS_SOFTWARE: 1
@@ -719,6 +750,7 @@ jobs:
   summarize:
       name: Summarize and Send PR Message
       runs-on: ubuntu-24.04
+      if: github.event_name == 'pull_request'
       needs: [test-windows-x64, test-windows-clang-x64, test-macos-x64, test-macos-gcc-x64, test-linux-clang-x64, test-linux-gcc-x64]
   
       steps:

@@ -574,8 +574,8 @@ proc testgrid {args} {
 
     # if parallel execution is requested, allocate thread pool
     if { $parallel > 0 } {
-        if { ! [info exists tcl_platform(threaded)] || [catch {package require Thread}] } {
-            _log_and_puts log "Warning: Tcl package Thread is not available, running in sequential mode"
+        if { ! [info exists tcl_platform(threaded)] || [catch {package require Thread} err] } {
+            _log_and_puts log "Warning: Tcl package Thread is not available, running in sequential mode: $err"
             set parallel 0
         } else {
             set worker [tpool::create -minworkers $parallel -maxworkers $parallel]
