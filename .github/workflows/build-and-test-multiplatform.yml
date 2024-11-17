@@ -420,12 +420,12 @@ jobs:
     - name: Install Tcl/Tk
       run: |
         choco install -y magicsplat-tcl-tk
+        refreshenv
       shell: cmd
 
     - name: Run tests
       run: |
         cd install
-        refreshenv
         call env.bat vc14 win64 release
         DRAWEXE.exe -v -c testgrid
       shell: cmd
