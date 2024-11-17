@@ -425,6 +425,7 @@ jobs:
     - name: Run tests
       run: |
         cd install
+        refreshenv
         call env.bat vc14 win64 release
         DRAWEXE.exe -v -c testgrid
       shell: cmd
