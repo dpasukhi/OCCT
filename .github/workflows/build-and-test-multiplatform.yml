@@ -39,6 +39,11 @@ jobs:
           Remove-Item 3rdparty-vc14-64.zip
       shell: pwsh
 
+    - name: Install Tcl/Tk
+      run: |
+        choco install -y magicsplat-tcl-tk
+      shell: cmd
+
     - name: Download and extract Mesa3D
       run: |
         curl -L -o mesa3d.7z https://github.com/pal1000/mesa-dist-win/releases/download/24.2.5/mesa3d-24.2.5-release-msvc.7z
@@ -410,6 +415,11 @@ jobs:
       run: |
         cd mesa3d
         .\systemwidedeploy.cmd 1
+      shell: cmd
+
+    - name: Install Tcl/Tk
+      run: |
+        choco install -y magicsplat-tcl-tk
       shell: cmd
 
     - name: Run tests
