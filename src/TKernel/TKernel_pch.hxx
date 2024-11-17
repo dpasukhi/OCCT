@@ -3,7 +3,12 @@
 
 // Standard library headers
 #include <atomic>
+#include <iostream>
+#include <limits>
+#include <ostream>
 #include <random>
+#include <sstream>
+#include <string>
 #include <type_traits>
 
 // Windows-specific headers (for MSVC)
