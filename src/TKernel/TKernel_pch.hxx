@@ -3,6 +3,7 @@
 
 // Standard library headers
 #include <atomic>
+#include <random>
 #include <type_traits>
 
 // Windows-specific headers (for MSVC)
@@ -49,6 +50,10 @@
 #include <NCollection_List.hxx>
 #include <NCollection_Map.hxx>
 #include <NCollection_Sequence.hxx>
+
+#include <Message_ProgressIndicator.hxx>
+#include <Message_ProgressRange.hxx>
+#include <Message_ProgressScope.hxx>
 
 #include <OSD_Parallel.hxx>
 #include <OSD_Path.hxx>
