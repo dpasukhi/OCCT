@@ -56,7 +56,7 @@ jobs:
           cd build
           cmake -T host=x64 `
                 -D USE_FREETYPE=ON `
-                -D USE_TK=OFF `
+                -D USE_TK=ON `
                 -D BUILD_USE_PCH=ON `
                 -D BUILD_OPT_PROFILE=Production `
                 -D BUILD_INCLUDE_SYMLINK=ON `
@@ -126,7 +126,7 @@ jobs:
                 -D CMAKE_C_COMPILER=clang `
                 -D CMAKE_CXX_COMPILER=clang++ `
                 -D USE_FREETYPE=ON `
-                -D USE_TK=OFF `
+                -D USE_TK=ON `
                 -D BUILD_USE_PCH=ON `
                 -D BUILD_OPT_PROFILE=Production `
                 -D BUILD_INCLUDE_SYMLINK=ON `
@@ -285,7 +285,7 @@ jobs:
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
               -D BUILD_OPT_PROFILE=Production \
-              -D USE_TK=OFF \
+              -D USE_TK=ON \
               -D CMAKE_BUILD_TYPE=Release \
               -D INSTALL_DIR=${{ github.workspace }}/install \
               -D 3RDPARTY_RAPIDJSON_DIR=${{ github.workspace }}/rapidjson-858451e5b7d1c56cf8f6d58f88cf958351837e53 \
@@ -339,7 +339,7 @@ jobs:
               -D BUILD_USE_PCH=ON \
               -D BUILD_INCLUDE_SYMLINK=ON \
               -D BUILD_OPT_PROFILE=Production \
-              -D USE_TK=OFF \
+              -D USE_TK=ON \
               -D CMAKE_BUILD_TYPE=Release \
               -D INSTALL_DIR=${{ github.workspace }}/install \
               -D 3RDPARTY_RAPIDJSON_DIR=${{ github.workspace }}/rapidjson-858451e5b7d1c56cf8f6d58f88cf958351837e53 \
