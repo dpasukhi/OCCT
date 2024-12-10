@@ -17,7 +17,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
-env: 
+env:
   USERNAME: dpasukhi
   VCPKG_EXE: ${{ github.workspace }}/vcpkg/vcpkg
   FEED_URL: https://nuget.pkg.github.com/dpasukhi/index.json
