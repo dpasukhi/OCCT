@@ -126,7 +126,7 @@ jobs:
               -DUSE_TBB=ON \
               -DUSE_RAPIDJSON=ON \
               -DUSE_OPENGL=ON \
-              -DBUILD_MODULE_Draw=OFF' \
+              -DBUILD_MODULE_Draw=OFF \
               ${{ runner.os != 'macOS' && '-DUSE_OPENVR=ON' || '' }} ..
       shell: bash
 
