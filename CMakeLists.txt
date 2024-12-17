@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.10 FATAL_ERROR)
 
 if (NOT DEFINED BUILD_USE_VCPKG)
-  set (BUILD_USE_VCPKG ON CACHE BOOL "Use vcpkg for 3rdparty libraries.")
+  set (BUILD_USE_VCPKG OFF CACHE BOOL "Use vcpkg for 3rdparty libraries.")
   if (CMAKE_TOOLCHAIN_FILE MATCHES "vcpkg.cmake")
     set (BUILD_USE_VCPKG ON)
   endif()

@@ -120,7 +120,7 @@ jobs:
               -DINSTALL_DIR=${{ github.workspace }}/install \
               -DUSE_DRACO=ON \
               -DUSE_FFMPEG=ON \
-              -DUSE_FREEIMAGE=ON \
+              -DUSE_FREEIMAGE=OFF \
               -DUSE_GLES2=ON \
               -DUSE_VTK=ON \
               -DUSE_TBB=ON \
@@ -146,7 +146,7 @@ jobs:
               -DINSTALL_DIR=${{ github.workspace }}/install ^
               -DUSE_DRACO=ON ^
               -DUSE_FFMPEG=ON ^
-              -DUSE_FREEIMAGE=ON ^
+              -DUSE_FREEIMAGE=OFF ^
               -DUSE_GLES2=ON ^
               -DUSE_OPENVR=ON ^
               -DUSE_VTK=ON ^
@@ -187,7 +187,7 @@ jobs:
               -DINSTALL_DIR=${{ github.workspace }}/install-debug \
               -DUSE_DRACO=ON \
               -DUSE_FFMPEG=ON \
-              -DUSE_FREEIMAGE=ON \
+              -DUSE_FREEIMAGE=OFF \
               -DUSE_GLES2=ON \
               -DUSE_VTK=ON \
               -DUSE_TBB=ON \
@@ -213,7 +213,7 @@ jobs:
               -DINSTALL_DIR=${{ github.workspace }}/install-debug ^
               -DUSE_DRACO=ON ^
               -DUSE_FFMPEG=ON ^
-              -DUSE_FREEIMAGE=ON ^
+              -DUSE_FREEIMAGE=OFF ^
               -DUSE_GLES2=ON ^
               -DUSE_OPENVR=ON ^
               -DUSE_VTK=ON ^
