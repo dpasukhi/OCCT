@@ -1,6 +1,6 @@
 # JeMalloc
 
-macro (JEMALLOC_LIB_SEARCH MMGR_LIB PREFIX)
+function (JEMALLOC_LIB_SEARCH MMGR_LIB PREFIX)
   if (NOT 3RDPARTY_JEMALLOC_LIBRARY_${PREFIX}_${MMGR_LIB})
     set (JEMALLOC_PATH_SUFFIXES "lib" "bin")
     set (3RDPARTY_JEMALLOC_LIBRARY_${PREFIX}_${MMGR_LIB} "3RDPARTY_JEMALLOC_LIBRARY_${PREFIX}_${MMGR_LIB}-NOTFOUND")
@@ -64,9 +64,9 @@ macro (JEMALLOC_LIB_SEARCH MMGR_LIB PREFIX)
   endif()
   unset(3RDPARTY_JEMALLOC_LIBRARY_DIR_${MMGR_LIB} CACHE)
   unset(3RDPARTY_JEMALLOC_LIBRARY_${PREFIX}_${MMGR_LIB} CACHE)
-endmacro()
+endfunction()
 
-macro (SEARCH_JEMALLOC)
+function (SEARCH_JEMALLOC)
   # find static jemalloc lib
   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".lib" ".a")
   if (WIN32)
@@ -80,7 +80,7 @@ macro (SEARCH_JEMALLOC)
   # find shared jemalloc lib
   SET(CMAKE_FIND_LIBRARY_SUFFIXES ".dll" ".so")
   JEMALLOC_LIB_SEARCH ("jemalloc" "SHARED")
-endmacro()
+endfunction()
 
 # Reset CSF variable
 set (CSF_MMGR "")
