@@ -46,11 +46,14 @@ jobs:
     - name: Install required packages (macOS)
       if: runner.os == 'macOS'
       run: |
-        brew update
-        brew upgrade
-        brew install cmake ninja nasm autoconf mono
+        brew update || true
+        brew upgrade || true
+        brew install cmake ninja nasm autoconf mono || true
         # temporary workaround for missing tcl-tk
-        brew install tcl-tk
+        brew install tcl-tk || true
+        # Force link any conflicting packages
+        brew link --overwrite python@3.12 || true
+        brew link --overwrite python@3.13 || true
 
     - name: Set up vcpkg (Unix)
       if: runner.os != 'Windows'
@@ -105,7 +108,7 @@ jobs:
               -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
               -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_USE_VCPKG=ON \
-              -DUSE_MMGR_TYPE=JEMALLOC \
+              -DUSE_MMGR_TYPE=${{ runner.os == 'macOS' && 'NATIVE' || 'JEMALLOC' }} \
               -DUSE_FREETYPE=ON \
               -DUSE_TK=OFF \
               -DBUILD_USE_PCH=ON \
@@ -174,7 +177,7 @@ jobs:
               -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
               -DCMAKE_BUILD_TYPE=Debug \
               -DBUILD_USE_VCPKG=ON \
-              -DUSE_MMGR_TYPE=JEMALLOC \
+              -DUSE_MMGR_TYPE=${{ runner.os == 'macOS' && 'NATIVE' || 'JEMALLOC' }} \
               -DUSE_FREETYPE=ON \
               -DUSE_TK=OFF \
               -DBUILD_USE_PCH=ON \
