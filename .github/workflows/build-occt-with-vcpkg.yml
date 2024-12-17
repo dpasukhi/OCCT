@@ -166,7 +166,7 @@ jobs:
       if: runner.os == 'Windows'
       run: |
         cd build
-        dir /s .\vcpkg-installed
+        dir /s vcpkg_installed
         cmake --build . --target install --config Release
       shell: cmd
 
