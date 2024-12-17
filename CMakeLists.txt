@@ -370,19 +370,6 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "WindowsStore" AND BUILD_MODULE_Draw)
   set (BUILD_MODULE_Draw OFF CACHE BOOL "${BUILD_MODULE_Draw_DESCR}" FORCE)
 endif()
 
-# Overview
-if (NOT DEFINED BUILD_DOC_Overview)
-  set (DO_ONLY_CHECK_FOR_DOXYGEN ON)
-  OCCT_INCLUDE_CMAKE_FILE ("adm/cmake/doxygen")
-  set (DO_ONLY_CHECK_FOR_DOXYGEN OFF)
-
-  if (CAN_DOXYGEN_BE_USED)
-    message (STATUS "Info. Overview building is turned on")
-  endif()
-
-  set (BUILD_DOC_Overview ${CAN_DOXYGEN_BE_USED} CACHE BOOL "${BUILD_DOC_Overview_DESCR}")
-endif()
-
 # accumulate used toolkits (first level) in BUILD_TOOLKITS variable
 list (APPEND BUILD_TOOLKITS ${BUILD_ADDITIONAL_TOOLKITS})
 
@@ -872,6 +859,19 @@ endif()
 
 if(APPLE)
   set (INSTALL_NAME_DIR "" CACHE STRING "install_name library suffix on OS X (e.g. @executable_path/../Frameworks)")
+endif()
+
+# Overview
+if (NOT DEFINED BUILD_DOC_Overview)
+  set (DO_ONLY_CHECK_FOR_DOXYGEN ON)
+  OCCT_INCLUDE_CMAKE_FILE ("adm/cmake/doxygen")
+  set (DO_ONLY_CHECK_FOR_DOXYGEN OFF)
+
+  if (CAN_DOXYGEN_BE_USED)
+    message (STATUS "Info. Overview building is turned on")
+  endif()
+
+  set (BUILD_DOC_Overview ${CAN_DOXYGEN_BE_USED} CACHE BOOL "${BUILD_DOC_Overview_DESCR}")
 endif()
 
 # include the patched or original list of definitions and flags

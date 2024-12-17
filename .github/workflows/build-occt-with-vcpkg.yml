@@ -108,7 +108,8 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+        cmake -G Ninja \
+              -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
               -DCMAKE_BUILD_TYPE=Release \
               -DBUILD_USE_VCPKG=ON \
               -DUSE_MMGR_TYPE=${{ runner.os == 'macOS' && 'NATIVE' || 'JEMALLOC' }} \
@@ -173,7 +174,8 @@ jobs:
       run: |
         mkdir build-debug
         cd build-debug
-        cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+        cmake -G Ninja \
+              -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
               -DCMAKE_BUILD_TYPE=Debug \
               -DBUILD_USE_VCPKG=ON \
               -DUSE_MMGR_TYPE=${{ runner.os == 'macOS' && 'NATIVE' || 'JEMALLOC' }} \
