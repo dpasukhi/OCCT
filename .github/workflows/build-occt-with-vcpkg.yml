@@ -126,7 +126,7 @@ jobs:
               -DUSE_TBB=ON \
               -DUSE_RAPIDJSON=ON \
               -DUSE_OPENGL=ON \
-              ${{ runner.os == 'macOS' && '-DBUILD_MODULE_Draw=OFF' || '' }} \
+              -DBUILD_MODULE_Draw=OFF' \
               ${{ runner.os != 'macOS' && '-DUSE_OPENVR=ON' || '' }} ..
       shell: bash
 
@@ -179,21 +179,21 @@ jobs:
               -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
               -DCMAKE_BUILD_TYPE=Debug \
               -DBUILD_USE_VCPKG=ON \
-              -DUSE_MMGR_TYPE=${{ runner.os == 'macOS' && 'NATIVE' || 'JEMALLOC' }} \
+              -DUSE_MMGR_TYPE=NATIVE \
               -DUSE_FREETYPE=ON \
               -DUSE_TK=OFF \
               -DBUILD_USE_PCH=ON \
               -DBUILD_INCLUDE_SYMLINK=ON \
               -DINSTALL_DIR=${{ github.workspace }}/install-debug \
               -DUSE_DRACO=ON \
-              -DUSE_FFMPEG=OFF \
+              -DUSE_FFMPEG=ON \
               -DUSE_FREEIMAGE=ON \
-              -DUSE_GLES2=ON \
+              -DUSE_GLES2=OFF \
               -DUSE_VTK=ON \
               -DUSE_TBB=ON \
               -DUSE_RAPIDJSON=ON \
               -DUSE_OPENGL=ON \
-              ${{ runner.os == 'macOS' && '-DBUILD_MODULE_Draw=OFF' || '' }} \
+              -DBUILD_MODULE_Draw=OFF \
               ${{ runner.os != 'macOS' && '-DUSE_OPENVR=ON' || '' }} ..
       shell: bash
 
