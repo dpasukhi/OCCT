@@ -586,28 +586,23 @@ else()
 endif()
 
 # OpenGL ES 2.0
-if (CAN_USE_GLES2)
-  if (USE_GLES2)
-    add_definitions (-DHAVE_GLES2_EXT)
-    if (NOT IOS)
-      list (APPEND OCCT_3RDPARTY_CMAKE_LIST "adm/cmake/egl")
-      list (APPEND OCCT_3RDPARTY_CMAKE_LIST "adm/cmake/gles2")
-    endif()
-  else()
-    OCCT_CHECK_AND_UNSET_GROUP ("3RDPARTY_EGL")
-    OCCT_CHECK_AND_UNSET_GROUP ("3RDPARTY_GLES2")
-    OCCT_CHECK_AND_UNSET ("INSTALL_EGL")
-    OCCT_CHECK_AND_UNSET ("INSTALL_GLES2")
-    list (REMOVE_ITEM BUILD_TOOLKITS TKOpenGles)
-    list (REMOVE_ITEM BUILD_TOOLKITS TKOpenGlesTest)
+if (CAN_USE_GLES2 AND USE_GLES2)
+  add_definitions (-DHAVE_GLES2_EXT)
+  if (NOT IOS)
+    list (APPEND OCCT_3RDPARTY_CMAKE_LIST "adm/cmake/egl")
+    list (APPEND OCCT_3RDPARTY_CMAKE_LIST "adm/cmake/gles2")
+    OCCT_ADD_VCPKG_FEATURE ("angle")
   endif()
 else()
-  OCCT_CHECK_AND_UNSET ("USE_GLES2")
-
+  if (NOT CAN_USE_GLES2)
+    OCCT_CHECK_AND_UNSET ("USE_GLES2")
+  endif()
   OCCT_CHECK_AND_UNSET_GROUP ("3RDPARTY_EGL")
   OCCT_CHECK_AND_UNSET_GROUP ("3RDPARTY_GLES2")
   OCCT_CHECK_AND_UNSET ("INSTALL_EGL")
   OCCT_CHECK_AND_UNSET ("INSTALL_GLES2")
+  list (REMOVE_ITEM BUILD_TOOLKITS TKOpenGles)
+  list (REMOVE_ITEM BUILD_TOOLKITS TKOpenGlesTest)
 endif()
 
 # D3D
@@ -692,15 +687,6 @@ endif()
 if (BUILD_DOC_Overview)
   if (NOT DEFINED INSTALL_DOC_Overview)
     set (INSTALL_DOC_Overview OFF CACHE BOOL "${INSTALL_DOC_Overview_DESCR}")
-  endif()
-
-  if (INSTALL_DOC_Overview)
-    install (DIRECTORY "${CMAKE_BINARY_DIR}/doc/overview" DESTINATION  "${INSTALL_DIR_DOC}")
-
-    # create overview.html only for windows
-    if (WIN32 AND "${INSTALL_DIR_LAYOUT}" STREQUAL "Windows")
-      OCCT_INSTALL_FILE_OR_DIR ("dox/resources/overview.html" "${INSTALL_DIR_DOC}/..")
-    endif()
   endif()
 
   list (APPEND OCCT_3RDPARTY_CMAKE_LIST "adm/cmake/doxygen")
@@ -899,6 +885,16 @@ if (USE_TK)
   add_definitions (-DHAVE_TK)
 else()
   set (CSF_TclTkLibs "")
+endif()
+
+# Installing the overview documentation
+if (INSTALL_DOC_Overview)
+  install (DIRECTORY "${CMAKE_BINARY_DIR}/doc/overview" DESTINATION  "${INSTALL_DIR_DOC}")
+
+  # create overview.html only for windows
+  if (WIN32 AND "${INSTALL_DIR_LAYOUT}" STREQUAL "Windows")
+    OCCT_INSTALL_FILE_OR_DIR ("dox/resources/overview.html" "${INSTALL_DIR_DOC}/..")
+  endif()
 endif()
 
 # check all 3rdparty include paths
