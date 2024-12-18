@@ -30,6 +30,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-24.04, ubuntu-22.04, ubuntu-20.04, windows-2022, windows-2019, macos-15, macos-14, macos-13]
+        build_type: [Debug, Release]
 
     steps:
     - name: Checkout repository
@@ -103,21 +104,21 @@ jobs:
           -Source "${{ env.FEED_URL }}"
       shell: bash
 
-    - name: Configure OCCT Release (Unix)
+    - name: Configure OCCT ${{ matrix.build_type }} (Unix)
       if: runner.os != 'Windows'
       run: |
-        mkdir build
-        cd build
+        mkdir build-${{ matrix.build_type }}
+        cd build-${{ matrix.build_type }}
         cmake -G Ninja \
               -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
               -DBUILD_USE_VCPKG=ON \
               -DUSE_MMGR_TYPE=NATIVE \
               -DUSE_FREETYPE=ON \
               -DUSE_TK=OFF \
               -DBUILD_USE_PCH=ON \
               -DBUILD_INCLUDE_SYMLINK=ON \
-              -DINSTALL_DIR=${{ github.workspace }}/install \
+              -DINSTALL_DIR=${{ github.workspace }}/install-${{ matrix.build_type }} \
               -DUSE_DRACO=ON \
               -DUSE_FFMPEG=ON \
               -DUSE_FREEIMAGE=ON \
@@ -130,20 +131,20 @@ jobs:
               ${{ runner.os != 'macOS' && '-DUSE_OPENVR=ON' || '' }} ..
       shell: bash
 
-    - name: Configure OCCT Release (Windows)
+    - name: Configure OCCT ${{ matrix.build_type }} (Windows)
       if: runner.os == 'Windows'
       run: |
-        mkdir build
-        cd build
+        mkdir build-${{ matrix.build_type }}
+        cd build-${{ matrix.build_type }}
         cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake ^
-              -DCMAKE_BUILD_TYPE=Release ^
+              -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ^
               -DBUILD_USE_VCPKG=ON ^
               -DUSE_MMGR_TYPE=JEMALLOC ^
               -DUSE_FREETYPE=ON ^
               -DUSE_TK=OFF ^
               -DBUILD_USE_PCH=ON ^
               -DBUILD_INCLUDE_SYMLINK=ON ^
-              -DINSTALL_DIR=${{ github.workspace }}/install ^
+              -DINSTALL_DIR=${{ github.workspace }}/install-${{ matrix.build_type }} ^
               -DUSE_DRACO=ON ^
               -DUSE_FFMPEG=OFF ^
               -DUSE_FREEIMAGE=ON ^
@@ -155,83 +156,16 @@ jobs:
               -DUSE_OPENGL=ON ..
       shell: cmd
 
-    - name: Build OCCT Release (Unix)
+    - name: Build OCCT ${{ matrix.build_type }} (Unix)
       if: runner.os != 'Windows'
       run: |
-        cd build
-        cmake --build . --target install --config Release
+        cd build-${{ matrix.build_type }}
+        cmake --build . --target install --config ${{ matrix.build_type }}
       shell: bash
 
-    - name: Build OCCT Release (Windows)
+    - name: Build OCCT ${{ matrix.build_type }} (Windows)
       if: runner.os == 'Windows'
       run: |
-        cd build
-        dir /s vcpkg_installed
-        cmake --build . --target install --config Release
-      shell: cmd
-
-    - name: Configure OCCT Debug (Unix)
-      if: runner.os != 'Windows'
-      run: |
-        mkdir build-debug
-        cd build-debug
-        cmake -G Ninja \
-              -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
-              -DCMAKE_BUILD_TYPE=Debug \
-              -DBUILD_USE_VCPKG=ON \
-              -DUSE_MMGR_TYPE=NATIVE \
-              -DUSE_FREETYPE=ON \
-              -DUSE_TK=OFF \
-              -DBUILD_USE_PCH=ON \
-              -DBUILD_INCLUDE_SYMLINK=ON \
-              -DINSTALL_DIR=${{ github.workspace }}/install-debug \
-              -DUSE_DRACO=ON \
-              -DUSE_FFMPEG=ON \
-              -DUSE_FREEIMAGE=ON \
-              -DUSE_GLES2=OFF \
-              -DUSE_VTK=ON \
-              -DUSE_TBB=ON \
-              -DUSE_RAPIDJSON=ON \
-              -DUSE_OPENGL=ON \
-              -DBUILD_MODULE_Draw=OFF \
-              ${{ runner.os != 'macOS' && '-DUSE_OPENVR=ON' || '' }} ..
-      shell: bash
-
-    - name: Configure OCCT Debug (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        mkdir build-debug
-        cd build-debug
-        cmake -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake ^
-              -DCMAKE_BUILD_TYPE=Debug ^
-              -DBUILD_USE_VCPKG=ON ^
-              -DUSE_MMGR_TYPE=JEMALLOC ^
-              -DUSE_FREETYPE=ON ^
-              -DUSE_TK=OFF ^
-              -DBUILD_USE_PCH=ON ^
-              -DBUILD_INCLUDE_SYMLINK=ON ^
-              -DINSTALL_DIR=${{ github.workspace }}/install-debug ^
-              -DUSE_DRACO=ON ^
-              -DUSE_FFMPEG=OFF ^
-              -DUSE_FREEIMAGE=ON ^
-              -DUSE_GLES2=ON ^
-              -DUSE_OPENVR=ON ^
-              -DUSE_VTK=ON ^
-              -DUSE_TBB=ON ^
-              -DUSE_RAPIDJSON=ON ^
-              -DUSE_OPENGL=ON ..
-      shell: cmd
-
-    - name: Build OCCT Debug (Unix)
-      if: runner.os != 'Windows'
-      run: |
-        cd build-debug
-        cmake --build . --target install --config Debug
-      shell: bash
-
-    - name: Build OCCT Debug (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        cd build-debug
-        cmake --build . --target install --config Debug
+        cd build-${{ matrix.build_type }}
+        cmake --build . --target install --config ${{ matrix.build_type }}
       shell: cmd
