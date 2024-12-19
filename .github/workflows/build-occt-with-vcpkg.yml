@@ -127,6 +127,7 @@ jobs:
               -DUSE_RAPIDJSON=ON \
               -DUSE_OPENGL=ON \
               -DBUILD_MODULE_Draw=OFF \
+              -DVCPKG_INSTALL_OPTIONS=--clean-buildtrees-after-build \
               ${{ runner.os != 'macOS' && '-DUSE_OPENVR=ON' || '' }} ..
       shell: bash
 
@@ -152,6 +153,7 @@ jobs:
               -DUSE_VTK=ON ^
               -DUSE_TBB=ON ^
               -DUSE_RAPIDJSON=ON ^
+              -DVCPKG_INSTALL_OPTIONS=--clean-buildtrees-after-build ^
               -DUSE_OPENGL=ON ..
       shell: cmd
 
