@@ -1,5 +1,3 @@
-# 
-
 # vcpkg processing
 if (BUILD_USE_VCPKG)
   find_package(FFMPEG REQUIRED)

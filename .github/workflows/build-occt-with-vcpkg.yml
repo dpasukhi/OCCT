@@ -18,10 +18,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  USERNAME: dpasukhi
-  VCPKG_EXE: ${{ github.workspace }}/vcpkg/vcpkg
-  FEED_URL: https://nuget.pkg.github.com/dpasukhi/index.json
-  VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/dpasukhi/index.json,readwrite"
+  USERNAME: ${{ secrets.NUGET_USERNAME }}
+  FEED_URL: ${{ secrets.NUGET_FEED_URL }}
+  VCPKG_BINARY_SOURCES: "clear;nuget,${{ secrets.NUGET_FEED_URL }},readwrite"
 
 jobs:
   build:
