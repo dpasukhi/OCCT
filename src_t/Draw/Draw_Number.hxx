@@ -24,8 +24,7 @@ DEFINE_STANDARD_HANDLE(Draw_Number, Draw_Drawable3D)
 //! To store numbers in variables.
 class Draw_Number : public Draw_Drawable3D
 {
-  DEFINE_STANDARD_RTTIEXT(Draw_Number, Draw_Drawable3D)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(Draw_Number, Draw_Drawable3D)
 public:
 
   Standard_EXPORT Draw_Number (const Standard_Real theV);

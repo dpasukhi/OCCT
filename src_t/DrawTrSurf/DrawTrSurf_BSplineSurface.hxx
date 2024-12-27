@@ -32,8 +32,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_BSplineSurface, DrawTrSurf_Surface)
 //! if you just want to sea boundaries and isoparametric curves.
 class DrawTrSurf_BSplineSurface : public DrawTrSurf_Surface
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_BSplineSurface, DrawTrSurf_Surface)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_BSplineSurface, DrawTrSurf_Surface)
 public:
   
   //! default drawing mode.

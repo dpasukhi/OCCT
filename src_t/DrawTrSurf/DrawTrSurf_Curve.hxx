@@ -29,8 +29,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_Curve, DrawTrSurf_Drawable)
 //! This class defines a drawable curve in 3d space.
 class DrawTrSurf_Curve : public DrawTrSurf_Drawable
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_Curve, DrawTrSurf_Drawable)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_Curve, DrawTrSurf_Drawable)
 public:
 
   //! creates a drawable curve from a curve of package Geom.

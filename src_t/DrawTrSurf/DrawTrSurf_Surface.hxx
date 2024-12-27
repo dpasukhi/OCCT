@@ -29,8 +29,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_Surface, DrawTrSurf_Drawable)
 //! With this class you can draw a general surface from package Geom.
 class DrawTrSurf_Surface : public DrawTrSurf_Drawable
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_Surface, DrawTrSurf_Drawable)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_Surface, DrawTrSurf_Drawable)
 public:
 
   //! default drawing mode

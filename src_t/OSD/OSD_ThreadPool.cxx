@@ -76,7 +76,7 @@ void OSD_ThreadPool::EnumeratedThread::WaitIdle()
     myIdleEvent.Reset();
   }
 }
-
+#include <thread>
 // =======================================================================
 // function : DefaultPool
 // purpose  :

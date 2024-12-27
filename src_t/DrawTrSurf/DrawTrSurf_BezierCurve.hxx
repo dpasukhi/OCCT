@@ -26,8 +26,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_BezierCurve, DrawTrSurf_Curve)
 
 class DrawTrSurf_BezierCurve : public DrawTrSurf_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_BezierCurve, DrawTrSurf_Curve)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_BezierCurve, DrawTrSurf_Curve)
 public:
 
   //! creates a drawable Bezier curve from a Bezier curve of package Geom.

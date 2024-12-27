@@ -51,8 +51,9 @@ public:
 
   //! @def Draw_Drawable3D_FACTORY
   //! Auxiliary macros defining Draw_Drawable3D restoration API to sub-class.
-  #define Draw_Drawable3D_FACTORY \
-    static void RegisterFactory() { Draw_Drawable3D::RegisterFactory (get_type_name(), &Restore); } \
+  #define Draw_Drawable3D_FACTORY_RTTIEXT(Class,Base) \
+    DEFINE_STANDARD_RTTIEXT(Class, Base) \
+    static void RegisterFactory() { Draw_Drawable3D::RegisterFactory (#Class, &Restore); } \
     Standard_EXPORT static Handle(Draw_Drawable3D) Restore (Standard_IStream& theStream);
 
 public:

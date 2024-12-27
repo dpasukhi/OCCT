@@ -26,8 +26,7 @@ DEFINE_STANDARD_HANDLE(HLRTest_Projector, Draw_Drawable3D)
 //! Draw Variable Projector to test.
 class HLRTest_Projector : public Draw_Drawable3D
 {
-  DEFINE_STANDARD_RTTIEXT(HLRTest_Projector, Draw_Drawable3D)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(HLRTest_Projector, Draw_Drawable3D)
 public:
 
   Standard_EXPORT HLRTest_Projector(const HLRAlgo_Projector& P);

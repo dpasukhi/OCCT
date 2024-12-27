@@ -28,8 +28,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_Polygon2D, Draw_Drawable2D)
 //! Optional display of nodes.
 class DrawTrSurf_Polygon2D : public Draw_Drawable2D
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_Polygon2D, Draw_Drawable2D)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_Polygon2D, Draw_Drawable2D)
 public:
 
   Standard_EXPORT DrawTrSurf_Polygon2D (const Handle(Poly_Polygon2D)& P);

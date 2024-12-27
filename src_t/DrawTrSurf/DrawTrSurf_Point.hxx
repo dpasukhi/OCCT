@@ -29,8 +29,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_Point, Draw_Drawable3D)
 //! A drawable point.
 class DrawTrSurf_Point : public Draw_Drawable3D
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_Point, Draw_Drawable3D)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_Point, Draw_Drawable3D)
 public:
 
   Standard_EXPORT DrawTrSurf_Point (const gp_Pnt& P, const Draw_MarkerShape Shape, const Draw_Color& Col);

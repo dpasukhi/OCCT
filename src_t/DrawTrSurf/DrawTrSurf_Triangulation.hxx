@@ -32,8 +32,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_Triangulation, Draw_Drawable3D)
 //! Optional display of triangles and nodes indices.
 class DrawTrSurf_Triangulation : public Draw_Drawable3D
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_Triangulation, Draw_Drawable3D)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_Triangulation, Draw_Drawable3D)
 public:
   
   Standard_EXPORT DrawTrSurf_Triangulation (const Handle(Poly_Triangulation)& T);

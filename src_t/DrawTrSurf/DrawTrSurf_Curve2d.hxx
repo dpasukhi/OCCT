@@ -29,8 +29,7 @@ DEFINE_STANDARD_HANDLE(DrawTrSurf_Curve2d, DrawTrSurf_Drawable)
 //! The curve is drawn in the plane XOY.
 class DrawTrSurf_Curve2d : public DrawTrSurf_Drawable
 {
-  DEFINE_STANDARD_RTTIEXT(DrawTrSurf_Curve2d, DrawTrSurf_Drawable)
-  Draw_Drawable3D_FACTORY
+  Draw_Drawable3D_FACTORY_RTTIEXT(DrawTrSurf_Curve2d, DrawTrSurf_Drawable)
 public:
 
   //! creates a drawable curve from a curve of package Geom2d.
