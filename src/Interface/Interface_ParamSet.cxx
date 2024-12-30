@@ -60,6 +60,10 @@ Standard_Integer  Interface_ParamSet::Append (const Standard_CString val, const 
       char* newval = new char[newres];
       for (i = 0; i < thelnval; i++) 
         newval[i] = theval[i]; //szv#4:S4163:12Mar99 `<= thelnres` was wrong
+      //      Enteriner la nouvelle reservation
+      delete [] theval;
+      theval   = newval;
+      thelnres = newres;
       //      et cepatou : il faut realigner les Params deja enregistres sur
       //      l ancienne reservation de caracteres ...
       //Standard_Integer delta = (Standard_Integer) (newval - theval);
@@ -77,10 +81,6 @@ Standard_Integer  Interface_ParamSet::Append (const Standard_CString val, const 
 	OFP.Init(pnewVal+delta,otyp);    // et voila; on remet dans la boite
 	if (onum != 0) OFP.SetEntityNumber(onum);
       }
-      //      Enteriner la nouvelle reservation
-      delete [] theval;
-      theval   = newval;
-      thelnres = newres;
     }
     //      Enregistrer ce parametre
     for (i = 0; i < lnval; i ++)  theval[thelnval + i] = val[i];
