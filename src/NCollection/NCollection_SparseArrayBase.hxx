@@ -207,8 +207,12 @@ protected:
   //! Destructor
   virtual ~NCollection_SparseArrayBase ()
   {
+    destroyItems();
     Clear();
   }
+
+  //! Method to be overridden by derived classes to handle item destruction
+  virtual void destroyItems() = 0;
 
 protected:
   // Data access interface for descendants

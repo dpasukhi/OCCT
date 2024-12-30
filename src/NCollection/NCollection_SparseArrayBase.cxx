@@ -54,7 +54,7 @@ void NCollection_SparseArrayBase::freeBlock (const Standard_Size iBlock)
   for (Standard_Size anInd=0; anInd < myBlockSize; anInd++)
     if ( aBlock.IsSet(anInd) )
     {
-      destroyItem (getItem (aBlock, anInd));
+      destroyItems();
       mySize--;
     }
   free (anAddr);
