@@ -7,7 +7,7 @@ name: Code Analysis
 on:
   push:
     branches:
-      - 'master'
+      - '*'
 
 permissions:
   contents: read
