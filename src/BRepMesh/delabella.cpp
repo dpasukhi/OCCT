@@ -214,12 +214,12 @@ struct CDelaBella : IDelaBella
 	int Triangulate()
 	{
 		int points = inp_verts;
-		std::sort(vert_alloc, vert_alloc + points);
+		std::sort(vert_alloc, vert_alloc + points, [](const DelaBella_Vertex* a, const DelaBella_Vertex* b) { return *a < *b; });
 
 		// remove dups
 		{
 			int w = 0, r = 1; // skip initial no-dups block
-			while (r < points && !Vert::overlap(vert_alloc + r, vert_alloc + w))
+			while (r < points && !Vert::overlap(vert_alloc[r], vert_alloc[w]))
 			{
 				w++;
 				r++;
@@ -232,11 +232,11 @@ struct CDelaBella : IDelaBella
 				r++;
 
 				// skip dups
-				while (r < points && Vert::overlap(vert_alloc + r, vert_alloc + r - 1))
+				while (r < points && Vert::overlap(vert_alloc[r], vert_alloc[r - 1]))
 					r++;
 
 				// copy next no-dups block
-				while (r < points && !Vert::overlap(vert_alloc + r, vert_alloc + r - 1))
+				while (r < points && !Vert::overlap(vert_alloc[r], vert_alloc[r - 1]))
 					vert_alloc[w++] = vert_alloc[r++];
 			}
 
@@ -254,16 +254,16 @@ struct CDelaBella : IDelaBella
 			{
 				if (errlog_proc)
 					errlog_proc(errlog_file, "[WRN] all input points are colinear, returning single segment!\n");
-				first_hull_vert = vert_alloc + 0;
-				vert_alloc[0].next = (DelaBella_Vertex*)vert_alloc + 1;
-				vert_alloc[1].next = 0;
+				first_hull_vert = vert_alloc[0];
+				vert_alloc[0]->next = vert_alloc[1];
+				vert_alloc[1]->next = 0;
 			}
 			else
 			{
 				if (errlog_proc)
 					errlog_proc(errlog_file, "[WRN] all input points are identical, returning single point!\n");
-				first_hull_vert = vert_alloc + 0;
-				vert_alloc[0].next = 0;
+				first_hull_vert = vert_alloc[0];
+				vert_alloc[0]->next = 0;
 			}
 
 			return -points;
