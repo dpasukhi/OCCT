@@ -96,6 +96,7 @@ static Standard_Integer GiveEntityNumber(const Handle(XSControl_WorkSession)& WS
   if (!name || name[0] == '\0')
   {
     char ligne[80];  ligne[0] = '\0';
+    std::cin.width(sizeof(ligne));
     std::cin >> ligne;
     //    std::cin.clear();  std::cin.getline (ligne,79);
     if (ligne[0] == '\0') return 0;
