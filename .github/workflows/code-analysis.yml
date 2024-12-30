@@ -51,7 +51,7 @@ jobs:
               -D CMAKE_C_COMPILER=gcc \
               -D CMAKE_CXX_COMPILER=g++ \
               -D BUILD_USE_PCH=ON \
-              -D BUILD_INCLUDE_SYMLINK=ON \
+              -D BUILD_INCLUDE_SYMLINK=OFF \
               -D BUILD_OPT_PROFILE=Production \
               -D USE_TK=OFF \
               -D CMAKE_BUILD_TYPE=${{ env.config }} \
