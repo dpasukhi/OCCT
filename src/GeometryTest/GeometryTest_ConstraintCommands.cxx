@@ -530,6 +530,7 @@ static Standard_Integer interpol (Draw_Interpretor& di,Standard_Integer n, const
     Standard_Real x, y, z;
     iFile >> nbp;
     char dimen[3];
+    iFile.width(3);
     iFile >> dimen;
     if (!strcmp(dimen,"3d")) {
       Handle(TColgp_HArray1OfPnt) Point =
