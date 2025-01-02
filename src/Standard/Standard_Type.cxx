@@ -1,5 +1,5 @@
 // Copyright (c) 1998-1999 Matra Datavision
-// Copyright (c) 1999-2014 OPEN CASCADE SAS
+// Copyright (c) 1999-2025 OPEN CASCADE SAS
 //
 // This file is part of Open CASCADE Technology software library.
 //
@@ -12,96 +12,62 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-
-#include <Standard_Type.hxx>
-#include <Standard_Mutex.hxx>
 #include <Standard_Assert.hxx>
+#include <Standard_Mutex.hxx>
+#include <Standard_Type.hxx>
 
 #include <unordered_map>
 
-IMPLEMENT_STANDARD_RTTIEXT(Standard_Type,Standard_Transient)
+IMPLEMENT_STANDARD_RTTIEXT(Standard_Type, Standard_Transient)
 
-//============================================================================
-
-Standard_Type::Standard_Type (const std::type_info& theInfo,
-                              const char* theName,
-                              Standard_Size theSize,
-                              const Handle(Standard_Type)& theParent) :
-  myInfo(theInfo),
+Standard_Type::Standard_Type(const std::type_info&        theInfo,
+                             const char*                  theName,
+                             Standard_Size                theSize,
+                             const Handle(Standard_Type)& theParent)
+: myInfo(theInfo),
   myName(theName),
-  mySize(theSize), 
+  mySize(theSize),
+  myLevel(theParent.IsNull() ? 0 : theParent->myLevel + 1),
   myParent(theParent)
+{}
+
+Standard_Boolean Standard_Type::SubType(const Handle(Standard_Type)& theOther) const
 {
-}
-
-//============================================================================
-
-Standard_Boolean Standard_Type::SubType (const Handle(Standard_Type)& theOther) const
-{
-  return ! theOther.IsNull() && (theOther == this || (! myParent.IsNull() && myParent->SubType (theOther)));
-}
-
-//============================================================================
-
-Standard_Boolean Standard_Type::SubType (const Standard_CString theName) const
-{
-  return theName != 0 && (IsEqual (myName, theName) || (! myParent.IsNull() && myParent->SubType (theName)));
-}
-
-// ------------------------------------------------------------------
-// Print (me; s: in out OStream) returns OStream;
-// ------------------------------------------------------------------
-void Standard_Type::Print (Standard_OStream& AStream) const
-{
-  AStream << std::hex << (Standard_Address)this << " : " << std::dec << myName ;
-}
-
-//============================================================================
-// Registry of types
-//============================================================================
-
-namespace {
-  // Map of string to type
-  typedef std::unordered_map<std::type_index, Standard_Type*> registry_type;
-
-  // Registry is made static in the function to ensure that it gets
-  // initialized by the time of first access
-  registry_type& GetRegistry() 
+  const Standard_Type* aTypeIter = this;
+  do
   {
-    static registry_type theRegistry;
-    return theRegistry;
-  }
-
-  // To initialize theRegistry map as soon as possible to be destroyed the latest
-  Handle(Standard_Type) theType = STANDARD_TYPE(Standard_Transient);
+    if (theOther.get() == aTypeIter)
+    {
+      return true;
+    }
+    aTypeIter = aTypeIter->Parent().get();
+  } while (aTypeIter && theOther->myLevel <= aTypeIter->myLevel);
+  return false;
 }
 
-Standard_Type* Standard_Type::Register (const std::type_info& theInfo, const char* theName,
-                                        Standard_Size theSize, const Handle(Standard_Type)& theParent)
+Standard_Boolean Standard_Type::SubType(const Standard_CString theName) const
 {
-  // Access to registry is protected by mutex; it should not happen often because
-  // instances are cached by Standard_Type::Instance() (one per binary module)
-  static Standard_Mutex theMutex;
-  Standard_Mutex::Sentry aSentry (theMutex);
-
-  // return existing descriptor if already in the registry
-  registry_type& aRegistry = GetRegistry();
-  Standard_Type* aType = 0;
-  auto anIter = aRegistry.find(theInfo);
-  if (anIter != aRegistry.end())
-    return anIter->second;
-
-  // else create a new descriptor
-  aType = new Standard_Type (theInfo, theName, theSize, theParent);
-
-  // then add it to registry and return (the reference to the handle stored in the registry)
-  aRegistry.emplace(theInfo, aType);
-  return aType;
+  const Standard_Type* aTypeIter = this;
+  do
+  {
+    if (IsEqual(theName, aTypeIter->Name()))
+    {
+      return true;
+    }
+    aTypeIter = aTypeIter->Parent().get();
+  } while (aTypeIter);
+  return false;
 }
 
-Standard_Type::~Standard_Type ()
+void Standard_Type::Print(Standard_OStream& AStream) const
 {
-  // remove descriptor from the registry
-  registry_type& aRegistry = GetRegistry();
-  Standard_ASSERT(aRegistry.erase(myInfo) > 0, "Standard_Type::~Standard_Type() cannot find itself in registry",);
+  AStream << std::hex << (Standard_Address)this << " : " << std::dec << myName;
+}
+
+Standard_Type* Standard_Type::Register(const std::type_info&        theInfo,
+                                       const char*                  theName,
+                                       Standard_Size                theSize,
+                                       const Handle(Standard_Type)& theParent)
+{
+  return new (Standard::AllocateOptimal(sizeof(Standard_Type))) Standard_Type(theInfo, theName, theSize, theParent);
 }
