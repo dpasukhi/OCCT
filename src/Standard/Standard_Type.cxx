@@ -33,6 +33,10 @@ Standard_Type::Standard_Type(const std::type_info&        theInfo,
 
 Standard_Boolean Standard_Type::SubType(const Handle(Standard_Type)& theOther) const
 {
+  if (theOther.IsNull())
+  {
+    return false;
+  }
   const Standard_Type* aTypeIter = this;
   while (aTypeIter && theOther->myLevel <= aTypeIter->myLevel && theOther->mySize <= aTypeIter->mySize)
   {
