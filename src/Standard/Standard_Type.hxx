@@ -97,7 +97,7 @@ public: \
   static const Handle(Standard_Type)& get_type_descriptor () \
   { \
     static const Handle(Standard_Type) THE_TYPE_INSTANCE = Standard_Type::Register (typeid(Class), get_type_name(), \
-                                                                 sizeof(Class), Base::get_type_descriptor().get()); \
+                                                                       sizeof(Class), Base::get_type_descriptor()); \
     return THE_TYPE_INSTANCE; \
   } \
   virtual const Handle(Standard_Type)& DynamicType() const Standard_OVERRIDE { return get_type_descriptor (); }
@@ -118,7 +118,7 @@ public: \
   const Handle(Standard_Type)& Class::get_type_descriptor () \
   { \
     static const Handle(Standard_Type) THE_TYPE_INSTANCE = Standard_Type::Register (typeid(Class), get_type_name(), \
-                                                                 sizeof(Class), Base::get_type_descriptor().get()); \
+                                                                       sizeof(Class), Base::get_type_descriptor()); \
     return THE_TYPE_INSTANCE; \
   }
 

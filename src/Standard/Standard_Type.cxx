@@ -34,14 +34,14 @@ Standard_Type::Standard_Type(const std::type_info&        theInfo,
 Standard_Boolean Standard_Type::SubType(const Handle(Standard_Type)& theOther) const
 {
   const Standard_Type* aTypeIter = this;
-  do
+  while (aTypeIter && theOther->myLevel <= aTypeIter->myLevel && theOther->mySize <= aTypeIter->mySize)
   {
     if (theOther.get() == aTypeIter)
     {
       return true;
     }
     aTypeIter = aTypeIter->Parent().get();
-  } while (aTypeIter && theOther->myLevel <= aTypeIter->myLevel);
+  }
   return false;
 }
 
