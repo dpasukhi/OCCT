@@ -223,11 +223,11 @@ private:
                  Standard_Size theSize, const Handle(Standard_Type)& theParent);
 
 private:
-  std::type_index myInfo;         //!< Object to store system name of the class
-  Standard_CString myName;        //!< Given name of the class
-  Standard_Size mySize;           //!< Size of the class instance, in bytes
-  Standard_Size myLevel;          //!< Level in the hierarchy
-  Handle(Standard_Type) myParent; //!< Type descriptor of parent class
+  std::type_index myInfo;                //!< Object to store system name of the class
+  Standard_CString myName;               //!< Given name of the class
+  Standard_Size mySize;                  //!< Size of the class instance, in bytes
+  Standard_Size myLevel;                 //!< Level in the hierarchy
+  const Handle(Standard_Type)& myParent; //!< Type descriptor of parent class
 };
 
 //! Operator printing type descriptor to stream
