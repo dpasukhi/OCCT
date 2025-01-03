@@ -93,7 +93,7 @@ namespace opencascade
 #define DEFINE_STANDARD_RTTI_INLINE(Class,Base) \
 public: \
   typedef Base base_type; \
-  static constexpr const char* get_type_name () { return #Class; OCCT_CHECK_BASE_CLASS(Class,Base) } \
+  static constexpr const char* get_type_name () { return #Class; } \
   static const Handle(Standard_Type)& get_type_descriptor () \
   { \
     static const Handle(Standard_Type) THE_TYPE_INSTANCE = Standard_Type::Register (typeid(Class), get_type_name(), \
@@ -109,7 +109,7 @@ public: \
 #define DEFINE_STANDARD_RTTIEXT(Class,Base) \
 public: \
   typedef Base base_type; \
-  static constexpr const char* get_type_name () { return #Class; OCCT_CHECK_BASE_CLASS(Class,Base) } \
+  static constexpr const char* get_type_name () { return #Class; } \
   Standard_EXPORT static const Handle(Standard_Type)& get_type_descriptor (); \
   Standard_EXPORT virtual const Handle(Standard_Type)& DynamicType() const Standard_OVERRIDE;
 
@@ -122,12 +122,6 @@ public: \
     return THE_TYPE_INSTANCE; \
   } \
   const Handle(Standard_Type)& Class::DynamicType() const { return STANDARD_TYPE(Class); }
-
-// forward declaration of type_instance class
-namespace opencascade {
-  template <typename T>
-  class type_instance;
-}
 
 //! This class provides legacy interface (type descriptor) to run-time type
 //! information (RTTI) for OCCT classes inheriting from Standard_Transient.
@@ -155,8 +149,6 @@ namespace opencascade {
 class Standard_Type : public Standard_Transient
 {
 public:
-  const std::type_index& Info() const { return myInfo; }
-
   //! Returns the system type name of the class (typeinfo.name)
   Standard_CString SystemName() const { return myInfo.name(); }
   
@@ -203,15 +195,8 @@ public:
     Standard_Type* Register (const std::type_info& theInfo, const char* theName,
                              Standard_Size theSize, const Handle(Standard_Type)& theParent);
 
-  bool operator==(const Standard_Type& theType) const
-  {
-    return myLevel == theType.myLevel && mySize == theType.mySize && myInfo == theType.myInfo;
-  }
-
-  bool operator==(const std::type_info& theInfo) const { return myInfo == theInfo; }
-
   //! Destructor removes the type from the registry
-  ~Standard_Type () {}
+  Standard_EXPORT ~Standard_Type();
 
   // Define own RTTI
   DEFINE_STANDARD_RTTIEXT(Standard_Type,Standard_Transient)
@@ -235,18 +220,6 @@ inline Standard_OStream& operator << (Standard_OStream& theStream, const Handle(
 {
   theType->Print (theStream);
   return theStream;
-}
-
-namespace std
-{
-  template <>
-  struct hash<Standard_Type>
-  {
-    size_t operator()(const Standard_Type& theType) const noexcept
-    {
-      return theType.Info().hash_code();
-    }
-  };
 }
 
 //! Definition of Handle_Standard_Type as typedef for compatibility

@@ -64,10 +64,60 @@ void Standard_Type::Print(Standard_OStream& AStream) const
   AStream << std::hex << (Standard_Address)this << " : " << std::dec << myName;
 }
 
+namespace
+{
+  // Map of string to type
+  typedef std::unordered_map<std::type_index, Standard_Type*> registry_type;
+
+  // Registry is made static in the function to ensure that it gets
+  // initialized by the time of first access
+  registry_type& GetRegistry()
+  {
+    static registry_type theRegistry;
+    return theRegistry;
+  }
+
+  Standard_Mutex& GetRegistrationMutex()
+  {
+    static Standard_Mutex theMutex;
+    return theMutex;
+  }
+
+  // To initialize theRegistry map as soon as possible to be destroyed the latest
+  Handle(Standard_Type) theType = STANDARD_TYPE(Standard_Transient);
+}
+
 Standard_Type* Standard_Type::Register(const std::type_info&        theInfo,
                                        const char*                  theName,
                                        Standard_Size                theSize,
                                        const Handle(Standard_Type)& theParent)
 {
-  return new (Standard::AllocateOptimal(sizeof(Standard_Type))) Standard_Type(theInfo, theName, theSize, theParent);
+  // Access to registry is protected by mutex; it should not happen often because
+  // instances are cached by Standard_Type::Instance() (one per binary module)
+
+  // return existing descriptor if already in the registry
+  registry_type& aRegistry = GetRegistry();
+  Standard_Type* aType     = 0;
+
+  Standard_Mutex::Sentry aSentry(GetRegistrationMutex());
+  auto                   anIter = aRegistry.find(theInfo);
+  if (anIter != aRegistry.end())
+  {
+    return anIter->second;
+  }
+
+  // else create a new descriptor
+  aType = new Standard_Type(theInfo, theName, theSize, theParent);
+
+  // then add it to registry and return (the reference to the handle stored in the registry)
+  aRegistry.emplace(theInfo, aType);
+  return aType;
+}
+
+Standard_Type::~Standard_Type()
+{
+  // remove descriptor from the registry
+  registry_type&         aRegistry = GetRegistry();
+  Standard_Mutex::Sentry aSentry(GetRegistrationMutex());
+  Standard_ASSERT(aRegistry.erase(myInfo) > 0, "Standard_Type::~Standard_Type() cannot find itself in registry", );
 }
