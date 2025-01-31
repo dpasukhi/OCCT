@@ -16,6 +16,7 @@
 #define _Vulkan_GraphicDriver_HeaderFile
 
 #include <Graphic3d_GraphicDriver.hxx>
+#include <NCollection_Map.hxx>
 
 class Vulkan_Caps;
 class Vulkan_Context;

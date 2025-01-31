@@ -17,6 +17,7 @@
 
 #include <Vulkan_ForwardDecl.hxx>
 #include <Standard_Type.hxx>
+#include <Standard_Transient.hxx>
 
 class Vulkan_Device;
 class TCollection_AsciiString;

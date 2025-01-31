@@ -20,6 +20,7 @@
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TColStd_IndexedDataMapOfStringString.hxx>
+#include <Standard_Transient.hxx>
 
 #include <memory>
 

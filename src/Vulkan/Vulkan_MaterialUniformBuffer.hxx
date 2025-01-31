@@ -20,7 +20,6 @@
 #include <NCollection_Map.hxx>
 #include <Vulkan_UniformBuffer.hxx>
 #include <Quantity_ColorRGBA.hxx>
-#include <Quantity_ColorRGBAHasher.hxx>
 
 struct Vulkan_MaterialKey
 {

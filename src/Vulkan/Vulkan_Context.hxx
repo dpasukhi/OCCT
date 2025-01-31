@@ -108,8 +108,8 @@ protected:
       {
         return 0;
       }
-
-      for (IndexedMapNode* aNodeIter = (IndexedMapNode* )myData1[Vulkun_PipelineCfg::HashCode (theCfg, NbBuckets())];
+      const size_t aHash = std::hash<Vulkun_PipelineCfg>{}(theCfg) % NbBuckets() + 1;
+      for (IndexedMapNode* aNodeIter = (IndexedMapNode* )myData1[aHash];
            aNodeIter != NULL; aNodeIter = (IndexedMapNode* )aNodeIter->Next())
       {
         const Handle(Vulkan_Pipeline)& aKey = aNodeIter->Key1();
