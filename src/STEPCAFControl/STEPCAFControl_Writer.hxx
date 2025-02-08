@@ -52,9 +52,6 @@ class STEPCAFControl_Writer
 public:
   DEFINE_STANDARD_ALLOC
 
-  using ParameterMap    = STEPControl_Writer::ParameterMap;
-  using ProcessingFlags = STEPControl_Writer::ProcessingFlags;
-
 public:
   //! Creates a writer with an empty
   //! STEP model and sets ColorMode, LayerMode, NameMode and
@@ -129,15 +126,17 @@ public:
              const Standard_CString          theIsMulti  = 0,
              const Message_ProgressRange&    theProgress = Message_ProgressRange());
 
-  //! Mehod to writing sequence of root assemblies or part of the file specified by use by one label
+  //! Method to writing sequence of root assemblies
+  //! or part of the file specified by use by one label
   Standard_EXPORT Standard_Boolean
     Transfer(const TDF_LabelSequence&        theLabelSeq,
              const STEPControl_StepModelType theMode     = STEPControl_AsIs,
              const Standard_CString          theIsMulti  = 0,
              const Message_ProgressRange&    theProgress = Message_ProgressRange());
 
-  //! Mehod to writing sequence of root assemblies or part of the file specified by use by one label
-  //! This method uses if need to set parameters avoiding
+  //! Method to writing sequence of root assemblies
+  //! or part of the file specified by use by one label.
+  //! This method is utilized if there's a need to set parameters avoiding
   //! initialization from Interface_Static
   Standard_EXPORT Standard_Boolean
     Transfer(const TDF_LabelSequence&        theLabelSeq,
@@ -159,7 +158,7 @@ public:
             const Message_ProgressRange&    theProgress = Message_ProgressRange());
 
   //! Transfers a document and writes it to a STEP file
-  //! This method uses if need to set parameters avoiding
+  //! This method is utilized if there's a need to set parameters avoiding
   //! initialization from Interface_Static
   //! Returns True if translation is OK
   Standard_EXPORT Standard_Boolean
@@ -229,12 +228,13 @@ public:
 
   //! Sets parameters for shape processing.
   //! @param theParameters the parameters for shape processing.
-  Standard_EXPORT void SetShapeFixParameters(const ParameterMap& theParameters);
+  Standard_EXPORT void SetShapeFixParameters(
+    const XSAlgo_ShapeProcessor::ParameterMap& theParameters);
 
   //! Sets parameters for shape processing.
   //! Parameters are moved from the input map.
   //! @param theParameters the parameters for shape processing.
-  Standard_EXPORT void SetShapeFixParameters(ParameterMap&& theParameters);
+  Standard_EXPORT void SetShapeFixParameters(XSAlgo_ShapeProcessor::ParameterMap&& theParameters);
 
   //! Sets parameters for shape processing.
   //! Parameters from @p theParameters are copied to the internal map.
@@ -242,12 +242,13 @@ public:
   //! if they are not present in @p theParameters.
   //! @param theParameters the parameters for shape processing.
   //! @param theAdditionalParameters the additional parameters for shape processing.
-  Standard_EXPORT void SetShapeFixParameters(const DE_ShapeFixParameters& theParameters,
-                                             const ParameterMap& theAdditionalParameters = {});
+  Standard_EXPORT void SetShapeFixParameters(
+    const DE_ShapeFixParameters&               theParameters,
+    const XSAlgo_ShapeProcessor::ParameterMap& theAdditionalParameters = {});
 
   //! Returns parameters for shape processing that was set by SetParameters() method.
   //! @return the parameters for shape processing. Empty map if no parameters were set.
-  Standard_EXPORT const ParameterMap& GetShapeFixParameters() const;
+  Standard_EXPORT const XSAlgo_ShapeProcessor::ParameterMap& GetShapeFixParameters() const;
 
   //! Sets flags defining operations to be performed on shapes.
   //! @param theFlags The flags defining operations to be performed on shapes.
@@ -256,7 +257,7 @@ public:
   //! Returns flags defining operations to be performed on shapes.
   //! @return Pair of values defining operations to be performed on shapes and a boolean value
   //!         that indicates whether the flags were set.
-  Standard_EXPORT const ProcessingFlags& GetShapeProcessFlags() const;
+  Standard_EXPORT const XSAlgo_ShapeProcessor::ProcessingFlags& GetShapeProcessFlags() const;
 
 protected:
   //! Transfers labels to a STEP model
