@@ -187,6 +187,7 @@ if (CURRENT_MODULE)
     if (EXISTS ${TOOLKIT_GTEST_DIR})
       # Include the GTest project if CMakeLists.txt exists
       if (EXISTS "${TOOLKIT_GTEST_DIR}/CMakeLists.txt")
+        enable_testing()
         add_subdirectory(${TOOLKIT_GTEST_DIR})
       endif()
     endif()

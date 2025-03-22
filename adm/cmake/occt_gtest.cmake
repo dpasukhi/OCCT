@@ -72,19 +72,24 @@ macro(OCCT_ADD_GTEST_PROJECT TEST_PROJECT_NAME TOOLKIT_NAME)
   if (UNIX AND NOT APPLE)
     target_link_libraries(${TEST_PROJECT_NAME} PRIVATE pthread)
   endif()
+
+  # Collect absolute paths of test source files
+  set(TEST_SOURCE_FILES_ABS "")
+  foreach (TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
+    get_filename_component(TEST_SOURCE_FILE_ABS "${TEST_SOURCE_FILE}" ABSOLUTE)
+    list(APPEND TEST_SOURCE_FILES_ABS "${TEST_SOURCE_FILE_ABS}")
+  endforeach()
   # Register tests with CTest using test discovery using the actual source files
   gtest_add_tests (
     TARGET ${TEST_PROJECT_NAME}
-    TEST_PREFIX "${TOOLKIT_NAME}."
-    SOURCES ${TEST_SOURCE_FILES}
+    TEST_PREFIX "${TOOLKIT_MODULE}::${TOOLKIT_NAME}::"
+    SOURCES ${TEST_SOURCE_FILES_ABS}
     TEST_LIST ${TOOLKIT_NAME}_Tests
-    TEST_SOURCES ${TEST_SOURCE_FILES}
+    TEST_SOURCES ${TEST_SOURCE_FILES_ABS}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     PROPERTIES 
       LABELS ${TOOLKIT_NAME}
       VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       VS_DEBUGGER_COMMAND "${CMAKE_CURRENT_BINARY_DIR}/${TEST_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}"
   )
-  # TEST_INCLUDE_FILES appends the test source files to the test list
-  list (APPEND TEST_INCLUDE_FILES ${TEST_SOURCE_FILES})
 endmacro()
