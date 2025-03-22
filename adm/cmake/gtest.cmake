@@ -1,61 +1,64 @@
-include(ExternalProject)
+# Google Test integration for OCCT
 
-set (GTest_USE_EXTERNAL OFF)
-set (GTest_DOWLOAD ON)
+# Only proceed if tests are enabled
+if (NOT BUILD_GTEST)
+  set(GOOGLETEST_FOUND FALSE)
+  return()
+endif()
 
-find_package(GTest)
+# Google Test configuration options
+option(GTEST_USE_EXTERNAL "Use externally provided Google Test installation" OFF)
+option(GTEST_USE_FETCHCONTENT "Use FetchContent to download and build Google Test" ON)
+
+# Try to find existing GTest installation
+find_package(GTest QUIET)
 
 if(GTest_FOUND)
-    message(STATUS "Found Googletest installation")
-    set(GOOGLETEST_FOUND TRUE)
-    set(GTest_USE_EXTERNAL TRUE)
+  message(STATUS "Found Googletest installation")
+  set(GOOGLETEST_FOUND TRUE)
+  set(GTEST_USE_EXTERNAL TRUE)
+  set(GTEST_USE_FETCHCONTENT FALSE)
 else()
-    message(STATUS "Googletest not found.")
-    set(GOOGLETEST_FOUND FALSE)
-    set(GTest_USE_EXTERNAL FALSE)
-endif()
-
-if(GTest_USE_EXTERNAL AND NOT GTest_FOUND)
-    message(WARNING "GTest_USE_EXTERNAL is ON but GTest not found. Disabling GTest_USE_EXTERNAL.")
-    set(GTest_USE_EXTERNAL FALSE)
-endif()
-
-if(GTest_DOWLOAD AND GTest_FOUND)
-    message(WARNING "GTest_DOWLOAD is ON but GTest found. Disabling GTest_DOWLOAD.")
-    set(GTest_DOWLOAD FALSE)
-endif()
-
-if(NOT GOOGLETEST_FOUND AND GTest_DOWLOAD)
-    message(STATUS "Downloading and building Googletest")
-    ExternalProject_Add(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG        v1.14.0  # Use a specific tag/release
-        SOURCE_DIR     ${CMAKE_BINARY_DIR}/googletest/src
-        BINARY_DIR     ${CMAKE_BINARY_DIR}/googletest/build
-        INSTALL_DIR    ${CMAKE_BINARY_DIR}/googletest/install
-        CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/googletest/install
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        BUILD_COMMAND  ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
-        INSTALL_COMMAND ${CMAKE_COMMAND} --install . --config ${CMAKE_BUILD_TYPE}
-        LOG_DOWNLOAD ON
-        LOG_BUILD ON
-        LOG_INSTALL ON
+  message(STATUS "Googletest not found in system paths")
+  if(GTEST_USE_FETCHCONTENT)
+    include(FetchContent)
+    FetchContent_Declare(
+      googletest
+      URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
+      DOWNLOAD_EXTRACT_TIMESTAMP true
     )
-
-    # Create a dummy target to make sure googletest is built before any other target that depends on it
-    add_library(gtest_dummy INTERFACE)
-    add_dependencies(gtest_dummy googletest)
-
-    # Include directories for the dummy target
-    target_include_directories(gtest_dummy INTERFACE
-        ${CMAKE_BINARY_DIR}/googletest/install/include
-    )
+    
+    # For Windows: Prevent overriding the parent project's compiler/linker settings
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+    
+    # Set proper grouping for the targets in solution explorer
+    if(TARGET gtest)
+      set_target_properties(gtest PROPERTIES FOLDER "ThirdParty/GoogleTest")
+    endif()
+    if(TARGET gtest_main)
+      set_target_properties(gtest_main PROPERTIES FOLDER "ThirdParty/GoogleTest")
+    endif()
+    if(TARGET gmock)
+      set_target_properties(gmock PROPERTIES FOLDER "ThirdParty/GoogleTest")
+    endif()
+    if(TARGET gmock_main)
+      set_target_properties(gmock_main PROPERTIES FOLDER "ThirdParty/GoogleTest")
+    endif()
+    
+    # Set variables for consistent use throughout the build system
     set(GOOGLETEST_FOUND TRUE)
-elseif(GTest_USE_EXTERNAL AND GTest_FOUND)
-    message(STATUS "Using external Googletest installation")
-else()
-    message(WARNING "Googletest is not enabled. Set either GTest_USE_EXTERNAL or GTest_DOWLOAD to enable it.")
+    set(GTEST_INCLUDE_DIRS ${googletest_SOURCE_DIR}/googletest/include)
+    set(GTEST_LIBRARIES gtest)
+    set(GTEST_MAIN_LIBRARIES gtest_main)
+    set(GTEST_BOTH_LIBRARIES ${GTEST_LIBRARIES} ${GTEST_MAIN_LIBRARIES})
+  else()
+    message(STATUS "Google Test not available. Tests will be skipped.")
     set(GOOGLETEST_FOUND FALSE)
+  endif()
+endif()
+
+# Enable CTest if Google Test is available
+if(GOOGLETEST_FOUND)
+  include(GoogleTest)
 endif()

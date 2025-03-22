@@ -22,6 +22,11 @@ if ("${OCCT_TOOLKITS_NAME_SUFFIX}" STREQUAL "")
   set (OCCT_TOOLKITS_NAME_SUFFIX "TOOLKITS")
 endif()
 
+# Include the GTest module if tests are enabled
+if (BUILD_GTEST)
+  include(${CMAKE_SOURCE_DIR}/adm/cmake/occt_gtest.cmake)
+endif()
+
 # parse PACKAGES file
 EXTRACT_TOOLKIT_PACKAGES (${RELATIVE_SOURCES_DIR} ${PROJECT_NAME} USED_PACKAGES)
 if ("${USED_PACKAGES}" STREQUAL "")
@@ -173,6 +178,17 @@ if (CURRENT_MODULE)
   if (APPLE)
     if (NOT "${INSTALL_NAME_DIR}" STREQUAL "")
       set_target_properties (${PROJECT_NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH 1 INSTALL_NAME_DIR "${INSTALL_NAME_DIR}")
+    endif()
+  endif()
+  
+  # Check for GTest folder and build tests if available
+  if (BUILD_GTEST AND NOT EXECUTABLE_PROJECT)
+    set(TOOLKIT_GTEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/GTests")
+    if (EXISTS ${TOOLKIT_GTEST_DIR})
+      # Include the GTest project if CMakeLists.txt exists
+      if (EXISTS "${TOOLKIT_GTEST_DIR}/CMakeLists.txt")
+        add_subdirectory(${TOOLKIT_GTEST_DIR})
+      endif()
     endif()
   endif()
 endif()

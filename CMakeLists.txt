@@ -355,7 +355,6 @@ set (USE_RAPIDJSON OFF CACHE BOOL "${USE_RAPIDJSON_DESCR}")
 set (USE_DRACO     OFF CACHE BOOL "${USE_DRACO_DESCR}")
 set (USE_TBB       OFF CACHE BOOL "${USE_TBB_DESCR}")
 set (USE_EIGEN     OFF CACHE BOOL "${USE_EIGEN_DESCR}")
-set (USE_GTEST     OFF CACHE BOOL "${USE_GTEST_DESCR}")
 
 if (WIN32 OR ANDROID OR IOS OR EMSCRIPTEN)
   # no Xlib
@@ -448,6 +447,10 @@ if (NOT CAN_USE_VTK EQUAL -1)
   endif()
 else()
   OCCT_CHECK_AND_UNSET (USE_VTK)
+endif()
+
+if (NOT DEFINED BUILD_GTEST)
+  set (BUILD_GTEST OFF CACHE BOOL "${BUILD_GTEST_DESCR}")
 endif()
 
 # Rebuild *.yacc and *.lex files that are contained by TKMath toolkit
@@ -712,12 +715,13 @@ else()
   OCCT_CHECK_AND_UNSET ("INSTALL_EIGEN")
 endif()
 
-# GTest
-if (USE_GTEST)
-  add_definitions (-DHAVE_GTEST)
+# GTEST
+if (BUILD_GTEST)
   list (APPEND OCCT_3RDPARTY_CMAKE_LIST "adm/cmake/gtest")
+  enable_testing()
 else()
-  OCCT_CHECK_AND_UNSET_GROUP ("GTest")
+  OCCT_CHECK_AND_UNSET_GROUP ("3RDPARTY_GTEST")
+  OCCT_CHECK_AND_UNSET_GROUP ("GTEST")
 endif()
 
 # Doxygen
