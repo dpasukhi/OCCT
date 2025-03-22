@@ -1,0 +1,2 @@
+# GTest project for TKV3d
+OCCT_ADD_GTEST_PROJECT(TKV3d_GTests TKV3d)

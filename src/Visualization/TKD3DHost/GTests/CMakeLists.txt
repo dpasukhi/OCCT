@@ -1,0 +1,2 @@
+# GTest project for TKD3DHost
+OCCT_ADD_GTEST_PROJECT(TKD3DHost_GTests TKD3DHost)

@@ -1,0 +1,2 @@
+# GTest project for TKHLR
+OCCT_ADD_GTEST_PROJECT(TKHLR_GTests TKHLR)

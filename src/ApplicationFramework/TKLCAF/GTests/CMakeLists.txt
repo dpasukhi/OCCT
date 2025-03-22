@@ -1,0 +1,2 @@
+# GTest project for TKLCAF
+OCCT_ADD_GTEST_PROJECT(TKLCAF_GTests TKLCAF)
