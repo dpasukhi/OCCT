@@ -79,17 +79,122 @@ macro(OCCT_ADD_GTEST_PROJECT TEST_PROJECT_NAME TOOLKIT_NAME)
     get_filename_component(TEST_SOURCE_FILE_ABS "${TEST_SOURCE_FILE}" ABSOLUTE)
     list(APPEND TEST_SOURCE_FILES_ABS "${TEST_SOURCE_FILE_ABS}")
   endforeach()
+
   # Register tests with CTest using test discovery using the actual source files
   gtest_add_tests (
     TARGET ${TEST_PROJECT_NAME}
     TEST_PREFIX "${TOOLKIT_MODULE}::${TOOLKIT_NAME}::"
     SOURCES ${TEST_SOURCE_FILES_ABS}
     TEST_LIST ${TOOLKIT_NAME}_Tests
-    TEST_SOURCES ${TEST_SOURCE_FILES_ABS}
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-    PROPERTIES 
-      LABELS ${TOOLKIT_NAME}
-      VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-      VS_DEBUGGER_COMMAND "${CMAKE_CURRENT_BINARY_DIR}/${TEST_PROJECT_NAME}${CMAKE_EXECUTABLE_SUFFIX}"
+    SKIP_DEPENDENCY
   )
+  
+  # Set environment variables for the tests
+  if (${TOOLKIT_NAME}_Tests)
+    # Set common environment variables
+    set(TEST_ENVIRONMENT
+      "CSF_LANGUAGE=us"
+      "MMGT_CLEAR=1"
+      "CSF_SHMessage=${CMAKE_SOURCE_DIR}/resources/SHMessage"
+      "CSF_MDTVTexturesDirectory=${CMAKE_SOURCE_DIR}/resources/Textures"
+      "CSF_ShadersDirectory=${CMAKE_SOURCE_DIR}/resources/Shaders"
+      "CSF_XSMessage=${CMAKE_SOURCE_DIR}/resources/XSMessage"
+      "CSF_TObjMessage=${CMAKE_SOURCE_DIR}/resources/TObj"
+      "CSF_StandardDefaults=${CMAKE_SOURCE_DIR}/resources/StdResource"
+      "CSF_PluginDefaults=${CMAKE_SOURCE_DIR}/resources/StdResource"
+      "CSF_XCAFDefaults=${CMAKE_SOURCE_DIR}/resources/StdResource"
+      "CSF_TObjDefaults=${CMAKE_SOURCE_DIR}/resources/StdResource"
+      "CSF_StandardLiteDefaults=${CMAKE_SOURCE_DIR}/resources/StdResource"
+      "CSF_IGESDefaults=${CMAKE_SOURCE_DIR}/resources/XSTEPResource"
+      "CSF_STEPDefaults=${CMAKE_SOURCE_DIR}/resources/XSTEPResource"
+      "CSF_XmlOcafResource=${CMAKE_SOURCE_DIR}/resources/XmlOcafResource"
+      "CSF_MIGRATION_TYPES=${CMAKE_SOURCE_DIR}/resources/StdResource/MigrationSheet.txt"
+      "CSF_OCCTResourcePath=${CMAKE_SOURCE_DIR}/resources"
+      "CSF_OCCTDataPath=${CMAKE_SOURCE_DIR}/data"
+      "CSF_OCCTDocPath=${CMAKE_SOURCE_DIR}/doc"
+      "CSF_OCCTSamplesPath=${CMAKE_SOURCE_DIR}/samples"
+      "CSF_OCCTTestsPath=${CMAKE_SOURCE_DIR}/tests"
+      "CSF_OCCTBinPath=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+      "CSF_OCCTLibPath=${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}"
+      "CSF_OCCTIncludePath=${CMAKE_BINARY_DIR}/${INSTALL_DIR_INCLUDE}"
+      "CASROOT=${CMAKE_SOURCE_DIR}"
+    )
+    
+    # Build PATH environment variable
+    set(PATH_ELEMENTS
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+    )
+    
+    # Add 3rdparty paths to PATH
+    if(3RDPARTY_TCL_LIBRARY_DIR)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_TCL_LIBRARY_DIR}")
+    endif()
+    if(3RDPARTY_TK_LIBRARY_DIR)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_TK_LIBRARY_DIR}")
+    endif()
+    if(3RDPARTY_FREETYPE_LIBRARY_DIR)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_FREETYPE_LIBRARY_DIR}")
+    endif()
+    if(3RDPARTY_FREEIMAGE_LIBRARY_DIRS)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_FREEIMAGE_LIBRARY_DIRS}")
+    endif()
+    if(3RDPARTY_TBB_LIBRARY_DIR)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_TBB_LIBRARY_DIR}")
+    endif()
+    if(3RDPARTY_VTK_LIBRARY_DIR)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_VTK_LIBRARY_DIR}")
+    endif()
+    if(3RDPARTY_FFMPEG_LIBRARY_DIR)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_FFMPEG_LIBRARY_DIR}")
+    endif()
+    if(3RDPARTY_QT_DIR)
+      list(APPEND PATH_ELEMENTS "${3RDPARTY_QT_DIR}/bin")
+    endif()
+    
+    # Create the PATH variable that ctest will use
+    if(WIN32)
+      string(REPLACE ";" "\\;" TEST_PATH_ENV "$ENV{PATH}")
+      string(REPLACE ";" "\\;" PATH_ELEMENTS_STR "${PATH_ELEMENTS}")
+      list(APPEND TEST_ENVIRONMENT "PATH=${PATH_ELEMENTS_STR}\\;${TEST_PATH_ENV}")
+    else()
+      string(REPLACE ";" ":" PATH_ELEMENTS_STR "${PATH_ELEMENTS}")
+      list(APPEND TEST_ENVIRONMENT "PATH=${PATH_ELEMENTS_STR}:$ENV{PATH}")
+      
+      # Set LD_LIBRARY_PATH for Unix systems
+      list(APPEND TEST_ENVIRONMENT "LD_LIBRARY_PATH=${PATH_ELEMENTS_STR}:$ENV{LD_LIBRARY_PATH}")
+      
+      # Set DYLD_LIBRARY_PATH for macOS
+      if(APPLE)
+        list(APPEND TEST_ENVIRONMENT "DYLD_LIBRARY_PATH=${PATH_ELEMENTS_STR}:$ENV{DYLD_LIBRARY_PATH}")
+      endif()
+    endif()
+    
+    # Add DrawResources related environment if it exists
+    if(EXISTS "${CMAKE_SOURCE_DIR}/resources/DrawResources")
+      list(APPEND TEST_ENVIRONMENT "DRAWHOME=${CMAKE_SOURCE_DIR}/resources/DrawResources")
+      list(APPEND TEST_ENVIRONMENT "CSF_DrawPluginDefaults=${CMAKE_SOURCE_DIR}/resources/DrawResources")
+      
+      if(EXISTS "${CMAKE_SOURCE_DIR}/resources/DrawResources/DrawDefault")
+        list(APPEND TEST_ENVIRONMENT "DRAWDEFAULT=${CMAKE_SOURCE_DIR}/resources/DrawResources/DrawDefault")
+      endif()
+    endif()
+    
+    # Set FPE signal handler if enabled
+    if(BUILD_ENABLE_FPE_SIGNAL_HANDLER)
+      list(APPEND TEST_ENVIRONMENT "CSF_FPE=1")
+    endif()
+    
+    # Set TCL/TK library paths if they differ
+    if(3RDPARTY_TCL_LIBRARY_DIR AND 3RDPARTY_TK_LIBRARY_DIR AND NOT 3RDPARTY_TCL_LIBRARY_DIR STREQUAL 3RDPARTY_TK_LIBRARY_DIR)
+      if(3RDPARTY_TCL_LIBRARY_VERSION_WITH_DOT)
+        list(APPEND TEST_ENVIRONMENT "TCL_LIBRARY=${3RDPARTY_TCL_LIBRARY_DIR}/../lib/tcl${3RDPARTY_TCL_LIBRARY_VERSION_WITH_DOT}")
+      endif()
+      if(3RDPARTY_TK_LIBRARY_VERSION_WITH_DOT)
+        list(APPEND TEST_ENVIRONMENT "TK_LIBRARY=${3RDPARTY_TK_LIBRARY_DIR}/../lib/tk${3RDPARTY_TK_LIBRARY_VERSION_WITH_DOT}")
+      endif()
+    endif()
+    
+    # Set environment for all tests in the project
+    set_tests_properties(${${TOOLKIT_NAME}_Tests} PROPERTIES ENVIRONMENT "${TEST_ENVIRONMENT}")
+  endif()
 endmacro()
