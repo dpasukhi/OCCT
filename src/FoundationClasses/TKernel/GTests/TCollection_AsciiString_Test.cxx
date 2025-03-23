@@ -52,7 +52,7 @@ TEST(TCollection_AsciiStringTest, AssignmentOperator)
   TCollection_AsciiString aString2;
   aString2 = aString1;
   EXPECT_STREQ(aString1.ToCString(), aString2.ToCString());
-  
+
   // Change original to verify deep copy
   aString1 = "Changed";
   EXPECT_STRNE(aString1.ToCString(), aString2.ToCString());
@@ -65,15 +65,15 @@ TEST(TCollection_AsciiStringTest, Concatenation)
   TCollection_AsciiString aString2(" World");
   TCollection_AsciiString aString3 = aString1 + aString2;
   EXPECT_STREQ("Hello World", aString3.ToCString());
-  
+
   // Using += operator
   aString1 += aString2;
   EXPECT_STREQ("Hello World", aString1.ToCString());
-  
+
   // Concatenate with char
   aString1 += '!';
   EXPECT_STREQ("Hello World!", aString1.ToCString());
-  
+
   // Concatenate with C string
   aString1 += " Test";
   EXPECT_STREQ("Hello World! Test", aString1.ToCString());
@@ -89,17 +89,17 @@ TEST(TCollection_AsciiStringTest, SubString)
 TEST(TCollection_AsciiStringTest, ChangeCase)
 {
   TCollection_AsciiString aString("Hello World");
-  
+
   // Test to upper case
   TCollection_AsciiString upperString = aString;
   upperString.UpperCase();
   EXPECT_STREQ("HELLO WORLD", upperString.ToCString());
-  
+
   // Test to lower case
   TCollection_AsciiString lowerString = aString;
   lowerString.LowerCase();
   EXPECT_STREQ("hello world", lowerString.ToCString());
-  
+
   // Test capitalize
   TCollection_AsciiString capitalizeString = lowerString;
   capitalizeString.Capitalize();
@@ -109,14 +109,14 @@ TEST(TCollection_AsciiStringTest, ChangeCase)
 TEST(TCollection_AsciiStringTest, SearchAndLocation)
 {
   TCollection_AsciiString aString("This is a test string for testing search functions");
-  
+
   // Test Search
   EXPECT_EQ(11, aString.Search("test"));
   EXPECT_EQ(-1, aString.Search("nonexistent"));
-  
+
   // Test SearchFromEnd
   EXPECT_EQ(29, aString.SearchFromEnd("test"));
-  
+
   // Test Location
   EXPECT_EQ(3, aString.Location(TCollection_AsciiString("i"), 1, aString.Length()));
   EXPECT_EQ(6, aString.Location(TCollection_AsciiString("i"), 4, aString.Length()));
@@ -125,15 +125,15 @@ TEST(TCollection_AsciiStringTest, SearchAndLocation)
 TEST(TCollection_AsciiStringTest, RemoveAndInsert)
 {
   TCollection_AsciiString aString("Hello World");
-  
+
   // Test Remove
   aString.Remove(6, 5);
   EXPECT_STREQ("Hello", aString.ToCString());
-  
+
   // Test Insert
   aString.Insert(6, " Universe");
   EXPECT_STREQ("Hello Universe", aString.ToCString());
-  
+
   // Test RemoveAll
   aString.RemoveAll('e');
   EXPECT_STREQ("Hllo Univrs", aString.ToCString());
@@ -144,32 +144,32 @@ TEST(TCollection_AsciiStringTest, Comparison)
   TCollection_AsciiString aString1("Test");
   TCollection_AsciiString aString2("Test");
   TCollection_AsciiString aString3("Different");
-  
+
   EXPECT_TRUE(aString1.IsEqual(aString2));
   EXPECT_TRUE(aString1 == aString2);
   EXPECT_FALSE(aString1.IsDifferent(aString2));
   EXPECT_FALSE(aString1 != aString2);
-  
+
   EXPECT_FALSE(aString1.IsEqual(aString3));
   EXPECT_FALSE(aString1 == aString3);
   EXPECT_TRUE(aString1.IsDifferent(aString3));
   EXPECT_TRUE(aString1 != aString3);
-  
+
   // Testing with C strings
   EXPECT_TRUE(aString1.IsEqual("Test"));
   EXPECT_TRUE(aString1 == "Test");
   EXPECT_FALSE(aString1.IsEqual("Different"));
   EXPECT_FALSE(aString1 == "Different");
-  
+
   // Test IsLess and IsGreater
   TCollection_AsciiString aStringA("A");
   TCollection_AsciiString aStringZ("Z");
-  
+
   EXPECT_TRUE(aStringA.IsLess(aStringZ));
   EXPECT_TRUE(aStringA < aStringZ);
   EXPECT_FALSE(aStringA.IsGreater(aStringZ));
   EXPECT_FALSE(aStringA > aStringZ);
-  
+
   EXPECT_TRUE(aStringZ.IsGreater(aStringA));
   EXPECT_TRUE(aStringZ > aStringA);
   EXPECT_FALSE(aStringZ.IsLess(aStringA));
@@ -179,14 +179,14 @@ TEST(TCollection_AsciiStringTest, Comparison)
 TEST(TCollection_AsciiStringTest, Token)
 {
   TCollection_AsciiString aString("This is a test string");
-  
+
   EXPECT_STREQ("This", aString.Token().ToCString());
   EXPECT_STREQ("is", aString.Token(" ", 2).ToCString());
   EXPECT_STREQ("a", aString.Token(" ", 3).ToCString());
   EXPECT_STREQ("test", aString.Token(" ", 4).ToCString());
   EXPECT_STREQ("string", aString.Token(" ", 5).ToCString());
   EXPECT_STREQ("", aString.Token(" ", 6).ToCString()); // No 6th token
-  
+
   // Test with different separators
   TCollection_AsciiString aStringWithSeps("one,two;three:four");
   EXPECT_STREQ("one", aStringWithSeps.Token(",;:", 1).ToCString());
@@ -201,12 +201,12 @@ TEST(TCollection_AsciiStringTest, ValueConversion)
   TCollection_AsciiString intString("12345");
   EXPECT_EQ(12345, intString.IntegerValue());
   EXPECT_TRUE(intString.IsIntegerValue());
-  
+
   // Test real value conversion
   TCollection_AsciiString realString("123.456");
   EXPECT_FLOAT_EQ(123.456, realString.RealValue());
   EXPECT_TRUE(realString.IsRealValue());
-  
+
   // Test invalid conversions
   TCollection_AsciiString invalidString("not a number");
   EXPECT_FALSE(invalidString.IsIntegerValue());
@@ -218,7 +218,7 @@ TEST(TCollection_AsciiStringTest, HashCode)
   TCollection_AsciiString aString1("Test");
   TCollection_AsciiString aString2("Test");
   TCollection_AsciiString aString3("Different");
-  
+
   EXPECT_EQ(aString1.HashCode(), aString2.HashCode());
   EXPECT_NE(aString1.HashCode(), aString3.HashCode());
 }
@@ -227,7 +227,7 @@ TEST(TCollection_AsciiStringTest, Split)
 {
   TCollection_AsciiString aString("abcdefghij");
   TCollection_AsciiString remainder = aString.Split(5);
-  
+
   EXPECT_STREQ("abcde", aString.ToCString());
   EXPECT_STREQ("fghij", remainder.ToCString());
 }
