@@ -82,6 +82,12 @@ elseif ("${BUILD_CPP_STANDARD}" STREQUAL "C++23")
 else ()
   message (FATAL_ERROR, "misprint in c++ standard name")
 endif()
+
+if (DEFINED BUILD_GTEST AND BUILD_GTEST AND CMAKE_CXX_STANDARD LESS 14)
+  set (CMAKE_CXX_STANDARD 14)
+  message (STATUS "Info: C++14 standard is required for GTest. Set to C++14.")
+endif()
+
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # include cmake file
