@@ -1,2 +1,0 @@
-# GTest project for TKBO
-OCCT_ADD_GTEST_PROJECT(TKBO_GTests TKBO)

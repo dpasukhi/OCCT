@@ -22,11 +22,6 @@ if ("${OCCT_TOOLKITS_NAME_SUFFIX}" STREQUAL "")
   set (OCCT_TOOLKITS_NAME_SUFFIX "TOOLKITS")
 endif()
 
-# Include the GTest module if tests are enabled
-if (BUILD_GTEST)
-  include(${CMAKE_SOURCE_DIR}/adm/cmake/occt_gtest.cmake)
-endif()
-
 # parse PACKAGES file
 EXTRACT_TOOLKIT_PACKAGES (${RELATIVE_SOURCES_DIR} ${PROJECT_NAME} USED_PACKAGES)
 if ("${USED_PACKAGES}" STREQUAL "")
@@ -180,18 +175,6 @@ if (CURRENT_MODULE)
       set_target_properties (${PROJECT_NAME} PROPERTIES BUILD_WITH_INSTALL_RPATH 1 INSTALL_NAME_DIR "${INSTALL_NAME_DIR}")
     endif()
   endif()
-  
-  # Check for GTest folder and build tests if available
-  if (BUILD_GTEST AND NOT EXECUTABLE_PROJECT)
-    set(TOOLKIT_GTEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/GTests")
-    if (EXISTS ${TOOLKIT_GTEST_DIR})
-      # Include the GTest project if CMakeLists.txt exists
-      if (EXISTS "${TOOLKIT_GTEST_DIR}/CMakeLists.txt")
-        enable_testing()
-        add_subdirectory(${TOOLKIT_GTEST_DIR})
-      endif()
-    endif()
-  endif()
 endif()
 
 get_property (OCC_VERSION_MAJOR GLOBAL PROPERTY OCC_VERSION_MAJOR)
@@ -206,6 +189,7 @@ elseif (BUILD_SOVERSION_NUMBERS GREATER 1)
 elseif (BUILD_SOVERSION_NUMBERS GREATER 0)
   set (OCC_SOVERSION "${OCC_VERSION_MAJOR}")
 endif()
+
 set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${PRECOMPILED_DEFS}"
                                                   SOVERSION     "${OCC_SOVERSION}"
                                                   VERSION       "${OCC_VERSION_MAJOR}.${OCC_VERSION_MINOR}.${OCC_VERSION_MAINTENANCE}")

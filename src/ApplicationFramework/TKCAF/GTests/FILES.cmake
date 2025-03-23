@@ -1,4 +1,5 @@
 # Test source files for TKCAF
+set(OCCT_TKCAF_GTests_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
+
 set(OCCT_TKCAF_GTests_FILES
-  TKCAF_Test.cxx
 )

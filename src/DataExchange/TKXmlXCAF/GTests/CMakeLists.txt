@@ -1,2 +1,0 @@
-# GTest project for TKXmlXCAF
-OCCT_ADD_GTEST_PROJECT(TKXmlXCAF_GTests TKXmlXCAF)

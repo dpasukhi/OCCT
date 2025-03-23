@@ -2,78 +2,112 @@
 
 set (TEST_PROJECT_NAME OCCT_GTests)
 
-# Custom macro to add a Google Test project for a toolkit
-macro(OCCT_ADD_GTEST_PROJECT _ TOOLKIT_NAME)
+# Initialize Google Test environment and create the target
+macro(OCCT_INIT_GTEST)
   if (NOT GOOGLETEST_FOUND)
     message(STATUS "Google Test not available. Skipping test project ${TEST_PROJECT_NAME}")
     return()
   endif()
-
-  # Extract test source files from FILES.cmake
-  set(FILES_CMAKE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/FILES.cmake")
-  if(EXISTS "${FILES_CMAKE_PATH}")
-    include("${FILES_CMAKE_PATH}")
-    set(TEST_SOURCE_FILES "${OCCT_${TOOLKIT_NAME}_GTests_FILES}")
-  endif()
-
-  # Get module name to organize tests in solution explorer
-  get_target_property(TOOLKIT_MODULE ${TOOLKIT_NAME} MODULE)
-  if(NOT TOOLKIT_MODULE)
-    set(TOOLKIT_MODULE "Unknown")
-  endif()
-
-  # Create the test executable
-  if (NOT TARGET ${TEST_PROJECT_NAME})
-    add_executable(${TEST_PROJECT_NAME} ${TEST_SOURCE_FILES})
-
-    # Link with Google Test
-    if(TARGET gtest AND TARGET gtest_main)
-      # Use targets from FetchContent
-      target_link_libraries(${TEST_PROJECT_NAME} PRIVATE gtest gtest_main)
-    elseif(TARGET GTest::gtest AND TARGET GTest::gtest_main)
-      # Use targets from find_package with imported targets
-      target_link_libraries(${TEST_PROJECT_NAME} PRIVATE GTest::gtest GTest::gtest_main)
-    else()
-      # Fall back to direct library paths
-      target_include_directories(${TEST_PROJECT_NAME} PRIVATE ${GTEST_INCLUDE_DIRS})
-      target_link_libraries(${TEST_PROJECT_NAME} PRIVATE ${GTEST_BOTH_LIBRARIES})
-    endif()
-  endif()
-
-  target_sources (${TEST_PROJECT_NAME} PRIVATE ${TEST_SOURCE_FILES})
   
-  # Link with the toolkit being tested
-  target_link_libraries(${TEST_PROJECT_NAME} PRIVATE ${TOOLKIT_NAME})
+  # Initialize test data collections
+  set(OCCT_GTEST_SOURCE_FILES)
+  set(OCCT_GTEST_SOURCE_FILES_ABS)
+  set(OCCT_GTEST_TESTS_LIST)
   
-  # Link with all dependencies of the toolkit
-  get_target_property(TOOLKIT_DEPS ${TOOLKIT_NAME} LINK_LIBRARIES)
-  if(TOOLKIT_DEPS)
-    target_link_libraries(${TEST_PROJECT_NAME} PRIVATE ${TOOLKIT_DEPS})
-  endif()
+  # Create the test executable once
+  add_executable(${TEST_PROJECT_NAME})
 
+  set_target_properties(${TEST_PROJECT_NAME} PROPERTIES FOLDER "Testing")
+  
+  # Link with Google Test
+  if(TARGET gtest AND TARGET gtest_main)
+    # Use targets from FetchContent
+    target_link_libraries(${TEST_PROJECT_NAME} PRIVATE gtest gtest_main)
+  elseif(TARGET GTest::gtest AND TARGET GTest::gtest_main)
+    # Use targets from find_package with imported targets
+    target_link_libraries(${TEST_PROJECT_NAME} PRIVATE GTest::gtest GTest::gtest_main)
+  else()
+    # Fall back to direct library paths
+    target_include_directories(${TEST_PROJECT_NAME} PRIVATE ${GTEST_INCLUDE_DIRS})
+    target_link_libraries(${TEST_PROJECT_NAME} PRIVATE ${GTEST_BOTH_LIBRARIES})
+  endif()
+  
   # Add pthreads if necessary (for Linux)
   if (UNIX AND NOT APPLE)
     target_link_libraries(${TEST_PROJECT_NAME} PRIVATE pthread)
   endif()
-
-  # Collect absolute paths of test source files
-  set(TEST_SOURCE_FILES_ABS "")
-  foreach (TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
-    get_filename_component(TEST_SOURCE_FILE_ABS "${TEST_SOURCE_FILE}" ABSOLUTE)
-    list(APPEND TEST_SOURCE_FILES_ABS "${TEST_SOURCE_FILE_ABS}")
-  endforeach()
-
-  # Register tests with CTest using test discovery using the actual source files
-  gtest_add_tests (
-    TARGET ${TEST_PROJECT_NAME}
-    TEST_PREFIX "${TOOLKIT_MODULE}::${TOOLKIT_NAME}::"
-    SOURCES ${TEST_SOURCE_FILES_ABS}
-    TEST_LIST ${TOOLKIT_NAME}_Tests
-    SKIP_DEPENDENCY
-  )
   
-  # Set environment variables for the tests
-  if (${TOOLKIT_NAME}_Tests)
+  # Link with all active toolkits that are libraries
+  foreach(TOOLKIT ${BUILD_TOOLKITS})
+    if(TARGET ${TOOLKIT})
+      get_target_property(TOOLKIT_TYPE ${TOOLKIT} TYPE)
+      if(TOOLKIT_TYPE STREQUAL "SHARED_LIBRARY" OR TOOLKIT_TYPE STREQUAL "STATIC_LIBRARY")
+        target_link_libraries(${TEST_PROJECT_NAME} PRIVATE ${TOOLKIT})
+      endif()
+    endif()
+  endforeach()
+endmacro()
+
+# Add tests from a specific toolkit to the main test executable
+macro(OCCT_COLLECT_TOOLKIT_TESTS TOOLKIT_NAME)
+  # Skip if Google Test is not available or the test executable wasn't created
+  if (NOT GOOGLETEST_FOUND OR NOT TARGET ${TEST_PROJECT_NAME})
+    return()
+  endif()
+
+  # Extract test source files from FILES.cmake
+  set(FILES_CMAKE_PATH "${OCCT_${TOOLKIT_NAME}_FILES_LOCATION}/GTests/FILES.cmake")
+  if(EXISTS "${FILES_CMAKE_PATH}")
+    # Reset toolkit test files list
+    set(OCCT_${TOOLKIT_NAME}_GTests_FILES)
+    
+    # Include the toolkit's FILES.cmake which sets OCCT_${TOOLKIT_NAME}_GTests_FILES
+    include("${FILES_CMAKE_PATH}")
+    set(TEST_SOURCE_FILES "${OCCT_${TOOLKIT_NAME}_GTests_FILES}")
+    
+    # Skip if no test files found
+    if(NOT TEST_SOURCE_FILES)
+      return()
+    endif()
+    
+    # Get module name for test organization
+    get_target_property(TOOLKIT_MODULE ${TOOLKIT_NAME} MODULE)
+    if(NOT TOOLKIT_MODULE)
+      set(TOOLKIT_MODULE "Unknown")
+    endif()
+
+    # Get absolute paths of test source files and add them to the executable
+    set(TEST_SOURCE_FILES_ABS)
+    foreach(TEST_SOURCE_FILE ${TEST_SOURCE_FILES})
+      set (TEST_SOURCE_FILE_ABS "${OCCT_${TOOLKIT_NAME}_GTests_FILES_LOCATION}/${TEST_SOURCE_FILE}")
+      list(APPEND TEST_SOURCE_FILES_ABS "${TEST_SOURCE_FILE_ABS}")
+    endforeach()
+    
+    # Add test sources to the executable
+    target_sources(${TEST_PROJECT_NAME} PRIVATE ${TEST_SOURCE_FILE_ABS})
+    
+    # Register tests with CTest using test discovery for this toolkit's files
+    gtest_add_tests(
+      TARGET ${TEST_PROJECT_NAME}
+      TEST_PREFIX "${TOOLKIT_MODULE}::${TOOLKIT_NAME}::"
+      SOURCES ${TEST_SOURCE_FILES_ABS}
+      TEST_LIST TOOLKIT_TESTS
+      SKIP_DEPENDENCY
+    )
+    
+    # Add these tests to the main list so we can set environment for all tests later
+    list(APPEND OCCT_GTEST_TESTS_LIST ${TOOLKIT_TESTS})
+    set(OCCT_GTEST_TESTS_LIST "${OCCT_GTEST_TESTS_LIST}")
+  endif()
+endmacro()
+
+# Set environment variables for all collected tests
+macro(OCCT_SET_GTEST_ENVIRONMENT)
+  if (NOT GOOGLETEST_FOUND OR NOT TARGET ${TEST_PROJECT_NAME})
+    return()
+  endif()
+
+  if (OCCT_GTEST_TESTS_LIST)
     # Set common environment variables
     set(TEST_ENVIRONMENT
       "CSF_LANGUAGE=us"
@@ -138,6 +172,7 @@ macro(OCCT_ADD_GTEST_PROJECT _ TOOLKIT_NAME)
         list(APPEND PATH_ELEMENTS "${DLL_DIR}")
       endforeach()
     endif()
+    
     # Create the PATH variable that ctest will use
     if(WIN32)
       string(REPLACE ";" "\\;" TEST_PATH_ENV "$ENV{PATH}")
@@ -182,6 +217,6 @@ macro(OCCT_ADD_GTEST_PROJECT _ TOOLKIT_NAME)
     endif()
     
     # Set environment for all tests in the project
-    set_tests_properties(${${TOOLKIT_NAME}_Tests} PROPERTIES ENVIRONMENT "${TEST_ENVIRONMENT}")
+    set_tests_properties(${OCCT_GTEST_TESTS_LIST} PROPERTIES ENVIRONMENT "${TEST_ENVIRONMENT}")
   endif()
 endmacro()

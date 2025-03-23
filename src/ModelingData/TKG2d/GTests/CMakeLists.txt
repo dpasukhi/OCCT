@@ -1,2 +1,0 @@
-# GTest project for TKG2d
-OCCT_ADD_GTEST_PROJECT(TKG2d_GTests TKG2d)

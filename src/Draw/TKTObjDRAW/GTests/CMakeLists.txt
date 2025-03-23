@@ -1,2 +1,0 @@
-# GTest project for TKTObjDRAW
-OCCT_ADD_GTEST_PROJECT(TKTObjDRAW_GTests TKTObjDRAW)

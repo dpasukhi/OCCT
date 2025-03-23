@@ -1,2 +1,0 @@
-# GTest project for TKDE
-OCCT_ADD_GTEST_PROJECT(TKDE_GTests TKDE)

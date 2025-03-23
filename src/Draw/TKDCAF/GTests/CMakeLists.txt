@@ -1,2 +1,0 @@
-# GTest project for TKDCAF
-OCCT_ADD_GTEST_PROJECT(TKDCAF_GTests TKDCAF)

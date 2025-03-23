@@ -1,2 +1,0 @@
-# GTest project for TKBinXCAF
-OCCT_ADD_GTEST_PROJECT(TKBinXCAF_GTests TKBinXCAF)

@@ -1197,6 +1197,22 @@ foreach (BUILD_TOOLKIT ${BUILD_TOOLKITS})
   add_subdirectory ("${OCCT_${BUILD_TOOLKIT}_FILES_LOCATION}")
 endforeach()
 
+# Setup Google Test integration if enabled
+if (BUILD_GTEST)
+  OCCT_INCLUDE_CMAKE_FILE ("adm/cmake/occt_gtest")
+  
+  # Initialize GTest environment and create the target first
+  OCCT_INIT_GTEST()
+  
+  # Collect test files from all active toolkits and add them to the target
+  foreach (BUILD_TOOLKIT ${BUILD_TOOLKITS})
+    OCCT_COLLECT_TOOLKIT_TESTS(${BUILD_TOOLKIT})
+  endforeach()
+  
+  # Set environment variables for all tests
+  OCCT_SET_GTEST_ENVIRONMENT()
+endif()
+
 if (BUILD_DOC_Overview OR BUILD_DOC_RefMan)
   OCCT_INCLUDE_CMAKE_FILE ("adm/cmake/occt_doc")
   # Setup documentation targets
