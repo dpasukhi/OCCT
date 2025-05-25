@@ -2417,6 +2417,10 @@ TopoDS_Shape STEPControl_ActorRead::TransferRelatedSRR(
 void STEPControl_ActorRead::PostHealing(const Handle(Transfer_TransientProcess)& theTP,
                                         const Standard_Integer                   theFirstIndex)
 {
+  if (myShapesToHeal.IsEmpty())
+  {
+    return; // nothing
+  }
   NCollection_Array1<std::unique_ptr<XSAlgo_ShapeProcessor>> aInfos(1, myShapesToHeal.Size());
   NCollection_Array1<TopTools_DataMapOfShapeShape> aOrigToCopyMapArr(1, myShapesToHeal.Size());
   NCollection_Array1<TopTools_DataMapOfShapeShape> aCopyToOrigMapArr(1, myShapesToHeal.Size());
