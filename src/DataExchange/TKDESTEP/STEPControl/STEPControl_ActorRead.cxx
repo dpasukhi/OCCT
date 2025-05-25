@@ -1555,7 +1555,6 @@ Handle(TransferBRep_ShapeBinder) STEPControl_ActorRead::TransferEntity(
   Standard_Boolean                 found = Standard_False;
   StepToTopoDS_Builder             myShapeBuilder;
   TopoDS_Shape                     mappedShape;
-  Standard_Integer                 nbTPitems = TP->NbMapped();
 #ifdef TRANSLOG
   OSD_Timer chrono;
   if (TP->TraceLevel() > 2)
