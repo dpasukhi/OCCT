@@ -16,7 +16,7 @@
 #include <OpenGlTest.hxx>
 
 #include <Draw.hxx>
-#include <Draw_Interpretor.hxx>
+#include <Draw_CommandInterface.hxx>
 
 #include <OpenGl_GlCore20.hxx>
 #include <OpenGl_GraphicDriver.hxx>
@@ -708,26 +708,16 @@ static int VCaps(Draw_Interpretor& theDI, Standard_Integer theArgNb, const char*
 
 //=================================================================================================
 
-void OpenGlTest::Commands(Draw_Interpretor& theCommands)
+void OpenGlTest::Commands(DRAW_INTERPRETOR& theCommands)
 {
   const char* aGroup = "Commands for low-level TKOpenGl features";
 
-  theCommands.Add("vuserdraw",
-                  "vuserdraw : name - simulates drawing with help of UserDraw",
-                  __FILE__,
-                  VUserDraw,
-                  aGroup);
-  theCommands.Add("vglshaders",
-                  "vglshaders [-list] [-dump] [-reload] ShaderId"
+  DRAW_ADD_COMMAND(theCommands, "vuserdraw", "vuserdraw : name - simulates drawing with help of UserDraw", __FILE__, VUserDraw, aGroup);
+  DRAW_ADD_COMMAND(theCommands, "vglshaders", "vglshaders [-list] [-dump] [-reload] ShaderId"
                   "\n\t\t:  -list   prints the list of registered GLSL programs"
                   "\n\t\t:  -dump   dumps specified GLSL program (for debugging)"
-                  "\n\t\t:  -reload restores dump of specified GLSL program",
-                  __FILE__,
-                  VGlShaders,
-                  aGroup);
-  theCommands.Add(
-    "vcaps",
-    "vcaps [-sRGB {0|1}] [-vbo {0|1}] [-sprites {0|1}] [-ffp {0|1}] [-polygonMode {0|1}]"
+                  "\n\t\t:  -reload restores dump of specified GLSL program", __FILE__, VGlShaders, aGroup);
+  DRAW_ADD_COMMAND(theCommands, "vcaps", "vcaps [-sRGB {0|1}] [-vbo {0|1}] [-sprites {0|1}] [-ffp {0|1}] [-polygonMode {0|1}]"
     "\n\t\t:       [-compatibleProfile {0|1}] [-compressedTextures {0|1}]"
     "\n\t\t:       [-vsync {0|1}] [-useWinBuffer {0|1}] [-opaqueAlpha {0|1}]"
     "\n\t\t:       [-deepColor {0|1}] [-quadBuffer {0|1}] [-stereo {0|1}]"
@@ -757,12 +747,8 @@ void OpenGlTest::Commands(Draw_Interpretor& theCommands)
     "\n\t\t:  noExtensions      - disallow usage of extensions"
     "\n\t\t:  maxVersion        - force upper OpenGL version to be used"
     "\n\t\t: These parameters control alternative"
-    "\n\t\t: rendering paths producing the same visual result when possible.",
-    __FILE__,
-    VCaps,
-    aGroup);
-  theCommands.Add("vgldebug",
-                  "vgldebug [-sync {0|1}] [-debug {0|1}] [-glslWarn {0|1}]"
+    "\n\t\t: rendering paths producing the same visual result when possible.", __FILE__, VCaps, aGroup);
+  DRAW_ADD_COMMAND(theCommands, "vgldebug", "vgldebug [-sync {0|1}] [-debug {0|1}] [-glslWarn {0|1}]"
                   "\n\t\t:          [-glslCode {off|short|full}] [-extraMsg {0|1}] [{0|1}]"
                   "\n\t\t: Request debug GL context. Should be called BEFORE vinit."
                   "\n\t\t: Debug context can be requested only on Windows"
@@ -773,13 +759,6 @@ void OpenGlTest::Commands(Draw_Interpretor& theCommands)
                   "\n\t\t:  -glslCode - log GLSL program source code,"
                   "\n\t\t:              which are suppressed by default,"
                   "\n\t\t:  -extraMsg - log extra diagnostic messages from GL context,"
-                  "\n\t\t:              which are suppressed by default",
-                  __FILE__,
-                  VGlDebug,
-                  aGroup);
-  theCommands.Add("vvbo",
-                  "vvbo [{0|1}] : turn VBO usage On/Off; affects only newly displayed objects",
-                  __FILE__,
-                  VVbo,
-                  aGroup);
+                  "\n\t\t:              which are suppressed by default", __FILE__, VGlDebug, aGroup);
+  DRAW_ADD_COMMAND(theCommands, "vvbo", "vvbo [{0|1}] : turn VBO usage On/Off; affects only newly displayed objects", __FILE__, VVbo, aGroup);
 }
