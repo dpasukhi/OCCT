@@ -101,6 +101,7 @@
   #include <X11/Xutil.h>
 #elif defined(__APPLE__)
   #include <Cocoa_Window.hxx>
+  extern "C" void ViewerTest_InitCocoaApplication();
 #elif defined(__EMSCRIPTEN__)
   #include <Wasm_Window.hxx>
   #include <emscripten/emscripten.h>
@@ -729,6 +730,7 @@ TCollection_AsciiString ViewerTest::ViewerInit(const ViewerTest_VinitParams& the
                                    (int)aPxSize.x(),
                                    (int)aPxSize.y());
 #elif defined(__APPLE__)
+    ViewerTest_InitCocoaApplication();
     VT_GetWindow() = new Cocoa_Window(aTitle.ToCString(),
                                       (int)aPxTopLeft.x(),
                                       (int)aPxTopLeft.y(),

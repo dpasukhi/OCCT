@@ -106,6 +106,35 @@ int ViewerMainLoop (Standard_Integer, const char** )
 
 //=================================================================================================
 
+// Helper function to process pending events
+static void ProcessPendingEvents()
+{
+  NSEvent* event;
+  while ((event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                    untilDate:[NSDate distantPast]
+                                       inMode:NSDefaultRunLoopMode
+                                      dequeue:YES]))
+  {
+    [NSApp sendEvent:event];
+  }
+}
+
+extern "C" void ViewerTest_InitCocoaApplication()
+{
+  if (NSApp == NULL)
+  {
+    [NSApplication sharedApplication];
+  }
+
+  if (![NSApp isRunning])
+  {
+    [NSApp setActivationPolicy: NSApplicationActivationPolicyRegular];
+    [NSApp finishLaunching];
+  }
+}
+
+//=================================================================================================
+
 void ViewerTest_SetCocoaEventManagerView (const Handle(Cocoa_Window)& theWindow)
 {
   if (theWindow.IsNull())
@@ -121,13 +150,49 @@ void ViewerTest_SetCocoaEventManagerView (const Handle(Cocoa_Window)& theWindow)
   // replace content view in the window
   theWindow->SetHView (aView);
 
+  // Debug: Check if the view was properly set
+  NSView* currentContentView = [aWin contentView];
+  NSLog(@"ViewerTest_SetCocoaEventManagerView: content view set to: %@", currentContentView);
+  NSLog(@"ViewerTest_SetCocoaEventManagerView: is same view: %d", (currentContentView == aView));
+
   // set delegate for window
   Cocoa_WindowController* aWindowController = [[[Cocoa_WindowController alloc] init] autorelease];
   [aWin setDelegate: aWindowController];
   
   // make view as first responder in winow to capture all useful events
-  [aWin makeFirstResponder: aView];
+  BOOL aFirstResponderResult = [aWin makeFirstResponder: aView];
   [aWin setAcceptsMouseMovedEvents: YES];
+
+  // Debug output
+  NSLog(@"ViewerTest_SetCocoaEventManagerView: makeFirstResponder result: %d", aFirstResponderResult);
+  NSLog(@"ViewerTest_SetCocoaEventManagerView: firstResponder is: %@", [aWin firstResponder]);
+  NSLog(@"ViewerTest_SetCocoaEventManagerView: acceptsFirstResponder: %d", [aView acceptsFirstResponder]);
+
+  // Now that event handling is set up, make window visible and active
+  [aWin makeKeyAndOrderFront: nil];
+  [NSApp activateIgnoringOtherApps: YES];
+
+  // Ensure the window is properly focused
+  [aWin orderFrontRegardless];
+  [aWin makeMainWindow];
+  [aWin makeKeyWindow];
+
+  // Force the application to be frontmost
+  [[NSApplication sharedApplication] activateIgnoringOtherApps: YES];
+
+  // Give some time for the window to be fully set up
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    [aWin makeKeyAndOrderFront: nil];
+    [aView updateTrackingAreas];
+    NSLog(@"ViewerTest_SetCocoaEventManagerView: delayed window activation complete");
+
+    // Start a timer to process events manually for command-line apps
+    [NSTimer scheduledTimerWithTimeInterval:0.016  // ~60fps
+                                    repeats:YES
+                                      block:^(NSTimer *timer) {
+      ProcessPendingEvents();
+    }];
+  });
 
   // should be retained by parent NSWindow
   [aView release];
@@ -174,9 +239,52 @@ static Aspect_VKeyFlags getMouseKeyFlags (NSEvent* theEvent)
 
 //=================================================================================================
 
+- (void )awakeFromNib
+{
+  NSLog(@"ViewerTest_CocoaEventManagerView: awakeFromNib called");
+}
+
+- (instancetype)initWithFrame:(NSRect)frameRect
+{
+  NSLog(@"ViewerTest_CocoaEventManagerView: initWithFrame called");
+  self = [super initWithFrame:frameRect];
+  if (self) {
+    [self updateTrackingAreas];
+  }
+  return self;
+}
+
+- (void)updateTrackingAreas
+{
+  [super updateTrackingAreas];
+
+  // Remove existing tracking areas
+  for (NSTrackingArea *area in [self trackingAreas]) {
+    [self removeTrackingArea:area];
+  }
+
+  // Add new tracking area for the entire view
+  NSTrackingAreaOptions options = NSTrackingMouseEnteredAndExited |
+                                  NSTrackingMouseMoved |
+                                  NSTrackingActiveInKeyWindow |
+                                  NSTrackingInVisibleRect |
+                                  NSTrackingAssumeInside;
+  NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
+                                                              options:options
+                                                                owner:self
+                                                             userInfo:nil];
+  [self addTrackingArea:trackingArea];
+  [trackingArea release];
+
+  NSLog(@"ViewerTest_CocoaEventManagerView: tracking area updated for bounds %@", NSStringFromRect([self bounds]));
+}
+
+//=================================================================================================
+
 - (void )setFrameSize: (NSSize )theNewSize
 {
   [super setFrameSize: theNewSize];
+  [self updateTrackingAreas];
   ViewerTest::CurrentEventManager()->ProcessConfigure();
 }
 
@@ -206,15 +314,42 @@ static Aspect_VKeyFlags getMouseKeyFlags (NSEvent* theEvent)
 
 - (BOOL )acceptsFirstResponder
 {
+  NSLog(@"ViewerTest_CocoaEventManagerView: acceptsFirstResponder called");
   return YES;
+}
+
+- (BOOL )becomeFirstResponder
+{
+  NSLog(@"ViewerTest_CocoaEventManagerView: becomeFirstResponder called");
+  return [super becomeFirstResponder];
+}
+
+- (void )mouseEntered:(NSEvent *)theEvent
+{
+  NSLog(@"ViewerTest_CocoaEventManagerView: mouseEntered event");
+  [super mouseEntered:theEvent];
+}
+
+- (void )mouseExited:(NSEvent *)theEvent
+{
+  NSLog(@"ViewerTest_CocoaEventManagerView: mouseExited event");
+  [super mouseExited:theEvent];
 }
 
 //=================================================================================================
 
 - (void )mouseDown: (NSEvent* )theEvent
 {
+  NSLog(@"ViewerTest_CocoaEventManagerView: mouseDown event received");
   const Graphic3d_Vec2i  aPos   = getMouseCoords (self, theEvent);
   const Aspect_VKeyFlags aFlags = getMouseKeyFlags (theEvent);
+
+  if (ViewerTest::CurrentEventManager().IsNull())
+  {
+    NSLog(@"ViewerTest_CocoaEventManagerView: CurrentEventManager is NULL!");
+    return;
+  }
+
   ViewerTest::CurrentEventManager()->PressMouseButton (aPos, Aspect_VKeyMouse_LeftButton, aFlags, false);
   ViewerTest::CurrentEventManager()->FlushViewEvents (ViewerTest::GetAISContext(), ViewerTest::CurrentView(), true);
 }

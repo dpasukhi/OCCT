@@ -120,6 +120,7 @@ Cocoa_Window::Cocoa_Window (const Standard_CString theTitle,
     return;
   }
 
+
   // convert top-bottom coordinates to bottom-top (Cocoa)
   myYTop    = getScreenBottom() - myYBottom;
   myYBottom = myYTop + thePxHeight;
@@ -145,6 +146,7 @@ Cocoa_Window::Cocoa_Window (const Standard_CString theTitle,
 
   // do not destroy NSWindow on close - we didn't handle it!
   [myHWindow setReleasedWhenClosed: NO];
+
 #endif
 }
 
