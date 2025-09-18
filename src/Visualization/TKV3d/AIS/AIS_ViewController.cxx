@@ -1627,6 +1627,7 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
 
   const Handle(Graphic3d_Camera)& aCam =
     theView->View()->IsActiveXR() ? theView->View()->BaseXRCamera() : theView->Camera();
+
   if (myGL.OrbitRotation.ToStart)
   {
     // default alternatives
@@ -1639,7 +1640,10 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
     myCamStartOpDir    = aCam->Direction();
     myCamStartOpEye    = aCam->Eye();
     myCamStartOpCenter = aCam->Center();
+  }
 
+  if (theToLockZUp && myGL.OrbitRotation.ToStart)
+  {
     gp_Trsf aTrsf;
     aTrsf.SetTransformation(gp_Ax3(myRotatePnt3d, aCam->OrthogonalizedUp(), aCam->Direction()),
                             gp_Ax3(myRotatePnt3d, gp::DZ(), gp::DX()));
@@ -1652,7 +1656,10 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
     aTrsf.Invert();
     myCamStartOpToEye    = gp_Vec(myRotatePnt3d, aCam->Eye()).Transformed(aTrsf);
     myCamStartOpToCenter = gp_Vec(myRotatePnt3d, aCam->Center()).Transformed(aTrsf);
+  }
 
+  if (myGL.OrbitRotation.ToStart)
+  {
     theView->Invalidate();
   }
 
@@ -1662,18 +1669,41 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
   }
 
   AbortViewAnimation();
-  if (theToLockZUp)
+
+  bool aToLockZUp = theToLockZUp;
+
+  if (aToLockZUp)
+  {
+    // Check for orientations that are typically set externally and could cause jumps
+    const double aPitchAngleCurrent = myRotateStartYawPitchRoll[1];
+    const double aYawAngleCurrent   = myRotateStartYawPitchRoll[0];
+
+    // Detect problematic orientations:
+    // Exact 90° pitch (top/bottom views)
+    const bool isAtExact90Pitch = Abs(Abs(aPitchAngleCurrent) - M_PI * 0.5) < Precision::Angular();
+
+    // Exact 90° yaw (left/right views)
+    const bool isAtExact90Yaw =
+      Abs(fmod(Abs(aYawAngleCurrent) + M_PI / 4.0, M_PI / 2.0) - M_PI / 4.0) < Precision::Angular();
+
+    aToLockZUp = !isAtExact90Pitch && !isAtExact90Yaw;
+  }
+
+  if (aToLockZUp)
   {
     // amend camera to exclude roll angle (put camera Up vector to plane containing global Z and
     // view direction)
+    const bool      isStartingFromNegativeZ = myCamStartOpUp.Z() < 0.0;
     Graphic3d_Vec2i aWinXY;
     theView->Window()->Size(aWinXY.x(), aWinXY.y());
     double aYawAngleDelta =
       ((myGL.OrbitRotation.PointStart.x() - myGL.OrbitRotation.PointTo.x()) / double(aWinXY.x()))
       * (M_PI * 0.5);
+    aYawAngleDelta = isStartingFromNegativeZ ? -aYawAngleDelta : aYawAngleDelta;
     double aPitchAngleDelta =
       -((myGL.OrbitRotation.PointStart.y() - myGL.OrbitRotation.PointTo.y()) / double(aWinXY.y()))
       * (M_PI * 0.5);
+    aPitchAngleDelta            = isStartingFromNegativeZ ? -aPitchAngleDelta : aPitchAngleDelta;
     double       aPitchAngleNew = 0.0, aRoll = 0.0;
     const double aYawAngleNew = myRotateStartYawPitchRoll[0] + aYawAngleDelta;
     if (!theView->View()->IsActiveXR())
@@ -1689,7 +1719,8 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
     gp_Trsf aTrsfRot;
     aTrsfRot.SetRotation(aRot);
 
-    const gp_Dir aNewUp = gp::DZ().Transformed(aTrsfRot);
+    const gp_Dir aNewUp =
+      isStartingFromNegativeZ ? -gp::DZ().Transformed(aTrsfRot) : gp::DZ().Transformed(aTrsfRot);
     aCam->SetUp(aNewUp);
     aCam->SetEyeAndCenter(myRotatePnt3d.XYZ() + myCamStartOpToEye.Transformed(aTrsfRot).XYZ(),
                           myRotatePnt3d.XYZ() + myCamStartOpToCenter.Transformed(aTrsfRot).XYZ());
@@ -1698,11 +1729,7 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
   }
   else
   {
-    // default alternatives
-    // if (myRotationMode == AIS_RotationMode_BndBoxActive) theView->Rotation
-    // (myGL.RotateToPoint.x(), myGL.RotateToPoint.y()); theView->Rotate (aDX, aDY, aDZ,
-    // myRotatePnt3d.X(), myRotatePnt3d.Y(), myRotatePnt3d.Z(), false);
-
+    // Free rotation mode - use standard rotation without Z-up constraints
     // restore previous camera state
     aCam->SetEyeAndCenter(myCamStartOpEye, myCamStartOpCenter);
     aCam->SetUp(myCamStartOpUp);
@@ -1813,28 +1840,72 @@ void AIS_ViewController::handleViewRotation(const Handle(V3d_View)& theView,
 
   AbortViewAnimation();
 
+  const double aPitchAngleCurrent = myRotateStartYawPitchRoll[1];
+  const double aYawAngleCurrent   = myRotateStartYawPitchRoll[0];
+
+  // Detect problematic orientations:
+  // Exact 90° pitch (top/bottom views)
+  const bool isAtExact90Pitch = Abs(Abs(aPitchAngleCurrent) - M_PI * 0.5) < Precision::Angular();
+
+  // Exact 90° yaw (left/right views) - only ±90°, not 0°/180°
+  const bool isAtExact90Yaw =
+    Abs(Abs(fmod(aYawAngleCurrent + M_PI, 2.0 * M_PI)) - M_PI * 0.5) < Precision::Angular()
+    || Abs(Abs(fmod(aYawAngleCurrent + M_PI, 2.0 * M_PI)) - M_PI * 1.5) < Precision::Angular();
+
+  // Starting from negative Z hemisphere (could cause direction switches)
+  const bool isStartingFromNegativeZ = aCam->Up().Z() < 0.0;
+
   Graphic3d_Vec2i aWinXY;
   theView->Window()->Size(aWinXY.x(), aWinXY.y());
-  double aYawAngleDelta =
-    ((myGL.ViewRotation.PointStart.x() - myGL.ViewRotation.PointTo.x()) / double(aWinXY.x()))
-    * (M_PI * 0.5);
-  double aPitchAngleDelta =
-    -((myGL.ViewRotation.PointStart.y() - myGL.ViewRotation.PointTo.y()) / double(aWinXY.y()))
-    * (M_PI * 0.5);
-  const double aPitchAngleNew =
-    Max(Min(myRotateStartYawPitchRoll[1] + aPitchAngleDelta, M_PI * 0.5 - M_PI / 180.0),
-        -M_PI * 0.5 + M_PI / 180.0);
-  const double  aYawAngleNew = myRotateStartYawPitchRoll[0] + aYawAngleDelta;
-  gp_Quaternion aRot;
-  aRot.SetEulerAngles(gp_YawPitchRoll, aYawAngleNew, aPitchAngleNew, theRoll);
-  gp_Trsf aTrsfRot;
-  aTrsfRot.SetRotation(aRot);
+  {
+    double aYawAngleDelta =
+      ((myGL.ViewRotation.PointStart.x() - myGL.ViewRotation.PointTo.x()) / double(aWinXY.x()))
+      * (M_PI * 0.5);
+    double aPitchAngleDelta =
+      -((myGL.ViewRotation.PointStart.y() - myGL.ViewRotation.PointTo.y()) / double(aWinXY.y()))
+      * (M_PI * 0.5);
+    // Z-up constrained mode - use Euler angles with constraints
+    // Handle negative Z with sign flipping (moved from free mode)
+    aYawAngleDelta   = isStartingFromNegativeZ ? -aYawAngleDelta : aYawAngleDelta;
+    aPitchAngleDelta = isStartingFromNegativeZ ? -aPitchAngleDelta : aPitchAngleDelta;
 
-  const gp_Dir aNewUp  = gp::DZ().Transformed(aTrsfRot);
-  const gp_Dir aNewDir = gp::DX().Transformed(aTrsfRot);
-  aCam->SetUp(aNewUp);
-  aCam->SetDirectionFromEye(aNewDir);
-  aCam->OrthogonalizeUp();
+    Message::SendWarning() << "Current rotation start" << "[" << myRotateStartYawPitchRoll[0] << ","
+                           << myRotateStartYawPitchRoll[1] << "," << myRotateStartYawPitchRoll[2]
+                           << "]" << "PointTo" << "[" << myGL.ViewRotation.PointTo.x() << ","
+                           << myGL.ViewRotation.PointTo.y() << "]" << "PointStart" << "["
+                           << myGL.ViewRotation.PointStart.x() << ","
+                           << myGL.ViewRotation.PointStart.y() << "]" << "Deltas" << "["
+                           << aYawAngleDelta << "," << aPitchAngleDelta << "]";
+
+    // Clamp pitch to avoid exact gimbal lock
+    const double aPitchAngleNew =
+      Max(Min(myRotateStartYawPitchRoll[1] + aPitchAngleDelta, M_PI * 0.5 - M_PI / 180.0),
+          -M_PI * 0.5 + M_PI / 180.0);
+    const double aYawAngleNew = myRotateStartYawPitchRoll[0] + aYawAngleDelta;
+
+    Message::SendWarning() << "New rotation angles" << "[" << aYawAngleNew << "," << aPitchAngleNew
+                           << "," << theRoll << "]"
+                           << (isAtExact90Pitch ? " At exact 90 deg pitch!" : "")
+                           << (isAtExact90Yaw ? " At exact 90 deg yaw!" : "")
+                           << (isStartingFromNegativeZ ? " Starting from negative Z!" : "");
+
+    gp_Quaternion aRot;
+    aRot.SetEulerAngles(gp_YawPitchRoll, aYawAngleNew, aPitchAngleNew, theRoll);
+    gp_Trsf aTrsfRot;
+    aTrsfRot.SetRotation(aRot);
+
+    const gp_Dir aNewUp =
+      isStartingFromNegativeZ ? -gp::DZ().Transformed(aTrsfRot) : gp::DZ().Transformed(aTrsfRot);
+    const gp_Dir aNewDir = gp::DX().Transformed(aTrsfRot);
+    auto         anOld   = aCam->Up();
+    // Writing before/after values to debug output to track instability issues
+    Message::SendWarning() << "Camera Up before" << "[" << anOld.X() << "," << anOld.Y() << ","
+                           << anOld.Z() << "] after setting to" << "[" << aNewUp.X() << ","
+                           << aNewUp.Y() << "," << aNewUp.Z() << "]";
+    aCam->SetUp(aNewUp);
+    aCam->SetDirectionFromEye(aNewDir);
+    aCam->OrthogonalizeUp();
+  }
   theView->Invalidate();
 }
 
