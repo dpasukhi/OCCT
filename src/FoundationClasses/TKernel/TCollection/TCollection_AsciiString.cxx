@@ -612,6 +612,42 @@ Standard_Boolean TCollection_AsciiString::IsSameString(const TCollection_AsciiSt
 
 //=================================================================================================
 
+Standard_Boolean TCollection_AsciiString::IsSameString(const TCollection_AsciiString& theString1,
+                                                       const std::string_view&        theStringView,
+                                                       const Standard_Boolean theIsCaseSensitive)
+{
+  const Standard_Integer aSize1 = theString1.Length();
+  if (aSize1 != static_cast<Standard_Integer>(theStringView.size()))
+  {
+    return Standard_False;
+  }
+
+  if (theIsCaseSensitive)
+  {
+    return (strncmp(theString1.ToCString(), theStringView.data(), aSize1) == 0);
+  }
+
+  for (Standard_Integer aCharIter = 0; aCharIter < aSize1; ++aCharIter)
+  {
+    if (toupper(theString1.Value(aCharIter + 1)) != toupper(theStringView[aCharIter]))
+    {
+      return Standard_False;
+    }
+  }
+  return Standard_True;
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsSameString(const std::string_view&        theStringView,
+                                                       const TCollection_AsciiString& theString2,
+                                                       const Standard_Boolean theIsCaseSensitive)
+{
+  return IsSameString(theString2, theStringView, theIsCaseSensitive);
+}
+
+//=================================================================================================
+
 Standard_Boolean TCollection_AsciiString::IsDifferent(const Standard_CString other) const
 {
   if (other)
@@ -1317,4 +1353,185 @@ void TCollection_AsciiString::deallocate()
   }
   mylength = 0;
   mystring = THE_DEFAULT_CHAR_STRING;
+}
+
+//=================================================================================================
+
+TCollection_AsciiString::TCollection_AsciiString(const std::string_view& theStringView)
+{
+  allocate(static_cast<int>(theStringView.size()));
+  if (mylength > 0)
+  {
+    memcpy(mystring, theStringView.data(), mylength);
+  }
+}
+
+//=================================================================================================
+
+void TCollection_AsciiString::AssignCat(const std::string_view& theStringView)
+{
+  if (theStringView.empty())
+    return;
+
+  const int anOldLength = mylength;
+  const int aNewLength  = anOldLength + static_cast<int>(theStringView.size());
+
+  reallocate(aNewLength);
+  memcpy(mystring + anOldLength, theStringView.data(), theStringView.size());
+}
+
+//=================================================================================================
+
+TCollection_AsciiString TCollection_AsciiString::Cat(const std::string_view& theStringView) const
+{
+  TCollection_AsciiString aResult(*this);
+  aResult.AssignCat(theStringView);
+  return aResult;
+}
+
+//=================================================================================================
+
+void TCollection_AsciiString::Copy(const std::string_view& theStringView)
+{
+  deallocate();
+  allocate(static_cast<int>(theStringView.size()));
+  if (mylength > 0)
+  {
+    memcpy(mystring, theStringView.data(), mylength);
+  }
+}
+
+//=================================================================================================
+
+void TCollection_AsciiString::Insert(const Standard_Integer  theWhere,
+                                     const std::string_view& theStringView)
+{
+  if (theWhere < 1 || theWhere > mylength + 1)
+    throw Standard_OutOfRange("TCollection_AsciiString::Insert : parameter theWhere");
+
+  if (theStringView.empty())
+    return;
+
+  const int anInsertSize = static_cast<int>(theStringView.size());
+  const int anOldLength  = mylength;
+  const int aNewLength   = anOldLength + anInsertSize;
+
+  // Move existing content to make room
+  reallocate(aNewLength);
+
+  // Shift existing characters to the right
+  const int anInsertIndex = theWhere - 1;
+  if (anInsertIndex < anOldLength)
+  {
+    memmove(mystring + anInsertIndex + anInsertSize,
+            mystring + anInsertIndex,
+            anOldLength - anInsertIndex);
+  }
+
+  // Insert the new content
+  memcpy(mystring + anInsertIndex, theStringView.data(), anInsertSize);
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsEqual(const std::string_view& theStringView) const
+{
+  if (mylength != static_cast<int>(theStringView.size()))
+    return Standard_False;
+
+  if (mylength == 0)
+    return Standard_True;
+
+  return memcmp(mystring, theStringView.data(), mylength) == 0;
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsDifferent(const std::string_view& theStringView) const
+{
+  return !IsEqual(theStringView);
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsLess(const std::string_view& theStringView) const
+{
+  const int aMinLength = std::min(mylength, static_cast<int>(theStringView.size()));
+  const int aResult    = memcmp(mystring, theStringView.data(), aMinLength);
+
+  if (aResult < 0)
+    return Standard_True;
+  if (aResult > 0)
+    return Standard_False;
+
+  return mylength < static_cast<int>(theStringView.size());
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsGreater(const std::string_view& theStringView) const
+{
+  const int aMinLength = std::min(mylength, static_cast<int>(theStringView.size()));
+  const int aResult    = memcmp(mystring, theStringView.data(), aMinLength);
+
+  if (aResult > 0)
+    return Standard_True;
+  if (aResult < 0)
+    return Standard_False;
+
+  return mylength > static_cast<int>(theStringView.size());
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::StartsWith(const std::string_view& theStartString) const
+{
+  const int aStartLength = static_cast<int>(theStartString.size());
+  if (aStartLength > mylength)
+    return Standard_False;
+
+  if (aStartLength == 0)
+    return Standard_True;
+
+  return memcmp(mystring, theStartString.data(), aStartLength) == 0;
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::EndsWith(const std::string_view& theEndString) const
+{
+  const int anEndLength = static_cast<int>(theEndString.size());
+  if (anEndLength > mylength)
+    return Standard_False;
+
+  if (anEndLength == 0)
+    return Standard_True;
+
+  return memcmp(mystring + mylength - anEndLength, theEndString.data(), anEndLength) == 0;
+}
+
+//=================================================================================================
+
+void TCollection_AsciiString::SetValue(const Standard_Integer  theWhere,
+                                       const std::string_view& theStringView)
+{
+  if (theWhere <= 0)
+    throw Standard_OutOfRange("TCollection_AsciiString::SetValue");
+
+  const int anInsertSize = static_cast<int>(theStringView.size());
+  const int aNewLength   = theWhere - 1 + anInsertSize;
+
+  if (aNewLength > mylength)
+  {
+    reallocate(aNewLength);
+  }
+
+  memcpy(mystring + theWhere - 1, theStringView.data(), anInsertSize);
+}
+
+//=================================================================================================
+
+std::string_view TCollection_AsciiString::ToStringView() const
+{
+  return std::string_view(mystring, mylength);
 }

@@ -27,6 +27,9 @@
 #include <Standard_OStream.hxx>
 #include <Standard_IStream.hxx>
 #include <Standard_Macro.hxx>
+
+#include <string_view>
+
 class TCollection_ExtendedString;
 
 //! Class defines a variable-length sequence of 8-bit characters.
@@ -54,6 +57,10 @@ public:
 
   //! Initializes a AsciiString with a CString.
   Standard_EXPORT TCollection_AsciiString(const Standard_CString message);
+
+  //! Initializes a AsciiString with a string_view.
+  //! @param[in] theStringView the string view to initialize from
+  Standard_EXPORT TCollection_AsciiString(const std::string_view& theStringView);
 
   //! Initializes a AsciiString with a CString.
   Standard_EXPORT TCollection_AsciiString(const Standard_CString message,
@@ -141,6 +148,12 @@ public:
 
   void operator+=(const TCollection_AsciiString& other) { AssignCat(other); }
 
+  //! Appends string view to this ASCII string. This is an unary operator.
+  //! @param[in] theStringView the string view to append
+  Standard_EXPORT void AssignCat(const std::string_view& theStringView);
+
+  void operator+=(const std::string_view& theStringView) { AssignCat(theStringView); }
+
   //! Converts the first character into its corresponding
   //! upper-case character and the other characters into lowercase
   //! Example: before
@@ -212,6 +225,15 @@ public:
     return Cat(other);
   }
 
+  //! Appends string view to this ASCII string.
+  //! @param[in] theStringView the string view to append
+  TCollection_AsciiString Cat(const std::string_view& theStringView) const;
+
+  TCollection_AsciiString operator+(const std::string_view& theStringView) const
+  {
+    return Cat(theStringView);
+  }
+
   //! Modifies this ASCII string so that its length
   //! becomes equal to Width and the new characters
   //! are equal to Filler. New characters are added
@@ -246,6 +268,13 @@ public:
   Standard_EXPORT void Copy(const Standard_CString fromwhere);
 
   void operator=(const Standard_CString fromwhere) { Copy(fromwhere); }
+
+  //! Copy string view to this ASCII string.
+  //! Used as operator =
+  //! @param[in] theStringView the string view to copy from
+  Standard_EXPORT void Copy(const std::string_view& theStringView);
+
+  void operator=(const std::string_view& theStringView) { Copy(theStringView); }
 
   //! Copy <fromwhere> to <me>.
   //! Used as operator =
@@ -326,6 +355,12 @@ public:
   //! Inserts a AsciiString at position <where>.
   Standard_EXPORT void Insert(const Standard_Integer where, const TCollection_AsciiString& what);
 
+  //! Inserts a string_view at position theWhere.
+  //! @param[in] theWhere position to insert at
+  //! @param[in] theStringView the string view to insert
+  Standard_EXPORT void Insert(const Standard_Integer  theWhere,
+                              const std::string_view& theStringView);
+
   //! Pushing a string after a specific index in the string <me>.
   //! Raises an exception if Index is out of bounds.
   //! -   less than 0 (InsertAfter), or less than 1 (InsertBefore), or
@@ -367,6 +402,16 @@ public:
 
   Standard_Boolean operator==(const TCollection_AsciiString& other) const { return IsEqual(other); }
 
+  //! Returns true if the characters in this ASCII string
+  //! are identical to the characters in string_view.
+  //! @param[in] theStringView the string view to compare with
+  Standard_EXPORT Standard_Boolean IsEqual(const std::string_view& theStringView) const;
+
+  Standard_Boolean operator==(const std::string_view& theStringView) const
+  {
+    return IsEqual(theStringView);
+  }
+
   //! Returns true if there are differences between the
   //! characters in this ASCII string and ASCII string other.
   //! Note that this method is an alias of operator !=
@@ -384,6 +429,16 @@ public:
     return IsDifferent(other);
   }
 
+  //! Returns true if there are differences between the
+  //! characters in this ASCII string and string_view.
+  //! @param[in] theStringView the string view to compare with
+  Standard_EXPORT Standard_Boolean IsDifferent(const std::string_view& theStringView) const;
+
+  Standard_Boolean operator!=(const std::string_view& theStringView) const
+  {
+    return IsDifferent(theStringView);
+  }
+
   //! Returns TRUE if <me> is 'ASCII' less than <other>.
   Standard_EXPORT Standard_Boolean IsLess(const Standard_CString other) const;
 
@@ -393,6 +448,15 @@ public:
   Standard_EXPORT Standard_Boolean IsLess(const TCollection_AsciiString& other) const;
 
   Standard_Boolean operator<(const TCollection_AsciiString& other) const { return IsLess(other); }
+
+  //! Returns TRUE if this ASCII string is lexicographically less than theStringView.
+  //! @param[in] theStringView the string view to compare with
+  Standard_EXPORT Standard_Boolean IsLess(const std::string_view& theStringView) const;
+
+  Standard_Boolean operator<(const std::string_view& theStringView) const
+  {
+    return IsLess(theStringView);
+  }
 
   //! Returns TRUE if <me> is 'ASCII' greater than <other>.
   Standard_EXPORT Standard_Boolean IsGreater(const Standard_CString other) const;
@@ -407,11 +471,28 @@ public:
     return IsGreater(other);
   }
 
+  //! Returns TRUE if this ASCII string is lexicographically greater than theStringView.
+  //! @param[in] theStringView the string view to compare with
+  Standard_EXPORT Standard_Boolean IsGreater(const std::string_view& theStringView) const;
+
+  Standard_Boolean operator>(const std::string_view& theStringView) const
+  {
+    return IsGreater(theStringView);
+  }
+
   //! Determines whether the beginning of this string instance matches the specified string.
   Standard_EXPORT Standard_Boolean StartsWith(const TCollection_AsciiString& theStartString) const;
 
   //! Determines whether the end of this string instance matches the specified string.
   Standard_EXPORT Standard_Boolean EndsWith(const TCollection_AsciiString& theEndString) const;
+
+  //! Determines whether the beginning of this string instance matches the specified string_view.
+  //! @param[in] theStartString the string view to check for at the beginning
+  Standard_EXPORT Standard_Boolean StartsWith(const std::string_view& theStartString) const;
+
+  //! Determines whether the end of this string instance matches the specified string_view.
+  //! @param[in] theEndString the string view to check for at the end
+  Standard_EXPORT Standard_Boolean EndsWith(const std::string_view& theEndString) const;
 
   //! Converts a AsciiString containing a numeric expression to
   //! an Integer.
@@ -608,6 +689,12 @@ public:
   //! Replaces a part of <me> by another AsciiString.
   Standard_EXPORT void SetValue(const Standard_Integer where, const TCollection_AsciiString& what);
 
+  //! Replaces a part of this ASCII string with a string_view.
+  //! @param[in] theWhere position to start replacement
+  //! @param[in] theStringView the string view to replace with
+  Standard_EXPORT void SetValue(const Standard_Integer  theWhere,
+                                const std::string_view& theStringView);
+
   //! Splits a AsciiString into two sub-strings.
   //! Example:
   //! aString contains "abcdefg"
@@ -632,6 +719,10 @@ public:
   //! This is useful for some casual manipulations.
   //! Warning: Because this "char *" is 'const', you can't modify its contents.
   Standard_CString ToCString() const;
+
+  //! Returns string_view for this AsciiString.
+  //! This provides a lightweight, non-owning view of the string data.
+  std::string_view ToStringView() const;
 
   //! Extracts <whichone> token from <me>.
   //! By default, the <separators> is set to space and tabulation.
@@ -685,10 +776,40 @@ public:
   static Standard_Boolean IsEqual(const TCollection_AsciiString& string1,
                                   const Standard_CString         string2);
 
+  //! Returns True when the ASCII string and string_view are the same.
+  //! (Just for HashCode for AsciiString)
+  //! @param[in] theString1 first string to compare
+  //! @param[in] theStringView second string view to compare
+  static Standard_Boolean IsEqual(const TCollection_AsciiString& theString1,
+                                  const std::string_view&        theStringView);
+
+  //! Returns True when the string_view and ASCII string are the same.
+  //! (Just for HashCode for AsciiString)
+  //! @param[in] theStringView first string view to compare
+  //! @param[in] theString2 second string to compare
+  static Standard_Boolean IsEqual(const std::string_view&        theStringView,
+                                  const TCollection_AsciiString& theString2);
+
   //! Returns True if the strings contain same characters.
   Standard_EXPORT static Standard_Boolean IsSameString(const TCollection_AsciiString& theString1,
                                                        const TCollection_AsciiString& theString2,
                                                        const Standard_Boolean theIsCaseSensitive);
+
+  //! Returns True if the string and string_view contain same characters.
+  //! @param[in] theString1 first string to compare
+  //! @param[in] theStringView second string view to compare
+  //! @param[in] theIsCaseSensitive flag indicating case sensitivity
+  Standard_EXPORT static Standard_Boolean IsSameString(const TCollection_AsciiString& theString1,
+                                                       const std::string_view&        theStringView,
+                                                       const Standard_Boolean         theIsCaseSensitive);
+
+  //! Returns True if the string_view and string contain same characters.
+  //! @param[in] theStringView first string view to compare
+  //! @param[in] theString2 second string to compare
+  //! @param[in] theIsCaseSensitive flag indicating case sensitivity
+  Standard_EXPORT static Standard_Boolean IsSameString(const std::string_view&        theStringView,
+                                                       const TCollection_AsciiString& theString2,
+                                                       const Standard_Boolean         theIsCaseSensitive);
 
   friend class TCollection_HAsciiString;
 
