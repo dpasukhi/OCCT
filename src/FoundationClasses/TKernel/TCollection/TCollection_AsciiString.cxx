@@ -1484,6 +1484,16 @@ Standard_Boolean TCollection_AsciiString::IsGreater(const std::string_view& theS
 
 //=================================================================================================
 
+Standard_Boolean TCollection_AsciiString::StartsWith(const Standard_CString theStartString) const
+{
+  if (!theStartString)
+    return mylength == 0;
+
+  return StartsWith(std::string_view(theStartString));
+}
+
+//=================================================================================================
+
 Standard_Boolean TCollection_AsciiString::StartsWith(const std::string_view& theStartString) const
 {
   const int aStartLength = static_cast<int>(theStartString.size());
@@ -1498,6 +1508,16 @@ Standard_Boolean TCollection_AsciiString::StartsWith(const std::string_view& the
 
 //=================================================================================================
 
+Standard_Boolean TCollection_AsciiString::EndsWith(const Standard_CString theEndString) const
+{
+  if (!theEndString)
+    return mylength == 0;
+
+  return EndsWith(std::string_view(theEndString));
+}
+
+//=================================================================================================
+
 Standard_Boolean TCollection_AsciiString::EndsWith(const std::string_view& theEndString) const
 {
   const int anEndLength = static_cast<int>(theEndString.size());
@@ -1508,6 +1528,69 @@ Standard_Boolean TCollection_AsciiString::EndsWith(const std::string_view& theEn
     return Standard_True;
 
   return memcmp(mystring + mylength - anEndLength, theEndString.data(), anEndLength) == 0;
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsSameString(const TCollection_AsciiString& theString1,
+                                                       const Standard_CString         theCString,
+                                                       const Standard_Boolean         theIsCaseSensitive)
+{
+  if (!theCString)
+    return theString1.Length() == 0;
+
+  return IsSameString(theString1, std::string_view(theCString), theIsCaseSensitive);
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsSameString(const Standard_CString         theCString,
+                                                       const TCollection_AsciiString& theString2,
+                                                       const Standard_Boolean         theIsCaseSensitive)
+{
+  return IsSameString(theString2, theCString, theIsCaseSensitive);
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsSameString(const Standard_CString theCString1,
+                                                       const Standard_CString theCString2,
+                                                       const Standard_Boolean theIsCaseSensitive)
+{
+  if (!theCString1 && !theCString2)
+    return Standard_True;
+  if (!theCString1 || !theCString2)
+    return Standard_False;
+
+  return IsSameString(std::string_view(theCString1), std::string_view(theCString2), theIsCaseSensitive);
+}
+
+//=================================================================================================
+
+Standard_Boolean TCollection_AsciiString::IsSameString(const std::string_view& theStringView1,
+                                                       const std::string_view& theStringView2,
+                                                       const Standard_Boolean  theIsCaseSensitive)
+{
+  const Standard_Integer aSize1 = static_cast<Standard_Integer>(theStringView1.size());
+  if (aSize1 != static_cast<Standard_Integer>(theStringView2.size()))
+    return Standard_False;
+
+  if (aSize1 == 0)
+    return Standard_True;
+
+  if (theIsCaseSensitive)
+  {
+    return memcmp(theStringView1.data(), theStringView2.data(), aSize1) == 0;
+  }
+  else
+  {
+    for (Standard_Integer anIndex = 0; anIndex < aSize1; ++anIndex)
+    {
+      if (::UpperCase(theStringView1[anIndex]) != ::UpperCase(theStringView2[anIndex]))
+        return Standard_False;
+    }
+    return Standard_True;
+  }
 }
 
 //=================================================================================================
@@ -1531,7 +1614,7 @@ void TCollection_AsciiString::SetValue(const Standard_Integer  theWhere,
 
 //=================================================================================================
 
-std::string_view TCollection_AsciiString::ToStringView() const
+TCollection_AsciiString::operator std::string_view() const
 {
   return std::string_view(mystring, mylength);
 }

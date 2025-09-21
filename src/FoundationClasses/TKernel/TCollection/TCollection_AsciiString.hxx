@@ -60,7 +60,7 @@ public:
 
   //! Initializes a AsciiString with a string_view.
   //! @param[in] theStringView the string view to initialize from
-  Standard_EXPORT TCollection_AsciiString(const std::string_view& theStringView);
+  Standard_EXPORT explicit TCollection_AsciiString(const std::string_view& theStringView);
 
   //! Initializes a AsciiString with a CString.
   Standard_EXPORT TCollection_AsciiString(const Standard_CString message,
@@ -483,12 +483,20 @@ public:
   //! Determines whether the beginning of this string instance matches the specified string.
   Standard_EXPORT Standard_Boolean StartsWith(const TCollection_AsciiString& theStartString) const;
 
-  //! Determines whether the end of this string instance matches the specified string.
-  Standard_EXPORT Standard_Boolean EndsWith(const TCollection_AsciiString& theEndString) const;
+  //! Determines whether the beginning of this string instance matches the specified C string.
+  //! @param[in] theStartString the C string to check for at the beginning
+  Standard_EXPORT Standard_Boolean StartsWith(const Standard_CString theStartString) const;
 
   //! Determines whether the beginning of this string instance matches the specified string_view.
   //! @param[in] theStartString the string view to check for at the beginning
   Standard_EXPORT Standard_Boolean StartsWith(const std::string_view& theStartString) const;
+
+  //! Determines whether the end of this string instance matches the specified string.
+  Standard_EXPORT Standard_Boolean EndsWith(const TCollection_AsciiString& theEndString) const;
+
+  //! Determines whether the end of this string instance matches the specified C string.
+  //! @param[in] theEndString the C string to check for at the end
+  Standard_EXPORT Standard_Boolean EndsWith(const Standard_CString theEndString) const;
 
   //! Determines whether the end of this string instance matches the specified string_view.
   //! @param[in] theEndString the string view to check for at the end
@@ -722,7 +730,7 @@ public:
 
   //! Returns string_view for this AsciiString.
   //! This provides a lightweight, non-owning view of the string data.
-  std::string_view ToStringView() const;
+  explicit operator std::string_view() const;
 
   //! Extracts <whichone> token from <me>.
   //! By default, the <separators> is set to space and tabulation.
@@ -795,6 +803,22 @@ public:
                                                        const TCollection_AsciiString& theString2,
                                                        const Standard_Boolean theIsCaseSensitive);
 
+  //! Returns True if the string and C string contain same characters.
+  //! @param[in] theString1 first string to compare
+  //! @param[in] theCString second C string to compare
+  //! @param[in] theIsCaseSensitive flag indicating case sensitivity
+  Standard_EXPORT static Standard_Boolean IsSameString(const TCollection_AsciiString& theString1,
+                                                       const Standard_CString         theCString,
+                                                       const Standard_Boolean         theIsCaseSensitive);
+
+  //! Returns True if the C string and string contain same characters.
+  //! @param[in] theCString first C string to compare
+  //! @param[in] theString2 second string to compare
+  //! @param[in] theIsCaseSensitive flag indicating case sensitivity
+  Standard_EXPORT static Standard_Boolean IsSameString(const Standard_CString         theCString,
+                                                       const TCollection_AsciiString& theString2,
+                                                       const Standard_Boolean         theIsCaseSensitive);
+
   //! Returns True if the string and string_view contain same characters.
   //! @param[in] theString1 first string to compare
   //! @param[in] theStringView second string view to compare
@@ -810,6 +834,22 @@ public:
   Standard_EXPORT static Standard_Boolean IsSameString(const std::string_view&        theStringView,
                                                        const TCollection_AsciiString& theString2,
                                                        const Standard_Boolean         theIsCaseSensitive);
+
+  //! Returns True if the two C strings contain same characters.
+  //! @param[in] theCString1 first C string to compare
+  //! @param[in] theCString2 second C string to compare
+  //! @param[in] theIsCaseSensitive flag indicating case sensitivity
+  Standard_EXPORT static Standard_Boolean IsSameString(const Standard_CString theCString1,
+                                                       const Standard_CString theCString2,
+                                                       const Standard_Boolean theIsCaseSensitive);
+
+  //! Returns True if the two string_views contain same characters.
+  //! @param[in] theStringView1 first string view to compare
+  //! @param[in] theStringView2 second string view to compare
+  //! @param[in] theIsCaseSensitive flag indicating case sensitivity
+  Standard_EXPORT static Standard_Boolean IsSameString(const std::string_view& theStringView1,
+                                                       const std::string_view& theStringView2,
+                                                       const Standard_Boolean  theIsCaseSensitive);
 
   friend class TCollection_HAsciiString;
 
