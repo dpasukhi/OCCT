@@ -136,6 +136,20 @@ public:
   Standard_EXPORT TCollection_AsciiString(const Standard_WideChar* theStringUtf);
 #endif
 
+  //! Template constructor for string literals with compile-time size deduction.
+  //! This optimization avoids runtime strlen() calls for string literals.
+  //!
+  //! Example:
+  //! ```cpp
+  //! TCollection_AsciiString aString("Hello");  // Size known at compile time
+  //! ```
+  //! @param[in] theLiteral the string literal
+  template <std::size_t N>
+  TCollection_AsciiString(const char (&theLiteral)[N])
+    : TCollection_AsciiString(std::string_view(theLiteral, N - 1)) // Exclude null terminator
+  {
+  }
+
   //! Appends other character to this string. This is an unary operator.
   //! @param[in] theOther the character to append
   Standard_EXPORT void AssignCat(const Standard_Character theOther);
@@ -190,6 +204,27 @@ public:
   Standard_EXPORT void AssignCat(const std::string_view& theStringView);
 
   void operator+=(const std::string_view& theStringView) { AssignCat(theStringView); }
+
+  //! Template method for appending string literals with compile-time size deduction.
+  //! This optimization avoids runtime strlen() calls and unnecessary conversions.
+  //!
+  //! Example:
+  //! ```cpp
+  //! TCollection_AsciiString aString("Hello");
+  //! aString += " World";  // Size known at compile time, no strlen() call
+  //! ```
+  //! @param[in] theLiteral the string literal to append
+  template <std::size_t N>
+  void AssignCat(const char (&theLiteral)[N])
+  {
+    AssignCat(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  template <std::size_t N>
+  void operator+=(const char (&theLiteral)[N])
+  {
+    AssignCat(theLiteral);
+  }
 
   //! Converts the first character into its corresponding
   //! upper-case character and the other characters into lowercase
@@ -296,6 +331,29 @@ public:
     return Cat(theStringView);
   }
 
+  //! Template method for concatenating string literals with compile-time size deduction.
+  //! This optimization avoids runtime strlen() calls and unnecessary conversions.
+  //!
+  //! Example:
+  //! ```cpp
+  //! TCollection_AsciiString aString("Hello");
+  //! TCollection_AsciiString aResult = aString + " World";  // Size known at compile time
+  //! // Result: aResult == "Hello World"
+  //! ```
+  //! @param[in] theLiteral the string literal to concatenate
+  //! @return new string with literal appended
+  template <std::size_t N>
+  TCollection_AsciiString Cat(const char (&theLiteral)[N]) const
+  {
+    return Cat(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  template <std::size_t N>
+  TCollection_AsciiString operator+(const char (&theLiteral)[N]) const
+  {
+    return Cat(theLiteral);
+  }
+
   //! Modifies this ASCII string so that its length
   //! becomes equal to Width and the new characters
   //! are equal to Filler. New characters are added
@@ -354,6 +412,28 @@ public:
   Standard_EXPORT void Copy(const std::string_view& theStringView);
 
   void operator=(const std::string_view& theStringView) { Copy(theStringView); }
+
+  //! Template method for copying string literals with compile-time size deduction.
+  //! This optimization avoids runtime strlen() calls and unnecessary conversions.
+  //!
+  //! Example:
+  //! ```cpp
+  //! TCollection_AsciiString aString;
+  //! aString = "Hello World";  // Size known at compile time
+  //! // Result: aString == "Hello World"
+  //! ```
+  //! @param[in] theLiteral the string literal to copy from
+  template <std::size_t N>
+  void Copy(const char (&theLiteral)[N])
+  {
+    Copy(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  template <std::size_t N>
+  void operator=(const char (&theLiteral)[N])
+  {
+    Copy(theLiteral);
+  }
 
   //! Copy fromwhere to this string.
   //! Used as operator =
@@ -476,6 +556,23 @@ public:
   Standard_EXPORT void Insert(const Standard_Integer  theWhere,
                               const std::string_view& theStringView);
 
+  //! Template method for inserting string literals with compile-time size deduction.
+  //! This optimization avoids runtime strlen() calls and unnecessary conversions.
+  //!
+  //! Example:
+  //! ```cpp
+  //! TCollection_AsciiString aString("O more");
+  //! aString.Insert(2, "nce");  // Size known at compile time
+  //! // Result: aString == "Once more"
+  //! ```
+  //! @param[in] theWhere the position to insert at
+  //! @param[in] theLiteral the string literal to insert
+  template <std::size_t N>
+  void Insert(const Standard_Integer theWhere, const char (&theLiteral)[N])
+  {
+    Insert(theWhere, std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
   //! Pushing a string after a specific index in this string.
   //! Raises an exception if Index is out of bounds.
   //! -   less than 0 (InsertAfter), or less than 1 (InsertBefore), or
@@ -545,6 +642,29 @@ public:
     return IsEqual(theStringView);
   }
 
+  //! Template method for comparing with string literals with compile-time optimization.
+  //! This optimization avoids runtime strlen() calls and unnecessary conversions.
+  //!
+  //! Example:
+  //! ```cpp
+  //! TCollection_AsciiString aString("Hello");
+  //! bool isEqual = aString.IsEqual("Hello");  // Size known at compile time
+  //! bool isEqual2 = (aString == "Hello");     // Same optimization
+  //! ```
+  //! @param[in] theLiteral the string literal to compare with
+  //! @return true if strings are equal, false otherwise
+  template <std::size_t N>
+  Standard_Boolean IsEqual(const char (&theLiteral)[N]) const
+  {
+    return IsEqual(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  template <std::size_t N>
+  Standard_Boolean operator==(const char (&theLiteral)[N]) const
+  {
+    return IsEqual(theLiteral);
+  }
+
   //! Returns true if there are differences between the
   //! characters in this ASCII string and ASCII string other.
   //! Note that this method is an alias of operator !=
@@ -580,6 +700,21 @@ public:
     return IsDifferent(theStringView);
   }
 
+  //! Template method for comparing difference with string literals with compile-time optimization.
+  //! @param[in] theLiteral the string literal to compare with
+  //! @return true if strings are different, false otherwise
+  template <std::size_t N>
+  Standard_Boolean IsDifferent(const char (&theLiteral)[N]) const
+  {
+    return IsDifferent(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  template <std::size_t N>
+  Standard_Boolean operator!=(const char (&theLiteral)[N]) const
+  {
+    return IsDifferent(theLiteral);
+  }
+
   //! Returns TRUE if this string is 'ASCII' less than other.
   //! @param[in] theOther the C string to compare with
   //! @return true if this string is lexicographically less than other
@@ -607,6 +742,21 @@ public:
     return IsLess(theStringView);
   }
 
+  //! Template method for lexicographic comparison with string literals with compile-time optimization.
+  //! @param[in] theLiteral the string literal to compare with
+  //! @return true if this string is lexicographically less than literal
+  template <std::size_t N>
+  Standard_Boolean IsLess(const char (&theLiteral)[N]) const
+  {
+    return IsLess(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  template <std::size_t N>
+  Standard_Boolean operator<(const char (&theLiteral)[N]) const
+  {
+    return IsLess(theLiteral);
+  }
+
   //! Returns TRUE if this string is 'ASCII' greater than other.
   //! @param[in] theOther the C string to compare with
   //! @return true if this string is lexicographically greater than other
@@ -632,6 +782,21 @@ public:
   Standard_Boolean operator>(const std::string_view& theStringView) const
   {
     return IsGreater(theStringView);
+  }
+
+  //! Template method for lexicographic greater comparison with string literals with compile-time optimization.
+  //! @param[in] theLiteral the string literal to compare with
+  //! @return true if this string is lexicographically greater than literal
+  template <std::size_t N>
+  Standard_Boolean IsGreater(const char (&theLiteral)[N]) const
+  {
+    return IsGreater(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  template <std::size_t N>
+  Standard_Boolean operator>(const char (&theLiteral)[N]) const
+  {
+    return IsGreater(theLiteral);
   }
 
   //! Determines whether the beginning of this string instance matches the specified string.
@@ -663,6 +828,24 @@ public:
   //! @param[in] theEndString the string view to check for at the end
   //! @return true if this string ends with theEndString
   Standard_EXPORT Standard_Boolean EndsWith(const std::string_view& theEndString) const;
+
+  //! Template method for checking if string starts with a literal with compile-time optimization.
+  //! @param[in] theLiteral the string literal to check for at the beginning
+  //! @return true if this string starts with literal
+  template <std::size_t N>
+  Standard_Boolean StartsWith(const char (&theLiteral)[N]) const
+  {
+    return StartsWith(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
+
+  //! Template method for checking if string ends with a literal with compile-time optimization.
+  //! @param[in] theLiteral the string literal to check for at the end
+  //! @return true if this string ends with literal
+  template <std::size_t N>
+  Standard_Boolean EndsWith(const char (&theLiteral)[N]) const
+  {
+    return EndsWith(std::string_view(theLiteral, N - 1)); // Exclude null terminator
+  }
 
   //! Converts a AsciiString containing a numeric expression to an Integer.
   //!
