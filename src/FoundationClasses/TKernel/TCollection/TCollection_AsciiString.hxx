@@ -55,13 +55,9 @@ public:
   //! Initializes a AsciiString to an empty AsciiString.
   Standard_EXPORT TCollection_AsciiString();
 
-  //! Initializes a AsciiString with a CString.
-  //! @param[in] theMessage the C string to initialize from
-  Standard_EXPORT TCollection_AsciiString(const Standard_CString theMessage);
-
   //! Initializes a AsciiString with a string_view.
   //! @param[in] theStringView the string view to initialize from
-  Standard_EXPORT explicit TCollection_AsciiString(const std::string_view& theStringView);
+  Standard_EXPORT TCollection_AsciiString(const std::string_view& theStringView);
 
   //! Initializes a AsciiString with a CString.
   //! @param[in] theMessage the C string to initialize from
@@ -123,8 +119,8 @@ public:
   //! Otherwise, creates UTF-8 unicode string.
   //! @param[in] theExtendedString the extended string to convert
   //! @param[in] theReplaceNonAscii replacement character for non-ASCII characters
-  Standard_EXPORT TCollection_AsciiString(const TCollection_ExtendedString& theExtendedString,
-                                          const Standard_Character          theReplaceNonAscii = 0);
+  explicit Standard_EXPORT TCollection_AsciiString(const TCollection_ExtendedString& theExtendedString,
+                                                   const Standard_Character          theReplaceNonAscii = 0);
 
 #if !defined(_MSC_VER) || defined(_NATIVE_WCHAR_T_DEFINED)
   //! Initialize UTF-8 Unicode string from wide-char string considering it as Unicode string
@@ -168,22 +164,6 @@ public:
 
   void operator+=(const Standard_Real theOther) { AssignCat(theOther); }
 
-  //! Appends other C string to this string. This is an unary operator.
-  //!
-  //! Example:
-  //! ```cpp
-  //! TCollection_AsciiString aString("Hello");
-  //! aString += "Dummy";
-  //! // Result: aString == "HelloDummy"
-  //!
-  //! // To catenate more than one CString, you must put a AsciiString before.
-  //! // aString += "Hello " + "Dolly";  // IS NOT VALID !
-  //! // But aString += anotherString + "Hello " + "Dolly"; // is valid
-  //! ```
-  //! @param[in] theOther the C string to append
-  Standard_EXPORT void AssignCat(const Standard_CString theOther);
-
-  void operator+=(const Standard_CString theOther) { AssignCat(theOther); }
 
   //! Appends other string to this string. This is an unary operator.
   //!
@@ -286,22 +266,6 @@ public:
 
   TCollection_AsciiString operator+(const Standard_Real theOther) const { return Cat(theOther); }
 
-  //! Appends other C string to this string.
-  //!
-  //! Example:
-  //! ```cpp
-  //! TCollection_AsciiString aString("I say ");
-  //! TCollection_AsciiString aResult = aString + "Hello";
-  //! // Result: aResult == "I say Hello"
-  //!
-  //! // You can chain: aString + "Hello " + "Dolly"
-  //! // But "Hello " + "Dolly" alone is NOT ALLOWED
-  //! ```
-  //! @param[in] theOther the C string to append
-  //! @return new string with C string appended
-  TCollection_AsciiString Cat(const Standard_CString theOther) const;
-
-  TCollection_AsciiString operator+(const Standard_CString theOther) const { return Cat(theOther); }
 
   //! Appends other string to this string.
   //!
@@ -393,18 +357,6 @@ public:
   //! This produces an empty AsciiString.
   Standard_EXPORT void Clear();
 
-  //! Copy fromwhere to this string.
-  //! Used as operator =
-  //!
-  //! Example:
-  //! ```cpp
-  //! TCollection_AsciiString aString;
-  //! aString = "Hello World";  // operator=
-  //! // Result: aString == "Hello World"
-  //! ```
-  Standard_EXPORT void Copy(const Standard_CString theFromWhere);
-
-  void operator=(const Standard_CString theFromWhere) { Copy(theFromWhere); }
 
   //! Copy string view to this ASCII string.
   //! Used as operator =
@@ -532,17 +484,6 @@ public:
   //! @param[in] theWhat the character to insert
   Standard_EXPORT void Insert(const Standard_Integer theWhere, const Standard_Character theWhat);
 
-  //! Inserts a CString at position where.
-  //!
-  //! Example:
-  //! ```cpp
-  //! TCollection_AsciiString aString("O more");
-  //! aString.Insert(2, "nce");
-  //! // Result: aString == "Once more"
-  //! ```
-  //! @param[in] theWhere the position to insert at
-  //! @param[in] theWhat the C string to insert
-  Standard_EXPORT void Insert(const Standard_Integer theWhere, const Standard_CString theWhat);
 
   //! Inserts a AsciiString at position where.
   //! @param[in] theWhere the position to insert at
@@ -610,14 +551,6 @@ public:
   //! Returns True if this string contains zero character.
   Standard_Boolean IsEmpty() const { return myLength == 0; }
 
-  //! Returns true if the characters in this ASCII string
-  //! are identical to the characters in ASCII string other.
-  //! Note that this method is an alias of operator ==.
-  //! @param[in] theOther the C string to compare with
-  //! @return true if strings are equal, false otherwise
-  Standard_EXPORT Standard_Boolean IsEqual(const Standard_CString theOther) const;
-
-  Standard_Boolean operator==(const Standard_CString theOther) const { return IsEqual(theOther); }
 
   //! Returns true if the characters in this ASCII string
   //! are identical to the characters in ASCII string other.
@@ -636,6 +569,7 @@ public:
   //! @param[in] theStringView the string view to compare with
   //! @return true if strings are equal, false otherwise
   Standard_EXPORT Standard_Boolean IsEqual(const std::string_view& theStringView) const;
+
 
   Standard_Boolean operator==(const std::string_view& theStringView) const
   {
@@ -665,17 +599,6 @@ public:
     return IsEqual(theLiteral);
   }
 
-  //! Returns true if there are differences between the
-  //! characters in this ASCII string and ASCII string other.
-  //! Note that this method is an alias of operator !=
-  //! @param[in] theOther the C string to compare with
-  //! @return true if strings are different, false otherwise
-  Standard_EXPORT Standard_Boolean IsDifferent(const Standard_CString theOther) const;
-
-  Standard_Boolean operator!=(const Standard_CString theOther) const
-  {
-    return IsDifferent(theOther);
-  }
 
   //! Returns true if there are differences between the
   //! characters in this ASCII string and ASCII string other.
@@ -715,12 +638,6 @@ public:
     return IsDifferent(theLiteral);
   }
 
-  //! Returns TRUE if this string is 'ASCII' less than other.
-  //! @param[in] theOther the C string to compare with
-  //! @return true if this string is lexicographically less than other
-  Standard_EXPORT Standard_Boolean IsLess(const Standard_CString theOther) const;
-
-  Standard_Boolean operator<(const Standard_CString theOther) const { return IsLess(theOther); }
 
   //! Returns TRUE if this string is 'ASCII' less than other.
   //! @param[in] theOther the ASCII string to compare with
@@ -757,12 +674,6 @@ public:
     return IsLess(theLiteral);
   }
 
-  //! Returns TRUE if this string is 'ASCII' greater than other.
-  //! @param[in] theOther the C string to compare with
-  //! @return true if this string is lexicographically greater than other
-  Standard_EXPORT Standard_Boolean IsGreater(const Standard_CString theOther) const;
-
-  Standard_Boolean operator>(const Standard_CString theOther) const { return IsGreater(theOther); }
 
   //! Returns TRUE if this string is 'ASCII' greater than other.
   //! @param[in] theOther the ASCII string to compare with
@@ -804,10 +715,6 @@ public:
   //! @return true if this string starts with theStartString
   Standard_EXPORT Standard_Boolean StartsWith(const TCollection_AsciiString& theStartString) const;
 
-  //! Determines whether the beginning of this string instance matches the specified C string.
-  //! @param[in] theStartString the C string to check for at the beginning
-  //! @return true if this string starts with theStartString
-  Standard_EXPORT Standard_Boolean StartsWith(const Standard_CString theStartString) const;
 
   //! Determines whether the beginning of this string instance matches the specified string_view.
   //! @param[in] theStartString the string view to check for at the beginning
@@ -819,10 +726,6 @@ public:
   //! @return true if this string ends with theEndString
   Standard_EXPORT Standard_Boolean EndsWith(const TCollection_AsciiString& theEndString) const;
 
-  //! Determines whether the end of this string instance matches the specified C string.
-  //! @param[in] theEndString the C string to check for at the end
-  //! @return true if this string ends with theEndString
-  Standard_EXPORT Standard_Boolean EndsWith(const Standard_CString theEndString) const;
 
   //! Determines whether the end of this string instance matches the specified string_view.
   //! @param[in] theEndString the string view to check for at the end
@@ -1061,19 +964,6 @@ public:
   Standard_EXPORT void RightJustify(const Standard_Integer   theWidth,
                                     const Standard_Character theFiller);
 
-  //! Searches a CString in this string from the beginning
-  //! and returns position of first item what matching.
-  //! it returns -1 if not found.
-  //!
-  //! Example:
-  //! ```cpp
-  //! TCollection_AsciiString aString("Sample single test");
-  //! Standard_Integer aPosition = aString.Search("le");
-  //! // Result: aPosition == 5
-  //! ```
-  //! @param[in] theWhat the C string to search for
-  //! @return the position of first match, or -1 if not found
-  Standard_EXPORT Standard_Integer Search(const Standard_CString theWhat) const;
 
   //! Searches an AsciiString in this string from the beginning
   //! and returns position of first item what matching.
@@ -1082,19 +972,6 @@ public:
   //! @return the position of first match, or -1 if not found
   Standard_EXPORT Standard_Integer Search(const TCollection_AsciiString& theWhat) const;
 
-  //! Searches a CString in a AsciiString from the end
-  //! and returns position of first item what matching.
-  //! It returns -1 if not found.
-  //!
-  //! Example:
-  //! ```cpp
-  //! TCollection_AsciiString aString("Sample single test");
-  //! Standard_Integer aPosition = aString.SearchFromEnd("le");
-  //! // Result: aPosition == 12
-  //! ```
-  //! @param[in] theWhat the C string to search for
-  //! @return the position of first match from end, or -1 if not found
-  Standard_EXPORT Standard_Integer SearchFromEnd(const Standard_CString theWhat) const;
 
   //! Searches a AsciiString in another AsciiString from the end
   //! and returns position of first item what matching.
@@ -1117,19 +994,6 @@ public:
   //! @param[in] theWhat the character to replace with
   Standard_EXPORT void SetValue(const Standard_Integer theWhere, const Standard_Character theWhat);
 
-  //! Replaces a part of this string by a CString.
-  //! If where is less than zero or greater than the length of this string
-  //! an exception is raised.
-  //!
-  //! Example:
-  //! ```cpp
-  //! TCollection_AsciiString aString("abcde");
-  //! aString.SetValue(4, "1234567");
-  //! // Result: aString == "abc1234567"
-  //! ```
-  //! @param[in] theWhere the position to start replacement
-  //! @param[in] theWhat the C string to replace with
-  Standard_EXPORT void SetValue(const Standard_Integer theWhere, const Standard_CString theWhat);
 
   //! Replaces a part of this string by another AsciiString.
   //! @param[in] theWhere the position to start replacement
@@ -1142,6 +1006,7 @@ public:
   //! @param[in] theStringView the string view to replace with
   Standard_EXPORT void SetValue(const Standard_Integer  theWhere,
                                 const std::string_view& theStringView);
+
 
   //! Splits a AsciiString into two sub-strings.
   //!

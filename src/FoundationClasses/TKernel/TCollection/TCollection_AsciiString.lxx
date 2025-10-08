@@ -60,13 +60,6 @@ inline TCollection_AsciiString TCollection_AsciiString::Cat(
 
 //=================================================================================================
 
-inline TCollection_AsciiString TCollection_AsciiString::Cat(const Standard_CString theOther) const
-{
-  return TCollection_AsciiString(*this, theOther);
-}
-
-//=================================================================================================
-
 inline TCollection_AsciiString TCollection_AsciiString::Cat(const Standard_Character theOther) const
 {
   return TCollection_AsciiString(*this, theOther);
@@ -103,14 +96,6 @@ inline size_t TCollection_AsciiString::HashCode() const
 
 inline Standard_Boolean TCollection_AsciiString::IsEqual(const TCollection_AsciiString& theString1,
                                                          const TCollection_AsciiString& theString2)
-{
-  return theString1.IsEqual(theString2);
-}
-
-//=================================================================================================
-
-inline Standard_Boolean TCollection_AsciiString::IsEqual(const TCollection_AsciiString& theString1,
-                                                         const Standard_CString         theString2)
 {
   return theString1.IsEqual(theString2);
 }
