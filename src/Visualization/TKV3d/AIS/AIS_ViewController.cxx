@@ -27,6 +27,27 @@
 #include <V3d_Viewer.hxx>
 #include <WNT_HIDSpaceMouse.hxx>
 
+namespace
+{
+// Extract camera up direction from quaternion (corresponds to Z-axis)
+inline gp_Dir QuaternionToUpDir(const gp_Quaternion& theQuaternion)
+{
+  return gp_Dir(theQuaternion.Multiply(gp_Vec(gp::DZ())));
+}
+
+// Extract camera right direction from quaternion (corresponds to X-axis)
+inline gp_Dir QuaternionToRightDir(const gp_Quaternion& theQuaternion)
+{
+  return gp_Dir(theQuaternion.Multiply(gp_Vec(gp::DX())));
+}
+
+// Extract camera view direction from quaternion (corresponds to -Y-axis)
+inline gp_Dir QuaternionToViewDir(const gp_Quaternion& theQuaternion)
+{
+  return gp_Dir(-theQuaternion.Multiply(gp_Vec(gp::DY())));
+}
+} // namespace
+
 //=================================================================================================
 
 AIS_ViewController::AIS_ViewController()
@@ -100,6 +121,7 @@ AIS_ViewController::AIS_ViewController()
       //
       myPanPnt3d(Precision::Infinite(), 0.0, 0.0)
 {
+  myRotateStartRoll = 0.0;
   myViewAnimation->SetOwnDuration(0.5);
 
   myAnchorPointPrs1 = new AIS_Point(new Geom_CartesianPoint(0.0, 0.0, 0.0));
@@ -1640,14 +1662,20 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
     myCamStartOpEye    = aCam->Eye();
     myCamStartOpCenter = aCam->Center();
 
+    // Store camera orientation as quaternion (same approach as view rotation)
+    const gp_Dir& aCamDir   = aCam->Direction();
+    const gp_Dir  aCamUp    = aCam->OrthogonalizedUp();
+    gp_Dir        aCamRight = aCamUp.Crossed(aCamDir);
+    gp_Ax3        aCamCoordSys(gp::Origin(), aCamUp, aCamRight);
+
+    gp_Trsf aCamTrsf;
+    aCamTrsf.SetTransformation(aCamCoordSys, gp_Ax3());
+    myRotateStartQuaternion = aCamTrsf.GetRotation();
+
+    // Create transformation for position vector calculations
     gp_Trsf aTrsf;
     aTrsf.SetTransformation(gp_Ax3(myRotatePnt3d, aCam->OrthogonalizedUp(), aCam->Direction()),
                             gp_Ax3(myRotatePnt3d, gp::DZ(), gp::DX()));
-    const gp_Quaternion aRot = aTrsf.GetRotation();
-    aRot.GetEulerAngles(gp_YawPitchRoll,
-                        myRotateStartYawPitchRoll[0],
-                        myRotateStartYawPitchRoll[1],
-                        myRotateStartYawPitchRoll[2]);
 
     aTrsf.Invert();
     myCamStartOpToEye    = gp_Vec(myRotatePnt3d, aCam->Eye()).Transformed(aTrsf);
@@ -1674,22 +1702,44 @@ void AIS_ViewController::handleOrbitRotation(const Handle(V3d_View)& theView,
     double aPitchAngleDelta =
       -((myGL.OrbitRotation.PointStart.y() - myGL.OrbitRotation.PointTo.y()) / double(aWinXY.y()))
       * (M_PI * 0.5);
-    double       aPitchAngleNew = 0.0, aRoll = 0.0;
-    const double aYawAngleNew = myRotateStartYawPitchRoll[0] + aYawAngleDelta;
+    // Use quaternion-based rotation like view rotation system
+    gp_Dir aLocalUp    = QuaternionToUpDir(myRotateStartQuaternion);
+    gp_Dir aLocalRight = QuaternionToRightDir(myRotateStartQuaternion);
+
+    // Apply yaw and pitch rotations
+    gp_Quaternion aYawRotation, aPitchRotation;
+    aYawRotation.SetVectorAndAngle(gp_Vec(aLocalUp), aYawAngleDelta);
+
     if (!theView->View()->IsActiveXR())
     {
-      aPitchAngleNew =
-        Max(Min(myRotateStartYawPitchRoll[1] + aPitchAngleDelta, M_PI * 0.5 - M_PI / 180.0),
-            -M_PI * 0.5 + M_PI / 180.0);
-      aRoll = 0.0;
+      // For non-XR, apply pitch with clamping to prevent over-rotation
+      // Get current pitch by checking if we're near the limits
+      gp_Dir aCurrentViewDir = QuaternionToViewDir(myRotateStartQuaternion);
+      gp_Dir aWorldUp        = gp::DZ();
+      double aCurrentPitch   = ASin(aCurrentViewDir.Dot(aWorldUp));
+
+      // Clamp the new pitch to avoid gimbal lock
+      double aNewPitch = aCurrentPitch + aPitchAngleDelta;
+      aNewPitch        = Max(Min(aNewPitch, M_PI * 0.5 - M_PI / 180.0), -M_PI * 0.5 + M_PI / 180.0);
+      double aClampedPitchDelta = aNewPitch - aCurrentPitch;
+
+      aPitchRotation.SetVectorAndAngle(gp_Vec(aLocalRight), aClampedPitchDelta);
+    }
+    else
+    {
+      aPitchRotation.SetVectorAndAngle(gp_Vec(aLocalRight), aPitchAngleDelta);
     }
 
-    gp_Quaternion aRot;
-    aRot.SetEulerAngles(gp_YawPitchRoll, aYawAngleNew, aPitchAngleNew, aRoll);
-    gp_Trsf aTrsfRot;
-    aTrsfRot.SetRotation(aRot);
+    // Combine rotations and apply to start quaternion
+    gp_Quaternion aCombinedRotation = aPitchRotation * aYawRotation;
+    gp_Quaternion aFinalRotation    = aCombinedRotation * myRotateStartQuaternion;
+    aFinalRotation.Normalize();
 
-    const gp_Dir aNewUp = gp::DZ().Transformed(aTrsfRot);
+    const gp_Dir aNewUp = QuaternionToUpDir(aFinalRotation);
+
+    // Create transformation for position updates
+    gp_Trsf aTrsfRot;
+    aTrsfRot.SetRotation(aFinalRotation);
     aCam->SetUp(aNewUp);
     aCam->SetEyeAndCenter(myRotatePnt3d.XYZ() + myCamStartOpToEye.Transformed(aTrsfRot).XYZ(),
                           myRotatePnt3d.XYZ() + myCamStartOpToCenter.Transformed(aTrsfRot).XYZ());
@@ -1780,7 +1830,7 @@ void AIS_ViewController::handleViewRotation(const Handle(V3d_View)& theView,
   const Handle(Graphic3d_Camera)& aCam           = theView->Camera();
   const bool                      toRotateAnyway = Abs(theYawExtra) > gp::Resolution()
                               || Abs(thePitchExtra) > gp::Resolution()
-                              || Abs(theRoll - myRotateStartYawPitchRoll[2]) > gp::Resolution();
+                              || Abs(theRoll - myRotateStartRoll) > gp::Resolution();
   if (toRotateAnyway && theToRestartOnIncrement)
   {
     myGL.ViewRotation.ToStart = true;
@@ -1788,22 +1838,54 @@ void AIS_ViewController::handleViewRotation(const Handle(V3d_View)& theView,
   }
   if (myGL.ViewRotation.ToStart)
   {
-    gp_Trsf aTrsf;
-    aTrsf.SetTransformation(gp_Ax3(gp::Origin(), aCam->OrthogonalizedUp(), aCam->Direction()),
-                            gp_Ax3(gp::Origin(), gp::DZ(), gp::DX()));
-    const gp_Quaternion aRot       = aTrsf.GetRotation();
-    double              aRollDummy = 0.0;
-    aRot.GetEulerAngles(gp_YawPitchRoll,
-                        myRotateStartYawPitchRoll[0],
-                        myRotateStartYawPitchRoll[1],
-                        aRollDummy);
+    // Store the current camera orientation as a quaternion
+    // This avoids the numerical instability of Euler angle conversion
+    const gp_Dir& aCamDir = aCam->Direction();
+    const gp_Dir  aCamUp  = aCam->OrthogonalizedUp();
+
+    // Build camera's local coordinate system.
+    // gp_Ax3 constructor takes (origin, Z direction, X direction).
+    // Local Z-axis = aCamUp
+    // Local X-axis = aCamRight
+    // Local Y-axis is Z.Cross(X) = aCamUp.Cross(aCamRight) = -aCamDir (points backward).
+    gp_Dir aCamRight = aCamUp.Crossed(aCamDir); // right-handed basis
+    gp_Ax3 aCamCoordSys(gp::Origin(), aCamUp, aCamRight);
+
+    // Create a transformation from the camera's coordinate system to the world system (gp_Ax3()).
+    // The rotation part of this transform represents the camera's orientation.
+    gp_Trsf aCamTrsf;
+    aCamTrsf.SetTransformation(aCamCoordSys, gp_Ax3());
+    myRotateStartQuaternion = aCamTrsf.GetRotation();
+
+    // Reset roll tracking for change detection baseline
+    myRotateStartRoll = 0.0;
   }
+
   if (toRotateAnyway)
   {
-    myRotateStartYawPitchRoll[0] += theYawExtra;
-    myRotateStartYawPitchRoll[1] += thePitchExtra;
-    myRotateStartYawPitchRoll[2] = theRoll;
-    myGL.ViewRotation.ToRotate   = true;
+    // For incremental rotations, apply them to the current camera state
+    if (!myGL.ViewRotation.ToStart
+        && (Abs(theYawExtra) > gp::Resolution() || Abs(thePitchExtra) > gp::Resolution()))
+    {
+      // Compute camera-local axes from current start quaternion before update
+      const gp_Dir aLocalUp    = QuaternionToUpDir(myRotateStartQuaternion);
+      const gp_Dir aLocalRight = QuaternionToRightDir(myRotateStartQuaternion);
+
+      gp_Quaternion aYawIncrement, aPitchIncrement;
+      aYawIncrement.SetVectorAndAngle(gp_Vec(aLocalUp), theYawExtra);
+      aPitchIncrement.SetVectorAndAngle(gp_Vec(aLocalRight), thePitchExtra);
+      gp_Quaternion aIncrementalRotation = aYawIncrement * aPitchIncrement;
+
+      // Update the starting quaternion for smooth continuation
+      myRotateStartQuaternion = aIncrementalRotation * myRotateStartQuaternion;
+
+      // Normalize quaternion to prevent drift from accumulated multiplications
+      myRotateStartQuaternion.Normalize();
+    }
+
+    // Update roll tracking for change detection (yaw/pitch handled by quaternions)
+    myRotateStartRoll          = theRoll;
+    myGL.ViewRotation.ToRotate = true;
   }
 
   if (!myGL.ViewRotation.ToRotate)
@@ -1815,23 +1897,54 @@ void AIS_ViewController::handleViewRotation(const Handle(V3d_View)& theView,
 
   Graphic3d_Vec2i aWinXY;
   theView->Window()->Size(aWinXY.x(), aWinXY.y());
-  double aYawAngleDelta =
-    ((myGL.ViewRotation.PointStart.x() - myGL.ViewRotation.PointTo.x()) / double(aWinXY.x()))
-    * (M_PI * 0.5);
-  double aPitchAngleDelta =
-    -((myGL.ViewRotation.PointStart.y() - myGL.ViewRotation.PointTo.y()) / double(aWinXY.y()))
-    * (M_PI * 0.5);
-  const double aPitchAngleNew =
-    Max(Min(myRotateStartYawPitchRoll[1] + aPitchAngleDelta, M_PI * 0.5 - M_PI / 180.0),
-        -M_PI * 0.5 + M_PI / 180.0);
-  const double  aYawAngleNew = myRotateStartYawPitchRoll[0] + aYawAngleDelta;
-  gp_Quaternion aRot;
-  aRot.SetEulerAngles(gp_YawPitchRoll, aYawAngleNew, aPitchAngleNew, theRoll);
-  gp_Trsf aTrsfRot;
-  aTrsfRot.SetRotation(aRot);
 
-  const gp_Dir aNewUp  = gp::DZ().Transformed(aTrsfRot);
-  const gp_Dir aNewDir = gp::DX().Transformed(aTrsfRot);
+  // Calculate mouse movement deltas as normalized values
+  const double aMouseDeltaX =
+    (myGL.ViewRotation.PointTo.x() - myGL.ViewRotation.PointStart.x()) / double(aWinXY.x());
+  const double aMouseDeltaY =
+    (myGL.ViewRotation.PointTo.y() - myGL.ViewRotation.PointStart.y()) / double(aWinXY.y());
+
+  // Convert mouse movement to rotation angles with field-of-view scaling
+  // Note: M_PI_2 provides intuitive mouse sensitivity for 90-degree rotation per screen width
+  const double aRotationScale = M_PI_2;
+  const double aYawDelta      = -aMouseDeltaX * aRotationScale;
+  const double aPitchDelta    = aMouseDeltaY * aRotationScale;
+
+  // Compute camera-local axes from the final quaternion state (after any incremental updates)
+  const gp_Dir aLocalUp    = QuaternionToUpDir(myRotateStartQuaternion);
+  const gp_Dir aLocalRight = QuaternionToRightDir(myRotateStartQuaternion);
+
+  gp_Quaternion aYawRotation, aPitchRotation;
+  aYawRotation.SetVectorAndAngle(gp_Vec(aLocalUp), aYawDelta); // Yaw around camera local up
+  aPitchRotation.SetVectorAndAngle(gp_Vec(aLocalRight),
+                                   aPitchDelta); // Pitch around camera local right
+
+  // Combine rotations: apply yaw first, then pitch (natural camera control order)
+  // In quaternion multiplication A*B, operation B is applied first, then A
+  const gp_Quaternion aCombinedRotation = aPitchRotation * aYawRotation;
+
+  // Apply the rotation to the starting camera orientation
+  gp_Quaternion aFinalRotation = aCombinedRotation * myRotateStartQuaternion;
+
+  // Apply roll if specified
+  if (Abs(theRoll) > gp::Resolution())
+  {
+    // Get the current view direction to use as roll axis
+    const gp_Dir aViewDir = QuaternionToViewDir(aFinalRotation);
+
+    gp_Quaternion aRollRotation;
+    aRollRotation.SetVectorAndAngle(gp_Vec(aViewDir), theRoll); // Roll around view direction
+    aFinalRotation = aRollRotation * aFinalRotation;
+  }
+
+  // Ensure final quaternion is normalized to prevent accumulation errors
+  aFinalRotation.Normalize();
+
+  // Get the new camera directions from the final quaternion
+  const gp_Dir aNewUp  = QuaternionToUpDir(aFinalRotation);
+  const gp_Dir aNewDir = QuaternionToViewDir(aFinalRotation);
+
+  // Apply to camera
   aCam->SetUp(aNewUp);
   aCam->SetDirectionFromEye(aNewDir);
   aCam->OrthogonalizeUp();
