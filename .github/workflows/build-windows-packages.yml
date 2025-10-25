@@ -116,7 +116,10 @@ jobs:
     - name: Create OCCT Release package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64.zip"
+        $folderName = "opencascade-$version-vc14-64"
+        Copy-Item occt-vc14-64 $folderName -Recurse
+        Compress-Archive -Path $folderName -DestinationPath "$folderName.zip"
+        Remove-Item $folderName -Recurse -Force
       shell: pwsh
 
     - name: Upload OCCT Release package
@@ -152,7 +155,10 @@ jobs:
     - name: Create OCCT Release+Debug package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64-with-debug.zip"
+        $folderName = "opencascade-$version-vc14-64"
+        Copy-Item occt-vc14-64 $folderName -Recurse
+        Compress-Archive -Path $folderName -DestinationPath "opencascade-$version-vc14-64-with-debug.zip"
+        Remove-Item $folderName -Recurse -Force
       shell: pwsh
 
     - name: Upload OCCT Release+Debug package
@@ -250,7 +256,10 @@ jobs:
     - name: Create OCCT Release PCH package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64-pch.zip"
+        $folderName = "opencascade-$version-vc14-64"
+        Copy-Item occt-vc14-64 $folderName -Recurse
+        Compress-Archive -Path $folderName -DestinationPath "opencascade-$version-vc14-64-pch.zip"
+        Remove-Item $folderName -Recurse -Force
       shell: pwsh
 
     - name: Upload OCCT Release PCH package
@@ -286,7 +295,10 @@ jobs:
     - name: Create OCCT Release+Debug PCH package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64-pch-with-debug.zip"
+        $folderName = "opencascade-$version-vc14-64"
+        Copy-Item occt-vc14-64 $folderName -Recurse
+        Compress-Archive -Path $folderName -DestinationPath "opencascade-$version-vc14-64-pch-with-debug.zip"
+        Remove-Item $folderName -Recurse -Force
       shell: pwsh
 
     - name: Upload OCCT Release+Debug PCH package
