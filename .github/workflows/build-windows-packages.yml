@@ -1,0 +1,497 @@
+# This workflow builds OCCT Windows packages using prepared 3rd-party archives.
+# It creates various package configurations (Release/Debug, with/without PCH) and signs DLLs.
+# The workflow is designed to build each package variant on separate machines for optimal isolation.
+
+name: Build Windows Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'OCCT version (e.g., 7.9.1)'
+        required: true
+        default: '7.9.2'
+      thirdparty_url:
+        description: '3rd-party archive URL'
+        required: true
+        default: 'https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_9_0_beta1/3rdparty-vc14-64.zip'
+  release:
+    types: [published]
+
+env:
+  OCCT_VERSION: ${{ github.event.inputs.version || '7.9.2' }}
+  THIRDPARTY_URL: ${{ github.event.inputs.thirdparty_url || 'https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_9_0_beta1/3rdparty-vc14-64.zip' }}
+
+jobs:
+  # Build 3rd-party package
+  package-thirdparty:
+    name: Package 3rd-party VC++ 2022 64-bit
+    runs-on: windows-2022
+
+    steps:
+    - name: Download and extract 3rd-party dependencies
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
+      shell: pwsh
+
+    - name: Create 3rd-party package
+      run: |
+        Compress-Archive -Path 3rdparty-vc14-64 -DestinationPath 3rdparty-vc14-64.zip
+      shell: pwsh
+
+    - name: Upload 3rd-party package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: 3rdparty-vc14-64
+        path: 3rdparty-vc14-64.zip
+        retention-days: 30
+
+  # Build OCCT Release without PCH
+  build-release-no-pch:
+    name: Build OCCT Release (no PCH)
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.1
+
+    - name: Download and extract 3rd-party dependencies
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
+        Remove-Item 3rdparty-vc14-64.zip
+      shell: pwsh
+
+    - name: Configure OCCT
+      run: |
+        mkdir build
+        cd build
+        cmake -T host=x64 `
+              -D BUILD_USE_PCH=OFF `
+              -D BUILD_GTEST=ON `
+              -D BUILD_INCLUDE_SYMLINK=ON `
+              -D BUILD_CPP_STANDARD=C++17 `
+              -D USE_DRACO=ON `
+              -D USE_FREETYPE=ON `
+              -D USE_RAPIDJSON=ON `
+              -D USE_MMGR_TYPE=JEMALLOC `
+              -D USE_TBB=ON `
+              -D USE_VTK=ON `
+              -D USE_TK=ON `
+              -D USE_OPENVR=ON `
+              -D USE_OPENGL=ON `
+              -D USE_GLES2=ON `
+              -D USE_FREEIMAGE=ON `
+              -D USE_FFMPEG=ON `
+              -D USE_D3D=ON `
+              -D BUILD_OPT_PROFILE=Production `
+              -D BUILD_MODULE_Draw=ON `
+              -D BUILD_MODULE_ApplicationFramework=ON `
+              -D BUILD_MODULE_DataExchange=ON `
+              -D BUILD_MODULE_FoundationClasses=ON `
+              -D BUILD_MODULE_ModelingAlgorithms=ON `
+              -D BUILD_MODULE_ModelingData=ON `
+              -D BUILD_MODULE_Visualization=ON `
+              -D CMAKE_BUILD_TYPE=Release `
+              -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
+              -D INSTALL_DIR=${{ github.workspace }}/install ..
+      shell: pwsh
+
+    - name: Build OCCT
+      run: |
+        cd build
+        cmake --build . --target install --config Release
+      shell: pwsh
+
+    - name: Sign DLLs with GitHub attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '${{ github.workspace }}/install/**/*.dll'
+
+    - name: Create OCCT package
+      run: |
+        $version = $env:OCCT_VERSION
+        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64.zip"
+      shell: pwsh
+
+    - name: Upload OCCT Release package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: opencascade-release-no-pch
+        path: opencascade-*.zip
+        retention-days: 30
+
+    - name: Save install directory for combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: install-release-no-pch
+        path: install
+        retention-days: 7
+
+  # Build OCCT Release with PCH
+  build-release-pch:
+    name: Build OCCT Release (with PCH)
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.1
+
+    - name: Download and extract 3rd-party dependencies
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
+        Remove-Item 3rdparty-vc14-64.zip
+      shell: pwsh
+
+    - name: Configure OCCT
+      run: |
+        mkdir build
+        cd build
+        cmake -T host=x64 `
+              -D BUILD_USE_PCH=ON `
+              -D BUILD_GTEST=ON `
+              -D BUILD_INCLUDE_SYMLINK=ON `
+              -D BUILD_CPP_STANDARD=C++17 `
+              -D USE_DRACO=ON `
+              -D USE_FREETYPE=ON `
+              -D USE_RAPIDJSON=ON `
+              -D USE_MMGR_TYPE=JEMALLOC `
+              -D USE_TBB=ON `
+              -D USE_VTK=ON `
+              -D USE_TK=ON `
+              -D USE_OPENVR=ON `
+              -D USE_OPENGL=ON `
+              -D USE_GLES2=ON `
+              -D USE_FREEIMAGE=ON `
+              -D USE_FFMPEG=ON `
+              -D USE_D3D=ON `
+              -D BUILD_OPT_PROFILE=Production `
+              -D BUILD_MODULE_Draw=ON `
+              -D BUILD_MODULE_ApplicationFramework=ON `
+              -D BUILD_MODULE_DataExchange=ON `
+              -D BUILD_MODULE_FoundationClasses=ON `
+              -D BUILD_MODULE_ModelingAlgorithms=ON `
+              -D BUILD_MODULE_ModelingData=ON `
+              -D BUILD_MODULE_Visualization=ON `
+              -D CMAKE_BUILD_TYPE=Release `
+              -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
+              -D INSTALL_DIR=${{ github.workspace }}/install ..
+      shell: pwsh
+
+    - name: Build OCCT
+      run: |
+        cd build
+        cmake --build . --target install --config Release
+      shell: pwsh
+
+    - name: Sign DLLs with GitHub attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '${{ github.workspace }}/install/**/*.dll'
+
+    - name: Create OCCT package
+      run: |
+        $version = $env:OCCT_VERSION
+        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-pch.zip"
+      shell: pwsh
+
+    - name: Upload OCCT Release PCH package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: opencascade-release-pch
+        path: opencascade-*.zip
+        retention-days: 30
+
+    - name: Save install directory for combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: install-release-pch
+        path: install
+        retention-days: 7
+
+  # Build OCCT Debug without PCH
+  build-debug-no-pch:
+    name: Build OCCT Debug (no PCH)
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.1
+
+    - name: Download and extract 3rd-party dependencies
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
+        Remove-Item 3rdparty-vc14-64.zip
+      shell: pwsh
+
+    - name: Configure OCCT
+      run: |
+        mkdir build
+        cd build
+        cmake -T host=x64 `
+              -D BUILD_USE_PCH=OFF `
+              -D BUILD_GTEST=ON `
+              -D BUILD_INCLUDE_SYMLINK=ON `
+              -D BUILD_CPP_STANDARD=C++17 `
+              -D USE_DRACO=ON `
+              -D USE_FREETYPE=ON `
+              -D USE_RAPIDJSON=ON `
+              -D USE_MMGR_TYPE=JEMALLOC `
+              -D USE_TBB=ON `
+              -D USE_VTK=ON `
+              -D USE_TK=ON `
+              -D USE_OPENVR=ON `
+              -D USE_OPENGL=ON `
+              -D USE_GLES2=ON `
+              -D USE_FREEIMAGE=ON `
+              -D USE_FFMPEG=ON `
+              -D USE_D3D=ON `
+              -D BUILD_OPT_PROFILE=Production `
+              -D BUILD_MODULE_Draw=ON `
+              -D BUILD_MODULE_ApplicationFramework=ON `
+              -D BUILD_MODULE_DataExchange=ON `
+              -D BUILD_MODULE_FoundationClasses=ON `
+              -D BUILD_MODULE_ModelingAlgorithms=ON `
+              -D BUILD_MODULE_ModelingData=ON `
+              -D BUILD_MODULE_Visualization=ON `
+              -D CMAKE_BUILD_TYPE=Debug `
+              -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
+              -D INSTALL_DIR=${{ github.workspace }}/install ..
+      shell: pwsh
+
+    - name: Build OCCT
+      run: |
+        cd build
+        cmake --build . --target install --config Debug
+      shell: pwsh
+
+    - name: Sign DLLs with GitHub attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '${{ github.workspace }}/install/**/*.dll'
+
+    - name: Create OCCT package
+      run: |
+        $version = $env:OCCT_VERSION
+        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-debug.zip"
+      shell: pwsh
+
+    - name: Upload OCCT Debug package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: opencascade-debug-no-pch
+        path: opencascade-*.zip
+        retention-days: 30
+
+    - name: Save install directory for combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: install-debug-no-pch
+        path: install
+        retention-days: 7
+
+  # Build OCCT Debug with PCH
+  build-debug-pch:
+    name: Build OCCT Debug (with PCH)
+    runs-on: windows-2022
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4.2.1
+
+    - name: Download and extract 3rd-party dependencies
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
+        Remove-Item 3rdparty-vc14-64.zip
+      shell: pwsh
+
+    - name: Configure OCCT
+      run: |
+        mkdir build
+        cd build
+        cmake -T host=x64 `
+              -D BUILD_USE_PCH=ON `
+              -D BUILD_GTEST=ON `
+              -D BUILD_INCLUDE_SYMLINK=ON `
+              -D BUILD_CPP_STANDARD=C++17 `
+              -D USE_DRACO=ON `
+              -D USE_FREETYPE=ON `
+              -D USE_RAPIDJSON=ON `
+              -D USE_MMGR_TYPE=JEMALLOC `
+              -D USE_TBB=ON `
+              -D USE_VTK=ON `
+              -D USE_TK=ON `
+              -D USE_OPENVR=ON `
+              -D USE_OPENGL=ON `
+              -D USE_GLES2=ON `
+              -D USE_FREEIMAGE=ON `
+              -D USE_FFMPEG=ON `
+              -D USE_D3D=ON `
+              -D BUILD_OPT_PROFILE=Production `
+              -D BUILD_MODULE_Draw=ON `
+              -D BUILD_MODULE_ApplicationFramework=ON `
+              -D BUILD_MODULE_DataExchange=ON `
+              -D BUILD_MODULE_FoundationClasses=ON `
+              -D BUILD_MODULE_ModelingAlgorithms=ON `
+              -D BUILD_MODULE_ModelingData=ON `
+              -D BUILD_MODULE_Visualization=ON `
+              -D CMAKE_BUILD_TYPE=Debug `
+              -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
+              -D INSTALL_DIR=${{ github.workspace }}/install ..
+      shell: pwsh
+
+    - name: Build OCCT
+      run: |
+        cd build
+        cmake --build . --target install --config Debug
+      shell: pwsh
+
+    - name: Sign DLLs with GitHub attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '${{ github.workspace }}/install/**/*.dll'
+
+    - name: Create OCCT package
+      run: |
+        $version = $env:OCCT_VERSION
+        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-debug-pch.zip"
+      shell: pwsh
+
+    - name: Upload OCCT Debug PCH package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: opencascade-debug-pch
+        path: opencascade-*.zip
+        retention-days: 30
+
+    - name: Save install directory for combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: install-debug-pch
+        path: install
+        retention-days: 7
+
+  # Create combined packages
+  create-combined-release-no-pch:
+    name: Create Combined Package (Release, no PCH)
+    runs-on: windows-2022
+    needs: [build-release-no-pch, package-thirdparty]
+
+    steps:
+    - name: Download OCCT install
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: install-release-no-pch
+        path: occt-combined/install
+
+    - name: Download 3rd-party
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath occt-combined/
+      shell: pwsh
+
+    - name: Create combined package
+      run: |
+        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined.zip
+      shell: pwsh
+
+    - name: Upload combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: occt-combined-release-no-pch
+        path: occt-vc14-64-combined.zip
+        retention-days: 30
+
+  create-combined-release-pch:
+    name: Create Combined Package (Release, with PCH)
+    runs-on: windows-2022
+    needs: [build-release-pch, package-thirdparty]
+
+    steps:
+    - name: Download OCCT install
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: install-release-pch
+        path: occt-combined/install
+
+    - name: Download 3rd-party
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath occt-combined/
+      shell: pwsh
+
+    - name: Create combined package
+      run: |
+        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined-pch.zip
+      shell: pwsh
+
+    - name: Upload combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: occt-combined-release-pch
+        path: occt-vc14-64-combined-pch.zip
+        retention-days: 30
+
+  create-combined-debug-no-pch:
+    name: Create Combined Package (Debug, no PCH)
+    runs-on: windows-2022
+    needs: [build-debug-no-pch, package-thirdparty]
+
+    steps:
+    - name: Download OCCT install
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: install-debug-no-pch
+        path: occt-combined/install
+
+    - name: Download 3rd-party
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath occt-combined/
+      shell: pwsh
+
+    - name: Create combined package
+      run: |
+        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined-debug.zip
+      shell: pwsh
+
+    - name: Upload combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: occt-combined-debug-no-pch
+        path: occt-vc14-64-combined-debug.zip
+        retention-days: 30
+
+  create-combined-debug-pch:
+    name: Create Combined Package (Debug, with PCH)
+    runs-on: windows-2022
+    needs: [build-debug-pch, package-thirdparty]
+
+    steps:
+    - name: Download OCCT install
+      uses: actions/download-artifact@v4.1.7
+      with:
+        name: install-debug-pch
+        path: occt-combined/install
+
+    - name: Download 3rd-party
+      run: |
+        Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath occt-combined/
+      shell: pwsh
+
+    - name: Create combined package
+      run: |
+        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined-debug-pch.zip
+      shell: pwsh
+
+    - name: Upload combined package
+      uses: actions/upload-artifact@v4.4.3
+      with:
+        name: occt-combined-debug-pch
+        path: occt-vc14-64-combined-debug-pch.zip
+        retention-days: 30
