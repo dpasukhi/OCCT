@@ -5,22 +5,16 @@
 name: Build Windows Packages
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'OCCT version (e.g., 7.9.1)'
-        required: true
-        default: '7.9.2'
-      thirdparty_url:
-        description: '3rd-party archive URL'
-        required: true
-        default: 'https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_9_0_beta1/3rdparty-vc14-64.zip'
-  release:
-    types: [published]
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - 'master'
 
 env:
-  OCCT_VERSION: ${{ github.event.inputs.version || '7.9.2' }}
-  THIRDPARTY_URL: ${{ github.event.inputs.thirdparty_url || 'https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_9_0_beta1/3rdparty-vc14-64.zip' }}
+  OCCT_VERSION: '7.9.2'
+  THIRDPARTY_URL: 'https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_9_0_beta1/3rdparty-vc14-64.zip'
 
 jobs:
   # Build 3rd-party package
