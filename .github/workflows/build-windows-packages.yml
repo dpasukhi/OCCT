@@ -12,6 +12,11 @@ on:
     branches:
       - 'master'
 
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
 env:
   OCCT_VERSION: '7.9.2'
   THIRDPARTY_URL: 'https://github.com/Open-Cascade-SAS/OCCT/releases/download/V7_9_0_beta1/3rdparty-vc14-64.zip'
