@@ -63,7 +63,8 @@ jobs:
         cd build
         cmake -T host=x64 `
               -D BUILD_USE_PCH=OFF `
-              -D BUILD_GTEST=ON `
+              -D BUILD_GTEST=OFF `
+              -D BUILD_Inspector=ON `
               -D BUILD_INCLUDE_SYMLINK=ON `
               -D BUILD_CPP_STANDARD=C++17 `
               -D USE_DRACO=ON `
@@ -145,7 +146,8 @@ jobs:
         cd build
         cmake -T host=x64 `
               -D BUILD_USE_PCH=ON `
-              -D BUILD_GTEST=ON `
+              -D BUILD_GTEST=OFF `
+              -D BUILD_Inspector=ON `
               -D BUILD_INCLUDE_SYMLINK=ON `
               -D BUILD_CPP_STANDARD=C++17 `
               -D USE_DRACO=ON `
@@ -227,7 +229,8 @@ jobs:
         cd build
         cmake -T host=x64 `
               -D BUILD_USE_PCH=OFF `
-              -D BUILD_GTEST=ON `
+              -D BUILD_GTEST=OFF `
+              -D BUILD_Inspector=ON `
               -D BUILD_INCLUDE_SYMLINK=ON `
               -D BUILD_CPP_STANDARD=C++17 `
               -D USE_DRACO=ON `
@@ -309,7 +312,8 @@ jobs:
         cd build
         cmake -T host=x64 `
               -D BUILD_USE_PCH=ON `
-              -D BUILD_GTEST=ON `
+              -D BUILD_GTEST=OFF `
+              -D BUILD_Inspector=ON `
               -D BUILD_INCLUDE_SYMLINK=ON `
               -D BUILD_CPP_STANDARD=C++17 `
               -D USE_DRACO=ON `
