@@ -88,7 +88,7 @@ jobs:
               -D BUILD_MODULE_ModelingData=ON `
               -D BUILD_MODULE_Visualization=ON `
               -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
-              -D INSTALL_DIR=${{ github.workspace }}/install ..
+              -D INSTALL_DIR=${{ github.workspace }}/occt-vc14-64 ..
       shell: pwsh
 
     - name: Build and Install OCCT Release
@@ -99,7 +99,7 @@ jobs:
 
     - name: Fix env.bat THIRDPARTY_DIR path
       run: |
-        $envBatPath = "${{ github.workspace }}/install/env.bat"
+        $envBatPath = "${{ github.workspace }}/occt-vc14-64/env.bat"
         if (Test-Path $envBatPath) {
           $content = Get-Content $envBatPath -Raw
           $content = $content -replace 'THIRDPARTY_DIR=.*3rdparty-vc14-64"', 'THIRDPARTY_DIR=..\3rdparty-vc14-64"'
@@ -111,12 +111,12 @@ jobs:
     - name: Sign Release DLLs with GitHub attestation
       uses: actions/attest-build-provenance@v1
       with:
-        subject-path: '${{ github.workspace }}/install/**/*.dll'
+        subject-path: '${{ github.workspace }}/occt-vc14-64/**/*.dll'
 
     - name: Create OCCT Release package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64.zip"
+        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64.zip"
       shell: pwsh
 
     - name: Upload OCCT Release package
@@ -135,12 +135,12 @@ jobs:
     - name: Sign Debug DLLs with GitHub attestation
       uses: actions/attest-build-provenance@v1
       with:
-        subject-path: '${{ github.workspace }}/install/**/*.dll'
+        subject-path: '${{ github.workspace }}/occt-vc14-64/**/*.dll'
 
     - name: Create OCCT Release+Debug package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-with-debug.zip"
+        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64-with-debug.zip"
       shell: pwsh
 
     - name: Upload OCCT Release+Debug package
@@ -153,8 +153,8 @@ jobs:
     - name: Save install directory for combined packages
       uses: actions/upload-artifact@v4.4.3
       with:
-        name: install-no-pch
-        path: install
+        name: occt-vc14-64-no-pch
+        path: occt-vc14-64
         retention-days: 7
 
   # Build OCCT with PCH (Release + Debug)
@@ -205,7 +205,7 @@ jobs:
               -D BUILD_MODULE_ModelingData=ON `
               -D BUILD_MODULE_Visualization=ON `
               -D 3RDPARTY_DIR=${{ github.workspace }}/3rdparty-vc14-64 `
-              -D INSTALL_DIR=${{ github.workspace }}/install ..
+              -D INSTALL_DIR=${{ github.workspace }}/occt-vc14-64 ..
       shell: pwsh
 
     - name: Build and Install OCCT Release
@@ -216,7 +216,7 @@ jobs:
 
     - name: Fix env.bat THIRDPARTY_DIR path
       run: |
-        $envBatPath = "${{ github.workspace }}/install/env.bat"
+        $envBatPath = "${{ github.workspace }}/occt-vc14-64/env.bat"
         if (Test-Path $envBatPath) {
           $content = Get-Content $envBatPath -Raw
           $content = $content -replace 'THIRDPARTY_DIR=.*3rdparty-vc14-64"', 'THIRDPARTY_DIR=..\3rdparty-vc14-64"'
@@ -228,12 +228,12 @@ jobs:
     - name: Sign Release DLLs with GitHub attestation
       uses: actions/attest-build-provenance@v1
       with:
-        subject-path: '${{ github.workspace }}/install/**/*.dll'
+        subject-path: '${{ github.workspace }}/occt-vc14-64/**/*.dll'
 
     - name: Create OCCT Release PCH package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-pch.zip"
+        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64-pch.zip"
       shell: pwsh
 
     - name: Upload OCCT Release PCH package
@@ -252,12 +252,12 @@ jobs:
     - name: Sign Debug DLLs with GitHub attestation
       uses: actions/attest-build-provenance@v1
       with:
-        subject-path: '${{ github.workspace }}/install/**/*.dll'
+        subject-path: '${{ github.workspace }}/occt-vc14-64/**/*.dll'
 
     - name: Create OCCT Release+Debug PCH package
       run: |
         $version = $env:OCCT_VERSION
-        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-pch-with-debug.zip"
+        Compress-Archive -Path occt-vc14-64/* -DestinationPath "opencascade-$version-vc14-64-pch-with-debug.zip"
       shell: pwsh
 
     - name: Upload OCCT Release+Debug PCH package
@@ -270,8 +270,8 @@ jobs:
     - name: Save install directory for combined packages
       uses: actions/upload-artifact@v4.4.3
       with:
-        name: install-pch
-        path: install
+        name: occt-vc14-64-pch
+        path: occt-vc14-64
         retention-days: 7
 
   # Create combined packages
@@ -284,7 +284,7 @@ jobs:
     - name: Download OCCT install
       uses: actions/download-artifact@v4.1.7
       with:
-        name: install-no-pch
+        name: occt-vc14-64-no-pch
         path: occt-vc14-64
 
     - name: Download and extract 3rd-party
@@ -315,7 +315,7 @@ jobs:
     - name: Download OCCT install
       uses: actions/download-artifact@v4.1.7
       with:
-        name: install-pch
+        name: occt-vc14-64-pch
         path: occt-vc14-64
 
     - name: Download and extract 3rd-party
