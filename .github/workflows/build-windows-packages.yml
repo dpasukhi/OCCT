@@ -91,16 +91,21 @@ jobs:
               -D INSTALL_DIR=${{ github.workspace }}/install ..
       shell: pwsh
 
-    - name: Build OCCT Release
+    - name: Build and Install OCCT Release
       run: |
         cd build
         cmake --build . --target install --config Release
       shell: pwsh
 
-    - name: Build OCCT Debug
+    - name: Fix env.bat THIRDPARTY_DIR path
       run: |
-        cd build
-        cmake --build . --target install --config Debug
+        $envBatPath = "${{ github.workspace }}/install/env.bat"
+        if (Test-Path $envBatPath) {
+          $content = Get-Content $envBatPath -Raw
+          $content = $content -replace 'THIRDPARTY_DIR=.*3rdparty-vc14-64"', 'THIRDPARTY_DIR=..\3rdparty-vc14-64"'
+          Set-Content -Path $envBatPath -Value $content -NoNewline
+          Write-Host "Updated env.bat with relative THIRDPARTY_DIR path"
+        }
       shell: pwsh
 
     - name: Sign Release DLLs with GitHub attestation
@@ -121,17 +126,28 @@ jobs:
         path: opencascade-${{ env.OCCT_VERSION }}-vc14-64.zip
         retention-days: 30
 
-    - name: Create OCCT Debug package
+    - name: Build and Install OCCT Debug (keeping Release files)
       run: |
-        $version = $env:OCCT_VERSION
-        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-debug.zip"
+        cd build
+        cmake --build . --target install --config Debug
       shell: pwsh
 
-    - name: Upload OCCT Debug package
+    - name: Sign Debug DLLs with GitHub attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '${{ github.workspace }}/install/**/*.dll'
+
+    - name: Create OCCT Release+Debug package
+      run: |
+        $version = $env:OCCT_VERSION
+        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-with-debug.zip"
+      shell: pwsh
+
+    - name: Upload OCCT Release+Debug package
       uses: actions/upload-artifact@v4.4.3
       with:
-        name: opencascade-debug-no-pch
-        path: opencascade-${{ env.OCCT_VERSION }}-vc14-64-debug.zip
+        name: opencascade-with-debug-no-pch
+        path: opencascade-${{ env.OCCT_VERSION }}-vc14-64-with-debug.zip
         retention-days: 30
 
     - name: Save install directory for combined packages
@@ -192,19 +208,24 @@ jobs:
               -D INSTALL_DIR=${{ github.workspace }}/install ..
       shell: pwsh
 
-    - name: Build OCCT Release
+    - name: Build and Install OCCT Release
       run: |
         cd build
         cmake --build . --target install --config Release
       shell: pwsh
 
-    - name: Build OCCT Debug
+    - name: Fix env.bat THIRDPARTY_DIR path
       run: |
-        cd build
-        cmake --build . --target install --config Debug
+        $envBatPath = "${{ github.workspace }}/install/env.bat"
+        if (Test-Path $envBatPath) {
+          $content = Get-Content $envBatPath -Raw
+          $content = $content -replace 'THIRDPARTY_DIR=.*3rdparty-vc14-64"', 'THIRDPARTY_DIR=..\3rdparty-vc14-64"'
+          Set-Content -Path $envBatPath -Value $content -NoNewline
+          Write-Host "Updated env.bat with relative THIRDPARTY_DIR path"
+        }
       shell: pwsh
 
-    - name: Sign DLLs with GitHub attestation
+    - name: Sign Release DLLs with GitHub attestation
       uses: actions/attest-build-provenance@v1
       with:
         subject-path: '${{ github.workspace }}/install/**/*.dll'
@@ -222,17 +243,28 @@ jobs:
         path: opencascade-${{ env.OCCT_VERSION }}-vc14-64-pch.zip
         retention-days: 30
 
-    - name: Create OCCT Debug PCH package
+    - name: Build and Install OCCT Debug (keeping Release files)
       run: |
-        $version = $env:OCCT_VERSION
-        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-debug-pch.zip"
+        cd build
+        cmake --build . --target install --config Debug
       shell: pwsh
 
-    - name: Upload OCCT Debug PCH package
+    - name: Sign Debug DLLs with GitHub attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: '${{ github.workspace }}/install/**/*.dll'
+
+    - name: Create OCCT Release+Debug PCH package
+      run: |
+        $version = $env:OCCT_VERSION
+        Compress-Archive -Path install/* -DestinationPath "opencascade-$version-vc14-64-pch-with-debug.zip"
+      shell: pwsh
+
+    - name: Upload OCCT Release+Debug PCH package
       uses: actions/upload-artifact@v4.4.3
       with:
-        name: opencascade-debug-pch
-        path: opencascade-${{ env.OCCT_VERSION }}-vc14-64-debug-pch.zip
+        name: opencascade-with-debug-pch
+        path: opencascade-${{ env.OCCT_VERSION }}-vc14-64-pch-with-debug.zip
         retention-days: 30
 
     - name: Save install directory for combined packages
@@ -253,36 +285,25 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: install-no-pch
-        path: occt-combined/install
+        path: occt-vc14-64
 
-    - name: Download 3rd-party
+    - name: Download and extract 3rd-party
       run: |
         Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
-        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath occt-combined/
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
+        Remove-Item 3rdparty-vc14-64.zip
       shell: pwsh
 
-    - name: Create combined Release package
+    - name: Create combined package with Release+Debug
       run: |
-        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined.zip
+        Compress-Archive -Path 3rdparty-vc14-64,occt-vc14-64 -DestinationPath occt-vc14-64-combined.zip
       shell: pwsh
 
-    - name: Upload combined Release package
+    - name: Upload combined package
       uses: actions/upload-artifact@v4.4.3
       with:
-        name: occt-combined-release-no-pch
+        name: occt-combined-no-pch
         path: occt-vc14-64-combined.zip
-        retention-days: 30
-
-    - name: Create combined Debug package
-      run: |
-        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined-debug.zip
-      shell: pwsh
-
-    - name: Upload combined Debug package
-      uses: actions/upload-artifact@v4.4.3
-      with:
-        name: occt-combined-debug-no-pch
-        path: occt-vc14-64-combined-debug.zip
         retention-days: 30
 
   create-combined-pch:
@@ -295,36 +316,25 @@ jobs:
       uses: actions/download-artifact@v4.1.7
       with:
         name: install-pch
-        path: occt-combined/install
+        path: occt-vc14-64
 
-    - name: Download 3rd-party
+    - name: Download and extract 3rd-party
       run: |
         Invoke-WebRequest -Uri $env:THIRDPARTY_URL -OutFile 3rdparty-vc14-64.zip
-        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath occt-combined/
+        Expand-Archive -Path 3rdparty-vc14-64.zip -DestinationPath .
+        Remove-Item 3rdparty-vc14-64.zip
       shell: pwsh
 
-    - name: Create combined Release PCH package
+    - name: Create combined PCH package with Release+Debug
       run: |
-        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined-pch.zip
+        Compress-Archive -Path 3rdparty-vc14-64,occt-vc14-64 -DestinationPath occt-vc14-64-combined-pch.zip
       shell: pwsh
 
-    - name: Upload combined Release PCH package
+    - name: Upload combined PCH package
       uses: actions/upload-artifact@v4.4.3
       with:
-        name: occt-combined-release-pch
+        name: occt-combined-pch
         path: occt-vc14-64-combined-pch.zip
-        retention-days: 30
-
-    - name: Create combined Debug PCH package
-      run: |
-        Compress-Archive -Path occt-combined/* -DestinationPath occt-vc14-64-combined-debug-pch.zip
-      shell: pwsh
-
-    - name: Upload combined Debug PCH package
-      uses: actions/upload-artifact@v4.4.3
-      with:
-        name: occt-combined-debug-pch
-        path: occt-vc14-64-combined-debug-pch.zip
         retention-days: 30
 
   # Summary job to list all packages
@@ -347,14 +357,17 @@ jobs:
         echo "All packages have been built successfully:" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### Available Packages:" >> $GITHUB_STEP_SUMMARY
+        echo "**Standalone Packages:**" >> $GITHUB_STEP_SUMMARY
         echo "1. **3rdparty-vc14-64.zip** - 3rd-party libraries only" >> $GITHUB_STEP_SUMMARY
-        echo "2. **opencascade-${{ env.OCCT_VERSION }}-vc14-64.zip** - OCCT Release (no PCH)" >> $GITHUB_STEP_SUMMARY
-        echo "3. **opencascade-${{ env.OCCT_VERSION }}-vc14-64-debug.zip** - OCCT Debug (no PCH)" >> $GITHUB_STEP_SUMMARY
-        echo "4. **opencascade-${{ env.OCCT_VERSION }}-vc14-64-pch.zip** - OCCT Release with PCH" >> $GITHUB_STEP_SUMMARY
-        echo "5. **opencascade-${{ env.OCCT_VERSION }}-vc14-64-debug-pch.zip** - OCCT Debug with PCH" >> $GITHUB_STEP_SUMMARY
-        echo "6. **occt-vc14-64-combined.zip** - OCCT Release + 3rd-party (no PCH)" >> $GITHUB_STEP_SUMMARY
-        echo "7. **occt-vc14-64-combined-debug.zip** - OCCT Debug + 3rd-party (no PCH)" >> $GITHUB_STEP_SUMMARY
-        echo "8. **occt-vc14-64-combined-pch.zip** - OCCT Release + 3rd-party with PCH" >> $GITHUB_STEP_SUMMARY
-        echo "9. **occt-vc14-64-combined-debug-pch.zip** - OCCT Debug + 3rd-party with PCH" >> $GITHUB_STEP_SUMMARY
+        echo "2. **opencascade-${{ env.OCCT_VERSION }}-vc14-64.zip** - OCCT Release only (no PCH)" >> $GITHUB_STEP_SUMMARY
+        echo "3. **opencascade-${{ env.OCCT_VERSION }}-vc14-64-with-debug.zip** - OCCT Release+Debug (no PCH)" >> $GITHUB_STEP_SUMMARY
+        echo "4. **opencascade-${{ env.OCCT_VERSION }}-vc14-64-pch.zip** - OCCT Release only (with PCH)" >> $GITHUB_STEP_SUMMARY
+        echo "5. **opencascade-${{ env.OCCT_VERSION }}-vc14-64-pch-with-debug.zip** - OCCT Release+Debug (with PCH)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Combined Packages (OCCT + 3rd-party):**" >> $GITHUB_STEP_SUMMARY
+        echo "6. **occt-vc14-64-combined.zip** - OCCT Release+Debug + 3rd-party (no PCH)" >> $GITHUB_STEP_SUMMARY
+        echo "   - Structure: 3rdparty-vc14-64/ + occt-vc14-64/" >> $GITHUB_STEP_SUMMARY
+        echo "7. **occt-vc14-64-combined-pch.zip** - OCCT Release+Debug + 3rd-party (with PCH)" >> $GITHUB_STEP_SUMMARY
+        echo "   - Structure: 3rdparty-vc14-64/ + occt-vc14-64/" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "All DLLs have been signed with GitHub attestation." >> $GITHUB_STEP_SUMMARY
