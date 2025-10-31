@@ -14,7 +14,6 @@
 #include <Interface_InterfaceError.hxx>
 #include <Interface_InterfaceModel.hxx>
 #include <Interface_Macros.hxx>
-#include <Standard_Mutex.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <StepData_Protocol.hxx>
@@ -22,6 +21,8 @@
 #include <StepData_UndefinedEntity.hxx>
 #include <StepSelect_StepType.hxx>
 #include <TColStd_SequenceOfAsciiString.hxx>
+
+#include <mutex>
 
 IMPLEMENT_STANDARD_RTTIEXT(StepSelect_StepType, IFSelect_Signature)
 
@@ -49,8 +50,8 @@ void StepSelect_StepType::SetProtocol(const Handle(Interface_Protocol)& proto)
 Standard_CString StepSelect_StepType::Value(const Handle(Standard_Transient)&       ent,
                                             const Handle(Interface_InterfaceModel)& model) const
 {
-  static Standard_Mutex  aMutex;
-  Standard_Mutex::Sentry aSentry(aMutex);
+  static std::mutex           aMutex;
+  std::lock_guard<std::mutex> aLock(aMutex);
   lastvalue.Clear();
   Handle(StepData_ReadWriteModule) module;
   Standard_Integer                 CN;
