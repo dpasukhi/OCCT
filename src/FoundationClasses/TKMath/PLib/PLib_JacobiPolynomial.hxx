@@ -21,7 +21,6 @@
 #include <Standard_Type.hxx>
 
 #include <Standard_Integer.hxx>
-#include <TColStd_HArray1OfReal.hxx>
 #include <PLib_Base.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -153,10 +152,10 @@ public:
                           TColStd_Array1OfReal& BasisD3) Standard_OVERRIDE;
 
   //! returns WorkDegree
-  Standard_Integer WorkDegree() const Standard_OVERRIDE;
+  Standard_Integer WorkDegree() const Standard_OVERRIDE { return myWorkDegree; }
 
   //! returns NivConstr
-  Standard_Integer NivConstr() const;
+  Standard_Integer NivConstr() const { return myNivConstr; }
 
   DEFINE_STANDARD_RTTIEXT(PLib_JacobiPolynomial, PLib_Base)
 
@@ -169,17 +168,11 @@ private:
                              TColStd_Array1OfReal&  BasisValue,
                              TColStd_Array1OfReal&  BasisD1,
                              TColStd_Array1OfReal&  BasisD2,
-                             TColStd_Array1OfReal&  BasisD3);
+                             TColStd_Array1OfReal&  BasisD3) const;
 
-  Standard_Integer              myWorkDegree;
-  Standard_Integer              myNivConstr;
-  Standard_Integer              myDegree;
-  Handle(TColStd_HArray1OfReal) myTNorm;
-  Handle(TColStd_HArray1OfReal) myCofA;
-  Handle(TColStd_HArray1OfReal) myCofB;
-  Handle(TColStd_HArray1OfReal) myDenom;
+  const Standard_Integer myWorkDegree;
+  const Standard_Integer myNivConstr;
+  const Standard_Integer myDegree;
 };
-
-#include <PLib_JacobiPolynomial.lxx>
 
 #endif // _PLib_JacobiPolynomial_HeaderFile
