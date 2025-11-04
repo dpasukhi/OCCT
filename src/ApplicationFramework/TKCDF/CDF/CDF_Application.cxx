@@ -29,8 +29,7 @@
 #include <Plugin.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_GUID.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <UTL.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(CDF_Application, CDM_Application)
@@ -585,7 +584,7 @@ PCDM_ReaderStatus CDF_Application::CanRetrieve(const Handle(CDM_MetaData)& aMeta
 
 Handle(CDF_MetaDataDriver) CDF_Application::MetaDataDriver() const
 {
-  Standard_NoSuchObject_Raise_if(myMetaDataDriver.IsNull(),
+  Standard_Raise_if<Standard_NoSuchObject>(myMetaDataDriver.IsNull(),
                                  "no metadatadriver has been provided; this application is not "
                                  "able to store or retrieve files.");
   return myMetaDataDriver;

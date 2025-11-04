@@ -16,9 +16,7 @@
 
 #include <Geom2dInt_TheLocateExtPCOfTheProjPCurOfGInter.hxx>
 
-#include <Standard_DomainError.hxx>
-#include <Standard_TypeMismatch.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor2d_Curve2d.hxx>
 #include <Geom2dInt_Geom2dCurveTool.hxx>
 #include <Extrema_POnCurv2d.hxx>

@@ -20,7 +20,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d une ligne 3d de gp a partir d un Ax1 de gp.               +
@@ -73,7 +73,7 @@ gce_MakeLin::gce_MakeLin(const gp_Lin& Lin, const gp_Pnt& P)
 
 const gp_Lin& gce_MakeLin::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeLin::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeLin::Value() - no result");
   return TheLin;
 }
 

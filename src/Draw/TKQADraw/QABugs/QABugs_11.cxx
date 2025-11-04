@@ -43,12 +43,7 @@
 #include <BRepAdaptor_CompCurve.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_Overflow.hxx>
-#include <Standard_Underflow.hxx>
-#include <Standard_DivideByZero.hxx>
-#include <OSD_SIGSEGV.hxx>
-#include <OSD_Exception_ACCESS_VIOLATION.hxx>
-#include <OSD_Exception_STACK_OVERFLOW.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <OSD_Timer.hxx>
 #include <OSD_Parallel.hxx>
 #include <STEPCAFControl_Writer.hxx>

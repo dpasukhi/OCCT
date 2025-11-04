@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <LProp_CurAndInf.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

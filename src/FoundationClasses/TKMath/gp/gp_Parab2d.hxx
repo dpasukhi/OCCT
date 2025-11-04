@@ -18,7 +18,7 @@
 #include <gp_Ax22d.hxx>
 #include <gp_Ax2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes a parabola in the plane (2D space).
 //! A parabola is defined by its focal length (that is, the
@@ -69,7 +69,7 @@ public:
       : focalLength(theFocalLength)
   {
     pos = gp_Ax22d(theMirrorAxis, theSense);
-    Standard_ConstructionError_Raise_if(theFocalLength < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theFocalLength < 0.0,
                                         "gp_Parab2d() - focal length should be >= 0");
   }
 
@@ -82,7 +82,7 @@ public:
       : pos(theAxes),
         focalLength(theFocalLength)
   {
-    Standard_ConstructionError_Raise_if(theFocalLength < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theFocalLength < 0.0,
                                         "gp_Parab2d() - focal length should be >= 0");
   }
 
@@ -106,7 +106,7 @@ public:
   //! Raises ConstructionError if theFocal < 0.0
   void SetFocal(const Standard_Real theFocal)
   {
-    Standard_ConstructionError_Raise_if(theFocal < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theFocal < 0.0,
                                         "gp_Parab2d::SetFocal() - focal length should be >= 0");
     focalLength = theFocal;
   }

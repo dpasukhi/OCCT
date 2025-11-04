@@ -18,12 +18,10 @@
 
 #include <NCollection_BaseMap.hxx>
 #include <NCollection_TListNode.hxx>
-#include <Standard_TypeMismatch.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <NCollection_StlIterator.hxx>
 #include <NCollection_DefaultHasher.hxx>
 
-#include <Standard_OutOfRange.hxx>
 #include <utility>
 
 /**
@@ -154,21 +152,21 @@ public:
     //! Value access
     const TheItemType& Value(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_IndexedDataMap::Iterator::Value");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_IndexedDataMap::Iterator::Value");
       return myMap->FindFromIndex(myIndex);
     }
 
     //! ChangeValue access
     TheItemType& ChangeValue(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_IndexedDataMap::Iterator::ChangeValue");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_IndexedDataMap::Iterator::ChangeValue");
       return myMap->ChangeFromIndex(myIndex);
     }
 
     //! Key
     const TheKeyType& Key() const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_IndexedDataMap::Iterator::Key");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_IndexedDataMap::Iterator::Key");
       return myMap->FindKey(myIndex);
     }
 
@@ -424,7 +422,7 @@ public:
                   const TheKeyType&      theKey1,
                   const TheItemType&     theItem)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > Extent(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > Extent(),
                                  "NCollection_IndexedDataMap::Substitute : "
                                  "Index is out of range");
 
@@ -468,7 +466,7 @@ public:
   //! Swaps two elements with the given indices.
   void Swap(const Standard_Integer theIndex1, const Standard_Integer theIndex2)
   {
-    Standard_OutOfRange_Raise_if(theIndex1 < 1 || theIndex1 > Extent() || theIndex2 < 1
+    Standard_Raise_if<Standard_OutOfRange>(theIndex1 < 1 || theIndex1 > Extent() || theIndex2 < 1
                                    || theIndex2 > Extent(),
                                  "NCollection_IndexedDataMap::Swap");
 
@@ -488,7 +486,7 @@ public:
   void RemoveLast(void)
   {
     const Standard_Integer aLastIndex = Extent();
-    Standard_OutOfRange_Raise_if(aLastIndex == 0, "NCollection_IndexedDataMap::RemoveLast");
+    Standard_Raise_if<Standard_OutOfRange>(aLastIndex == 0, "NCollection_IndexedDataMap::RemoveLast");
 
     // Find the node for the last index and remove it
     IndexedDataMapNode* p   = (IndexedDataMapNode*)myData2[aLastIndex - 1];
@@ -515,7 +513,7 @@ public:
   void RemoveFromIndex(const Standard_Integer theIndex)
   {
     const Standard_Integer aLastInd = Extent();
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > aLastInd,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > aLastInd,
                                  "NCollection_IndexedDataMap::Remove");
     if (theIndex != aLastInd)
     {
@@ -538,7 +536,7 @@ public:
   //! FindKey
   const TheKeyType& FindKey(const Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > Extent(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > Extent(),
                                  "NCollection_IndexedDataMap::FindKey");
     IndexedDataMapNode* aNode = (IndexedDataMapNode*)myData2[theIndex - 1];
     return aNode->Key1();
@@ -547,7 +545,7 @@ public:
   //! FindFromIndex
   const TheItemType& FindFromIndex(const Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > Extent(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > Extent(),
                                  "NCollection_IndexedDataMap::FindFromIndex");
     IndexedDataMapNode* aNode = (IndexedDataMapNode*)myData2[theIndex - 1];
     return aNode->Value();
@@ -562,7 +560,7 @@ public:
   //! ChangeFromIndex
   TheItemType& ChangeFromIndex(const Standard_Integer theIndex)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > Extent(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > Extent(),
                                  "NCollection_IndexedDataMap::ChangeFromIndex");
     IndexedDataMapNode* aNode = (IndexedDataMapNode*)myData2[theIndex - 1];
     return aNode->ChangeValue();
@@ -585,7 +583,7 @@ public:
   //! FindFromKey
   const TheItemType& FindFromKey(const TheKeyType& theKey1) const
   {
-    Standard_NoSuchObject_Raise_if(IsEmpty(), "NCollection_IndexedDataMap::FindFromKey");
+    Standard_Raise_if<Standard_NoSuchObject>(IsEmpty(), "NCollection_IndexedDataMap::FindFromKey");
     IndexedDataMapNode* aNode;
     if (lookup(theKey1, aNode))
     {
@@ -597,7 +595,7 @@ public:
   //! ChangeFromKey
   TheItemType& ChangeFromKey(const TheKeyType& theKey1)
   {
-    Standard_NoSuchObject_Raise_if(IsEmpty(), "NCollection_IndexedDataMap::ChangeFromKey");
+    Standard_Raise_if<Standard_NoSuchObject>(IsEmpty(), "NCollection_IndexedDataMap::ChangeFromKey");
     IndexedDataMapNode* aNode;
     if (lookup(theKey1, aNode))
     {

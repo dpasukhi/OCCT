@@ -20,7 +20,7 @@
 #include <GeomToStep_MakeDirection.hxx>
 #include <gp_Ax3.hxx>
 #include <gp_Trsf.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
 #include <StepGeom_CartesianPoint.hxx>
@@ -155,6 +155,6 @@ GeomToStep_MakeAxis2Placement3d::GeomToStep_MakeAxis2Placement3d(
 
 const Handle(StepGeom_Axis2Placement3d)& GeomToStep_MakeAxis2Placement3d::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeAxis2Placement3d::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeAxis2Placement3d::Value() - no result");
   return theAxis2Placement3d;
 }

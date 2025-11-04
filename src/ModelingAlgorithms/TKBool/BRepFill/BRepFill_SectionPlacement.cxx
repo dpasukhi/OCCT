@@ -29,8 +29,7 @@
 #include <GeomFill_SectionPlacement.hxx>
 #include <gp_Trsf.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <TopExp.hxx>

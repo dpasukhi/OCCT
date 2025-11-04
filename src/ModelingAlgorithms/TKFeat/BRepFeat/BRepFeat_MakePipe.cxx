@@ -21,7 +21,7 @@
 #include <Geom_Curve.hxx>
 #include <LocOpe.hxx>
 #include <LocOpe_Pipe.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>

@@ -46,7 +46,7 @@
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfBoolean.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>

@@ -16,7 +16,7 @@
 
 #include <BRep_Tool.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopOpeBRepDS_define.hxx>

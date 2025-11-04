@@ -28,8 +28,7 @@
 #include <HLRBRep_Curve.hxx>
 #include <Precision.hxx>
 #include <ProjLib.hxx>
-#include <Standard_DomainError.hxx>
-#include <StdFail_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TopoDS_Edge.hxx>
 
@@ -296,7 +295,7 @@ void HLRBRep_Curve::Tangent(const Standard_Boolean AtStart, gp_Pnt2d& P, gp_Dir2
   const HLRBRep_Curve* aCurve = this;
   CLP.SetCurve(aCurve);
   CLP.SetParameter(U);
-  StdFail_UndefinedDerivative_Raise_if(!CLP.IsTangentDefined(), "HLRBRep_Curve::Tangent");
+  Standard_Raise_if<StdFail_UndefinedDerivative>(!CLP.IsTangentDefined(), "HLRBRep_Curve::Tangent");
   CLP.Tangent(D);
 }
 

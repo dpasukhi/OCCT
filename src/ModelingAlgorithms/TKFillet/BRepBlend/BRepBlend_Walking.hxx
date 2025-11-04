@@ -21,7 +21,7 @@
 #include <Blend_SequenceOfPoint.hxx>
 #include <Blend_Status.hxx>
 #include <ChFiDS_ElSpine.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs_State.hxx>
 #include <math_Vector.hxx>
 

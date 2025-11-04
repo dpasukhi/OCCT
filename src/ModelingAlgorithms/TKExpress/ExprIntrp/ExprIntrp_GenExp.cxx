@@ -18,7 +18,7 @@
 #include <ExprIntrp.hxx>
 #include <ExprIntrp_GenExp.hxx>
 #include <ExprIntrp_yaccanal.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 

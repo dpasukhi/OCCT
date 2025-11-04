@@ -35,7 +35,7 @@
 #include <GeomToStep_MakeLine.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Elips2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
 #include <StepGeom_BoundedCurve.hxx>
@@ -195,6 +195,6 @@ GeomToStep_MakeCurve::GeomToStep_MakeCurve(const Handle(Geom2d_Curve)& C,
 
 const Handle(StepGeom_Curve)& GeomToStep_MakeCurve::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeCurve::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeCurve::Value() - no result");
   return theCurve;
 }

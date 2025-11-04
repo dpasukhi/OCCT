@@ -51,7 +51,7 @@
 #include <Select3D_SensitiveTriangulation.hxx>
 #include <Poly_Array1OfTriangle.hxx>
 #include <Poly_Triangulation.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StdPrs_ShadedShape.hxx>
 #include <StdPrs_WFShape.hxx>
 #include <TCollection_AsciiString.hxx>

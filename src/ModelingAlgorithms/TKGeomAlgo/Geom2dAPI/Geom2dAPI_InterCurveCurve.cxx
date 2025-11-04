@@ -22,9 +22,7 @@
 #include <gp_Pnt2d.hxx>
 #include <IntRes2d_IntersectionPoint.hxx>
 #include <IntRes2d_IntersectionSegment.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_NullObject.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -91,7 +89,7 @@ Standard_Integer Geom2dAPI_InterCurveCurve::NbPoints() const
 
 gp_Pnt2d Geom2dAPI_InterCurveCurve::Point(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 0 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 0 || Index > NbPoints(),
                                "Geom2dAPI_InterCurveCurve::Points");
 
   return (myIntersector.Point(Index)).Value();
@@ -136,10 +134,10 @@ void Geom2dAPI_InterCurveCurve::Segment(const Standard_Integer theIndex,
                                         Handle(Geom2d_Curve)&  theCurve1,
                                         Handle(Geom2d_Curve)&  theCurve2) const
 {
-  Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > NbSegments(),
+  Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > NbSegments(),
                                "Geom2dAPI_InterCurveCurve::Segment");
 
-  Standard_NullObject_Raise_if(myCurve1.IsNull(), "Geom2dAPI_InterCurveCurve::Segment");
+  Standard_Raise_if<Standard_NullObject>(myCurve1.IsNull(), "Geom2dAPI_InterCurveCurve::Segment");
 
   Standard_Real aU1, aU2, aV1, aV2;
   aU1 = myCurve1->FirstParameter();

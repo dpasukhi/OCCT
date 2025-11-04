@@ -17,7 +17,7 @@
 #include <BRepTools.hxx>
 #include <Geom_RectangularTrimmedSurface.hxx>
 #include <Geom_Surface.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>

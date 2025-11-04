@@ -18,9 +18,8 @@
 // -------------------------------------------------------------
 
 #include <Quantity_Date.hxx>
-#include <Quantity_DateDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Quantity_Period.hxx>
-#include <Standard_OutOfRange.hxx>
 
 static int month_table[12] = {31,  // January
                               28,  // February

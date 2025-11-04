@@ -23,7 +23,7 @@
 #include <gp.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>
@@ -248,7 +248,7 @@ BRepPrimAPI_MakeHalfSpace::BRepPrimAPI_MakeHalfSpace(const TopoDS_Shell& theShel
 
 const TopoDS_Solid& BRepPrimAPI_MakeHalfSpace::Solid() const
 {
-  StdFail_NotDone_Raise_if(!IsDone(), "BRepPrimAPI_MakeHalfSpace::Solid");
+  Standard_Raise_if<StdFail_NotDone>(!IsDone(), "BRepPrimAPI_MakeHalfSpace::Solid");
   return mySolid;
 }
 

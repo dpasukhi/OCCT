@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <Approx_SweepFunction.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <gp_Pnt.hxx>
 

@@ -18,8 +18,7 @@
 
 #include <NCollection_BaseMap.hxx>
 #include <NCollection_TListNode.hxx>
-#include <Standard_MultiplyDefined.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <NCollection_DefaultHasher.hxx>
 
@@ -104,21 +103,21 @@ public:
     //! Key1 inquiry
     const TheKey1Type& Key1(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_DoubleMap::Iterator::Key1");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_DoubleMap::Iterator::Key1");
       return ((DoubleMapNode*)myNode)->Key1();
     }
 
     //! Key2 inquiry
     const TheKey2Type& Key2(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_DoubleMap::Iterator::Key2");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_DoubleMap::Iterator::Key2");
       return ((DoubleMapNode*)myNode)->Key2();
     }
 
     //! Value access
     const TheKey2Type& Value(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_DoubleMap::Iterator::Value");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_DoubleMap::Iterator::Value");
       return ((DoubleMapNode*)myNode)->Value();
     }
   };

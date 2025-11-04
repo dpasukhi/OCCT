@@ -28,7 +28,7 @@
 #include <gp_Vec2d.hxx>
 #include <math_Matrix.hxx>
 #include <PLib.hxx>
-#include <Standard_NullValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfPnt2d.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
 #include <TColStd_HArray1OfReal.hxx>

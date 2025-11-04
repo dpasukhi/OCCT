@@ -41,8 +41,7 @@
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
 #include <ShapeUpgrade_RemoveLocations.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <TopExp.hxx>
 #include <TopoDS.hxx>

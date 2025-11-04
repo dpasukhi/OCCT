@@ -43,7 +43,7 @@
 #include <ProjLib_Sphere.hxx>
 #include <ProjLib_Torus.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

@@ -17,7 +17,7 @@
 #include <gp_XYZ.hxx>
 #include <Plate_LinearScalarConstraint.hxx>
 #include <Plate_PinpointConstraint.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Plate_LinearScalarConstraint::Plate_LinearScalarConstraint() {}
 

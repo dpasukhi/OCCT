@@ -24,8 +24,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_Ellipse, Geom_Conic)
@@ -219,7 +218,7 @@ void Geom_Ellipse::D3(const Standard_Real U, Pnt& P, Vec& V1, Vec& V2, Vec& V3) 
 Vec Geom_Ellipse::DN(const Standard_Real U, const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 1, " ");
   return ElCLib::EllipseDN(U, pos, majorRadius, minorRadius, N);
 }
 

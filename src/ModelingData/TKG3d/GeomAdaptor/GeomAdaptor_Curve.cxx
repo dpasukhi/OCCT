@@ -46,9 +46,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -89,7 +87,7 @@ Handle(Adaptor3d_Curve) GeomAdaptor_Curve::ShallowCopy() const
 GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(const Standard_Real U1,
                                                  const Standard_Real U2) const
 {
-  Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_BSplineCurve, " ");
+  Standard_Raise_if<Standard_NoSuchObject>(myTypeCurve != GeomAbs_BSplineCurve, " ");
   Standard_Integer               Nb     = myBSplineCurve->NbKnots();
   Standard_Integer               Index1 = 0;
   Standard_Integer               Index2 = 0;
@@ -777,7 +775,7 @@ Standard_Real GeomAdaptor_Curve::Resolution(const Standard_Real R3D) const
 
 gp_Lin GeomAdaptor_Curve::Line() const
 {
-  Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Line,
+  Standard_Raise_if<Standard_NoSuchObject>(myTypeCurve != GeomAbs_Line,
                                  "GeomAdaptor_Curve::Line() - curve is not a Line");
   return Handle(Geom_Line)::DownCast(myCurve)->Lin();
 }
@@ -786,7 +784,7 @@ gp_Lin GeomAdaptor_Curve::Line() const
 
 gp_Circ GeomAdaptor_Curve::Circle() const
 {
-  Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Circle,
+  Standard_Raise_if<Standard_NoSuchObject>(myTypeCurve != GeomAbs_Circle,
                                  "GeomAdaptor_Curve::Circle() - curve is not a Circle");
   return Handle(Geom_Circle)::DownCast(myCurve)->Circ();
 }
@@ -795,7 +793,7 @@ gp_Circ GeomAdaptor_Curve::Circle() const
 
 gp_Elips GeomAdaptor_Curve::Ellipse() const
 {
-  Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Ellipse,
+  Standard_Raise_if<Standard_NoSuchObject>(myTypeCurve != GeomAbs_Ellipse,
                                  "GeomAdaptor_Curve::Ellipse() - curve is not an Ellipse");
   return Handle(Geom_Ellipse)::DownCast(myCurve)->Elips();
 }
@@ -804,7 +802,7 @@ gp_Elips GeomAdaptor_Curve::Ellipse() const
 
 gp_Hypr GeomAdaptor_Curve::Hyperbola() const
 {
-  Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Hyperbola,
+  Standard_Raise_if<Standard_NoSuchObject>(myTypeCurve != GeomAbs_Hyperbola,
                                  "GeomAdaptor_Curve::Hyperbola() - curve is not a Hyperbola");
   return Handle(Geom_Hyperbola)::DownCast(myCurve)->Hypr();
 }
@@ -813,7 +811,7 @@ gp_Hypr GeomAdaptor_Curve::Hyperbola() const
 
 gp_Parab GeomAdaptor_Curve::Parabola() const
 {
-  Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Parabola,
+  Standard_Raise_if<Standard_NoSuchObject>(myTypeCurve != GeomAbs_Parabola,
                                  "GeomAdaptor_Curve::Parabola() - curve is not a Parabola");
   return Handle(Geom_Parabola)::DownCast(myCurve)->Parab();
 }

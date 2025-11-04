@@ -24,9 +24,7 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_Hyperbola, Geom_Conic)
@@ -254,7 +252,7 @@ void Geom_Hyperbola::D3(const Standard_Real U, Pnt& P, Vec& V1, Vec& V2, Vec& V3
 Vec Geom_Hyperbola::DN(const Standard_Real U, const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 1, " ");
   return ElCLib::HyperbolaDN(U, pos, majorRadius, minorRadius, N);
 }
 
@@ -263,7 +261,7 @@ Vec Geom_Hyperbola::DN(const Standard_Real U, const Standard_Integer N) const
 Standard_Real Geom_Hyperbola::Eccentricity() const
 {
 
-  Standard_ConstructionError_Raise_if(majorRadius == 0.0, " ") return (
+  Standard_Raise_if<Standard_ConstructionError>(majorRadius == 0.0, " ") return (
     Sqrt(majorRadius * majorRadius + minorRadius * minorRadius))
     / majorRadius;
 }
@@ -314,7 +312,7 @@ gp_Hypr Geom_Hyperbola::OtherBranch() const
 Standard_Real Geom_Hyperbola::Parameter() const
 {
 
-  Standard_ConstructionError_Raise_if(majorRadius == 0.0, " ");
+  Standard_Raise_if<Standard_ConstructionError>(majorRadius == 0.0, " ");
   return (minorRadius * minorRadius) / majorRadius;
 }
 

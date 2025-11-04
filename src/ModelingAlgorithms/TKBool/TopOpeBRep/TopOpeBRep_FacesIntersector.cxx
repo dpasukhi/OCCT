@@ -34,7 +34,7 @@
 #include <TopOpeBRepTool_ShapeTool.hxx>
 #include <Precision.hxx>
 #include <Geom_Curve.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRepTools.hxx>
 #include <TopOpeBRepTool_tol.hxx>
 

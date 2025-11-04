@@ -14,8 +14,7 @@
 #ifndef _StdLPersistent_HArray2_HeaderFile
 #define _StdLPersistent_HArray2_HeaderFile
 
-#include <Standard_NotImplemented.hxx>
-#include <Standard_NullValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <StdObjMgt_Persistent.hxx>
 #include <StdObjMgt_ReadData.hxx>
@@ -128,7 +127,7 @@ protected:
   public:
     virtual Standard_CString PName() const
     {
-      Standard_NullValue_Raise_if(!myPName,
+      Standard_Raise_if<Standard_NullValue>(!myPName,
                                   "StdLPersistent_HArray2::named_instance::PName - name not set");
       return myPName;
     }

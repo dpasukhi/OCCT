@@ -36,7 +36,7 @@
 #include <Poly_Triangulation.hxx>
 #include <Precision.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Stream.hxx>
 #include <Standard_Type.hxx>
 #include <TopExp.hxx>
@@ -115,7 +115,7 @@ TopoDS_Shape& HLRBRep_PolyAlgo::Shape(const Standard_Integer theIndex)
 
 void HLRBRep_PolyAlgo::Remove(const Standard_Integer theIndex)
 {
-  Standard_OutOfRange_Raise_if(theIndex == 0 || theIndex > myShapes.Length(),
+  Standard_Raise_if<Standard_OutOfRange>(theIndex == 0 || theIndex > myShapes.Length(),
                                "HLRBRep_PolyAlgo::Remove : unknown Shape");
   myShapes.Remove(theIndex);
   myAlgo->Clear();

@@ -29,7 +29,7 @@
 #include <GeomToStep_MakeEllipse.hxx>
 #include <GeomToStep_MakeHyperbola.hxx>
 #include <GeomToStep_MakeParabola.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Circle.hxx>
 #include <StepGeom_Conic.hxx>
@@ -126,6 +126,6 @@ GeomToStep_MakeConic::GeomToStep_MakeConic(const Handle(Geom2d_Conic)& C,
 
 const Handle(StepGeom_Conic)& GeomToStep_MakeConic::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeConic::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeConic::Value() - no result");
   return theConic;
 }

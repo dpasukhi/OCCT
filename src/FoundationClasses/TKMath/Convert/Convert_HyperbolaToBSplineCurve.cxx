@@ -36,7 +36,7 @@ Convert_HyperbolaToBSplineCurve::Convert_HyperbolaToBSplineCurve(const gp_Hypr2d
 
     : Convert_ConicToBSplineCurve(MaxNbPoles, MaxNbKnots, TheDegree)
 {
-  Standard_DomainError_Raise_if(Abs(U2 - U1) < Epsilon(0.), "Convert_ParabolaToBSplineCurve");
+  Standard_Raise_if<Standard_DomainError>(Abs(U2 - U1) < Epsilon(0.), "Convert_ParabolaToBSplineCurve");
 
   Standard_Real UF = Min(U1, U2);
   Standard_Real UL = Max(U1, U2);

@@ -32,7 +32,7 @@
 #include <Interface_Macros.hxx>
 #include <Interface_ShareTool.hxx>
 #include <Message_Msg.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // MGE 03/08/98
 IGESBasic_ToolGroup::IGESBasic_ToolGroup() {}

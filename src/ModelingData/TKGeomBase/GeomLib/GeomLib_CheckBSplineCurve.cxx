@@ -18,7 +18,7 @@
 #include <GeomLib_CheckBSplineCurve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

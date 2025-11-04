@@ -26,8 +26,7 @@
 #include <Geom2dGcc_QualifiedCurve.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Geom2dGcc_Circ2d3Tan::Geom2dGcc_Circ2d3Tan(const Geom2dGcc_QualifiedCurve& Qualified1,
                                            const Geom2dGcc_QualifiedCurve& Qualified2,

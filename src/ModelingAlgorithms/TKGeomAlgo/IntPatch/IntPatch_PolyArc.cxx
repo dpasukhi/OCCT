@@ -17,7 +17,7 @@
 #include <Adaptor2d_Curve2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <IntPatch_PolyArc.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 inline void MinMax(const Standard_Real a1,
                    const Standard_Real a2,

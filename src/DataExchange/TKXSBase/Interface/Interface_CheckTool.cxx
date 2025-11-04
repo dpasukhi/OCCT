@@ -12,7 +12,7 @@
 // commercial license or contractual agreement.
 
 #include <Interface_Check.hxx>
-#include <Interface_CheckFailure.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_CheckIterator.hxx>
 #include <Interface_CheckTool.hxx>
 #include <Interface_EntityIterator.hxx>
@@ -30,9 +30,7 @@
 #include <TCollection_HAsciiString.hxx>
 
 #ifdef _WIN32
-  #include <OSD_Exception.hxx>
 #else
-  #include <OSD_Signal.hxx>
 #endif
 #include <stdio.h>
 

@@ -22,8 +22,7 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom_Array2OfBezierSurface.hxx>
 #include <TColgp_HArray2OfPnt.hxx>
 #include <TColStd_HArray1OfReal.hxx>
@@ -301,12 +300,12 @@ GeomConvert_CompBezierSurfacesToBSplineSurface::GeomConvert_CompBezierSurfacesTo
 
     Standard_Integer ii;
     Standard_Integer multU = myUDegree - decu;
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       ((multU <= 0) && (myUKnots->Length() > 2)),
       "GeomConvert_CompBezierSurfacesToBSpl:: UContinuity or Udeg error");
 
     Standard_Integer multV = myVDegree - decv;
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       ((multV <= 0) && (myVKnots->Length() > 2)),
       "GeomConvert_CompBezierSurfacesToBSpl:: VContinuity or Vdeg error");
 
@@ -377,7 +376,7 @@ void GeomConvert_CompBezierSurfacesToBSplineSurface::Perform(
     }
   }
 
-  Standard_NotImplemented_Raise_if(isrational, "CompBezierSurfacesToBSpl : rational !");
+  Standard_Raise_if<Standard_NotImplemented>(isrational, "CompBezierSurfacesToBSpl : rational !");
 
   // (2) Boucle sur les carreaux  -----------------------------
 

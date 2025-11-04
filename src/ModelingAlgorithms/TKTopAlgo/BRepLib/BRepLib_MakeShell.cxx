@@ -24,7 +24,7 @@
 #include <Geom_Surface.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom2d_Array1OfCurve.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TopExp_Explorer.hxx>

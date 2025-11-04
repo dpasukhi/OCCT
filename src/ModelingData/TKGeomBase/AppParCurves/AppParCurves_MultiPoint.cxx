@@ -16,7 +16,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <Standard_Transient.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
 #include <TColgp_HArray1OfPnt2d.hxx>
 
@@ -135,28 +135,28 @@ void AppParCurves_MultiPoint::Transform2d(const Standard_Integer CuIndex,
 
 void AppParCurves_MultiPoint::SetPoint(const Standard_Integer Index, const gp_Pnt& Point)
 {
-  Standard_OutOfRange_Raise_if((Index <= 0) || (Index > nbP),
+  Standard_Raise_if<Standard_OutOfRange>((Index <= 0) || (Index > nbP),
                                "AppParCurves_MultiPoint::SetPoint() - wrong index");
   tabPoint->SetValue(Index, Point);
 }
 
 const gp_Pnt& AppParCurves_MultiPoint::Point(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if((Index <= 0) || (Index > nbP),
+  Standard_Raise_if<Standard_OutOfRange>((Index <= 0) || (Index > nbP),
                                "AppParCurves_MultiPoint::Point() - wrong index");
   return tabPoint->Value(Index);
 }
 
 void AppParCurves_MultiPoint::SetPoint2d(const Standard_Integer Index, const gp_Pnt2d& Point)
 {
-  Standard_OutOfRange_Raise_if((Index <= nbP) || (Index > nbP + nbP2d),
+  Standard_Raise_if<Standard_OutOfRange>((Index <= nbP) || (Index > nbP + nbP2d),
                                "AppParCurves_MultiPoint::SetPoint2d() - wrong index");
   tabPoint2d->SetValue(Index - nbP, Point);
 }
 
 const gp_Pnt2d& AppParCurves_MultiPoint::Point2d(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if((Index <= nbP) || (Index > nbP + nbP2d),
+  Standard_Raise_if<Standard_OutOfRange>((Index <= nbP) || (Index > nbP + nbP2d),
                                "AppParCurves_MultiPoint::Point2d() - wrong index");
   return tabPoint2d->Value(Index - nbP);
 }

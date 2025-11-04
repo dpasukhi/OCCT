@@ -13,8 +13,7 @@
 
 #include <Interface_EntityIterator.hxx>
 #include <Interface_IntVal.hxx>
-#include <Standard_NoMoreObject.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 
 //  Iterator for for writing, or while with Next at the end :

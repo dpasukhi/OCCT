@@ -37,7 +37,7 @@
 #include <gp_Vec2d.hxx>
 #include <LocOpe_WiresOnShape.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>

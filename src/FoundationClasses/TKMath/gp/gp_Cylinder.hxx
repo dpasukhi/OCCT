@@ -53,7 +53,7 @@ public:
       : pos(theA3),
         radius(theRadius)
   {
-    Standard_ConstructionError_Raise_if(theRadius < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theRadius < 0.0,
                                         "gp_Cylinder() - radius should be positive number");
   }
 
@@ -72,7 +72,7 @@ public:
   //! Standard_ConstructionError if theR is negative.
   void SetRadius(const Standard_Real theR)
   {
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       theR < 0.0,
       "gp_Cylinder::SetRadius() - radius should be positive number");
     radius = theR;

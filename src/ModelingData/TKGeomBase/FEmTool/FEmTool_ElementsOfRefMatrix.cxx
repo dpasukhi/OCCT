@@ -16,7 +16,7 @@
 
 #include <FEmTool_ElementsOfRefMatrix.hxx>
 #include <PLib_HermitJacobi.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 FEmTool_ElementsOfRefMatrix::FEmTool_ElementsOfRefMatrix(const PLib_HermitJacobi& TheBase,

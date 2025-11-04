@@ -25,7 +25,7 @@
 #include <gp_Circ.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -162,6 +162,6 @@ GC_MakeArcOfCircle::GC_MakeArcOfCircle(const gp_Circ&         Circ,
 
 const Handle(Geom_TrimmedCurve)& GC_MakeArcOfCircle::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeArcOfCircle::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeArcOfCircle::Value() - no result");
   return TheArc;
 }

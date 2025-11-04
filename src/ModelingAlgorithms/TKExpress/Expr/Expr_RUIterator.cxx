@@ -19,7 +19,7 @@
 #include <Expr_RUIterator.hxx>
 #include <Expr_SingleRelation.hxx>
 #include <Expr_UnknownIterator.hxx>
-#include <Standard_NoMoreObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Expr_RUIterator::Expr_RUIterator(const Handle(Expr_GeneralRelation)& rel)
 {

@@ -29,9 +29,8 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
-#include <StdFail_NotDone.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Extrema_ExtPRevS, Standard_Transient)
 

@@ -17,7 +17,7 @@
 #ifndef _GCPnts_QuasiUniformDeflection_HeaderFile
 #define _GCPnts_QuasiUniformDeflection_HeaderFile
 
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <GeomAbs_Shape.hxx>
@@ -186,7 +186,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Integer NbPoints() const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_QuasiUniformDeflection::NbPoints()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_QuasiUniformDeflection::NbPoints()");
     return myParams.Length();
   }
 
@@ -202,7 +202,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Real Parameter(const Standard_Integer Index) const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_QuasiUniformDeflection::Parameter()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_QuasiUniformDeflection::Parameter()");
     return myParams(Index);
   }
 
@@ -228,7 +228,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Real Deflection() const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_QuasiUniformDeflection::Deflection()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_QuasiUniformDeflection::Deflection()");
     return myDeflection;
   }
 

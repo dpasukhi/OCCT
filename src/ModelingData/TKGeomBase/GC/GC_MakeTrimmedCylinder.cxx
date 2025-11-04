@@ -21,8 +21,7 @@
 #include <gp_Ax1.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //===========================================================================
 //   Creation of a cylinder limited by three points <P1>, <P2> and <P3>.    +
@@ -88,6 +87,6 @@ GC_MakeTrimmedCylinder::GC_MakeTrimmedCylinder(const gp_Ax1&       A1,
 
 const Handle(Geom_RectangularTrimmedSurface)& GC_MakeTrimmedCylinder::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeTrimmedCylinder::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeTrimmedCylinder::Value() - no result");
   return TheCyl;
 }

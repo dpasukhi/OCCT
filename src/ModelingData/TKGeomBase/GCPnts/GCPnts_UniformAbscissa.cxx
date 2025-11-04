@@ -17,7 +17,7 @@
 #include <GCPnts_AbscissaPoint.hxx>
 #include <GCPnts_AbscissaType.hxx>
 #include <GCPnts_TCurveTypes.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -493,7 +493,7 @@ void GCPnts_UniformAbscissa::initialize(const TheCurve&        theC,
                                         const Standard_Real    theU2,
                                         const Standard_Real    theTol)
 {
-  Standard_ConstructionError_Raise_if(
+  Standard_Raise_if<Standard_ConstructionError>(
     theNbPoints <= 1,
     "GCPnts_UniformAbscissa::Initialize() - number of points should be >= 2");
   myNbPoints = 0;

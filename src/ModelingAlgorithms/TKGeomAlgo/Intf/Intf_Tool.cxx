@@ -31,7 +31,7 @@
 #include <IntAna_IntConicQuad.hxx>
 #include <Intf_Tool.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -1465,7 +1465,7 @@ Standard_Integer Intf_Tool::NbSegments() const
 
 Standard_Real Intf_Tool::BeginParam(const Standard_Integer SegmentNum) const
 {
-  Standard_OutOfRange_Raise_if(SegmentNum < 1 || SegmentNum > nbSeg, "Intf_Tool::BeginParam");
+  Standard_Raise_if<Standard_OutOfRange>(SegmentNum < 1 || SegmentNum > nbSeg, "Intf_Tool::BeginParam");
   return beginOnCurve[SegmentNum - 1];
 }
 
@@ -1473,6 +1473,6 @@ Standard_Real Intf_Tool::BeginParam(const Standard_Integer SegmentNum) const
 
 Standard_Real Intf_Tool::EndParam(const Standard_Integer SegmentNum) const
 {
-  Standard_OutOfRange_Raise_if(SegmentNum < 1 || SegmentNum > nbSeg, "Intf_Tool::EndParam");
+  Standard_Raise_if<Standard_OutOfRange>(SegmentNum < 1 || SegmentNum > nbSeg, "Intf_Tool::EndParam");
   return endOnCurve[SegmentNum - 1];
 }

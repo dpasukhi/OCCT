@@ -16,10 +16,7 @@
 
 #include <GeomInt_TheInt2SOfThePrmPrmSvSurfacesOfWLApprox.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Adaptor3d_HSurfaceTool.hxx>
 #include <GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox.hxx>

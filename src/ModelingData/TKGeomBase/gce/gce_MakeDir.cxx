@@ -20,7 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d une direction 3d (Dir) de gp a partir de 2 Pnt de gp.     +
@@ -79,7 +79,7 @@ gce_MakeDir::gce_MakeDir(const Standard_Real Xv, const Standard_Real Yv, const S
 
 const gp_Dir& gce_MakeDir::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeDir::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeDir::Value() - no result");
   return TheDir;
 }
 

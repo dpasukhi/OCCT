@@ -51,7 +51,7 @@
 #include <GProp_PrincipalProps.hxx>
 
 #include <OSD_Path.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <ShapeFix_Wireframe.hxx>
 #include <ShapeBuild_ReShape.hxx>

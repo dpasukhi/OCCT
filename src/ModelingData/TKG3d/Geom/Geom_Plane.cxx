@@ -28,7 +28,7 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 #include <Precision.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_Plane, Geom_ElementarySurface)
@@ -269,7 +269,7 @@ Vec Geom_Plane::DN(const Standard_Real,
                    const Standard_Integer Nv) const
 {
 
-  Standard_RangeError_Raise_if(Nu < 0 || Nv < 0 || Nu + Nv < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(Nu < 0 || Nv < 0 || Nu + Nv < 1, " ");
   if (Nu == 0 && Nv == 1)
   {
     return Vec(pos.YDirection());

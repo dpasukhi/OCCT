@@ -25,7 +25,7 @@
 #include <GeomLib.hxx>
 #include <GeomLib_IsPlanarSurface.hxx>
 #include <gp_Pln.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
 

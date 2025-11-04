@@ -26,7 +26,7 @@
 #include <TopoDS_Wire.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopAbs_ShapeEnum.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 class HelixBRepTest : public ::testing::Test
 {

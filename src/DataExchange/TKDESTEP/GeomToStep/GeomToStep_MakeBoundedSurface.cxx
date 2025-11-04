@@ -23,7 +23,7 @@
 #include <GeomToStep_MakeBSplineSurfaceWithKnots.hxx>
 #include <GeomToStep_MakeBSplineSurfaceWithKnotsAndRationalBSplineSurface.hxx>
 #include <GeomToStep_MakeRectangularTrimmedSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_BoundedSurface.hxx>
 #include <StepGeom_BSplineSurfaceWithKnots.hxx>
@@ -97,6 +97,6 @@ GeomToStep_MakeBoundedSurface::GeomToStep_MakeBoundedSurface(
 
 const Handle(StepGeom_BoundedSurface)& GeomToStep_MakeBoundedSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeBoundedSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeBoundedSurface::Value() - no result");
   return theBoundedSurface;
 }

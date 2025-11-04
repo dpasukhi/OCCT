@@ -20,7 +20,7 @@
 #include <gp_Hypr2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d une Hyperbola 2d de gp de centre <Center> et de sommets   +
@@ -80,7 +80,7 @@ gce_MakeHypr2d::gce_MakeHypr2d(const gp_Ax22d&     A,
 
 const gp_Hypr2d& gce_MakeHypr2d::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeHypr2d::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeHypr2d::Value() - no result");
   return TheHypr2d;
 }
 

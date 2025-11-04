@@ -34,7 +34,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Pln.hxx>
 #include <Precision.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <TopExp.hxx>
@@ -99,7 +99,7 @@ void BRepOffsetAPI_DraftAngle::Add(const TopoDS_Face&     F,
   // POP-DPF : protection
   if (Abs(Angle) <= 1.e-04)
     return;
-  Standard_NullObject_Raise_if(myInitialShape.IsNull(),
+  Standard_Raise_if<Standard_NullObject>(myInitialShape.IsNull(),
                                "BRepOffsetAPI_DraftAngle::Add() - initial shape is not set");
   Handle(Draft_Modification)::DownCast(myModification)->Add(F, D, Angle, Plane, Flag);
 }
@@ -108,7 +108,7 @@ void BRepOffsetAPI_DraftAngle::Add(const TopoDS_Face&     F,
 
 Standard_Boolean BRepOffsetAPI_DraftAngle::AddDone() const
 {
-  Standard_NullObject_Raise_if(myInitialShape.IsNull(),
+  Standard_Raise_if<Standard_NullObject>(myInitialShape.IsNull(),
                                "BRepOffsetAPI_DraftAngle::AddDone() - initial shape is not set");
   return Handle(Draft_Modification)::DownCast(myModification)->ProblematicShape().IsNull();
 }
@@ -117,7 +117,7 @@ Standard_Boolean BRepOffsetAPI_DraftAngle::AddDone() const
 
 void BRepOffsetAPI_DraftAngle::Remove(const TopoDS_Face& F)
 {
-  Standard_NullObject_Raise_if(myInitialShape.IsNull(),
+  Standard_Raise_if<Standard_NullObject>(myInitialShape.IsNull(),
                                "BRepOffsetAPI_DraftAngle::Remove() - initial shape is not set");
   Handle(Draft_Modification)::DownCast(myModification)->Remove(F);
 }
@@ -126,7 +126,7 @@ void BRepOffsetAPI_DraftAngle::Remove(const TopoDS_Face& F)
 
 const TopoDS_Shape& BRepOffsetAPI_DraftAngle::ProblematicShape() const
 {
-  Standard_NullObject_Raise_if(
+  Standard_Raise_if<Standard_NullObject>(
     myInitialShape.IsNull(),
     "BRepOffsetAPI_DraftAngle::ProblematicShape() - initial shape is not set");
   return Handle(Draft_Modification)::DownCast(myModification)->ProblematicShape();
@@ -136,7 +136,7 @@ const TopoDS_Shape& BRepOffsetAPI_DraftAngle::ProblematicShape() const
 
 Draft_ErrorStatus BRepOffsetAPI_DraftAngle::Status() const
 {
-  Standard_NullObject_Raise_if(myInitialShape.IsNull(),
+  Standard_Raise_if<Standard_NullObject>(myInitialShape.IsNull(),
                                "BRepOffsetAPI_DraftAngle::Status() - initial shape is not set");
   return Handle(Draft_Modification)::DownCast(myModification)->Error();
 }
@@ -145,7 +145,7 @@ Draft_ErrorStatus BRepOffsetAPI_DraftAngle::Status() const
 
 const TopTools_ListOfShape& BRepOffsetAPI_DraftAngle::ConnectedFaces(const TopoDS_Face& F) const
 {
-  Standard_NullObject_Raise_if(
+  Standard_Raise_if<Standard_NullObject>(
     myInitialShape.IsNull(),
     "BRepOffsetAPI_DraftAngle::ConnectedFaces() - initial shape is not set");
   return Handle(Draft_Modification)::DownCast(myModification)->ConnectedFaces(F);
@@ -155,7 +155,7 @@ const TopTools_ListOfShape& BRepOffsetAPI_DraftAngle::ConnectedFaces(const TopoD
 
 const TopTools_ListOfShape& BRepOffsetAPI_DraftAngle::ModifiedFaces() const
 {
-  Standard_NullObject_Raise_if(
+  Standard_Raise_if<Standard_NullObject>(
     myInitialShape.IsNull(),
     "BRepOffsetAPI_DraftAngle::ModifiedFaces() - initial shape is not set");
   return Handle(Draft_Modification)::DownCast(myModification)->ModifiedFaces();
@@ -166,7 +166,7 @@ const TopTools_ListOfShape& BRepOffsetAPI_DraftAngle::ModifiedFaces() const
 const TopTools_ListOfShape& BRepOffsetAPI_DraftAngle::Generated(const TopoDS_Shape& S)
 {
   myGenerated.Clear();
-  Standard_NullObject_Raise_if(myInitialShape.IsNull(),
+  Standard_Raise_if<Standard_NullObject>(myInitialShape.IsNull(),
                                "BRepOffsetAPI_DraftAngle::Generated() - initial shape is not set");
   Handle(Draft_Modification) DMod = Handle(Draft_Modification)::DownCast(myModification);
 
@@ -196,7 +196,7 @@ const TopTools_ListOfShape& BRepOffsetAPI_DraftAngle::Generated(const TopoDS_Sha
 const TopTools_ListOfShape& BRepOffsetAPI_DraftAngle::Modified(const TopoDS_Shape& S)
 {
   myGenerated.Clear();
-  Standard_NullObject_Raise_if(myInitialShape.IsNull(),
+  Standard_Raise_if<Standard_NullObject>(myInitialShape.IsNull(),
                                "BRepOffsetAPI_DraftAngle::Modified() - initial shape is not set");
   Handle(Draft_Modification) DMod = Handle(Draft_Modification)::DownCast(myModification);
 

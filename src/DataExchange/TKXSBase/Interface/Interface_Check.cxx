@@ -15,7 +15,7 @@
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
 #include <Message_Msg.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>

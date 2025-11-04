@@ -30,7 +30,7 @@
 #include <Draw_Drawable3D.hxx>
 #include <Draw_Interpretor.hxx>
 
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <TDF_Data.hxx>
 #include <TDF_DataSet.hxx>

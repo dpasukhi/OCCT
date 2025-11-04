@@ -47,7 +47,7 @@
 #include <Expr.hxx>
 #include <Expr_SequenceOfGeneralExpression.hxx>
 #include <Expr_Operators.hxx>
-#include <ExprIntrp_SyntaxError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Expr_Array1OfNamedUnknown.hxx>
 #include <Expr_Array1OfGeneralExpression.hxx>
 

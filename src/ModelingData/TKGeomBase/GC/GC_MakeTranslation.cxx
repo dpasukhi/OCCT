@@ -18,7 +18,7 @@
 #include <Geom_Transformation.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation of a 3D Geom translation of translation vector Vec.         +

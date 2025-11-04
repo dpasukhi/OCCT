@@ -18,9 +18,8 @@
 // Version	Date		Purpose
 //		0.0	Feb  7 1997	Creation
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
-#include <Standard_ImmutableObject.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TDF_Attribute.hxx>

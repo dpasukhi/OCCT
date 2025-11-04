@@ -26,7 +26,7 @@
 #include <math_BrentMinimum.hxx>
 #include <math_PSO.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 namespace
@@ -400,7 +400,7 @@ void GCPnts_TangentialDeflection::initialize(const TheCurve&        theC,
                                              const Standard_Real    theUTol,
                                              const Standard_Real    theMinLen)
 {
-  Standard_ConstructionError_Raise_if(
+  Standard_Raise_if<Standard_ConstructionError>(
     theCurvatureDeflection < Precision::Confusion() || theAngularDeflection < Precision::Angular(),
     "GCPnts_TangentialDeflection::Initialize - Zero Deflection") myParameters.Clear();
   myPoints.Clear();
@@ -497,7 +497,7 @@ Standard_Real GCPnts_TangentialDeflection::ArcAngularStep(const Standard_Real th
                                                           const Standard_Real theAngularDeflection,
                                                           const Standard_Real theMinLength)
 {
-  Standard_ConstructionError_Raise_if(theRadius < 0.0, "Negative radius");
+  Standard_Raise_if<Standard_ConstructionError>(theRadius < 0.0, "Negative radius");
 
   constexpr Standard_Real aPrecision = Precision::Confusion();
 

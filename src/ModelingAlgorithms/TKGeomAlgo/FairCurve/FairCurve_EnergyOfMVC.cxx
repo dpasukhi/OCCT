@@ -18,7 +18,7 @@
 #include <FairCurve_EnergyOfMVC.hxx>
 #include <math_GaussSetIntegration.hxx>
 #include <math_IntegerVector.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfPnt2d.hxx>
 
 //=====================================================================================
@@ -54,7 +54,7 @@ FairCurve_EnergyOfMVC::FairCurve_EnergyOfMVC(const Standard_Integer             
       MyJerk(BSplOrder, FlatKnots, Poles, 1, Law, FreeSliding),
       MyStatus(FairCurve_OK)
 {
-  Standard_DomainError_Raise_if(PhysicalRatio < 0 || PhysicalRatio > 1,
+  Standard_Raise_if<Standard_DomainError>(PhysicalRatio < 0 || PhysicalRatio > 1,
                                 "FairCurve_EnergyOfMVC: PhysicalRatio error");
 }
 

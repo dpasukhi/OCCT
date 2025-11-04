@@ -13,7 +13,7 @@
 
 #include <IFSelect_Selection.hxx>
 #include <IFSelect_SelectionIterator.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IFSelect_SelectionIterator::IFSelect_SelectionIterator()
 {

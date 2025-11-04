@@ -19,9 +19,8 @@
 #include <gp_Ax2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <gp_XY.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
-#include <Standard_OutOfRange.hxx>
 
 Standard_Real gp_Dir2d::Angle(const gp_Dir2d& Other) const
 {

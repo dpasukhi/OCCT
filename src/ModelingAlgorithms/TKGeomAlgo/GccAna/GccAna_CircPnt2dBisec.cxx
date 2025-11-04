@@ -28,8 +28,7 @@
 #include <gp_Circ2d.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 GccAna_CircPnt2dBisec::GccAna_CircPnt2dBisec(const gp_Circ2d& Circle, const gp_Pnt2d& Point)

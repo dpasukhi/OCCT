@@ -16,8 +16,7 @@
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <math_Vector.hxx>
 #include <math_Matrix.hxx>
-#include <StdFail_NotDone.hxx>
-#include <Standard_DimensionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 namespace
 {

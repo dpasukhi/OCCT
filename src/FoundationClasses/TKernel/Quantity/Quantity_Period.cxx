@@ -19,7 +19,7 @@
 // -------------------------------------------------------------
 
 #include <Quantity_Period.hxx>
-#include <Quantity_PeriodDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // -----------------------------------------------------------
 // IsValid : Checks the validity of a date

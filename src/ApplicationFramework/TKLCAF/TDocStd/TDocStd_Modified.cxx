@@ -16,7 +16,7 @@
 
 #include <TDocStd_Modified.hxx>
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_GUID.hxx>
 #include <Standard_Type.hxx>
 #include <TDF_Attribute.hxx>

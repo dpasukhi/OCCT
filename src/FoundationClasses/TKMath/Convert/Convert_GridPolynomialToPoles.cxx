@@ -23,8 +23,7 @@
 #include <BSplSLib.hxx>
 #include <Convert_GridPolynomialToPoles.hxx>
 #include <PLib.hxx>
-#include <Standard_DomainError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Convert_GridPolynomialToPoles::Convert_GridPolynomialToPoles(
   const Standard_Integer                  MaxUDegree,
@@ -286,67 +285,67 @@ void Convert_GridPolynomialToPoles::BuildArray(const Standard_Integer           
 
 Standard_Integer Convert_GridPolynomialToPoles::NbUPoles() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myPoles->ColLength();
 }
 
 Standard_Integer Convert_GridPolynomialToPoles::NbVPoles() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myPoles->RowLength();
 }
 
 const Handle(TColgp_HArray2OfPnt)& Convert_GridPolynomialToPoles::Poles() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myPoles;
 }
 
 Standard_Integer Convert_GridPolynomialToPoles::UDegree() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myUDegree;
 }
 
 Standard_Integer Convert_GridPolynomialToPoles::VDegree() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myVDegree;
 }
 
 Standard_Integer Convert_GridPolynomialToPoles::NbUKnots() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myUKnots->Length();
 }
 
 Standard_Integer Convert_GridPolynomialToPoles::NbVKnots() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myVKnots->Length();
 }
 
 const Handle(TColStd_HArray1OfReal)& Convert_GridPolynomialToPoles::UKnots() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myUKnots;
 }
 
 const Handle(TColStd_HArray1OfReal)& Convert_GridPolynomialToPoles::VKnots() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myVKnots;
 }
 
 const Handle(TColStd_HArray1OfInteger)& Convert_GridPolynomialToPoles::UMultiplicities() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myUMults;
 }
 
 const Handle(TColStd_HArray1OfInteger)& Convert_GridPolynomialToPoles::VMultiplicities() const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GridPolynomialToPoles");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GridPolynomialToPoles");
   return myVMults;
 }
 

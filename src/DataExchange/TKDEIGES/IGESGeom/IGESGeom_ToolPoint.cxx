@@ -34,7 +34,7 @@
 #include <Interface_Macros.hxx>
 #include <Interface_ShareTool.hxx>
 #include <Message_Msg.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // MGE 28/07/98
 IGESGeom_ToolPoint::IGESGeom_ToolPoint() {}

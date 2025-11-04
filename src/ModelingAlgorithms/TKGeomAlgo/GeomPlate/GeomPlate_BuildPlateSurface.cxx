@@ -56,7 +56,7 @@
 #include <Plate_Plate.hxx>
 #include <Precision.hxx>
 #include <ProjLib_HCompProjectedCurve.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
 #include <TColgp_SequenceOfVec.hxx>

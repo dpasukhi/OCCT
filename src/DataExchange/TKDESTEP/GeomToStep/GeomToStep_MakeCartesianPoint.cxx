@@ -19,7 +19,7 @@
 #include <GeomToStep_MakeCartesianPoint.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepGeom_CartesianPoint.hxx>
 #include <TCollection_HAsciiString.hxx>
@@ -122,6 +122,6 @@ GeomToStep_MakeCartesianPoint::GeomToStep_MakeCartesianPoint(const Handle(Geom2d
 
 const Handle(StepGeom_CartesianPoint)& GeomToStep_MakeCartesianPoint::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeCartesianPoint::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeCartesianPoint::Value() - no result");
   return theCartesianPoint;
 }

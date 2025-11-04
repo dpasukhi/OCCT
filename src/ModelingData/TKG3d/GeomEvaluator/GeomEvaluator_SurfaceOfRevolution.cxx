@@ -166,9 +166,9 @@ gp_Vec GeomEvaluator_SurfaceOfRevolution::DN(const Standard_Real    theU,
                                              const Standard_Integer theDerU,
                                              const Standard_Integer theDerV) const
 {
-  Standard_RangeError_Raise_if(theDerU < 0, "GeomEvaluator_SurfaceOfRevolution::DN(): theDerU < 0");
-  Standard_RangeError_Raise_if(theDerV < 0, "GeomEvaluator_SurfaceOfRevolution::DN(): theDerV < 0");
-  Standard_RangeError_Raise_if(theDerU + theDerV < 1,
+  Standard_Raise_if<Standard_RangeError>(theDerU < 0, "GeomEvaluator_SurfaceOfRevolution::DN(): theDerU < 0");
+  Standard_Raise_if<Standard_RangeError>(theDerV < 0, "GeomEvaluator_SurfaceOfRevolution::DN(): theDerV < 0");
+  Standard_Raise_if<Standard_RangeError>(theDerU + theDerV < 1,
                                "GeomEvaluator_SurfaceOfRevolution::DN(): theDerU + theDerV < 1");
 
   gp_Trsf aRotation;

@@ -34,7 +34,7 @@
 #include <Interface_EntityIterator.hxx>
 #include <Interface_Macros.hxx>
 #include <Interface_ShareTool.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
 
 #include <stdio.h>

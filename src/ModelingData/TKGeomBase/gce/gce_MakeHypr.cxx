@@ -19,7 +19,7 @@
 #include <gp_Hypr.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d une Hyperbole 3d de gp de centre <Center> et de sommets   +
@@ -66,7 +66,7 @@ gce_MakeHypr::gce_MakeHypr(const gp_Ax2&       A2,
 
 const gp_Hypr& gce_MakeHypr::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeHypr::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeHypr::Value() - no result");
   return TheHypr;
 }
 

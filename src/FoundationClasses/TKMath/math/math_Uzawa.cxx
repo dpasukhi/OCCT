@@ -33,8 +33,7 @@
 #include <math_Crout.hxx>
 #include <math_Matrix.hxx>
 #include <math_Uzawa.hxx>
-#include <Standard_DimensionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 math_Uzawa::math_Uzawa(const math_Matrix&     Cont,
                        const math_Vector&     Secont,
@@ -91,7 +90,7 @@ void math_Uzawa::Perform(const math_Matrix&     Cont,
   Standard_Integer Nlig = Cont.RowNumber();
   Standard_Integer Ncol = Cont.ColNumber();
 
-  Standard_DimensionError_Raise_if((Secont.Length() != Nlig) || ((Nce + Nci) != Nlig), " ");
+  Standard_Raise_if<Standard_DimensionError>((Secont.Length() != Nlig) || ((Nce + Nci) != Nlig), " ");
 
   // Calcul du vecteur Cont*X0 - D:  (erreur initiale)
   //==================================================

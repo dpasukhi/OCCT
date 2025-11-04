@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <MoniTool_DataMapOfShapeTransient.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepShape_GeometricCurveSet.hxx>
@@ -71,7 +71,7 @@ TopoDSToStep_MakeGeometricCurveSet::TopoDSToStep_MakeGeometricCurveSet(
 
 const Handle(StepShape_GeometricCurveSet)& TopoDSToStep_MakeGeometricCurveSet::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeGeometricCurveSet::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeGeometricCurveSet::Value() - no result");
   return theGeometricCurveSet;
 }
 

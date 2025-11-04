@@ -21,7 +21,7 @@
 #include <Geom_Curve.hxx>
 #include <Geom_Geometry.hxx>
 #include <Geom_SurfaceOfRevolution.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomEvaluator_SurfaceOfRevolution.hxx>
 #include <gp.hxx>
 #include <gp_Ax1.hxx>
@@ -35,8 +35,6 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_SurfaceOfRevolution, Geom_SweptSurface)
@@ -148,7 +146,7 @@ Ax1 Geom_SurfaceOfRevolution::Axis() const
 Standard_Boolean Geom_SurfaceOfRevolution::IsCNv(const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisCurve->IsCN(N);
 }
 

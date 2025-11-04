@@ -25,8 +25,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Adaptor2d_Line2d, Adaptor2d_Curve2d)
 

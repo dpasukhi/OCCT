@@ -16,7 +16,7 @@
 #include <BRepMeshData_PCurve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <BRepMesh_Vertex.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(BRepMeshData_PCurve, IMeshData_PCurve)
 
@@ -60,7 +60,7 @@ void BRepMeshData_PCurve::AddPoint(const gp_Pnt2d& thePoint, const Standard_Real
 
 gp_Pnt2d& BRepMeshData_PCurve::GetPoint(const Standard_Integer theIndex)
 {
-  Standard_OutOfRange_Raise_if(theIndex < 0
+  Standard_Raise_if<Standard_OutOfRange>(theIndex < 0
                                  || theIndex >= static_cast<Standard_Integer>(myPoints2d.size()),
                                "BRepMeshData_PCurve::GetPoint");
   return myPoints2d[theIndex];
@@ -70,7 +70,7 @@ gp_Pnt2d& BRepMeshData_PCurve::GetPoint(const Standard_Integer theIndex)
 
 Standard_Integer& BRepMeshData_PCurve::GetIndex(const Standard_Integer theIndex)
 {
-  Standard_OutOfRange_Raise_if(theIndex < 0
+  Standard_Raise_if<Standard_OutOfRange>(theIndex < 0
                                  || theIndex >= static_cast<Standard_Integer>(myIndices.size()),
                                "BRepMeshData_PCurve::GetIndex");
   return myIndices[theIndex];
@@ -80,7 +80,7 @@ Standard_Integer& BRepMeshData_PCurve::GetIndex(const Standard_Integer theIndex)
 
 Standard_Real& BRepMeshData_PCurve::GetParameter(const Standard_Integer theIndex)
 {
-  Standard_OutOfRange_Raise_if(theIndex < 0 || theIndex >= ParametersNb(),
+  Standard_Raise_if<Standard_OutOfRange>(theIndex < 0 || theIndex >= ParametersNb(),
                                "BRepMeshData_PCurve::GetParameter");
   return myParameters[theIndex];
 }

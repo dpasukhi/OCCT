@@ -20,7 +20,7 @@
 #include <gp_Circ.hxx>
 #include <gp_Lin.hxx>
 #include <IntSurf_LineOn2S.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Contap_Line::Contap_Line()
 {

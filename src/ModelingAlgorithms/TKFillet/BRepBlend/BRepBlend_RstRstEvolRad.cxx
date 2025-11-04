@@ -33,8 +33,7 @@
 #include <math_Matrix.hxx>
 #include <math_SVD.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 
 #define Eps 1.e-15

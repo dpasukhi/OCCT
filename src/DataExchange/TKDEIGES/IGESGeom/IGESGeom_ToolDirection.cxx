@@ -31,7 +31,7 @@
 #include <Interface_CopyTool.hxx>
 #include <Interface_EntityIterator.hxx>
 #include <Interface_ShareTool.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IGESGeom_ToolDirection::IGESGeom_ToolDirection() {}
 

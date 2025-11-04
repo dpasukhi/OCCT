@@ -281,7 +281,7 @@ public:
 
   gp_Trsf StartTransformation(Standard_Integer theIndex) const
   {
-    Standard_ProgramError_Raise_if(
+    Standard_Raise_if<Standard_ProgramError>(
       theIndex < 1 || theIndex > Objects()->Upper(),
       "AIS_Manipulator::StartTransformation(): theIndex is out of bounds");
     return !myStartTrsfs.IsEmpty() ? myStartTrsfs(theIndex) : gp_Trsf();

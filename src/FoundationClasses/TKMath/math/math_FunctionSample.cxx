@@ -20,7 +20,7 @@
 // #endif
 
 #include <math_FunctionSample.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 math_FunctionSample::math_FunctionSample(const Standard_Real    A,
                                          const Standard_Real    B,
@@ -45,6 +45,6 @@ Standard_Integer math_FunctionSample::NbPoints() const
 
 Standard_Real math_FunctionSample::GetParameter(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if((Index <= 0) || (Index > n), " ");
+  Standard_Raise_if<Standard_OutOfRange>((Index <= 0) || (Index > n), " ");
   return ((n - Index) * a + (Index - 1) * b) / (n - 1);
 }

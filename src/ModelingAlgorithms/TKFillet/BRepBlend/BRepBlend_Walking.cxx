@@ -37,7 +37,7 @@
 #include <IntSurf.hxx>
 #include <IntSurf_Transition.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array2OfVec.hxx>
 #include <gce_MakePln.hxx>

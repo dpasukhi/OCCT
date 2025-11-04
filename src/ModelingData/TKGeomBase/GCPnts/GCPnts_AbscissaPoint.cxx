@@ -18,7 +18,7 @@
 
 #include <GCPnts_AbscissaType.hxx>
 #include <GCPnts_TCurveTypes.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Dimension independent used to implement GCPnts_AbscissaPoint
 //! compute the type  and the length ratio if GCPnts_LengthParametrized.

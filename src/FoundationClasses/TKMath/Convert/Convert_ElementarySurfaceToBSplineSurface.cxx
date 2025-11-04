@@ -16,7 +16,7 @@
 
 #include <Convert_ElementarySurfaceToBSplineSurface.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -106,7 +106,7 @@ Standard_Boolean Convert_ElementarySurfaceToBSplineSurface::IsVPeriodic() const
 gp_Pnt Convert_ElementarySurfaceToBSplineSurface::Pole(const Standard_Integer UIndex,
                                                        const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > nbUPoles || VIndex < 1 || VIndex > nbVPoles,
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > nbUPoles || VIndex < 1 || VIndex > nbVPoles,
                                " ");
   return poles(UIndex, VIndex);
 }
@@ -116,7 +116,7 @@ gp_Pnt Convert_ElementarySurfaceToBSplineSurface::Pole(const Standard_Integer UI
 Standard_Real Convert_ElementarySurfaceToBSplineSurface::Weight(const Standard_Integer UIndex,
                                                                 const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > nbUPoles || VIndex < 1 || VIndex > nbVPoles,
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > nbUPoles || VIndex < 1 || VIndex > nbVPoles,
                                " ");
   return weights(UIndex, VIndex);
 }
@@ -125,7 +125,7 @@ Standard_Real Convert_ElementarySurfaceToBSplineSurface::Weight(const Standard_I
 
 Standard_Real Convert_ElementarySurfaceToBSplineSurface::UKnot(const Standard_Integer UIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > nbUKnots, " ");
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > nbUKnots, " ");
   return uknots(UIndex);
 }
 
@@ -133,7 +133,7 @@ Standard_Real Convert_ElementarySurfaceToBSplineSurface::UKnot(const Standard_In
 
 Standard_Real Convert_ElementarySurfaceToBSplineSurface::VKnot(const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(VIndex < 1 || VIndex > nbVKnots, " ");
+  Standard_Raise_if<Standard_OutOfRange>(VIndex < 1 || VIndex > nbVKnots, " ");
   return vknots(VIndex);
 }
 
@@ -142,7 +142,7 @@ Standard_Real Convert_ElementarySurfaceToBSplineSurface::VKnot(const Standard_In
 Standard_Integer Convert_ElementarySurfaceToBSplineSurface::UMultiplicity(
   const Standard_Integer UIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > nbUKnots, " ");
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > nbUKnots, " ");
   return umults(UIndex);
 }
 
@@ -151,6 +151,6 @@ Standard_Integer Convert_ElementarySurfaceToBSplineSurface::UMultiplicity(
 Standard_Integer Convert_ElementarySurfaceToBSplineSurface::VMultiplicity(
   const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(VIndex < 1 || VIndex > nbVKnots, " ");
+  Standard_Raise_if<Standard_OutOfRange>(VIndex < 1 || VIndex > nbVKnots, " ");
   return vmults(VIndex);
 }

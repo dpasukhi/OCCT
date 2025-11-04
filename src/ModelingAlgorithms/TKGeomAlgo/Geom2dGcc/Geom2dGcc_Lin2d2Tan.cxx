@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <GccAna_Lin2d2Tan.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <Geom2d_Circle.hxx>
 #include <Geom2dGcc_CurveTool.hxx>
@@ -25,8 +25,6 @@
 #include <Geom2dGcc_QualifiedCurve.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 
 //  Modified by Sergey KHROMOV - Wed Oct 16 11:44:41 2002 Begin
 Geom2dGcc_Lin2d2Tan::Geom2dGcc_Lin2d2Tan(const Geom2dGcc_QualifiedCurve& Qualified1,

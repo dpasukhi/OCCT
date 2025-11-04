@@ -21,8 +21,7 @@
 #include <Geom2dAPI_Interpolate.hxx>
 #include <gp_Vec2d.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfBoolean.hxx>
 #include <TColStd_Array1OfInteger.hxx>

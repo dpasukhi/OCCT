@@ -15,8 +15,7 @@
 #include <math_FunctionAllRoots.hxx>
 #include <math_FunctionSample.hxx>
 #include <math_FunctionWithDerivative.hxx>
-#include <StdFail_NotDone.hxx>
-#include <Standard_DimensionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 namespace
 {

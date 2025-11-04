@@ -19,7 +19,7 @@
 #include <gp_Trsf2d.hxx>
 #include <gp_XY.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void gp_GTrsf2d::SetAffinity(const gp_Ax2d& A, const Standard_Real Ratio)
 {

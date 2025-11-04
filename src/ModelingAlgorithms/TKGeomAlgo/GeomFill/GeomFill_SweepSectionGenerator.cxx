@@ -31,7 +31,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 #include <stdio.h>

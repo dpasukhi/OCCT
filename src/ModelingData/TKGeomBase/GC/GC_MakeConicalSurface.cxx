@@ -22,8 +22,7 @@
 #include <gp_Cone.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeConicalSurface::GC_MakeConicalSurface(const gp_Ax2&       A2,
                                              const Standard_Real Ang,
@@ -88,6 +87,6 @@ GC_MakeConicalSurface::GC_MakeConicalSurface(const gp_Pnt&       P1,
 
 const Handle(Geom_ConicalSurface)& GC_MakeConicalSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeConicalSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeConicalSurface::Value() - no result");
   return TheCone;
 }

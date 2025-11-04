@@ -26,7 +26,7 @@
 #include <IGESData_ViewKindEntity.hxx>
 #include <Interface_EntityIterator.hxx>
 #include <Interface_EntityList.hxx>
-#include <Interface_InterfaceError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_Macros.hxx>
 #include <Standard_PCharacter.hxx>
 #include <Standard_Type.hxx>

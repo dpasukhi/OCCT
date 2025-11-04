@@ -14,7 +14,7 @@
 #ifndef _Standard_ReadBuffer_HeaderFile
 #define _Standard_ReadBuffer_HeaderFile
 
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <iostream>
 

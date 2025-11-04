@@ -37,9 +37,7 @@
 #include <IntAna_IntQuadQuad.hxx>
 #include <IntAna_Quadric.hxx>
 #include <math_TrigonometricFunctionRoots.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=======================================================================
 // function : AddSpecialPoints

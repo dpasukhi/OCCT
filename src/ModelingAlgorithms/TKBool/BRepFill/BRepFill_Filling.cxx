@@ -45,7 +45,7 @@
 #include <GeomPlate_PointConstraint.hxx>
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom2d_HArray1OfCurve.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_SequenceOfPnt.hxx>

@@ -16,7 +16,7 @@
 
 #include <BRepClass_FClassifier.hxx>
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRepClass_FaceExplorer.hxx>
 #include <BRepClass_Edge.hxx>
 #include <BRepClass_Intersector.hxx>

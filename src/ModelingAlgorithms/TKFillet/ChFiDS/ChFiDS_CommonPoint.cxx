@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <ChFiDS_CommonPoint.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Vertex.hxx>
 

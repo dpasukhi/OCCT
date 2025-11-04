@@ -16,10 +16,7 @@
 
 #include <BRepLProp_CLProps.hxx>
 
-#include <LProp_BadContinuity.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <LProp_NotDefined.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRepAdaptor_Curve.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Pnt.hxx>

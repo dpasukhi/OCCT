@@ -23,7 +23,7 @@
 #include <LocOpe_CurveShapeIntersector.hxx>
 #include <LocOpe_PntFace.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Shape.hxx>
 
 static void Perform(BRepIntCurveSurface_Inter&, LocOpe_SequenceOfPntFace&);

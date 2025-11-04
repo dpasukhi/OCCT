@@ -17,7 +17,7 @@
 
 #include <gp_Ax1.hxx>
 #include <gp_Ax3.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 //! Describes a torus.
@@ -79,7 +79,7 @@ public:
         majorRadius(theMajorRadius),
         minorRadius(theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0 || theMajorRadius < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0 || theMajorRadius < 0.0,
                                         "gp_Torus() - invalid construction parameters");
   }
 
@@ -98,7 +98,7 @@ public:
   //! Raises ConstructionError if theMajorRadius - MinorRadius <= Resolution()
   void SetMajorRadius(const Standard_Real theMajorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMajorRadius - minorRadius <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(theMajorRadius - minorRadius <= gp::Resolution(),
                                         "gp_Torus::SetMajorRadius() - invalid input parameters");
     majorRadius = theMajorRadius;
   }
@@ -108,7 +108,7 @@ public:
   //! MajorRadius - theMinorRadius <= Resolution from gp.
   void SetMinorRadius(const Standard_Real theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0
                                           || majorRadius - theMinorRadius <= gp::Resolution(),
                                         "gp_Torus::SetMinorRadius() - invalid input parameters");
     minorRadius = theMinorRadius;

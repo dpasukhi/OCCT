@@ -22,7 +22,7 @@
 #include <gp_Circ.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeCircle::GC_MakeCircle(const gp_Circ& C)
 {
@@ -102,6 +102,6 @@ GC_MakeCircle::GC_MakeCircle(const gp_Ax1& Axis, const Standard_Real Radius)
 
 const Handle(Geom_Circle)& GC_MakeCircle::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeCircle::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeCircle::Value() - no result");
   return TheCircle;
 }

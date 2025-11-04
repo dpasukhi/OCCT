@@ -42,7 +42,7 @@
 #include <gp_Sphere.hxx>
 #include <gp_Torus.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs_State.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>

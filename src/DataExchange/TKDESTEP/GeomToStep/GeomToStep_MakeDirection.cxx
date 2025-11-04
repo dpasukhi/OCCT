@@ -19,7 +19,7 @@
 #include <GeomToStep_MakeDirection.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Dir2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepGeom_Direction.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <TColStd_HArray1OfReal.hxx>
@@ -111,6 +111,6 @@ GeomToStep_MakeDirection::GeomToStep_MakeDirection(const Handle(Geom2d_Direction
 
 const Handle(StepGeom_Direction)& GeomToStep_MakeDirection::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeDirection::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeDirection::Value() - no result");
   return theDirection;
 }

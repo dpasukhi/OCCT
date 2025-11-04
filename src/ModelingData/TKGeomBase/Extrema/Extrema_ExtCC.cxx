@@ -34,10 +34,7 @@
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_NullObject.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_ListIteratorOfListOfTransient.hxx>
 
 //=================================================================================================
@@ -136,7 +133,7 @@ void Extrema_ExtCC::Initialize(const Adaptor3d_Curve& C1,
 
 void Extrema_ExtCC::SetCurve(const Standard_Integer theRank, const Adaptor3d_Curve& C)
 {
-  Standard_OutOfRange_Raise_if(theRank < 1 || theRank > 2, "Extrema_ExtCC::SetCurve()")
+  Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > 2, "Extrema_ExtCC::SetCurve()")
     Standard_Integer anInd = theRank - 1;
   myC[anInd]               = &C;
 }
@@ -158,7 +155,7 @@ void Extrema_ExtCC::SetRange(const Standard_Integer theRank,
                              const Standard_Real    Uinf,
                              const Standard_Real    Usup)
 {
-  Standard_OutOfRange_Raise_if(theRank < 1 || theRank > 2, "Extrema_ExtCC::SetRange()")
+  Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > 2, "Extrema_ExtCC::SetRange()")
     Standard_Integer anInd = theRank - 1;
   myInf[anInd]             = Uinf;
   mySup[anInd]             = Usup;
@@ -168,7 +165,7 @@ void Extrema_ExtCC::SetRange(const Standard_Integer theRank,
 
 void Extrema_ExtCC::SetTolerance(const Standard_Integer theRank, const Standard_Real theTol)
 {
-  Standard_OutOfRange_Raise_if(theRank < 1 || theRank > 2, "Extrema_ExtCC::SetTolerance()")
+  Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > 2, "Extrema_ExtCC::SetTolerance()")
     Standard_Integer anInd = theRank - 1;
   myTol[anInd]             = theTol;
 }
@@ -177,7 +174,7 @@ void Extrema_ExtCC::SetTolerance(const Standard_Integer theRank, const Standard_
 
 void Extrema_ExtCC::Perform()
 {
-  Standard_NullObject_Raise_if(!myC[0] || !myC[1], "Extrema_ExtCC::Perform()")
+  Standard_Raise_if<Standard_NullObject>(!myC[0] || !myC[1], "Extrema_ExtCC::Perform()")
     myECC.SetParams(*myC[0], *myC[1], myInf[0], mySup[0], myInf[1], mySup[1]);
   myECC.SetTolerance(Min(myTol[0], myTol[1]));
   myECC.SetSingleSolutionFlag(GetSingleSolutionFlag());

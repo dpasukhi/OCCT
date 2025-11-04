@@ -25,7 +25,7 @@
 #include <Expr_BinaryFunction.hxx>
 #include <Expr_GeneralExpression.hxx>
 #include <Expr_GeneralFunction.hxx>
-#include <Expr_InvalidFunction.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Expr_NamedUnknown.hxx>
 #include <Expr_Operators.hxx>
 #include <Expr_Sum.hxx>

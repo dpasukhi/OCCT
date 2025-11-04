@@ -17,7 +17,7 @@
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_Conic.hxx>
 #include <IntAna2d_IntPoint.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void IntAna2d_AnaIntersection::Perform(const gp_Circ2d& C1, const gp_Circ2d& C2)
 {

@@ -12,7 +12,7 @@
 // commercial license or contractual agreement.
 
 #include <IGESData_ParamCursor.hxx>
-#include <Interface_InterfaceError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IGESData_ParamCursor::IGESData_ParamCursor(const Standard_Integer num)
 {

@@ -17,7 +17,7 @@
 #include <Draw_Display.hxx>
 #include <DrawDim_Dimension.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 

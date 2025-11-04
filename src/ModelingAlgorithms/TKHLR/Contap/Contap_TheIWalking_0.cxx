@@ -16,8 +16,7 @@
 
 #include <Contap_TheIWalking.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IntSurf_PathPoint.hxx>
 #include <IntSurf_PathPointTool.hxx>
 #include <IntSurf_InteriorPoint.hxx>

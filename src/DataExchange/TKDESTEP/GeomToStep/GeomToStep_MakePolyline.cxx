@@ -18,7 +18,7 @@
 #include <GeomToStep_MakePolyline.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Polyline.hxx>
 #include <TColgp_Array1OfPnt.hxx>
@@ -52,6 +52,6 @@ GeomToStep_MakePolyline::GeomToStep_MakePolyline(const TColgp_Array1OfPnt2d& P,
 
 const Handle(StepGeom_Polyline)& GeomToStep_MakePolyline::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakePolyline::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakePolyline::Value() - no result");
   return thePolyline;
 }

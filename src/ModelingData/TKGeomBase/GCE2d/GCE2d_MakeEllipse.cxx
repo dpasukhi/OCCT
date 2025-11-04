@@ -21,7 +21,7 @@
 #include <gp_Ax22d.hxx>
 #include <gp_Elips2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GCE2d_MakeEllipse::GCE2d_MakeEllipse(const gp_Elips2d& E)
 {
@@ -66,6 +66,6 @@ GCE2d_MakeEllipse::GCE2d_MakeEllipse(const gp_Pnt2d& S1, const gp_Pnt2d& S2, con
 
 const Handle(Geom2d_Ellipse)& GCE2d_MakeEllipse::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GCE2d_MakeEllipse::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GCE2d_MakeEllipse::Value() - no result");
   return TheEllipse;
 }

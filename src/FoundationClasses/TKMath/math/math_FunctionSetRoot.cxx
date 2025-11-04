@@ -35,8 +35,7 @@
 #include <math_Matrix.hxx>
 #include <math_SVD.hxx>
 #include <Precision.hxx>
-#include <Standard_DimensionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //===========================================================================
 // - A partir d une solution de depart, recherche d une direction.( Newton la
@@ -1369,8 +1368,8 @@ void math_FunctionSetRoot::Dump(Standard_OStream& o) const
 
 void math_FunctionSetRoot::Root(math_Vector& Root) const
 {
-  StdFail_NotDone_Raise_if(!Done, " ");
-  Standard_DimensionError_Raise_if(Root.Length() != Sol.Length(), " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
+  Standard_Raise_if<Standard_DimensionError>(Root.Length() != Sol.Length(), " ");
   Root = Sol;
 }
 
@@ -1378,7 +1377,7 @@ void math_FunctionSetRoot::Root(math_Vector& Root) const
 
 void math_FunctionSetRoot::FunctionSetErrors(math_Vector& Err) const
 {
-  StdFail_NotDone_Raise_if(!Done, " ");
-  Standard_DimensionError_Raise_if(Err.Length() != Sol.Length(), " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
+  Standard_Raise_if<Standard_DimensionError>(Err.Length() != Sol.Length(), " ");
   Err = Delta;
 }

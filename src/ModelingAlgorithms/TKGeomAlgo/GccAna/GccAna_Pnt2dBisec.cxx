@@ -18,13 +18,12 @@
 //   CREATION of the BISSECTRICE between two POINTS.                         +
 //=========================================================================
 
-#include <GccAna_NoSolution.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccAna_Pnt2dBisec.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_XY.hxx>
-#include <StdFail_NotDone.hxx>
 
 //=========================================================================
 GccAna_Pnt2dBisec::GccAna_Pnt2dBisec(const gp_Pnt2d& Point1, const gp_Pnt2d& Point2)

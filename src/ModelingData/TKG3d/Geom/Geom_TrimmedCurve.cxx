@@ -21,14 +21,12 @@
 #include <Geom_Geometry.hxx>
 #include <Geom_OffsetCurve.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_TrimmedCurve, Geom_BoundedCurve)
@@ -254,7 +252,7 @@ Pnt Geom_TrimmedCurve::StartPoint() const
 Standard_Boolean Geom_TrimmedCurve::IsCN(const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisCurve->IsCN(N);
 }
 

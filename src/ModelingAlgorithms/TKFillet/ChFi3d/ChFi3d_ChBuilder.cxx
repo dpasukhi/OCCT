@@ -42,9 +42,7 @@
 #include <ChFiDS_SurfData.hxx>
 #include <ElSLib.hxx>
 #include <Extrema_GenLocateExtPS.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>

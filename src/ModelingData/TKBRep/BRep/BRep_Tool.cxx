@@ -47,8 +47,7 @@
 #include <Poly_Triangulation.hxx>
 #include <Precision.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopLoc_Location.hxx>

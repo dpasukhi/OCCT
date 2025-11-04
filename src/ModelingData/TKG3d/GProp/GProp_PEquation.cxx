@@ -18,7 +18,7 @@
 #include <GProp_PEquation.hxx>
 #include <GProp_PGProps.hxx>
 #include <GProp_PrincipalProps.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GProp_PEquation::GProp_PEquation(const TColgp_Array1OfPnt& Pnts, const Standard_Real Tol)
     : type(GProp_None)

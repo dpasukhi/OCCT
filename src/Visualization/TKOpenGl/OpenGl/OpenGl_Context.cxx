@@ -43,7 +43,7 @@
 #include <Image_SupportedFormats.hxx>
 #include <Message_Messenger.hxx>
 #include <NCollection_Vector.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_WarningDisableFunctionCast.hxx>
 
 #if defined(_WIN32) && defined(max)
@@ -658,7 +658,7 @@ Standard_Boolean OpenGl_Context::MakeCurrent()
   #if defined(HAVE_EGL)
   if ((EGLDisplay)myDisplay == EGL_NO_DISPLAY || (EGLContext)myGContext == EGL_NO_CONTEXT)
   {
-    Standard_ProgramError_Raise_if(myIsInitialized,
+    Standard_Raise_if<Standard_ProgramError>(myIsInitialized,
                                    "OpenGl_Context::Init() should be called before!");
     return Standard_False;
   }
@@ -681,7 +681,7 @@ Standard_Boolean OpenGl_Context::MakeCurrent()
   #elif defined(_WIN32)
   if (myDisplay == NULL || myGContext == NULL)
   {
-    Standard_ProgramError_Raise_if(myIsInitialized,
+    Standard_Raise_if<Standard_ProgramError>(myIsInitialized,
                                    "OpenGl_Context::Init() should be called before!");
     return Standard_False;
   }
@@ -723,7 +723,7 @@ Standard_Boolean OpenGl_Context::MakeCurrent()
   #elif defined(HAVE_XLIB)
   if (myDisplay == NULL || myWindow == 0 || myGContext == 0)
   {
-    Standard_ProgramError_Raise_if(myIsInitialized,
+    Standard_Raise_if<Standard_ProgramError>(myIsInitialized,
                                    "OpenGl_Context::Init() should be called before!");
     return Standard_False;
   }
@@ -973,7 +973,7 @@ Standard_Boolean OpenGl_Context::Init(const Aspect_Drawable         theSurface,
                                       const Aspect_RenderingContext theContext,
                                       const Standard_Boolean        theIsCoreProfile)
 {
-  Standard_ProgramError_Raise_if(myIsInitialized,
+  Standard_Raise_if<Standard_ProgramError>(myIsInitialized,
                                  "OpenGl_Context::Init() should be called only once!");
   myWindow   = theSurface;
   myDisplay  = theDisplay;

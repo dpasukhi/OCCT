@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <Draft_VertexInfo.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_ListIteratorOfListOfReal.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>

@@ -37,7 +37,7 @@
 #include <math_Matrix.hxx>
 #include <math_NewtonFunctionSetRoot.hxx>
 #include <math_Vector.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomFill_LocationDraft, GeomFill_LocationLaw)

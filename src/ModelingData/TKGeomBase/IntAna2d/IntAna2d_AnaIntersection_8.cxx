@@ -21,7 +21,7 @@
 #include <IntAna2d_Conic.hxx>
 #include <IntAna2d_IntPoint.hxx>
 #include <IntAna2d_Outils.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // -----------------------------------------------------------------
 // ------ Verification de la validite des points obtenus  ----------

@@ -22,8 +22,7 @@
 #include <Graphic3d_TypeOfPrimitiveArray.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Quantity_Color.hxx>
 
 class Graphic3d_ArrayOfPrimitives;
@@ -384,7 +383,7 @@ public:
                   const Standard_ShortReal theY,
                   const Standard_ShortReal theZ)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
                                  "BAD VERTEX index");
     Graphic3d_Vec3& aVec = *reinterpret_cast<Graphic3d_Vec3*>(
       myAttribs->ChangeData() + myPosStride * ((Standard_Size)theIndex - 1));
@@ -415,7 +414,7 @@ public:
                       const Standard_Real    theG,
                       const Standard_Real    theB)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
                                  "BAD VERTEX index");
     if (myColData != NULL)
     {
@@ -434,7 +433,7 @@ public:
   //! @param[in] theColor node RGBA color values within [0, 255] range
   void SetVertexColor(const Standard_Integer theIndex, const Graphic3d_Vec4ub& theColor)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
                                  "BAD VERTEX index");
     if (myColData != NULL)
     {
@@ -453,7 +452,7 @@ public:
   //! @param[in] theColor32 packed RGBA color values
   void SetVertexColor(const Standard_Integer theIndex, const Standard_Integer theColor32)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
                                  "BAD VERTEX index");
     if (myColData != NULL)
     {
@@ -480,7 +479,7 @@ public:
                        const Standard_Real    theNY,
                        const Standard_Real    theNZ)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
                                  "BAD VERTEX index");
     if (myNormData != NULL)
     {
@@ -509,7 +508,7 @@ public:
                       const Standard_Real    theTX,
                       const Standard_Real    theTY)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > myAttribs->NbMaxElements(),
                                  "BAD VERTEX index");
     if (myTexData != NULL)
     {
@@ -542,7 +541,7 @@ public:
                Standard_Real&         theZ) const
   {
     theX = theY = theZ = 0.0;
-    Standard_OutOfRange_Raise_if(theRank < 1 || theRank > myAttribs->NbElements,
+    Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > myAttribs->NbElements,
                                  "BAD VERTEX index");
     const Graphic3d_Vec3& aVec = *reinterpret_cast<const Graphic3d_Vec3*>(
       myAttribs->Data() + myPosStride * ((Standard_Size)theRank - 1));
@@ -566,7 +565,7 @@ public:
   //! @param[out] theColor node RGBA color values within [0, 255] range
   void VertexColor(const Standard_Integer theIndex, Graphic3d_Vec4ub& theColor) const
   {
-    Standard_OutOfRange_Raise_if(myColData == NULL || theIndex < 1
+    Standard_Raise_if<Standard_OutOfRange>(myColData == NULL || theIndex < 1
                                    || theIndex > myAttribs->NbElements,
                                  "BAD VERTEX index");
     theColor = *reinterpret_cast<const Graphic3d_Vec4ub*>(
@@ -584,7 +583,7 @@ public:
                    Standard_Real&         theB) const
   {
     theR = theG = theB = 0.0;
-    Standard_OutOfRange_Raise_if(theRank < 1 || theRank > myAttribs->NbElements,
+    Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > myAttribs->NbElements,
                                  "BAD VERTEX index");
     if (myColData == NULL)
     {
@@ -602,7 +601,7 @@ public:
   //! @param[out] theColor node RGBA color packed into 32-bit integer
   void VertexColor(const Standard_Integer theRank, Standard_Integer& theColor) const
   {
-    Standard_OutOfRange_Raise_if(theRank < 1 || theRank > myAttribs->NbElements,
+    Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > myAttribs->NbElements,
                                  "BAD VERTEX index");
     if (myColData != NULL)
     {
@@ -632,7 +631,7 @@ public:
                     Standard_Real&         theNZ) const
   {
     theNX = theNY = theNZ = 0.0;
-    Standard_OutOfRange_Raise_if(theRank < 1 || theRank > myAttribs->NbElements,
+    Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > myAttribs->NbElements,
                                  "BAD VERTEX index");
     if (myNormData != NULL)
     {
@@ -661,7 +660,7 @@ public:
   void VertexTexel(const Standard_Integer theRank, Standard_Real& theTX, Standard_Real& theTY) const
   {
     theTX = theTY = 0.0;
-    Standard_OutOfRange_Raise_if(theRank < 1 || theRank > myAttribs->NbElements,
+    Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > myAttribs->NbElements,
                                  "BAD VERTEX index");
     if (myTexData != NULL)
     {
@@ -688,7 +687,7 @@ public: //! @name optional array of Indices/Edges for using shared Vertex data
   //! Returns the vertex index at rank theRank in the range [1,EdgeNumber()]
   Standard_Integer Edge(const Standard_Integer theRank) const
   {
-    Standard_OutOfRange_Raise_if(myIndices.IsNull() || theRank < 1
+    Standard_Raise_if<Standard_OutOfRange>(myIndices.IsNull() || theRank < 1
                                    || theRank > myIndices->NbElements,
                                  "BAD EDGE index");
     return Standard_Integer(myIndices->Index(theRank - 1) + 1);
@@ -714,7 +713,7 @@ public: //! @name optional array of Indices/Edges for using shared Vertex data
   Standard_Integer AddSegmentEdges(Standard_Integer theVertexIndex1,
                                    Standard_Integer theVertexIndex2)
   {
-    Standard_TypeMismatch_Raise_if(myType != Graphic3d_TOPA_SEGMENTS, "Not array of segments");
+    Standard_Raise_if<Standard_TypeMismatch>(myType != Graphic3d_TOPA_SEGMENTS, "Not array of segments");
     return AddEdges(theVertexIndex1, theVertexIndex2);
   }
 
@@ -737,7 +736,7 @@ public: //! @name optional array of Indices/Edges for using shared Vertex data
                                     Standard_Integer theVertexIndex2,
                                     Standard_Integer theVertexIndex3)
   {
-    Standard_TypeMismatch_Raise_if(myType != Graphic3d_TOPA_TRIANGLES, "Not array of triangles");
+    Standard_Raise_if<Standard_TypeMismatch>(myType != Graphic3d_TOPA_TRIANGLES, "Not array of triangles");
     return AddEdges(theVertexIndex1, theVertexIndex2, theVertexIndex3);
   }
 
@@ -746,7 +745,7 @@ public: //! @name optional array of Indices/Edges for using shared Vertex data
   //! @return the actual edges number
   Standard_Integer AddTriangleEdges(const Graphic3d_Vec3i& theIndexes)
   {
-    Standard_TypeMismatch_Raise_if(myType != Graphic3d_TOPA_TRIANGLES, "Not array of triangles");
+    Standard_Raise_if<Standard_TypeMismatch>(myType != Graphic3d_TOPA_TRIANGLES, "Not array of triangles");
     return AddEdges(theIndexes[0], theIndexes[1], theIndexes[2]);
   }
 
@@ -756,7 +755,7 @@ public: //! @name optional array of Indices/Edges for using shared Vertex data
   //! @return the actual edges number
   Standard_Integer AddTriangleEdges(const Graphic3d_Vec4i& theIndexes)
   {
-    Standard_TypeMismatch_Raise_if(myType != Graphic3d_TOPA_TRIANGLES, "Not array of triangles");
+    Standard_Raise_if<Standard_TypeMismatch>(myType != Graphic3d_TOPA_TRIANGLES, "Not array of triangles");
     return AddEdges(theIndexes[0], theIndexes[1], theIndexes[2]);
   }
 
@@ -782,7 +781,7 @@ public: //! @name optional array of Indices/Edges for using shared Vertex data
                                 Standard_Integer theVertexIndex3,
                                 Standard_Integer theVertexIndex4)
   {
-    Standard_TypeMismatch_Raise_if(myType != Graphic3d_TOPA_QUADRANGLES, "Not array of quads");
+    Standard_Raise_if<Standard_TypeMismatch>(myType != Graphic3d_TOPA_QUADRANGLES, "Not array of quads");
     return AddEdges(theVertexIndex1, theVertexIndex2, theVertexIndex3, theVertexIndex4);
   }
 
@@ -854,7 +853,7 @@ public: //! @name optional array of Bounds/Subgroups within primitive array (e.g
   //! Returns the edge number at rank theRank.
   Standard_Integer Bound(const Standard_Integer theRank) const
   {
-    Standard_OutOfRange_Raise_if(myBounds.IsNull() || theRank < 1 || theRank > myBounds->NbBounds,
+    Standard_Raise_if<Standard_OutOfRange>(myBounds.IsNull() || theRank < 1 || theRank > myBounds->NbBounds,
                                  "BAD BOUND index");
     return myBounds->Bounds[theRank - 1];
   }
@@ -873,7 +872,7 @@ public: //! @name optional array of Bounds/Subgroups within primitive array (e.g
                   Standard_Real&         theG,
                   Standard_Real&         theB) const
   {
-    Standard_OutOfRange_Raise_if(myBounds.IsNull() || myBounds->Colors == NULL || theRank < 1
+    Standard_Raise_if<Standard_OutOfRange>(myBounds.IsNull() || myBounds->Colors == NULL || theRank < 1
                                    || theRank > myBounds->NbBounds,
                                  "BAD BOUND index");
     const Graphic3d_Vec4& aVec = myBounds->Colors[theRank - 1];
@@ -918,7 +917,7 @@ public: //! @name optional array of Bounds/Subgroups within primitive array (e.g
     {
       return;
     }
-    Standard_OutOfRange_Raise_if(myBounds.IsNull() || myBounds->Colors == NULL || theIndex < 1
+    Standard_Raise_if<Standard_OutOfRange>(myBounds.IsNull() || myBounds->Colors == NULL || theIndex < 1
                                    || theIndex > myBounds->NbMaxBounds,
                                  "BAD BOUND index");
     Graphic3d_Vec4& aVec = myBounds->Colors[theIndex - 1];

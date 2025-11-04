@@ -17,7 +17,7 @@
 #include <Interface_ReaderLib.hxx>
 
 #include <Interface_NodeOfReaderLib.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Interface_ReaderModule.hxx>
 #include <Interface_Protocol.hxx>

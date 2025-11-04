@@ -28,7 +28,7 @@
 #include <GeomFill_SectionGenerator.hxx>
 #include <gp_Pnt.hxx>
 #include <math_Vector.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <AppDef_BSpParLeastSquareOfMyBSplGradientOfBSplineCompute.hxx>
 
@@ -874,7 +874,7 @@ void GeomAPI_PointsToBSplineSurface::Init(const TColStd_Array2OfReal& ZPoints,
 
 const Handle(Geom_BSplineSurface)& GeomAPI_PointsToBSplineSurface::Surface() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_PointsToBSplineSurface: Surface not done");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_PointsToBSplineSurface: Surface not done");
 
   return mySurface;
 }

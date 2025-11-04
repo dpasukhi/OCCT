@@ -22,7 +22,7 @@
 #include <gp_Dir2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GCE2d_MakeSegment::GCE2d_MakeSegment(const gp_Pnt2d& P1, const gp_Dir2d& V, const gp_Pnt2d& P2)
 {
@@ -85,6 +85,6 @@ GCE2d_MakeSegment::GCE2d_MakeSegment(const gp_Lin2d&     Line,
 
 const Handle(Geom2d_TrimmedCurve)& GCE2d_MakeSegment::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GCE2d_MakeSegment::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GCE2d_MakeSegment::Value() - no result");
   return TheSegment;
 }

@@ -23,7 +23,7 @@
 #include <gp_Lin2d.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_CartesianPoint.hxx>
 #include <StepGeom_Line.hxx>
@@ -84,6 +84,6 @@ GeomToStep_MakeLine::GeomToStep_MakeLine(const Handle(Geom2d_Line)& Gline,
 
 const Handle(StepGeom_Line)& GeomToStep_MakeLine::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeLine::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeLine::Value() - no result");
   return theLine;
 }

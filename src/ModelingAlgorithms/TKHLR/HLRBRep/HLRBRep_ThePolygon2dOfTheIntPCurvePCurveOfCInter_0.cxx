@@ -16,7 +16,7 @@
 
 #include <HLRBRep_ThePolygon2dOfTheIntPCurvePCurveOfCInter.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <HLRBRep_CurveTool.hxx>
 #include <IntRes2d_Domain.hxx>
 #include <Bnd_Box2d.hxx>

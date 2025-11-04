@@ -23,7 +23,7 @@
 #include <Storage_HSeqOfRoot.hxx>
 #include <Storage_Root.hxx>
 #include <Storage_Schema.hxx>
-#include <Storage_StreamWriteError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Storage_TypeData.hxx>
 #include <Storage_TypedCallBack.hxx>
 #include <TCollection_AsciiString.hxx>

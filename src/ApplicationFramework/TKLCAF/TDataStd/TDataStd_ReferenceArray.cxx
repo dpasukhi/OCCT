@@ -69,7 +69,7 @@ TDataStd_ReferenceArray::TDataStd_ReferenceArray()
 
 void TDataStd_ReferenceArray::Init(const Standard_Integer lower, const Standard_Integer upper)
 {
-  Standard_RangeError_Raise_if(upper < lower, "TDataStd_ReferenceArray::Init");
+  Standard_Raise_if<Standard_RangeError>(upper < lower, "TDataStd_ReferenceArray::Init");
   Backup();
   myArray = new TDataStd_HLabelArray1(lower, upper);
 }

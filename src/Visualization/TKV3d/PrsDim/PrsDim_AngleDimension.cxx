@@ -46,7 +46,7 @@
 #include <Select3D_SensitiveGroup.hxx>
 #include <Select3D_SensitiveSegment.hxx>
 #include <SelectMgr_Selection.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Geom_Line.hxx>
 #include <Geom_Plane.hxx>
 

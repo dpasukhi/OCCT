@@ -18,7 +18,7 @@
 #include <BSplCLib.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <GeomConvert_BSplineCurveKnotSplitting.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 typedef TColStd_Array1OfInteger  Array1OfInteger;
 typedef TColStd_HArray1OfInteger HArray1OfInteger;
@@ -97,7 +97,7 @@ Standard_Integer GeomConvert_BSplineCurveKnotSplitting::SplitValue(
 ) const
 {
 
-  Standard_RangeError_Raise_if(Index < 1 || Index > splitIndexes->Length(), " ");
+  Standard_Raise_if<Standard_RangeError>(Index < 1 || Index > splitIndexes->Length(), " ");
   return splitIndexes->Value(Index);
 }
 

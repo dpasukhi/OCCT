@@ -20,7 +20,7 @@
 #include <math_Vector.hxx>
 #include <PLib.hxx>
 #include <PLib_JacobiPolynomial.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>

@@ -215,10 +215,10 @@ void OpenGl_PBREnvironment::Bake(const Handle(OpenGl_Context)& theCtx,
                                  Standard_Size                 theSpecMapNbSamples,
                                  Standard_ShortReal            theProbability)
 {
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     theEnvMap.IsNull(),
     "'Bake' function of 'OpenGl_PBREnvironment' can't work without source environment map")
-    Standard_RangeError_Raise_if(theProbability > 1.f || theProbability < 0.f,
+    Standard_Raise_if<Standard_RangeError>(theProbability > 1.f || theProbability < 0.f,
                                  "'probability' parameter in 'Bake' function of "
                                  "'OpenGl_PBREnvironment' must be in range [0, 1]") Unbind(theCtx);
   OpenGl_PBREnvironmentSentry aSentry(theCtx);

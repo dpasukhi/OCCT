@@ -14,10 +14,8 @@
 #include <IFGraph_SubPartsIterator.hxx>
 #include <Interface_Graph.hxx>
 #include <Interface_GraphContent.hxx>
-#include <Interface_InterfaceError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_InterfaceModel.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <Standard_Transient.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 

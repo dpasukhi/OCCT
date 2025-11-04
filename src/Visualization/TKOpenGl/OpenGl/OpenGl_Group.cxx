@@ -24,7 +24,7 @@
 #include <OpenGl_Workspace.hxx>
 
 #include <Graphic3d_ArrayOfPrimitives.hxx>
-#include <Graphic3d_GroupDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(OpenGl_Group, Graphic3d_Group)
 

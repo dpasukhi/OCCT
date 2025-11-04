@@ -14,8 +14,7 @@
 
 #include <Graphic3d_MaterialAspect.hxx>
 
-#include <Graphic3d_MaterialDefinitionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 namespace
 {

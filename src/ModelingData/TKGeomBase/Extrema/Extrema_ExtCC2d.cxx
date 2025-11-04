@@ -26,8 +26,7 @@
 #include <gp_Pnt2d.hxx>
 #include <Precision.hxx>
 #include <Standard_MemoryUtils.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Extrema_ExtCC2d::Extrema_ExtCC2d()
     : myIsFindSingleSolution(Standard_False),

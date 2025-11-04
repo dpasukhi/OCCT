@@ -40,7 +40,7 @@
 #include <Geom_SurfaceOfRevolution.hxx>
 #include <Geom_ToroidalSurface.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomLProp_SLProps.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <GeomAdaptor_Surface.hxx>
@@ -51,9 +51,6 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array2OfVec.hxx>
@@ -400,7 +397,7 @@ gp_Vec Geom_OffsetSurface::DN(const Standard_Real    U,
                               const Standard_Integer Nu,
                               const Standard_Integer Nv) const
 {
-  Standard_RangeError_Raise_if(Nu < 0 || Nv < 0 || Nu + Nv < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(Nu < 0 || Nv < 0 || Nu + Nv < 1, " ");
 #ifdef CHECK
   if (!(basisSurf->IsCNu(Nu) && basisSurf->IsCNv(Nv)))
   {
@@ -554,7 +551,7 @@ Handle(Geom_Curve) Geom_OffsetSurface::UIso(const Standard_Real UU) const
     AdvApprox_ApproxAFunction
       Approx(Num1, Num2, Num3, T1, T2, T3, V1, V2, Cont, MaxDeg, MaxSeg, ev);
 
-    Standard_ConstructionError_Raise_if(!Approx.IsDone(), " Geom_OffsetSurface : UIso");
+    Standard_Raise_if<Standard_ConstructionError>(!Approx.IsDone(), " Geom_OffsetSurface : UIso");
 
     const Standard_Integer NbPoles = Approx.NbPoles();
 
@@ -592,7 +589,7 @@ Handle(Geom_Curve) Geom_OffsetSurface::VIso(const Standard_Real VV) const
     AdvApprox_ApproxAFunction
       Approx(Num1, Num2, Num3, T1, T2, T3, U1, U2, Cont, MaxDeg, MaxSeg, ev);
 
-    Standard_ConstructionError_Raise_if(!Approx.IsDone(), " Geom_OffsetSurface : VIso");
+    Standard_Raise_if<Standard_ConstructionError>(!Approx.IsDone(), " Geom_OffsetSurface : VIso");
 
     TColgp_Array1OfPnt      Poles(1, Approx.NbPoles());
     TColStd_Array1OfReal    Knots(1, Approx.NbKnots());
@@ -613,7 +610,7 @@ Handle(Geom_Curve) Geom_OffsetSurface::VIso(const Standard_Real VV) const
 
 Standard_Boolean Geom_OffsetSurface::IsCNu(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisSurf->IsCNu(N + 1);
 }
 
@@ -621,7 +618,7 @@ Standard_Boolean Geom_OffsetSurface::IsCNu(const Standard_Integer N) const
 
 Standard_Boolean Geom_OffsetSurface::IsCNv(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisSurf->IsCNv(N + 1);
 }
 

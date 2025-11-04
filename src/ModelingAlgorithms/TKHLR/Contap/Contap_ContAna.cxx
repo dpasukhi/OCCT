@@ -22,9 +22,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Sphere.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const Standard_Real Tolpetit = 1.e-8;
 

@@ -20,7 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <IGESData_LineFontEntity.hxx>
 #include <IGESDimen_WitnessLine.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESDimen_WitnessLine, IGESData_IGESEntity)

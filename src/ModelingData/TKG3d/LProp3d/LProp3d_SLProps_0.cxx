@@ -16,10 +16,7 @@
 #include <LProp3d_SLProps.hxx>
 
 #include <Adaptor3d_Surface.hxx>
-#include <LProp_BadContinuity.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <LProp_NotDefined.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <LProp3d_SurfaceTool.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>

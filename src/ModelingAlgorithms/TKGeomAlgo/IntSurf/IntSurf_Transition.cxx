@@ -13,7 +13,7 @@
 // commercial license or contractual agreement.
 
 #include <IntSurf_Transition.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IntSurf_Transition::IntSurf_Transition(const Standard_Boolean Tangent, const IntSurf_TypeTrans Type)
     : tangent(Tangent),

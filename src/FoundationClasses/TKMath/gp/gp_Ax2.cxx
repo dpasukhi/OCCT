@@ -25,7 +25,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 
 gp_Ax2::gp_Ax2(const gp_Pnt& P, const gp_Dir& V)

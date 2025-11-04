@@ -16,7 +16,7 @@
 
 #include <Transfer_ActorOfProcessForTransient.hxx>
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <Transfer_Binder.hxx>

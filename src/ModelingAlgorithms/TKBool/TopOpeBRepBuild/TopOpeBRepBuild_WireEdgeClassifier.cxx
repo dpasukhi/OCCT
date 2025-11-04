@@ -24,7 +24,7 @@
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <BRepClass_FaceClassifier.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Vec2d.hxx>
 #include <TopOpeBRepTool_2d.hxx>
 #include <TopExp.hxx>

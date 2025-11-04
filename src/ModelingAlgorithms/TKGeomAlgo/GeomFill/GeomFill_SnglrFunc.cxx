@@ -19,7 +19,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GeomFill_SnglrFunc::GeomFill_SnglrFunc(const Handle(Adaptor3d_Curve)& HC)
     : myHCurve(HC),
@@ -158,7 +158,7 @@ void GeomFill_SnglrFunc::D3(const Standard_Real U,
 
 gp_Vec GeomFill_SnglrFunc::DN(const Standard_Real U, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 1, "Exception: Geom2d_OffsetCurve::DN(). N<1.");
+  Standard_Raise_if<Standard_RangeError>(N < 1, "Exception: Geom2d_OffsetCurve::DN(). N<1.");
 
   gp_Vec D1C, D2C, D3C;
   gp_Pnt C;

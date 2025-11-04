@@ -20,7 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_XYZ.hxx>
 #include <IGESDimen_NewGeneralNote.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 

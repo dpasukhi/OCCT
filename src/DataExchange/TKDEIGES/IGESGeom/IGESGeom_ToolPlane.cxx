@@ -34,7 +34,7 @@
 #include <Interface_MSG.hxx>
 #include <Interface_ShareTool.hxx>
 #include <Message_Msg.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <stdio.h>
 

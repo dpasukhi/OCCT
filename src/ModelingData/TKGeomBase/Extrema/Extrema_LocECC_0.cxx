@@ -16,8 +16,7 @@
 
 #include <Extrema_LocECC.hxx>
 
-#include <Standard_DomainError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Extrema_CurveTool.hxx>
 #include <Extrema_POnCurv.hxx>

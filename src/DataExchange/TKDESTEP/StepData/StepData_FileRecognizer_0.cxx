@@ -19,7 +19,7 @@
 #include <Standard_Type.hxx>
 
 #include <Standard_Transient.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 
 #define TheKey TCollection_AsciiString

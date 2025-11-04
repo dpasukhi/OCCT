@@ -24,7 +24,7 @@
 #include <Standard_Failure.hxx>
 #include <Standard_IStream.hxx>
 #include <Standard_Type.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TNaming_NamedShape.hxx>
 

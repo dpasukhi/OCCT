@@ -39,8 +39,7 @@
 #include <gp_Vec.hxx>
 #include <GProp_PrincipalProps.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
 #include <TColgp_HArray1OfVec.hxx>
 #include <TColStd_Array1OfInteger.hxx>

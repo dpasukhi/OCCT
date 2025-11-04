@@ -41,7 +41,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Sweep_NumShape.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopLoc_Location.hxx>
@@ -86,7 +86,7 @@ BRepSweep_Translation::BRepSweep_Translation(const TopoDS_Shape&    S,
       myCanonize(Canonize)
 {
 
-  Standard_ConstructionError_Raise_if(V.Magnitude() < Precision::Confusion(),
+  Standard_Raise_if<Standard_ConstructionError>(V.Magnitude() < Precision::Confusion(),
                                       "BRepSweep_Translation::Constructor");
   Init();
 }
@@ -97,7 +97,7 @@ TopoDS_Shape BRepSweep_Translation::MakeEmptyVertex(const TopoDS_Shape&   aGenV,
                                                     const Sweep_NumShape& aDirV)
 {
   // Only called when the option of construction is with copy.
-  Standard_ConstructionError_Raise_if(!myCopy, "BRepSweep_Translation::MakeEmptyVertex");
+  Standard_Raise_if<Standard_ConstructionError>(!myCopy, "BRepSweep_Translation::MakeEmptyVertex");
   gp_Pnt P = BRep_Tool::Pnt(TopoDS::Vertex(aGenV));
   if (aDirV.Index() == 2)
     P.Transform(myLocation.Transformation());
@@ -128,7 +128,7 @@ TopoDS_Shape BRepSweep_Translation::MakeEmptyGeneratingEdge(const TopoDS_Shape& 
                                                             const Sweep_NumShape& aDirV)
 {
   // Call only in case of construction with copy.
-  Standard_ConstructionError_Raise_if(!myCopy, "BRepSweep_Translation::MakeEmptyVertex");
+  Standard_Raise_if<Standard_ConstructionError>(!myCopy, "BRepSweep_Translation::MakeEmptyVertex");
   TopoDS_Edge newE;
   if (BRep_Tool::Degenerated(TopoDS::Edge(aGenE)))
   {

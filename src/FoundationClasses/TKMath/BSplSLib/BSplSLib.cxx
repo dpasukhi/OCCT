@@ -28,8 +28,7 @@
 #include <math_Matrix.hxx>
 #include <NCollection_LocalArray.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfXYZ.hxx>
 #include <TColgp_Array2OfXYZ.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
@@ -53,7 +52,7 @@ struct BSplSLib_DataContainer
   {
     (void)UDegree;
     (void)VDegree; // just to avoid compiler warning in Release mode
-    Standard_OutOfRange_Raise_if(UDegree > BSplCLib::MaxDegree() || VDegree > BSplCLib::MaxDegree()
+    Standard_Raise_if<Standard_OutOfRange>(UDegree > BSplCLib::MaxDegree() || VDegree > BSplCLib::MaxDegree()
                                    || BSplCLib::MaxDegree() > 25,
                                  "BSplSLib: bspline degree is greater than maximum supported");
   }

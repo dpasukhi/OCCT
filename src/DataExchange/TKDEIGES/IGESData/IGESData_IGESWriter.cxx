@@ -24,7 +24,7 @@
 #include <IGESData_WriterLib.hxx>
 #include <Interface_EntityIterator.hxx>
 #include <Interface_FloatWriter.hxx>
-#include <Interface_InterfaceMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_Macros.hxx>
 #include <Interface_ParamList.hxx>
 #include <Interface_ParamSet.hxx>

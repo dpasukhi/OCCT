@@ -18,7 +18,7 @@
 
 #include <IGESBasic_HArray1OfHArray1OfInteger.hxx>
 #include <IGESGraph_TextFontDef.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 

@@ -17,10 +17,7 @@
 #include <OSD.hxx>
 #include <OSD_OpenFile.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamExtCharParityError.hxx>
-#include <Storage_StreamFormatError.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamWriteError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 

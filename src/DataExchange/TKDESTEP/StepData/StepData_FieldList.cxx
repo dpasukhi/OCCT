@@ -12,7 +12,7 @@
 // commercial license or contractual agreement.
 
 #include <Interface_EntityIterator.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Field.hxx>
 #include <StepData_FieldList.hxx>
 

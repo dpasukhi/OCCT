@@ -73,7 +73,7 @@ static Handle(TDataStd_ByteArray) SetAttr(const TDF_Label&       label,
 
 void TDataStd_ByteArray::Init(const Standard_Integer lower, const Standard_Integer upper)
 {
-  Standard_RangeError_Raise_if(upper < lower, "TDataStd_ByteArray::Init");
+  Standard_Raise_if<Standard_RangeError>(upper < lower, "TDataStd_ByteArray::Init");
   Backup();
   myValue = new TColStd_HArray1OfByte(lower, upper, 0x00);
 }

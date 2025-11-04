@@ -16,7 +16,7 @@
 
 #include <OSD_SharedLibrary.hxx>
 #include <Plugin.hxx>
-#include <Plugin_Failure.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Plugin_MapOfFunctions.hxx>
 #include <Resource_Manager.hxx>
 #include <Standard_GUID.hxx>

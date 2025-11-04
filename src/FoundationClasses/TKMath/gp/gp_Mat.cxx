@@ -21,8 +21,7 @@
 
 #include <gp_GTrsf.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 
 //=================================================================================================
@@ -44,7 +43,7 @@ gp_Mat::gp_Mat(const gp_XYZ& theCol1, const gp_XYZ& theCol2, const gp_XYZ& theCo
 
 void gp_Mat::SetCol(const Standard_Integer theCol, const gp_XYZ& theValue)
 {
-  Standard_OutOfRange_Raise_if(theCol < 1 || theCol > 3, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theCol < 1 || theCol > 3, " ");
   if (theCol == 1)
   {
     myMat[0][0] = theValue.X();
@@ -162,7 +161,7 @@ void gp_Mat::SetRotation(const gp_XYZ& theAxis, const Standard_Real theAng)
 
 void gp_Mat::SetRow(const Standard_Integer theRow, const gp_XYZ& theValue)
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3, " ");
   if (theRow == 1)
   {
     myMat[0][0] = theValue.X();
@@ -202,7 +201,7 @@ void gp_Mat::SetRows(const gp_XYZ& theRow1, const gp_XYZ& theRow2, const gp_XYZ&
 
 gp_XYZ gp_Mat::Column(const Standard_Integer theCol) const
 {
-  Standard_OutOfRange_Raise_if(theCol < 1 || theCol > 3, "gp_Mat::Column() - wrong index");
+  Standard_Raise_if<Standard_OutOfRange>(theCol < 1 || theCol > 3, "gp_Mat::Column() - wrong index");
   if (theCol == 1)
     return gp_XYZ(myMat[0][0], myMat[1][0], myMat[2][0]);
   if (theCol == 2)
@@ -221,7 +220,7 @@ gp_XYZ gp_Mat::Diagonal() const
 
 gp_XYZ gp_Mat::Row(const Standard_Integer theRow) const
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3, "gp_Mat::Row() - wrong index");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3, "gp_Mat::Row() - wrong index");
   if (theRow == 1)
     return gp_XYZ(myMat[0][0], myMat[0][1], myMat[0][2]);
   if (theRow == 2)
@@ -252,7 +251,7 @@ void gp_Mat::Invert()
   // Compute determinant using first row expansion (reuse computed cofactors)
   const Standard_Real aDet = a00 * adj00 + a01 * adj10 + a02 * adj20;
 
-  Standard_ConstructionError_Raise_if(Abs(aDet) <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(Abs(aDet) <= gp::Resolution(),
                                       "gp_Mat::Invert() - matrix has zero determinant");
 
   // Compute inverse: inv(A) = adj(A) / det(A)

@@ -15,7 +15,7 @@
 #include <gp_Dir2d.hxx>
 #include <gp_Pnt.hxx>
 #include <IntSurf_PathPoint.hxx>
-#include <StdFail_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IntSurf_PathPoint::IntSurf_PathPoint()
     : ispass(Standard_True),

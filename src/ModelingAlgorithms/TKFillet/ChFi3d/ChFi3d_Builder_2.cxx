@@ -55,7 +55,7 @@
 #include <gp_XYZ.hxx>
 #include <math_Vector.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_ListOfInteger.hxx>
 #include <TopAbs.hxx>

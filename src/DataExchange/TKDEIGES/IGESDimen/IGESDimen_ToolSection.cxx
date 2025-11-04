@@ -32,7 +32,7 @@
 #include <Interface_EntityIterator.hxx>
 #include <Interface_ShareTool.hxx>
 #include <Message_Messenger.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfXY.hxx>
 
 IGESDimen_ToolSection::IGESDimen_ToolSection() {}

@@ -62,7 +62,7 @@
 #include <GProp_GProps.hxx>
 #include <Precision.hxx>
 #include <ShapeFix_Shape.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>

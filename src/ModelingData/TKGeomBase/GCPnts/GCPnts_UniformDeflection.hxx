@@ -17,7 +17,7 @@
 #ifndef _GCPnts_UniformDeflection_HeaderFile
 #define _GCPnts_UniformDeflection_HeaderFile
 
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 
@@ -156,7 +156,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Integer NbPoints() const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_UniformDeflection::NbPoints()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_UniformDeflection::NbPoints()");
     return myParams.Length();
   }
 
@@ -172,7 +172,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Real Parameter(const Standard_Integer Index) const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_UniformDeflection::Parameter()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_UniformDeflection::Parameter()");
     return myParams(Index);
   }
 
@@ -198,7 +198,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Real Deflection() const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_UniformDeflection::Deflection()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_UniformDeflection::Deflection()");
     return myDeflection;
   }
 

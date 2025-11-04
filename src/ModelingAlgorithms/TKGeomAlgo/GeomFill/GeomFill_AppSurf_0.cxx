@@ -16,9 +16,7 @@
 
 #include <GeomFill_AppSurf.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomFill_SectionGenerator.hxx>
 #include <GeomFill_Line.hxx>
 

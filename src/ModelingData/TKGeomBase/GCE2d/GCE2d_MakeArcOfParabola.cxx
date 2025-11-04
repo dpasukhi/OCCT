@@ -20,7 +20,7 @@
 #include <Geom2d_TrimmedCurve.hxx>
 #include <gp_Parab2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GCE2d_MakeArcOfParabola::GCE2d_MakeArcOfParabola(const gp_Parab2d&      Parab,
                                                  const gp_Pnt2d&        P1,
@@ -57,6 +57,6 @@ GCE2d_MakeArcOfParabola::GCE2d_MakeArcOfParabola(const gp_Parab2d&      Parab,
 
 const Handle(Geom2d_TrimmedCurve)& GCE2d_MakeArcOfParabola::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GCE2d_MakeArcOfParabola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GCE2d_MakeArcOfParabola::Value() - no result");
   return TheArc;
 }

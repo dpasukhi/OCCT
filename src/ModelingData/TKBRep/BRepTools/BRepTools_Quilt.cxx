@@ -18,7 +18,7 @@
 #include <BRep_Tool.hxx>
 #include <BRepTools_Quilt.hxx>
 #include <Geom2d_Curve.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Compound.hxx>
@@ -355,7 +355,7 @@ Standard_Boolean BRepTools_Quilt::IsCopied(const TopoDS_Shape& S) const
 
 const TopoDS_Shape& BRepTools_Quilt::Copy(const TopoDS_Shape& S) const
 {
-  Standard_NoSuchObject_Raise_if(!IsCopied(S), "BRepTools_Quilt::Copy");
+  Standard_Raise_if<Standard_NoSuchObject>(!IsCopied(S), "BRepTools_Quilt::Copy");
   return myBounds.FindFromKey(S);
 }
 

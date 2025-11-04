@@ -17,7 +17,7 @@
 #ifndef _GCPnts_UniformAbscissa_HeaderFile
 #define _GCPnts_UniformAbscissa_HeaderFile
 
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 
 class Adaptor3d_Curve;
@@ -214,21 +214,21 @@ public:
 
   Standard_Integer NbPoints() const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_UniformAbscissa::NbPoints()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_UniformAbscissa::NbPoints()");
     return myNbPoints;
   }
 
   //! returns the computed Parameter of index <Index>.
   Standard_Real Parameter(const Standard_Integer Index) const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_UniformAbscissa::Parameter()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_UniformAbscissa::Parameter()");
     return myParams->Value(Index);
   }
 
   //! Returns the current abscissa, i.e. the distance between two consecutive points.
   Standard_Real Abscissa() const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_UniformAbscissa::Abscissa()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_UniformAbscissa::Abscissa()");
     return myAbscissa;
   }
 

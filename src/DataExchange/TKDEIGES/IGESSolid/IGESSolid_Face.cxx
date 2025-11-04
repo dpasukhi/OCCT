@@ -18,7 +18,7 @@
 
 #include <IGESSolid_Face.hxx>
 #include <IGESSolid_Loop.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESSolid_Face, IGESData_IGESEntity)

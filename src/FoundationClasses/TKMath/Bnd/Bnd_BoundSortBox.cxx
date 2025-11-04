@@ -17,8 +17,7 @@
 #include <Bnd_BoundSortBox.hxx>
 
 #include <gp_Pln.hxx>
-#include <Standard_MultiplyDefined.hxx>
-#include <Standard_NullValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <unordered_map>
 
@@ -460,7 +459,7 @@ void Bnd_BoundSortBox::Initialize(const Bnd_Box&                  theEnclosingBo
 
 void Bnd_BoundSortBox::Initialize(const Bnd_Box& theEnclosingBox, const Standard_Integer theNbBoxes)
 {
-  Standard_NullValue_Raise_if(theNbBoxes <= 0, "Unexpected: theNbBoxes <= 0");
+  Standard_Raise_if<Standard_NullValue>(theNbBoxes <= 0, "Unexpected: theNbBoxes <= 0");
   myBoxes = new Bnd_HArray1OfBox(1, theNbBoxes);
   //***>>> JCD - 04.08.2000 - Array initialization is missing...
   Bnd_Box emptyBox;
@@ -482,7 +481,7 @@ void Bnd_BoundSortBox::Initialize(const Bnd_Box& theEnclosingBox, const Standard
 
 void Bnd_BoundSortBox::Add(const Bnd_Box& theBox, const Standard_Integer theIndex)
 {
-  Standard_MultiplyDefined_Raise_if(!(myBoxes->Value(theIndex).IsVoid()),
+  Standard_Raise_if<Standard_MultiplyDefined>(!(myBoxes->Value(theIndex).IsVoid()),
                                     " This box is already defined !");
   if (theBox.IsVoid())
   {

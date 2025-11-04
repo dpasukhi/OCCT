@@ -19,7 +19,7 @@
 #include <WNT_WClass.hxx>
 
 #include <TCollection_ExtendedString.hxx>
-#include <WNT_ClassDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <WNT_Window.hxx>
 
 #if defined(_WIN32) && !defined(OCCT_UWP)

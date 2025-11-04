@@ -19,7 +19,7 @@
 #include <Adaptor2d_Curve2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Adaptor3d_InterFunc::Adaptor3d_InterFunc(const Handle(Adaptor2d_Curve2d)& C,
                                          const Standard_Real              FixVal,

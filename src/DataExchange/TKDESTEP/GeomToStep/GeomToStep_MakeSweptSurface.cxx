@@ -20,7 +20,7 @@
 #include <GeomToStep_MakeSurfaceOfLinearExtrusion.hxx>
 #include <GeomToStep_MakeSurfaceOfRevolution.hxx>
 #include <GeomToStep_MakeSweptSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_SurfaceOfLinearExtrusion.hxx>
 #include <StepGeom_SurfaceOfRevolution.hxx>
@@ -57,6 +57,6 @@ GeomToStep_MakeSweptSurface::GeomToStep_MakeSweptSurface(const Handle(Geom_Swept
 
 const Handle(StepGeom_SweptSurface)& GeomToStep_MakeSweptSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeSweptSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeSweptSurface::Value() - no result");
   return theSweptSurface;
 }

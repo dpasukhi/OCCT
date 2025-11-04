@@ -18,7 +18,7 @@
 #include <GCPnts_TCurveTypes.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const Standard_Integer MyMaxQuasiFleshe = 2000;
 
@@ -472,7 +472,7 @@ static Standard_Boolean PerformComposite(TColStd_SequenceOfReal& theParameters,
 
 gp_Pnt GCPnts_QuasiUniformDeflection::Value(const Standard_Integer theIndex) const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GCPnts_QuasiUniformAbscissa::Parameter()");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_QuasiUniformAbscissa::Parameter()");
   return myPoints.Value(theIndex);
 }
 

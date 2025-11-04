@@ -12,7 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_MapIteratorOfPackedMapOfInteger.hxx>
 #include <TDataStd_TreeNode.hxx>
 #include <TDF_ChildIterator.hxx>
@@ -30,10 +30,10 @@
 
 XCAFDoc_AssemblyGraph::XCAFDoc_AssemblyGraph(const Handle(TDocStd_Document)& theDoc)
 {
-  Standard_NullObject_Raise_if(theDoc.IsNull(), "Null document!");
+  Standard_Raise_if<Standard_NullObject>(theDoc.IsNull(), "Null document!");
 
   myShapeTool = XCAFDoc_DocumentTool::ShapeTool(theDoc->Main());
-  Standard_NoSuchObject_Raise_if(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
+  Standard_Raise_if<Standard_NoSuchObject>(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
 
   TDF_Label aDummy;
   buildGraph(aDummy);
@@ -46,10 +46,10 @@ XCAFDoc_AssemblyGraph::XCAFDoc_AssemblyGraph(const Handle(TDocStd_Document)& the
 
 XCAFDoc_AssemblyGraph::XCAFDoc_AssemblyGraph(const TDF_Label& theLabel)
 {
-  Standard_NullObject_Raise_if(theLabel.IsNull(), "Null label!");
+  Standard_Raise_if<Standard_NullObject>(theLabel.IsNull(), "Null label!");
 
   myShapeTool = XCAFDoc_DocumentTool::ShapeTool(theLabel);
-  Standard_NoSuchObject_Raise_if(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
+  Standard_Raise_if<Standard_NoSuchObject>(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
 
   buildGraph(theLabel);
 }
@@ -267,8 +267,8 @@ Standard_Integer XCAFDoc_AssemblyGraph::addNode(const TDF_Label&       theLabel,
 XCAFDoc_AssemblyGraph::Iterator::Iterator(const Handle(XCAFDoc_AssemblyGraph)& theGraph,
                                           const Standard_Integer               theNode)
 {
-  Standard_NullObject_Raise_if(theGraph.IsNull(), "Null assembly graph!");
-  Standard_NullObject_Raise_if(theNode < 1, "Node ID must be positive one-based integer!");
+  Standard_Raise_if<Standard_NullObject>(theGraph.IsNull(), "Null assembly graph!");
+  Standard_Raise_if<Standard_NullObject>(theNode < 1, "Node ID must be positive one-based integer!");
 
   myGraph        = theGraph;
   myCurrentIndex = theNode;

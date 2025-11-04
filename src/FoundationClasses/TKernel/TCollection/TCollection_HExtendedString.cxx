@@ -14,8 +14,7 @@
 
 // Modified: C. LEYNADIER Nov,21 1997 (Token et ChangeString)
 
-#include <Standard_NegativeValue.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <TCollection_HExtendedString.hxx>

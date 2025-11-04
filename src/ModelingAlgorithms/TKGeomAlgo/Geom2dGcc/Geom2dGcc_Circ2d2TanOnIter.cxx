@@ -25,7 +25,7 @@
 //=========================================================================
 
 #include <ElCLib.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <GccEnt_QualifiedLin.hxx>
 #include <Geom2dGcc_Circ2d2TanOnIter.hxx>
@@ -39,7 +39,6 @@
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <math_FunctionSetRoot.hxx>
-#include <StdFail_NotDone.hxx>
 
 Geom2dGcc_Circ2d2TanOnIter::Geom2dGcc_Circ2d2TanOnIter(const GccEnt_QualifiedLin& Qualified1,
                                                        const Geom2dGcc_QCurve&    Qualified2,

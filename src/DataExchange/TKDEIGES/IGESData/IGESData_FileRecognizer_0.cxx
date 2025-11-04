@@ -19,7 +19,7 @@
 #include <Standard_Type.hxx>
 
 #include <IGESData_IGESEntity.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IGESData_IGESType.hxx>
 
 #define TheKey IGESData_IGESType

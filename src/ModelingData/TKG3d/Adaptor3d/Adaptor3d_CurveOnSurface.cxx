@@ -44,9 +44,7 @@
 #include <math_FunctionRoots.hxx>
 #include <Precision.hxx>
 #include <Standard_Assert.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfInteger.hxx>
@@ -1371,7 +1369,7 @@ GeomAbs_CurveType Adaptor3d_CurveOnSurface::GetType() const
 
 gp_Lin Adaptor3d_CurveOnSurface::Line() const
 {
-  Standard_NoSuchObject_Raise_if(
+  Standard_Raise_if<Standard_NoSuchObject>(
     myType != GeomAbs_Line,
     "Adaptor3d_CurveOnSurface::Line(): curve is not a line") return myLin;
 }
@@ -1380,7 +1378,7 @@ gp_Lin Adaptor3d_CurveOnSurface::Line() const
 
 gp_Circ Adaptor3d_CurveOnSurface::Circle() const
 {
-  Standard_NoSuchObject_Raise_if(
+  Standard_Raise_if<Standard_NoSuchObject>(
     myType != GeomAbs_Circle,
     "Adaptor3d_CurveOnSurface::Line(): curve is not a circle") return myCirc;
 }
@@ -1446,7 +1444,7 @@ Standard_Integer Adaptor3d_CurveOnSurface::NbKnots() const
 
 Handle(Geom_BezierCurve) Adaptor3d_CurveOnSurface::Bezier() const
 {
-  Standard_NoSuchObject_Raise_if(mySurface->GetType() != GeomAbs_Plane,
+  Standard_Raise_if<Standard_NoSuchObject>(mySurface->GetType() != GeomAbs_Plane,
                                  "Adaptor3d_CurveOnSurface : Bezier");
 
   Handle(Geom2d_BezierCurve) Bez2d   = myCurve->Bezier();
@@ -1478,7 +1476,7 @@ Handle(Geom_BezierCurve) Adaptor3d_CurveOnSurface::Bezier() const
 
 Handle(Geom_BSplineCurve) Adaptor3d_CurveOnSurface::BSpline() const
 {
-  Standard_NoSuchObject_Raise_if(mySurface->GetType() != GeomAbs_Plane,
+  Standard_Raise_if<Standard_NoSuchObject>(mySurface->GetType() != GeomAbs_Plane,
                                  "Adaptor3d_CurveOnSurface : BSpline");
 
   Handle(Geom2d_BSplineCurve) Bsp2d   = myCurve->BSpline();

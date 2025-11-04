@@ -85,8 +85,7 @@
 #include <math_Matrix.hxx>
 #include <PLib.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom2d_Array1OfCurve.hxx>
 #include <TColGeom2d_HArray1OfCurve.hxx>
 #include <TColGeom2d_SequenceOfCurve.hxx>

@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <BRepTools_Substitution.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
@@ -39,7 +39,7 @@ TopOpeBRepTool_PurgeInternalEdges::TopOpeBRepTool_PurgeInternalEdges(
 {
   //  if (theShape.ShapeType() != TopAbs_SHELL && theShape.ShapeType() != TopAbs_SOLID)
   //    throw Standard_ConstructionError("PurgeInternalEdges");
-  Standard_NullObject_Raise_if(theShape.IsNull(), "PurgeInternalEdges");
+  Standard_Raise_if<Standard_NullObject>(theShape.IsNull(), "PurgeInternalEdges");
 
   if (PerformNow)
   {
@@ -65,7 +65,7 @@ void TopOpeBRepTool_PurgeInternalEdges::Faces(TopTools_DataMapOfShapeListOfShape
 Standard_Integer TopOpeBRepTool_PurgeInternalEdges::NbEdges() const
 {
 
-  Standard_NullObject_Raise_if(myShape.IsNull(), "PurgeInternalEdges : No Shape");
+  Standard_Raise_if<Standard_NullObject>(myShape.IsNull(), "PurgeInternalEdges : No Shape");
   Standard_Integer nbedges = 0;
 
   // if we have at least on internal (or external) edge to remove
@@ -92,7 +92,7 @@ Standard_Integer TopOpeBRepTool_PurgeInternalEdges::NbEdges() const
 TopoDS_Shape& TopOpeBRepTool_PurgeInternalEdges::Shape()
 {
 
-  Standard_NullObject_Raise_if(myShape.IsNull(), "PurgeInternalEdges : No Shape");
+  Standard_Raise_if<Standard_NullObject>(myShape.IsNull(), "PurgeInternalEdges : No Shape");
 
   return myShape;
 }

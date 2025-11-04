@@ -29,7 +29,7 @@
 #include <NCollection_Map.hxx>
 #include <Standard_SStream.hxx>
 #include <Standard_Stream.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 
 #include <ios>

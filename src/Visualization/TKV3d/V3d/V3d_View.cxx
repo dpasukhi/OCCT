@@ -36,17 +36,14 @@
 #include <Precision.hxx>
 #include <Quantity_Color.hxx>
 #include <Standard_Assert.hxx>
-#include <Standard_DivideByZero.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_ShortReal.hxx>
 #include <Standard_Type.hxx>
-#include <Standard_TypeMismatch.hxx>
 #include <TColStd_Array2OfReal.hxx>
 #include <V3d.hxx>
-#include <V3d_BadValue.hxx>
 #include <V3d_Light.hxx>
 #include <V3d_StereoDumpOptions.hxx>
-#include <V3d_UnMapped.hxx>
 #include <V3d_Viewer.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(V3d_View, Standard_Transient)
@@ -1141,7 +1138,7 @@ void V3d_View::SetEye(const Standard_Real X, const Standard_Real Y, const Standa
 
 void V3d_View::SetDepth(const Standard_Real Depth)
 {
-  V3d_BadValue_Raise_if(Depth == 0., "V3d_View::SetDepth, bad depth");
+  Standard_Raise_if<V3d_BadValue>(Depth == 0., "V3d_View::SetDepth, bad depth");
 
   Handle(Graphic3d_Camera) aCamera = Camera();
 
@@ -1167,7 +1164,7 @@ void V3d_View::SetDepth(const Standard_Real Depth)
 
 void V3d_View::SetProj(const Standard_Real Vx, const Standard_Real Vy, const Standard_Real Vz)
 {
-  V3d_BadValue_Raise_if(Sqrt(Vx * Vx + Vy * Vy + Vz * Vz) <= 0.,
+  Standard_Raise_if<V3d_BadValue>(Sqrt(Vx * Vx + Vy * Vy + Vz * Vz) <= 0.,
                         "V3d_View::SetProj, null projection vector");
 
   Standard_Real aTwistBefore = Twist();
@@ -1344,7 +1341,7 @@ void V3d_View::SetCenter(const Standard_Integer theXp, const Standard_Integer th
 
 void V3d_View::SetSize(const Standard_Real theSize)
 {
-  V3d_BadValue_Raise_if(theSize <= 0.0, "V3d_View::SetSize, Window Size is NULL");
+  Standard_Raise_if<V3d_BadValue>(theSize <= 0.0, "V3d_View::SetSize, Window Size is NULL");
 
   Handle(Graphic3d_Camera) aCamera = Camera();
 
@@ -1411,7 +1408,7 @@ void V3d_View::SetZSize(const Standard_Real theSize)
 
 void V3d_View::SetZoom(const Standard_Real theCoef, const Standard_Boolean theToStart)
 {
-  V3d_BadValue_Raise_if(theCoef <= 0., "V3d_View::SetZoom, bad coefficient");
+  Standard_Raise_if<V3d_BadValue>(theCoef <= 0., "V3d_View::SetZoom, bad coefficient");
 
   Handle(Graphic3d_Camera) aCamera = Camera();
 
@@ -1454,7 +1451,7 @@ void V3d_View::SetZoom(const Standard_Real theCoef, const Standard_Boolean theTo
 
 void V3d_View::SetScale(const Standard_Real Coef)
 {
-  V3d_BadValue_Raise_if(Coef <= 0., "V3d_View::SetScale, bad coefficient");
+  Standard_Raise_if<V3d_BadValue>(Coef <= 0., "V3d_View::SetScale, bad coefficient");
 
   Handle(Graphic3d_Camera) aCamera = Camera();
 
@@ -1469,7 +1466,7 @@ void V3d_View::SetScale(const Standard_Real Coef)
 
 void V3d_View::SetAxialScale(const Standard_Real Sx, const Standard_Real Sy, const Standard_Real Sz)
 {
-  V3d_BadValue_Raise_if(Sx <= 0. || Sy <= 0. || Sz <= 0.,
+  Standard_Raise_if<V3d_BadValue>(Sx <= 0. || Sy <= 0. || Sz <= 0.,
                         "V3d_View::SetAxialScale, bad coefficient");
 
   Camera()->SetAxialScale(gp_XYZ(Sx, Sy, Sz));
@@ -1731,7 +1728,7 @@ Standard_Real V3d_View::Convert(const Standard_Integer Vp) const
 {
   Standard_Integer aDxw, aDyw;
 
-  V3d_UnMapped_Raise_if(!myView->IsDefined(), "view has no window");
+  Standard_Raise_if<V3d_UnMapped>(!myView->IsDefined(), "view has no window");
 
   MyWindow->Size(aDxw, aDyw);
   Standard_Real aValue;
@@ -1751,7 +1748,7 @@ void V3d_View::Convert(const Standard_Integer Xp,
 {
   Standard_Integer aDxw, aDyw;
 
-  V3d_UnMapped_Raise_if(!myView->IsDefined(), "view has no window");
+  Standard_Raise_if<V3d_UnMapped>(!myView->IsDefined(), "view has no window");
 
   MyWindow->Size(aDxw, aDyw);
 
@@ -1766,7 +1763,7 @@ void V3d_View::Convert(const Standard_Integer Xp,
 
 Standard_Integer V3d_View::Convert(const Standard_Real Vv) const
 {
-  V3d_UnMapped_Raise_if(!myView->IsDefined(), "view has no window");
+  Standard_Raise_if<V3d_UnMapped>(!myView->IsDefined(), "view has no window");
 
   Standard_Integer aDxw, aDyw;
   MyWindow->Size(aDxw, aDyw);
@@ -1784,7 +1781,7 @@ void V3d_View::Convert(const Standard_Real Xv,
                        Standard_Integer&   Xp,
                        Standard_Integer&   Yp) const
 {
-  V3d_UnMapped_Raise_if(!myView->IsDefined(), "view has no window");
+  Standard_Raise_if<V3d_UnMapped>(!myView->IsDefined(), "view has no window");
 
   Standard_Integer aDxw, aDyw;
   MyWindow->Size(aDxw, aDyw);
@@ -1805,7 +1802,7 @@ void V3d_View::Convert(const Standard_Integer theXp,
                        Standard_Real&         theY,
                        Standard_Real&         theZ) const
 {
-  V3d_UnMapped_Raise_if(!myView->IsDefined(), "view has no window");
+  Standard_Raise_if<V3d_UnMapped>(!myView->IsDefined(), "view has no window");
   Standard_Integer aHeight = 0, aWidth = 0;
   MyWindow->Size(aWidth, aHeight);
 
@@ -1829,7 +1826,7 @@ void V3d_View::ConvertWithProj(const Standard_Integer theXp,
                                Standard_Real&         theDy,
                                Standard_Real&         theDz) const
 {
-  V3d_UnMapped_Raise_if(!myView->IsDefined(), "view has no window");
+  Standard_Raise_if<V3d_UnMapped>(!myView->IsDefined(), "view has no window");
   Standard_Integer aHeight = 0, aWidth = 0;
   MyWindow->Size(aWidth, aHeight);
 
@@ -1860,7 +1857,7 @@ void V3d_View::Convert(const Standard_Real X,
                        Standard_Integer&   Xp,
                        Standard_Integer&   Yp) const
 {
-  V3d_UnMapped_Raise_if(!myView->IsDefined(), "view has no window");
+  Standard_Raise_if<V3d_UnMapped>(!myView->IsDefined(), "view has no window");
   Standard_Integer aHeight, aWidth;
   MyWindow->Size(aWidth, aHeight);
 
@@ -2475,7 +2472,7 @@ void V3d_View::ZoomAtPoint(const Standard_Integer theMouseStartX,
   Standard_Real aDZoom = Abs(aDxy) / 100.0 + 1.0;
   aDZoom               = (aDxy > 0.0) ? aDZoom : 1.0 / aDZoom;
 
-  V3d_BadValue_Raise_if(aDZoom <= 0.0, "V3d_View::ZoomAtPoint, bad coefficient");
+  Standard_Raise_if<V3d_BadValue>(aDZoom <= 0.0, "V3d_View::ZoomAtPoint, bad coefficient");
 
   Handle(Graphic3d_Camera) aCamera = Camera();
 

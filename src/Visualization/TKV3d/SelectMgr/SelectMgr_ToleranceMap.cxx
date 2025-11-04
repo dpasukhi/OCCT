@@ -64,7 +64,7 @@ void SelectMgr_ToleranceMap::Decrement(const Standard_Integer& theTolerance)
     return;
   }
 
-  Standard_ProgramError_Raise_if(*aFreq == 0,
+  Standard_Raise_if<Standard_ProgramError>(*aFreq == 0,
                                  "SelectMgr_ToleranceMap::Decrement() - internal error");
   --(*aFreq);
 

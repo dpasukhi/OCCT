@@ -26,7 +26,7 @@
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_XY.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 GccAna_LinPnt2dBisec::GccAna_LinPnt2dBisec(const gp_Lin2d& Line1, const gp_Pnt2d& Point2)

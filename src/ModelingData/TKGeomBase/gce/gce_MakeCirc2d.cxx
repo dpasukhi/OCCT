@@ -24,7 +24,7 @@
 #include <gp_Pnt2d.hxx>
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_IntPoint.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d un cercle 2d de gp passant par trois points.              +
@@ -215,7 +215,7 @@ gce_MakeCirc2d::gce_MakeCirc2d(const gp_Circ2d& Circ, const Standard_Real Dist1)
 
 const gp_Circ2d& gce_MakeCirc2d::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeCirc2d::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeCirc2d::Value() - no result");
   return TheCirc2d;
 }
 

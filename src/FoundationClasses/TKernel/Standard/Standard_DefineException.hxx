@@ -22,8 +22,6 @@
    NewInstance(). Since Standard_Failure implements class manipulated by handle,
    DEFINE_STANDARD_RTTI macro is also added to enable RTTI.
 
-    When using DEFINE_STANDARD_EXCEPTION in your code make sure you also insert a macro
-    DEFINE_STANDARD_HANDLE(C1,C2) before it.
 */
 
 #define DEFINE_STANDARD_EXCEPTION(C1, C2)                                                          \
@@ -68,6 +66,23 @@
     }                                                                                              \
     DEFINE_STANDARD_RTTI_INLINE(C1, C2)                                                            \
   };
+
+//! Template-based conditional exception raising.
+//! When No_Exception is defined, this function does nothing.
+//! Otherwise, it throws the exception if the condition is true.
+template <typename TException, typename TMessage>
+inline void Standard_Raise_if(const Standard_Boolean theCondition, const TMessage& theMessage)
+{
+#if !defined(No_Exception)
+  if (theCondition)
+  {
+    throw TException(theMessage);
+  }
+#else
+  (void)theCondition;
+  (void)theMessage;
+#endif
+}
 
 //! Obsolete macro, kept for compatibility with old code
 #define IMPLEMENT_STANDARD_EXCEPTION(C1)

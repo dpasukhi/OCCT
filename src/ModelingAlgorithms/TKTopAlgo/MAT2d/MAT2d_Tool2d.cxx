@@ -62,8 +62,7 @@
 #include <MAT_Bisector.hxx>
 #include <MAT_Edge.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 #ifdef DRAW

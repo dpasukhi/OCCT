@@ -17,7 +17,7 @@
 #include <ShapeExtend.hxx>
 
 #include <Message_MsgFile.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 
 #include "../SHMessage/SHMessage_SHAPE_us.pxx"

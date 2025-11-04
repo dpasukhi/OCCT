@@ -17,7 +17,7 @@
 #include <Geom_CylindricalSurface.hxx>
 #include <GeomToStep_MakeAxis2Placement3d.hxx>
 #include <GeomToStep_MakeCylindricalSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
 #include <StepGeom_CylindricalSurface.hxx>
@@ -51,6 +51,6 @@ GeomToStep_MakeCylindricalSurface::GeomToStep_MakeCylindricalSurface(
 
 const Handle(StepGeom_CylindricalSurface)& GeomToStep_MakeCylindricalSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeCylindricalSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeCylindricalSurface::Value() - no result");
   return theCylindricalSurface;
 }

@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------
 
 #include <IGESAppli_LevelToPWBLayerMap.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 

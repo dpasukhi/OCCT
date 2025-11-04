@@ -46,7 +46,7 @@
 #include <Law_S.hxx>
 #include <math_Vector.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_ListOfInteger.hxx>
 #include <TopAbs_Orientation.hxx>
 #include <TopoDS_Face.hxx>

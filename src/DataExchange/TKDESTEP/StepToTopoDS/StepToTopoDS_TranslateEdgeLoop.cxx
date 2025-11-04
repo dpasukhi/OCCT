@@ -42,7 +42,7 @@
 #include <ShapeBuild_Edge.hxx>
 #include <ShapeExtend_WireData.hxx>
 #include <ShapeFix_EdgeProjAux.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepGeom_Pcurve.hxx>
@@ -802,7 +802,7 @@ void StepToTopoDS_TranslateEdgeLoop::Init(const Handle(StepShape_FaceBound)& Fac
 
 const TopoDS_Shape& StepToTopoDS_TranslateEdgeLoop::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslateEdgeLoop::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslateEdgeLoop::Value() - no result");
   return myResult;
 }
 

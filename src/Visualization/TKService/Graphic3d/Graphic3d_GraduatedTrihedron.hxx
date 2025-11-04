@@ -163,7 +163,7 @@ public:
 
   AxisAspect& ChangeAxisAspect(const Standard_Integer theIndex)
   {
-    Standard_OutOfRange_Raise_if(
+    Standard_Raise_if<Standard_OutOfRange>(
       theIndex < 0 || theIndex > 2,
       "Graphic3d_GraduatedTrihedron::ChangeAxisAspect: theIndex is out of bounds [0,2].");
     return myAxes(theIndex);
@@ -177,7 +177,7 @@ public:
 
   const AxisAspect& AxisAspectAt(const Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(
+    Standard_Raise_if<Standard_OutOfRange>(
       theIndex < 0 || theIndex > 2,
       "Graphic3d_GraduatedTrihedron::AxisAspect: theIndex is out of bounds [0,2].");
     return myAxes(theIndex);

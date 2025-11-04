@@ -22,7 +22,7 @@
 #include <TDF_DeltaOnRemoval.hxx>
 #include <TDF_RelocationTable.hxx>
 #include <TDF_Tool.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(TDataStd_TreeNode, TDF_Attribute)

@@ -18,7 +18,7 @@
 #include <BRep_CurveRepresentation.hxx>
 #include <Geom_Surface.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopLoc_Location.hxx>
 

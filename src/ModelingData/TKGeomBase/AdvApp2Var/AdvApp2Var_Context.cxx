@@ -16,7 +16,7 @@
 
 #include <AdvApp2Var_ApproxF2var.hxx>
 #include <AdvApp2Var_Context.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // Calculation of parameters
 static Standard_Boolean lesparam(const Standard_Integer iordre,

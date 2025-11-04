@@ -14,7 +14,7 @@
 
 #include <Graphic3d_PBRMaterial.hxx>
 
-#include <Graphic3d_MaterialDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <limits>
 
@@ -57,7 +57,7 @@ Graphic3d_PBRMaterial::Graphic3d_PBRMaterial(const Graphic3d_BSDF& theBSDF)
 
 void Graphic3d_PBRMaterial::SetMetallic(Standard_ShortReal theMetallic)
 {
-  Graphic3d_MaterialDefinitionError_Raise_if(
+  Standard_Raise_if<Graphic3d_MaterialDefinitionError>(
     theMetallic < 0.f || theMetallic > 1.f,
     "'metallic' parameter of PBR material must be in range [0, 1]") myMetallic = theMetallic;
 }
@@ -73,7 +73,7 @@ Standard_ShortReal Graphic3d_PBRMaterial::Roughness(Standard_ShortReal theNormal
 
 void Graphic3d_PBRMaterial::SetRoughness(Standard_ShortReal theRoughness)
 {
-  Graphic3d_MaterialDefinitionError_Raise_if(
+  Standard_Raise_if<Graphic3d_MaterialDefinitionError>(
     theRoughness < 0.f || theRoughness > 1.f,
     "'roughness' parameter of PBR material must be in range [0, 1]") myRoughness = theRoughness;
 }
@@ -82,7 +82,7 @@ void Graphic3d_PBRMaterial::SetRoughness(Standard_ShortReal theRoughness)
 
 void Graphic3d_PBRMaterial::SetIOR(Standard_ShortReal theIOR)
 {
-  Graphic3d_MaterialDefinitionError_Raise_if(
+  Standard_Raise_if<Graphic3d_MaterialDefinitionError>(
     theIOR < 1.f || theIOR > 3.f,
     "'IOR' parameter of PBR material must be in range [1, 3]") myIOR = theIOR;
 }
@@ -106,7 +106,7 @@ void Graphic3d_PBRMaterial::SetColor(const Quantity_Color& theColor)
 
 void Graphic3d_PBRMaterial::SetAlpha(Standard_ShortReal theAlpha)
 {
-  Graphic3d_MaterialDefinitionError_Raise_if(
+  Standard_Raise_if<Graphic3d_MaterialDefinitionError>(
     theAlpha < 0.f || theAlpha > 1.f,
     "'alpha' parameter of PBR material must be in range [0, 1]") myColor.SetAlpha(theAlpha);
 }
@@ -115,7 +115,7 @@ void Graphic3d_PBRMaterial::SetAlpha(Standard_ShortReal theAlpha)
 
 void Graphic3d_PBRMaterial::SetEmission(const Graphic3d_Vec3& theEmission)
 {
-  Graphic3d_MaterialDefinitionError_Raise_if(
+  Standard_Raise_if<Graphic3d_MaterialDefinitionError>(
     theEmission.r() < 0.f || theEmission.g() < 0.f || theEmission.b() < 0.f,
     "all components of 'emission' parameter of PBR material must be greater than 0") myEmission =
     theEmission;

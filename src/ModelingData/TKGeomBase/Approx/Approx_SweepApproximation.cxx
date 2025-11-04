@@ -20,8 +20,7 @@
 #include <Approx_SweepApproximation.hxx>
 #include <Approx_SweepFunction.hxx>
 #include <BSplCLib.hxx>
-#include <Standard_DomainError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <gp_XYZ.hxx>

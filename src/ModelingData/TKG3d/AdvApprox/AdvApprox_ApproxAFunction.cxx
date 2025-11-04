@@ -33,8 +33,7 @@
 #include <math_Vector.hxx>
 #include <PLib.hxx>
 #include <PLib_JacobiPolynomial.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_HArray2OfPnt.hxx>

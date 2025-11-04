@@ -19,7 +19,7 @@
 #include <GeomAbs_BSplKnotDistribution.hxx>
 #include <GeomToStep_MakeBSplineCurveWithKnotsAndRationalBSplineCurve.hxx>
 #include <GeomToStep_MakeCartesianPoint.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_BSplineCurveWithKnotsAndRationalBSplineCurve.hxx>
 #include <StepGeom_CartesianPoint.hxx>
@@ -67,7 +67,7 @@ GeomToStep_MakeBSplineCurveWithKnotsAndRationalBSplineCurve::
 const Handle(StepGeom_BSplineCurveWithKnotsAndRationalBSplineCurve)&
   GeomToStep_MakeBSplineCurveWithKnotsAndRationalBSplineCurve::Value() const
 {
-  StdFail_NotDone_Raise_if(
+  Standard_Raise_if<StdFail_NotDone>(
     !done,
     "GeomToStep_MakeBSplineCurveWithKnotsAndRationalBSplineCurve::Value() - no result");
   return theBSplineCurveWithKnotsAndRationalBSplineCurve;

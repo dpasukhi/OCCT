@@ -20,8 +20,7 @@
 #include <Graphic3d_GraphicDriver.hxx>
 #include <Graphic3d_Group.hxx>
 #include <Graphic3d_MapOfStructure.hxx>
-#include <Graphic3d_PriorityDefinitionError.hxx>
-#include <Graphic3d_StructureDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Graphic3d_StructureManager.hxx>
 
 #include <Standard_Dump.hxx>
@@ -161,7 +160,7 @@ void Graphic3d_Structure::SetDisplayPriority(const Graphic3d_DisplayPriority the
     return;
   }
 
-  Graphic3d_PriorityDefinitionError_Raise_if((thePriority > Graphic3d_DisplayPriority_Topmost)
+  Standard_Raise_if<Graphic3d_PriorityDefinitionError>((thePriority > Graphic3d_DisplayPriority_Topmost)
                                                || (thePriority < Graphic3d_DisplayPriority_Bottom),
                                              "Bad value for StructurePriority");
 
@@ -379,9 +378,9 @@ void Graphic3d_Structure::SetZoomLimit(const Standard_Real theLimitInf,
 {
   (void)theLimitInf;
   (void)theLimitSup;
-  Graphic3d_StructureDefinitionError_Raise_if(theLimitInf <= 0.0, "Bad value for ZoomLimit inf");
-  Graphic3d_StructureDefinitionError_Raise_if(theLimitSup <= 0.0, "Bad value for ZoomLimit sup");
-  Graphic3d_StructureDefinitionError_Raise_if(theLimitSup < theLimitInf,
+  Standard_Raise_if<Graphic3d_StructureDefinitionError>(theLimitInf <= 0.0, "Bad value for ZoomLimit inf");
+  Standard_Raise_if<Graphic3d_StructureDefinitionError>(theLimitSup <= 0.0, "Bad value for ZoomLimit sup");
+  Standard_Raise_if<Graphic3d_StructureDefinitionError>(theLimitSup < theLimitInf,
                                               "ZoomLimit sup < ZoomLimit inf");
 }
 

@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <Aspect_GenId.hxx>
-#include <Aspect_IdentDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <Standard_Dump.hxx>
 

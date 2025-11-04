@@ -19,7 +19,7 @@
 #include <gp_Ax22d.hxx>
 #include <gp_Ax2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes an ellipse in the plane (2D space).
 //! An ellipse is defined by its major and minor radii and
@@ -69,7 +69,7 @@ public:
         minorRadius(theMinorRadius)
   {
     pos = gp_Ax22d(theMajorAxis, theIsSense);
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0 || theMajorRadius < theMinorRadius,
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0 || theMajorRadius < theMinorRadius,
                                         "gp_Elips2d() - invalid construction parameters");
   }
 
@@ -95,7 +95,7 @@ public:
         majorRadius(theMajorRadius),
         minorRadius(theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0 || theMajorRadius < theMinorRadius,
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0 || theMajorRadius < theMinorRadius,
                                         "gp_Elips2d() - invalid construction parameters");
   }
 
@@ -107,7 +107,7 @@ public:
   //! Raises ConstructionError if theMajorRadius < MinorRadius.
   void SetMajorRadius(const Standard_Real theMajorRadius)
   {
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       theMajorRadius < minorRadius,
       "gp_Elips2d::SetMajorRadius() - major radius should be greater or equal to minor radius");
     majorRadius = theMajorRadius;
@@ -117,7 +117,7 @@ public:
   //! Raises ConstructionError if MajorRadius < theMinorRadius or MinorRadius < 0.0
   void SetMinorRadius(const Standard_Real theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0 || majorRadius < theMinorRadius,
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0 || majorRadius < theMinorRadius,
                                         "gp_Elips2d::SetMinorRadius() - minor radius should be a "
                                         "positive number lesser or equal to major radius");
     minorRadius = theMinorRadius;
@@ -300,7 +300,7 @@ private:
 inline gp_Ax2d gp_Elips2d::Directrix1() const
 {
   Standard_Real anE = Eccentricity();
-  Standard_ConstructionError_Raise_if(anE <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(anE <= gp::Resolution(),
                                       "gp_Elips2d::Directrix1() - zero eccentricity");
   gp_XY anOrig = pos.XDirection().XY();
   anOrig.Multiply(majorRadius / anE);
@@ -313,7 +313,7 @@ inline gp_Ax2d gp_Elips2d::Directrix1() const
 inline gp_Ax2d gp_Elips2d::Directrix2() const
 {
   Standard_Real anE = Eccentricity();
-  Standard_ConstructionError_Raise_if(anE <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(anE <= gp::Resolution(),
                                       "gp_Elips2d::Directrix2() - zero eccentricity");
   gp_XY anOrig = pos.XDirection().XY();
   anOrig.Multiply(-majorRadius / anE);

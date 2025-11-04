@@ -115,7 +115,7 @@ void Geom_OsculatingSurface::Init(const Handle(Geom_Surface)& BS, const Standard
 
       if (IsAlongU() && IsAlongV())
         ClearOsculFlags();
-      //      Standard_ConstructionError_Raise_if((IsAlongU() &&
+      //      Standard_Raise_if<Standard_ConstructionError>((IsAlongU() &&
       //      IsAlongV()),"Geom_OsculatingSurface");
       if ((IsAlongU() && InitSurf->VDegree() > 1) || (IsAlongV() && InitSurf->UDegree() > 1))
       {

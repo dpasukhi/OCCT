@@ -30,7 +30,7 @@
 #include <Interface_EntityIterator.hxx>
 #include <Interface_ShareTool.hxx>
 #include <Message_Messenger.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
 
 IGESDefs_ToolAssociativityDef::IGESDefs_ToolAssociativityDef() {}

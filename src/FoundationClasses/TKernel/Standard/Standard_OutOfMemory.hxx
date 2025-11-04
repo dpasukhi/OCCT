@@ -18,18 +18,10 @@
 #define _Standard_OutOfMemory_HeaderFile
 
 #include <Standard_Type.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 class Standard_OutOfMemory;
 DEFINE_STANDARD_HANDLE(Standard_OutOfMemory, Standard_ProgramError)
-
-#if !defined No_Exception && !defined No_Standard_OutOfMemory
-  #define Standard_OutOfMemory_Raise_if(CONDITION, MESSAGE)                                        \
-    if (CONDITION)                                                                                 \
-      throw Standard_OutOfMemory(MESSAGE);
-#else
-  #define Standard_OutOfMemory_Raise_if(CONDITION, MESSAGE)
-#endif
 
 //! Standard_OutOfMemory exception is defined explicitly and not by
 //! macro DEFINE_STANDARD_EXCEPTION, to avoid necessity of dynamic

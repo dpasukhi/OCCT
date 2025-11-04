@@ -22,8 +22,7 @@
 #include <Convert_PolynomialCosAndSin.hxx>
 #include <gp_Pnt2d.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_HArray1OfPnt2d.hxx>

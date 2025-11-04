@@ -16,7 +16,7 @@
 
 #include <HLRBRep_IntConicCurveOfCInter.hxx>
 
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IntCurve_IConicTool.hxx>
 #include <HLRBRep_CurveTool.hxx>
 #include <HLRBRep_TheIntConicCurveOfCInter.hxx>

@@ -15,7 +15,7 @@
 
 #include <Poly_CoherentLink.hxx>
 #include <Poly_CoherentTriangle.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=======================================================================
 // function : Poly_CoherentLink()
@@ -37,7 +37,7 @@ Poly_CoherentLink::Poly_CoherentLink(const Poly_CoherentTriangle& theTri, Standa
     : myAttribute(0L)
 {
   static const Standard_Integer ind[] = {1, 2, 0, 1};
-  Standard_ProgramError_Raise_if(iSide < 0 || iSide > 2,
+  Standard_Raise_if<Standard_ProgramError>(iSide < 0 || iSide > 2,
                                  "Poly_CoherentLink::Poly_CoherentLink: "
                                  "Wrong iSide parameter");
   const Standard_Integer aNodeInd[2] = {theTri.Node(ind[iSide + 0]), theTri.Node(ind[iSide + 1])};

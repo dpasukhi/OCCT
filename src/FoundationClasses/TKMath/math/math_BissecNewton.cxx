@@ -14,7 +14,7 @@
 
 #include <math_BissecNewton.hxx>
 #include <math_FunctionWithDerivative.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

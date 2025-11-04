@@ -20,10 +20,7 @@
 #include <Storage_HeaderData.hxx>
 #include <Storage_InternalData.hxx>
 #include <Storage_RootData.hxx>
-#include <Storage_StreamExtCharParityError.hxx>
-#include <Storage_StreamFormatError.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamWriteError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Storage_TypeData.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>

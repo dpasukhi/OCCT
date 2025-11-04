@@ -33,10 +33,7 @@
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -143,7 +140,7 @@ void Geom2d_BezierCurve::Increase(const Standard_Integer Deg)
   if (Deg == Degree())
     return;
 
-  Standard_ConstructionError_Raise_if(Deg < Degree() || Deg > Geom2d_BezierCurve::MaxDegree(),
+  Standard_Raise_if<Standard_ConstructionError>(Deg < Degree() || Deg > Geom2d_BezierCurve::MaxDegree(),
                                       "Geom2d_BezierCurve::Increase");
 
   Handle(TColgp_HArray1OfPnt2d) npoles = new TColgp_HArray1OfPnt2d(1, Deg + 1);
@@ -204,11 +201,11 @@ void Geom2d_BezierCurve::InsertPoleAfter(const Standard_Integer Index,
 {
   Standard_Integer nbpoles = NbPoles();
 
-  Standard_ConstructionError_Raise_if(nbpoles >= Geom2d_BezierCurve::MaxDegree()
+  Standard_Raise_if<Standard_ConstructionError>(nbpoles >= Geom2d_BezierCurve::MaxDegree()
                                         || Weight <= gp::Resolution(),
                                       "Geom2d_BezierCurve::InsertPoleAfter");
 
-  Standard_OutOfRange_Raise_if(Index < 0 || Index > nbpoles, "Geom2d_BezierCurve::InsertPoleAfter");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 0 || Index > nbpoles, "Geom2d_BezierCurve::InsertPoleAfter");
 
   Standard_Integer i;
 
@@ -268,9 +265,9 @@ void Geom2d_BezierCurve::RemovePole(const Standard_Integer Index)
 {
   Standard_Integer nbpoles = NbPoles();
 
-  Standard_ConstructionError_Raise_if(nbpoles <= 2, "Geom2d_BezierCurve::RemovePole");
+  Standard_Raise_if<Standard_ConstructionError>(nbpoles <= 2, "Geom2d_BezierCurve::RemovePole");
 
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > nbpoles, "Geom2d_BezierCurve::RemovePole");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > nbpoles, "Geom2d_BezierCurve::RemovePole");
 
   Standard_Integer i;
 
@@ -388,7 +385,7 @@ void Geom2d_BezierCurve::Segment(const Standard_Real U1, const Standard_Real U2)
 
 void Geom2d_BezierCurve::SetPole(const Standard_Integer Index, const gp_Pnt2d& P)
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoles(), "Geom2d_BezierCurve::SetPole");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoles(), "Geom2d_BezierCurve::SetPole");
 
   TColgp_Array1OfPnt2d& cpoles = poles->ChangeArray1();
   cpoles(Index)                = P;
@@ -415,8 +412,8 @@ void Geom2d_BezierCurve::SetWeight(const Standard_Integer Index, const Standard_
 {
   Standard_Integer nbpoles = NbPoles();
 
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > nbpoles, "Geom2d_BezierCurve::SetWeight");
-  Standard_ConstructionError_Raise_if(Weight <= gp::Resolution(), "Geom2d_BezierCurve::SetWeight");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > nbpoles, "Geom2d_BezierCurve::SetWeight");
+  Standard_Raise_if<Standard_ConstructionError>(Weight <= gp::Resolution(), "Geom2d_BezierCurve::SetWeight");
 
   // compute new rationality
   Standard_Boolean wasrat = IsRational();
@@ -517,7 +514,7 @@ void Geom2d_BezierCurve::D3(const Standard_Real U,
 
 gp_Vec2d Geom2d_BezierCurve::DN(const Standard_Real U, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 1, "Geom2d_BezierCurve::DN");
+  Standard_Raise_if<Standard_RangeError>(N < 1, "Geom2d_BezierCurve::DN");
   gp_Vec2d V;
 
   TColStd_Array1OfReal bidknots(1, 2);
@@ -583,7 +580,7 @@ Standard_Integer Geom2d_BezierCurve::NbPoles() const
 
 const gp_Pnt2d& Geom2d_BezierCurve::Pole(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > poles->Length(), "Geom2d_BezierCurve::Pole");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > poles->Length(), "Geom2d_BezierCurve::Pole");
   return poles->Value(Index);
 }
 
@@ -591,7 +588,7 @@ const gp_Pnt2d& Geom2d_BezierCurve::Pole(const Standard_Integer Index) const
 
 void Geom2d_BezierCurve::Poles(TColgp_Array1OfPnt2d& P) const
 {
-  Standard_DimensionError_Raise_if(P.Length() != poles->Length(), "Geom2d_BezierCurve::Poles");
+  Standard_Raise_if<Standard_DimensionError>(P.Length() != poles->Length(), "Geom2d_BezierCurve::Poles");
   P = poles->Array1();
 }
 
@@ -606,7 +603,7 @@ gp_Pnt2d Geom2d_BezierCurve::StartPoint() const
 
 Standard_Real Geom2d_BezierCurve::Weight(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > weights->Length(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > weights->Length(),
                                "Geom2d_BezierCurve::Weight");
   if (IsRational())
     return weights->Value(Index);
@@ -620,7 +617,7 @@ void Geom2d_BezierCurve::Weights(TColStd_Array1OfReal& W) const
 {
 
   Standard_Integer nbpoles = NbPoles();
-  Standard_DimensionError_Raise_if(W.Length() != nbpoles, "Geom2d_BezierCurve::Weights");
+  Standard_Raise_if<Standard_DimensionError>(W.Length() != nbpoles, "Geom2d_BezierCurve::Weights");
   if (IsRational())
     W = weights->Array1();
   else

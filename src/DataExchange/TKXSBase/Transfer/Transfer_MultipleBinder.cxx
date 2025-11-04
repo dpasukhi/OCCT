@@ -11,11 +11,10 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <Transfer_MultipleBinder.hxx>
-#include <Transfer_TransferFailure.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Transfer_MultipleBinder, Transfer_Binder)
 

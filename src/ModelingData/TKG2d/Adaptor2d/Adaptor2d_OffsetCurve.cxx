@@ -25,10 +25,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Adaptor2d_OffsetCurve, Adaptor2d_Curve2d)
 
@@ -551,7 +548,7 @@ Standard_Integer Adaptor2d_OffsetCurve::NbKnots() const
 
 Handle(Geom2d_BezierCurve) Adaptor2d_OffsetCurve::Bezier() const
 {
-  Standard_NoSuchObject_Raise_if(myOffset != 0.0e0 || GetType() != GeomAbs_BezierCurve,
+  Standard_Raise_if<Standard_NoSuchObject>(myOffset != 0.0e0 || GetType() != GeomAbs_BezierCurve,
                                  "Adaptor2d_OffsetCurve::Bezier() - wrong curve type");
   return myCurve->Bezier();
 }
@@ -560,7 +557,7 @@ Handle(Geom2d_BezierCurve) Adaptor2d_OffsetCurve::Bezier() const
 
 Handle(Geom2d_BSplineCurve) Adaptor2d_OffsetCurve::BSpline() const
 {
-  Standard_NoSuchObject_Raise_if(myOffset != 0.0e0 || GetType() != GeomAbs_BSplineCurve,
+  Standard_Raise_if<Standard_NoSuchObject>(myOffset != 0.0e0 || GetType() != GeomAbs_BSplineCurve,
                                  "Adaptor2d_OffsetCurve::BSpline() - wrong curve type");
   return myCurve->BSpline();
 }

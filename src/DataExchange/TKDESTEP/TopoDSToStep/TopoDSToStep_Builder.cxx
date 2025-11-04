@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <Message_ProgressScope.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepShape_ClosedShell.hxx>
 #include <StepShape_ConnectedFaceSet.hxx>
@@ -237,7 +237,7 @@ void TopoDSToStep_Builder::Init(const TopoDS_Shape&                   aShape,
 // ============================================================================
 const Handle(StepShape_TopologicalRepresentationItem)& TopoDSToStep_Builder::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_Builder::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_Builder::Value() - no result");
   return myResult;
 }
 
@@ -247,7 +247,7 @@ const Handle(StepShape_TopologicalRepresentationItem)& TopoDSToStep_Builder::Val
 // ============================================================================
 const Handle(StepVisual_TessellatedItem)& TopoDSToStep_Builder::TessellatedValue() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_Builder::TessellatedValue() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_Builder::TessellatedValue() - no result");
   return myTessellatedResult;
 }
 

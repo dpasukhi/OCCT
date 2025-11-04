@@ -18,7 +18,7 @@
 // Version	Date		Purpose
 //		0.0	Sep  8 1997	Creation
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 #include <Standard_Type.hxx>
 #include <TDF_AttributeDelta.hxx>
@@ -30,7 +30,6 @@
 IMPLEMENT_STANDARD_RTTIEXT(TDF_Delta, Standard_Transient)
 
 #ifdef OCCT_DEBUG
-  #include <Standard_ConstructionError.hxx>
 #endif
 
 #undef DEB_DELTA

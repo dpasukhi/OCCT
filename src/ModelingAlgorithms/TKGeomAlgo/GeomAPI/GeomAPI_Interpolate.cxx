@@ -20,8 +20,7 @@
 #include <GeomAPI_Interpolate.hxx>
 #include <gp_Vec.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfVec.hxx>
 #include <TColStd_Array1OfBoolean.hxx>

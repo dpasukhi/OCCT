@@ -42,7 +42,7 @@
 #include <IntAna2d_AnaIntersection.hxx>
 #include <Precision.hxx>
 #include <Standard_Type.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Bisector_BisecAna, Bisector_Curve)
 

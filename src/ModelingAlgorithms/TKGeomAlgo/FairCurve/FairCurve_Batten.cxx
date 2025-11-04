@@ -29,8 +29,7 @@
 #include <math_Matrix.hxx>
 #include <PLib.hxx>
 #include <Precision.hxx>
-#include <Standard_NegativeValue.hxx>
-#include <Standard_NullValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // ==================================================================
 FairCurve_Batten::FairCurve_Batten(const gp_Pnt2d&     P1,

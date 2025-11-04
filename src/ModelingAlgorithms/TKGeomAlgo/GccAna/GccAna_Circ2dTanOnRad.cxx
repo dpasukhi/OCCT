@@ -24,16 +24,13 @@
 
 #include <ElCLib.hxx>
 #include <GccAna_Circ2dTanOnRad.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <math_DirectPolynomialRoots.hxx>
-#include <Standard_NegativeValue.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 typedef math_DirectPolynomialRoots Roots;

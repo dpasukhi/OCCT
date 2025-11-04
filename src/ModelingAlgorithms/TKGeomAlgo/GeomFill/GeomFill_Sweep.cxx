@@ -58,9 +58,8 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Sphere.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <TColgp_Array2OfPnt.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>

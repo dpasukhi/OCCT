@@ -34,7 +34,7 @@
 #include <Interface_ShareTool.hxx>
 #include <Message_Messenger.hxx>
 #include <Message_Msg.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // MGE 03/08/98
 IGESBasic_ToolSingleParent::IGESBasic_ToolSingleParent() {}

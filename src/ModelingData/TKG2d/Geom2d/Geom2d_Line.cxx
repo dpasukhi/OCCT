@@ -24,7 +24,7 @@
 #include <gp_Vec2d.hxx>
 #include <gp_XY.hxx>
 #include <Precision.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_Line, Geom2d_Curve)
@@ -214,7 +214,7 @@ void Geom2d_Line::D3(const Standard_Real U, Pnt2d& P, Vec2d& V1, Vec2d& V2, Vec2
 
 Vec2d Geom2d_Line::DN(const Standard_Real, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N <= 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N <= 0, " ");
   if (N == 1)
     return Vec2d(pos.Direction());
   else

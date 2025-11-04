@@ -23,7 +23,7 @@
 #include <OpenGl_GraphicDriver.hxx>
 #include <OpenGl_Window.hxx>
 
-#include <Aspect_GraphicDeviceDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Aspect_Handle.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>

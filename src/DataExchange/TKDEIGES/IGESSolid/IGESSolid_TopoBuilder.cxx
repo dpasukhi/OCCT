@@ -24,7 +24,7 @@
 #include <IGESSolid_TopoBuilder.hxx>
 #include <IGESSolid_VertexList.hxx>
 #include <Interface_Macros.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfXYZ.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
 

@@ -18,7 +18,7 @@
 #include <GeomToStep_MakeHyperbola.hxx>
 #include <gp_Hypr.hxx>
 #include <gp_Hypr2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement2d.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
@@ -85,6 +85,6 @@ GeomToStep_MakeHyperbola::GeomToStep_MakeHyperbola(const Handle(Geom_Hyperbola)&
 
 const Handle(StepGeom_Hyperbola)& GeomToStep_MakeHyperbola::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeHyperbola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeHyperbola::Value() - no result");
   return theHyperbola;
 }

@@ -90,7 +90,7 @@
 #include <Precision.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
 #include <ShapeCustom_Curve2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>

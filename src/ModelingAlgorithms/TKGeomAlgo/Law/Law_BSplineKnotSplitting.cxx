@@ -17,7 +17,7 @@
 #include <BSplCLib.hxx>
 #include <Law_BSpline.hxx>
 #include <Law_BSplineKnotSplitting.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 typedef TColStd_Array1OfInteger  Array1OfInteger;
 typedef TColStd_HArray1OfInteger HArray1OfInteger;
@@ -91,7 +91,7 @@ Standard_Integer Law_BSplineKnotSplitting::SplitValue(
 ) const
 {
 
-  Standard_RangeError_Raise_if(Index < 1 || Index > splitIndexes->Length(), " ");
+  Standard_Raise_if<Standard_RangeError>(Index < 1 || Index > splitIndexes->Length(), " ");
   return splitIndexes->Value(Index);
 }
 

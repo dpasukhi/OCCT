@@ -15,12 +15,10 @@
 // commercial license or contractual agreement.
 
 #include <Geom2d_Curve.hxx>
-#include <Geom2d_UndefinedDerivative.hxx>
-#include <Geom2d_UndefinedValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
-#include <Standard_NoSuchObject.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_Curve, Geom2d_Geometry)
@@ -54,7 +52,7 @@ Standard_Real Geom2d_Curve::ParametricTransformation(const gp_Trsf2d&) const
 
 Standard_Real Geom2d_Curve::Period() const
 {
-  Standard_NoSuchObject_Raise_if(!IsPeriodic(), "Geom2d_Curve::Period");
+  Standard_Raise_if<Standard_NoSuchObject>(!IsPeriodic(), "Geom2d_Curve::Period");
 
   return (LastParameter() - FirstParameter());
 }

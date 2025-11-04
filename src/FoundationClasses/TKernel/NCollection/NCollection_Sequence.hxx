@@ -19,8 +19,7 @@
 #include <NCollection_BaseSequence.hxx>
 #include <NCollection_StlIterator.hxx>
 
-#include <Standard_OutOfRange.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <utility>
 
 /**
@@ -357,7 +356,7 @@ public:
   //! InsertAfter theIndex theItem
   void InsertAfter(const Standard_Integer theIndex, const TheItemType& theItem)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 0 || theIndex > mySize,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 0 || theIndex > mySize,
                                  "NCollection_Sequence::InsertAfter");
     PInsertAfter(theIndex, new (this->myAllocator) Node(theItem));
   }
@@ -365,7 +364,7 @@ public:
   //! InsertAfter theIndex theItem
   void InsertAfter(const Standard_Integer theIndex, TheItemType&& theItem)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 0 || theIndex > mySize,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 0 || theIndex > mySize,
                                  "NCollection_Sequence::InsertAfter");
     PInsertAfter(theIndex, new (this->myAllocator) Node(theItem));
   }
@@ -380,35 +379,35 @@ public:
   //! First item access
   const TheItemType& First() const
   {
-    Standard_NoSuchObject_Raise_if(mySize == 0, "NCollection_Sequence::First");
+    Standard_Raise_if<Standard_NoSuchObject>(mySize == 0, "NCollection_Sequence::First");
     return ((const Node*)myFirstItem)->Value();
   }
 
   //! First item access
   TheItemType& ChangeFirst()
   {
-    Standard_NoSuchObject_Raise_if(mySize == 0, "NCollection_Sequence::ChangeFirst");
+    Standard_Raise_if<Standard_NoSuchObject>(mySize == 0, "NCollection_Sequence::ChangeFirst");
     return ((Node*)myFirstItem)->ChangeValue();
   }
 
   //! Last item access
   const TheItemType& Last() const
   {
-    Standard_NoSuchObject_Raise_if(mySize == 0, "NCollection_Sequence::Last");
+    Standard_Raise_if<Standard_NoSuchObject>(mySize == 0, "NCollection_Sequence::Last");
     return ((const Node*)myLastItem)->Value();
   }
 
   //! Last item access
   TheItemType& ChangeLast()
   {
-    Standard_NoSuchObject_Raise_if(mySize == 0, "NCollection_Sequence::ChangeLast");
+    Standard_Raise_if<Standard_NoSuchObject>(mySize == 0, "NCollection_Sequence::ChangeLast");
     return ((Node*)myLastItem)->ChangeValue();
   }
 
   //! Constant item access by theIndex
   const TheItemType& Value(const Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex <= 0 || theIndex > mySize, "NCollection_Sequence::Value");
+    Standard_Raise_if<Standard_OutOfRange>(theIndex <= 0 || theIndex > mySize, "NCollection_Sequence::Value");
 
     NCollection_Sequence* const aLocalTHIS = (NCollection_Sequence*)this;
     aLocalTHIS->myCurrentItem              = Find(theIndex);
@@ -422,7 +421,7 @@ public:
   //! Variable item access by theIndex
   TheItemType& ChangeValue(const Standard_Integer theIndex)
   {
-    Standard_OutOfRange_Raise_if(theIndex <= 0 || theIndex > mySize,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex <= 0 || theIndex > mySize,
                                  "NCollection_Sequence::ChangeValue");
 
     myCurrentItem  = Find(theIndex);

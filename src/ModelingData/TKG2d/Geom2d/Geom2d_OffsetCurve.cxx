@@ -22,16 +22,13 @@
 #include <Geom2d_Geometry.hxx>
 #include <Geom2d_OffsetCurve.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
-#include <Geom2d_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <gp_XY.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_OffsetCurve, Geom2d_Curve)
@@ -232,7 +229,7 @@ void Geom2d_OffsetCurve::D3(const Standard_Real theU,
 
 gp_Vec2d Geom2d_OffsetCurve::DN(const Standard_Real U, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 1, "Exception: Geom2d_OffsetCurve::DN(). N<1.");
+  Standard_Raise_if<Standard_RangeError>(N < 1, "Exception: Geom2d_OffsetCurve::DN(). N<1.");
 
   gp_Vec2d VN, VBidon;
   gp_Pnt2d PBidon;
@@ -290,7 +287,7 @@ Standard_Boolean Geom2d_OffsetCurve::IsClosed() const
 
 Standard_Boolean Geom2d_OffsetCurve::IsCN(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisCurve->IsCN(N + 1);
 }
 

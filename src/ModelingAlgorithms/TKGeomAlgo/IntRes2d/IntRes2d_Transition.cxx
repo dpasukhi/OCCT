@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <IntRes2d_Transition.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IntRes2d_Transition::IntRes2d_Transition()
     : tangent(Standard_True),

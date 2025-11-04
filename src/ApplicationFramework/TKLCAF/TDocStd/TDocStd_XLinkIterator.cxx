@@ -20,7 +20,7 @@
 
 #include <TDocStd_XLinkIterator.hxx>
 
-#include <Standard_NoMoreObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TDocStd_Document.hxx>
 #include <TDocStd_XLink.hxx>
 #include <TDocStd_XLinkRoot.hxx>

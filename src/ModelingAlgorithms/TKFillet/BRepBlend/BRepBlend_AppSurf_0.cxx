@@ -16,9 +16,7 @@
 
 #include <BRepBlend_AppSurf.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Blend_AppFunction.hxx>
 #include <BRepBlend_Line.hxx>
 

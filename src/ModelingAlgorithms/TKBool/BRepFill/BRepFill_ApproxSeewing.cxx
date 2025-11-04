@@ -23,7 +23,7 @@
 #include <Geom2d_Curve.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_Curve.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfInteger.hxx>
@@ -216,7 +216,7 @@ Standard_Boolean BRepFill_ApproxSeewing::IsDone() const
 
 const Handle(Geom_Curve)& BRepFill_ApproxSeewing::Curve() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "BRepFill_ApproxSeewing::Curve");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "BRepFill_ApproxSeewing::Curve");
   return myCurve;
 }
 
@@ -227,7 +227,7 @@ const Handle(Geom_Curve)& BRepFill_ApproxSeewing::Curve() const
 
 const Handle(Geom2d_Curve)& BRepFill_ApproxSeewing::CurveOnF1() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "BRepFill_ApproxSeewing::CurveOnF1");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "BRepFill_ApproxSeewing::CurveOnF1");
   return myPCurve1;
 }
 
@@ -238,6 +238,6 @@ const Handle(Geom2d_Curve)& BRepFill_ApproxSeewing::CurveOnF1() const
 
 const Handle(Geom2d_Curve)& BRepFill_ApproxSeewing::CurveOnF2() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "BRepFill_ApproxSeewing::CurveOnF2");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "BRepFill_ApproxSeewing::CurveOnF2");
   return myPCurve2;
 }

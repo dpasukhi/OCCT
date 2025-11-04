@@ -17,7 +17,7 @@
 #include <BRepClass3d_Intersector3d.hxx>
 #include <IntCurveSurface_IntersectionPoint.hxx>
 #include <IntCurveSurface_TransitionOnCurve.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Face.hxx>
 #include <gp_Lin.hxx>
 

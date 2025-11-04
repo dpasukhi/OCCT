@@ -12,9 +12,8 @@
 // commercial license or contractual agreement.
 
 #include <Interface_CopyTool.hxx>
-#include <Interface_InterfaceMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_UndefinedContent.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>

@@ -18,11 +18,9 @@
 #include <CSLib_NormalStatus.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineSurface.hxx>
-#include <Geom_UndefinedValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_RangeError.hxx>
-#include <Standard_NumericError.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomEvaluator_OffsetSurface, GeomEvaluator_Surface)
 
@@ -427,9 +425,9 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
                                        const Standard_Integer theDerU,
                                        const Standard_Integer theDerV) const
 {
-  Standard_RangeError_Raise_if(theDerU < 0, "GeomEvaluator_OffsetSurface::DN(): theDerU < 0");
-  Standard_RangeError_Raise_if(theDerV < 0, "GeomEvaluator_OffsetSurface::DN(): theDerV < 0");
-  Standard_RangeError_Raise_if(theDerU + theDerV < 1,
+  Standard_Raise_if<Standard_RangeError>(theDerU < 0, "GeomEvaluator_OffsetSurface::DN(): theDerU < 0");
+  Standard_Raise_if<Standard_RangeError>(theDerV < 0, "GeomEvaluator_OffsetSurface::DN(): theDerV < 0");
+  Standard_Raise_if<Standard_RangeError>(theDerU + theDerV < 1,
                                "GeomEvaluator_OffsetSurface::DN(): theDerU + theDerV < 1");
 
   Standard_Real aU = theU, aV = theV;

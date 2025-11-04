@@ -25,9 +25,8 @@
 #include <gp_Dir.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
-#include <Standard_OutOfRange.hxx>
 
 Standard_Boolean gp_Vec::IsEqual(const gp_Vec&       theOther,
                                  const Standard_Real theLinearTolerance,

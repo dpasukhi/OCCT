@@ -73,7 +73,7 @@
 #include <TColgp_Array1OfXY.hxx>
 #include <BRepTools_ReShape.hxx>
 #include <TopTools_DataMapOfShapeReal.hxx>
-#include <TopoDS_LockedShape.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_HashUtils.hxx>
 
 #include <algorithm>

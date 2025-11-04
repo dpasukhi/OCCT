@@ -27,8 +27,7 @@
 #include <math_PSOParticlesPool.hxx>
 #include <math_Vector.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <ElCLib.hxx>

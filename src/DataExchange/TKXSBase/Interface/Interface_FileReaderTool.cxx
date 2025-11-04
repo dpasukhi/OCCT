@@ -14,7 +14,7 @@
 // dce 21/01/99 S3767 : Suppression of general messages
 
 #include <Interface_Check.hxx>
-#include <Interface_CheckFailure.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_FileReaderData.hxx>
 #include <Interface_FileReaderTool.hxx>
 #include <Interface_GeneralLib.hxx>
@@ -31,9 +31,7 @@
 #include <Standard_Transient.hxx>
 
 #ifdef _WIN32
-  #include <OSD_Exception.hxx>
 #else
-  #include <OSD_Signal.hxx>
 #endif
 #include <stdio.h>
 

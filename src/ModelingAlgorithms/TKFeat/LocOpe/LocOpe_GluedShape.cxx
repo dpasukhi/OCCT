@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <LocOpe_GluedShape.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>

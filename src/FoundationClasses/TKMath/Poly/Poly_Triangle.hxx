@@ -21,7 +21,7 @@
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
 #include <Standard_Integer.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes a component triangle of a triangulation (Poly_Triangulation object).
 //! A Triangle is defined by a triplet of nodes within [1, Poly_Triangulation::NbNodes()] range.
@@ -59,7 +59,7 @@ public:
   //! Raises Standard_OutOfRange if index is not in 1,2,3
   void Set(const Standard_Integer theIndex, const Standard_Integer theNode)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 3,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 3,
                                  "Poly_Triangle::Set(), invalid index");
     myNodes[theIndex - 1] = theNode;
   }
@@ -76,7 +76,7 @@ public:
   //! Raises OutOfRange from Standard if Index is not in 1,2,3
   Standard_Integer Value(const Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 3,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 3,
                                  "Poly_Triangle::Value(), invalid index");
     return myNodes[theIndex - 1];
   }
@@ -87,7 +87,7 @@ public:
   //! Raises OutOfRange if Index is not in 1,2,3
   Standard_Integer& ChangeValue(const Standard_Integer theIndex)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 3,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 3,
                                  "Poly_Triangle::ChangeValue(), invalid index");
     return myNodes[theIndex - 1];
   }

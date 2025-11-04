@@ -1464,14 +1464,14 @@ static Standard_Integer XDumpAssemblyTree(Draw_Interpretor& di,
   {
     if (strcmp(argv[iarg], "-root") == 0)
     {
-      Standard_ProgramError_Raise_if(iarg + 1 >= argc, "Root is expected!");
+      Standard_Raise_if<Standard_ProgramError>(iarg + 1 >= argc, "Root is expected!");
       aRoot.Init(argv[++iarg]);
     }
     else if (strcmp(argv[iarg], "-level") == 0)
     {
-      Standard_ProgramError_Raise_if(iarg + 1 >= argc, "Level is expected!");
+      Standard_Raise_if<Standard_ProgramError>(iarg + 1 >= argc, "Level is expected!");
       TCollection_AsciiString anArg = argv[++iarg];
-      Standard_ProgramError_Raise_if(!anArg.IsIntegerValue(), "Integer value is expected!");
+      Standard_Raise_if<Standard_ProgramError>(!anArg.IsIntegerValue(), "Integer value is expected!");
       aLevel = anArg.IntegerValue();
     }
     else if (strcmp(argv[iarg], "-names") == 0)
@@ -1581,7 +1581,7 @@ static Standard_Integer XDumpAssemblyGraph(Draw_Interpretor& di,
   {
     if (strcmp(argv[iarg], "-root") == 0)
     {
-      Standard_ProgramError_Raise_if(iarg + 1 >= argc, "Root is expected!");
+      Standard_Raise_if<Standard_ProgramError>(iarg + 1 >= argc, "Root is expected!");
       TDF_Tool::Label(aDoc->GetData(), argv[++iarg], aLabel, Standard_False);
     }
     else if (strcmp(argv[iarg], "-names") == 0)
@@ -1765,7 +1765,7 @@ static Standard_Integer XRescaleGeometry(Draw_Interpretor& di,
   {
     if (strcmp(argv[iarg], "-root") == 0)
     {
-      Standard_ProgramError_Raise_if(iarg + 1 >= argc, "Root is expected!");
+      Standard_Raise_if<Standard_ProgramError>(iarg + 1 >= argc, "Root is expected!");
       TDF_Tool::Label(aDoc->GetData(), argv[++iarg], aLabel, Standard_False);
     }
     else if (strcmp(argv[iarg], "-force") == 0)

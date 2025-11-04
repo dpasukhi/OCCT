@@ -22,7 +22,7 @@
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <math_NewtonFunctionSetRoot.hxx>
 #include <math_Recipes.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

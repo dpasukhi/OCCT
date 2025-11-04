@@ -44,8 +44,7 @@
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_ListOfInteger.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>

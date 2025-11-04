@@ -16,8 +16,7 @@
 
 #include <Expr_GeneralExpression.hxx>
 #include <Expr_NamedUnknown.hxx>
-#include <Expr_NotEvaluable.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 

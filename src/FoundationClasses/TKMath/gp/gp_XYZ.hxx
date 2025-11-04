@@ -17,8 +17,7 @@
 
 #include <gp.hxx>
 #include <gp_Mat.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_OStream.hxx>
 #include <Standard_SStream.hxx>
 
@@ -69,7 +68,7 @@ public:
   //! Raises OutOfRange if theIndex != {1, 2, 3}.
   void SetCoord(const Standard_Integer theIndex, const Standard_Real theXi)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 3, NULL);
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 3, NULL);
     (&x)[theIndex - 1] = theXi;
   }
 
@@ -90,13 +89,13 @@ public:
   //! Raises OutOfRange if theIndex != {1, 2, 3}.
   Standard_Real Coord(const Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 3, NULL);
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 3, NULL);
     return (&x)[theIndex - 1];
   }
 
   Standard_Real& ChangeCoord(const Standard_Integer theIndex)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 3, NULL);
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 3, NULL);
     return (&x)[theIndex - 1];
   }
 
@@ -341,7 +340,7 @@ public:
   Standard_NODISCARD gp_XYZ Normalized() const
   {
     const Standard_Real aD = Modulus();
-    Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                         "gp_XYZ::Normalized() - vector has zero norm");
     return gp_XYZ(x / aD, y / aD, z / aD);
   }
@@ -573,7 +572,7 @@ inline void gp_XYZ::Multiply(const gp_Mat& theMatrix) noexcept
 inline void gp_XYZ::Normalize()
 {
   Standard_Real aD = Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_XYZ::Normalize() - vector has zero norm");
   x = x / aD;
   y = y / aD;

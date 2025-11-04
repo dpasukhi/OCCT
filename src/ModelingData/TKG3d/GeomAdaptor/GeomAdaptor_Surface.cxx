@@ -54,9 +54,7 @@
 #include <gp_Torus.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
@@ -74,7 +72,7 @@ GeomAbs_Shape LocalContinuity(Standard_Integer         Degree,
                               Standard_Real            PLast,
                               Standard_Boolean         IsPeriodic)
 {
-  Standard_DomainError_Raise_if((TK.Length() != Nb || TM.Length() != Nb), " ");
+  Standard_Raise_if<Standard_DomainError>((TK.Length() != Nb || TM.Length() != Nb), " ");
   Standard_Integer Index1 = 0;
   Standard_Integer Index2 = 0;
   Standard_Real    newFirst, newLast;
@@ -659,7 +657,7 @@ Standard_Boolean GeomAdaptor_Surface::IsUPeriodic() const
 
 Standard_Real GeomAdaptor_Surface::UPeriod() const
 {
-  Standard_NoSuchObject_Raise_if(!IsUPeriodic(), " ");
+  Standard_Raise_if<Standard_NoSuchObject>(!IsUPeriodic(), " ");
   return mySurface->UPeriod();
 }
 
@@ -674,7 +672,7 @@ Standard_Boolean GeomAdaptor_Surface::IsVPeriodic() const
 
 Standard_Real GeomAdaptor_Surface::VPeriod() const
 {
-  Standard_NoSuchObject_Raise_if(!IsVPeriodic(), " ");
+  Standard_Raise_if<Standard_NoSuchObject>(!IsVPeriodic(), " ");
   return mySurface->VPeriod();
 }
 
@@ -746,7 +744,7 @@ void GeomAdaptor_Surface::D0(const Standard_Real U, const Standard_Real V, gp_Pn
     case GeomAbs_OffsetSurface:
     case GeomAbs_SurfaceOfExtrusion:
     case GeomAbs_SurfaceOfRevolution:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
+      Standard_Raise_if<Standard_NoSuchObject>(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D0: evaluator is not initialized");
       myNestedEvaluator->D0(U, V, P);
       break;
@@ -806,7 +804,7 @@ void GeomAdaptor_Surface::D1(const Standard_Real U,
     case GeomAbs_SurfaceOfExtrusion:
     case GeomAbs_SurfaceOfRevolution:
     case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
+      Standard_Raise_if<Standard_NoSuchObject>(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D1: evaluator is not initialized");
       myNestedEvaluator->D1(u, v, P, D1U, D1V);
       break;
@@ -869,7 +867,7 @@ void GeomAdaptor_Surface::D2(const Standard_Real U,
     case GeomAbs_SurfaceOfExtrusion:
     case GeomAbs_SurfaceOfRevolution:
     case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
+      Standard_Raise_if<Standard_NoSuchObject>(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D2: evaluator is not initialized");
       myNestedEvaluator->D2(u, v, P, D1U, D1V, D2U, D2V, D2UV);
       break;
@@ -952,7 +950,7 @@ void GeomAdaptor_Surface::D3(const Standard_Real U,
     case GeomAbs_SurfaceOfExtrusion:
     case GeomAbs_SurfaceOfRevolution:
     case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
+      Standard_Raise_if<Standard_NoSuchObject>(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D3: evaluator is not initialized");
       myNestedEvaluator->D3(u, v, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
       break;
@@ -1011,7 +1009,7 @@ gp_Vec GeomAdaptor_Surface::DN(const Standard_Real    U,
     case GeomAbs_SurfaceOfExtrusion:
     case GeomAbs_SurfaceOfRevolution:
     case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
+      Standard_Raise_if<Standard_NoSuchObject>(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::DN: evaluator is not initialized");
       return myNestedEvaluator->DN(u, v, Nu, Nv);
 

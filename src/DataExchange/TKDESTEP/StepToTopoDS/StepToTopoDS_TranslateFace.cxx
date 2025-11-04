@@ -46,7 +46,7 @@
 #include <Precision.hxx>
 #include <ShapeAlgo.hxx>
 #include <ShapeAlgo_AlgoContainer.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_BSplineSurface.hxx>
 #include <StepGeom_BSplineSurfaceForm.hxx>
@@ -903,7 +903,7 @@ Handle(Poly_Triangulation) StepToTopoDS_TranslateFace::createMesh(
 // ============================================================================
 const TopoDS_Shape& StepToTopoDS_TranslateFace::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslateFace::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslateFace::Value() - no result");
   return myResult;
 }
 

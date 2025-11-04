@@ -36,8 +36,7 @@
 #include <math_FunctionRoot.hxx>
 #include <math_FunctionRoots.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Bisector_BisecCC, Bisector_Curve)

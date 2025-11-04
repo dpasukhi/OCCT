@@ -21,9 +21,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Sphere.hxx>
 #include <gp_Torus.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const Standard_Real ExtPElS_MyEps = Epsilon(2. * M_PI);
 

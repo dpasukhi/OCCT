@@ -24,7 +24,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <IntPatch_HInterTool.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IntPatch_HInterTool::IntPatch_HInterTool()
     : uinf(0.),

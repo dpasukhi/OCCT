@@ -16,9 +16,7 @@
 
 #include <HLRBRep_TheLocateExtPCOfTheProjPCurOfCInter.hxx>
 
-#include <Standard_DomainError.hxx>
-#include <Standard_TypeMismatch.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <HLRBRep_CurveTool.hxx>
 #include <Extrema_POnCurv2d.hxx>
 #include <gp_Pnt2d.hxx>

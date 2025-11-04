@@ -15,8 +15,7 @@
 #include <math_Uzawa.hxx>
 #include <math_Matrix.hxx>
 #include <math_Vector.hxx>
-#include <StdFail_NotDone.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 namespace
 {

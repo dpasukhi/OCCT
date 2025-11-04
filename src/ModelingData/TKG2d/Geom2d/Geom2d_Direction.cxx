@@ -20,7 +20,7 @@
 #include <gp.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Trsf2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_Direction, Geom2d_Vector)
@@ -42,7 +42,7 @@ Geom2d_Direction::Geom2d_Direction(const Standard_Real X, const Standard_Real Y)
 {
 
   Standard_Real D = Sqrt(X * X + Y * Y);
-  Standard_ConstructionError_Raise_if(D <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(D <= gp::Resolution(),
                                       "Geom2d_Direction() - input vector has zero length");
   gpVec2d = gp_Vec2d(X / D, Y / D);
 }
@@ -56,7 +56,7 @@ void Geom2d_Direction::SetCoord(const Standard_Real X, const Standard_Real Y)
 {
 
   Standard_Real D = Sqrt(X * X + Y * Y);
-  Standard_ConstructionError_Raise_if(
+  Standard_Raise_if<Standard_ConstructionError>(
     D <= gp::Resolution(),
     "Geom2d_Direction::SetCoord() - input vector has zero length");
   gpVec2d = gp_Vec2d(X / D, Y / D);
@@ -71,7 +71,7 @@ void Geom2d_Direction::SetX(const Standard_Real X)
 {
 
   Standard_Real D = Sqrt(X * X + gpVec2d.Y() * gpVec2d.Y());
-  Standard_ConstructionError_Raise_if(D <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(D <= gp::Resolution(),
                                       "Geom2d_Direction::SetX() - input vector has zero length");
   gpVec2d = gp_Vec2d(X / D, gpVec2d.Y() / D);
 }
@@ -80,7 +80,7 @@ void Geom2d_Direction::SetY(const Standard_Real Y)
 {
 
   Standard_Real D = Sqrt(gpVec2d.X() * gpVec2d.X() + Y * Y);
-  Standard_ConstructionError_Raise_if(D <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(D <= gp::Resolution(),
                                       "Geom2d_Direction::SetY() - input vector has zero length");
   gpVec2d = gp_Vec2d(gpVec2d.X() / D, Y / D);
 }

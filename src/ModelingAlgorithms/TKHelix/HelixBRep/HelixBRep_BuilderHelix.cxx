@@ -29,7 +29,7 @@
 #include <HelixBRep_BuilderHelix.hxx>
 #include <HelixGeom_BuilderHelix.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom_SequenceOfCurve.hxx>
 #include <TColStd_Array1OfBoolean.hxx>
 #include <TColStd_Array1OfReal.hxx>

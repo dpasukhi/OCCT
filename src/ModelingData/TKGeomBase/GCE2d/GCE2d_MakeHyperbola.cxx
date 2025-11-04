@@ -21,7 +21,7 @@
 #include <gp_Ax22d.hxx>
 #include <gp_Hypr2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GCE2d_MakeHyperbola::GCE2d_MakeHyperbola(const gp_Hypr2d& H)
 {
@@ -68,6 +68,6 @@ GCE2d_MakeHyperbola::GCE2d_MakeHyperbola(const gp_Pnt2d& S1,
 
 const Handle(Geom2d_Hyperbola)& GCE2d_MakeHyperbola::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GCE2d_MakeHyperbola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GCE2d_MakeHyperbola::Value() - no result");
   return TheHyperbola;
 }

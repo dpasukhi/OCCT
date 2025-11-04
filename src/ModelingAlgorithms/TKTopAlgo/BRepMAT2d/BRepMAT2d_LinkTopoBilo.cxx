@@ -23,7 +23,7 @@
 #include <MAT_BasicElt.hxx>
 #include <MAT_Graph.hxx>
 #include <MAT_SequenceOfBasicElt.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColGeom2d_SequenceOfCurve.hxx>
 #include <TColStd_DataMapOfIntegerInteger.hxx>

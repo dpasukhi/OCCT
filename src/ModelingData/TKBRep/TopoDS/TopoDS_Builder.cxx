@@ -14,14 +14,12 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Builder.hxx>
-#include <TopoDS_FrozenShape.hxx>
 #include <TopoDS_ListIteratorOfListOfShape.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_TShape.hxx>
 #include <TopoDS_TWire.hxx>
-#include <TopoDS_UnCompatibleShapes.hxx>
 
 //=======================================================================
 // function : MakeShape
@@ -111,7 +109,7 @@ void TopoDS_Builder::Add(TopoDS_Shape& aShape, const TopoDS_Shape& aComponent) c
 void TopoDS_Builder::Remove(TopoDS_Shape& aShape, const TopoDS_Shape& aComponent) const
 {
   // check  if aShape  is  not Frozen
-  TopoDS_FrozenShape_Raise_if(!aShape.Free(), "TopoDS_Builder::Remove");
+  Standard_Raise_if<TopoDS_FrozenShape>(!aShape.Free(), "TopoDS_Builder::Remove");
 
   // compute the relative Orientation and Location of aComponent
   TopoDS_Shape S = aComponent;

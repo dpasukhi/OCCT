@@ -20,7 +20,7 @@
 #include <GeomAbs_BSplKnotDistribution.hxx>
 #include <GeomToStep_MakeBSplineSurfaceWithKnotsAndRationalBSplineSurface.hxx>
 #include <GeomToStep_MakeCartesianPoint.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_BSplineSurfaceWithKnotsAndRationalBSplineSurface.hxx>
 #include <StepGeom_CartesianPoint.hxx>
@@ -175,7 +175,7 @@ GeomToStep_MakeBSplineSurfaceWithKnotsAndRationalBSplineSurface::
 const Handle(StepGeom_BSplineSurfaceWithKnotsAndRationalBSplineSurface)&
   GeomToStep_MakeBSplineSurfaceWithKnotsAndRationalBSplineSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(
+  Standard_Raise_if<StdFail_NotDone>(
     !done,
     "GeomToStep_MakeBSplineSurfaceWithKnotsAndRationalBSplineSurface::Value() - no result");
   return theBSplineSurfaceWithKnotsAndRationalBSplineSurface;

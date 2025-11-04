@@ -14,8 +14,7 @@
 #ifndef _ShapePersistent_Geom_HeaderFile
 #define _ShapePersistent_Geom_HeaderFile
 
-#include <Standard_NotImplemented.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <StdObjMgt_SharedObject.hxx>
 #include <StdObjMgt_TransientPersistentMap.hxx>

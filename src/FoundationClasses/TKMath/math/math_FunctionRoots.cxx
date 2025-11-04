@@ -750,7 +750,7 @@ math_FunctionRoots::math_FunctionRoots(math_FunctionWithDerivative& F,
 
     Done = Standard_False;
 
-    StdFail_NotDone_Raise_if(NbSample <= 0, " ");
+    Standard_Raise_if<StdFail_NotDone>(NbSample <= 0, " ");
 
     // initialisation
 
@@ -766,7 +766,7 @@ math_FunctionRoots::math_FunctionRoots(math_FunctionWithDerivative& F,
     }
 
     Increment = (Upp - Lowr) / NbSample;
-    StdFail_NotDone_Raise_if(Increment < EpsX, " ");
+    Standard_Raise_if<StdFail_NotDone>(Increment < EpsX, " ");
     Done = Standard_True;
     //--  On teste si EpsX est trop petit (ie : U+Nn*EpsX == U )
     Standard_Real DeltaU = Abs(Upp) + Abs(Lowr);

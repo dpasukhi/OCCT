@@ -17,7 +17,7 @@
 #include <IGESData_WriterLib.hxx>
 
 #include <IGESData_NodeOfWriterLib.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IGESData_IGESEntity.hxx>
 #include <IGESData_ReadWriteModule.hxx>
 #include <IGESData_Protocol.hxx>

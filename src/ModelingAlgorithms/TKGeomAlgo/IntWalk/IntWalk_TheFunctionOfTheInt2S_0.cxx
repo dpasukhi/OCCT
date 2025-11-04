@@ -16,8 +16,7 @@
 
 #include <IntWalk_TheFunctionOfTheInt2S.hxx>
 
-#include <StdFail_UndefinedDerivative.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Adaptor3d_HSurfaceTool.hxx>
 #include <math_Matrix.hxx>

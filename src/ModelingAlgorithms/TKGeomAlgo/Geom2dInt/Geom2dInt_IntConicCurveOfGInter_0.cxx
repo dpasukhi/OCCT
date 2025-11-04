@@ -16,7 +16,7 @@
 
 #include <Geom2dInt_IntConicCurveOfGInter.hxx>
 
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IntCurve_IConicTool.hxx>
 #include <Adaptor2d_Curve2d.hxx>
 #include <Geom2dInt_Geom2dCurveTool.hxx>

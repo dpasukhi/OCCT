@@ -18,7 +18,7 @@
 
 #include <Standard.hxx>
 #include <Standard_TypeDef.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 /**
  * Base class for NCollection_SparseArray;
@@ -220,9 +220,9 @@ protected:
   //! Direct const access to the item
   Standard_Address getValue(const Standard_Size theIndex) const
   {
-    Standard_OutOfRange_Raise_if(
+    Standard_Raise_if<Standard_OutOfRange>(
       !HasValue(theIndex),
-      "NCollection_SparseArray::Value()") return Block::ToArray(myData[theIndex / myBlockSize],
+      "NCollection_SparseArray::Value()"); return Block::ToArray(myData[theIndex / myBlockSize],
                                                                 myBlockSize,
                                                                 myItemSize)
       + myItemSize * (theIndex % myBlockSize);

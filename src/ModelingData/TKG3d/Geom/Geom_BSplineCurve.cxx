@@ -33,16 +33,11 @@
 #include <ElCLib.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_Geometry.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <Standard_Real.hxx>
 #include <Standard_Type.hxx>
 

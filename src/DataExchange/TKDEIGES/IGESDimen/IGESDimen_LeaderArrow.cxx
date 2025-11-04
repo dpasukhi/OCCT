@@ -21,8 +21,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_XY.hxx>
 #include <IGESDimen_LeaderArrow.hxx>
-#include <Standard_DimensionMismatch.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESDimen_LeaderArrow, IGESData_IGESEntity)

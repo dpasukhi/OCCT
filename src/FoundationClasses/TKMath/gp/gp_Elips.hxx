@@ -19,7 +19,7 @@
 #include <gp_Ax1.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes an ellipse in 3D space.
 //! An ellipse is defined by its major and minor radii and
@@ -73,7 +73,7 @@ public:
         majorRadius(theMajorRadius),
         minorRadius(theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0 || theMajorRadius < theMinorRadius,
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0 || theMajorRadius < theMinorRadius,
                                         "gp_Elips() - invalid construction parameters");
   }
 
@@ -97,7 +97,7 @@ public:
   //! Raises ConstructionError if theMajorRadius < MinorRadius.
   void SetMajorRadius(const Standard_Real theMajorRadius)
   {
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       theMajorRadius < minorRadius,
       "gp_Elips::SetMajorRadius() - major radius should be greater or equal to minor radius");
     majorRadius = theMajorRadius;
@@ -108,7 +108,7 @@ public:
   //! Raises ConstructionError if theMinorRadius > MajorRadius or MinorRadius < 0.
   void SetMinorRadius(const Standard_Real theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0 || majorRadius < theMinorRadius,
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0 || majorRadius < theMinorRadius,
                                         "gp_Elips::SetMinorRadius() - minor radius should be a "
                                         "positive number lesser or equal to major radius");
     minorRadius = theMinorRadius;
@@ -271,7 +271,7 @@ private:
 inline gp_Ax1 gp_Elips::Directrix1() const
 {
   Standard_Real anE = Eccentricity();
-  Standard_ConstructionError_Raise_if(anE <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(anE <= gp::Resolution(),
                                       "gp_Elips::Directrix1() - zero eccentricity");
   gp_XYZ anOrig = pos.XDirection().XYZ();
   anOrig.Multiply(majorRadius / anE);
@@ -284,7 +284,7 @@ inline gp_Ax1 gp_Elips::Directrix1() const
 inline gp_Ax1 gp_Elips::Directrix2() const
 {
   Standard_Real anE = Eccentricity();
-  Standard_ConstructionError_Raise_if(anE <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(anE <= gp::Resolution(),
                                       "gp_Elips::Directrix2() - zero eccentricity");
   gp_XYZ anOrig = pos.XDirection().XYZ();
   anOrig.Multiply(-majorRadius / anE);

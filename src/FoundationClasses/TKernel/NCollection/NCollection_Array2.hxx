@@ -16,10 +16,9 @@
 #ifndef NCollection_Array2_HeaderFile
 #define NCollection_Array2_HeaderFile
 
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_OutOfMemory.hxx>
 #include <NCollection_Allocator.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <NCollection_Array1.hxx>
 
 #include <NCollection_DefineAlloc.hxx>
@@ -330,7 +329,7 @@ public:
               Standard_Integer theColUpper,
               Standard_Boolean theToCopyData)
   {
-    Standard_RangeError_Raise_if(theRowUpper < theRowLower || theColUpper < theColLower,
+    Standard_Raise_if<Standard_RangeError>(theRowUpper < theRowLower || theColUpper < theColLower,
                                  "NCollection_Array2::Resize");
     if (!theToCopyData)
     {

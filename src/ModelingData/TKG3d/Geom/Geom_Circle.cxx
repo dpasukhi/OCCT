@@ -23,8 +23,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_Circle, Geom_Conic)
@@ -178,7 +177,7 @@ void Geom_Circle::D3(const Standard_Real U, Pnt& P, Vec& V1, Vec& V2, Vec& V3) c
 Vec Geom_Circle::DN(const Standard_Real U, const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 1, " ");
   return ElCLib::CircleDN(U, pos, radius, N);
 }
 

@@ -19,8 +19,7 @@
 #include <IGESAppli_NodalResults.hxx>
 #include <IGESAppli_Node.hxx>
 #include <IGESDimen_GeneralNote.hxx>
-#include <Standard_DimensionMismatch.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESAppli_NodalResults, IGESData_IGESEntity)

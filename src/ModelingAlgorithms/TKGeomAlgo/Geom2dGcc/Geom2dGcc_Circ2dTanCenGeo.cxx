@@ -14,7 +14,7 @@
 
 #include <Extrema_ExtPC2d.hxx>
 #include <Extrema_POnCurv2d.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Geom2dGcc_Circ2dTanCenGeo.hxx>
 #include <Geom2dGcc_CurveTool.hxx>
 #include <Geom2dGcc_QCurve.hxx>
@@ -24,8 +24,6 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
 

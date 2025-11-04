@@ -13,7 +13,7 @@
 
 #include <NCollection_Primes.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <algorithm>
 #include <array>

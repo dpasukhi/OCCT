@@ -20,7 +20,7 @@
 #include <gp_Elips.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d une Ellipse 3d de gp a partir de son Ax2 et de son        +
@@ -77,7 +77,7 @@ gce_MakeElips::gce_MakeElips(const gp_Pnt& S1, const gp_Pnt& S2, const gp_Pnt& C
 
 const gp_Elips& gce_MakeElips::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeElips::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeElips::Value() - no result");
   return TheElips;
 }
 

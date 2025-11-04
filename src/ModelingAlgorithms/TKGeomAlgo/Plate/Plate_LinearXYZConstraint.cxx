@@ -16,7 +16,7 @@
 
 #include <Plate_LinearXYZConstraint.hxx>
 #include <Plate_PinpointConstraint.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Plate_LinearXYZConstraint::Plate_LinearXYZConstraint() {}
 

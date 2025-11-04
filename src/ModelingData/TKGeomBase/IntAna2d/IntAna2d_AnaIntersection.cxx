@@ -19,7 +19,7 @@
 #include <gp_Parab2d.hxx>
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_Conic.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IntAna2d_AnaIntersection::IntAna2d_AnaIntersection()
     : done(Standard_False),

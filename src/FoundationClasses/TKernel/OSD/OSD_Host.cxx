@@ -15,10 +15,8 @@
 #ifndef _WIN32
 
   #include <OSD_Host.hxx>
-  #include <OSD_OSDError.hxx>
+  #include <Standard_FailureRegistry.hxx>
   #include <OSD_WhoAmI.hxx>
-  #include <Standard_ConstructionError.hxx>
-  #include <Standard_NullObject.hxx>
   #include <TCollection_AsciiString.hxx>
 
 const OSD_WhoAmI Iam = OSD_WHost;

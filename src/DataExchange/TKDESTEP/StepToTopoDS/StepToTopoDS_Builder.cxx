@@ -35,7 +35,7 @@
 #include <ShapeFix_ShapeTolerance.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <STEPControl_ActorRead.hxx>
 #include <StepData_Factors.hxx>
 #include <StepData_StepModel.hxx>
@@ -1003,7 +1003,7 @@ void StepToTopoDS_Builder::Init(const Handle(StepVisual_TessellatedSurfaceSet)& 
 
 const TopoDS_Shape& StepToTopoDS_Builder::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_Builder::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_Builder::Value() - no result");
   return myResult;
 }
 

@@ -20,7 +20,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Sweep_NumShape.hxx>
 #include <TopLoc_Location.hxx>
 #include <TopoDS_Shape.hxx>
@@ -33,7 +33,7 @@ BRepSweep_Prism::BRepSweep_Prism(const TopoDS_Shape&    S,
                                  const Standard_Boolean Canonize)
     : myTranslation(S, NumShape(), Location(V), V, C, Canonize)
 {
-  Standard_ConstructionError_Raise_if(V.Magnitude() <= Precision::Confusion(),
+  Standard_Raise_if<Standard_ConstructionError>(V.Magnitude() <= Precision::Confusion(),
                                       "BRepSweep_Prism::Constructor");
 }
 

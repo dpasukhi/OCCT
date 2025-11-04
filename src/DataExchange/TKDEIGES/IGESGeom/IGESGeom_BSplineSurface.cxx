@@ -19,8 +19,7 @@
 #include <gp_GTrsf.hxx>
 #include <gp_Pnt.hxx>
 #include <IGESGeom_BSplineSurface.hxx>
-#include <Standard_DimensionMismatch.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESGeom_BSplineSurface, IGESData_IGESEntity)

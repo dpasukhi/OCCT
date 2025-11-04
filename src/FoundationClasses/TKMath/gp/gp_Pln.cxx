@@ -27,7 +27,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 
 gp_Pln::gp_Pln(const gp_Pnt& P, const gp_Dir& V)

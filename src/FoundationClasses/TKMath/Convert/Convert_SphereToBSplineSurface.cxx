@@ -18,7 +18,7 @@
 #include <gp.hxx>
 #include <gp_Sphere.hxx>
 #include <gp_Trsf.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const Standard_Integer TheUDegree  = 2;
 static const Standard_Integer TheVDegree  = 2;
@@ -99,7 +99,7 @@ Convert_SphereToBSplineSurface::Convert_SphereToBSplineSurface(const gp_Sphere& 
 {
   Standard_Real deltaU = U2 - U1;
   Standard_Real deltaV = V2 - V1;
-  Standard_DomainError_Raise_if((deltaU > 2 * M_PI) || (deltaU < 0.) || (V1 < -M_PI / 2.0)
+  Standard_Raise_if<Standard_DomainError>((deltaU > 2 * M_PI) || (deltaU < 0.) || (V1 < -M_PI / 2.0)
                                   || (V2 > M_PI / 2),
                                 "Convert_SphereToBSplineSurface");
 
@@ -181,7 +181,7 @@ Convert_SphereToBSplineSurface::Convert_SphereToBSplineSurface(const gp_Sphere& 
 #ifndef No_Exception
   Standard_Real delta = Param2 - Param1;
 #endif
-  Standard_DomainError_Raise_if((delta > 2 * M_PI) || (delta < 0.),
+  Standard_Raise_if<Standard_DomainError>((delta > 2 * M_PI) || (delta < 0.),
                                 "Convert_SphereToBSplineSurface");
 
   Standard_Integer i, j;

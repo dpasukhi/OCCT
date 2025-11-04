@@ -16,7 +16,7 @@
 
 #include <AppDef_ResConstraintOfMyGradientbisOfBSplineCompute.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <AppDef_MultiLine.hxx>
 #include <AppDef_MyLineTool.hxx>
 #include <AppParCurves_MultiCurve.hxx>

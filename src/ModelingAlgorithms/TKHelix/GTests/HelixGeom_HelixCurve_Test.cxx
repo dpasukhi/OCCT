@@ -23,7 +23,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <TColGeom_SequenceOfCurve.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 class HelixGeomTest : public ::testing::Test
 {

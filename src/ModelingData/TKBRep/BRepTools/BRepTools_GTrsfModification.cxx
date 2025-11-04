@@ -30,7 +30,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Quaternion.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>

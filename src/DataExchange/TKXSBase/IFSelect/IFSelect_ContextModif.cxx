@@ -24,7 +24,7 @@
 #include <Interface_Protocol.hxx>
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 
 //=================================================================================================

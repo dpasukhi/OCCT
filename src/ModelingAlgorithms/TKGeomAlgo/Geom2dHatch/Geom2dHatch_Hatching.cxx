@@ -210,7 +210,7 @@ const HatchGen_PointOnHatching& Geom2dHatch_Hatching::Point(const Standard_Integ
 {
 #if RAISE_IF_NOSUCHOBJECT
   Standard_Integer NbPoints = myPoints.Length();
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints, "");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints, "");
 #endif
   const HatchGen_PointOnHatching& Point = myPoints.Value(Index);
   return Point;
@@ -225,7 +225,7 @@ HatchGen_PointOnHatching& Geom2dHatch_Hatching::ChangePoint(const Standard_Integ
 {
 #if RAISE_IF_NOSUCHOBJECT
   Standard_Integer NbPoints = myPoints.Length();
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints, "");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints, "");
 #endif
   HatchGen_PointOnHatching& Point = myPoints.ChangeValue(Index);
   return Point;
@@ -240,7 +240,7 @@ void Geom2dHatch_Hatching::RemPoint(const Standard_Integer Index)
 {
 #if RAISE_IF_NOSUCHOBJECT
   Standard_Integer NbPoints = myPoints.Length();
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints, "");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints, "");
 #endif
   if (myIsDone)
     ClrDomains();
@@ -295,7 +295,7 @@ const HatchGen_Domain& Geom2dHatch_Hatching::Domain(const Standard_Integer Index
 {
 #if RAISE_IF_NOSUCHOBJECT
   Standard_Integer NbDomains = myDomains.Length();
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbDomains, "");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbDomains, "");
 #endif
   const HatchGen_Domain& Domain = myDomains.Value(Index);
   return Domain;
@@ -310,7 +310,7 @@ void Geom2dHatch_Hatching::RemDomain(const Standard_Integer Index)
 {
 #if RAISE_IF_NOSUCHOBJECT
   Standard_Integer NbDomains = myDomains.Length();
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbDomains, "");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbDomains, "");
 #endif
   myDomains.Remove(Index);
 }

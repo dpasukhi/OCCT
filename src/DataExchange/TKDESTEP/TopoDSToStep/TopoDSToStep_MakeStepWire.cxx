@@ -22,7 +22,7 @@
 #include <Geom2d_Line.hxx>
 #include <ShapeAnalysis_Edge.hxx>
 #include <ShapeFix_Wire.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepShape_EdgeLoop.hxx>
 #include <StepShape_HArray1OfOrientedEdge.hxx>
@@ -301,7 +301,7 @@ void TopoDSToStep_MakeStepWire::Init(const TopoDS_Wire&                    aWire
 
 const Handle(StepShape_TopologicalRepresentationItem)& TopoDSToStep_MakeStepWire::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeStepWire::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeStepWire::Value() - no result");
   return myResult;
 }
 

@@ -17,7 +17,7 @@
 #include <BSplCLib.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <GeomLib_Interpolate.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfVec.hxx>
 #include <TColStd_Array1OfInteger.hxx>

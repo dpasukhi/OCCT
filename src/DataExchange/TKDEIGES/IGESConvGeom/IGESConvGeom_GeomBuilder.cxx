@@ -20,7 +20,7 @@
 #include <IGESConvGeom_GeomBuilder.hxx>
 #include <IGESGeom_CopiousData.hxx>
 #include <IGESGeom_TransformationMatrix.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TColStd_HArray2OfReal.hxx>
 

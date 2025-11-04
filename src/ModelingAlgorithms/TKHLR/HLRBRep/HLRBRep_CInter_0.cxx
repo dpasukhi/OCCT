@@ -16,7 +16,7 @@
 
 #include <HLRBRep_CInter.hxx>
 
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <HLRBRep_CurveTool.hxx>
 #include <HLRBRep_TheProjPCurOfCInter.hxx>
 #include <HLRBRep_TheCurveLocatorOfTheProjPCurOfCInter.hxx>

@@ -16,7 +16,7 @@
 
 #include <Expr.hxx>
 #include <Expr_UnknownIterator.hxx>
-#include <Standard_NoMoreObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Expr_UnknownIterator::Expr_UnknownIterator(const Handle(Expr_GeneralExpression)& exp)
 {

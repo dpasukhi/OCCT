@@ -12,7 +12,7 @@
 // commercial license or contractual agreement.
 
 #include <Interface_LineBuffer.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_HAsciiString.hxx>
 

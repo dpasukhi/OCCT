@@ -25,7 +25,7 @@
 #include <gp_Vec.hxx>
 #include <NCollection_Array1.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColgp_SequenceOfPnt2d.hxx>
 #include <TColStd_HArray1OfBoolean.hxx>

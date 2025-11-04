@@ -32,7 +32,7 @@
 #include <AdvApp2Var_Patch.hxx>
 #include <Convert_GridPolynomialToPoles.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray2OfPnt.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
 #include <TColStd_HArray1OfReal.hxx>

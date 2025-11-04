@@ -38,7 +38,7 @@
 #include <IntRes2d_IntersectionSegment.hxx>
 #include <Precision.hxx>
 #include <Standard_Type.hxx>
-#include <StdFail_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_ListIteratorOfListOfInteger.hxx>
 
 #include <stdio.h>

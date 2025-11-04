@@ -48,7 +48,7 @@
 #include <LocOpe_Gluer.hxx>
 #include <LocOpe_LinearForm.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>

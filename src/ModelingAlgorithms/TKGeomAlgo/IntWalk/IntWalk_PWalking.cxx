@@ -27,8 +27,7 @@
 #include <math_FunctionSetRoot.hxx>
 #include <Precision.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfReal.hxx>
 

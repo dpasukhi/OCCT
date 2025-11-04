@@ -71,7 +71,7 @@ void OpenGl_TileSampler::GrabVarianceMap(const Handle(OpenGl_Context)& theContex
     for (Standard_Size aRowIter = 0; aRowIter < myVarianceMap.SizeY; ++aRowIter)
     {
       const int aRawValue = myVarianceRaw.Value(aRowIter, aColIter);
-      Standard_RangeError_Raise_if(
+      Standard_Raise_if<Standard_RangeError>(
         aRawValue < 0,
         "Internal Error: signed integer overflow within OpenGl_TileSampler");
 

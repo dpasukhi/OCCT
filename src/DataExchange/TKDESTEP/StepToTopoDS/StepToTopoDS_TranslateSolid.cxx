@@ -13,7 +13,7 @@
 
 #include <BRep_Builder.hxx>
 #include <Message_ProgressScope.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepShape_ConnectedFaceSet.hxx>
 #include <StepShape_FaceSurface.hxx>
@@ -138,7 +138,7 @@ void StepToTopoDS_TranslateSolid::Init(const Handle(StepVisual_TessellatedSolid)
 
 const TopoDS_Shape& StepToTopoDS_TranslateSolid::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslateSolid::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslateSolid::Value() - no result");
   return myResult;
 }
 

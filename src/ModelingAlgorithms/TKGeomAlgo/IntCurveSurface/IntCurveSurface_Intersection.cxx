@@ -18,7 +18,7 @@
 #include <IntCurveSurface_IntersectionPoint.hxx>
 #include <IntCurveSurface_IntersectionSegment.hxx>
 #include <IntCurveSurface_TransitionOnCurve.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #define PARAMEQUAL(a, b) (Abs((a) - (b)) < (1e-8))
 

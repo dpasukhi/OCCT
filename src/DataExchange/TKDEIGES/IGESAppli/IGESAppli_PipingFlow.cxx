@@ -20,7 +20,7 @@
 #include <IGESData_IGESEntity.hxx>
 #include <IGESDraw_ConnectPoint.hxx>
 #include <IGESGraph_TextDisplayTemplate.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 

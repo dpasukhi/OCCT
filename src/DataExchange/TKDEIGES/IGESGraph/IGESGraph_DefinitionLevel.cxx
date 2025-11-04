@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------
 
 #include <IGESGraph_DefinitionLevel.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESGraph_DefinitionLevel, IGESData_LevelListEntity)

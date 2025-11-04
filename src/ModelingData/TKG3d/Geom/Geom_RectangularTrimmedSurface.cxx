@@ -26,14 +26,12 @@
 #include <Geom_Surface.hxx>
 #include <Geom_SurfaceOfLinearExtrusion.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_GTrsf2d.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_RectangularTrimmedSurface, Geom_BoundedSurface)
@@ -488,7 +486,7 @@ Handle(Geom_Curve) Geom_RectangularTrimmedSurface::VIso(const Standard_Real V) c
 Standard_Boolean Geom_RectangularTrimmedSurface::IsCNu(const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisSurf->IsCNu(N);
 }
 
@@ -497,7 +495,7 @@ Standard_Boolean Geom_RectangularTrimmedSurface::IsCNu(const Standard_Integer N)
 Standard_Boolean Geom_RectangularTrimmedSurface::IsCNv(const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisSurf->IsCNv(N);
 }
 

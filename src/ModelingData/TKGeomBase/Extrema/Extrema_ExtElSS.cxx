@@ -21,9 +21,7 @@
 #include <gp_Sphere.hxx>
 #include <gp_Torus.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Extrema_ExtElSS::Extrema_ExtElSS()
 {

@@ -33,7 +33,7 @@
 #include <GeomAdaptor.hxx>
 #include <Precision.hxx>
 #include <ProjLib_HCompProjectedCurve.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>

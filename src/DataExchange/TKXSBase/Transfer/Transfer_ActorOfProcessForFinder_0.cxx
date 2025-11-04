@@ -16,7 +16,7 @@
 
 #include <Transfer_ActorOfProcessForFinder.hxx>
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Handle.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>

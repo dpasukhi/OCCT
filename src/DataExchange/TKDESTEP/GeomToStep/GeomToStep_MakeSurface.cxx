@@ -23,7 +23,7 @@
 #include <GeomToStep_MakeElementarySurface.hxx>
 #include <GeomToStep_MakeSurface.hxx>
 #include <GeomToStep_MakeSweptSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Logical.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_BoundedSurface.hxx>
@@ -87,6 +87,6 @@ GeomToStep_MakeSurface::GeomToStep_MakeSurface(const Handle(Geom_Surface)& S,
 
 const Handle(StepGeom_Surface)& GeomToStep_MakeSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeSurface::Value() - no result");
   return theSurface;
 }

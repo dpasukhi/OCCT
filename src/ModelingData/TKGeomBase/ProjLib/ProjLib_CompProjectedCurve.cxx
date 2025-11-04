@@ -32,11 +32,7 @@
 #include <ProjLib_CompProjectedCurve.hxx>
 #include <ProjLib_HCompProjectedCurve.hxx>
 #include <ProjLib_PrjResolve.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HSequenceOfPnt.hxx>
 #include <Adaptor3d_CurveOnSurface.hxx>
 #include <Geom_BSplineCurve.hxx>
@@ -2086,7 +2082,7 @@ Handle(Geom_Curve) ProjLib_CompProjectedCurve::GetResult3dC(const Standard_Integ
 
 gp_Pnt2d ProjLib_CompProjectedCurve::GetResult2dP(const Standard_Integer theIndex) const
 {
-  Standard_TypeMismatch_Raise_if(!myResultIsPoint->Value(theIndex),
+  Standard_Raise_if<Standard_TypeMismatch>(!myResultIsPoint->Value(theIndex),
                                  "ProjLib_CompProjectedCurve : result is not a point 2d");
   return myResult2dPoint->Value(theIndex);
 }
@@ -2095,7 +2091,7 @@ gp_Pnt2d ProjLib_CompProjectedCurve::GetResult2dP(const Standard_Integer theInde
 
 gp_Pnt ProjLib_CompProjectedCurve::GetResult3dP(const Standard_Integer theIndex) const
 {
-  Standard_TypeMismatch_Raise_if(!myResultIsPoint->Value(theIndex),
+  Standard_Raise_if<Standard_TypeMismatch>(!myResultIsPoint->Value(theIndex),
                                  "ProjLib_CompProjectedCurve : result is not a point 3d");
   return myResult3dPoint->Value(theIndex);
 }

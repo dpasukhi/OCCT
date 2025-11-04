@@ -12,7 +12,7 @@
 // commercial license or contractual agreement.
 
 #include <IGESData_ViewKindEntity.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESData_ViewKindEntity, IGESData_IGESEntity)

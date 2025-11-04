@@ -16,7 +16,7 @@
 #include <PCDM.hxx>
 #include <PCDM_ReadWriter.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StdObjMgt_Persistent.hxx>
 #include <StdObjMgt_ReadData.hxx>
 #include <StdObjMgt_WriteData.hxx>
@@ -29,9 +29,6 @@
 #include <StdStorage_BacketOfPersistent.hxx>
 #include <Storage.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamFormatError.hxx>
-#include <Storage_StreamWriteError.hxx>
 
 #include <stdio.h>
 
@@ -219,7 +216,7 @@ static TCollection_AsciiString currentDate()
 Storage_Error StdStorage::Write(const Handle(Storage_BaseDriver)& theDriver,
                                 const Handle(StdStorage_Data)&    theData)
 {
-  Standard_NullObject_Raise_if(theData.IsNull(), "Null storage data");
+  Standard_Raise_if<Standard_NullObject>(theData.IsNull(), "Null storage data");
 
   Handle(StdStorage_HeaderData) aHeaderData = theData->HeaderData();
   Handle(StdStorage_TypeData)   aTypeData   = theData->TypeData();

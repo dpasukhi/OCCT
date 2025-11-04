@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <Graphic3d_Texture1D.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 

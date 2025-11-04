@@ -13,9 +13,7 @@
 
 #include <Aspect_RectangularGrid.hxx>
 
-#include <Standard_NegativeValue.hxx>
-#include <Standard_NullValue.hxx>
-#include <Standard_NumericError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Aspect_RectangularGrid, Aspect_Grid)
 
@@ -33,18 +31,18 @@ Aspect_RectangularGrid::Aspect_RectangularGrid(const Standard_Real aXStep,
       mySecondAngle(aSecondAngle)
 
 {
-  Standard_NumericError_Raise_if(!CheckAngle(aFirstAngle, mySecondAngle), "networks are parallel");
+  Standard_Raise_if<Standard_NumericError>(!CheckAngle(aFirstAngle, mySecondAngle), "networks are parallel");
 
-  Standard_NegativeValue_Raise_if(aXStep < 0., "invalid x step");
-  Standard_NegativeValue_Raise_if(aYStep < 0., "invalid y step");
-  Standard_NullValue_Raise_if(aXStep == 0., "invalid x step");
-  Standard_NullValue_Raise_if(aYStep == 0., "invalid y step");
+  Standard_Raise_if<Standard_NegativeValue>(aXStep < 0., "invalid x step");
+  Standard_Raise_if<Standard_NegativeValue>(aYStep < 0., "invalid y step");
+  Standard_Raise_if<Standard_NullValue>(aXStep == 0., "invalid x step");
+  Standard_Raise_if<Standard_NullValue>(aYStep == 0., "invalid y step");
 }
 
 void Aspect_RectangularGrid::SetXStep(const Standard_Real aStep)
 {
-  Standard_NegativeValue_Raise_if(aStep < 0., "invalid x step");
-  Standard_NullValue_Raise_if(aStep == 0., "invalid y step");
+  Standard_Raise_if<Standard_NegativeValue>(aStep < 0., "invalid x step");
+  Standard_Raise_if<Standard_NullValue>(aStep == 0., "invalid y step");
   myXStep = aStep;
   Init();
   UpdateDisplay();
@@ -52,8 +50,8 @@ void Aspect_RectangularGrid::SetXStep(const Standard_Real aStep)
 
 void Aspect_RectangularGrid::SetYStep(const Standard_Real aStep)
 {
-  Standard_NegativeValue_Raise_if(aStep < 0., "invalid x step");
-  Standard_NullValue_Raise_if(aStep == 0., "invalid y step");
+  Standard_Raise_if<Standard_NegativeValue>(aStep < 0., "invalid x step");
+  Standard_Raise_if<Standard_NullValue>(aStep == 0., "invalid y step");
   myYStep = aStep;
   Init();
   UpdateDisplay();
@@ -61,7 +59,7 @@ void Aspect_RectangularGrid::SetYStep(const Standard_Real aStep)
 
 void Aspect_RectangularGrid::SetAngle(const Standard_Real anAngle1, const Standard_Real anAngle2)
 {
-  Standard_NumericError_Raise_if(!CheckAngle(anAngle1, anAngle2), "axis are parallel");
+  Standard_Raise_if<Standard_NumericError>(!CheckAngle(anAngle1, anAngle2), "axis are parallel");
   myFirstAngle  = anAngle1;
   mySecondAngle = anAngle2;
   Init();
@@ -77,11 +75,11 @@ void Aspect_RectangularGrid::SetGridValues(const Standard_Real theXOrigin,
 
   myXOrigin = theXOrigin;
   myYOrigin = theYOrigin;
-  Standard_NegativeValue_Raise_if(theXStep < 0., "invalid x step");
-  Standard_NullValue_Raise_if(theXStep == 0., "invalid x step");
+  Standard_Raise_if<Standard_NegativeValue>(theXStep < 0., "invalid x step");
+  Standard_Raise_if<Standard_NullValue>(theXStep == 0., "invalid x step");
   myXStep = theXStep;
-  Standard_NegativeValue_Raise_if(theYStep < 0., "invalid y step");
-  Standard_NullValue_Raise_if(theYStep == 0., "invalid y step");
+  Standard_Raise_if<Standard_NegativeValue>(theYStep < 0., "invalid y step");
+  Standard_Raise_if<Standard_NullValue>(theYStep == 0., "invalid y step");
   myYStep         = theYStep;
   myRotationAngle = theRotationAngle;
   Init();

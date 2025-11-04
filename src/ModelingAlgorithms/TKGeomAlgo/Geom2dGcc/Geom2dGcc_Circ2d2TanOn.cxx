@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <GccAna_Circ2d2TanOn.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <GccEnt_QualifiedLin.hxx>
 #include <Geom2d_Circle.hxx>
@@ -28,8 +28,6 @@
 #include <Geom2dGcc_QualifiedCurve.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 
 Geom2dGcc_Circ2d2TanOn::Geom2dGcc_Circ2d2TanOn(const Geom2dGcc_QualifiedCurve& Qualified1,
                                                const Geom2dGcc_QualifiedCurve& Qualified2,

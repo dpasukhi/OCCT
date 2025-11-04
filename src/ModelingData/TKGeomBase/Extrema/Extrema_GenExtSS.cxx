@@ -21,8 +21,7 @@
 #include <math_FunctionSetRoot.hxx>
 #include <math_MultipleVarFunctionWithGradient.hxx>
 #include <math_Vector.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! This class represents distance objective function for surface / surface.
 class Extrema_FuncDistSS : public math_MultipleVarFunctionWithGradient

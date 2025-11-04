@@ -21,7 +21,7 @@
 #include <Geom_TrimmedCurve.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeSegment::GC_MakeSegment(const gp_Pnt& P1, const gp_Pnt& P2)
 {
@@ -57,6 +57,6 @@ GC_MakeSegment::GC_MakeSegment(const gp_Lin& Line, const Standard_Real U1, const
 
 const Handle(Geom_TrimmedCurve)& GC_MakeSegment::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeSegment::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeSegment::Value() - no result");
   return TheSegment;
 }

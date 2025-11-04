@@ -18,7 +18,7 @@
 #include <gp.hxx>
 #include <gp_Cone.hxx>
 #include <gp_Trsf.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const Standard_Integer TheUDegree  = 2;
 static const Standard_Integer TheVDegree  = 1;
@@ -86,7 +86,7 @@ Convert_ConeToBSplineSurface::Convert_ConeToBSplineSurface(const gp_Cone&      C
                                                 TheVDegree)
 {
   Standard_Real deltaU = U2 - U1;
-  Standard_DomainError_Raise_if((Abs(V2 - V1) <= Abs(Epsilon(V1))) || (deltaU > 2 * M_PI)
+  Standard_Raise_if<Standard_DomainError>((Abs(V2 - V1) <= Abs(Epsilon(V1))) || (deltaU > 2 * M_PI)
                                   || (deltaU < 0.),
                                 "Convert_ConeToBSplineSurface");
 
@@ -156,7 +156,7 @@ Convert_ConeToBSplineSurface::Convert_ConeToBSplineSurface(const gp_Cone&      C
                                                 TheUDegree,
                                                 TheVDegree)
 {
-  Standard_DomainError_Raise_if(Abs(V2 - V1) <= Abs(Epsilon(V1)), "Convert_ConeToBSplineSurface");
+  Standard_Raise_if<Standard_DomainError>(Abs(V2 - V1) <= Abs(Epsilon(V1)), "Convert_ConeToBSplineSurface");
 
   Standard_Integer i, j;
 

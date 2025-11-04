@@ -19,7 +19,7 @@
 #include <gp_Mat2d.hxx>
 #include <gp_TrsfForm.hxx>
 #include <gp_XY.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Defines a non persistent transformation in 2D space.
 //! This transformation is a general transformation.
@@ -262,7 +262,7 @@ inline void gp_GTrsf2d::SetValue(const Standard_Integer theRow,
                                  const Standard_Integer theCol,
                                  const Standard_Real    theValue)
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 3, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 3, " ");
   if (theCol == 3)
   {
     loc.SetCoord(theRow, theValue);
@@ -279,7 +279,7 @@ inline void gp_GTrsf2d::SetValue(const Standard_Integer theRow,
 inline Standard_Real gp_GTrsf2d::Value(const Standard_Integer theRow,
                                        const Standard_Integer theCol) const
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 3, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 3, " ");
   if (theCol == 3)
   {
     return loc.Coord(theRow);

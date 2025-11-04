@@ -313,7 +313,7 @@ void AIS_ViewCube::SetSize(Standard_Real theValue, Standard_Boolean theToAdaptAn
 
 void AIS_ViewCube::SetRoundRadius(const Standard_Real theValue)
 {
-  Standard_OutOfRange_Raise_if(theValue < 0.0 || theValue > 0.5,
+  Standard_Raise_if<Standard_OutOfRange>(theValue < 0.0 || theValue > 0.5,
                                "AIS_ViewCube::SetRoundRadius(): theValue should be in [0; 0.5]");
   if (Abs(myRoundRadius - theValue) > Precision::Confusion())
   {

@@ -19,7 +19,7 @@
 #include <NCollection_DataMap.hxx>
 #include <Draw_Display.hxx>
 #include <Standard_CStringHasher.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Draw_Drawable3D, Standard_Transient)
 

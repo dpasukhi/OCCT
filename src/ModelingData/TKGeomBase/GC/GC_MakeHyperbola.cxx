@@ -20,7 +20,7 @@
 #include <gp_Ax2.hxx>
 #include <gp_Hypr.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeHyperbola::GC_MakeHyperbola(const gp_Hypr& H)
 {
@@ -55,6 +55,6 @@ GC_MakeHyperbola::GC_MakeHyperbola(const gp_Pnt& S1, const gp_Pnt& S2, const gp_
 
 const Handle(Geom_Hyperbola)& GC_MakeHyperbola::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeHyperbola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeHyperbola::Value() - no result");
   return TheHyperbola;
 }

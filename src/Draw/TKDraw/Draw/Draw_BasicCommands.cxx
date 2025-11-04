@@ -24,7 +24,7 @@
 #include <OSD.hxx>
 #include <OSD_Chronometer.hxx>
 #include <OSD_Environment.hxx>
-#include <OSD_Exception_CTRL_BREAK.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <OSD_MemInfo.hxx>
 #include <OSD_Parallel.hxx>
 #include <OSD_PerfMeter.hxx>

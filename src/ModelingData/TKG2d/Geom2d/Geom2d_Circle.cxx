@@ -24,8 +24,7 @@
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <gp_XY.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_Circle, Geom2d_Conic)
@@ -193,7 +192,7 @@ void Geom2d_Circle::D3(const Standard_Real U, Pnt2d& P, Vec2d& V1, Vec2d& V2, Ve
 
 Vec2d Geom2d_Circle::DN(const Standard_Real U, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 1, " ");
   return ElCLib::CircleDN(U, pos, radius, N);
 }
 

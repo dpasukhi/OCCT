@@ -15,7 +15,7 @@
 #include <NCollection_DataMap.hxx>
 #include <OSD_Process.hxx>
 #include <Quantity_Date.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Stream.hxx>
 #include <TColStd_HSequenceOfHAsciiString.hxx>
 

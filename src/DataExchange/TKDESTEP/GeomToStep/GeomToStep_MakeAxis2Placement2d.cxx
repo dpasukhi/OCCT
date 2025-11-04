@@ -19,7 +19,7 @@
 #include <GeomToStep_MakeDirection.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Ax22d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement2d.hxx>
 #include <StepGeom_CartesianPoint.hxx>
@@ -110,6 +110,6 @@ GeomToStep_MakeAxis2Placement2d::GeomToStep_MakeAxis2Placement2d(
 
 const Handle(StepGeom_Axis2Placement2d)& GeomToStep_MakeAxis2Placement2d::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeAxis2Placement2d::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeAxis2Placement2d::Value() - no result");
   return theAxis2Placement2d;
 }

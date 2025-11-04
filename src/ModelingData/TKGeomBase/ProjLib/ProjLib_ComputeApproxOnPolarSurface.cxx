@@ -16,8 +16,7 @@
 #include <ProjLib_ComputeApproxOnPolarSurface.hxx>
 #include <ElSLib.hxx>
 #include <ElCLib.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Precision.hxx>
 #include <Approx_FitAndDivide2d.hxx>
 #include <AppParCurves_MultiCurve.hxx>
@@ -58,7 +57,6 @@
 #include <Extrema_GenLocateExtPS.hxx>
 #include <Extrema_ExtPS.hxx>
 #include <GCPnts_QuasiUniformAbscissa.hxx>
-#include <Standard_DomainError.hxx>
 // #include <GeomLib_IsIso.hxx>
 // #include <GeomLib_CheckSameParameter.hxx>
 
@@ -1647,13 +1645,13 @@ Handle(Adaptor2d_Curve2d) ProjLib_ComputeApproxOnPolarSurface::BuildInitialCurve
   else
   {
     //  Modified by Sergey KHROMOV - Thu Apr 18 10:57:50 2002 Begin
-    //     Standard_NoSuchObject_Raise_if(1,"ProjLib_Compu: build echec");
+    //     Standard_Raise_if<Standard_NoSuchObject>(1,"ProjLib_Compu: build echec");
     //  Modified by Sergey KHROMOV - Thu Apr 18 10:57:51 2002 End
     return Handle(Adaptor2d_Curve2d)();
   }
   //  myProjIsDone = Standard_False;
   //  Modified by Sergey KHROMOV - Thu Apr 18 10:58:01 2002 Begin
-  //   Standard_NoSuchObject_Raise_if(1,"ProjLib_ComputeOnPS: build echec");
+  //   Standard_Raise_if<Standard_NoSuchObject>(1,"ProjLib_ComputeOnPS: build echec");
   //  Modified by Sergey KHROMOV - Thu Apr 18 10:58:02 2002 End
 }
 
@@ -2167,7 +2165,7 @@ Handle(Geom2d_BSplineCurve) ProjLib_ComputeApproxOnPolarSurface::BSpline() const
 Handle(Geom2d_Curve) ProjLib_ComputeApproxOnPolarSurface::Curve2d() const
 
 {
-  Standard_NoSuchObject_Raise_if(!myProjIsDone, "ProjLib_ComputeApproxOnPolarSurface:2ndCurve2d");
+  Standard_Raise_if<Standard_NoSuchObject>(!myProjIsDone, "ProjLib_ComputeApproxOnPolarSurface:2ndCurve2d");
   return my2ndCurve;
 }
 

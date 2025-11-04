@@ -24,8 +24,7 @@
 #include <Convert_CompBezierCurves2dToBSplineCurve2d.hxx>
 #include <ElSLib.hxx>
 #include <ElCLib.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp.hxx>
 #include <gp_Trsf.hxx>
 #include <Precision.hxx>

@@ -34,7 +34,7 @@
 #include <Precision.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
 #include <ProjLib.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopLoc_Location.hxx>

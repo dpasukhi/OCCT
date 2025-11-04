@@ -25,13 +25,7 @@
 #include <BSplCLib_MultDistribution.hxx>
 #include <gp.hxx>
 #include <Law_BSpline.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Law_BSpline, Standard_Transient)
@@ -811,7 +805,7 @@ Standard_Real Law_BSpline::ReversedParameter(const Standard_Real U) const
 
 void Law_BSpline::Segment(const Standard_Real U1, const Standard_Real U2)
 {
-  Standard_DomainError_Raise_if(U2 < U1, "Law_BSpline::Segment");
+  Standard_Raise_if<Standard_DomainError>(U2 < U1, "Law_BSpline::Segment");
   Standard_Real Eps   = Epsilon(Max(Abs(U1), Abs(U2)));
   Standard_Real delta = U2 - U1;
 
@@ -1041,12 +1035,12 @@ void Law_BSpline::SetPeriodic()
 
 void Law_BSpline::SetOrigin(const Standard_Integer Index)
 {
-  Standard_NoSuchObject_Raise_if(!periodic, "Law_BSpline::SetOrigin");
+  Standard_Raise_if<Standard_NoSuchObject>(!periodic, "Law_BSpline::SetOrigin");
   Standard_Integer i, k;
   Standard_Integer first = FirstUKnotIndex();
   Standard_Integer last  = LastUKnotIndex();
 
-  Standard_DomainError_Raise_if((Index < first) || (Index > last), "Law_BSpline::SetOrigine");
+  Standard_Raise_if<Standard_DomainError>((Index < first) || (Index > last), "Law_BSpline::SetOrigine");
 
   Standard_Integer nbknots = knots->Length();
   Standard_Integer nbpoles = poles->Length();
@@ -1307,7 +1301,7 @@ void Law_BSpline::PeriodicNormalization(Standard_Real& Parameter) const
 
 Standard_Boolean Law_BSpline::IsCN(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, "Law_BSpline::IsCN");
+  Standard_Raise_if<Standard_RangeError>(N < 0, "Law_BSpline::IsCN");
 
   switch (smooth)
   {
@@ -1500,7 +1494,7 @@ Standard_Real Law_BSpline::FirstParameter() const
 
 Standard_Real Law_BSpline::Knot(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > knots->Length(), "Law_BSpline::Knot");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > knots->Length(), "Law_BSpline::Knot");
   return knots->Value(Index);
 }
 
@@ -1515,7 +1509,7 @@ GeomAbs_BSplKnotDistribution Law_BSpline::KnotDistribution() const
 
 void Law_BSpline::Knots(TColStd_Array1OfReal& K) const
 {
-  Standard_DimensionError_Raise_if(K.Length() != knots->Length(), "Law_BSpline::Knots");
+  Standard_Raise_if<Standard_DimensionError>(K.Length() != knots->Length(), "Law_BSpline::Knots");
   K = knots->Array1();
 }
 
@@ -1523,7 +1517,7 @@ void Law_BSpline::Knots(TColStd_Array1OfReal& K) const
 
 void Law_BSpline::KnotSequence(TColStd_Array1OfReal& K) const
 {
-  Standard_DimensionError_Raise_if(K.Length() != flatknots->Length(), "Law_BSpline::KnotSequence");
+  Standard_Raise_if<Standard_DimensionError>(K.Length() != flatknots->Length(), "Law_BSpline::KnotSequence");
   K = flatknots->Array1();
 }
 
@@ -1562,7 +1556,7 @@ void Law_BSpline::LocalD0(const Standard_Real    U,
                           const Standard_Integer ToK2,
                           Standard_Real&         P) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Law_BSpline::LocalValue");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Law_BSpline::LocalValue");
   Standard_Real    u     = U;
   Standard_Integer index = 0;
   BSplCLib::LocateParameter(deg, FKNOTS, U, periodic, FromK1, ToK2, index, u);
@@ -1585,7 +1579,7 @@ void Law_BSpline::LocalD1(const Standard_Real    U,
                           Standard_Real&         P,
                           Standard_Real&         V1) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Law_BSpline::LocalD1");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Law_BSpline::LocalD1");
   Standard_Real    u     = U;
   Standard_Integer index = 0;
   BSplCLib::LocateParameter(deg, FKNOTS, U, periodic, FromK1, ToK2, index, u);
@@ -1609,7 +1603,7 @@ void Law_BSpline::LocalD2(const Standard_Real    U,
                           Standard_Real&         V1,
                           Standard_Real&         V2) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Law_BSpline::LocalD2");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Law_BSpline::LocalD2");
   Standard_Real    u     = U;
   Standard_Integer index = 0;
   BSplCLib::LocateParameter(deg, FKNOTS, U, periodic, FromK1, ToK2, index, u);
@@ -1634,7 +1628,7 @@ void Law_BSpline::LocalD3(const Standard_Real    U,
                           Standard_Real&         V2,
                           Standard_Real&         V3) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Law_BSpline::LocalD3");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Law_BSpline::LocalD3");
   Standard_Real    u     = U;
   Standard_Integer index = 0;
   BSplCLib::LocateParameter(deg, FKNOTS, U, periodic, FromK1, ToK2, index, u);
@@ -1667,7 +1661,7 @@ Standard_Real Law_BSpline::LocalDN(const Standard_Real    U,
                                    const Standard_Integer ToK2,
                                    const Standard_Integer N) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Law_BSpline::LocalD3");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Law_BSpline::LocalD3");
   Standard_Real    u     = U;
   Standard_Integer index = 0;
   BSplCLib::LocateParameter(deg, FKNOTS, U, periodic, FromK1, ToK2, index, u);
@@ -1689,7 +1683,7 @@ Standard_Real Law_BSpline::LocalDN(const Standard_Real    U,
 
 Standard_Integer Law_BSpline::Multiplicity(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > mults->Length(), "Law_BSpline::Multiplicity");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > mults->Length(), "Law_BSpline::Multiplicity");
   return mults->Value(Index);
 }
 
@@ -1697,7 +1691,7 @@ Standard_Integer Law_BSpline::Multiplicity(const Standard_Integer Index) const
 
 void Law_BSpline::Multiplicities(TColStd_Array1OfInteger& M) const
 {
-  Standard_DimensionError_Raise_if(M.Length() != mults->Length(), "Law_BSpline::Multiplicities");
+  Standard_Raise_if<Standard_DimensionError>(M.Length() != mults->Length(), "Law_BSpline::Multiplicities");
   M = mults->Array1();
 }
 
@@ -1719,7 +1713,7 @@ Standard_Integer Law_BSpline::NbPoles() const
 
 Standard_Real Law_BSpline::Pole(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > poles->Length(), "Law_BSpline::Pole");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > poles->Length(), "Law_BSpline::Pole");
   return poles->Value(Index);
 }
 
@@ -1727,7 +1721,7 @@ Standard_Real Law_BSpline::Pole(const Standard_Integer Index) const
 
 void Law_BSpline::Poles(TColStd_Array1OfReal& P) const
 {
-  Standard_DimensionError_Raise_if(P.Length() != poles->Length(), "Law_BSpline::Poles");
+  Standard_Raise_if<Standard_DimensionError>(P.Length() != poles->Length(), "Law_BSpline::Poles");
   P = poles->Array1();
 }
 
@@ -1745,7 +1739,7 @@ Standard_Real Law_BSpline::StartPoint() const
 
 Standard_Real Law_BSpline::Weight(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > poles->Length(), "Law_BSpline::Weight");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > poles->Length(), "Law_BSpline::Weight");
   if (IsRational())
     return weights->Value(Index);
   else
@@ -1756,7 +1750,7 @@ Standard_Real Law_BSpline::Weight(const Standard_Integer Index) const
 
 void Law_BSpline::Weights(TColStd_Array1OfReal& W) const
 {
-  Standard_DimensionError_Raise_if(W.Length() != poles->Length(), "Law_BSpline::Weights");
+  Standard_Raise_if<Standard_DimensionError>(W.Length() != poles->Length(), "Law_BSpline::Weights");
   if (IsRational())
     W = weights->Array1();
   else

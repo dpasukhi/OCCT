@@ -43,7 +43,7 @@
 #include <HatchGen_PointOnElement.hxx>
 #include <HatchGen_PointOnHatching.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
 #include <TopExp.hxx>

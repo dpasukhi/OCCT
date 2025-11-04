@@ -16,7 +16,7 @@
 
   #include <OSD_Error.hxx>
   #include <OSD_ErrorList.hxx>
-  #include <OSD_OSDError.hxx>
+  #include <Standard_FailureRegistry.hxx>
   #include <TCollection_AsciiString.hxx>
 
   #include <stdio.h>

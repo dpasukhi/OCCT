@@ -115,7 +115,7 @@ public:
   //
   void Perform()
   {
-    Standard_ProgramError_Raise_if(!mypMapToAvoid, "mypMapToAvoid is null");
+    Standard_Raise_if<Standard_ProgramError>(!mypMapToAvoid, "mypMapToAvoid is null");
     CheckEdge(myEdge, myMaxTol, *mypMapToAvoid);
   }
 
@@ -154,7 +154,7 @@ public:
   //
   void Perform()
   {
-    Standard_ProgramError_Raise_if(!mypMapToAvoid, "mypMapToAvoid is null");
+    Standard_Raise_if<Standard_ProgramError>(!mypMapToAvoid, "mypMapToAvoid is null");
     CorrectWires(myFace, *mypMapToAvoid);
   }
 
@@ -199,7 +199,7 @@ public:
   //
   void Perform()
   {
-    Standard_ProgramError_Raise_if(!mypMapToAvoid, "mypMapToAvoid is null");
+    Standard_Raise_if<Standard_ProgramError>(!mypMapToAvoid, "mypMapToAvoid is null");
     CorrectEdgeTolerance(myEdge, myFace, myMaxTol, *mypMapToAvoid);
   }
 
@@ -239,7 +239,7 @@ public:
   //
   void Perform()
   {
-    Standard_ProgramError_Raise_if(!mypMapToAvoid, "mypMapToAvoid is null");
+    Standard_Raise_if<Standard_ProgramError>(!mypMapToAvoid, "mypMapToAvoid is null");
     CorrectVertexTolerance(myEdge, *mypMapToAvoid);
   }
 
@@ -278,7 +278,7 @@ public:
   //
   void Perform()
   {
-    Standard_ProgramError_Raise_if(!mypMapToAvoid, "mypMapToAvoid is null");
+    Standard_Raise_if<Standard_ProgramError>(!mypMapToAvoid, "mypMapToAvoid is null");
     UpdateEdges(myFace, *mypMapToAvoid);
   }
 

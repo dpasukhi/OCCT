@@ -17,7 +17,7 @@
 #ifndef _Poly_PolygonOnTriangulation_HeaderFile
 #define _Poly_PolygonOnTriangulation_HeaderFile
 
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <Standard_Transient.hxx>
 #include <TColStd_Array1OfInteger.hxx>
@@ -94,7 +94,7 @@ public:
   //! Returns parameter at the given index.
   Standard_Real Parameter(Standard_Integer theIndex) const
   {
-    Standard_NullObject_Raise_if(myParameters.IsNull(),
+    Standard_Raise_if<Standard_NullObject>(myParameters.IsNull(),
                                  "Poly_PolygonOnTriangulation::Parameter : parameters is NULL");
     return myParameters->Value(theIndex);
   }
@@ -102,7 +102,7 @@ public:
   //! Sets parameter at the given index.
   void SetParameter(Standard_Integer theIndex, Standard_Real theValue)
   {
-    Standard_NullObject_Raise_if(myParameters.IsNull(),
+    Standard_Raise_if<Standard_NullObject>(myParameters.IsNull(),
                                  "Poly_PolygonOnTriangulation::Parameter : parameters is NULL");
     myParameters->SetValue(theIndex, theValue);
   }

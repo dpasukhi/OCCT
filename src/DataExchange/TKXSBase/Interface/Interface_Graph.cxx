@@ -20,7 +20,7 @@
 #include <Interface_Protocol.hxx>
 #include <Interface_ReportEntity.hxx>
 #include <Interface_ShareTool.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <NCollection_IncAllocator.hxx>
 #include <TCollection_HAsciiString.hxx>

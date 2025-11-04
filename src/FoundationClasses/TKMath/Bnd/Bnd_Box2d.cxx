@@ -17,7 +17,7 @@
 #include <Bnd_Box2d.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Trsf2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Stream.hxx>
 
 //-- #include <Precision.hxx> Precision::Infinite() -> 1e+100

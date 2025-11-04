@@ -25,7 +25,7 @@
 #include <Law_Interpol.hxx>
 #include <Law_S.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfInteger.hxx>

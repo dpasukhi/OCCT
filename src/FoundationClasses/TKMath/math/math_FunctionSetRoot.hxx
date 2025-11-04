@@ -21,8 +21,7 @@
 #include <math_Matrix.hxx>
 #include <math_Vector.hxx>
 #include <Standard_OStream.hxx>
-#include <Standard_DimensionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 class math_FunctionSetWithDerivatives;
 
@@ -104,7 +103,7 @@ public:
   //! Exception NotDone is raised if the root was not found.
   Standard_Integer NbIterations() const
   {
-    StdFail_NotDone_Raise_if(!Done, " ");
+    Standard_Raise_if<StdFail_NotDone>(!Done, " ");
     return Kount;
   }
 
@@ -112,7 +111,7 @@ public:
   //! F.GetStateNumber()) associated to the root found.
   Standard_Integer StateNumber() const
   {
-    StdFail_NotDone_Raise_if(!Done, " ");
+    Standard_Raise_if<StdFail_NotDone>(!Done, " ");
     return State;
   }
 
@@ -120,7 +119,7 @@ public:
   //! Exception NotDone is raised if the root was not found.
   const math_Vector& Root() const
   {
-    StdFail_NotDone_Raise_if(!Done, " ");
+    Standard_Raise_if<StdFail_NotDone>(!Done, " ");
     return Sol;
   }
 
@@ -134,7 +133,7 @@ public:
   //! Exception NotDone is raised if the root was not found.
   const math_Matrix& Derivative() const
   {
-    StdFail_NotDone_Raise_if(!Done, " ");
+    Standard_Raise_if<StdFail_NotDone>(!Done, " ");
     return DF;
   }
 
@@ -145,8 +144,8 @@ public:
   //! of <Der> is not equal to the range of the startingPoint.
   void Derivative(math_Matrix& Der) const
   {
-    StdFail_NotDone_Raise_if(!Done, " ");
-    Standard_DimensionError_Raise_if(Der.ColNumber() != Sol.Length(), " ");
+    Standard_Raise_if<StdFail_NotDone>(!Done, " ");
+    Standard_Raise_if<Standard_DimensionError>(Der.ColNumber() != Sol.Length(), " ");
     Der = DF;
   }
 
@@ -155,7 +154,7 @@ public:
   //! Exception NotDone is raised if the root was not found.
   const math_Vector& FunctionSetErrors() const
   {
-    StdFail_NotDone_Raise_if(!Done, " ");
+    Standard_Raise_if<StdFail_NotDone>(!Done, " ");
     return Delta;
   }
 

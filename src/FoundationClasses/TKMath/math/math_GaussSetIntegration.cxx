@@ -23,8 +23,7 @@
 #include <math_FunctionSet.hxx>
 #include <math_GaussSetIntegration.hxx>
 #include <math_Vector.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 math_GaussSetIntegration::math_GaussSetIntegration(math_FunctionSet&         F,
                                                    const math_Vector&        Lower,
@@ -39,7 +38,7 @@ math_GaussSetIntegration::math_GaussSetIntegration(math_FunctionSet&         F,
   math_Vector      FVal1(1, NbEqua), FVal2(1, NbEqua), Tval(1, NbVar);
 
   // Verification
-  Standard_NotImplemented_Raise_if(NbVar != 1
+  Standard_Raise_if<Standard_NotImplemented>(NbVar != 1
                                      || Order.Value(Order.Lower()) > math::GaussPointsMax(),
                                    "GaussSetIntegration ");
 

@@ -53,7 +53,7 @@
 #include <Law_Function.hxx>
 #include <math_FunctionRoot.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Failure.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <TopoDS_Edge.hxx>

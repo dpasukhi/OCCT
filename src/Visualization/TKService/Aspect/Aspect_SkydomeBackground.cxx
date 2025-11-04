@@ -15,7 +15,7 @@
 
 #include <Aspect_SkydomeBackground.hxx>
 
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -42,13 +42,13 @@ Aspect_SkydomeBackground::Aspect_SkydomeBackground(const gp_Dir&      theSunDire
       myFogginess(theFogginess),
       mySize(theSize)
 {
-  Standard_RangeError_Raise_if(
+  Standard_Raise_if<Standard_RangeError>(
     theFogginess < 0,
     "Aspect_SkydomeBackground::Aspect_SkydomeBackground() theFoggines must be >= 0");
-  Standard_RangeError_Raise_if(
+  Standard_Raise_if<Standard_RangeError>(
     theCloudiness < 0,
     "Aspect_SkydomeBackground::Aspect_SkydomeBackground() theCloudiness must be >= 0");
-  Standard_RangeError_Raise_if(
+  Standard_Raise_if<Standard_RangeError>(
     theSize <= 0,
     "Aspect_SkydomeBackground::Aspect_SkydomeBackground() theSize must be > 0");
 }
@@ -64,7 +64,7 @@ Aspect_SkydomeBackground::~Aspect_SkydomeBackground()
 
 void Aspect_SkydomeBackground::SetCloudiness(Standard_ShortReal theCloudiness)
 {
-  Standard_RangeError_Raise_if(
+  Standard_Raise_if<Standard_RangeError>(
     theCloudiness < 0,
     "Aspect_SkydomeBackground::SetCloudiness() theCloudiness must be >= 0");
   myCloudiness = theCloudiness;
@@ -74,7 +74,7 @@ void Aspect_SkydomeBackground::SetCloudiness(Standard_ShortReal theCloudiness)
 
 void Aspect_SkydomeBackground::SetFogginess(Standard_ShortReal theFogginess)
 {
-  Standard_RangeError_Raise_if(theFogginess < 0,
+  Standard_Raise_if<Standard_RangeError>(theFogginess < 0,
                                "Aspect_SkydomeBackground::SetFogginess() theFoggines must be >= 0");
   myFogginess = theFogginess;
 }
@@ -83,7 +83,7 @@ void Aspect_SkydomeBackground::SetFogginess(Standard_ShortReal theFogginess)
 
 void Aspect_SkydomeBackground::SetSize(Standard_Integer theSize)
 {
-  Standard_RangeError_Raise_if(theSize <= 0,
+  Standard_Raise_if<Standard_RangeError>(theSize <= 0,
                                "Aspect_SkydomeBackground::SetSize() theSize must be > 0");
   mySize = theSize;
 }

@@ -17,8 +17,7 @@
 #include <AppDef_Array1OfMultiPointConstraint.hxx>
 #include <AppDef_MultiLine.hxx>
 #include <AppDef_MultiPointConstraint.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 AppDef_MultiLine::AppDef_MultiLine() {}
 

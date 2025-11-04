@@ -21,7 +21,7 @@
 
 #include <AppCont_ContMatrices.hxx>
 #include <math_Matrix.hxx>
-#include <Standard_DimensionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const Standard_Real IBP[] = {
 

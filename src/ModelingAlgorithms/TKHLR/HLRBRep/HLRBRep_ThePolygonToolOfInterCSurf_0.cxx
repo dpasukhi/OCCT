@@ -16,7 +16,7 @@
 
 #include <HLRBRep_ThePolygonToolOfInterCSurf.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Pnt.hxx>
 #include <HLRBRep_ThePolygonOfInterCSurf.hxx>
 #include <Bnd_Box.hxx>

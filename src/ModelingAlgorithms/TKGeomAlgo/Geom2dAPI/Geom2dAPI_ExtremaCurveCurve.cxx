@@ -18,8 +18,7 @@
 #include <Extrema_POnCurv2d.hxx>
 #include <Geom2dAPI_ExtremaCurveCurve.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -78,7 +77,7 @@ void Geom2dAPI_ExtremaCurveCurve::Points(const Standard_Integer Index,
                                          gp_Pnt2d&              P1,
                                          gp_Pnt2d&              P2) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbExtrema(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbExtrema(),
                                "Geom2dAPI_ExtremaCurveCurve::Points");
 
   Extrema_POnCurv2d PC1, PC2;
@@ -94,7 +93,7 @@ void Geom2dAPI_ExtremaCurveCurve::Parameters(const Standard_Integer Index,
                                              Standard_Real&         U1,
                                              Standard_Real&         U2) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbExtrema(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbExtrema(),
                                "Geom2dAPI_ExtremaCurveCurve::Parameters");
 
   Extrema_POnCurv2d PC1, PC2;
@@ -108,7 +107,7 @@ void Geom2dAPI_ExtremaCurveCurve::Parameters(const Standard_Integer Index,
 
 Standard_Real Geom2dAPI_ExtremaCurveCurve::Distance(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbExtrema(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbExtrema(),
                                "Geom2dAPI_ExtremaCurveCurve:Distance");
 
   return sqrt(myExtCC.SquareDistance(Index));
@@ -118,7 +117,7 @@ Standard_Real Geom2dAPI_ExtremaCurveCurve::Distance(const Standard_Integer Index
 
 void Geom2dAPI_ExtremaCurveCurve::NearestPoints(gp_Pnt2d& P1, gp_Pnt2d& P2) const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "Geom2dAPI_ExtremaCurveCurve:NearestPoints");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "Geom2dAPI_ExtremaCurveCurve:NearestPoints");
 
   Points(myIndex, P1, P2);
 }
@@ -128,7 +127,7 @@ void Geom2dAPI_ExtremaCurveCurve::NearestPoints(gp_Pnt2d& P1, gp_Pnt2d& P2) cons
 void Geom2dAPI_ExtremaCurveCurve::LowerDistanceParameters(Standard_Real& U1,
                                                           Standard_Real& U2) const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "Geom2dAPI_ExtremaCurveCurve:LowerDistanceParameters");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "Geom2dAPI_ExtremaCurveCurve:LowerDistanceParameters");
 
   Parameters(myIndex, U1, U2);
 }
@@ -137,7 +136,7 @@ void Geom2dAPI_ExtremaCurveCurve::LowerDistanceParameters(Standard_Real& U1,
 
 Standard_Real Geom2dAPI_ExtremaCurveCurve::LowerDistance() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "Geom2dAPI_ExtremaCurveCurve:LowerDistance");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "Geom2dAPI_ExtremaCurveCurve:LowerDistance");
 
   return sqrt(myExtCC.SquareDistance(myIndex));
 }

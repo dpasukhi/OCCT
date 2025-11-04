@@ -16,7 +16,7 @@
 
 #include <Extrema_LocateExtCC2d.hxx>
 
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Extrema_POnCurv2d.hxx>
 
 #include <Extrema_Curve2dTool.hxx>

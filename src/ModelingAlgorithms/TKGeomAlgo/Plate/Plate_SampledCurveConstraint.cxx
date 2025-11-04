@@ -16,7 +16,7 @@
 
 #include <Plate_SampledCurveConstraint.hxx>
 #include <Plate_SequenceOfPinpointConstraint.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static inline Standard_Real B0(Standard_Real t)
 {

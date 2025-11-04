@@ -18,10 +18,7 @@
 
 #include <Standard_Real.hxx>
 #include <Standard_Integer.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_RangeError.hxx>
-#include <Standard_DivideByZero.hxx>
-#include <Standard_NullValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Precision.hxx>
 #include <gp_XY.hxx>
 #include <gp_XYZ.hxx>

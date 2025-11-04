@@ -14,15 +14,12 @@
 #ifndef NCollection_Array1_HeaderFile
 #define NCollection_Array1_HeaderFile
 
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_OutOfMemory.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
 
 #include <NCollection_DefineAlloc.hxx>
 #include <NCollection_Iterator.hxx>
 #include <NCollection_Allocator.hxx>
-#include <StdFail_NotDone.hxx>
 #include <NCollection_IndexedIterator.hxx>
 
 #include <algorithm>
@@ -220,7 +217,7 @@ public:
     {
       return *this;
     }
-    Standard_DimensionMismatch_Raise_if(mySize != theOther.mySize, "NCollection_Array1::operator=");
+    Standard_Raise_if<Standard_DimensionMismatch>(mySize != theOther.mySize, "NCollection_Array1::operator=");
     for (size_t anInd = 0; anInd < mySize; anInd++)
     {
       myPointer[anInd] = theOther.myPointer[anInd];
@@ -285,7 +282,7 @@ public:
   const_reference Value(const Standard_Integer theIndex) const
   {
     const size_t aPos = theIndex - myLowerBound;
-    Standard_OutOfRange_Raise_if(aPos >= mySize, "NCollection_Array1::Value");
+    Standard_Raise_if<Standard_OutOfRange>(aPos >= mySize, "NCollection_Array1::Value");
     return myPointer[aPos];
   }
 
@@ -299,7 +296,7 @@ public:
   reference ChangeValue(const Standard_Integer theIndex)
   {
     const size_t aPos = theIndex - myLowerBound;
-    Standard_OutOfRange_Raise_if(aPos >= mySize, "NCollection_Array1::ChangeValue");
+    Standard_Raise_if<Standard_OutOfRange>(aPos >= mySize, "NCollection_Array1::ChangeValue");
     return myPointer[aPos];
   }
 
@@ -313,7 +310,7 @@ public:
   void SetValue(const Standard_Integer theIndex, const value_type& theItem)
   {
     const size_t aPos = theIndex - myLowerBound;
-    Standard_OutOfRange_Raise_if(aPos >= mySize, "NCollection_Array1::SetValue");
+    Standard_Raise_if<Standard_OutOfRange>(aPos >= mySize, "NCollection_Array1::SetValue");
     myPointer[aPos] = theItem;
   }
 
@@ -321,7 +318,7 @@ public:
   void SetValue(const Standard_Integer theIndex, value_type&& theItem)
   {
     const size_t aPos = theIndex - myLowerBound;
-    Standard_OutOfRange_Raise_if(aPos >= mySize, "NCollection_Array1::SetValue");
+    Standard_Raise_if<Standard_OutOfRange>(aPos >= mySize, "NCollection_Array1::SetValue");
     myPointer[aPos] = std::forward<value_type>(theItem);
   }
 
@@ -344,7 +341,7 @@ public:
               const Standard_Integer theUpper,
               const Standard_Boolean theToCopyData)
   {
-    Standard_RangeError_Raise_if(theUpper < theLower, "NCollection_Array1::Resize");
+    Standard_Raise_if<Standard_RangeError>(theUpper < theLower, "NCollection_Array1::Resize");
     const size_t aNewSize     = static_cast<size_t>(theUpper - theLower + 1);
     pointer      aPrevContPnt = myPointer;
     if (aNewSize == mySize)
@@ -393,13 +390,13 @@ public:
 protected:
   const_reference at(const size_t theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex >= mySize, "NCollection_Array1::at");
+    Standard_Raise_if<Standard_OutOfRange>(theIndex >= mySize, "NCollection_Array1::at");
     return myPointer[theIndex];
   }
 
   reference at(const size_t theIndex)
   {
-    Standard_OutOfRange_Raise_if(theIndex >= mySize, "NCollection_Array1::at");
+    Standard_Raise_if<Standard_OutOfRange>(theIndex >= mySize, "NCollection_Array1::at");
     return myPointer[theIndex];
   }
 

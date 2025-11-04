@@ -12,9 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_NullObject.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TDF_LabelSequence.hxx>
 #include <TDF_Tool.hxx>
 #include <TDocStd_Document.hxx>
@@ -33,12 +31,12 @@ XCAFDoc_AssemblyIterator::XCAFDoc_AssemblyIterator(const Handle(TDocStd_Document
     : myMaxLevel(theLevel),
       mySeedLevel(1)
 {
-  Standard_NullObject_Raise_if(theDoc.IsNull(), "Null document!");
+  Standard_Raise_if<Standard_NullObject>(theDoc.IsNull(), "Null document!");
 
   myShapeTool = XCAFDoc_DocumentTool::ShapeTool(theDoc->Main());
-  Standard_NoSuchObject_Raise_if(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
+  Standard_Raise_if<Standard_NoSuchObject>(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
 
-  Standard_RangeError_Raise_if(myMaxLevel < 0, "Null document!");
+  Standard_Raise_if<Standard_RangeError>(myMaxLevel < 0, "Null document!");
 
   TDF_LabelSequence aRoots;
   myShapeTool->GetFreeShapes(aRoots);
@@ -63,14 +61,14 @@ XCAFDoc_AssemblyIterator::XCAFDoc_AssemblyIterator(const Handle(TDocStd_Document
     : myMaxLevel(theLevel),
       mySeedLevel(theRoot.GetPath().Size())
 {
-  Standard_NullObject_Raise_if(theDoc.IsNull(), "Null document!");
+  Standard_Raise_if<Standard_NullObject>(theDoc.IsNull(), "Null document!");
 
   myShapeTool = XCAFDoc_DocumentTool::ShapeTool(theDoc->Main());
-  Standard_NoSuchObject_Raise_if(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
+  Standard_Raise_if<Standard_NoSuchObject>(myShapeTool.IsNull(), "No XCAFDoc_ShapeTool attribute!");
 
-  Standard_NullObject_Raise_if(theRoot.IsNull(), "Null assembly item!");
+  Standard_Raise_if<Standard_NullObject>(theRoot.IsNull(), "Null assembly item!");
 
-  Standard_RangeError_Raise_if(myMaxLevel < 0, "Null document!");
+  Standard_Raise_if<Standard_RangeError>(myMaxLevel < 0, "Null document!");
 
   AuxAssemblyItem aSeed;
   aSeed.myItem = theRoot;

@@ -17,7 +17,7 @@
 #include <BinTools_ShapeSet.hxx>
 #include <FSD_FileHeader.hxx>
 #include <OSD_FileSystem.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

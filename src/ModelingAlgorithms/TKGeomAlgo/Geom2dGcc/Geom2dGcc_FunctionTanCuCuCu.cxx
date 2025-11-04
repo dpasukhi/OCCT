@@ -23,7 +23,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <math_Matrix.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void Geom2dGcc_FunctionTanCuCuCu::InitDerivative(const math_Vector& X,
                                                  gp_Pnt2d&          Point1,

@@ -21,7 +21,7 @@
 #include <GeomToStep_MakeEllipse.hxx>
 #include <gp_Elips.hxx>
 #include <gp_Elips2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement2d.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
@@ -83,6 +83,6 @@ GeomToStep_MakeEllipse::GeomToStep_MakeEllipse(const Handle(Geom2d_Ellipse)& Cer
 
 const Handle(StepGeom_Ellipse)& GeomToStep_MakeEllipse::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeEllipse::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeEllipse::Value() - no result");
   return theEllipse;
 }

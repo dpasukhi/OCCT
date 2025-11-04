@@ -16,7 +16,7 @@
 
 #include <ElCLib.hxx>
 #include <GccAna_Circ2d2TanRad.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedLin.hxx>
 #include <gp_Ax2d.hxx>
 #include <gp_Circ2d.hxx>
@@ -25,7 +25,6 @@
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_IntPoint.hxx>
 #include <Precision.hxx>
-#include <Standard_NegativeValue.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 // circular tangent to two lines of given radius

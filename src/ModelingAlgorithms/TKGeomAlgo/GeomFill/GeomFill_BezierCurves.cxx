@@ -22,8 +22,7 @@
 #include <GeomFill_Filling.hxx>
 #include <GeomFill_Stretch.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array2OfPnt.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -205,7 +204,7 @@ void GeomFill_BezierCurves::Init(const Handle(Geom_BezierCurve)& C1,
 #endif
     Arrange(C1, C2, C3, C4, CC1, CC2, CC3, CC4, Tol);
 
-  Standard_ConstructionError_Raise_if(!IsOK, " GeomFill_BezierCurves: Courbes non jointives");
+  Standard_Raise_if<Standard_ConstructionError>(!IsOK, " GeomFill_BezierCurves: Courbes non jointives");
 
   // Mise en conformite des degres
   Standard_Integer DegU = Max(CC1->Degree(), CC3->Degree());

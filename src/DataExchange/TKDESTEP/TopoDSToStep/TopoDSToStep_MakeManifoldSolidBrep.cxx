@@ -16,7 +16,7 @@
 
 #include <BRepClass3d.hxx>
 #include <Message_ProgressScope.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepShape_ClosedShell.hxx>
@@ -161,7 +161,7 @@ TopoDSToStep_MakeManifoldSolidBrep::TopoDSToStep_MakeManifoldSolidBrep(
 
 const Handle(StepShape_ManifoldSolidBrep)& TopoDSToStep_MakeManifoldSolidBrep::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeManifoldSolidBrep::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeManifoldSolidBrep::Value() - no result");
   return theManifoldSolidBrep;
 }
 
@@ -173,7 +173,7 @@ const Handle(StepShape_ManifoldSolidBrep)& TopoDSToStep_MakeManifoldSolidBrep::V
 const Handle(StepVisual_TessellatedItem)& TopoDSToStep_MakeManifoldSolidBrep::TessellatedValue()
   const
 {
-  StdFail_NotDone_Raise_if(!done,
+  Standard_Raise_if<StdFail_NotDone>(!done,
                            "TopoDSToStep_MakeManifoldSolidBrep::TessellatedValue() - no result");
   return theTessellatedItem;
 }

@@ -22,7 +22,7 @@
 #include <math_Matrix.hxx>
 #include <BSplCLib.hxx>
 #include <NCollection_LocalArray.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // To convert points array into Real ..
 // *********************************
@@ -262,9 +262,9 @@ Standard_Real PLib::Bin(const Standard_Integer N, const Standard_Integer P)
 {
   const auto& aBinom = GetBinomAllocator();
 
-  Standard_OutOfRange_Raise_if(N < 0 || N > BSplCLib::MaxDegree(),
+  Standard_Raise_if<Standard_OutOfRange>(N < 0 || N > BSplCLib::MaxDegree(),
                                "PLib::Bin: degree N is out of supported range [0, 25]");
-  Standard_OutOfRange_Raise_if(P < 0 || P > N,
+  Standard_Raise_if<Standard_OutOfRange>(P < 0 || P > N,
                                "PLib::Bin: parameter P is out of valid range [0, N]");
 
   return Standard_Real(aBinom.Value(N, P));

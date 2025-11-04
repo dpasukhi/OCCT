@@ -17,7 +17,7 @@
 #include <Graphic3d_Texture2D.hxx>
 
 #include <Graphic3d_TextureParams.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Graphic3d_Texture2D, Graphic3d_TextureMap)
 

@@ -16,7 +16,7 @@
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <Transfer_Binder.hxx>
-#include <Transfer_TransferFailure.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Transfer_VoidBinder.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Transfer_Binder, Standard_Transient)

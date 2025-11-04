@@ -23,7 +23,7 @@
 #include <MAT2d_Array2OfConnexion.hxx>
 #include <MAT2d_Connexion.hxx>
 #include <MAT2d_MiniPath.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom2d_SequenceOfGeometry.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
 

@@ -28,7 +28,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
@@ -337,7 +337,7 @@ static void BuildDomains(TopoDS_Face&               myFace,
 
 void BRepOffsetAPI_MakeOffset::Perform(const Standard_Real Offset, const Standard_Real Alt)
 {
-  StdFail_NotDone_Raise_if(!myIsInitialized, "BRepOffsetAPI_MakeOffset : Perform without Init");
+  Standard_Raise_if<StdFail_NotDone>(!myIsInitialized, "BRepOffsetAPI_MakeOffset : Perform without Init");
 
   try
   {

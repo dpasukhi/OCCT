@@ -27,8 +27,7 @@
 #include <gp_Dir2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_XY.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 GccAna_CircLin2dBisec::GccAna_CircLin2dBisec(const gp_Circ2d& Circle, const gp_Lin2d& Line)

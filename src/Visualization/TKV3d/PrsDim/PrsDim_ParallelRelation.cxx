@@ -37,7 +37,7 @@
 #include <Select3D_SensitiveSegment.hxx>
 #include <SelectMgr_EntityOwner.hxx>
 #include <SelectMgr_Selection.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>

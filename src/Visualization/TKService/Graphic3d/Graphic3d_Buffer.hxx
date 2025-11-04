@@ -18,7 +18,7 @@
 #include <Graphic3d_Vec.hxx>
 #include <NCollection_Array1.hxx>
 #include <NCollection_Buffer.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Type of attribute in Vertex Buffer
 enum Graphic3d_TypeOfAttribute

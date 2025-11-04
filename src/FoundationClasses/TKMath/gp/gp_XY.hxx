@@ -17,8 +17,7 @@
 
 #include <gp.hxx>
 #include <gp_Mat2d.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! This class describes a cartesian coordinate entity in 2D
 //! space {X,Y}. This class is non persistent. This entity used
@@ -51,7 +50,7 @@ public:
   //! Raises OutOfRange if theIndex != {1, 2}.
   inline void SetCoord(const Standard_Integer theIndex, const Standard_Real theXi)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 2, NULL);
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 2, NULL);
     (&x)[theIndex - 1] = theXi;
   }
 
@@ -75,13 +74,13 @@ public:
   //! Raises OutOfRange if theIndex != {1, 2}.
   inline Standard_Real Coord(const Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 2, NULL);
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 2, NULL);
     return (&x)[theIndex - 1];
   }
 
   inline Standard_Real& ChangeCoord(const Standard_Integer theIndex)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 2, NULL);
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 2, NULL);
     return (&x)[theIndex - 1];
   }
 
@@ -275,7 +274,7 @@ public:
   Standard_NODISCARD gp_XY Normalized() const
   {
     Standard_Real aD = Modulus();
-    Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                         "gp_XY::Normalized() - vector has zero norm");
     return gp_XY(x / aD, y / aD);
   }
@@ -395,7 +394,7 @@ inline void gp_XY::Multiply(const gp_Mat2d& theMatrix) noexcept
 inline void gp_XY::Normalize()
 {
   Standard_Real aD = Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_XY::Normalize() - vector has zero norm");
   x = x / aD;
   y = y / aD;

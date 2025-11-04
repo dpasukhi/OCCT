@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <BRep_Tool.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <TopoDS.hxx>

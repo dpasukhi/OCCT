@@ -16,7 +16,7 @@
 
 #include <BRepFill_OffsetAncestors.hxx>
 #include <BRepFill_OffsetWire.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
@@ -87,7 +87,7 @@ Standard_Boolean BRepFill_OffsetAncestors::HasAncestor(const TopoDS_Edge& S1) co
 
 const TopoDS_Shape& BRepFill_OffsetAncestors::Ancestor(const TopoDS_Edge& S1) const
 {
-  StdFail_NotDone_Raise_if(
+  Standard_Raise_if<StdFail_NotDone>(
     !myIsPerform,
     "BRepFill_OffsetAncestors::Ancestor() - Perform() should be called before accessing results");
   return myMap(S1);

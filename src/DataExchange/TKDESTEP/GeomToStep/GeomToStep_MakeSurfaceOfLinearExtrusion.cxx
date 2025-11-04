@@ -19,7 +19,7 @@
 #include <GeomToStep_MakeSurfaceOfLinearExtrusion.hxx>
 #include <GeomToStep_MakeVector.hxx>
 #include <gp_Vec.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Curve.hxx>
 #include <StepGeom_SurfaceOfLinearExtrusion.hxx>
@@ -58,6 +58,6 @@ GeomToStep_MakeSurfaceOfLinearExtrusion::GeomToStep_MakeSurfaceOfLinearExtrusion
 const Handle(StepGeom_SurfaceOfLinearExtrusion)& GeomToStep_MakeSurfaceOfLinearExtrusion::Value()
   const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeSurfaceOfLinearExtrusion::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeSurfaceOfLinearExtrusion::Value() - no result");
   return theSurfaceOfLinearExtrusion;
 }

@@ -15,7 +15,7 @@
 #include <Blend_CSFunction.hxx>
 #include <Blend_Point.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Standard_Integer Blend_CSFunction::NbVariables() const
 {

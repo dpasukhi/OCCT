@@ -16,9 +16,7 @@
 
 #include <IntPatch_TheSOnBounds.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor3d_HVertex.hxx>
 #include <Adaptor2d_Curve2d.hxx>
 #include <IntPatch_HCurve2dTool.hxx>

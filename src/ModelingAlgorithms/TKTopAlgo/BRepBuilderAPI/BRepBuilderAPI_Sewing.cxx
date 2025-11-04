@@ -76,8 +76,7 @@
 #include <NCollection_UBTreeFiller.hxx>
 #include <Precision.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColgp_Array1OfVec.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
@@ -2128,7 +2127,7 @@ Standard_Integer BRepBuilderAPI_Sewing::NbFreeEdges() const
 
 const TopoDS_Edge& BRepBuilderAPI_Sewing::FreeEdge(const Standard_Integer index) const
 {
-  Standard_OutOfRange_Raise_if(index < 0 || index > NbFreeEdges(),
+  Standard_Raise_if<Standard_OutOfRange>(index < 0 || index > NbFreeEdges(),
                                "BRepBuilderAPI_Sewing::FreeEdge");
   return TopoDS::Edge(myFreeEdges(index));
 }
@@ -2144,7 +2143,7 @@ Standard_Integer BRepBuilderAPI_Sewing::NbMultipleEdges() const
 
 const TopoDS_Edge& BRepBuilderAPI_Sewing::MultipleEdge(const Standard_Integer index) const
 {
-  Standard_OutOfRange_Raise_if(index < 0 || index > NbMultipleEdges(),
+  Standard_Raise_if<Standard_OutOfRange>(index < 0 || index > NbMultipleEdges(),
                                "BRepBuilderAPI_Sewing::MultipleEdge");
   return TopoDS::Edge(myMultipleEdges(index));
 }
@@ -2160,7 +2159,7 @@ Standard_Integer BRepBuilderAPI_Sewing::NbContigousEdges() const
 
 const TopoDS_Edge& BRepBuilderAPI_Sewing::ContigousEdge(const Standard_Integer index) const
 {
-  Standard_OutOfRange_Raise_if(index < 0 || index > NbContigousEdges(),
+  Standard_Raise_if<Standard_OutOfRange>(index < 0 || index > NbContigousEdges(),
                                "BRepBuilderAPI_Sewing::ContigousEdge");
   return TopoDS::Edge(myContigousEdges.FindKey(index));
 }
@@ -2170,7 +2169,7 @@ const TopoDS_Edge& BRepBuilderAPI_Sewing::ContigousEdge(const Standard_Integer i
 const TopTools_ListOfShape& BRepBuilderAPI_Sewing::ContigousEdgeCouple(
   const Standard_Integer index) const
 {
-  Standard_OutOfRange_Raise_if(index < 0 || index > NbContigousEdges(),
+  Standard_Raise_if<Standard_OutOfRange>(index < 0 || index > NbContigousEdges(),
                                "BRepBuilderAPI_Sewing::ContigousEdgeCouple");
   return myContigousEdges(index);
 }
@@ -2193,7 +2192,7 @@ Standard_Boolean BRepBuilderAPI_Sewing::IsSectionBound(const TopoDS_Edge& sectio
 
 const TopoDS_Edge& BRepBuilderAPI_Sewing::SectionToBoundary(const TopoDS_Edge& section) const
 {
-  Standard_NoSuchObject_Raise_if(!IsSectionBound(section),
+  Standard_Raise_if<Standard_NoSuchObject>(!IsSectionBound(section),
                                  "BRepBuilderAPI_Sewing::SectionToBoundary");
   return TopoDS::Edge(myContigSecBound(section));
 }
@@ -2209,7 +2208,7 @@ Standard_Integer BRepBuilderAPI_Sewing::NbDeletedFaces() const
 
 const TopoDS_Face& BRepBuilderAPI_Sewing::DeletedFace(const Standard_Integer index) const
 {
-  Standard_OutOfRange_Raise_if(index < 0 || index > NbDeletedFaces(),
+  Standard_Raise_if<Standard_OutOfRange>(index < 0 || index > NbDeletedFaces(),
                                "BRepBuilderAPI_Sewing::DeletedFace");
   return TopoDS::Face(myLittleFace(index));
 }
@@ -2225,7 +2224,7 @@ Standard_Integer BRepBuilderAPI_Sewing::NbDegeneratedShapes() const
 
 const TopoDS_Shape& BRepBuilderAPI_Sewing::DegeneratedShape(const Standard_Integer index) const
 {
-  Standard_OutOfRange_Raise_if(index < 0 || index > NbDegeneratedShapes(),
+  Standard_Raise_if<Standard_OutOfRange>(index < 0 || index > NbDegeneratedShapes(),
                                "BRepBuilderAPI_Sewing::DegereratedShape");
   return myDegenerated(index);
 }

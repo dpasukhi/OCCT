@@ -22,8 +22,7 @@
 #include <Geom_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <GeomEvaluator_Curve.hxx>
-#include <Standard_NullObject.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 DEFINE_STANDARD_HANDLE(GeomAdaptor_Curve, Adaptor3d_Curve)
 

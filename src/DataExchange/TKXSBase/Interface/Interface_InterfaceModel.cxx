@@ -21,7 +21,7 @@
 #include <Interface_EntityIterator.hxx>
 #include <Interface_GeneralModule.hxx>
 #include <Interface_GTool.hxx>
-#include <Interface_InterfaceMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_InterfaceModel.hxx>
 #include <Interface_Protocol.hxx>
 #include <Interface_ReportEntity.hxx>

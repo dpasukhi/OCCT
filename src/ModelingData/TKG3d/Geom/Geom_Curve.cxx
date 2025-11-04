@@ -15,11 +15,9 @@
 // commercial license or contractual agreement.
 
 #include <Geom_Curve.hxx>
-#include <Geom_UndefinedDerivative.hxx>
-#include <Geom_UndefinedValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
-#include <Standard_NoSuchObject.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_Curve, Geom_Geometry)
@@ -39,7 +37,7 @@ Handle(Geom_Curve) Geom_Curve::Reversed() const
 
 Standard_Real Geom_Curve::Period() const
 {
-  Standard_NoSuchObject_Raise_if(!IsPeriodic(), "Geom_Curve::Period");
+  Standard_Raise_if<Standard_NoSuchObject>(!IsPeriodic(), "Geom_Curve::Period");
 
   return (LastParameter() - FirstParameter());
 }

@@ -21,7 +21,7 @@
 #include <NCollection_List.hxx>
 #include <Precision.hxx>
 #include <OSD.hxx>
-#include <OSD_Exception_CTRL_BREAK.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <OSD_Thread.hxx>
 
 #include <stdio.h>

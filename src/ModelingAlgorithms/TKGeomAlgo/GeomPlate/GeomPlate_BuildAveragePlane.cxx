@@ -36,7 +36,7 @@
 #include <gp_Vec.hxx>
 #include <math_Jacobi.hxx>
 #include <math_Matrix.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_Array1OfVec.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
@@ -248,7 +248,7 @@ GeomPlate_BuildAveragePlane::GeomPlate_BuildAveragePlane(const TColgp_SequenceOf
 
 Handle(Geom_Plane) GeomPlate_BuildAveragePlane::Plane() const
 {
-  Standard_NoSuchObject_Raise_if(
+  Standard_Raise_if<Standard_NoSuchObject>(
     IsLine(),
     "Cannot use the function 'GeomPlate_BuildAveragePlane::Plane()', the Object is a 'Geom_Line'");
   return myPlane;
@@ -452,7 +452,7 @@ void GeomPlate_BuildAveragePlane::BasePlan(const gp_Vec& OZ)
 
 Handle(Geom_Line) GeomPlate_BuildAveragePlane::Line() const
 {
-  Standard_NoSuchObject_Raise_if(
+  Standard_Raise_if<Standard_NoSuchObject>(
     IsPlane(),
     "Cannot use the function 'GeomPlate_BuildAveragePlane::Line()', the Object is a 'Geom_Plane'");
   return myLine;

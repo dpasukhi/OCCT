@@ -16,7 +16,7 @@
 
 #include <Standard_Type.hxx>
 #include <Standard_CString.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 const Handle(Standard_Type)& Standard_Transient::get_type_descriptor()
 {

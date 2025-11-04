@@ -34,8 +34,7 @@
 #include <math_FunctionRoot.hxx>
 #include <math_GaussSingleIntegration.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // auxiliary functions to compute the length of the derivative
 static Standard_Real f3d(const Standard_Real X, const Standard_Address C)

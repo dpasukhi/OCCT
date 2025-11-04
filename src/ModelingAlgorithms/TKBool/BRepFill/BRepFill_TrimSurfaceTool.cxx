@@ -44,8 +44,7 @@
 #include <IntRes2d_IntersectionPoint.hxx>
 #include <IntRes2d_IntersectionSegment.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
@@ -417,7 +416,7 @@ void BRepFill_TrimSurfaceTool::IntersectWith(const TopoDS_Edge&    EdgeOnF1,
   EvalParameters(EdgeOnF1, myFace1, myBis, Points);
   EvalParameters(EdgeOnF2, myFace2, myBis, Points2);
 
-  StdFail_NotDone_Raise_if(Points.Length() != Points2.Length(),
+  Standard_Raise_if<StdFail_NotDone>(Points.Length() != Points2.Length(),
                            "BRepFill_TrimSurfaceTool::IntersectWith: incoherent intersection");
 
   gp_Pnt           PSeq;

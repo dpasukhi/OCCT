@@ -18,7 +18,7 @@
 #include <BSplCLib.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <GeomConvert_BSplineSurfaceKnotSplitting.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 typedef TColStd_Array1OfInteger  Array1OfInteger;
 typedef TColStd_HArray1OfInteger HArray1OfInteger;
@@ -151,7 +151,7 @@ Standard_Integer GeomConvert_BSplineSurfaceKnotSplitting::USplitValue(
 ) const
 {
 
-  Standard_RangeError_Raise_if(UIndex < 1 || UIndex > usplitIndexes->Length(), " ");
+  Standard_Raise_if<Standard_RangeError>(UIndex < 1 || UIndex > usplitIndexes->Length(), " ");
   return usplitIndexes->Value(UIndex);
 }
 
@@ -162,7 +162,7 @@ Standard_Integer GeomConvert_BSplineSurfaceKnotSplitting::VSplitValue(
 ) const
 {
 
-  Standard_RangeError_Raise_if(VIndex < 1 || VIndex > vsplitIndexes->Length(), " ");
+  Standard_Raise_if<Standard_RangeError>(VIndex < 1 || VIndex > vsplitIndexes->Length(), " ");
   return vsplitIndexes->Value(VIndex);
 }
 

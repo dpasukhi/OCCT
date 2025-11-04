@@ -34,8 +34,7 @@
 #include <IntSurf_Quadric.hxx>
 #include <IntSurf_Transition.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_IndexedMapOfInteger.hxx>
 #include <TopAbs_Orientation.hxx>
 

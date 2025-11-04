@@ -17,7 +17,7 @@
 #include <Blend_Point.hxx>
 #include <Blend_RstRstFunction.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 const gp_Pnt& Blend_RstRstFunction::Pnt1() const
 {

@@ -15,7 +15,7 @@
 #define _NCollection_Mat3_HeaderFile
 
 #include <NCollection_Vec3.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! 3x3 Matrix class.
 //! Warning, empty constructor returns an identity matrix.

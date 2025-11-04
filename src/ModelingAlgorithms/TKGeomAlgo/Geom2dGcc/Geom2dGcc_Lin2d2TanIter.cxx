@@ -18,7 +18,7 @@
 //  CREATION D UNE LIGNE TANGENTE A DEUX COURBES.                        +
 //========================================================================
 
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <Geom2dGcc_CurveTool.hxx>
 #include <Geom2dGcc_FunctionTanCirCu.hxx>
@@ -35,7 +35,6 @@
 #include <math_FunctionRoot.hxx>
 #include <math_FunctionSetRoot.hxx>
 #include <math_Vector.hxx>
-#include <StdFail_NotDone.hxx>
 
 Geom2dGcc_Lin2d2TanIter::Geom2dGcc_Lin2d2TanIter(const GccEnt_QualifiedCirc& Qualified1,
                                                  const Geom2dGcc_QCurve&     Qualified2,

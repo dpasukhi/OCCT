@@ -21,7 +21,7 @@
 #include <gp_Cone.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //  Construction d un cone par son axe , le rayon de sa base et le demi   +
@@ -249,7 +249,7 @@ gce_MakeCone::gce_MakeCone(const gp_Pnt&       P1,
 
 const gp_Cone& gce_MakeCone::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeCone::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeCone::Value() - no result");
   return TheCone;
 }
 

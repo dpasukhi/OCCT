@@ -28,7 +28,7 @@
 #include <TDF_DeltaOnRemoval.hxx>
 #include <TDF_DeltaOnModification.hxx>
 #include <TDF_AttributeDeltaList.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=======================================================================
 // function : UpdateXLinks

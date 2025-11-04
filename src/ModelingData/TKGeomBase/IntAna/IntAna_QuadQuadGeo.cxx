@@ -46,9 +46,7 @@
 #include <IntAna_IntConicQuad.hxx>
 #include <IntAna_QuadQuadGeo.hxx>
 #include <math_DirectPolynomialRoots.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gce_MakePln.hxx>
 #include <ProjLib.hxx>
 #include <IntAna2d_AnaIntersection.hxx>

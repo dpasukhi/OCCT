@@ -20,7 +20,7 @@
 #include <gp_Pln.hxx>
 #include <Precision.hxx>
 #include <Poly_Connect.hxx>
-#include <Standard_NullValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS.hxx>
 
 //=======================================================================

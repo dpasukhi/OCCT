@@ -38,7 +38,7 @@
 #include <IntPatch_WLine.hxx>
 #include <IntSurf.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TColgp_SequenceOfPnt2d.hxx>
 

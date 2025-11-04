@@ -15,7 +15,7 @@
 #include <StdDrivers.hxx>
 #include <StdStorage_TypeData.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(StdStorage_TypeData, Standard_Transient)

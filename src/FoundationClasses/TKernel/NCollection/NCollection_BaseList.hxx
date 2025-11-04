@@ -25,7 +25,7 @@
 #ifndef NCollection_BaseList_HeaderFile
 #define NCollection_BaseList_HeaderFile
 
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <NCollection_DefineAlloc.hxx>
 #include <NCollection_ListNode.hxx>
 

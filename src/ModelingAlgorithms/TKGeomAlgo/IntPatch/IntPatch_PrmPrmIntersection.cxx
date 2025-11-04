@@ -32,8 +32,7 @@
 #include <IntSurf_ListIteratorOfListOfPntOn2S.hxx>
 #include <IntSurf_PntOn2S.hxx>
 #include <IntWalk_PWalking.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
 

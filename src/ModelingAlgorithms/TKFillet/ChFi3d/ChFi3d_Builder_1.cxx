@@ -45,9 +45,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs_Orientation.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <TopExp.hxx>
@@ -370,7 +368,7 @@ Standard_Boolean ChFi3d_Builder::IsDone() const
 
 TopoDS_Shape ChFi3d_Builder::Shape() const
 {
-  Standard_NoSuchObject_Raise_if(!done, "ChFi3d_Builder::Shape() - no result");
+  Standard_Raise_if<Standard_NoSuchObject>(!done, "ChFi3d_Builder::Shape() - no result");
   return myShapeResult;
 }
 
@@ -494,7 +492,7 @@ Standard_Boolean ChFi3d_Builder::HasResult() const
 
 TopoDS_Shape ChFi3d_Builder::BadShape() const
 {
-  Standard_NoSuchObject_Raise_if(!hasresult, "ChFi3d_Builder::BadShape() - no result");
+  Standard_Raise_if<Standard_NoSuchObject>(!hasresult, "ChFi3d_Builder::BadShape() - no result");
   return badShape;
 }
 

@@ -13,7 +13,7 @@
 
 #include <Interface_Macros.hxx>
 #include <Standard_Transient.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_PDescr.hxx>
 #include <StepData_SelectInt.hxx>
 #include <StepData_SelectMember.hxx>

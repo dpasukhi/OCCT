@@ -23,9 +23,7 @@
 #include <GeomAbs_IsoType.hxx>
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

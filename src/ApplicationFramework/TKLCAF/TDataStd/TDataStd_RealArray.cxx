@@ -74,7 +74,7 @@ TDataStd_RealArray::TDataStd_RealArray()
 
 void TDataStd_RealArray::Init(const Standard_Integer lower, const Standard_Integer upper)
 {
-  Standard_RangeError_Raise_if(upper < lower, "TDataStd_RealArray::Init");
+  Standard_Raise_if<Standard_RangeError>(upper < lower, "TDataStd_RealArray::Init");
   Backup(); // jfa 15.01.2003 for LH3D1378
   myValue = new TColStd_HArray1OfReal(lower, upper, 0.);
 }

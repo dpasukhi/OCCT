@@ -16,9 +16,8 @@
 
 #include <Expr_BinaryExpression.hxx>
 #include <Expr_GeneralExpression.hxx>
-#include <Expr_InvalidOperand.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Expr_NamedUnknown.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Expr_BinaryExpression, Expr_GeneralExpression)

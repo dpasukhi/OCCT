@@ -17,7 +17,7 @@
 #include <IntPatch_TheSegmentOfTheSOnBounds.hxx>
 
 #include <Adaptor2d_Curve2d.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor3d_HVertex.hxx>
 #include <IntPatch_ThePathPointOfTheSOnBounds.hxx>
 

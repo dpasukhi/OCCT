@@ -17,7 +17,7 @@
 #include <IGESData_SpecificLib.hxx>
 
 #include <IGESData_NodeOfSpecificLib.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IGESData_IGESEntity.hxx>
 #include <IGESData_SpecificModule.hxx>
 #include <IGESData_Protocol.hxx>

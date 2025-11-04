@@ -19,9 +19,7 @@
 #include <GeomAbs_Shape.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BezierCurve.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfBoolean.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <gce_MakeLin.hxx>

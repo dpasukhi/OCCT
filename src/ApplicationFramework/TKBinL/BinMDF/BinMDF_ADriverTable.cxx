@@ -18,7 +18,7 @@
 #include <BinMDF_DataMapIteratorOfTypeADriverMap.hxx>
 #include <BinMDF_DerivedDriver.hxx>
 #include <BinMDF_StringIdMap.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <TDF_DerivedAttribute.hxx>

@@ -21,7 +21,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_XY.hxx>
 #include <IGESGeom_Flash.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESGeom_Flash, IGESData_IGESEntity)

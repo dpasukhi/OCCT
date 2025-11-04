@@ -27,7 +27,7 @@
 
 #include <Draw_Appli.hxx>
 #include <Draw_Interpretor.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <TCollection_AsciiString.hxx>
 

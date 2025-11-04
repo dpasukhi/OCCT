@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------
 
 #include <IGESDimen_DimensionedGeometry.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESDimen_DimensionedGeometry, IGESData_IGESEntity)

@@ -167,7 +167,7 @@ protected:
     //! Sets vertex
     void SetVertex(const Standard_Integer thePlaceID, const Standard_Integer theVertID)
     {
-      Standard_RangeError_Raise_if((thePlaceID < 0) || (thePlaceID > 3),
+      Standard_Raise_if<Standard_RangeError>((thePlaceID < 0) || (thePlaceID > 3),
                                    "FS_Face::SetVertex(): OUT of Range");
 
       myVertices[thePlaceID] = theVertID;
@@ -176,7 +176,7 @@ protected:
     //! Sets edge
     void SetEdge(const Standard_Integer thePlaceID, const Standard_Integer theEdgeID)
     {
-      Standard_RangeError_Raise_if((thePlaceID < 0) || (thePlaceID > 3),
+      Standard_Raise_if<Standard_RangeError>((thePlaceID < 0) || (thePlaceID > 3),
                                    "FS_Face::SetEdge(): OUT of Range");
 
       myEdges[thePlaceID] = theEdgeID;
@@ -224,7 +224,7 @@ protected:
     //! Sets vertex
     void SetVertex(const Standard_Integer thePlaceID, const Standard_Integer theVertID)
     {
-      Standard_RangeError_Raise_if((thePlaceID < 0) || (thePlaceID > 1),
+      Standard_Raise_if<Standard_RangeError>((thePlaceID < 0) || (thePlaceID > 1),
                                    "FS_Face::SetVertex(): OUT of Range");
 
       myVertices[thePlaceID] = theVertID;

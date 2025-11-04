@@ -16,7 +16,7 @@
 
 #include <AdvApprox_PrefAndRec.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 AdvApprox_PrefAndRec::AdvApprox_PrefAndRec(const TColStd_Array1OfReal& RecCut,
                                            const TColStd_Array1OfReal& PrefCut,

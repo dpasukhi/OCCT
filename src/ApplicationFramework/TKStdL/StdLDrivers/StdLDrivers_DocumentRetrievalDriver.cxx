@@ -21,15 +21,12 @@
 #include <Storage_TypeData.hxx>
 #include <Storage_RootData.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamFormatError.hxx>
-#include <Storage_StreamReadError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <PCDM.hxx>
 #include <PCDM_ReadWriter.hxx>
 
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_NotImplemented.hxx>
 #include <NCollection_Array1.hxx>
 #include <TDocStd_Document.hxx>
 #include <Storage_Schema.hxx>

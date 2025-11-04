@@ -20,8 +20,7 @@
 #include <AppDef_MultiLine.hxx>
 #include <AppDef_Variational.hxx>
 #include <AppParCurves_MultiBSpCurve.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #define No_Standard_RangeError
 #define No_Standard_OutOfRange
@@ -49,7 +48,6 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TColStd_HArray2OfReal.hxx>
-#include <StdFail_NotDone.hxx>
 #include <Precision.hxx>
 #include <AppDef_MyLineTool.hxx>
 

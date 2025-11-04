@@ -16,7 +16,7 @@
 
 #include <Draw.hxx>
 #include <Draw_Appli.hxx>
-#include <Draw_Failure.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Draw_Interpretor.hxx>
 #include <Draw_ProgressIndicator.hxx>
 #include <Draw_Window.hxx>

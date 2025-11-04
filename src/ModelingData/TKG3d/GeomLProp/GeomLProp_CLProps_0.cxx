@@ -17,10 +17,7 @@
 #include <GeomLProp_CLProps.hxx>
 
 #include <Geom_Curve.hxx>
-#include <LProp_BadContinuity.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <LProp_NotDefined.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Dir.hxx>

@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <BRepCheck_Analyzer.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopOpeBRepBuild_define.hxx>

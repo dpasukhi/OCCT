@@ -15,7 +15,7 @@
 #ifndef _gp_Vec2d_HeaderFile
 #define _gp_Vec2d_HeaderFile
 
-#include <gp_VectorWithNullMagnitude.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_XY.hxx>
 
 class gp_Dir2d;
@@ -225,7 +225,7 @@ public:
   void Normalize()
   {
     Standard_Real aD = coord.Modulus();
-    Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                         "gp_Vec2d::Normalize() - vector has zero norm");
     coord.Divide(aD);
   }
@@ -394,7 +394,7 @@ inline Standard_Boolean gp_Vec2d::IsParallel(const gp_Vec2d&     theOther,
 inline gp_Vec2d gp_Vec2d::Normalized() const
 {
   Standard_Real aD = coord.Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Vec2d::Normalized() - vector has zero norm");
   gp_Vec2d aV = *this;
   aV.coord.Divide(aD);

@@ -16,7 +16,7 @@
 
 #include <BRepAdaptor_Surface.hxx>
 #include <Precision.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Face.hxx>

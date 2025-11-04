@@ -21,7 +21,7 @@
 #include <gp_Ax22d.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GCE2d_MakeCircle::GCE2d_MakeCircle(const gp_Circ2d& C)
 {
@@ -110,6 +110,6 @@ GCE2d_MakeCircle::GCE2d_MakeCircle(const gp_Pnt2d&        Center,
 
 const Handle(Geom2d_Circle)& GCE2d_MakeCircle::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GCE2d_MakeCircle::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GCE2d_MakeCircle::Value() - no result");
   return TheCircle;
 }

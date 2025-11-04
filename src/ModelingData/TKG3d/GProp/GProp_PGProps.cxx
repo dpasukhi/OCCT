@@ -13,8 +13,7 @@
 // commercial license or contractual agreement.
 
 #include <GProp_PGProps.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // #include <gp.hxx>
 typedef gp_Pnt               Pnt;

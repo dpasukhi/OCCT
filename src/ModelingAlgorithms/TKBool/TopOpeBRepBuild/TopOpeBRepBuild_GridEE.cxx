@@ -43,7 +43,7 @@
 #include <Geom2dAdaptor_Curve.hxx>
 #include <BRepAdaptor_Curve.hxx>
 #include <TopOpeBRepTool_2d.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopOpeBRepDS_EdgeVertexInterference.hxx>
 
 #ifdef OCCT_DEBUG

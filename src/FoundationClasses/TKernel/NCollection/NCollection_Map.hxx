@@ -21,7 +21,7 @@
 #include <NCollection_DefaultHasher.hxx>
 #include <NCollection_StlIterator.hxx>
 #include <NCollection_TListNode.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <utility>
 
@@ -108,14 +108,14 @@ public:
     //! Value inquiry
     const TheKeyType& Value(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_Map::Iterator::Value");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_Map::Iterator::Value");
       return ((MapNode*)myNode)->Value();
     }
 
     //! Key
     const TheKeyType& Key(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_Map::Iterator::Key");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_Map::Iterator::Key");
       return ((MapNode*)myNode)->Value();
     }
   };

@@ -40,7 +40,7 @@
 #include <IntPatch_WLine.hxx>
 #include <IntSurf.hxx>
 #include <NCollection_IncAllocator.hxx>
-#include <Standard_DivideByZero.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <gce_MakeLin.hxx>
@@ -5350,7 +5350,7 @@ Standard_Boolean ComputationMethods::CylCylComputeParameters(const Standard_Real
     //    8.0e-11 <= acos(p)-acos(p+x) < 2.24e-6.
 
     const Standard_Real aDelta = Min(1.0 - anArg, 1.0 + anArg);
-    Standard_DivideByZero_Raise_if((aDelta * aDelta < RealSmall()) || (aDelta >= 2.0),
+    Standard_Raise_if<Standard_DivideByZero>((aDelta * aDelta < RealSmall()) || (aDelta >= 2.0),
                                    "IntPatch_ImpImpIntersection_4.gxx, CylCylComputeParameters()");
     *theDelta = aTol0 / sqrt(aDelta * (2.0 - aDelta));
   }

@@ -20,7 +20,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <gp_XY.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d une direction 2d (Dir2d) de gp a partir de 2 Pnt2d de gp. +
@@ -79,7 +79,7 @@ gce_MakeDir2d::gce_MakeDir2d(const Standard_Real Xv, const Standard_Real Yv)
 
 const gp_Dir2d& gce_MakeDir2d::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeDir2d::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeDir2d::Value() - no result");
   return TheDir2d;
 }
 

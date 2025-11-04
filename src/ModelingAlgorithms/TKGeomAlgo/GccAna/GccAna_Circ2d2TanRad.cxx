@@ -14,7 +14,7 @@
 
 #include <ElCLib.hxx>
 #include <GccAna_Circ2d2TanRad.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <gp_Ax2d.hxx>
 #include <gp_Circ2d.hxx>
@@ -22,9 +22,6 @@
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_IntPoint.hxx>
 #include <Precision.hxx>
-#include <Standard_NegativeValue.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 
 // circular tangent to two cercles and given radius
 //====================================================

@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------
 
 #include <IGESSolid_SolidAssembly.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESSolid_SolidAssembly, IGESData_IGESEntity)

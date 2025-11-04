@@ -111,7 +111,7 @@ void ProjectPointOnSurf::Perform(const gp_Pnt& P)
 
 void ProjectPointOnSurf::LowerDistanceParameters(Standard_Real& U, Standard_Real& V) const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomInt_IntSS::ProjectPointOnSurf::LowerDistanceParameters");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomInt_IntSS::ProjectPointOnSurf::LowerDistanceParameters");
   (myExtPS.Point(myIndex)).Parameter(U, V);
 }
 
@@ -119,7 +119,7 @@ void ProjectPointOnSurf::LowerDistanceParameters(Standard_Real& U, Standard_Real
 
 Standard_Real ProjectPointOnSurf::LowerDistance() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomInt_IntSS::ProjectPointOnSurf::LowerDistance");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomInt_IntSS::ProjectPointOnSurf::LowerDistance");
   return sqrt(myExtPS.SquareDistance(myIndex));
 }
 } // namespace

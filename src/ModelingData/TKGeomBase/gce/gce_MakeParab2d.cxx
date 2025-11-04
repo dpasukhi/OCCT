@@ -20,7 +20,7 @@
 #include <gp_Ax22d.hxx>
 #include <gp_Parab2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 gce_MakeParab2d::gce_MakeParab2d(const gp_Ax22d& A, const Standard_Real Focal)
 {
@@ -81,7 +81,7 @@ gce_MakeParab2d::gce_MakeParab2d(const gp_Pnt2d&        S,
 
 const gp_Parab2d& gce_MakeParab2d::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeParab2d::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeParab2d::Value() - no result");
   return TheParab2d;
 }
 

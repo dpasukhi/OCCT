@@ -25,7 +25,7 @@
 #include <GeomToStep_MakeBoundedCurve.hxx>
 #include <GeomToStep_MakeBSplineCurveWithKnots.hxx>
 #include <GeomToStep_MakeBSplineCurveWithKnotsAndRationalBSplineCurve.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_BoundedCurve.hxx>
 #include <StepGeom_BSplineCurveWithKnots.hxx>
@@ -135,6 +135,6 @@ GeomToStep_MakeBoundedCurve::GeomToStep_MakeBoundedCurve(const Handle(Geom2d_Bou
 
 const Handle(StepGeom_BoundedCurve)& GeomToStep_MakeBoundedCurve::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeBoundedCurve::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeBoundedCurve::Value() - no result");
   return theBoundedCurve;
 }

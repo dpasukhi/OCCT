@@ -25,8 +25,7 @@
 #include <math_Gauss.hxx>
 #include <math_Matrix.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 BlendFunc_Ruled::BlendFunc_Ruled(const Handle(Adaptor3d_Surface)& S1,
                                  const Handle(Adaptor3d_Surface)& S2,

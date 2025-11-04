@@ -14,7 +14,7 @@
 
 #include <Standard_GUID.hxx>
 #include <Standard_IStream.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <stdio.h>
 

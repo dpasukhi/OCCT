@@ -17,8 +17,7 @@
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepTools_Substitution.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Iterator.hxx>
 #include <TopoDS_Shape.hxx>
@@ -39,7 +38,7 @@ void BRepTools_Substitution::Clear()
 
 void BRepTools_Substitution::Substitute(const TopoDS_Shape& OS, const TopTools_ListOfShape& NS)
 {
-  Standard_ConstructionError_Raise_if(IsCopied(OS), "BRepTools_CutClue::Substitute");
+  Standard_Raise_if<Standard_ConstructionError>(IsCopied(OS), "BRepTools_CutClue::Substitute");
   myMap.Bind(OS, NS);
 }
 
@@ -152,6 +151,6 @@ Standard_Boolean BRepTools_Substitution::IsCopied(const TopoDS_Shape& S) const
 
 const TopTools_ListOfShape& BRepTools_Substitution::Copy(const TopoDS_Shape& S) const
 {
-  Standard_NoSuchObject_Raise_if(!IsCopied(S), "BRepTools_Substitution::Copy");
+  Standard_Raise_if<Standard_NoSuchObject>(!IsCopied(S), "BRepTools_Substitution::Copy");
   return myMap(S);
 }

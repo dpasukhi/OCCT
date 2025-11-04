@@ -18,7 +18,7 @@
 #include <BRepBndLib.hxx>
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>

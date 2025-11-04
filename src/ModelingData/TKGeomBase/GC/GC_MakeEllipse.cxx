@@ -20,7 +20,7 @@
 #include <gp_Ax2.hxx>
 #include <gp_Elips.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeEllipse::GC_MakeEllipse(const gp_Elips& E)
 {
@@ -59,6 +59,6 @@ GC_MakeEllipse::GC_MakeEllipse(const gp_Pnt& S1, const gp_Pnt& S2, const gp_Pnt&
 
 const Handle(Geom_Ellipse)& GC_MakeEllipse::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeEllipse::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeEllipse::Value() - no result");
   return TheEllipse;
 }

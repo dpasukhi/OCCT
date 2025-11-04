@@ -14,8 +14,7 @@
 #include <Standard_ErrorHandler.hxx>
 #include <StdStorage_HeaderData.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamExtCharParityError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 

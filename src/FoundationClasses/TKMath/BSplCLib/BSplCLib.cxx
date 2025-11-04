@@ -34,7 +34,7 @@
 #include <NCollection_LocalArray.hxx>
 #include <PLib.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <math_Vector.hxx>
 
 typedef gp_Pnt                  Pnt;
@@ -55,7 +55,7 @@ public:
   BSplCLib_LocalMatrix(Standard_Integer DerivativeRequest, Standard_Integer Order)
       : math_Matrix(myBuffer, 1, DerivativeRequest + 1, 1, Order)
   {
-    Standard_OutOfRange_Raise_if(DerivativeRequest > BSplCLib::MaxDegree()
+    Standard_Raise_if<Standard_OutOfRange>(DerivativeRequest > BSplCLib::MaxDegree()
                                    || Order > BSplCLib::MaxDegree() + 1
                                    || BSplCLib::MaxDegree() > 25,
                                  "BSplCLib: bspline degree is greater than maximum supported");
@@ -4751,7 +4751,7 @@ static const Standard_Real knots[52] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 const Standard_Real& BSplCLib::FlatBezierKnots(const Standard_Integer Degree)
 {
-  Standard_OutOfRange_Raise_if(Degree < 1 || Degree > MaxDegree() || MaxDegree() != 25,
+  Standard_Raise_if<Standard_OutOfRange>(Degree < 1 || Degree > MaxDegree() || MaxDegree() != 25,
                                "Bezier curve degree greater than maximal supported");
 
   return knots[25 - Degree];

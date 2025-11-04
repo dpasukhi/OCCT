@@ -19,7 +19,7 @@
 #include <Interface_Protocol.hxx>
 #include <Interface_ReportEntity.hxx>
 #include <Interface_ShareFlags.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 
 Interface_ShareFlags::Interface_ShareFlags(const Handle(Interface_InterfaceModel)& amodel,

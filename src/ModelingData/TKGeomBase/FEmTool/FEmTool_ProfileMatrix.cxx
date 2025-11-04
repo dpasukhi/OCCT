@@ -20,10 +20,8 @@
 
 #include <FEmTool_ProfileMatrix.hxx>
 #include <gp.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
-#include <StdFail_NotDone.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(FEmTool_ProfileMatrix, FEmTool_SparseMatrix)
 
@@ -78,12 +76,12 @@ Standard_Real& FEmTool_ProfileMatrix::ChangeValue(const Standard_Integer I,
   if (Ind < 0)
   {
     Ind = -Ind;
-    Standard_OutOfRange_Raise_if(Ind > profile(1, J), "FEmTool_ProfileMatrix::ChangeValue");
+    Standard_Raise_if<Standard_OutOfRange>(Ind > profile(1, J), "FEmTool_ProfileMatrix::ChangeValue");
     Ind = profile(2, J) - Ind;
   }
   else
   {
-    Standard_OutOfRange_Raise_if(Ind > profile(1, I), "FEmTool_ProfileMatrix::ChangeValue");
+    Standard_Raise_if<Standard_OutOfRange>(Ind > profile(1, I), "FEmTool_ProfileMatrix::ChangeValue");
     Ind = profile(2, I) - Ind;
   }
   return ProfileMatrix->ChangeValue(Ind);

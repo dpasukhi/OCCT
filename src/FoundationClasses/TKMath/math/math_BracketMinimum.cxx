@@ -14,7 +14,7 @@
 
 #include <math_BracketMinimum.hxx>
 #include <math_Function.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // waiting for NotDone Exception
 #define GOLD 1.618034
@@ -245,7 +245,7 @@ math_BracketMinimum::math_BracketMinimum(math_Function&      F,
 void math_BracketMinimum::Values(Standard_Real& A, Standard_Real& B, Standard_Real& C) const
 {
 
-  StdFail_NotDone_Raise_if(!Done, " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
   A = Ax;
   B = Bx;
   C = Cx;
@@ -256,7 +256,7 @@ void math_BracketMinimum::FunctionValues(Standard_Real& FA,
                                          Standard_Real& FC) const
 {
 
-  StdFail_NotDone_Raise_if(!Done, " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
   FA = FAx;
   FB = FBx;
   FC = FCx;

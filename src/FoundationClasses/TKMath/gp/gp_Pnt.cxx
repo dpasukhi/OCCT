@@ -25,7 +25,7 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 #include <Standard_Dump.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void gp_Pnt::Transform(const gp_Trsf& T)
 {

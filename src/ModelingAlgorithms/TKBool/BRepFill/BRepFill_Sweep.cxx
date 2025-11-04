@@ -58,8 +58,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom_Array2OfSurface.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfBoolean.hxx>

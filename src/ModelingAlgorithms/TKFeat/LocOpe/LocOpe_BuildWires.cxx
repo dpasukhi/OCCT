@@ -19,8 +19,7 @@
 #include <BRep_Builder.hxx>
 #include <LocOpe_BuildWires.hxx>
 #include <LocOpe_WiresOnShape.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Compound.hxx>

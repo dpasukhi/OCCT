@@ -212,7 +212,7 @@ Standard_Boolean IntTools_FaceFace::IsDone() const
 //=======================================================================
 const IntTools_SequenceOfCurves& IntTools_FaceFace::Lines() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "IntTools_FaceFace::Lines() => myIntersector NOT DONE");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "IntTools_FaceFace::Lines() => myIntersector NOT DONE");
   return mySeqOfCurve;
 }
 

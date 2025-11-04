@@ -18,7 +18,7 @@
 #include <gp.hxx>
 #include <gp_Torus.hxx>
 #include <gp_Trsf.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const Standard_Integer TheUDegree  = 2;
 static const Standard_Integer TheVDegree  = 2;
@@ -100,7 +100,7 @@ Convert_TorusToBSplineSurface::Convert_TorusToBSplineSurface(const gp_Torus&    
 {
   Standard_Real deltaU = U2 - U1;
   Standard_Real deltaV = V2 - V1;
-  Standard_DomainError_Raise_if((deltaU > 2 * M_PI) || (deltaU < 0.) || (deltaV > 2 * M_PI)
+  Standard_Raise_if<Standard_DomainError>((deltaU > 2 * M_PI) || (deltaU < 0.) || (deltaV > 2 * M_PI)
                                   || (deltaV < 0.),
                                 "Convert_TorusToBSplineSurface");
 
@@ -183,7 +183,7 @@ Convert_TorusToBSplineSurface::Convert_TorusToBSplineSurface(const gp_Torus&    
 #ifndef No_Exception
   Standard_Real delta = Param2 - Param1;
 #endif
-  Standard_DomainError_Raise_if((delta > 2 * M_PI) || (delta < 0.),
+  Standard_Raise_if<Standard_DomainError>((delta > 2 * M_PI) || (delta < 0.),
                                 "Convert_TorusToBSplineSurface");
 
   Standard_Integer i, j;

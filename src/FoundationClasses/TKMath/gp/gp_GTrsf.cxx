@@ -21,9 +21,8 @@
 #include <gp_Mat.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
-#include <Standard_OutOfRange.hxx>
 
 void gp_GTrsf::SetTranslationPart(const gp_XYZ& Coord)
 {

@@ -25,7 +25,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Pln.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 // function : gce_MakeCirc
@@ -435,7 +435,7 @@ gce_MakeCirc::gce_MakeCirc(const gp_Circ& Circ, const gp_Pnt& P)
 
 const gp_Circ& gce_MakeCirc::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeCirc::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeCirc::Value() - no result");
   return TheCirc;
 }
 

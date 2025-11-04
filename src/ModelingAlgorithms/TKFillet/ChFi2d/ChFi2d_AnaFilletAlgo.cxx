@@ -15,7 +15,7 @@
 
 #include <gp_Ax3.hxx>
 
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>

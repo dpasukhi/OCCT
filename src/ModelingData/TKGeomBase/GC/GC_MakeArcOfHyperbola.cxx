@@ -20,7 +20,7 @@
 #include <Geom_TrimmedCurve.hxx>
 #include <gp_Hypr.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeArcOfHyperbola::GC_MakeArcOfHyperbola(const gp_Hypr&         Hypr,
                                              const gp_Pnt&          P1,
@@ -57,6 +57,6 @@ GC_MakeArcOfHyperbola::GC_MakeArcOfHyperbola(const gp_Hypr&         Hypr,
 
 const Handle(Geom_TrimmedCurve)& GC_MakeArcOfHyperbola::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeArcOfHyperbola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeArcOfHyperbola::Value() - no result");
   return TheArc;
 }

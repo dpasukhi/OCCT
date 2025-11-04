@@ -20,7 +20,7 @@
 #include <gp_Ax2.hxx>
 #include <gp_Dir.hxx>
 #include <Law_Function.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>

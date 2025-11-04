@@ -33,7 +33,7 @@
 #include <TopOpeBRep_GeomTool.hxx>
 #include <Precision.hxx>
 #include <Standard_CString.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopOpeBRep.hxx>
 #include <TopOpeBRepTool_EXPORT.hxx>
 #include <TopOpeBRepTool_SC.hxx>

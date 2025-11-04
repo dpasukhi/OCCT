@@ -20,7 +20,7 @@
 #ifndef _WIN32
 
   #include <OSD_File.hxx>
-  #include <OSD_OSDError.hxx>
+  #include <Standard_FailureRegistry.hxx>
   #include <OSD_WhoAmI.hxx>
 
   #include <dirent.h>

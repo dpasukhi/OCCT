@@ -36,8 +36,7 @@
 #include <LocOpe.hxx>
 #include <LocOpe_BuildShape.hxx>
 #include <LocOpe_DPrism.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>

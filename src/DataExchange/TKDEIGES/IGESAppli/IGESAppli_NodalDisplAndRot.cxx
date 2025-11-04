@@ -20,7 +20,7 @@
 #include <IGESAppli_Node.hxx>
 #include <IGESBasic_HArray1OfHArray1OfXYZ.hxx>
 #include <IGESDimen_GeneralNote.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColgp_HArray1OfXYZ.hxx>
 

@@ -18,8 +18,7 @@
 #include <Geom_Curve.hxx>
 #include <GeomFill_SectionLaw.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomFill_SectionLaw, Standard_Transient)

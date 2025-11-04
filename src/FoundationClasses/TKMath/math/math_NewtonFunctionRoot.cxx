@@ -14,7 +14,7 @@
 
 #include <math_FunctionWithDerivative.hxx>
 #include <math_NewtonFunctionRoot.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 math_NewtonFunctionRoot::math_NewtonFunctionRoot(math_FunctionWithDerivative& F,
                                                  const Standard_Real          Guess,

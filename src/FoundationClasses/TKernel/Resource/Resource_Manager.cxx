@@ -20,12 +20,10 @@
 #include <OSD_Path.hxx>
 #include <OSD_Protection.hxx>
 #include <Resource_LexicalCompare.hxx>
-#include <Resource_NoSuchResource.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Resource_Unicode.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <Standard_Type.hxx>
-#include <Standard_TypeMismatch.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_Array1OfAsciiString.hxx>

@@ -26,7 +26,7 @@
 #include <TopOpeBRepDS_Curve.hxx>
 #include <TopOpeBRepDS_Surface.hxx>
 
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>

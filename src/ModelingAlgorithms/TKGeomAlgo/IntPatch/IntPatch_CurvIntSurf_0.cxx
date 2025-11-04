@@ -16,8 +16,7 @@
 
 #include <IntPatch_CurvIntSurf.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Adaptor3d_HSurfaceTool.hxx>
 #include <Adaptor2d_Curve2d.hxx>

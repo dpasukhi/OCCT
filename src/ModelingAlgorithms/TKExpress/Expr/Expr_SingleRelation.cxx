@@ -16,7 +16,7 @@
 
 #include <Expr_NamedUnknown.hxx>
 #include <Expr_SingleRelation.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Expr_SingleRelation, Expr_GeneralRelation)

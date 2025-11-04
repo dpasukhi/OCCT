@@ -19,7 +19,7 @@
 #include <gp_Ax1.hxx>
 #include <gp_Trsf.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Sweep_NumShape.hxx>
 #include <TopLoc_Location.hxx>
 #include <TopoDS_Shape.hxx>
@@ -32,7 +32,7 @@ BRepSweep_Revol::BRepSweep_Revol(const TopoDS_Shape&    S,
                                  const Standard_Boolean C)
     : myRotation(S.Oriented(TopAbs_FORWARD), NumShape(D), Location(Ax, D), Axe(Ax, D), Angle(D), C)
 {
-  Standard_ConstructionError_Raise_if(Angle(D) <= Precision::Angular(),
+  Standard_Raise_if<Standard_ConstructionError>(Angle(D) <= Precision::Angular(),
                                       "BRepSweep_Revol::Constructor");
 }
 

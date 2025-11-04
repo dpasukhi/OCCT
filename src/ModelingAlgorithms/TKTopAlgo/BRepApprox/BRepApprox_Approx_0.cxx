@@ -16,8 +16,7 @@
 
 #include <BRepApprox_Approx.hxx>
 
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepApprox_SurfaceTool.hxx>
 #include <IntSurf_Quadric.hxx>

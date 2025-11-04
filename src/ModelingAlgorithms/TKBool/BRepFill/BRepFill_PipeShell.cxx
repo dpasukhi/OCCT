@@ -56,10 +56,8 @@
 #include <IntCurveSurface_IntersectionPoint.hxx>
 #include <Law_Interpol.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
-#include <StdFail_NotDone.hxx>
 #include <TColgp_HArray1OfPnt2d.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
 #include <TopExp.hxx>

@@ -28,18 +28,11 @@
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <Geom_Curve.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_RangeError.hxx>
 #include <TColgp_Array1OfXYZ.hxx>
 
 #define POLES (poles->Array2())
@@ -54,7 +47,7 @@
 
 Standard_Boolean Geom_BSplineSurface::IsCNu(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   switch (Usmooth)
   {
     case GeomAbs_CN:
@@ -84,7 +77,7 @@ Standard_Boolean Geom_BSplineSurface::IsCNu(const Standard_Integer N) const
 
 Standard_Boolean Geom_BSplineSurface::IsCNv(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
 
   switch (Vsmooth)
   {
@@ -323,7 +316,7 @@ void Geom_BSplineSurface::LocalD0(const Standard_Real    U,
                                   const Standard_Integer ToVK2,
                                   gp_Pnt&                P) const
 {
-  Standard_DomainError_Raise_if(FromUK1 == ToUK2 || FromVK1 == ToVK2,
+  Standard_Raise_if<Standard_DomainError>(FromUK1 == ToUK2 || FromVK1 == ToVK2,
                                 "Geom_BSplineSurface::LocalD0");
 
   Standard_Real    u = U, v = V;
@@ -367,7 +360,7 @@ void Geom_BSplineSurface::LocalD1(const Standard_Real    U,
                                   gp_Vec&                D1U,
                                   gp_Vec&                D1V) const
 {
-  Standard_DomainError_Raise_if(FromUK1 == ToUK2 || FromVK1 == ToVK2,
+  Standard_Raise_if<Standard_DomainError>(FromUK1 == ToUK2 || FromVK1 == ToVK2,
                                 "Geom_BSplineSurface::LocalD1");
 
   Standard_Real    u = U, v = V;
@@ -415,7 +408,7 @@ void Geom_BSplineSurface::LocalD2(const Standard_Real    U,
                                   gp_Vec&                D2V,
                                   gp_Vec&                D2UV) const
 {
-  Standard_DomainError_Raise_if(FromUK1 == ToUK2 || FromVK1 == ToVK2,
+  Standard_Raise_if<Standard_DomainError>(FromUK1 == ToUK2 || FromVK1 == ToVK2,
                                 "Geom_BSplineSurface::LocalD2");
 
   Standard_Real    u = U, v = V;
@@ -470,7 +463,7 @@ void Geom_BSplineSurface::LocalD3(const Standard_Real    U,
                                   gp_Vec&                D3UUV,
                                   gp_Vec&                D3UVV) const
 {
-  Standard_DomainError_Raise_if(FromUK1 == ToUK2 || FromVK1 == ToVK2,
+  Standard_Raise_if<Standard_DomainError>(FromUK1 == ToUK2 || FromVK1 == ToVK2,
                                 "Geom_BSplineSurface::LocalD3");
 
   Standard_Real    u = U, v = V;
@@ -521,7 +514,7 @@ gp_Vec Geom_BSplineSurface::LocalDN(const Standard_Real    U,
                                     const Standard_Integer Nu,
                                     const Standard_Integer Nv) const
 {
-  Standard_DomainError_Raise_if(FromUK1 == ToUK2 || FromVK1 == ToVK2,
+  Standard_Raise_if<Standard_DomainError>(FromUK1 == ToUK2 || FromVK1 == ToVK2,
                                 "Geom_BSplineSurface::LocalDN");
 
   Standard_Real    u = U, v = V;
@@ -561,7 +554,7 @@ gp_Vec Geom_BSplineSurface::LocalDN(const Standard_Real    U,
 const gp_Pnt& Geom_BSplineSurface::Pole(const Standard_Integer UIndex,
                                         const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > poles->ColLength() || VIndex < 1
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > poles->ColLength() || VIndex < 1
                                  || VIndex > poles->RowLength(),
                                " ");
   return poles->Value(UIndex, VIndex);
@@ -571,7 +564,7 @@ const gp_Pnt& Geom_BSplineSurface::Pole(const Standard_Integer UIndex,
 
 void Geom_BSplineSurface::Poles(TColgp_Array2OfPnt& P) const
 {
-  Standard_DimensionError_Raise_if(P.ColLength() != poles->ColLength()
+  Standard_Raise_if<Standard_DimensionError>(P.ColLength() != poles->ColLength()
                                      || P.RowLength() != poles->RowLength(),
                                    " ");
   P = poles->Array2();
@@ -679,7 +672,7 @@ Handle(Geom_Curve) Geom_BSplineSurface::UIso(const Standard_Real    U,
 
 Standard_Real Geom_BSplineSurface::UKnot(const Standard_Integer UIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > uknots->Length(), " ");
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > uknots->Length(), " ");
   return uknots->Value(UIndex);
 }
 
@@ -687,7 +680,7 @@ Standard_Real Geom_BSplineSurface::UKnot(const Standard_Integer UIndex) const
 
 Standard_Real Geom_BSplineSurface::VKnot(const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(VIndex < 1 || VIndex > vknots->Length(), " ");
+  Standard_Raise_if<Standard_OutOfRange>(VIndex < 1 || VIndex > vknots->Length(), " ");
   return vknots->Value(VIndex);
 }
 
@@ -695,7 +688,7 @@ Standard_Real Geom_BSplineSurface::VKnot(const Standard_Integer VIndex) const
 
 void Geom_BSplineSurface::UKnots(TColStd_Array1OfReal& Ku) const
 {
-  Standard_DimensionError_Raise_if(Ku.Length() != uknots->Length(), " ");
+  Standard_Raise_if<Standard_DimensionError>(Ku.Length() != uknots->Length(), " ");
   Ku = uknots->Array1();
 }
 
@@ -708,7 +701,7 @@ const TColStd_Array1OfReal& Geom_BSplineSurface::UKnots() const
 
 void Geom_BSplineSurface::VKnots(TColStd_Array1OfReal& Kv) const
 {
-  Standard_DimensionError_Raise_if(Kv.Length() != vknots->Length(), " ");
+  Standard_Raise_if<Standard_DimensionError>(Kv.Length() != vknots->Length(), " ");
   Kv = vknots->Array1();
 }
 
@@ -721,7 +714,7 @@ const TColStd_Array1OfReal& Geom_BSplineSurface::VKnots() const
 
 void Geom_BSplineSurface::UKnotSequence(TColStd_Array1OfReal& Ku) const
 {
-  Standard_DimensionError_Raise_if(Ku.Length() != ufknots->Length(), " ");
+  Standard_Raise_if<Standard_DimensionError>(Ku.Length() != ufknots->Length(), " ");
   Ku = ufknots->Array1();
 }
 
@@ -734,7 +727,7 @@ const TColStd_Array1OfReal& Geom_BSplineSurface::UKnotSequence() const
 
 void Geom_BSplineSurface::VKnotSequence(TColStd_Array1OfReal& Kv) const
 {
-  Standard_DimensionError_Raise_if(Kv.Length() != vfknots->Length(), " ");
+  Standard_Raise_if<Standard_DimensionError>(Kv.Length() != vfknots->Length(), " ");
   Kv = vfknots->Array1();
 }
 
@@ -747,7 +740,7 @@ const TColStd_Array1OfReal& Geom_BSplineSurface::VKnotSequence() const
 
 Standard_Integer Geom_BSplineSurface::UMultiplicity(const Standard_Integer UIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > umults->Length(), " ");
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > umults->Length(), " ");
   return umults->Value(UIndex);
 }
 
@@ -755,7 +748,7 @@ Standard_Integer Geom_BSplineSurface::UMultiplicity(const Standard_Integer UInde
 
 void Geom_BSplineSurface::UMultiplicities(TColStd_Array1OfInteger& Mu) const
 {
-  Standard_DimensionError_Raise_if(Mu.Length() != umults->Length(), " ");
+  Standard_Raise_if<Standard_DimensionError>(Mu.Length() != umults->Length(), " ");
   Mu = umults->Array1();
 }
 
@@ -861,7 +854,7 @@ Handle(Geom_Curve) Geom_BSplineSurface::VIso(const Standard_Real    V,
 
 Standard_Integer Geom_BSplineSurface::VMultiplicity(const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(VIndex < 1 || VIndex > vmults->Length(), " ");
+  Standard_Raise_if<Standard_OutOfRange>(VIndex < 1 || VIndex > vmults->Length(), " ");
   return vmults->Value(VIndex);
 }
 
@@ -869,7 +862,7 @@ Standard_Integer Geom_BSplineSurface::VMultiplicity(const Standard_Integer VInde
 
 void Geom_BSplineSurface::VMultiplicities(TColStd_Array1OfInteger& Mv) const
 {
-  Standard_DimensionError_Raise_if(Mv.Length() != vmults->Length(), " ");
+  Standard_Raise_if<Standard_DimensionError>(Mv.Length() != vmults->Length(), " ");
   Mv = vmults->Array1();
 }
 
@@ -883,7 +876,7 @@ const TColStd_Array1OfInteger& Geom_BSplineSurface::VMultiplicities() const
 Standard_Real Geom_BSplineSurface::Weight(const Standard_Integer UIndex,
                                           const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > weights->ColLength() || VIndex < 1
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > weights->ColLength() || VIndex < 1
                                  || VIndex > weights->RowLength(),
                                " ");
   return weights->Value(UIndex, VIndex);
@@ -893,7 +886,7 @@ Standard_Real Geom_BSplineSurface::Weight(const Standard_Integer UIndex,
 
 void Geom_BSplineSurface::Weights(TColStd_Array2OfReal& W) const
 {
-  Standard_DimensionError_Raise_if(W.ColLength() != weights->ColLength()
+  Standard_Raise_if<Standard_DimensionError>(W.ColLength() != weights->ColLength()
                                      || W.RowLength() != weights->RowLength(),
                                    " ");
   W = weights->Array2();

@@ -15,9 +15,8 @@
 #ifndef _gp_Vec_HeaderFile
 #define _gp_Vec_HeaderFile
 
-#include <gp_VectorWithNullMagnitude.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_DomainError.hxx>
 
 class gp_Dir;
 class gp_Pnt;
@@ -323,7 +322,7 @@ public:
   void Normalize()
   {
     const Standard_Real aD = coord.Modulus();
-    Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                         "gp_Vec::Normalize() - vector has zero norm");
     coord.Divide(aD);
   }
@@ -497,7 +496,7 @@ inline Standard_Boolean gp_Vec::IsNormal(const gp_Vec&       theOther,
 
 inline Standard_Real gp_Vec::Angle(const gp_Vec& theOther) const
 {
-  gp_VectorWithNullMagnitude_Raise_if(coord.Modulus() <= gp::Resolution()
+  Standard_Raise_if<gp_VectorWithNullMagnitude>(coord.Modulus() <= gp::Resolution()
                                         || theOther.coord.Modulus() <= gp::Resolution(),
                                       " ");
   return (gp_Dir(coord)).Angle(theOther);
@@ -507,7 +506,7 @@ inline Standard_Real gp_Vec::Angle(const gp_Vec& theOther) const
 
 inline Standard_Real gp_Vec::AngleWithRef(const gp_Vec& theOther, const gp_Vec& theVRef) const
 {
-  gp_VectorWithNullMagnitude_Raise_if(coord.Modulus() <= gp::Resolution()
+  Standard_Raise_if<gp_VectorWithNullMagnitude>(coord.Modulus() <= gp::Resolution()
                                         || theVRef.coord.Modulus() <= gp::Resolution()
                                         || theOther.coord.Modulus() <= gp::Resolution(),
                                       " ");
@@ -519,7 +518,7 @@ inline Standard_Real gp_Vec::AngleWithRef(const gp_Vec& theOther, const gp_Vec& 
 inline gp_Vec gp_Vec::Normalized() const
 {
   const Standard_Real aD = coord.Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Vec::Normalized() - vector has zero norm");
   gp_Vec aV = *this;
   aV.coord.Divide(aD);

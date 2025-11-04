@@ -20,7 +20,7 @@
 #include <gp_XYZ.hxx>
 #include <NCollection_Mat4.hxx>
 #include <Standard_OStream.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_SStream.hxx>
 
 class gp_Pnt;
@@ -421,7 +421,7 @@ inline constexpr void gp_Trsf::SetTranslation(const gp_Pnt& theP1, const gp_Pnt&
 inline Standard_Real gp_Trsf::Value(const Standard_Integer theRow,
                                     const Standard_Integer theCol) const
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4, " ");
   if (theCol < 4)
   {
     return scale * matrix.Value(theRow, theCol);

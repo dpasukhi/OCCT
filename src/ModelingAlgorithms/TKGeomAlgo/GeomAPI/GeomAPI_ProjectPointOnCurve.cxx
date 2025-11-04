@@ -17,8 +17,7 @@
 #include <Extrema_ExtPC.hxx>
 #include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -170,7 +169,7 @@ Standard_Integer GeomAPI_ProjectPointOnCurve::NbPoints() const
 
 gp_Pnt GeomAPI_ProjectPointOnCurve::Point(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints(),
                                "GeomAPI_ProjectPointOnCurve::Point");
   return (myExtPC.Point(Index)).Value();
 }
@@ -179,7 +178,7 @@ gp_Pnt GeomAPI_ProjectPointOnCurve::Point(const Standard_Integer Index) const
 
 Standard_Real GeomAPI_ProjectPointOnCurve::Parameter(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints(),
                                "GeomAPI_ProjectPointOnCurve::Parameter");
   return (myExtPC.Point(Index)).Parameter();
 }
@@ -188,7 +187,7 @@ Standard_Real GeomAPI_ProjectPointOnCurve::Parameter(const Standard_Integer Inde
 
 void GeomAPI_ProjectPointOnCurve::Parameter(const Standard_Integer Index, Standard_Real& U) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints(),
                                "GeomAPI_ProjectPointOnCurve::Parameter");
   U = (myExtPC.Point(Index)).Parameter();
 }
@@ -197,7 +196,7 @@ void GeomAPI_ProjectPointOnCurve::Parameter(const Standard_Integer Index, Standa
 
 Standard_Real GeomAPI_ProjectPointOnCurve::Distance(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints(),
                                "GeomAPI_ProjectPointOnCurve::Distance");
   return sqrt(myExtPC.SquareDistance(Index));
 }
@@ -206,7 +205,7 @@ Standard_Real GeomAPI_ProjectPointOnCurve::Distance(const Standard_Integer Index
 
 gp_Pnt GeomAPI_ProjectPointOnCurve::NearestPoint() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ProjectPointOnCurve::NearestPoint");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ProjectPointOnCurve::NearestPoint");
 
   return (myExtPC.Point(myIndex)).Value();
 }
@@ -229,7 +228,7 @@ GeomAPI_ProjectPointOnCurve::operator gp_Pnt() const
 
 Standard_Real GeomAPI_ProjectPointOnCurve::LowerDistanceParameter() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ProjectPointOnCurve::LowerDistanceParameter");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ProjectPointOnCurve::LowerDistanceParameter");
 
   return (myExtPC.Point(myIndex)).Parameter();
 }
@@ -238,7 +237,7 @@ Standard_Real GeomAPI_ProjectPointOnCurve::LowerDistanceParameter() const
 
 Standard_Real GeomAPI_ProjectPointOnCurve::LowerDistance() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ProjectPointOnCurve::LowerDistance");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ProjectPointOnCurve::LowerDistance");
 
   return sqrt(myExtPC.SquareDistance(myIndex));
 }

@@ -30,8 +30,7 @@
 #include <LocOpe_SplitShape.hxx>
 #include <Precision.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>

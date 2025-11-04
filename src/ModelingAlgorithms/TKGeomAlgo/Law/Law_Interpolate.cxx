@@ -20,8 +20,7 @@
 #include <Law_BSpline.hxx>
 #include <Law_Interpolate.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfBoolean.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 

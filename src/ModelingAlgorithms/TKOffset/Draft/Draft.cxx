@@ -26,7 +26,7 @@
 #include <Geom_Surface.hxx>
 #include <gp_Dir.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Face.hxx>
 
 //=================================================================================================

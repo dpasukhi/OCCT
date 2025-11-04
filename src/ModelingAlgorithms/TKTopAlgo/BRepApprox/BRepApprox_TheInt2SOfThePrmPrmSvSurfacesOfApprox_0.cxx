@@ -16,10 +16,7 @@
 
 #include <BRepApprox_TheInt2SOfThePrmPrmSvSurfacesOfApprox.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepApprox_SurfaceTool.hxx>
 #include <BRepApprox_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfApprox.hxx>

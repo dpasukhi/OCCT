@@ -19,7 +19,7 @@
 #include <StepFile_ReadData.hxx>
 
 #include <Interface_Check.hxx>
-#include <Interface_InterfaceError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_ParamType.hxx>
 #include <Interface_Protocol.hxx>
 

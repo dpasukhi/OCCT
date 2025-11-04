@@ -24,7 +24,7 @@
 #include <BRep_Tool.hxx>
 #include <Precision.hxx>
 #include <TColStd_MapOfInteger.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopOpeBRepDS_define.hxx>
 #include <TopOpeBRepTool_TOOL.hxx>
 #include <TopOpeBRepTool_EXPORT.hxx>

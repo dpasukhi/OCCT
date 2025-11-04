@@ -18,7 +18,7 @@
 
 #include <Adaptor3d_HVertex.hxx>
 #include <Adaptor2d_Curve2d.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Pnt.hxx>
 
 #define TheVertex Handle(Adaptor3d_HVertex)

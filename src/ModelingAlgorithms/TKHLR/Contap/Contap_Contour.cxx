@@ -36,8 +36,7 @@
 #include <IntSurf_InteriorPoint.hxx>
 #include <IntSurf_SequenceOfPathPoint.hxx>
 #include <math_FunctionSetRoot.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TopTrans_CurveTransition.hxx>
 

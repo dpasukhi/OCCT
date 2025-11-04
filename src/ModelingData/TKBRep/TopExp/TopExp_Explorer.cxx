@@ -19,8 +19,7 @@
 
 #include <TopExp_Explorer.hxx>
 
-#include <Standard_NoMoreObject.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs.hxx>
 
 // macro to compare two types of shapes
@@ -116,7 +115,7 @@ void TopExp_Explorer::Init(const TopoDS_Shape&    S,
 
 const TopoDS_Shape& TopExp_Explorer::Current() const
 {
-  Standard_NoSuchObject_Raise_if(!hasMore, "TopExp_Explorer::Current");
+  Standard_Raise_if<Standard_NoSuchObject>(!hasMore, "TopExp_Explorer::Current");
   if (myTop >= 0)
   {
     const TopoDS_Shape& S = myStack[myTop].Value();
@@ -133,7 +132,7 @@ void TopExp_Explorer::Next()
   Standard_Integer NewSize;
   TopoDS_Shape     ShapTop;
   TopAbs_ShapeEnum ty;
-  Standard_NoMoreObject_Raise_if(!hasMore, "TopExp_Explorer::Next");
+  Standard_Raise_if<Standard_NoMoreObject>(!hasMore, "TopExp_Explorer::Next");
 
   if (myTop < 0)
   {

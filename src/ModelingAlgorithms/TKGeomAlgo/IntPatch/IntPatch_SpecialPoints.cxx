@@ -22,7 +22,7 @@
 #include <IntPatch_Point.hxx>
 #include <IntSurf.hxx>
 #include <IntSurf_PntOn2S.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <math_FunctionSetRoot.hxx>
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <math_Matrix.hxx>

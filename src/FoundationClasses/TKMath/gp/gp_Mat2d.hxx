@@ -16,8 +16,7 @@
 #define _gp_Mat2d_HeaderFile
 
 #include <gp.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 class gp_XY;
 
@@ -93,7 +92,7 @@ public:
                 const Standard_Integer theCol,
                 const Standard_Real    theValue)
   {
-    Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 2, " ");
+    Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 2, " ");
     myMat[theRow - 1][theCol - 1] = theValue;
   }
 
@@ -119,7 +118,7 @@ public:
   //! if theRow < 1 or theRow > 2 or theCol < 1 or theCol > 2
   const Standard_Real& Value(const Standard_Integer theRow, const Standard_Integer theCol) const
   {
-    Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 2, " ");
+    Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 2, " ");
     return myMat[theRow - 1][theCol - 1];
   }
 
@@ -134,7 +133,7 @@ public:
   //! if theRow < 1 or theRow > 2 or theCol < 1 or theCol > 2
   Standard_Real& ChangeValue(const Standard_Integer theRow, const Standard_Integer theCol)
   {
-    Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 2, " ");
+    Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 2, " ");
     return myMat[theRow - 1][theCol - 1];
   }
 

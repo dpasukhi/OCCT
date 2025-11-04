@@ -19,7 +19,7 @@
 #include <gp_Ax3.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
-#include <Standard_DimensionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void gp_Torus::Coefficients(TColStd_Array1OfReal& theCoef) const
 {
@@ -39,7 +39,7 @@ void gp_Torus::Coefficients(TColStd_Array1OfReal& theCoef) const
   //   2*(R^2-r^2)*Z^2+(R^2-r^2)^2 = 0.0
 
   const Standard_Integer aLowIndex = theCoef.Lower();
-  Standard_DimensionError_Raise_if(theCoef.Length() < 35,
+  Standard_Raise_if<Standard_DimensionError>(theCoef.Length() < 35,
                                    "gp_Torus::theCoefficients(): Dimension mismatch");
 
   gp_Trsf aTr;

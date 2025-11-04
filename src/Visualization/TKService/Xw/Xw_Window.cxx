@@ -16,7 +16,7 @@
 #include <Xw_Window.hxx>
 
 #include <Aspect_ScrollDelta.hxx>
-#include <Aspect_WindowDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Aspect_WindowInputListener.hxx>
 #include <Message.hxx>
 

@@ -65,7 +65,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Torus.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom_SequenceOfCurve.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 

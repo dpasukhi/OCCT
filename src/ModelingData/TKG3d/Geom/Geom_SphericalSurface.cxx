@@ -27,8 +27,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_SphericalSurface, Geom_ElementarySurface)
@@ -266,7 +265,7 @@ Vec Geom_SphericalSurface::DN(const Standard_Real    U,
                               const Standard_Integer Nv) const
 {
 
-  Standard_RangeError_Raise_if(Nu + Nv < 1 || Nu < 0 || Nv < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(Nu + Nv < 1 || Nu < 0 || Nv < 0, " ");
   return ElSLib::SphereDN(U, V, pos, radius, Nu, Nv);
 }
 

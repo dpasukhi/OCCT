@@ -25,11 +25,9 @@
 #include <CDM_Reference.hxx>
 #include <CDM_ReferenceIterator.hxx>
 #include <Resource_Manager.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NullObject.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <UTL.hxx>
@@ -532,7 +530,7 @@ void CDM_Document::SetRequestedFolder(const TCollection_ExtendedString& aFolder)
 
 TCollection_ExtendedString CDM_Document::RequestedFolder() const
 {
-  Standard_NoSuchObject_Raise_if(!myRequestedFolderIsDefined,
+  Standard_Raise_if<Standard_NoSuchObject>(!myRequestedFolderIsDefined,
                                  "storage folder is undefined for this document");
   return myRequestedFolder;
 }
@@ -579,7 +577,7 @@ void CDM_Document::SetRequestedPreviousVersion(const TCollection_ExtendedString&
 
 TCollection_ExtendedString CDM_Document::RequestedPreviousVersion() const
 {
-  Standard_NoSuchObject_Raise_if(!myRequestedPreviousVersionIsDefined,
+  Standard_Raise_if<Standard_NoSuchObject>(!myRequestedPreviousVersionIsDefined,
                                  "PreviousVersion is undefined fro this document");
   return myRequestedPreviousVersion;
 }

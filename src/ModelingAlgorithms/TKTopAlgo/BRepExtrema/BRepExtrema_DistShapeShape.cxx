@@ -31,12 +31,11 @@
 #include <Standard_MemoryUtils.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <Precision.hxx>
-#include <BRepExtrema_UnCompatibleShape.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepClass3d_SolidClassifier.hxx>
 #include <NCollection_Vector.hxx>
 #include <OSD_Parallel.hxx>
-#include <StdFail_NotDone.hxx>
 
 #include <algorithm>
 #include <atomic>

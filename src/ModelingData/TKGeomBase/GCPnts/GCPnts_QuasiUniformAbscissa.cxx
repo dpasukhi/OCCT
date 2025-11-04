@@ -17,7 +17,7 @@
 #include <GCPnts_TCurveTypes.hxx>
 #include <GCPnts_UniformAbscissa.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 
 //=================================================================================================
@@ -130,7 +130,7 @@ void GCPnts_QuasiUniformAbscissa::initialize(const TheCurve&        theC,
     return;
   }
 
-  Standard_ConstructionError_Raise_if(
+  Standard_Raise_if<Standard_ConstructionError>(
     theNbPoints <= 1,
     "GCPnts_QuasiUniformAbscissa::Initialize(), number of points should be >= 2");
 

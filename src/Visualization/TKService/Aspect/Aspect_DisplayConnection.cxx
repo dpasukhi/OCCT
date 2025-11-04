@@ -13,7 +13,7 @@
 
 #include <Aspect_DisplayConnection.hxx>
 
-#include <Aspect_DisplayConnectionDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <OSD_Environment.hxx>
 
 #if defined(HAVE_XLIB)

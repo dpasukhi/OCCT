@@ -519,7 +519,7 @@ Draw_Interpretor::~Draw_Interpretor()
 
 Draw_PInterp Draw_Interpretor::Interp() const
 {
-  Standard_DomainError_Raise_if(myInterp == NULL, "No call for  Draw_Interpretor::Init()");
+  Standard_Raise_if<Standard_DomainError>(myInterp == NULL, "No call for  Draw_Interpretor::Init()");
   return myInterp;
 }
 

@@ -21,14 +21,12 @@
 #include <Geom2d_Geometry.hxx>
 #include <Geom2d_OffsetCurve.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
-#include <Geom2d_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_TrimmedCurve, Geom2d_BoundedCurve)
@@ -159,7 +157,7 @@ GeomAbs_Shape Geom2d_TrimmedCurve::Continuity() const
 
 Standard_Boolean Geom2d_TrimmedCurve::IsCN(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisCurve->IsCN(N);
 }
 

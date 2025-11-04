@@ -19,7 +19,7 @@
 #include <Extrema_POnSurf.hxx>
 #include <gp_Vec.hxx>
 #include <math_Matrix.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 /*----------------------------------------------------------------------------
  Si on note Du1s et Dv1s, les derivees en u1 et v1, les 2 fonctions a annuler sont:

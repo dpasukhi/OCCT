@@ -90,7 +90,7 @@ const HatchGen_PointOnElement& HatchGen_PointOnHatching::Point(const Standard_In
 {
 #if RAISE_IF_NOSUCHOBJECT
   Standard_Integer NbPnt = myPoints.Length();
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPnt, "");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPnt, "");
 #endif
   const HatchGen_PointOnElement& Point = myPoints.Value(Index);
   return Point;
@@ -105,7 +105,7 @@ void HatchGen_PointOnHatching::RemPoint(const Standard_Integer Index)
 {
 #if RAISE_IF_NOSUCHOBJECT
   Standard_Integer NbPnt = myPoints.Length();
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPnt, "");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPnt, "");
 #endif
   myPoints.Remove(Index);
 }

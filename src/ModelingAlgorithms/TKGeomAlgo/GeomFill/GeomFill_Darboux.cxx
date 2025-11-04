@@ -20,7 +20,7 @@
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <CSLib.hxx>
-#include <Geom_UndefinedValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomFill_TrihedronLaw.hxx>
 #include <gp_Pnt2d.hxx>

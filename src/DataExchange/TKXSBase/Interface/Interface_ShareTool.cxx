@@ -14,7 +14,7 @@
 #include <Interface_EntityIterator.hxx>
 #include <Interface_GTool.hxx>
 #include <Interface_HGraph.hxx>
-#include <Interface_InterfaceError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_InterfaceModel.hxx>
 #include <Interface_Protocol.hxx>
 #include <Interface_ShareTool.hxx>

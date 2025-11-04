@@ -17,7 +17,7 @@
 
 #include <Quantity_ColorRGBA.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 #include <TCollection_AsciiString.hxx>
 

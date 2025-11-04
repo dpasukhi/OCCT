@@ -14,7 +14,7 @@
 #include <BRepOffsetAPI_MakeDraft.hxx>
 #include <Geom_Surface.hxx>
 #include <gp_Dir.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Shell.hxx>
 

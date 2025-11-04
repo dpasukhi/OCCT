@@ -22,7 +22,7 @@
 #include <GeomAbs_Shape.hxx>
 #include <GeomEvaluator_Surface.hxx>
 #include <Geom_Surface.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 DEFINE_STANDARD_HANDLE(GeomAdaptor_Surface, Adaptor3d_Surface)

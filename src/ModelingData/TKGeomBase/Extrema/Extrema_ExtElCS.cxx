@@ -35,9 +35,7 @@
 #include <IntAna_Quadric.hxx>
 #include <IntAna_QuadQuadGeo.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_ListOfInteger.hxx>
 
 Extrema_ExtElCS::Extrema_ExtElCS()

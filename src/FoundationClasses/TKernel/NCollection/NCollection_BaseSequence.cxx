@@ -16,9 +16,7 @@
 // Purpose:   Implementation of the BaseSequence class
 
 #include <NCollection_BaseSequence.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=======================================================================
 // function : ClearSeq
@@ -249,7 +247,7 @@ void NCollection_BaseSequence::PInsertAfter(const Standard_Integer    theIndex,
 
 void NCollection_BaseSequence::PExchange(const Standard_Integer I, const Standard_Integer J)
 {
-  Standard_OutOfRange_Raise_if(I <= 0 || J <= 0 || I > mySize || J > mySize, "");
+  Standard_Raise_if<Standard_OutOfRange>(I <= 0 || J <= 0 || I > mySize || J > mySize, "");
 
   // Assume I < J
   if (J < I)
@@ -305,8 +303,8 @@ void NCollection_BaseSequence::PExchange(const Standard_Integer I, const Standar
 void NCollection_BaseSequence::PSplit(const Standard_Integer    theIndex,
                                       NCollection_BaseSequence& Sub)
 {
-  Standard_OutOfRange_Raise_if(theIndex <= 0 || theIndex > mySize, "");
-  Standard_DomainError_Raise_if(this == &Sub, "No Split on myself!!");
+  Standard_Raise_if<Standard_OutOfRange>(theIndex <= 0 || theIndex > mySize, "");
+  Standard_Raise_if<Standard_DomainError>(this == &Sub, "No Split on myself!!");
 
   NCollection_SeqNode* p = Find(theIndex);
 
@@ -367,7 +365,7 @@ void NCollection_BaseSequence::RemoveSeq(NCollection_BaseSequence::Iterator& the
 void NCollection_BaseSequence::RemoveSeq(const Standard_Integer theIndex,
                                          NCollection_DelSeqNode fDel)
 {
-  Standard_OutOfRange_Raise_if(theIndex <= 0 || theIndex > mySize,
+  Standard_Raise_if<Standard_OutOfRange>(theIndex <= 0 || theIndex > mySize,
                                "NCollection_BaseSequence::RemoveSeq() - index is out of range");
 
   NCollection_SeqNode* p = Find(theIndex);
@@ -402,7 +400,7 @@ void NCollection_BaseSequence::RemoveSeq(const Standard_Integer From,
                                          const Standard_Integer To,
                                          NCollection_DelSeqNode fDel)
 {
-  Standard_OutOfRange_Raise_if(From <= 0 || To > mySize || From > To,
+  Standard_Raise_if<Standard_OutOfRange>(From <= 0 || To > mySize || From > To,
                                "NCollection_BaseSequence::RemoveSeq() - invalid input range");
 
   NCollection_SeqNode* pfrom = Find(From);

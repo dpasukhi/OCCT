@@ -20,7 +20,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes a circle in the plane (2D space).
 //! A circle is defined by its radius and positioned in the
@@ -66,7 +66,7 @@ public:
             const Standard_Boolean theIsSense = Standard_True)
       : radius(theRadius)
   {
-    Standard_ConstructionError_Raise_if(theRadius < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theRadius < 0.0,
                                         "gp_Circ2d() - radius should be positive number");
     pos = gp_Ax22d(theXAxis, theIsSense);
   }
@@ -81,7 +81,7 @@ public:
       : pos(theAxis),
         radius(theRadius)
   {
-    Standard_ConstructionError_Raise_if(theRadius < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theRadius < 0.0,
                                         "gp_Circ2d() - radius should be positive number");
   }
 
@@ -104,7 +104,7 @@ public:
   //! Standard_ConstructionError if theRadius is negative.
   void SetRadius(const Standard_Real theRadius)
   {
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       theRadius < 0.0,
       "gp_Circ2d::SetRadius() - radius should be positive number");
     radius = theRadius;

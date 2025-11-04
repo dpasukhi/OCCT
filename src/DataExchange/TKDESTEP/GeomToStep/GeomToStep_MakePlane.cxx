@@ -18,7 +18,7 @@
 #include <GeomToStep_MakeAxis2Placement3d.hxx>
 #include <GeomToStep_MakePlane.hxx>
 #include <gp_Pln.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
 #include <StepGeom_Plane.hxx>
 #include <TCollection_HAsciiString.hxx>
@@ -68,6 +68,6 @@ GeomToStep_MakePlane::GeomToStep_MakePlane(const Handle(Geom_Plane)& Gpln,
 
 const Handle(StepGeom_Plane)& GeomToStep_MakePlane::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakePlane::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakePlane::Value() - no result");
   return thePlane;
 }

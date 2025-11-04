@@ -88,7 +88,7 @@ public:
   //! Raised if theR < 0.0
   void SetRadius(const Standard_Real theR)
   {
-    Standard_ConstructionError_Raise_if(theR < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theR < 0.0,
                                         "gp_Cone::SetRadius() - radius should be positive number");
     radius = theR;
   }
@@ -245,7 +245,7 @@ inline gp_Cone::gp_Cone(const gp_Ax3&       theA3,
   {
     aVal = -aVal;
   }
-  Standard_ConstructionError_Raise_if(theRadius < 0. || aVal <= gp::Resolution()
+  Standard_Raise_if<Standard_ConstructionError>(theRadius < 0. || aVal <= gp::Resolution()
                                         || M_PI * 0.5 - aVal <= gp::Resolution(),
                                       "gp_Cone() - invalid construction parameters");
 }
@@ -259,7 +259,7 @@ inline void gp_Cone::SetSemiAngle(const Standard_Real theAng)
   {
     aVal = -aVal;
   }
-  Standard_ConstructionError_Raise_if(aVal <= gp::Resolution()
+  Standard_Raise_if<Standard_ConstructionError>(aVal <= gp::Resolution()
                                         || M_PI * 0.5 - aVal <= gp::Resolution(),
                                       "gp_Cone::SetSemiAngle() - invalid angle range");
   semiAngle = theAng;

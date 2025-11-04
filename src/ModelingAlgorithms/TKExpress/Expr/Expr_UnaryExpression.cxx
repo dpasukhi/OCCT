@@ -14,10 +14,9 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Expr_InvalidOperand.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Expr_NamedUnknown.hxx>
 #include <Expr_UnaryExpression.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Expr_UnaryExpression, Expr_GeneralExpression)

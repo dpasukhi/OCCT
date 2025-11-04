@@ -19,7 +19,7 @@
 
   #include <OSD_Parallel.hxx>
   #include <OSD_ThreadPool.hxx>
-  #include <Standard_ProgramError.hxx>
+  #include <Standard_FailureRegistry.hxx>
 
 Standard_DISABLE_DEPRECATION_WARNINGS
   #include <tbb/parallel_for.h>

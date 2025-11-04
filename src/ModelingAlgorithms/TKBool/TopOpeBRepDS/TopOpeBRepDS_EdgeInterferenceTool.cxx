@@ -16,7 +16,7 @@
 
 #include <BRep_Tool.hxx>
 #include <BRepLProp_CLProps.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Iterator.hxx>
 #include <TopoDS_Shape.hxx>

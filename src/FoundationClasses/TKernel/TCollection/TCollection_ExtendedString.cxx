@@ -16,8 +16,7 @@
 
 #include <NCollection_UtfIterator.hxx>
 #include <Standard.hxx>
-#include <Standard_NullObject.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 
 #include <algorithm>

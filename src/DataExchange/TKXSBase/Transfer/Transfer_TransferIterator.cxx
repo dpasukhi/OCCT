@@ -12,7 +12,7 @@
 // commercial license or contractual agreement.
 
 #include <Interface_Check.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Transfer_SimpleBinderOfTransient.hxx>
 #include <Transfer_TransferIterator.hxx>

@@ -13,9 +13,7 @@
 
 #include <Aspect_CircularGrid.hxx>
 
-#include <Standard_NegativeValue.hxx>
-#include <Standard_NullValue.hxx>
-#include <Standard_NumericError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Aspect_CircularGrid, Aspect_Grid)
 
@@ -32,8 +30,8 @@ Aspect_CircularGrid::Aspect_CircularGrid(const Standard_Real    aRadiusStep,
 
 void Aspect_CircularGrid::SetRadiusStep(const Standard_Real aRadiusStep)
 {
-  Standard_NegativeValue_Raise_if(aRadiusStep < 0., "invalid radius step");
-  Standard_NullValue_Raise_if(aRadiusStep == 0., "invalid radius step");
+  Standard_Raise_if<Standard_NegativeValue>(aRadiusStep < 0., "invalid radius step");
+  Standard_Raise_if<Standard_NullValue>(aRadiusStep == 0., "invalid radius step");
   myRadiusStep = aRadiusStep;
   Init();
   UpdateDisplay();
@@ -41,8 +39,8 @@ void Aspect_CircularGrid::SetRadiusStep(const Standard_Real aRadiusStep)
 
 void Aspect_CircularGrid::SetDivisionNumber(const Standard_Integer aNumber)
 {
-  Standard_NegativeValue_Raise_if(aNumber < 0., "invalid division number");
-  Standard_NullValue_Raise_if(aNumber == 0., "invalid division number");
+  Standard_Raise_if<Standard_NegativeValue>(aNumber < 0., "invalid division number");
+  Standard_Raise_if<Standard_NullValue>(aNumber == 0., "invalid division number");
   myDivisionNumber = aNumber;
   Init();
   UpdateDisplay();
@@ -56,11 +54,11 @@ void Aspect_CircularGrid::SetGridValues(const Standard_Real    theXOrigin,
 {
   myXOrigin = theXOrigin;
   myYOrigin = theYOrigin;
-  Standard_NegativeValue_Raise_if(theRadiusStep < 0., "invalid radius step");
-  Standard_NullValue_Raise_if(theRadiusStep == 0., "invalid radius step");
+  Standard_Raise_if<Standard_NegativeValue>(theRadiusStep < 0., "invalid radius step");
+  Standard_Raise_if<Standard_NullValue>(theRadiusStep == 0., "invalid radius step");
   myRadiusStep = theRadiusStep;
-  Standard_NegativeValue_Raise_if(theDivisionNumber < 0., "invalid division number");
-  Standard_NullValue_Raise_if(theDivisionNumber == 0., "invalid division number");
+  Standard_Raise_if<Standard_NegativeValue>(theDivisionNumber < 0., "invalid division number");
+  Standard_Raise_if<Standard_NullValue>(theDivisionNumber == 0., "invalid division number");
   myDivisionNumber = theDivisionNumber;
   myRotationAngle  = theRotationAngle;
   Init();

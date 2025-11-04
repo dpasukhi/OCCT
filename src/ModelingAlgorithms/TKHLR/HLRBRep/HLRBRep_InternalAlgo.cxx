@@ -23,7 +23,7 @@
 #include <HLRTopoBRep_OutLiner.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Stream.hxx>
 #include <Standard_Type.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -212,7 +212,7 @@ Standard_Integer HLRBRep_InternalAlgo::Index(const Handle(HLRTopoBRep_OutLiner)&
 
 void HLRBRep_InternalAlgo::Remove(const Standard_Integer I)
 {
-  Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+  Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                "HLRBRep_InternalAlgo::Remove : unknown Shape");
   myShapes.Remove(I);
 
@@ -225,7 +225,7 @@ void HLRBRep_InternalAlgo::Remove(const Standard_Integer I)
 void HLRBRep_InternalAlgo::ShapeData(const Standard_Integer            I,
                                      const Handle(Standard_Transient)& SData)
 {
-  Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+  Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                "HLRBRep_InternalAlgo::ShapeData : unknown Shape");
 
   myShapes(I).ShapeData(SData);
@@ -249,7 +249,7 @@ Standard_Integer HLRBRep_InternalAlgo::NbShapes() const
 
 HLRBRep_ShapeBounds& HLRBRep_InternalAlgo::ShapeBounds(const Standard_Integer I)
 {
-  Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+  Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                "HLRBRep_InternalAlgo::ShapeBounds : unknown Shape");
 
   return myShapes(I);
@@ -360,7 +360,7 @@ void HLRBRep_InternalAlgo::Select(const Standard_Integer I)
 {
   if (!myDS.IsNull())
   {
-    Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+    Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                  "HLRBRep_InternalAlgo::Select : unknown Shape");
 
     Standard_Integer v1, v2, e1, e2, f1, f2;
@@ -391,7 +391,7 @@ void HLRBRep_InternalAlgo::SelectEdge(const Standard_Integer I)
 {
   if (!myDS.IsNull())
   {
-    Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+    Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                  "HLRBRep_InternalAlgo::SelectEdge : unknown Shape");
 
     Standard_Integer v1, v2, e1, e2, f1, f2;
@@ -414,7 +414,7 @@ void HLRBRep_InternalAlgo::SelectFace(const Standard_Integer I)
 {
   if (!myDS.IsNull())
   {
-    Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+    Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                  "HLRBRep_InternalAlgo::SelectFace : unknown Shape");
 
     Standard_Integer v1, v2, e1, e2, f1, f2;
@@ -454,7 +454,7 @@ void HLRBRep_InternalAlgo::ShowAll(const Standard_Integer I)
 {
   if (!myDS.IsNull())
   {
-    Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+    Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                  "HLRBRep_InternalAlgo::ShowAll : unknown Shape");
 
     Select(I);
@@ -494,7 +494,7 @@ void HLRBRep_InternalAlgo::HideAll(const Standard_Integer I)
 {
   if (!myDS.IsNull())
   {
-    Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+    Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                  "HLRBRep_InternalAlgo::HideAll : unknown Shape");
 
     Select(I);
@@ -558,7 +558,7 @@ void HLRBRep_InternalAlgo::Hide(const Standard_Integer I)
 {
   if (!myDS.IsNull())
   {
-    Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length(),
+    Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length(),
                                  "HLRBRep_InternalAlgo::Hide : unknown Shape");
 
     if (myDebug)
@@ -576,7 +576,7 @@ void HLRBRep_InternalAlgo::Hide(const Standard_Integer I, const Standard_Integer
 {
   if (!myDS.IsNull())
   {
-    Standard_OutOfRange_Raise_if(I == 0 || I > myShapes.Length() || J == 0 || J > myShapes.Length(),
+    Standard_Raise_if<Standard_OutOfRange>(I == 0 || I > myShapes.Length() || J == 0 || J > myShapes.Length(),
                                  "HLRBRep_InternalAlgo::Hide : unknown Shapes");
 
     if (I == J)

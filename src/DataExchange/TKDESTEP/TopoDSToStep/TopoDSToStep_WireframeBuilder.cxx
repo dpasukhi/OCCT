@@ -33,8 +33,7 @@
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_NullObject.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_CartesianPoint.hxx>
 #include <StepGeom_Line.hxx>
@@ -92,7 +91,7 @@ TopoDSToStep_BuilderError TopoDSToStep_WireframeBuilder::Error() const
 
 const Handle(TColStd_HSequenceOfTransient)& TopoDSToStep_WireframeBuilder::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_WireframeBuilder::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_WireframeBuilder::Value() - no result");
   return myResult;
 }
 

@@ -24,7 +24,7 @@
 #include <Expr_FunctionDerivative.hxx>
 #include <Expr_GeneralFunction.hxx>
 #include <Expr_NamedUnknown.hxx>
-#include <Expr_NotEvaluable.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Expr_Operators.hxx>
 #include <Expr_PolyFunction.hxx>
 #include <Expr_Product.hxx>

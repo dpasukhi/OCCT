@@ -15,7 +15,7 @@
 
 #include <MoniTool_Element.hxx>
 #include <OSD_Path.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>

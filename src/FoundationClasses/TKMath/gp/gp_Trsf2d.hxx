@@ -18,7 +18,7 @@
 #include <gp_TrsfForm.hxx>
 #include <gp_Mat2d.hxx>
 #include <gp_XY.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 class gp_Trsf;
 class gp_Pnt2d;
@@ -301,7 +301,7 @@ inline void gp_Trsf2d::SetTranslation(const gp_Pnt2d& theP1, const gp_Pnt2d& the
 inline Standard_Real gp_Trsf2d::Value(const Standard_Integer theRow,
                                       const Standard_Integer theCol) const
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 3, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 2 || theCol < 1 || theCol > 3, " ");
   if (theCol < 3)
   {
     return scale * matrix.Value(theRow, theCol);

@@ -26,7 +26,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_Vec2d.hxx>
 #include <gp_XY.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void gp_Trsf2d::SetMirror(const gp_Ax2d& A) noexcept
 {
@@ -233,7 +233,7 @@ void gp_Trsf2d::Invert()
     Standard_Real As = scale;
     if (As < 0)
       As = -As;
-    Standard_ConstructionError_Raise_if(As <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(As <= gp::Resolution(),
                                         "gp_Trsf2d::Invert() - transformation has zero scale");
     scale = 1.0 / scale;
     loc.Multiply(-scale);
@@ -243,7 +243,7 @@ void gp_Trsf2d::Invert()
     Standard_Real As = scale;
     if (As < 0)
       As = -As;
-    Standard_ConstructionError_Raise_if(As <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(As <= gp::Resolution(),
                                         "gp_Trsf2d::Invert() - transformation has zero scale");
     scale = 1.0 / scale;
     matrix.Transpose();
@@ -657,7 +657,7 @@ void gp_Trsf2d::SetValues(const Standard_Real a11,
   Standard_Real As = s;
   if (As < 0)
     As = -As;
-  Standard_ConstructionError_Raise_if(As < gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(As < gp::Resolution(),
                                       "gp_Trsf2d::SetValues, null determinant");
 
   if (s > 0)

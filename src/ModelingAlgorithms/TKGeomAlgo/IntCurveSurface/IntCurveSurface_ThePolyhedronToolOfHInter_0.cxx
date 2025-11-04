@@ -16,7 +16,7 @@
 
 #include <IntCurveSurface_ThePolyhedronToolOfHInter.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IntCurveSurface_ThePolyhedronOfHInter.hxx>
 #include <Bnd_Box.hxx>
 #include <gp_Pnt.hxx>

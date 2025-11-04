@@ -16,7 +16,7 @@
 
 #include <MoniTool_DataMapOfShapeTransient.hxx>
 #include <Message_ProgressScope.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepShape_ClosedShell.hxx>
@@ -293,7 +293,7 @@ TopoDSToStep_MakeShellBasedSurfaceModel::TopoDSToStep_MakeShellBasedSurfaceModel
 const Handle(StepShape_ShellBasedSurfaceModel)& TopoDSToStep_MakeShellBasedSurfaceModel::Value()
   const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeShellBasedSurfaceModel::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeShellBasedSurfaceModel::Value() - no result");
   return theShellBasedSurfaceModel;
 }
 
@@ -305,7 +305,7 @@ const Handle(StepShape_ShellBasedSurfaceModel)& TopoDSToStep_MakeShellBasedSurfa
 const Handle(StepVisual_TessellatedItem)& TopoDSToStep_MakeShellBasedSurfaceModel::
   TessellatedValue() const
 {
-  StdFail_NotDone_Raise_if(
+  Standard_Raise_if<StdFail_NotDone>(
     !done,
     "TopoDSToStep_MakeShellBasedSurfaceModel::TessellatedValue() - no result");
   return theTessellatedItem;

@@ -24,7 +24,7 @@
 #include <LocOpe_CurveShapeIntersector.hxx>
 #include <LocOpe_PntFace.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopLoc_Location.hxx>
 #include <TopoDS.hxx>

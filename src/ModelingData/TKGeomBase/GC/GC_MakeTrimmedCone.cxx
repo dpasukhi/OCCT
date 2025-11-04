@@ -22,7 +22,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation of a cone by four points.                                   +
@@ -83,6 +83,6 @@ GC_MakeTrimmedCone::GC_MakeTrimmedCone(const gp_Pnt&       P1,
 
 const Handle(Geom_RectangularTrimmedSurface)& GC_MakeTrimmedCone::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeTrimmedCone::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeTrimmedCone::Value() - no result");
   return TheCone;
 }

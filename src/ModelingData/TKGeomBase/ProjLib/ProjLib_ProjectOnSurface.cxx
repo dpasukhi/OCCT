@@ -24,7 +24,7 @@
 #include <Extrema_POnSurf.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Precision.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -260,6 +260,6 @@ ProjLib_ProjectOnSurface::~ProjLib_ProjectOnSurface() {}
 
 Handle(Geom_BSplineCurve) ProjLib_ProjectOnSurface::BSpline() const
 {
-  Standard_NoSuchObject_Raise_if(!myIsDone, "ProjLib_ProjectOnSurface:BSpline");
+  Standard_Raise_if<Standard_NoSuchObject>(!myIsDone, "ProjLib_ProjectOnSurface:BSpline");
   return myResult;
 }

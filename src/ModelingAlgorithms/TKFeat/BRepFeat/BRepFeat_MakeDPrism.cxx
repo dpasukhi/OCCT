@@ -37,7 +37,7 @@
 #include <LocOpe_DPrism.hxx>
 #include <LocOpe_PntFace.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom_SequenceOfCurve.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TopAbs.hxx>

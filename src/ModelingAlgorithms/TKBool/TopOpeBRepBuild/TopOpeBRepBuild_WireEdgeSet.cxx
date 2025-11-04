@@ -31,7 +31,7 @@ static TCollection_AsciiString PRODINS("dins ");
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>

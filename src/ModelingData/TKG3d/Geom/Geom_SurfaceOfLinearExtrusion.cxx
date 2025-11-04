@@ -21,7 +21,7 @@
 #include <Geom_Geometry.hxx>
 #include <Geom_Line.hxx>
 #include <Geom_SurfaceOfLinearExtrusion.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomEvaluator_SurfaceOfExtrusion.hxx>
 #include <gp.hxx>
 #include <gp_Ax2d.hxx>
@@ -32,7 +32,6 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 #include <Precision.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_SurfaceOfLinearExtrusion, Geom_SweptSurface)
@@ -227,7 +226,7 @@ Handle(Geom_Curve) Geom_SurfaceOfLinearExtrusion::VIso(const Standard_Real V) co
 Standard_Boolean Geom_SurfaceOfLinearExtrusion::IsCNu(const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisCurve->IsCN(N);
 }
 

@@ -12,7 +12,7 @@
 // commercial license or contractual agreement.
 
 #include <Interface_CopyMap.hxx>
-#include <Interface_InterfaceError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_InterfaceModel.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>

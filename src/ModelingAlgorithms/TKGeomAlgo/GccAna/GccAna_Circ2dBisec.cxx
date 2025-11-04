@@ -19,7 +19,7 @@
 //=========================================================================
 
 #include <GccAna_Circ2dBisec.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccInt_BCirc.hxx>
 #include <GccInt_BElips.hxx>
 #include <GccInt_BHyper.hxx>
@@ -30,8 +30,6 @@
 #include <gp_Hypr2d.hxx>
 #include <IntAna2d_AnaIntersection.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 
 //=========================================================================
 GccAna_Circ2dBisec::GccAna_Circ2dBisec(const gp_Circ2d& Circ1, const gp_Circ2d& Circ2)

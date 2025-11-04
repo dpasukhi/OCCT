@@ -17,7 +17,7 @@
 #include <Geom_SphericalSurface.hxx>
 #include <GeomToStep_MakeAxis2Placement3d.hxx>
 #include <GeomToStep_MakeSphericalSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
 #include <StepGeom_SphericalSurface.hxx>
@@ -51,6 +51,6 @@ GeomToStep_MakeSphericalSurface::GeomToStep_MakeSphericalSurface(
 
 const Handle(StepGeom_SphericalSurface)& GeomToStep_MakeSphericalSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeSphericalSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeSphericalSurface::Value() - no result");
   return theSphericalSurface;
 }

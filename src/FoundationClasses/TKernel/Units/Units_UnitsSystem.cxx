@@ -20,8 +20,7 @@
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <Units.hxx>
-#include <Units_NoSuchType.hxx>
-#include <Units_NoSuchUnit.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Units_Operators.hxx>
 #include <Units_Quantity.hxx>
 #include <Units_ShiftedToken.hxx>
@@ -114,7 +113,7 @@ void Units_UnitsSystem::Specify(const Standard_CString aquantity, const Standard
 
   quantity = Units::Quantity(aquantity);
 
-  //  Units_NoSuchType_Raise_if(quantity.IsNull(),aquantity);
+  //  Standard_Raise_if<Units_NoSuchType>(quantity.IsNull(),aquantity);
   if (quantity.IsNull())
   {
     std::cout << "Warning: in Units_UnitsSystem : Units_NoSuchType '" << aquantity << "'"
@@ -321,7 +320,7 @@ Standard_Real Units_UnitsSystem::ConvertSIValueToUserSystem(const Standard_CStri
 
   quantity = Units::Quantity(aquantity);
 
-  Units_NoSuchType_Raise_if(quantity.IsNull(), aquantity);
+  Standard_Raise_if<Units_NoSuchType>(quantity.IsNull(), aquantity);
 
   return avalue;
 }
@@ -371,7 +370,7 @@ Standard_Real Units_UnitsSystem::ConvertUserSystemValueToSI(const Standard_CStri
 
   quantity = Units::Quantity(aquantity);
 
-  Units_NoSuchType_Raise_if(quantity.IsNull(), aquantity);
+  Standard_Raise_if<Units_NoSuchType>(quantity.IsNull(), aquantity);
 
   return avalue;
 }

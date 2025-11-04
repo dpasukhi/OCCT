@@ -17,7 +17,7 @@
 #include <OSD_Path.hxx>
 #include <OSD_Protection.hxx>
 #include <OSD_WhoAmI.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_ExtendedString.hxx>
 
 #ifdef _WIN32

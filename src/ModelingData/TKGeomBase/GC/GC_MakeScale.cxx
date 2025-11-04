@@ -17,7 +17,7 @@
 #include <GC_MakeScale.hxx>
 #include <Geom_Transformation.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d un homothetie de gp de centre Point et de rapport Scale.  +

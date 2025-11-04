@@ -16,9 +16,7 @@
 #define _gp_Dir_HeaderFile
 
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 class gp_Vec;
 class gp_Ax1;
@@ -302,7 +300,7 @@ inline gp_Dir::gp_Dir(const gp_Vec& theV)
   Standard_Real aY   = aXYZ.Y();
   Standard_Real aZ   = aXYZ.Z();
   Standard_Real aD   = sqrt(aX * aX + aY * aY + aZ * aZ);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir() - input vector has zero norm");
   coord.SetX(aX / aD);
   coord.SetY(aY / aD);
@@ -317,7 +315,7 @@ inline gp_Dir::gp_Dir(const gp_XYZ& theXYZ)
   Standard_Real aY = theXYZ.Y();
   Standard_Real aZ = theXYZ.Z();
   Standard_Real aD = sqrt(aX * aX + aY * aY + aZ * aZ);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir() - input vector has zero norm");
   coord.SetX(aX / aD);
   coord.SetY(aY / aD);
@@ -331,7 +329,7 @@ inline gp_Dir::gp_Dir(const Standard_Real theXv,
                       const Standard_Real theZv)
 {
   Standard_Real aD = sqrt(theXv * theXv + theYv * theYv + theZv * theZv);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir() - input vector has zero norm");
   coord.SetX(theXv / aD);
   coord.SetY(theYv / aD);
@@ -345,7 +343,7 @@ inline void gp_Dir::SetCoord(const Standard_Integer theIndex, const Standard_Rea
   Standard_Real aX = coord.X();
   Standard_Real aY = coord.Y();
   Standard_Real aZ = coord.Z();
-  Standard_OutOfRange_Raise_if(theIndex < 1 || theIndex > 3,
+  Standard_Raise_if<Standard_OutOfRange>(theIndex < 1 || theIndex > 3,
                                "gp_Dir::SetCoord() - index is out of range [1, 3]");
   if (theIndex == 1)
   {
@@ -360,7 +358,7 @@ inline void gp_Dir::SetCoord(const Standard_Integer theIndex, const Standard_Rea
     aZ = theXi;
   }
   Standard_Real aD = sqrt(aX * aX + aY * aY + aZ * aZ);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::SetCoord() - result vector has zero norm");
   coord.SetX(aX / aD);
   coord.SetY(aY / aD);
@@ -374,7 +372,7 @@ inline void gp_Dir::SetCoord(const Standard_Real theXv,
                              const Standard_Real theZv)
 {
   Standard_Real aD = sqrt(theXv * theXv + theYv * theYv + theZv * theZv);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::SetCoord() - input vector has zero norm");
   coord.SetX(theXv / aD);
   coord.SetY(theYv / aD);
@@ -388,7 +386,7 @@ inline void gp_Dir::SetX(const Standard_Real theX)
   Standard_Real anY = coord.Y();
   Standard_Real aZ  = coord.Z();
   Standard_Real aD  = sqrt(theX * theX + anY * anY + aZ * aZ);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::SetX() - result vector has zero norm");
   coord.SetX(theX / aD);
   coord.SetY(anY / aD);
@@ -402,7 +400,7 @@ inline void gp_Dir::SetY(const Standard_Real theY)
   Standard_Real aZ = coord.Z();
   Standard_Real aX = coord.X();
   Standard_Real aD = sqrt(aX * aX + theY * theY + aZ * aZ);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::SetY() - result vector has zero norm");
   coord.SetX(aX / aD);
   coord.SetY(theY / aD);
@@ -416,7 +414,7 @@ inline void gp_Dir::SetZ(const Standard_Real theZ)
   Standard_Real aX  = coord.X();
   Standard_Real anY = coord.Y();
   Standard_Real aD  = sqrt(aX * aX + anY * anY + theZ * theZ);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::SetZ() - result vector has zero norm");
   coord.SetX(aX / aD);
   coord.SetY(anY / aD);
@@ -431,7 +429,7 @@ inline void gp_Dir::SetXYZ(const gp_XYZ& theXYZ)
   Standard_Real anY = theXYZ.Y();
   Standard_Real aZ  = theXYZ.Z();
   Standard_Real aD  = sqrt(aX * aX + anY * anY + aZ * aZ);
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::SetX() - input vector has zero norm");
   coord.SetX(aX / aD);
   coord.SetY(anY / aD);
@@ -444,7 +442,7 @@ inline void gp_Dir::Cross(const gp_Dir& theRight)
 {
   coord.Cross(theRight.coord);
   Standard_Real aD = coord.Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::Cross() - result vector has zero norm");
   coord.Divide(aD);
 }
@@ -456,7 +454,7 @@ inline gp_Dir gp_Dir::Crossed(const gp_Dir& theRight) const
   gp_Dir aV = *this;
   aV.coord.Cross(theRight.coord);
   Standard_Real aD = aV.coord.Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::Crossed() - result vector has zero norm");
   aV.coord.Divide(aD);
   return aV;
@@ -468,7 +466,7 @@ inline void gp_Dir::CrossCross(const gp_Dir& theV1, const gp_Dir& theV2)
 {
   coord.CrossCross(theV1.coord, theV2.coord);
   Standard_Real aD = coord.Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::CrossCross() - result vector has zero norm");
   coord.Divide(aD);
 }
@@ -480,7 +478,7 @@ inline gp_Dir gp_Dir::CrossCrossed(const gp_Dir& theV1, const gp_Dir& theV2) con
   gp_Dir aV = *this;
   (aV.coord).CrossCross(theV1.coord, theV2.coord);
   Standard_Real aD = aV.coord.Modulus();
-  Standard_ConstructionError_Raise_if(aD <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(aD <= gp::Resolution(),
                                       "gp_Dir::CrossCrossed() - result vector has zero norm");
   aV.coord.Divide(aD);
   return aV;

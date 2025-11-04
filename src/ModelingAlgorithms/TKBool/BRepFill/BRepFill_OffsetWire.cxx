@@ -62,9 +62,8 @@
 #include <MAT_Graph.hxx>
 #include <MAT_Node.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_NotImplemented.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <TopExp.hxx>

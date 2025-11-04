@@ -31,7 +31,7 @@
 #include <Interface_EntityIterator.hxx>
 #include <Interface_ShareTool.hxx>
 #include <Message_Msg.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // MGE 29/07/98
 IGESGeom_ToolLine::IGESGeom_ToolLine() {}

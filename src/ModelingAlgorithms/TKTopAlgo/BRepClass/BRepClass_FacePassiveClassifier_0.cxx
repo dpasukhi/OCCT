@@ -16,7 +16,7 @@
 
 #include <BRepClass_FacePassiveClassifier.hxx>
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRepClass_Edge.hxx>
 #include <BRepClass_Intersector.hxx>
 #include <gp_Lin2d.hxx>

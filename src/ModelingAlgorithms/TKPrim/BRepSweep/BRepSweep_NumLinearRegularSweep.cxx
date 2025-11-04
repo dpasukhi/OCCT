@@ -17,8 +17,7 @@
 #include <BRepSweep_Iterator.hxx>
 #include <BRepSweep_NumLinearRegularSweep.hxx>
 #include <BRepSweep_Tool.hxx>
-#include <Standard_NoMoreObject.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Sweep_NumShape.hxx>
 #include <Sweep_NumShapeIterator.hxx>
 #include <Sweep_NumShapeTool.hxx>

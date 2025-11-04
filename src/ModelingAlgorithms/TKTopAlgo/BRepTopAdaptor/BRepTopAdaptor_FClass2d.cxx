@@ -759,7 +759,7 @@ void BRepTopAdaptor_FClass2d::Destroy()
   }
 }
 
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // const BRepTopAdaptor_FClass2d &  BRepTopAdaptor_FClass2d::Copy(const BRepTopAdaptor_FClass2d&
 // Other) const {

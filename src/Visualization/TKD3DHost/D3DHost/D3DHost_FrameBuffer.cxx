@@ -21,7 +21,7 @@
 #include <OpenGl_ArbFBO.hxx>
 #include <OpenGl_Context.hxx>
 #include <OpenGl_Texture.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(D3DHost_FrameBuffer, OpenGl_FrameBuffer)
 
@@ -292,7 +292,7 @@ Standard_Boolean D3DHost_FrameBuffer::registerD3dBuffer(const Handle(OpenGl_Cont
 
 void D3DHost_FrameBuffer::BindBuffer(const Handle(OpenGl_Context)& theCtx)
 {
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     myLockCount < 1,
     "D3DHost_FrameBuffer::BindBuffer(), resource should be locked beforehand!");
   if (theCtx->arbFBO == NULL)

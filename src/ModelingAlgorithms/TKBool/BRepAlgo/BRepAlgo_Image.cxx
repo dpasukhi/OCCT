@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <BRepAlgo_Image.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopTools_DataMapIteratorOfDataMapOfShapeShape.hxx>

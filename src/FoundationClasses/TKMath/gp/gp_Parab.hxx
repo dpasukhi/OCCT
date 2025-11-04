@@ -18,7 +18,7 @@
 #include <gp_Ax1.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes a parabola in 3D space.
 //! A parabola is defined by its focal length (that is, the
@@ -70,7 +70,7 @@ public:
       : pos(theA2),
         focalLength(theFocal)
   {
-    Standard_ConstructionError_Raise_if(theFocal < 0.0, "gp_Parab() - focal length should be >= 0");
+    Standard_Raise_if<Standard_ConstructionError>(theFocal < 0.0, "gp_Parab() - focal length should be >= 0");
   }
 
   //! theD is the directrix of the parabola and theF the focus point.
@@ -95,7 +95,7 @@ public:
   //! Raises ConstructionError if theFocal < 0.0
   void SetFocal(const Standard_Real theFocal)
   {
-    Standard_ConstructionError_Raise_if(theFocal < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theFocal < 0.0,
                                         "gp_Parab::SetFocal() - focal length should be >= 0");
     focalLength = theFocal;
   }

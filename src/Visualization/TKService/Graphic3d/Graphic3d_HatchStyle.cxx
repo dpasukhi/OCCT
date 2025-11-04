@@ -15,7 +15,7 @@
 
 #include <Graphic3d_HatchStyle.hxx>
 
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <atomic>
 
@@ -97,8 +97,8 @@ static std::atomic<Standard_Integer> THE_HATCH_STYLE_COUNTER(Aspect_HS_NB - 1);
 
 Graphic3d_HatchStyle::Graphic3d_HatchStyle(const Handle(Image_PixMap)& thePattern)
 {
-  Standard_ProgramError_Raise_if(thePattern.IsNull(), "Null pointer to a hatch pattern image");
-  Standard_ProgramError_Raise_if(thePattern->SizeX() != 32 || thePattern->SizeY() != 32
+  Standard_Raise_if<Standard_ProgramError>(thePattern.IsNull(), "Null pointer to a hatch pattern image");
+  Standard_Raise_if<Standard_ProgramError>(thePattern->SizeX() != 32 || thePattern->SizeY() != 32
                                    || thePattern->Format() != Image_Format_Gray,
                                  "Hatch pattern must be a 32*32 bitmap (Image_Format_Gray format)");
 

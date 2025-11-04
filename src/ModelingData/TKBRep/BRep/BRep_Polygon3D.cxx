@@ -17,7 +17,7 @@
 #include <BRep_CurveRepresentation.hxx>
 #include <BRep_Polygon3D.hxx>
 #include <Poly_Polygon3D.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopLoc_Location.hxx>
 

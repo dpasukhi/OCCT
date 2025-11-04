@@ -16,8 +16,7 @@
 
 //  Modified by skv - Wed Aug 11 15:45:58 2004 OCC6272
 
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
 #include <ProjLib_HCompProjectedCurve.hxx>
 #include <ProjLib_ComputeApproxOnPolarSurface.hxx>
@@ -34,7 +33,6 @@
 #include <Precision.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <gp_Vec2d.hxx>
-#include <StdFail_NotDone.hxx>
 #include <Geom2dConvert_CompCurveToBSplineCurve.hxx>
 #include <Geom2dConvert.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -1075,7 +1073,7 @@ gp_Parab2d ProjLib_ProjectedCurve::Parabola() const
 
 Standard_Integer ProjLib_ProjectedCurve::Degree() const
 {
-  Standard_NoSuchObject_Raise_if((GetType() != GeomAbs_BSplineCurve)
+  Standard_Raise_if<Standard_NoSuchObject>((GetType() != GeomAbs_BSplineCurve)
                                    && (GetType() != GeomAbs_BezierCurve),
                                  "ProjLib_ProjectedCurve:Degree");
   if (GetType() == GeomAbs_BSplineCurve)
@@ -1095,7 +1093,7 @@ Standard_Integer ProjLib_ProjectedCurve::Degree() const
 
 Standard_Boolean ProjLib_ProjectedCurve::IsRational() const
 {
-  Standard_NoSuchObject_Raise_if((GetType() != GeomAbs_BSplineCurve)
+  Standard_Raise_if<Standard_NoSuchObject>((GetType() != GeomAbs_BSplineCurve)
                                    && (GetType() != GeomAbs_BezierCurve),
                                  "ProjLib_ProjectedCurve:IsRational");
   if (GetType() == GeomAbs_BSplineCurve)
@@ -1114,7 +1112,7 @@ Standard_Boolean ProjLib_ProjectedCurve::IsRational() const
 
 Standard_Integer ProjLib_ProjectedCurve::NbPoles() const
 {
-  Standard_NoSuchObject_Raise_if((GetType() != GeomAbs_BSplineCurve)
+  Standard_Raise_if<Standard_NoSuchObject>((GetType() != GeomAbs_BSplineCurve)
                                    && (GetType() != GeomAbs_BezierCurve),
                                  "ProjLib_ProjectedCurve:NbPoles");
   if (GetType() == GeomAbs_BSplineCurve)
@@ -1134,7 +1132,7 @@ Standard_Integer ProjLib_ProjectedCurve::NbPoles() const
 
 Standard_Integer ProjLib_ProjectedCurve::NbKnots() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_BSplineCurve,
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_BSplineCurve,
                                  "ProjLib_ProjectedCurve:NbKnots");
   return myResult.BSpline()->NbKnots();
 }

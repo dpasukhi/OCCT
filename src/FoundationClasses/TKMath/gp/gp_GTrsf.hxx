@@ -21,8 +21,7 @@
 #include <gp_Trsf.hxx>
 #include <gp_TrsfForm.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // Avoid possible conflict with SetForm macro defined by windows.h
 #ifdef SetForm
@@ -354,7 +353,7 @@ inline void gp_GTrsf::SetValue(const Standard_Integer theRow,
                                const Standard_Integer theCol,
                                const Standard_Real    theValue)
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4, " ");
   if (theCol == 4)
   {
     loc.SetCoord(theRow, theValue);
@@ -382,7 +381,7 @@ inline void gp_GTrsf::SetValue(const Standard_Integer theRow,
 inline Standard_Real gp_GTrsf::Value(const Standard_Integer theRow,
                                      const Standard_Integer theCol) const
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4, " ");
+  Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4, " ");
   if (theCol == 4)
   {
     return loc.Coord(theRow);

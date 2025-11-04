@@ -21,7 +21,7 @@
 #include <IntAna2d_Conic.hxx>
 #include <IntAna2d_IntPoint.hxx>
 #include <IntAna2d_Outils.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void IntAna2d_AnaIntersection::Perform(const gp_Parab2d& P, const IntAna2d_Conic& Conic)
 {

@@ -33,7 +33,7 @@
 #include <Precision.hxx>
 #include <ShapeAnalysis_Curve.hxx>
 #include <ShapeConstruct_Curve.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Pcurve.hxx>
 #include <StepGeom_SurfaceCurve.hxx>
@@ -570,7 +570,7 @@ Handle(Geom2d_Curve) StepToTopoDS_TranslateEdge::MakePCurve(
 
 const TopoDS_Shape& StepToTopoDS_TranslateEdge::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslateEdge::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslateEdge::Value() - no result");
   return myResult;
 }
 

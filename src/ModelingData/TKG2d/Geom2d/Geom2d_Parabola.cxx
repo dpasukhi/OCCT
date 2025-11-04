@@ -25,8 +25,7 @@
 #include <gp_Vec2d.hxx>
 #include <gp_XY.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_Parabola, Geom2d_Conic)
@@ -223,7 +222,7 @@ void Geom2d_Parabola::D3(const Standard_Real U, Pnt2d& P, Vec2d& V1, Vec2d& V2, 
 
 Vec2d Geom2d_Parabola::DN(const Standard_Real U, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 1, " ");
   return ElCLib::ParabolaDN(U, pos, focalLength, N);
 }
 

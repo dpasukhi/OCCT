@@ -22,7 +22,7 @@
 #include <gp_Dir2d.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Vector.hxx>
 #include <TCollection_HAsciiString.hxx>
@@ -86,6 +86,6 @@ GeomToStep_MakeVector::GeomToStep_MakeVector(const Handle(Geom2d_Vector)& GVecto
 
 const Handle(StepGeom_Vector)& GeomToStep_MakeVector::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeVector::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeVector::Value() - no result");
   return theVector;
 }

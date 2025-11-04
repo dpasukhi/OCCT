@@ -45,7 +45,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static inline void D03d(const Standard_Address C, const Standard_Real U, gp_Pnt& P)
 {

@@ -20,8 +20,7 @@
 #include <Geom_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Vertex.hxx>
@@ -165,7 +164,7 @@ const TopoDS_Face& BRepPrim_FaceBuilder::Face() const
 
 const TopoDS_Edge& BRepPrim_FaceBuilder::Edge(const Standard_Integer I) const
 {
-  Standard_OutOfRange_Raise_if(I < 1 || I > 4, "BRepPrim_FaceBuilder::Edge");
+  Standard_Raise_if<Standard_OutOfRange>(I < 1 || I > 4, "BRepPrim_FaceBuilder::Edge");
   return myEdges[I - 1];
 }
 
@@ -173,7 +172,7 @@ const TopoDS_Edge& BRepPrim_FaceBuilder::Edge(const Standard_Integer I) const
 
 const TopoDS_Vertex& BRepPrim_FaceBuilder::Vertex(const Standard_Integer I) const
 {
-  Standard_OutOfRange_Raise_if(I < 1 || I > 4, "BRepPrim_FaceBuilder::Vertex");
+  Standard_Raise_if<Standard_OutOfRange>(I < 1 || I > 4, "BRepPrim_FaceBuilder::Vertex");
   return myVertex[I - 1];
 }
 

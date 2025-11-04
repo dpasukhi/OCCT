@@ -18,7 +18,7 @@
 
 #include <BRep_Builder.hxx>
 #include <Message_ProgressScope.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepShape_ConnectedFaceSet.hxx>
 #include <StepShape_FaceSurface.hxx>
@@ -212,7 +212,7 @@ void StepToTopoDS_TranslateShell::Init(const Handle(StepVisual_TessellatedShell)
 
 const TopoDS_Shape& StepToTopoDS_TranslateShell::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslateShell::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslateShell::Value() - no result");
   return myResult;
 }
 

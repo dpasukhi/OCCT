@@ -19,7 +19,7 @@
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
 #include <Standard_Transient.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TCollection_HAsciiString.hxx>

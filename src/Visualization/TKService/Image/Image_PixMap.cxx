@@ -16,7 +16,7 @@
 #include <Image_PixMap.hxx>
 
 #include <NCollection_AlignedAllocator.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <algorithm>
 

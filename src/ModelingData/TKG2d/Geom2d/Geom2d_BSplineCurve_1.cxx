@@ -16,16 +16,12 @@
 
 #include <BSplCLib.hxx>
 #include <Geom2d_BSplineCurve.hxx>
-#include <Geom2d_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_RangeError.hxx>
 
 #define POLES (poles->Array1())
 #define KNOTS (knots->Array1())
@@ -36,7 +32,7 @@
 
 Standard_Boolean Geom2d_BSplineCurve::IsCN(const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 0, "Geom2d_BSplineCurve::IsCN");
+  Standard_Raise_if<Standard_RangeError>(N < 0, "Geom2d_BSplineCurve::IsCN");
 
   switch (smooth)
   {
@@ -311,7 +307,7 @@ Standard_Real Geom2d_BSplineCurve::FirstParameter() const
 
 Standard_Real Geom2d_BSplineCurve::Knot(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > knots->Length(), "Geom2d_BSplineCurve::Knot");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > knots->Length(), "Geom2d_BSplineCurve::Knot");
   return knots->Value(Index);
 }
 
@@ -326,7 +322,7 @@ GeomAbs_BSplKnotDistribution Geom2d_BSplineCurve::KnotDistribution() const
 
 void Geom2d_BSplineCurve::Knots(TColStd_Array1OfReal& K) const
 {
-  Standard_DomainError_Raise_if(K.Lower() < knots->Lower() || K.Upper() > knots->Upper(),
+  Standard_Raise_if<Standard_DomainError>(K.Lower() < knots->Lower() || K.Upper() > knots->Upper(),
                                 "Geom2d_BSplineCurve::Knots");
   for (Standard_Integer anIdx = K.Lower(); anIdx <= K.Upper(); anIdx++)
     K(anIdx) = knots->Value(anIdx);
@@ -341,7 +337,7 @@ const TColStd_Array1OfReal& Geom2d_BSplineCurve::Knots() const
 
 void Geom2d_BSplineCurve::KnotSequence(TColStd_Array1OfReal& K) const
 {
-  Standard_DomainError_Raise_if(K.Lower() < flatknots->Lower() || K.Upper() > flatknots->Upper(),
+  Standard_Raise_if<Standard_DomainError>(K.Lower() < flatknots->Lower() || K.Upper() > flatknots->Upper(),
                                 "Geom2d_BSplineCurve::KnotSequence");
   for (Standard_Integer anIdx = K.Lower(); anIdx <= K.Upper(); anIdx++)
     K(anIdx) = flatknots->Value(anIdx);
@@ -387,7 +383,7 @@ void Geom2d_BSplineCurve::LocalD0(const Standard_Real    U,
                                   const Standard_Integer ToK2,
                                   gp_Pnt2d&              P) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalValue");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalValue");
 
   Standard_Real    u     = U;
   Standard_Integer index = 0;
@@ -413,7 +409,7 @@ void Geom2d_BSplineCurve::LocalD1(const Standard_Real    U,
                                   gp_Pnt2d&              P,
                                   gp_Vec2d&              V1) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD1");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD1");
 
   Standard_Real    u     = U;
   Standard_Integer index = 0;
@@ -441,7 +437,7 @@ void Geom2d_BSplineCurve::LocalD2(const Standard_Real    U,
                                   gp_Vec2d&              V1,
                                   gp_Vec2d&              V2) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD2");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD2");
 
   Standard_Real    u     = U;
   Standard_Integer index = 0;
@@ -471,7 +467,7 @@ void Geom2d_BSplineCurve::LocalD3(const Standard_Real    U,
                                   gp_Vec2d&              V2,
                                   gp_Vec2d&              V3) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD3");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD3");
 
   Standard_Real    u     = U;
   Standard_Integer index = 0;
@@ -499,7 +495,7 @@ gp_Vec2d Geom2d_BSplineCurve::LocalDN(const Standard_Real    U,
                                       const Standard_Integer ToK2,
                                       const Standard_Integer N) const
 {
-  Standard_DomainError_Raise_if(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD3");
+  Standard_Raise_if<Standard_DomainError>(FromK1 == ToK2, "Geom2d_BSplineCurve::LocalD3");
 
   Standard_Real    u     = U;
   Standard_Integer index = 0;
@@ -524,7 +520,7 @@ gp_Vec2d Geom2d_BSplineCurve::LocalDN(const Standard_Real    U,
 
 Standard_Integer Geom2d_BSplineCurve::Multiplicity(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > mults->Length(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > mults->Length(),
                                "Geom2d_BSplineCurve::Multiplicity");
   return mults->Value(Index);
 }
@@ -533,7 +529,7 @@ Standard_Integer Geom2d_BSplineCurve::Multiplicity(const Standard_Integer Index)
 
 void Geom2d_BSplineCurve::Multiplicities(TColStd_Array1OfInteger& M) const
 {
-  Standard_DimensionError_Raise_if(M.Length() != mults->Length(),
+  Standard_Raise_if<Standard_DimensionError>(M.Length() != mults->Length(),
                                    "Geom2d_BSplineCurve::Multiplicities");
   M = mults->Array1();
 }
@@ -561,7 +557,7 @@ Standard_Integer Geom2d_BSplineCurve::NbPoles() const
 
 const gp_Pnt2d& Geom2d_BSplineCurve::Pole(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > poles->Length(), "Geom2d_BSplineCurve::Pole");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > poles->Length(), "Geom2d_BSplineCurve::Pole");
   return poles->Value(Index);
 }
 
@@ -569,7 +565,7 @@ const gp_Pnt2d& Geom2d_BSplineCurve::Pole(const Standard_Integer Index) const
 
 void Geom2d_BSplineCurve::Poles(TColgp_Array1OfPnt2d& P) const
 {
-  Standard_DimensionError_Raise_if(P.Length() != poles->Length(), "Geom2d_BSplineCurve::Poles");
+  Standard_Raise_if<Standard_DimensionError>(P.Length() != poles->Length(), "Geom2d_BSplineCurve::Poles");
   P = poles->Array1();
 }
 
@@ -592,7 +588,7 @@ gp_Pnt2d Geom2d_BSplineCurve::StartPoint() const
 
 Standard_Real Geom2d_BSplineCurve::Weight(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > poles->Length(), "Geom2d_BSplineCurve::Weight");
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > poles->Length(), "Geom2d_BSplineCurve::Weight");
   if (IsRational())
     return weights->Value(Index);
   else
@@ -603,7 +599,7 @@ Standard_Real Geom2d_BSplineCurve::Weight(const Standard_Integer Index) const
 
 void Geom2d_BSplineCurve::Weights(TColStd_Array1OfReal& W) const
 {
-  Standard_DimensionError_Raise_if(W.Length() != poles->Length(), "Geom2d_BSplineCurve::Weights");
+  Standard_Raise_if<Standard_DimensionError>(W.Length() != poles->Length(), "Geom2d_BSplineCurve::Weights");
   if (IsRational())
     W = weights->Array1();
   else

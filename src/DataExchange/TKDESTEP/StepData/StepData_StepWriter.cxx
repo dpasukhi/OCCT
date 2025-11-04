@@ -17,7 +17,7 @@
 
 #include <Interface_Check.hxx>
 #include <Interface_EntityIterator.hxx>
-#include <Interface_InterfaceMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Interface_Macros.hxx>
 #include <Interface_ReportEntity.hxx>
 #include <Standard_Transient.hxx>

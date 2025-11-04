@@ -30,7 +30,7 @@
 #include <IntSurf.hxx>
 #include <IntSurf_Transition.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>

@@ -21,7 +21,7 @@
 
 #include <math_Jacobi.hxx>
 #include <math_Matrix.hxx>
-#include <math_NotSquare.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <math_Recipes.hxx>
 
 math_Jacobi::math_Jacobi(const math_Matrix& A)
@@ -32,7 +32,7 @@ math_Jacobi::math_Jacobi(const math_Matrix& A)
       EigenVectors(1, A.RowNumber(), 1, A.RowNumber())
 {
 
-  math_NotSquare_Raise_if(A.RowNumber() != A.ColNumber(), " ");
+  Standard_Raise_if<math_NotSquare>(A.RowNumber() != A.ColNumber(), " ");
 
   AA                     = A;
   Standard_Integer Error = Jacobi(AA, EigenValues, EigenVectors, NbRotations);

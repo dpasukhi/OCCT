@@ -16,7 +16,7 @@
 
   #include <OSD_Directory.hxx>
   #include <OSD_DirectoryIterator.hxx>
-  #include <OSD_OSDError.hxx>
+  #include <Standard_FailureRegistry.hxx>
   #include <OSD_Path.hxx>
   #include <OSD_WhoAmI.hxx>
   #include <TCollection_AsciiString.hxx>

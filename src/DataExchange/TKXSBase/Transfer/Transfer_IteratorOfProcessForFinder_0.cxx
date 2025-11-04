@@ -16,7 +16,7 @@
 
 #include <Transfer_IteratorOfProcessForFinder.hxx>
 
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Transfer_Finder.hxx>
 #include <Transfer_FindHasher.hxx>
 #include <Transfer_ProcessForFinder.hxx>

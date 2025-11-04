@@ -14,7 +14,7 @@
 
 #include <BSplCLib.hxx>
 
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 // BSpline Curve in 2d space
 // **************************
 

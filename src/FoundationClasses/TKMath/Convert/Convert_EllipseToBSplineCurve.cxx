@@ -21,7 +21,7 @@
 #include <gp_Elips2d.hxx>
 #include <gp_Trsf2d.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfPnt2d.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>
@@ -131,7 +131,7 @@ Convert_EllipseToBSplineCurve::Convert_EllipseToBSplineCurve(
   Standard_Real Tol   = Precision::PConfusion();
   Standard_Real delta = ULast - UFirst;
 #endif
-  Standard_DomainError_Raise_if((delta > (2 * M_PI + Tol)) || (delta <= 0.0e0),
+  Standard_Raise_if<Standard_DomainError>((delta > (2 * M_PI + Tol)) || (delta <= 0.0e0),
                                 "Convert_EllipseToBSplineCurve");
   Standard_Integer              ii;
   Standard_Real                 R, r, value;

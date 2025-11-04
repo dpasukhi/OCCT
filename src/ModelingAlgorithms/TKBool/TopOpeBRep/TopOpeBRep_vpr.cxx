@@ -28,7 +28,7 @@
   #include <TopOpeBRepDS_DRAW.hxx>
 #endif
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Geom_Surface.hxx>
 #include <Precision.hxx>
 #include <TopoDS.hxx>

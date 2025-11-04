@@ -34,7 +34,7 @@
 #include <Geom2dAPI_ProjectPointOnCurve.hxx>
 #include <Geom2dInt_GInter.hxx>
 #include <IntRes2d_IntersectionPoint.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IntRes2d_IntersectionSegment.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>

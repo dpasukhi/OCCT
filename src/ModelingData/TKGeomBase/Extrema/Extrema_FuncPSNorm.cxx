@@ -21,7 +21,7 @@
 #include <gp_Vec.hxx>
 #include <math_Matrix.hxx>
 #include <Precision.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Extrema_FuncPSNorm::Extrema_FuncPSNorm()
     : myS(NULL),

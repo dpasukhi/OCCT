@@ -18,7 +18,7 @@
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
 #include <math_Gauss.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #define Eps 1.e-15
 

@@ -17,7 +17,7 @@
 
 #include <gp_Ax1.hxx>
 #include <gp_Ax3.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes a sphere.
 //! A sphere is defined by its radius and positioned in space
@@ -59,7 +59,7 @@ public:
       : pos(theA3),
         radius(theRadius)
   {
-    Standard_ConstructionError_Raise_if(theRadius < 0.0, "gp_Sphere() - radius should be >= 0");
+    Standard_Raise_if<Standard_ConstructionError>(theRadius < 0.0, "gp_Sphere() - radius should be >= 0");
   }
 
   //! Changes the center of the sphere.
@@ -74,7 +74,7 @@ public:
   //! Raises ConstructionError if theR < 0.0
   void SetRadius(const Standard_Real theR)
   {
-    Standard_ConstructionError_Raise_if(theR < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theR < 0.0,
                                         "gp_Sphere::SetRadius() - radius should be >= 0");
     radius = theR;
   }

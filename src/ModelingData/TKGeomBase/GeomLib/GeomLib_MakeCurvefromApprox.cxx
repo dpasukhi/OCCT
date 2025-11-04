@@ -19,8 +19,7 @@
 #include <Geom_BSplineCurve.hxx>
 #include <GeomLib_MakeCurvefromApprox.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfInteger.hxx>
@@ -61,9 +60,9 @@ Standard_Integer GeomLib_MakeCurvefromApprox::Nb3DSpaces() const
 Handle(Geom2d_BSplineCurve) GeomLib_MakeCurvefromApprox::Curve2d(
   const Standard_Integer Index2d) const
 {
-  Standard_OutOfRange_Raise_if(Index2d < 0 || Index2d > Nb2DSpaces(),
+  Standard_Raise_if<Standard_OutOfRange>(Index2d < 0 || Index2d > Nb2DSpaces(),
                                " GeomLib_MakeCurvefromApprox : Curve2d");
-  StdFail_NotDone_Raise_if(!IsDone(), " GeomLib_MakeCurvefromApprox : Curve2d");
+  Standard_Raise_if<StdFail_NotDone>(!IsDone(), " GeomLib_MakeCurvefromApprox : Curve2d");
 
   TColgp_Array1OfPnt2d    Poles(1, myApprox.NbPoles());
   TColStd_Array1OfReal    Knots(1, myApprox.NbKnots());
@@ -84,10 +83,10 @@ Handle(Geom2d_BSplineCurve) GeomLib_MakeCurvefromApprox::Curve2d(
   const Standard_Integer Index1d,
   const Standard_Integer Index2d) const
 {
-  Standard_OutOfRange_Raise_if(Index1d < 0 || Index1d > Nb1DSpaces() || Index2d < 0
+  Standard_Raise_if<Standard_OutOfRange>(Index1d < 0 || Index1d > Nb1DSpaces() || Index2d < 0
                                  || Index2d > Nb2DSpaces(),
                                " GeomLib_MakeCurvefromApprox : Curve2d");
-  StdFail_NotDone_Raise_if(!IsDone() && !myApprox.HasResult(),
+  Standard_Raise_if<StdFail_NotDone>(!IsDone() && !myApprox.HasResult(),
                            " GeomLib_MakeCurvefromApprox : Curve2d");
 
   TColgp_Array1OfPnt2d    Poles(1, myApprox.NbPoles());
@@ -119,10 +118,10 @@ Handle(Geom2d_BSplineCurve) GeomLib_MakeCurvefromApprox::Curve2dFromTwo1d(
   const Standard_Integer Index1d,
   const Standard_Integer Index2d) const
 {
-  Standard_OutOfRange_Raise_if(Index1d < 0 || Index1d > Nb1DSpaces() || Index2d < 0
+  Standard_Raise_if<Standard_OutOfRange>(Index1d < 0 || Index1d > Nb1DSpaces() || Index2d < 0
                                  || Index2d > Nb1DSpaces(),
                                " GeomLib_MakeCurvefromApprox : Curve2d");
-  StdFail_NotDone_Raise_if(!IsDone() && !myApprox.HasResult(),
+  Standard_Raise_if<StdFail_NotDone>(!IsDone() && !myApprox.HasResult(),
                            " GeomLib_MakeCurvefromApprox : Curve2d");
 
   TColgp_Array1OfPnt2d    Poles(1, myApprox.NbPoles());
@@ -152,9 +151,9 @@ Handle(Geom2d_BSplineCurve) GeomLib_MakeCurvefromApprox::Curve2dFromTwo1d(
 
 Handle(Geom_BSplineCurve) GeomLib_MakeCurvefromApprox::Curve(const Standard_Integer Index3d) const
 {
-  Standard_OutOfRange_Raise_if(Index3d < 0 || Index3d > Nb3DSpaces(),
+  Standard_Raise_if<Standard_OutOfRange>(Index3d < 0 || Index3d > Nb3DSpaces(),
                                " GeomLib_MakeCurvefromApprox : Curve");
-  StdFail_NotDone_Raise_if(!IsDone() && !myApprox.HasResult(),
+  Standard_Raise_if<StdFail_NotDone>(!IsDone() && !myApprox.HasResult(),
                            " GeomLib_MakeCurvefromApprox : Curve");
 
   TColgp_Array1OfPnt      Poles(1, myApprox.NbPoles());
@@ -175,10 +174,10 @@ Handle(Geom_BSplineCurve) GeomLib_MakeCurvefromApprox::Curve(const Standard_Inte
 Handle(Geom_BSplineCurve) GeomLib_MakeCurvefromApprox::Curve(const Standard_Integer Index1d,
                                                              const Standard_Integer Index3d) const
 {
-  Standard_OutOfRange_Raise_if(Index1d < 0 || Index1d > Nb1DSpaces() || Index3d < 0
+  Standard_Raise_if<Standard_OutOfRange>(Index1d < 0 || Index1d > Nb1DSpaces() || Index3d < 0
                                  || Index3d > Nb3DSpaces(),
                                " GeomLib_MakeCurvefromApprox : Curve3d");
-  StdFail_NotDone_Raise_if(!IsDone(), " GeomLib_MakeCurvefromApprox : Curve3d");
+  Standard_Raise_if<StdFail_NotDone>(!IsDone(), " GeomLib_MakeCurvefromApprox : Curve3d");
 
   TColgp_Array1OfPnt      Poles(1, myApprox.NbPoles());
   TColStd_Array1OfReal    Weigths(1, myApprox.NbPoles());

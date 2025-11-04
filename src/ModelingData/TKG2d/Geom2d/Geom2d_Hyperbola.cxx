@@ -25,9 +25,7 @@
 #include <gp_Vec2d.hxx>
 #include <gp_XY.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom2d_Hyperbola, Geom2d_Conic)
@@ -208,7 +206,7 @@ Ax2d Geom2d_Hyperbola::Directrix2() const
 
 Standard_Real Geom2d_Hyperbola::Eccentricity() const
 {
-  Standard_DomainError_Raise_if(majorRadius <= gp::Resolution(), " ");
+  Standard_Raise_if<Standard_DomainError>(majorRadius <= gp::Resolution(), " ");
   return (Sqrt(majorRadius * majorRadius + minorRadius * minorRadius)) / majorRadius;
 }
 
@@ -267,7 +265,7 @@ gp_Hypr2d Geom2d_Hyperbola::OtherBranch() const
 
 Standard_Real Geom2d_Hyperbola::Parameter() const
 {
-  Standard_DomainError_Raise_if(majorRadius <= gp::Resolution(), " ");
+  Standard_Raise_if<Standard_DomainError>(majorRadius <= gp::Resolution(), " ");
   return (minorRadius * minorRadius) / majorRadius;
 }
 
@@ -303,7 +301,7 @@ void Geom2d_Hyperbola::D3(const Standard_Real U, Pnt2d& P, Vec2d& V1, Vec2d& V2,
 
 Vec2d Geom2d_Hyperbola::DN(const Standard_Real U, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 1, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 1, " ");
   return ElCLib::HyperbolaDN(U, pos, majorRadius, minorRadius, N);
 }
 

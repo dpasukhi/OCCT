@@ -24,7 +24,7 @@
 #include <gp_Vec.hxx>
 #include <LocOpe_BuildShape.hxx>
 #include <LocOpe_LinearForm.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>

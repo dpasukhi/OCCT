@@ -14,10 +14,8 @@
 #ifndef _NCollection_AliasedArray_HeaderFile
 #define _NCollection_AliasedArray_HeaderFile
 
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_OutOfMemory.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_TypeMismatch.hxx>
 #include <Standard_Macro.hxx>
 
 //! Defines an array of values of configurable size.
@@ -242,7 +240,7 @@ public:
   //! Access raw bytes of specified element.
   const Standard_Byte* value(Standard_Integer theIndex) const
   {
-    Standard_OutOfRange_Raise_if(theIndex < 0 || theIndex >= mySize,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 0 || theIndex >= mySize,
                                  "NCollection_AliasedArray::value(), out of range index");
     return myData + size_t(myStride) * size_t(theIndex);
   }
@@ -250,7 +248,7 @@ public:
   //! Access raw bytes of specified element.
   Standard_Byte* changeValue(Standard_Integer theIndex)
   {
-    Standard_OutOfRange_Raise_if(theIndex < 0 || theIndex >= mySize,
+    Standard_Raise_if<Standard_OutOfRange>(theIndex < 0 || theIndex >= mySize,
                                  "NCollection_AliasedArray::changeValue(), out of range index");
     return myData + size_t(myStride) * size_t(theIndex);
   }
@@ -270,7 +268,7 @@ public:
   template <typename Type_t>
   const Type_t& Value(Standard_Integer theIndex) const
   {
-    Standard_TypeMismatch_Raise_if(size_t(myStride) != sizeof(Type_t),
+    Standard_Raise_if<Standard_TypeMismatch>(size_t(myStride) != sizeof(Type_t),
                                    "NCollection_AliasedArray::Value(), wrong type");
     return *reinterpret_cast<const Type_t*>(value(theIndex));
   }
@@ -280,7 +278,7 @@ public:
   template <typename Type_t>
   void Value(Standard_Integer theIndex, Type_t& theValue) const
   {
-    Standard_TypeMismatch_Raise_if(size_t(myStride) != sizeof(Type_t),
+    Standard_Raise_if<Standard_TypeMismatch>(size_t(myStride) != sizeof(Type_t),
                                    "NCollection_AliasedArray::Value(), wrong type");
     theValue = *reinterpret_cast<const Type_t*>(value(theIndex));
   }
@@ -290,7 +288,7 @@ public:
   template <typename Type_t>
   Type_t& ChangeValue(Standard_Integer theIndex)
   {
-    Standard_TypeMismatch_Raise_if(size_t(myStride) != sizeof(Type_t),
+    Standard_Raise_if<Standard_TypeMismatch>(size_t(myStride) != sizeof(Type_t),
                                    "NCollection_AliasedArray::ChangeValue(), wrong type");
     return *reinterpret_cast<Type_t*>(changeValue(theIndex));
   }
@@ -301,7 +299,7 @@ public:
   template <typename Type_t>
   const Type_t& Value2(Standard_Integer theIndex) const
   {
-    Standard_TypeMismatch_Raise_if(size_t(myStride) < sizeof(Type_t),
+    Standard_Raise_if<Standard_TypeMismatch>(size_t(myStride) < sizeof(Type_t),
                                    "NCollection_AliasedArray::Value2(), wrong type");
     return *reinterpret_cast<const Type_t*>(value(theIndex));
   }
@@ -312,7 +310,7 @@ public:
   template <typename Type_t>
   void Value2(Standard_Integer theIndex, Type_t& theValue) const
   {
-    Standard_TypeMismatch_Raise_if(size_t(myStride) < sizeof(Type_t),
+    Standard_Raise_if<Standard_TypeMismatch>(size_t(myStride) < sizeof(Type_t),
                                    "NCollection_AliasedArray::Value2(), wrong type");
     theValue = *reinterpret_cast<const Type_t*>(value(theIndex));
   }
@@ -323,7 +321,7 @@ public:
   template <typename Type_t>
   Type_t& ChangeValue2(Standard_Integer theIndex)
   {
-    Standard_TypeMismatch_Raise_if(size_t(myStride) < sizeof(Type_t),
+    Standard_Raise_if<Standard_TypeMismatch>(size_t(myStride) < sizeof(Type_t),
                                    "NCollection_AliasedArray::ChangeValue2(), wrong type");
     return *reinterpret_cast<Type_t*>(changeValue(theIndex));
   }

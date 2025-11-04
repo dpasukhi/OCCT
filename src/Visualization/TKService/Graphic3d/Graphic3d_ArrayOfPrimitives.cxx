@@ -226,7 +226,7 @@ Graphic3d_ArrayOfPrimitives::~Graphic3d_ArrayOfPrimitives()
 
 Standard_Integer Graphic3d_ArrayOfPrimitives::AddBound(const Standard_Integer theEdgeNumber)
 {
-  Standard_OutOfRange_Raise_if(myBounds.IsNull() || myBounds->NbBounds >= myBounds->NbMaxBounds,
+  Standard_Raise_if<Standard_OutOfRange>(myBounds.IsNull() || myBounds->NbBounds >= myBounds->NbMaxBounds,
                                "TOO many BOUND");
   myBounds->Bounds[myBounds->NbBounds] = theEdgeNumber;
   return ++myBounds->NbBounds;
@@ -239,7 +239,7 @@ Standard_Integer Graphic3d_ArrayOfPrimitives::AddBound(const Standard_Integer th
                                                        const Standard_Real    theG,
                                                        const Standard_Real    theB)
 {
-  Standard_OutOfRange_Raise_if(myBounds.IsNull() || myBounds->NbBounds >= myBounds->NbMaxBounds,
+  Standard_Raise_if<Standard_OutOfRange>(myBounds.IsNull() || myBounds->NbBounds >= myBounds->NbMaxBounds,
                                "TOO many BOUND");
   myBounds->Bounds[myBounds->NbBounds] = theEdgeNumber;
   ++myBounds->NbBounds;
@@ -251,10 +251,10 @@ Standard_Integer Graphic3d_ArrayOfPrimitives::AddBound(const Standard_Integer th
 
 Standard_Integer Graphic3d_ArrayOfPrimitives::AddEdge(const Standard_Integer theVertexIndex)
 {
-  Standard_OutOfRange_Raise_if(myIndices.IsNull()
+  Standard_Raise_if<Standard_OutOfRange>(myIndices.IsNull()
                                  || myIndices->NbElements >= myIndices->NbMaxElements(),
                                "TOO many EDGE");
-  Standard_OutOfRange_Raise_if(theVertexIndex < 1 || theVertexIndex > myAttribs->NbElements,
+  Standard_Raise_if<Standard_OutOfRange>(theVertexIndex < 1 || theVertexIndex > myAttribs->NbElements,
                                "BAD VERTEX index");
   const Standard_Integer aVertIndex = theVertexIndex - 1;
   myIndices->SetIndex(myIndices->NbElements, aVertIndex);

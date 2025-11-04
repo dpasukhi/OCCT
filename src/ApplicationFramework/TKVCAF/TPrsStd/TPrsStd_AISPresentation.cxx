@@ -16,8 +16,7 @@
 
 #include <AIS_InteractiveContext.hxx>
 #include <AIS_InteractiveObject.hxx>
-#include <Standard_NullObject.hxx>
-#include <Standard_NoMoreObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TDF_AttributeDelta.hxx>
 #include <TDF_DefaultDeltaOnModification.hxx>
 #include <TDF_DefaultDeltaOnRemoval.hxx>

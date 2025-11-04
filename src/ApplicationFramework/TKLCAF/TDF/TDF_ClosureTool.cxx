@@ -18,7 +18,7 @@
 // Version	Date		Purpose
 //		0.0	Sep  8 1998	Creation
 
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TDF_AttributeIterator.hxx>
 #include <TDF_ChildIterator.hxx>
 #include <TDF_ClosureMode.hxx>

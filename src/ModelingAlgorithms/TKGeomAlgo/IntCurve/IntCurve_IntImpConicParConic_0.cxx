@@ -16,7 +16,7 @@
 
 #include <IntCurve_IntImpConicParConic.hxx>
 
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <IntCurve_IConicTool.hxx>
 #include <IntCurve_PConic.hxx>
 #include <IntCurve_PConicTool.hxx>

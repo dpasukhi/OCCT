@@ -15,7 +15,7 @@
 #include <ElCLib.hxx>
 #include <GccAna_Circ2d2TanOn.hxx>
 #include <GccAna_Circ2dBisec.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <GccInt_BLine.hxx>
 #include <GccInt_IType.hxx>
@@ -27,8 +27,6 @@
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_Conic.hxx>
 #include <IntAna2d_IntPoint.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 

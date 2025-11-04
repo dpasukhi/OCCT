@@ -28,7 +28,7 @@
 #include <LocOpe_BuildShape.hxx>
 #include <LocOpe_Revol.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>

@@ -17,8 +17,7 @@
 #include <AppDef_MultiPointConstraint.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
 #include <TColgp_HArray1OfVec.hxx>
 #include <TColgp_HArray1OfVec2d.hxx>

@@ -20,7 +20,7 @@
 #include <gp_Pnt2d.hxx>
 #include <MAT2d_CutCurve.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColGeom2d_SequenceOfCurve.hxx>
 
 //=================================================================================================

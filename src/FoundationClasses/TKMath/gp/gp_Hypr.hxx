@@ -19,8 +19,7 @@
 #include <gp_Ax1.hxx>
 #include <gp_Ax2.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes a branch of a hyperbola in 3D space.
 //! A hyperbola is defined by its major and minor radii and
@@ -105,7 +104,7 @@ public:
         majorRadius(theMajorRadius),
         minorRadius(theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(theMinorRadius < 0.0 || theMajorRadius < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theMinorRadius < 0.0 || theMajorRadius < 0.0,
                                         "gp_Hypr() - invalid construction parameters");
   }
 
@@ -127,7 +126,7 @@ public:
   //! Standard_ConstructionError if theMajorRadius is negative.
   void SetMajorRadius(const Standard_Real theMajorRadius)
   {
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       theMajorRadius < 0.0,
       "gp_Hypr::SetMajorRadius() - major radius should be greater or equal zero");
     majorRadius = theMajorRadius;
@@ -138,7 +137,7 @@ public:
   //! Standard_ConstructionError if theMinorRadius is negative.
   void SetMinorRadius(const Standard_Real theMinorRadius)
   {
-    Standard_ConstructionError_Raise_if(
+    Standard_Raise_if<Standard_ConstructionError>(
       theMinorRadius < 0.0,
       "gp_Hypr::SetMinorRadius() - minor radius should be greater or equal zero");
     minorRadius = theMinorRadius;
@@ -204,7 +203,7 @@ public:
   //! 0.0
   Standard_Real Eccentricity() const
   {
-    Standard_DomainError_Raise_if(majorRadius <= gp::Resolution(),
+    Standard_Raise_if<Standard_DomainError>(majorRadius <= gp::Resolution(),
                                   "gp_Hypr::Eccentricity() - major radius is zero");
     return sqrt(majorRadius * majorRadius + minorRadius * minorRadius) / majorRadius;
   }
@@ -251,7 +250,7 @@ public:
   //! Raises DomainError if MajorRadius = 0.0
   Standard_Real Parameter() const
   {
-    Standard_DomainError_Raise_if(majorRadius <= gp::Resolution(),
+    Standard_Raise_if<Standard_DomainError>(majorRadius <= gp::Resolution(),
                                   "gp_Hypr::Parameter() - major radius is zero");
     return (minorRadius * minorRadius) / majorRadius;
   }
@@ -349,7 +348,7 @@ private:
 
 inline gp_Ax1 gp_Hypr::Asymptote1() const
 {
-  Standard_ConstructionError_Raise_if(majorRadius <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(majorRadius <= gp::Resolution(),
                                       "gp_Hypr::Asymptote1() - major radius is zero");
   gp_Vec aV1 = gp_Vec(pos.YDirection());
   aV1.Multiply(minorRadius / majorRadius);
@@ -362,7 +361,7 @@ inline gp_Ax1 gp_Hypr::Asymptote1() const
 
 inline gp_Ax1 gp_Hypr::Asymptote2() const
 {
-  Standard_ConstructionError_Raise_if(majorRadius <= gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(majorRadius <= gp::Resolution(),
                                       "gp_Hypr::Asymptote1() - major radius is zero");
   gp_Vec aV1 = gp_Vec(pos.YDirection());
   aV1.Multiply(-minorRadius / majorRadius);

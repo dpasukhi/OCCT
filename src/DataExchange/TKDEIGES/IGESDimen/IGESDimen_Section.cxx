@@ -20,8 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <IGESData_LineFontEntity.hxx>
 #include <IGESDimen_Section.hxx>
-#include <Standard_DimensionMismatch.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESDimen_Section, IGESData_IGESEntity)

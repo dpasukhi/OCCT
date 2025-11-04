@@ -20,7 +20,7 @@
 #include <BinTools_ShapeWriter.hxx>
 #include <BinTools_ShapeReader.hxx>
 #include <Message_Messenger.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TDF_Attribute.hxx>

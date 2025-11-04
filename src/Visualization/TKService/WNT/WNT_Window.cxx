@@ -22,7 +22,7 @@
 #if defined(_WIN32) && !defined(OCCT_UWP)
 
   #include <Aspect_ScrollDelta.hxx>
-  #include <Aspect_WindowDefinitionError.hxx>
+  #include <Standard_FailureRegistry.hxx>
   #include <Aspect_WindowInputListener.hxx>
   #include <Message.hxx>
   #include <NCollection_LocalArray.hxx>

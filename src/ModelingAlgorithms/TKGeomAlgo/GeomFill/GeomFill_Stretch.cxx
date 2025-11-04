@@ -55,7 +55,7 @@ void GeomFill_Stretch::Init(const TColgp_Array1OfPnt& P1,
                             const TColgp_Array1OfPnt& P3,
                             const TColgp_Array1OfPnt& P4)
 {
-  Standard_DomainError_Raise_if(P1.Length() != P3.Length() || P2.Length() != P4.Length(), " ");
+  Standard_Raise_if<Standard_DomainError>(P1.Length() != P3.Length() || P2.Length() != P4.Length(), " ");
 
   Standard_Integer NPolU = P1.Length();
   Standard_Integer NPolV = P2.Length();
@@ -112,8 +112,8 @@ void GeomFill_Stretch::Init(const TColgp_Array1OfPnt&   P1,
                             const TColStd_Array1OfReal& W3,
                             const TColStd_Array1OfReal& W4)
 {
-  Standard_DomainError_Raise_if(W1.Length() != W3.Length() || W2.Length() != W4.Length(), " ");
-  Standard_DomainError_Raise_if(W1.Length() != P1.Length() || W2.Length() != P2.Length()
+  Standard_Raise_if<Standard_DomainError>(W1.Length() != W3.Length() || W2.Length() != W4.Length(), " ");
+  Standard_Raise_if<Standard_DomainError>(W1.Length() != P1.Length() || W2.Length() != P2.Length()
                                   || W3.Length() != P3.Length() || W4.Length() != P4.Length(),
                                 " ");
 

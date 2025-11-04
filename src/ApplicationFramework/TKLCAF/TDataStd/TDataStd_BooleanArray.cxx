@@ -93,7 +93,7 @@ TDataStd_BooleanArray::TDataStd_BooleanArray()
 
 void TDataStd_BooleanArray::Init(const Standard_Integer lower, const Standard_Integer upper)
 {
-  Standard_RangeError_Raise_if(upper < lower, "TDataStd_BooleanArray::Init");
+  Standard_Raise_if<Standard_RangeError>(upper < lower, "TDataStd_BooleanArray::Init");
   Backup();
   myLower  = lower;
   myUpper  = upper;

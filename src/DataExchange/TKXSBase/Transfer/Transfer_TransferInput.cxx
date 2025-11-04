@@ -20,7 +20,7 @@
 #include <Transfer_IteratorOfProcessForTransient.hxx>
 #include <Transfer_MultipleBinder.hxx>
 #include <Transfer_SimpleBinderOfTransient.hxx>
-#include <Transfer_TransferFailure.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Transfer_TransferInput.hxx>
 #include <Transfer_TransferIterator.hxx>
 #include <Transfer_TransientProcess.hxx>

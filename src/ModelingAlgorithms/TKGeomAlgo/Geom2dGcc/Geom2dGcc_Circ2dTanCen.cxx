@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <GccAna_Circ2dTanCen.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <Geom2d_Circle.hxx>
 #include <Geom2d_Line.hxx>
@@ -26,8 +26,6 @@
 #include <Geom2dGcc_QualifiedCurve.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 
 Geom2dGcc_Circ2dTanCen::Geom2dGcc_Circ2dTanCen(const Geom2dGcc_QualifiedCurve& Qualified1,
                                                const Handle(Geom2d_Point)&     PCenter,

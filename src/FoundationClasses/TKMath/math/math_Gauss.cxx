@@ -15,10 +15,8 @@
 #include <math_Gauss.hxx>
 
 #include <math_Matrix.hxx>
-#include <math_NotSquare.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <math_Recipes.hxx>
-#include <Standard_DimensionError.hxx>
-#include <StdFail_NotDone.hxx>
 
 math_Gauss::math_Gauss(const math_Matrix&           A,
                        const Standard_Real          MinPivot,
@@ -28,7 +26,7 @@ math_Gauss::math_Gauss(const math_Matrix&           A,
       D(0.0),
       Done(Standard_False)
 {
-  math_NotSquare_Raise_if(A.RowNumber() != A.ColNumber(), " ");
+  Standard_Raise_if<math_NotSquare>(A.RowNumber() != A.ColNumber(), " ");
   LU                     = A;
   Standard_Integer Error = LU_Decompose(LU, Index, D, MinPivot, theProgress);
   if (!Error)
@@ -44,7 +42,7 @@ math_Gauss::math_Gauss(const math_Matrix&           A,
 void math_Gauss::Solve(const math_Vector& B, math_Vector& X) const
 {
 
-  StdFail_NotDone_Raise_if(!Done, " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
 
   X = B;
   LU_Solve(LU, Index, X);
@@ -53,7 +51,7 @@ void math_Gauss::Solve(const math_Vector& B, math_Vector& X) const
 void math_Gauss::Solve(math_Vector& X) const
 {
 
-  StdFail_NotDone_Raise_if(!Done, " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
 
   if (X.Length() != LU.RowNumber())
   {
@@ -65,7 +63,7 @@ void math_Gauss::Solve(math_Vector& X) const
 Standard_Real math_Gauss::Determinant() const
 {
 
-  StdFail_NotDone_Raise_if(!Done, " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
 
   Standard_Real Result = D;
   for (Standard_Integer J = 1; J <= LU.UpperRow(); J++)
@@ -78,9 +76,9 @@ Standard_Real math_Gauss::Determinant() const
 void math_Gauss::Invert(math_Matrix& Inv) const
 {
 
-  StdFail_NotDone_Raise_if(!Done, " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
 
-  Standard_DimensionError_Raise_if((Inv.RowNumber() != LU.RowNumber())
+  Standard_Raise_if<Standard_DimensionError>((Inv.RowNumber() != LU.RowNumber())
                                      || (Inv.ColNumber() != LU.ColNumber()),
                                    " ");
 

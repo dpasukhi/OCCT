@@ -22,7 +22,7 @@
 #include <gp_Ax2d.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Trsf2d.hxx>
-#include <gp_VectorWithNullMagnitude.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_XY.hxx>
 
 Standard_Boolean gp_Vec2d::IsEqual(const gp_Vec2d&     theOther,

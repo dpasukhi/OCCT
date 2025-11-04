@@ -18,7 +18,7 @@
 #include <Poly_Array1OfTriangle.hxx>
 #include <NCollection_List.hxx>
 #include <Precision.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TShort_Array1OfShortReal.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Poly_CoherentTriangulation, Standard_Transient)

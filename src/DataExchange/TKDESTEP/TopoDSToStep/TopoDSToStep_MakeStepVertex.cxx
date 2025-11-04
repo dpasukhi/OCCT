@@ -17,7 +17,7 @@
 #include <BRep_Tool.hxx>
 #include <GeomToStep_MakeCartesianPoint.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepGeom_CartesianPoint.hxx>
 #include <StepShape_VertexPoint.hxx>
@@ -103,7 +103,7 @@ void TopoDSToStep_MakeStepVertex::Init(const TopoDS_Vertex&                  aVe
 
 const Handle(StepShape_TopologicalRepresentationItem)& TopoDSToStep_MakeStepVertex::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeStepVertex::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeStepVertex::Value() - no result");
   return myResult;
 }
 

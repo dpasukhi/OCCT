@@ -19,7 +19,7 @@
 #include <Extrema_LocECC.hxx>
 #include <Extrema_POnCurv.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Extrema_LocateExtCC::Extrema_LocateExtCC(const Adaptor3d_Curve& C1,
                                          const Adaptor3d_Curve& C2,

@@ -24,7 +24,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shell.hxx>
@@ -359,7 +359,7 @@ const TopoDS_Face& BRepPrim_OneAxis::TopFace()
   if (!FacesBuilt[FTOP])
   {
 
-    Standard_DomainError_Raise_if(!HasTop(), "BRepPrim_OneAxis::TopFace:No top face");
+    Standard_Raise_if<Standard_DomainError>(!HasTop(), "BRepPrim_OneAxis::TopFace:No top face");
 
     // make the empty face by translating the axes
     Standard_Real z = MeridianValue(myVMax).Y();
@@ -399,7 +399,7 @@ const TopoDS_Face& BRepPrim_OneAxis::BottomFace()
   if (!FacesBuilt[FBOTTOM])
   {
 
-    Standard_DomainError_Raise_if(!HasBottom(), "BRepPrim_OneAxis::BottomFace:No bottom face");
+    Standard_Raise_if<Standard_DomainError>(!HasBottom(), "BRepPrim_OneAxis::BottomFace:No bottom face");
 
     // make the empty face by translating the axes
     Standard_Real z = MeridianValue(myVMin).Y();
@@ -440,7 +440,7 @@ const TopoDS_Face& BRepPrim_OneAxis::StartFace()
   if (!FacesBuilt[FSTART])
   {
 
-    Standard_DomainError_Raise_if(!HasSides(), "BRepPrim_OneAxes::StartFace:No side faces");
+    Standard_Raise_if<Standard_DomainError>(!HasSides(), "BRepPrim_OneAxes::StartFace:No side faces");
 
     // build the empty face, perpendicular to myTool.Axes()
     gp_Ax2 axes(myAxes.Location(), myAxes.YDirection().Reversed(), myAxes.XDirection());
@@ -481,7 +481,7 @@ const TopoDS_Face& BRepPrim_OneAxis::EndFace()
   if (!FacesBuilt[FEND])
   {
 
-    Standard_DomainError_Raise_if(!HasSides(), "BRepPrim_OneAxes::EndFace:No side faces");
+    Standard_Raise_if<Standard_DomainError>(!HasSides(), "BRepPrim_OneAxes::EndFace:No side faces");
 
     // build the empty face, perpendicular to myTool.Axes()
     gp_Ax2 axes(myAxes.Location(), myAxes.YDirection().Reversed(), myAxes.XDirection());
@@ -583,7 +583,7 @@ const TopoDS_Wire& BRepPrim_OneAxis::TopWire()
   if (!WiresBuilt[WTOP])
   {
 
-    Standard_DomainError_Raise_if(!HasTop(), "BRepPrim_OneAxis::TopWire: no top");
+    Standard_Raise_if<Standard_DomainError>(!HasTop(), "BRepPrim_OneAxis::TopWire: no top");
 
     myBuilder.MakeWire(myWires[WTOP]);
 
@@ -608,7 +608,7 @@ const TopoDS_Wire& BRepPrim_OneAxis::BottomWire()
   if (!WiresBuilt[WBOTTOM])
   {
 
-    Standard_DomainError_Raise_if(!HasBottom(), "BRepPrim_OneAxis::BottomWire: no bottom");
+    Standard_Raise_if<Standard_DomainError>(!HasBottom(), "BRepPrim_OneAxis::BottomWire: no bottom");
 
     myBuilder.MakeWire(myWires[WBOTTOM]);
 
@@ -634,7 +634,7 @@ const TopoDS_Wire& BRepPrim_OneAxis::StartWire()
   if (!WiresBuilt[WSTART])
   {
 
-    Standard_DomainError_Raise_if(!HasSides(), "BRepPrim_OneAxes::StartWire:no sides");
+    Standard_Raise_if<Standard_DomainError>(!HasSides(), "BRepPrim_OneAxes::StartWire:no sides");
 
     myBuilder.MakeWire(myWires[WSTART]);
 
@@ -666,12 +666,12 @@ const TopoDS_Wire& BRepPrim_OneAxis::AxisStartWire()
   if (!WiresBuilt[WAXISSTART])
   {
 
-    Standard_DomainError_Raise_if(!HasSides(), "BRepPrim_OneAxes::AxisStartWire:no sides");
+    Standard_Raise_if<Standard_DomainError>(!HasSides(), "BRepPrim_OneAxes::AxisStartWire:no sides");
 
-    Standard_DomainError_Raise_if(!VMaxInfinite() || !VMinInfinite(),
+    Standard_Raise_if<Standard_DomainError>(!VMaxInfinite() || !VMinInfinite(),
                                   "BRepPrim_OneAxes::AxisStartWire:not infinite");
 
-    Standard_DomainError_Raise_if(MeridianClosed(),
+    Standard_Raise_if<Standard_DomainError>(MeridianClosed(),
                                   "BRepPrim_OneAxes::AxisStartWire:meridian closed");
 
     myBuilder.MakeWire(myWires[WAXISSTART]);
@@ -693,7 +693,7 @@ const TopoDS_Wire& BRepPrim_OneAxis::EndWire()
   if (!WiresBuilt[WEND])
   {
 
-    Standard_DomainError_Raise_if(!HasSides(), "BRepPrim_OneAxes::EndWire:no sides");
+    Standard_Raise_if<Standard_DomainError>(!HasSides(), "BRepPrim_OneAxes::EndWire:no sides");
 
     myBuilder.MakeWire(myWires[WEND]);
 
@@ -724,12 +724,12 @@ const TopoDS_Wire& BRepPrim_OneAxis::AxisEndWire()
   if (!WiresBuilt[WAXISEND])
   {
 
-    Standard_DomainError_Raise_if(!HasSides(), "BRepPrim_OneAxes::AxisEndWire:no sides");
+    Standard_Raise_if<Standard_DomainError>(!HasSides(), "BRepPrim_OneAxes::AxisEndWire:no sides");
 
-    Standard_DomainError_Raise_if(!VMaxInfinite() || !VMinInfinite(),
+    Standard_Raise_if<Standard_DomainError>(!VMaxInfinite() || !VMinInfinite(),
                                   "BRepPrim_OneAxes::AxisEndWire:not infinite");
 
-    Standard_DomainError_Raise_if(MeridianClosed(),
+    Standard_Raise_if<Standard_DomainError>(MeridianClosed(),
                                   "BRepPrim_OneAxes::AxisEndWire:meridian closed");
 
     myBuilder.MakeWire(myWires[WAXISEND]);
@@ -753,8 +753,8 @@ const TopoDS_Edge& BRepPrim_OneAxis::AxisEdge()
   if (!EdgesBuilt[EAXIS])
   {
 
-    Standard_DomainError_Raise_if(!HasSides(), "BRepPrim_OneAxis::AxisEdge:no sides");
-    Standard_DomainError_Raise_if(MeridianClosed(), "BRepPrim_OneAxis::AxisEdge:closed");
+    Standard_Raise_if<Standard_DomainError>(!HasSides(), "BRepPrim_OneAxis::AxisEdge:no sides");
+    Standard_Raise_if<Standard_DomainError>(MeridianClosed(), "BRepPrim_OneAxis::AxisEdge:closed");
 
     // build the empty edge.
     myBuilder.MakeEdge(myEdges[EAXIS], gp_Lin(myAxes.Axis()));
@@ -888,7 +888,7 @@ const TopoDS_Edge& BRepPrim_OneAxis::StartTopEdge()
   if (!EdgesBuilt[ETOPSTART])
   {
 
-    Standard_DomainError_Raise_if(!HasTop() || !HasSides(),
+    Standard_Raise_if<Standard_DomainError>(!HasTop() || !HasSides(),
                                   "BRepPrim_OneAxis::StartTopEdge:no sides or no top");
 
     // build the empty Edge
@@ -918,7 +918,7 @@ const TopoDS_Edge& BRepPrim_OneAxis::StartBottomEdge()
   if (!EdgesBuilt[EBOTSTART])
   {
 
-    Standard_DomainError_Raise_if(!HasBottom() || !HasSides(),
+    Standard_Raise_if<Standard_DomainError>(!HasBottom() || !HasSides(),
                                   "BRepPrim_OneAxis::StartBottomEdge:no sides or no top");
 
     // build the empty Edge
@@ -948,7 +948,7 @@ const TopoDS_Edge& BRepPrim_OneAxis::EndTopEdge()
   if (!EdgesBuilt[ETOPEND])
   {
 
-    Standard_DomainError_Raise_if(!HasTop() || !HasSides(),
+    Standard_Raise_if<Standard_DomainError>(!HasTop() || !HasSides(),
                                   "BRepPrim_OneAxis::EndTopEdge:no sides or no top");
 
     // build the empty Edge
@@ -980,7 +980,7 @@ const TopoDS_Edge& BRepPrim_OneAxis::EndBottomEdge()
   if (!EdgesBuilt[EBOTEND])
   {
 
-    Standard_DomainError_Raise_if(!HasBottom() || !HasSides(),
+    Standard_Raise_if<Standard_DomainError>(!HasBottom() || !HasSides(),
                                   "BRepPrim_OneAxis::EndBottomEdge:no sides or no bottom");
 
     // build the empty Edge
@@ -1120,8 +1120,8 @@ const TopoDS_Vertex& BRepPrim_OneAxis::AxisTopVertex()
 
     else
     {
-      Standard_DomainError_Raise_if(MeridianClosed(), "BRepPrim_OneAxis::AxisTopVertex");
-      Standard_DomainError_Raise_if(VMaxInfinite(), "BRepPrim_OneAxis::AxisTopVertex");
+      Standard_Raise_if<Standard_DomainError>(MeridianClosed(), "BRepPrim_OneAxis::AxisTopVertex");
+      Standard_Raise_if<Standard_DomainError>(VMaxInfinite(), "BRepPrim_OneAxis::AxisTopVertex");
 
       gp_Vec V = myAxes.Direction();
       V.Multiply(MeridianValue(myVMax).Y());
@@ -1152,8 +1152,8 @@ const TopoDS_Vertex& BRepPrim_OneAxis::AxisBottomVertex()
 
     else
     {
-      Standard_DomainError_Raise_if(MeridianClosed(), "BRepPrim_OneAxis::AxisBottomVertex");
-      Standard_DomainError_Raise_if(VMinInfinite(), "BRepPrim_OneAxis::AxisBottomVertex");
+      Standard_Raise_if<Standard_DomainError>(MeridianClosed(), "BRepPrim_OneAxis::AxisBottomVertex");
+      Standard_Raise_if<Standard_DomainError>(VMinInfinite(), "BRepPrim_OneAxis::AxisBottomVertex");
 
       gp_Vec V = myAxes.Direction();
       V.Multiply(MeridianValue(myVMin).Y());

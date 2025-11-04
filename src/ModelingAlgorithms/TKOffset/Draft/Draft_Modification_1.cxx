@@ -68,9 +68,8 @@
 #include <IntCurveSurface_IntersectionPoint.hxx>
 #include <Precision.hxx>
 #include <ProjLib_HCompProjectedCurve.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_NotImplemented.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>

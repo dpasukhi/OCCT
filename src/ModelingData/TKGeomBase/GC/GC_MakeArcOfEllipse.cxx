@@ -20,7 +20,7 @@
 #include <Geom_TrimmedCurve.hxx>
 #include <gp_Elips.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeArcOfEllipse::GC_MakeArcOfEllipse(const gp_Elips&        Elips,
                                          const gp_Pnt&          P1,
@@ -57,6 +57,6 @@ GC_MakeArcOfEllipse::GC_MakeArcOfEllipse(const gp_Elips&        Elips,
 
 const Handle(Geom_TrimmedCurve)& GC_MakeArcOfEllipse::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeArcOfEllipse::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeArcOfEllipse::Value() - no result");
   return TheArc;
 }

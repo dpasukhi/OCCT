@@ -33,7 +33,7 @@
 #include <IFSelect_SignValidity.hxx>
 #include <Interface_Macros.hxx>
 #include <Interface_Static.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>

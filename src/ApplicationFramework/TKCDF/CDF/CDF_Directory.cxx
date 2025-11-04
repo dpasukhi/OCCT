@@ -18,7 +18,7 @@
 #include <CDF_DirectoryIterator.hxx>
 #include <CDM_Document.hxx>
 #include <CDM_ListIteratorOfListOfDocument.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(CDF_Directory, Standard_Transient)
@@ -71,7 +71,7 @@ Standard_Boolean CDF_Directory::IsEmpty() const
 
 Handle(CDM_Document) CDF_Directory::Last()
 {
-  Standard_NoSuchObject_Raise_if(
+  Standard_Raise_if<Standard_NoSuchObject>(
     IsEmpty(),
     "CDF_Directory::Last: the directory does not contain any document");
   return myDocuments.Last();

@@ -14,11 +14,9 @@
 
 #include <OSD_Environment.hxx>
 
-#include <OSD_OSDError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <OSD_WhoAmI.hxx>
-#include <Standard_ConstructionError.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_NullObject.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <NCollection_UtfString.hxx>
 

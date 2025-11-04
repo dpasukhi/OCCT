@@ -18,7 +18,7 @@
 #include <GeomAbs_BSplKnotDistribution.hxx>
 #include <GeomToStep_MakeBSplineSurfaceWithKnots.hxx>
 #include <GeomToStep_MakeCartesianPoint.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_BSplineSurfaceWithKnots.hxx>
 #include <StepGeom_CartesianPoint.hxx>
@@ -159,6 +159,6 @@ GeomToStep_MakeBSplineSurfaceWithKnots::GeomToStep_MakeBSplineSurfaceWithKnots(
 const Handle(StepGeom_BSplineSurfaceWithKnots)& GeomToStep_MakeBSplineSurfaceWithKnots::Value()
   const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeBSplineSurfaceWithKnots::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeBSplineSurfaceWithKnots::Value() - no result");
   return theBSplineSurfaceWithKnots;
 }

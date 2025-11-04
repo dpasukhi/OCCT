@@ -22,7 +22,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
 #include <LocalAnalysis_SurfaceContinuity.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 /*********************************************************************************/
 /*********************************************************************************/

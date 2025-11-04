@@ -20,7 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <LocOpe_BuildShape.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_MapOfInteger.hxx>
 #include <TopAbs.hxx>
 #include <TopExp.hxx>

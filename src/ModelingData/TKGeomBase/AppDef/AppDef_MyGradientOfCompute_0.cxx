@@ -16,8 +16,7 @@
 
 #include <AppDef_MyGradientOfCompute.hxx>
 
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <AppDef_MultiLine.hxx>
 #include <AppDef_MyLineTool.hxx>
 #include <AppDef_ParLeastSquareOfMyGradientOfCompute.hxx>

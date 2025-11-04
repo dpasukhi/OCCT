@@ -19,7 +19,7 @@
 #include <IGESAppli.hxx>
 #include <IGESAppli_FiniteElement.hxx>
 #include <IGESAppli_Node.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>
 

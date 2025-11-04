@@ -889,7 +889,7 @@ Handle(SelectMgr_EntityOwner) SelectMgr_ViewerSelector::Picked(const Standard_In
 const SelectMgr_SortCriterion& SelectMgr_ViewerSelector::PickedData(
   const Standard_Integer theRank) const
 {
-  Standard_OutOfRange_Raise_if(theRank < 1 || theRank > NbPicked(),
+  Standard_Raise_if<Standard_OutOfRange>(theRank < 1 || theRank > NbPicked(),
                                "SelectMgr_ViewerSelector::PickedData() out of range index");
   if (!myIsSorted)
   {

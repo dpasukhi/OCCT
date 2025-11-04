@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <ShapePersistent_Geom.hxx>
 #include <ShapePersistent_Geom_Curve.hxx>

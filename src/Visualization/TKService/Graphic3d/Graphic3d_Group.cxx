@@ -19,11 +19,10 @@
 #include <gp_Pnt.hxx>
 #include <Graphic3d_ArrayOfPoints.hxx>
 #include <Graphic3d_ArrayOfPrimitives.hxx>
-#include <Graphic3d_GroupDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Graphic3d_StructureManager.hxx>
 #include <Graphic3d_Text.hxx>
 #include <NCollection_String.hxx>
-#include <Standard_OutOfRange.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>

@@ -97,7 +97,7 @@ void Graphic3d_AttribBuffer::Invalidate()
 
 void Graphic3d_AttribBuffer::Invalidate(Standard_Integer theAttributeIndex)
 {
-  Standard_OutOfRange_Raise_if(theAttributeIndex < 0 || theAttributeIndex >= NbAttributes,
+  Standard_Raise_if<Standard_OutOfRange>(theAttributeIndex < 0 || theAttributeIndex >= NbAttributes,
                                "Graphic3d_AttribBuffer::Invalidate()");
   if (myIsInterleaved)
   {
@@ -128,7 +128,7 @@ void Graphic3d_AttribBuffer::Invalidate(Standard_Integer theAttributeIndex,
                                         Standard_Integer theVertexLower,
                                         Standard_Integer theVertexUpper)
 {
-  Standard_OutOfRange_Raise_if(theAttributeIndex < 0 || theAttributeIndex >= NbAttributes
+  Standard_Raise_if<Standard_OutOfRange>(theAttributeIndex < 0 || theAttributeIndex >= NbAttributes
                                  || theVertexLower < 0 || theVertexLower > theVertexUpper
                                  || theVertexUpper >= NbMaxElements(),
                                "Graphic3d_AttribBuffer::Invalidate()");
@@ -161,7 +161,7 @@ void Graphic3d_AttribBuffer::Invalidate(Standard_Integer theAttributeIndex,
 void Graphic3d_AttribBuffer::Invalidate(Standard_Integer theVertexLower,
                                         Standard_Integer theVertexUpper)
 {
-  Standard_OutOfRange_Raise_if(theVertexLower < 0 || theVertexLower > theVertexUpper
+  Standard_Raise_if<Standard_OutOfRange>(theVertexLower < 0 || theVertexLower > theVertexUpper
                                  || theVertexUpper >= NbMaxElements(),
                                "Graphic3d_AttribBuffer::Invalidate()");
   if (myIsInterleaved)

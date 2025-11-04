@@ -16,7 +16,7 @@
 #include <OpenGl_StructureShadow.hxx>
 
 #include <Graphic3d_GraphicDriver.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(OpenGl_StructureShadow, OpenGl_Structure)
 

@@ -26,8 +26,7 @@
 #include <gp_Lin2d.hxx>
 #include <gp_Parab.hxx>
 #include <ProjLib_Projector.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

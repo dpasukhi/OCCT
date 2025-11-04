@@ -17,7 +17,7 @@
 #define No_Standard_NoMoreObject
 #define No_Standard_NoSuchObject
 
-#include <Standard_NoMoreObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopOpeBRepDS_define.hxx>
@@ -105,7 +105,7 @@ Standard_Boolean TopOpeBRepDS_Explorer::More() const
 
 void TopOpeBRepDS_Explorer::Next()
 {
-  Standard_NoMoreObject_Raise_if(!myB, "TopOpeBRepDS_Explorer::Next");
+  Standard_Raise_if<Standard_NoMoreObject>(!myB, "TopOpeBRepDS_Explorer::Next");
   myI++;
   Find();
 }
@@ -114,7 +114,7 @@ void TopOpeBRepDS_Explorer::Next()
 
 const TopoDS_Shape& TopOpeBRepDS_Explorer::Current() const
 {
-  Standard_NoSuchObject_Raise_if(!More(), "TopOpeBRepDS_Explorer::Current");
+  Standard_Raise_if<Standard_NoSuchObject>(!More(), "TopOpeBRepDS_Explorer::Current");
   return myHDS->Shape(myI);
 }
 
@@ -122,7 +122,7 @@ const TopoDS_Shape& TopOpeBRepDS_Explorer::Current() const
 
 Standard_Integer TopOpeBRepDS_Explorer::Index() const
 {
-  Standard_NoSuchObject_Raise_if(!More(), "TopOpeBRepDS_Explorer::Index");
+  Standard_Raise_if<Standard_NoSuchObject>(!More(), "TopOpeBRepDS_Explorer::Index");
   return myI;
 }
 
@@ -130,7 +130,7 @@ Standard_Integer TopOpeBRepDS_Explorer::Index() const
 
 const TopoDS_Face& TopOpeBRepDS_Explorer::Face() const
 {
-  Standard_NoSuchObject_Raise_if(!More(), "TopOpeBRepDS_Explorer::Face");
+  Standard_Raise_if<Standard_NoSuchObject>(!More(), "TopOpeBRepDS_Explorer::Face");
   const TopoDS_Shape& s = Current();
   const TopoDS_Face&  f = TopoDS::Face(s);
   return f;
@@ -140,7 +140,7 @@ const TopoDS_Face& TopOpeBRepDS_Explorer::Face() const
 
 const TopoDS_Edge& TopOpeBRepDS_Explorer::Edge() const
 {
-  Standard_NoSuchObject_Raise_if(!More(), "TopOpeBRepDS_Explorer::Edge");
+  Standard_Raise_if<Standard_NoSuchObject>(!More(), "TopOpeBRepDS_Explorer::Edge");
   const TopoDS_Shape& s = Current();
   const TopoDS_Edge&  e = TopoDS::Edge(s);
   return e;
@@ -150,7 +150,7 @@ const TopoDS_Edge& TopOpeBRepDS_Explorer::Edge() const
 
 const TopoDS_Vertex& TopOpeBRepDS_Explorer::Vertex() const
 {
-  Standard_NoSuchObject_Raise_if(!More(), "TopOpeBRepDS_Explorer::Vertex");
+  Standard_Raise_if<Standard_NoSuchObject>(!More(), "TopOpeBRepDS_Explorer::Vertex");
   const TopoDS_Shape&  s = Current();
   const TopoDS_Vertex& v = TopoDS::Vertex(s);
   return v;

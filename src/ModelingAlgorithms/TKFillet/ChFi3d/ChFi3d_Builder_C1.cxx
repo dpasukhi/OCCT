@@ -70,10 +70,8 @@
 #include <IntCurveSurface_IntersectionPoint.hxx>
 #include <IntRes2d_IntersectionPoint.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TopAbs.hxx>
 #include <TopAbs_Orientation.hxx>

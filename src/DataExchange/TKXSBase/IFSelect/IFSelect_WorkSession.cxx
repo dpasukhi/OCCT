@@ -58,7 +58,7 @@
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
 #include <OSD_Path.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_Transient.hxx>

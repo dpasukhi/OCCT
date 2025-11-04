@@ -13,7 +13,7 @@
 
 #include <Interface_Check.hxx>
 #include <Interface_EntityIterator.hxx>
-#include <Interface_InterfaceMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <StepData_ESDescr.hxx>
 #include <StepData_Simple.hxx>

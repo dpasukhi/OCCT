@@ -17,7 +17,7 @@
 //--------------------------------------------------------------------
 
 #include <IGESGeom_SplineCurve.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESGeom_SplineCurve, IGESData_IGESEntity)

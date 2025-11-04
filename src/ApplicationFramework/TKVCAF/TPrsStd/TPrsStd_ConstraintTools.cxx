@@ -62,7 +62,7 @@
 #include <Precision.hxx>
 #include <Prs3d_Drawer.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TDataStd_Name.hxx>
 #include <TDataStd_Real.hxx>

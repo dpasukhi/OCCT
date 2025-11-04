@@ -25,7 +25,7 @@
 #include <GeomAdaptor_Curve.hxx>
 #include <gp_Lin.hxx>
 #include <IntCurveSurface_IntersectionPoint.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>

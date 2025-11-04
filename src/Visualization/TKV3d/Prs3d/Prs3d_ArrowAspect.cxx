@@ -14,7 +14,7 @@
 
 #include <Prs3d_ArrowAspect.hxx>
 
-#include <Prs3d_InvalidAngle.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Prs3d_ArrowAspect, Prs3d_BasicAspect)
@@ -56,7 +56,7 @@ Prs3d_ArrowAspect::Prs3d_ArrowAspect(const Handle(Graphic3d_AspectLine3d)& theAs
 
 void Prs3d_ArrowAspect::SetAngle(const Standard_Real theAngle)
 {
-  Prs3d_InvalidAngle_Raise_if(theAngle <= 0.0 || theAngle >= M_PI / 2.0,
+  Standard_Raise_if<Prs3d_InvalidAngle>(theAngle <= 0.0 || theAngle >= M_PI / 2.0,
                               "Prs3d_ArrowAspect::SetAngle() - angle out of range");
   myAngle = theAngle;
 }

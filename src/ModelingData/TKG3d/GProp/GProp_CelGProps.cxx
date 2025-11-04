@@ -21,7 +21,7 @@
 #include <math_Jacobi.hxx>
 #include <math_Matrix.hxx>
 #include <math_Vector.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GProp_CelGProps::GProp_CelGProps() {}
 

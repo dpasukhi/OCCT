@@ -17,7 +17,7 @@
 #ifndef _GCPnts_QuasiUniformAbscissa_HeaderFile
 #define _GCPnts_QuasiUniformAbscissa_HeaderFile
 
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 
 class Adaptor3d_Curve;
@@ -144,7 +144,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Integer NbPoints() const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_QuasiUniformAbscissa::NbPoints()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_QuasiUniformAbscissa::NbPoints()");
     return myNbPoints;
   }
 
@@ -160,7 +160,7 @@ public:
   //! initialized, or if the computation was not successful.
   Standard_Real Parameter(const Standard_Integer Index) const
   {
-    StdFail_NotDone_Raise_if(!myDone, "GCPnts_QuasiUniformAbscissa::Parameter()");
+    Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_QuasiUniformAbscissa::Parameter()");
     return myParams->Value(Index);
   }
 

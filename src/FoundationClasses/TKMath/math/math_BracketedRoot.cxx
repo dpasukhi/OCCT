@@ -14,7 +14,7 @@
 
 #include <math_BracketedRoot.hxx>
 #include <math_Function.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // reference algorithme:
 //                   Brent method

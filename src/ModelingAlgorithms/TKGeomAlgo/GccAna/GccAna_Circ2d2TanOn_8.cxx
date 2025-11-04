@@ -25,7 +25,7 @@
 #include <ElCLib.hxx>
 #include <GccAna_Circ2d2TanOn.hxx>
 #include <GccAna_CircPnt2dBisec.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <GccInt_Bisec.hxx>
 #include <GccInt_IType.hxx>

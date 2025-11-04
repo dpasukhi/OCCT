@@ -16,7 +16,7 @@
 #include <GccAna_Circ2d3Tan.hxx>
 #include <GccAna_CircPnt2dBisec.hxx>
 #include <GccAna_Pnt2dBisec.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <GccInt_BElips.hxx>
 #include <GccInt_IType.hxx>

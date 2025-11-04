@@ -16,10 +16,9 @@
 
 #include <Standard_ErrorHandler.hxx>
 #include <Standard_Macro.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_PCharacter.hxx>
 #include <Standard_Type.hxx>
-#include <Standard_TypeMismatch.hxx>
 
 #include <string.h>
 

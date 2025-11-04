@@ -18,7 +18,7 @@
 #include <BRep_PolygonOnSurface.hxx>
 #include <Geom_Surface.hxx>
 #include <Poly_Polygon2D.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopLoc_Location.hxx>
 

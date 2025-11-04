@@ -16,7 +16,7 @@
 #define _XCAFDoc_AssemblyTool_HeaderFile
 
 #include <Standard.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <XCAFDoc_AssemblyIterator.hxx>
 #include <XCAFDoc_AssemblyGraph.hxx>
@@ -77,7 +77,7 @@ public:
                        Func                                 theFunc,
                        const Standard_Integer               theNode = 1)
   {
-    Standard_NullObject_Raise_if(theGraph.IsNull(), "Null assembly graph!");
+    Standard_Raise_if<Standard_NullObject>(theGraph.IsNull(), "Null assembly graph!");
 
     for (XCAFDoc_AssemblyGraph::Iterator anIt(theGraph, theNode); anIt.More(); anIt.Next())
     {

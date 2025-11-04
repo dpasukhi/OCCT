@@ -24,7 +24,7 @@
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
 #include <Precision.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_Line, Geom_Curve)
@@ -204,7 +204,7 @@ void Geom_Line::D3(const Standard_Real U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2, gp_
 gp_Vec Geom_Line::DN(const Standard_Real, const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N <= 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N <= 0, " ");
   if (N == 1)
     return gp_Vec(pos.Direction());
   else

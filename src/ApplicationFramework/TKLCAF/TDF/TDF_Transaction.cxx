@@ -18,9 +18,8 @@
 // Version	Date		Purpose
 //		0.0	Oct  1 1997	Creation
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
-#include <Standard_NullObject.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TDF_Data.hxx>
 #include <TDF_Delta.hxx>

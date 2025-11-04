@@ -20,8 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <IGESGeom_CopiousData.hxx>
-#include <Standard_DimensionMismatch.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESGeom_CopiousData, IGESData_IGESEntity)

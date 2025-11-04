@@ -25,7 +25,7 @@
 #include <IGESGraph_DrawingSize.hxx>
 #include <IGESGraph_DrawingUnits.hxx>
 #include <Interface_Macros.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESDraw_DrawingWithRotation, IGESData_IGESEntity)

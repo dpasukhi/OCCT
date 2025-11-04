@@ -14,7 +14,7 @@
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <Transfer_SimpleBinderOfTransient.hxx>
-#include <Transfer_TransferFailure.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Transfer_SimpleBinderOfTransient, Transfer_Binder)
 

@@ -14,7 +14,7 @@
 #ifndef _ShapePersistent_HSequence_HeaderFile
 #define _ShapePersistent_HSequence_HeaderFile
 
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <StdObjMgt_Persistent.hxx>
 #include <StdObject_gp_Vectors.hxx>

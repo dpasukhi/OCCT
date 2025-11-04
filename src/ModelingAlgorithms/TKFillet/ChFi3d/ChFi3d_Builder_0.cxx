@@ -64,7 +64,7 @@
 #include <IntWalk_PWalking.hxx>
 #include <Law_Composite.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfXYZ.hxx>
 #include <TColStd_Array1OfReal.hxx>

@@ -23,8 +23,7 @@
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2dAPI_PointsToBSpline.hxx>
 #include <math_Vector.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>

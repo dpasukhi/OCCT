@@ -14,7 +14,7 @@
 
 #include <CPnts_MyRootFunction.hxx>
 #include <math_GaussSingleIntegration.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void CPnts_MyRootFunction::Init(const CPnts_RealFunction& F,
                                 const Standard_Address    D,

@@ -13,8 +13,7 @@
 
 #include <gtest/gtest.h>
 #include <math_TrigonometricFunctionRoots.hxx>
-#include <StdFail_NotDone.hxx>
-#include <Standard_DimensionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 namespace
 {

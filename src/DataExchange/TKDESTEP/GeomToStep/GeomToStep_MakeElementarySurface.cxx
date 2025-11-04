@@ -26,7 +26,7 @@
 #include <GeomToStep_MakePlane.hxx>
 #include <GeomToStep_MakeSphericalSurface.hxx>
 #include <GeomToStep_MakeToroidalSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_ConicalSurface.hxx>
 #include <StepGeom_CylindricalSurface.hxx>
@@ -84,6 +84,6 @@ GeomToStep_MakeElementarySurface::GeomToStep_MakeElementarySurface(
 
 const Handle(StepGeom_ElementarySurface)& GeomToStep_MakeElementarySurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeElementarySurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeElementarySurface::Value() - no result");
   return theElementarySurface;
 }

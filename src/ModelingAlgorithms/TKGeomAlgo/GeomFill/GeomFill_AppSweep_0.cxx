@@ -16,9 +16,7 @@
 
 #include <GeomFill_AppSweep.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomFill_SweepSectionGenerator.hxx>
 #include <GeomFill_Line.hxx>
 

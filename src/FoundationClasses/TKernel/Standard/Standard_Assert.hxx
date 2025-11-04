@@ -16,7 +16,7 @@
 #ifndef Standard_Assert_HeaderFile
 #define Standard_Assert_HeaderFile
 
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //!@file
 //! This header file defines a set of ASSERT macros intended for use

@@ -18,7 +18,7 @@
 #include <GeomToStep_MakeAxis1Placement.hxx>
 #include <GeomToStep_MakeCurve.hxx>
 #include <GeomToStep_MakeSurfaceOfRevolution.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis1Placement.hxx>
 #include <StepGeom_Curve.hxx>
@@ -54,6 +54,6 @@ GeomToStep_MakeSurfaceOfRevolution::GeomToStep_MakeSurfaceOfRevolution(
 
 const Handle(StepGeom_SurfaceOfRevolution)& GeomToStep_MakeSurfaceOfRevolution::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeSurfaceOfRevolution::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeSurfaceOfRevolution::Value() - no result");
   return theSurfaceOfRevolution;
 }

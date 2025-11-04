@@ -27,7 +27,7 @@
 #include <math_Gauss.hxx>
 #include <math_Matrix.hxx>
 #include <PLib_HermitJacobi.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>

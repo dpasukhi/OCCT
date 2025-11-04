@@ -23,7 +23,7 @@
 #include <gp_Trsf.hxx>
 #include <LocOpe_BuildShape.hxx>
 #include <LocOpe_RevolutionForm.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>

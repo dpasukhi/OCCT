@@ -26,7 +26,7 @@
 
 #include <Precision.hxx>
 
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
@@ -329,7 +329,7 @@ void BRepBuilderAPI_FastSewing::UpdateEdgeInfo(const Standard_Integer theIDPrevV
                                                        myVertexVec.Value(theIDCurrVertex).myEdges);
 
   // For DEBUG mode only
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     anEdgeID < 0,
     "BRepBuilderAPI_FastSewing::UpdateEdgeInfo: Update not existing edge.");
 
@@ -602,7 +602,7 @@ void BRepBuilderAPI_FastSewing::FS_Edge::CreateTopologicalEdge(
   }
 
   // For DEBUG mode only
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     anEdgeID < 0,
     "BRepBuilderAPI_FastSewing::FS_Edge::CreateTopologicalEdge: Single edge.");
 
@@ -661,7 +661,7 @@ void BRepBuilderAPI_FastSewing::FS_Face::CreateTopologicalWire(
   aB.MakeWire(myWire);
   for (Standard_Integer anEdge = 0; anEdge < 4; anEdge++)
   {
-    Standard_ProgramError_Raise_if(
+    Standard_Raise_if<Standard_ProgramError>(
       myEdges[anEdge] < 0,
       "BRepBuilderAPI_FastSewing::FS_Face::CreateTopologicalWire: Wire is not closed.");
 
@@ -713,7 +713,7 @@ void BRepBuilderAPI_FastSewing::FS_Face::CreateTopologicalWire(
 
 void BRepBuilderAPI_FastSewing::FS_Face::CreateTopologicalFace()
 {
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     myWire.IsNull(),
     "BRepBuilderAPI_FastSewing::FS_Face::CreateTopologicalFace: Cannot create wire.");
 

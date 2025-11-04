@@ -17,7 +17,7 @@
 #include <BRepClass3d.hxx>
 #include <Message_ProgressScope.hxx>
 #include <MoniTool_DataMapOfShapeTransient.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepShape_BrepWithVoids.hxx>
@@ -234,7 +234,7 @@ TopoDSToStep_MakeBrepWithVoids::TopoDSToStep_MakeBrepWithVoids(
 
 const Handle(StepShape_BrepWithVoids)& TopoDSToStep_MakeBrepWithVoids::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeBrepWithVoids::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeBrepWithVoids::Value() - no result");
   return theBrepWithVoids;
 }
 
@@ -245,6 +245,6 @@ const Handle(StepShape_BrepWithVoids)& TopoDSToStep_MakeBrepWithVoids::Value() c
 
 const Handle(StepVisual_TessellatedItem)& TopoDSToStep_MakeBrepWithVoids::TessellatedValue() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeBrepWithVoids::TessellatedValue() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeBrepWithVoids::TessellatedValue() - no result");
   return theTessellatedItem;
 }

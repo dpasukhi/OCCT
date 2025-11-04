@@ -21,8 +21,7 @@
 #include <NCollection_StlIterator.hxx>
 #include <NCollection_DefaultHasher.hxx>
 
-#include <Standard_TypeMismatch.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <utility>
 
 #include <Message.hxx>
@@ -128,21 +127,21 @@ public:
     //! Value inquiry
     const TheItemType& Value(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_DataMap::Iterator::Value");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_DataMap::Iterator::Value");
       return ((DataMapNode*)myNode)->Value();
     }
 
     //! Value change access
     TheItemType& ChangeValue(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_DataMap::Iterator::ChangeValue");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_DataMap::Iterator::ChangeValue");
       return ((DataMapNode*)myNode)->ChangeValue();
     }
 
     //! Key
     const TheKeyType& Key(void) const
     {
-      Standard_NoSuchObject_Raise_if(!More(), "NCollection_DataMap::Iterator::Key");
+      Standard_Raise_if<Standard_NoSuchObject>(!More(), "NCollection_DataMap::Iterator::Key");
       return ((DataMapNode*)myNode)->Key();
     }
   };

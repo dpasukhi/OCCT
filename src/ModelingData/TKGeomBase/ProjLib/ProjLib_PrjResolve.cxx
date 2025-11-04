@@ -20,8 +20,7 @@
 #include <math_NewtonFunctionSetRoot.hxx>
 #include <ProjLib_PrjFunc.hxx>
 #include <ProjLib_PrjResolve.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 ProjLib_PrjResolve::ProjLib_PrjResolve(const Adaptor3d_Curve&   C,
                                        const Adaptor3d_Surface& S,

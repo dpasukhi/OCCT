@@ -56,7 +56,7 @@
 #include <gp_Torus.hxx>
 #include <gp_Trsf.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Sweep_NumShape.hxx>
 #include <TopExp.hxx>
 #include <TopLoc_Location.hxx>
@@ -144,7 +144,7 @@ BRepSweep_Rotation::BRepSweep_Rotation(const TopoDS_Shape&    S,
       myAxe(A)
 
 {
-  Standard_ConstructionError_Raise_if(D < Precision::Angular(), "BRepSweep_Rotation::Constructor");
+  Standard_Raise_if<Standard_ConstructionError>(D < Precision::Angular(), "BRepSweep_Rotation::Constructor");
   Init();
 }
 
@@ -154,7 +154,7 @@ TopoDS_Shape BRepSweep_Rotation::MakeEmptyVertex(const TopoDS_Shape&   aGenV,
                                                  const Sweep_NumShape& aDirV)
 {
   // call only in construction mode with copy.
-  Standard_ConstructionError_Raise_if(!myCopy, "BRepSweep_Rotation::MakeEmptyVertex");
+  Standard_Raise_if<Standard_ConstructionError>(!myCopy, "BRepSweep_Rotation::MakeEmptyVertex");
   gp_Pnt        P = BRep_Tool::Pnt(TopoDS::Vertex(aGenV));
   TopoDS_Vertex V;
   if (aDirV.Index() == 2)

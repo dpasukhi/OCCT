@@ -19,7 +19,7 @@
 #include <Adaptor3d_Curve.hxx>
 #include <gp_Ax3.hxx>
 #include <GeomEvaluator_SurfaceOfExtrusion.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_SurfaceOfLinearExtrusion, GeomAdaptor_Surface)
 
@@ -308,7 +308,7 @@ GeomAbs_SurfaceType GeomAdaptor_SurfaceOfLinearExtrusion::GetType() const
 
 gp_Pln GeomAdaptor_SurfaceOfLinearExtrusion::Plane() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_Plane,
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_Plane,
                                  "GeomAdaptor_SurfaceOfLinearExtrusion::Plane");
 
   gp_Pnt        P;
@@ -349,7 +349,7 @@ gp_Pln GeomAdaptor_SurfaceOfLinearExtrusion::Plane() const
 
 gp_Cylinder GeomAdaptor_SurfaceOfLinearExtrusion::Cylinder() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_Cylinder,
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_Cylinder,
                                  "GeomAdaptor_SurfaceOfLinearExtrusion::Cylinder");
 
   gp_Circ C = myBasisCurve->Circle();

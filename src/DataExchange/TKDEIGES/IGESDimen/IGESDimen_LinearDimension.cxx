@@ -20,7 +20,7 @@
 #include <IGESDimen_LeaderArrow.hxx>
 #include <IGESDimen_LinearDimension.hxx>
 #include <IGESDimen_WitnessLine.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESDimen_LinearDimension, IGESData_IGESEntity)

@@ -17,7 +17,7 @@
 #include <StepData_WriterLib.hxx>
 
 #include <StepData_NodeOfWriterLib.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <StepData_ReadWriteModule.hxx>
 #include <StepData_Protocol.hxx>

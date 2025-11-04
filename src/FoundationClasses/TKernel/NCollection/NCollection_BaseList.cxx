@@ -109,7 +109,7 @@ void NCollection_BaseList::PPrepend(NCollection_BaseList& theOther) noexcept
 
 void NCollection_BaseList::PRemoveFirst(NCollection_DelListNode fDel)
 {
-  Standard_NoSuchObject_Raise_if(IsEmpty(), "NCollection_BaseList::PRemoveFirst");
+  Standard_Raise_if<Standard_NoSuchObject>(IsEmpty(), "NCollection_BaseList::PRemoveFirst");
   NCollection_ListNode* pItem = myFirst;
   myFirst                     = pItem->Next();
   fDel(pItem, myAllocator);
@@ -122,7 +122,7 @@ void NCollection_BaseList::PRemoveFirst(NCollection_DelListNode fDel)
 
 void NCollection_BaseList::PRemove(Iterator& theIter, NCollection_DelListNode fDel)
 {
-  Standard_NoSuchObject_Raise_if(!theIter.More(), "NCollection_BaseList::PRemove");
+  Standard_Raise_if<Standard_NoSuchObject>(!theIter.More(), "NCollection_BaseList::PRemove");
   if (theIter.myPrevious == NULL)
   {
     PRemoveFirst(fDel);
@@ -144,7 +144,7 @@ void NCollection_BaseList::PRemove(Iterator& theIter, NCollection_DelListNode fD
 
 void NCollection_BaseList::PInsertBefore(NCollection_ListNode* theNode, Iterator& theIter)
 {
-  Standard_NoSuchObject_Raise_if(!theIter.More(), "NCollection_BaseList::PInsertBefore");
+  Standard_Raise_if<Standard_NoSuchObject>(!theIter.More(), "NCollection_BaseList::PInsertBefore");
   if (theIter.myPrevious == NULL)
   {
     PPrepend(theNode);
@@ -163,7 +163,7 @@ void NCollection_BaseList::PInsertBefore(NCollection_ListNode* theNode, Iterator
 
 void NCollection_BaseList::PInsertBefore(NCollection_BaseList& theOther, Iterator& theIter)
 {
-  Standard_NoSuchObject_Raise_if(!theIter.More(), "NCollection_BaseList::PInsertBefore");
+  Standard_Raise_if<Standard_NoSuchObject>(!theIter.More(), "NCollection_BaseList::PInsertBefore");
   if (theIter.myPrevious == NULL)
   {
     theIter.myPrevious = theOther.myLast;
@@ -184,7 +184,7 @@ void NCollection_BaseList::PInsertBefore(NCollection_BaseList& theOther, Iterato
 
 void NCollection_BaseList::PInsertAfter(NCollection_ListNode* theNode, Iterator& theIter)
 {
-  Standard_NoSuchObject_Raise_if(!theIter.More(), "NCollection_BaseList::PInsertAfter");
+  Standard_Raise_if<Standard_NoSuchObject>(!theIter.More(), "NCollection_BaseList::PInsertAfter");
   if (theIter.myCurrent == myLast)
   {
     PAppend(theNode);
@@ -201,7 +201,7 @@ void NCollection_BaseList::PInsertAfter(NCollection_ListNode* theNode, Iterator&
 
 void NCollection_BaseList::PInsertAfter(NCollection_BaseList& theOther, Iterator& theIter)
 {
-  Standard_NoSuchObject_Raise_if(!theIter.More(), "NCollection_BaseList::PInsertAfter");
+  Standard_Raise_if<Standard_NoSuchObject>(!theIter.More(), "NCollection_BaseList::PInsertAfter");
   if (theIter.myCurrent == myLast)
   {
     PAppend(theOther);

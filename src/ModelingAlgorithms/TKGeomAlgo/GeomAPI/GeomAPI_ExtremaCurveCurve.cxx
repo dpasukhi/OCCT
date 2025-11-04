@@ -19,8 +19,7 @@
 #include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // #include <Extrema_POnCurv.hxx>
 //=================================================================================================
@@ -145,7 +144,7 @@ Standard_Integer GeomAPI_ExtremaCurveCurve::NbExtrema() const
 
 void GeomAPI_ExtremaCurveCurve::Points(const Standard_Integer Index, gp_Pnt& P1, gp_Pnt& P2) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbExtrema(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbExtrema(),
                                "GeomAPI_ExtremaCurveCurve::Points");
 
   Extrema_POnCurv PC1, PC2;
@@ -161,7 +160,7 @@ void GeomAPI_ExtremaCurveCurve::Parameters(const Standard_Integer Index,
                                            Standard_Real&         U1,
                                            Standard_Real&         U2) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbExtrema(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbExtrema(),
                                "GeomAPI_ExtremaCurveCurve::Parameters");
 
   Extrema_POnCurv PC1, PC2;
@@ -175,7 +174,7 @@ void GeomAPI_ExtremaCurveCurve::Parameters(const Standard_Integer Index,
 
 Standard_Real GeomAPI_ExtremaCurveCurve::Distance(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbExtrema(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbExtrema(),
                                "GeomAPI_ExtremaCurveCurve::Distance");
 
   return sqrt(myExtCC.SquareDistance(Index));
@@ -185,7 +184,7 @@ Standard_Real GeomAPI_ExtremaCurveCurve::Distance(const Standard_Integer Index) 
 
 void GeomAPI_ExtremaCurveCurve::NearestPoints(gp_Pnt& P1, gp_Pnt& P2) const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ExtremaCurveCurve::NearestPoints");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ExtremaCurveCurve::NearestPoints");
 
   Points(myIndex, P1, P2);
 }
@@ -194,7 +193,7 @@ void GeomAPI_ExtremaCurveCurve::NearestPoints(gp_Pnt& P1, gp_Pnt& P2) const
 
 void GeomAPI_ExtremaCurveCurve::LowerDistanceParameters(Standard_Real& U1, Standard_Real& U2) const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ExtremaCurveCurve::LowerDistanceParameters");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ExtremaCurveCurve::LowerDistanceParameters");
 
   Parameters(myIndex, U1, U2);
 }
@@ -203,7 +202,7 @@ void GeomAPI_ExtremaCurveCurve::LowerDistanceParameters(Standard_Real& U1, Stand
 
 Standard_Real GeomAPI_ExtremaCurveCurve::LowerDistance() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ExtremaCurveCurve::LowerDistance");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ExtremaCurveCurve::LowerDistance");
 
   return sqrt(myExtCC.SquareDistance(myIndex));
 }

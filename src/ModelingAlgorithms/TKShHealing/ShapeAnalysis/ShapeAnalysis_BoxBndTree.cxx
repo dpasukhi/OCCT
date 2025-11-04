@@ -14,7 +14,7 @@
 // commercial license or contractual agreement.
 
 #include <ShapeAnalysis_BoxBndTree.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <ShapeAnalysis_Edge.hxx>
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Edge.hxx>

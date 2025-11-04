@@ -21,7 +21,7 @@
 #include <Standard_Transient.hxx>
 #include <Transfer_ActorOfTransientProcess.hxx>
 #include <Transfer_Binder.hxx>
-#include <Transfer_TransferFailure.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Transfer_TransferOutput.hxx>
 #include <Transfer_TransientProcess.hxx>
 #include <Message_ProgressScope.hxx>

@@ -46,7 +46,7 @@
 
 #include <gp.hxx>
 
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <BRepTools_TrsfModification.hxx>
 #include <Message_ProgressScope.hxx>
 #include <Geom_Surface.hxx>

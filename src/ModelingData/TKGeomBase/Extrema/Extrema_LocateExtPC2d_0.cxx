@@ -16,8 +16,7 @@
 
 #include <Extrema_LocateExtPC2d.hxx>
 
-#include <Standard_DomainError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor2d_Curve2d.hxx>
 #include <Extrema_Curve2dTool.hxx>
 #include <Extrema_ExtPElC2d.hxx>

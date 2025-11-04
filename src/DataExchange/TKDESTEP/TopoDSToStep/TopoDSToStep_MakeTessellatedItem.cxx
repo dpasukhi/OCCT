@@ -14,7 +14,7 @@
 #include <BRep_Tool.hxx>
 #include <MoniTool_DataMapOfShapeTransient.hxx>
 #include <Poly.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepVisual_FaceOrSurface.hxx>
 #include <StepShape_TopologicalRepresentationItem.hxx>
@@ -264,6 +264,6 @@ void TopoDSToStep_MakeTessellatedItem::Init(const TopoDS_Shell&                 
 // ============================================================================
 const Handle(StepVisual_TessellatedItem)& TopoDSToStep_MakeTessellatedItem::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeTessellatedItem::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeTessellatedItem::Value() - no result");
   return theTessellatedItem;
 }

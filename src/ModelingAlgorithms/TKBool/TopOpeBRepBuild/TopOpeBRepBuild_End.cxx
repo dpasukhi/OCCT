@@ -18,7 +18,7 @@
 #include <BRepAdaptor_Surface.hxx>
 #include <Geom_Curve.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TopExp.hxx>
 #include <TopoDS.hxx>

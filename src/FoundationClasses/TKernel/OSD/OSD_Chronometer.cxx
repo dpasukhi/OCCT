@@ -16,7 +16,7 @@
 
 #include <OSD_Chronometer.hxx>
 
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Stream.hxx>
 
 #ifndef _WIN32

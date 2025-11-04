@@ -14,7 +14,7 @@
 // commercial license or contractual agreement.
 
 #include <Poly_CoherentTriangle.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=======================================================================
 // function : Poly_CoherentTriangle()

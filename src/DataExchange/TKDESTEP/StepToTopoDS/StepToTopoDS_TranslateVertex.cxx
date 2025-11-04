@@ -19,7 +19,7 @@
 #include <BRep_Builder.hxx>
 #include <Geom_CartesianPoint.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepShape_VertexPoint.hxx>
 #include <StepToGeom.hxx>
@@ -136,7 +136,7 @@ void StepToTopoDS_TranslateVertex::Init(const Handle(StepShape_Vertex)& aVertex,
 
 const TopoDS_Shape& StepToTopoDS_TranslateVertex::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslateVertex::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslateVertex::Value() - no result");
   return myResult;
 }
 

@@ -17,7 +17,7 @@
 
 #include <TObj_TIntSparseArray.hxx>
 #include <Standard_GUID.hxx>
-#include <Standard_ImmutableObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TDF_Data.hxx>
 #include <TDF_DeltaOnModification.hxx>
 

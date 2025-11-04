@@ -21,7 +21,7 @@
 #include <GeomToStep_MakeCircle.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Circ2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement2d.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
@@ -82,6 +82,6 @@ GeomToStep_MakeCircle::GeomToStep_MakeCircle(const Handle(Geom2d_Circle)& Cer,
 
 const Handle(StepGeom_Circle)& GeomToStep_MakeCircle::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeCircle::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeCircle::Value() - no result");
   return theCircle;
 }

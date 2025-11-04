@@ -22,9 +22,7 @@
 #include <math_Matrix.hxx>
 #include <math_Recipes.hxx>
 #include <math_SVD.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 math_SVD::math_SVD(const math_Matrix& A)
     : U(1, Max(A.RowNumber(), A.ColNumber()), 1, A.ColNumber()),
@@ -40,8 +38,8 @@ math_SVD::math_SVD(const math_Matrix& A)
 
 void math_SVD::Solve(const math_Vector& B, math_Vector& X, const Standard_Real Eps)
 {
-  StdFail_NotDone_Raise_if(!Done, " ");
-  Standard_DimensionError_Raise_if((RowA != B.Length()) || (X.Length() != Diag.Length()), " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
+  Standard_Raise_if<Standard_DimensionError>((RowA != B.Length()) || (X.Length() != Diag.Length()), " ");
 
   math_Vector BB(1, U.RowNumber());
   BB.Init(0.0);
@@ -69,7 +67,7 @@ void math_SVD::PseudoInverse(math_Matrix& Result, const Standard_Real Eps)
 {
   Standard_Integer i, j;
 
-  StdFail_NotDone_Raise_if(!Done, " ");
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
 
   Standard_Real wmin = Eps * Diag(Diag.Max());
   for (i = 1; i <= Diag.Upper(); i++)

@@ -18,7 +18,7 @@
 #include <GeomToStep_MakeParabola.hxx>
 #include <gp_Parab.hxx>
 #include <gp_Parab2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement2d.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
@@ -82,6 +82,6 @@ GeomToStep_MakeParabola::GeomToStep_MakeParabola(const Handle(Geom_Parabola)& C,
 
 const Handle(StepGeom_Parabola)& GeomToStep_MakeParabola::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeParabola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeParabola::Value() - no result");
   return theParabola;
 }

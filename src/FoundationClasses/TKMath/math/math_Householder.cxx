@@ -21,8 +21,7 @@
 
 #include <math_Householder.hxx>
 #include <math_Matrix.hxx>
-#include <Standard_DimensionError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // Cette classe decrit la methode de Householder qui transforme A en un
 // produit de matrice orthogonale par une triangulaire superieure. Les seconds
@@ -111,7 +110,7 @@ void math_Householder::Perform(const math_Matrix& A, const math_Matrix& B, const
     }
   }
 
-  Standard_DimensionError_Raise_if(l != B.RowNumber() || n > l, " ");
+  Standard_Raise_if<Standard_DimensionError>(l != B.RowNumber() || n > l, " ");
 
   // Traitement de chaque colonne de A:
   for (i = 1; i <= n; i++)

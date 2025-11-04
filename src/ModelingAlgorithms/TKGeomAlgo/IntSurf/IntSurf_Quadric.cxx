@@ -22,7 +22,7 @@
 #include <gp_Torus.hxx>
 #include <gp_Vec.hxx>
 #include <IntSurf_Quadric.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // ============================================================
 IntSurf_Quadric::IntSurf_Quadric()

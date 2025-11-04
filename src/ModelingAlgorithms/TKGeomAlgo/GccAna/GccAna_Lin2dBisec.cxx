@@ -18,7 +18,7 @@
 
 #include <ElCLib.hxx>
 #include <GccAna_Lin2dBisec.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Dir2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
@@ -26,8 +26,6 @@
 #include <gp_XY.hxx>
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_IntPoint.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 
 //=========================================================================
 //   The first calculated bissectrice is the interior bisectrice, the     +

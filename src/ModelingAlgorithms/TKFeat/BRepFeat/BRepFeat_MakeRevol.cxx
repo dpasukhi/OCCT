@@ -36,7 +36,7 @@
 #include <LocOpe_PntFace.hxx>
 #include <LocOpe_Revol.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS_Edge.hxx>

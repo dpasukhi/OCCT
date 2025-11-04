@@ -17,7 +17,7 @@
 #include <math.hxx>
 #include <math_Vector.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColStd_Array2OfReal.hxx>
 

@@ -21,7 +21,7 @@
 #include <GProp_GProps.hxx>
 #include <GProp_PrincipalProps.hxx>
 #include <math_Jacobi.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GProp_GProps::GProp_GProps()
     : g(gp::Origin()),

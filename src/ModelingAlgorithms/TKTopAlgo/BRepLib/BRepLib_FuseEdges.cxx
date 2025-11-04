@@ -44,8 +44,7 @@
 #include <GeomConvert_CompCurveToBSplineCurve.hxx>
 #include <GeomLib.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -222,7 +221,7 @@ BRepLib_FuseEdges::BRepLib_FuseEdges(
 {
   //  if (theShape.ShapeType() != TopAbs_SHELL && theShape.ShapeType() != TopAbs_SOLID)
   //    throw Standard_ConstructionError("FuseEdges");
-  Standard_NullObject_Raise_if(theShape.IsNull(), "FuseEdges");
+  Standard_Raise_if<Standard_NullObject>(theShape.IsNull(), "FuseEdges");
   myMapFaces.Clear();
 }
 
@@ -312,7 +311,7 @@ void BRepLib_FuseEdges::Faces(TopTools_DataMapOfShapeShape& theMapFac)
 Standard_Integer BRepLib_FuseEdges::NbVertices()
 {
 
-  Standard_NullObject_Raise_if(myShape.IsNull(), "FuseEdges : No Shape");
+  Standard_Raise_if<Standard_NullObject>(myShape.IsNull(), "FuseEdges : No Shape");
   Standard_Integer nbedges, nbvertices = 0;
 
   if (!myEdgesDone)
@@ -339,7 +338,7 @@ Standard_Integer BRepLib_FuseEdges::NbVertices()
 
 TopoDS_Shape& BRepLib_FuseEdges::Shape()
 {
-  Standard_NullObject_Raise_if(myShape.IsNull(), "FuseEdges : No Shape");
+  Standard_Raise_if<Standard_NullObject>(myShape.IsNull(), "FuseEdges : No Shape");
 
   if (!myEdgesDone)
   {

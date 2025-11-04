@@ -30,7 +30,7 @@
 #include <Law_BSpline.hxx>
 #include <Law_Linear.hxx>
 #include <Standard_Failure.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 

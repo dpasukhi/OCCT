@@ -28,8 +28,7 @@
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
 #include <ShapeAnalysis_FreeBounds.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Shape.hxx>
@@ -162,7 +161,7 @@ BRepProj_Projection::BRepProj_Projection(const TopoDS_Shape& Wire,
       myItr(0)
 {
   // Check the input
-  Standard_NullObject_Raise_if((Wire.IsNull() || Shape.IsNull()), __FILE__ ": null input shape");
+  Standard_Raise_if<Standard_NullObject>((Wire.IsNull() || Shape.IsNull()), __FILE__ ": null input shape");
   if (Wire.ShapeType() != TopAbs_EDGE && Wire.ShapeType() != TopAbs_WIRE)
     throw Standard_ConstructionError(__FILE__ ": projected shape is neither wire nor edge");
 
@@ -195,7 +194,7 @@ BRepProj_Projection::BRepProj_Projection(const TopoDS_Shape& Wire,
       myItr(0)
 {
   // Check the input
-  Standard_NullObject_Raise_if((Wire.IsNull() || Shape.IsNull()), __FILE__ ": null input shape");
+  Standard_Raise_if<Standard_NullObject>((Wire.IsNull() || Shape.IsNull()), __FILE__ ": null input shape");
   if (Wire.ShapeType() != TopAbs_EDGE && Wire.ShapeType() != TopAbs_WIRE)
     throw Standard_ConstructionError(__FILE__ ": projected shape is neither wire nor edge");
 

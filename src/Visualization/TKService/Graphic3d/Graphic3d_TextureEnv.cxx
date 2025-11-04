@@ -18,7 +18,7 @@
 #include <Graphic3d_TextureParams.hxx>
 #include <Graphic3d_TypeOfTexture.hxx>
 #include <Graphic3d_TypeOfTextureMode.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 

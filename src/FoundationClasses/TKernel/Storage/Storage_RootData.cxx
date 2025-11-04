@@ -17,7 +17,7 @@
 #include <Storage_RootData.hxx>
 #include <Storage_Root.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Storage_DataMapIteratorOfMapOfPers.hxx>
 #include <TCollection_AsciiString.hxx>
 

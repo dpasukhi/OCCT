@@ -22,7 +22,7 @@
 #include <gp_Trsf2d.hxx>
 #include <gp_XY.hxx>
 #include <Standard_Dump.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 void gp_Pnt2d::Transform(const gp_Trsf2d& T) noexcept
 {

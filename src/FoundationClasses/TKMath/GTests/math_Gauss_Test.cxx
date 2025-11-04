@@ -19,8 +19,7 @@
 
 #include <Standard_Real.hxx>
 #include <Standard_Integer.hxx>
-#include <StdFail_NotDone.hxx>
-#include <Standard_DimensionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Precision.hxx>
 
 namespace

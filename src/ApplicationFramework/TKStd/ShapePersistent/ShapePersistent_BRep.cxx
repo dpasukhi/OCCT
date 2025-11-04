@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <ShapePersistent_BRep.hxx>
 
@@ -846,7 +846,7 @@ Handle(ShapePersistent_BRep::TEdge::pTObjectT) ShapePersistent_BRep::Translate(
       continue;
     }
 
-    Standard_NullObject_Raise_if(CPCR.IsNull(), "Null CurveRepresentation");
+    Standard_Raise_if<Standard_NullObject>(CPCR.IsNull(), "Null CurveRepresentation");
 
     CPCR->myNext = PCR;
     PCR          = CPCR;

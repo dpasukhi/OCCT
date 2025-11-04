@@ -22,8 +22,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Pln.hxx>
 #include <gp_Pnt.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 
 GC_MakePlane::GC_MakePlane(const gp_Pln& Pl)
@@ -119,6 +118,6 @@ GC_MakePlane::GC_MakePlane(const gp_Ax1& Axis)
 
 const Handle(Geom_Plane)& GC_MakePlane::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakePlane::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakePlane::Value() - no result");
   return ThePlane;
 }

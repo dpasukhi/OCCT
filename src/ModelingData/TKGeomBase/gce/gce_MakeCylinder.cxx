@@ -22,7 +22,7 @@
 #include <gp_Cylinder.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //  Constructions d un cylindre de gp par son Ax2 A2 et son rayon         +
@@ -158,7 +158,7 @@ gce_MakeCylinder::gce_MakeCylinder(const gp_Cylinder& Cyl, const gp_Pnt& P)
 
 const gp_Cylinder& gce_MakeCylinder::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeCylinder::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeCylinder::Value() - no result");
   return TheCylinder;
 }
 

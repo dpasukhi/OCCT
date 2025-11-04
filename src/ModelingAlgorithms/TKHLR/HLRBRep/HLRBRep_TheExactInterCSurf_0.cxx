@@ -16,8 +16,7 @@
 
 #include <HLRBRep_TheExactInterCSurf.hxx>
 
-#include <StdFail_NotDone.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <HLRBRep_SurfaceTool.hxx>
 #include <gp_Lin.hxx>
 #include <HLRBRep_LineTool.hxx>

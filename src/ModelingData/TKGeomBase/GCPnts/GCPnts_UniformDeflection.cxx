@@ -19,8 +19,7 @@
 #include <GCPnts_TCurveTypes.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // mask the return of a Adaptor2d_Curve2d as a gp_Pnt
 static gp_Pnt Value(const Adaptor3d_Curve& theC, const Standard_Real theParameter)
@@ -135,7 +134,7 @@ void GCPnts_UniformDeflection::Initialize(const Adaptor2d_Curve2d& theC,
 
 gp_Pnt GCPnts_UniformDeflection::Value(const Standard_Integer theIndex) const
 {
-  StdFail_NotDone_Raise_if(!myDone, "GCPnts_UniformAbscissa::Parameter()");
+  Standard_Raise_if<StdFail_NotDone>(!myDone, "GCPnts_UniformAbscissa::Parameter()");
   return myPoints.Value(theIndex);
 }
 

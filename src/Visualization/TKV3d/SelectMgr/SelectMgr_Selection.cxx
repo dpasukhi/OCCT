@@ -17,7 +17,7 @@
 #include <SelectMgr_Selection.hxx>
 
 #include <SelectMgr_EntityOwner.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(SelectMgr_Selection, Standard_Transient)
 
@@ -56,7 +56,7 @@ void SelectMgr_Selection::Destroy()
 void SelectMgr_Selection::Add(const Handle(Select3D_SensitiveEntity)& theSensitive)
 {
   // if input is null: in debug mode raise exception
-  Standard_NullObject_Raise_if(theSensitive.IsNull(),
+  Standard_Raise_if<Standard_NullObject>(theSensitive.IsNull(),
                                "Null sensitive entity is added to the selection");
   if (theSensitive.IsNull())
   {

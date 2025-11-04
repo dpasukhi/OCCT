@@ -20,7 +20,7 @@
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <NCollection_UtfString.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include "Resource_CodePages.pxx"
 #include "Resource_GBK.pxx"
 #include "Resource_Big5.pxx"

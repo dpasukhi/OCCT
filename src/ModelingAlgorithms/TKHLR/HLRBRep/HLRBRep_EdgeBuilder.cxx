@@ -22,9 +22,7 @@
 #include <HLRBRep_AreaLimit.hxx>
 #include <HLRBRep_EdgeBuilder.hxx>
 #include <HLRBRep_VertexList.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_NoMoreObject.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs.hxx>
 
 //=================================================================================================
@@ -36,7 +34,7 @@ HLRBRep_EdgeBuilder::HLRBRep_EdgeBuilder(HLRBRep_VertexList& VList)
   // An area is a part of the curve between
   // two consecutive vertices
 
-  Standard_DomainError_Raise_if(!VList.More(), "EdgeBuilder  : Empty vertex list");
+  Standard_Raise_if<Standard_DomainError>(!VList.More(), "EdgeBuilder  : Empty vertex list");
 
   Handle(HLRBRep_AreaLimit) last, cur;
   TopAbs_State              before, after, ebefore, eafter;
@@ -180,7 +178,7 @@ HLRBRep_EdgeBuilder::HLRBRep_EdgeBuilder(HLRBRep_VertexList& VList)
   }
 
   // error if no interferences
-  Standard_DomainError_Raise_if(stat == TopAbs_UNKNOWN, "EdgeBuilder : No interferences");
+  Standard_Raise_if<Standard_DomainError>(stat == TopAbs_UNKNOWN, "EdgeBuilder : No interferences");
   // if no boundary the edge covers the whole curve
   if (estat == TopAbs_UNKNOWN)
     estat = TopAbs_IN;

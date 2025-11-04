@@ -15,7 +15,7 @@
 #include <GeomEvaluator_OffsetCurve.hxx>
 
 #include <GeomAdaptor_Curve.hxx>
-#include <Standard_NullValue.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomEvaluator_OffsetCurve, GeomEvaluator_Curve)
 
@@ -90,7 +90,7 @@ void GeomEvaluator_OffsetCurve::D3(const Standard_Real theU,
 gp_Vec GeomEvaluator_OffsetCurve::DN(const Standard_Real    theU,
                                      const Standard_Integer theDeriv) const
 {
-  Standard_RangeError_Raise_if(theDeriv < 1, "GeomEvaluator_OffsetCurve::DN(): theDeriv < 1");
+  Standard_Raise_if<Standard_RangeError>(theDeriv < 1, "GeomEvaluator_OffsetCurve::DN(): theDeriv < 1");
 
   gp_Pnt aPnt;
   gp_Vec aDummy, aDN;

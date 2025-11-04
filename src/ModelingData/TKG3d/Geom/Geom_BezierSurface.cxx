@@ -38,10 +38,7 @@
 #include <gp_XYZ.hxx>
 #include <PLib.hxx>
 #include <Precision.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_DimensionError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <Standard_RangeError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 
@@ -1669,7 +1666,7 @@ gp_Vec Geom_BezierSurface::DN(const Standard_Real    U,
                               const Standard_Integer Nu,
                               const Standard_Integer Nv) const
 {
-  Standard_RangeError_Raise_if(Nu + Nv < 1 || Nv < 0 || Nu < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(Nu + Nv < 1 || Nv < 0 || Nu < 0, " ");
   gp_Vec               Derivative;
   TColStd_Array1OfReal biduknots(1, 2);
   biduknots(1) = 0.;
@@ -1747,7 +1744,7 @@ Standard_Integer Geom_BezierSurface::NbVPoles() const
 const gp_Pnt& Geom_BezierSurface::Pole(const Standard_Integer UIndex,
                                        const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > poles->ColLength() || VIndex < 1
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > poles->ColLength() || VIndex < 1
                                  || VIndex > poles->RowLength(),
                                " ");
   return poles->Value(UIndex + poles->LowerRow() - 1, VIndex + poles->LowerCol() - 1);
@@ -1757,7 +1754,7 @@ const gp_Pnt& Geom_BezierSurface::Pole(const Standard_Integer UIndex,
 
 void Geom_BezierSurface::Poles(TColgp_Array2OfPnt& P) const
 {
-  Standard_DimensionError_Raise_if(P.RowLength() != poles->RowLength()
+  Standard_Raise_if<Standard_DimensionError>(P.RowLength() != poles->RowLength()
                                      || P.ColLength() != poles->ColLength(),
                                    " ");
   P = poles->Array2();
@@ -1880,7 +1877,7 @@ Handle(Geom_Curve) Geom_BezierSurface::VIso(const Standard_Real V) const
 Standard_Real Geom_BezierSurface::Weight(const Standard_Integer UIndex,
                                          const Standard_Integer VIndex) const
 {
-  Standard_OutOfRange_Raise_if(UIndex < 1 || UIndex > weights->ColLength() || VIndex < 1
+  Standard_Raise_if<Standard_OutOfRange>(UIndex < 1 || UIndex > weights->ColLength() || VIndex < 1
                                  || VIndex > weights->RowLength(),
                                " ");
 
@@ -1894,7 +1891,7 @@ Standard_Real Geom_BezierSurface::Weight(const Standard_Integer UIndex,
 
 void Geom_BezierSurface::Weights(TColStd_Array2OfReal& W) const
 {
-  Standard_DimensionError_Raise_if(W.RowLength() != weights->RowLength()
+  Standard_Raise_if<Standard_DimensionError>(W.RowLength() != weights->RowLength()
                                      || W.ColLength() != weights->ColLength(),
                                    " ");
   if (urational || vrational)

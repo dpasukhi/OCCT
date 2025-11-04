@@ -30,8 +30,7 @@
 #include <gp_Trsf2d.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 
 //=================================================================================================
@@ -164,7 +163,7 @@ void gp_Trsf::SetScale(const gp_Pnt& P, const Standard_Real S)
   Standard_Real As = scale;
   if (As < 0)
     As = -As;
-  Standard_ConstructionError_Raise_if(As <= gp::Resolution(), "gp_Trsf::SetScaleFactor");
+  Standard_Raise_if<Standard_ConstructionError>(As <= gp::Resolution(), "gp_Trsf::SetScaleFactor");
   matrix.SetIdentity();
   loc.Multiply(1 - S);
 }
@@ -284,7 +283,7 @@ void gp_Trsf::SetScaleFactor(const Standard_Real S)
   Standard_Real As = S;
   if (As < 0)
     As = -As;
-  Standard_ConstructionError_Raise_if(As <= gp::Resolution(), "gp_Trsf::SetScaleFactor");
+  Standard_Raise_if<Standard_ConstructionError>(As <= gp::Resolution(), "gp_Trsf::SetScaleFactor");
   scale = S;
   As    = scale - 1.;
   if (As < 0)
@@ -359,7 +358,7 @@ void gp_Trsf::SetValues(const Standard_Real a11,
   Standard_Real As = s;
   if (As < 0)
     As = -As;
-  Standard_ConstructionError_Raise_if(As < gp::Resolution(),
+  Standard_Raise_if<Standard_ConstructionError>(As < gp::Resolution(),
                                       "gp_Trsf::SetValues, null determinant");
   if (s > 0)
     s = Pow(s, 1. / 3.);
@@ -413,14 +412,14 @@ void gp_Trsf::Invert()
     loc.Reverse();
   else if (shape == gp_Scale)
   {
-    Standard_ConstructionError_Raise_if(Abs(scale) <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(Abs(scale) <= gp::Resolution(),
                                         "gp_Trsf::Invert() - transformation has zero scale");
     scale = 1.0 / scale;
     loc.Multiply(-scale);
   }
   else
   {
-    Standard_ConstructionError_Raise_if(Abs(scale) <= gp::Resolution(),
+    Standard_Raise_if<Standard_ConstructionError>(Abs(scale) <= gp::Resolution(),
                                         "gp_Trsf::Invert() - transformation has zero scale");
     scale = 1.0 / scale;
     matrix.Transpose();

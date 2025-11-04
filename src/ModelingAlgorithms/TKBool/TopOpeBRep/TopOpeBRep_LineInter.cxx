@@ -34,7 +34,7 @@
 #include <IntPatch_RLine.hxx>
 #include <IntPatch_SequenceOfLine.hxx>
 #include <IntPatch_WLine.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Shape.hxx>

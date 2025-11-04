@@ -24,7 +24,7 @@
 #include <gp_Dir2d.hxx>
 #include <gp_Vec.hxx>
 #include <math_Matrix.hxx>
-#include <StdFail_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Contap_SurfFunction::Contap_SurfFunction()
     : myMean(1.),

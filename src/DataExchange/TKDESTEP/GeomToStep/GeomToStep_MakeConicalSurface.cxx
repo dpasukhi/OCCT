@@ -17,8 +17,7 @@
 #include <Geom_ConicalSurface.hxx>
 #include <GeomToStep_MakeAxis2Placement3d.hxx>
 #include <GeomToStep_MakeConicalSurface.hxx>
-#include <Standard_DomainError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis2Placement3d.hxx>
 #include <StepGeom_ConicalSurface.hxx>
@@ -58,6 +57,6 @@ GeomToStep_MakeConicalSurface::GeomToStep_MakeConicalSurface(
 
 const Handle(StepGeom_ConicalSurface)& GeomToStep_MakeConicalSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeConicalSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeConicalSurface::Value() - no result");
   return theConicalSurface;
 }

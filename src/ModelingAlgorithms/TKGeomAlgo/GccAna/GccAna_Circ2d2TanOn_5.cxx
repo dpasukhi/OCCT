@@ -16,7 +16,7 @@
 
 #include <ElCLib.hxx>
 #include <GccAna_Circ2d2TanOn.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Ax2d.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Dir2d.hxx>

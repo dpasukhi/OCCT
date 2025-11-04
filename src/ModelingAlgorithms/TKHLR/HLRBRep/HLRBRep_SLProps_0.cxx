@@ -16,10 +16,7 @@
 
 #include <HLRBRep_SLProps.hxx>
 
-#include <LProp_BadContinuity.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <LProp_NotDefined.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <HLRBRep_SLPropsATool.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>

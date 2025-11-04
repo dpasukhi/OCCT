@@ -20,7 +20,7 @@
 #include <gp_Dir2d.hxx>
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=========================================================================
 //   Creation d une ligne 2d de gp a partir d un Ax2d de gp.              +
@@ -103,7 +103,7 @@ gce_MakeLin2d::gce_MakeLin2d(const gp_Lin2d& Line, const Standard_Real Dist)
 
 gp_Lin2d gce_MakeLin2d::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeLin2d::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeLin2d::Value() - no result");
   return TheLin2d;
 }
 

@@ -40,7 +40,7 @@
 #include <GeomLib.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TopAbs.hxx>
 #include <TopAbs_Orientation.hxx>

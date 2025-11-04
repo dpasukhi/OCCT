@@ -16,7 +16,7 @@
 
 #include <TDataStd_Variable.hxx>
 
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Dump.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>

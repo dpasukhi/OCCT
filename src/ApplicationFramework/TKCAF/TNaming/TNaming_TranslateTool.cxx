@@ -34,7 +34,7 @@
 #include <BRep_TEdge.hxx>
 #include <BRep_TFace.hxx>
 #include <BRep_TVertex.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TNaming_CopyShape.hxx>
 #include <TNaming_TranslateTool.hxx>
@@ -325,7 +325,7 @@ void TNaming_TranslateTool::UpdateEdge(const TopoDS_Shape&                      
     TopLoc_Location L = TNaming_CopyShape::Translate(CR->Location(), aMap);
     CR2->Location(L);
 
-    Standard_NullObject_Raise_if(CR2.IsNull(), "Null CurveRepresentation");
+    Standard_Raise_if<Standard_NullObject>(CR2.IsNull(), "Null CurveRepresentation");
 
     //    lcr.Prepend(CR2); // add
     lcr.Append(CR2);

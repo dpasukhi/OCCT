@@ -24,16 +24,13 @@
 #include <Geom_Geometry.hxx>
 #include <Geom_OffsetCurve.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <Geom_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
-#include <Standard_ConstructionError.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_RangeError.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Geom_OffsetCurve, Geom_Curve)
@@ -278,7 +275,7 @@ void Geom_OffsetCurve::D3(const Standard_Real theU,
 
 gp_Vec Geom_OffsetCurve::DN(const Standard_Real U, const Standard_Integer N) const
 {
-  Standard_RangeError_Raise_if(N < 1,
+  Standard_Raise_if<Standard_RangeError>(N < 1,
                                "Exception: "
                                "Geom_OffsetCurve::DN(...). N<1.");
 
@@ -340,7 +337,7 @@ Standard_Boolean Geom_OffsetCurve::IsClosed() const
 Standard_Boolean Geom_OffsetCurve::IsCN(const Standard_Integer N) const
 {
 
-  Standard_RangeError_Raise_if(N < 0, " ");
+  Standard_Raise_if<Standard_RangeError>(N < 0, " ");
   return basisCurve->IsCN(N + 1);
 }
 

@@ -19,7 +19,7 @@
 #include <gp_Ax2.hxx>
 #include <gp_Parab.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 gce_MakeParab::gce_MakeParab(const gp_Ax2& A2, const Standard_Real Focal)
 {
@@ -42,7 +42,7 @@ gce_MakeParab::gce_MakeParab(const gp_Ax1& D, const gp_Pnt& F)
 
 const gp_Parab& gce_MakeParab::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "gce_MakeParab::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "gce_MakeParab::Value() - no result");
   return TheParab;
 }
 

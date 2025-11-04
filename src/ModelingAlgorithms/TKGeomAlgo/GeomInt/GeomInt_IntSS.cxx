@@ -157,7 +157,7 @@ void GeomInt_IntSS::InternalPerform(const Standard_Real    Tol,
 
 const Handle(Geom_Curve)& GeomInt_IntSS::Line(const Standard_Integer Index) const
 {
-  StdFail_NotDone_Raise_if(!myIntersector.IsDone(), "GeomInt_IntSS::Line");
+  Standard_Raise_if<StdFail_NotDone>(!myIntersector.IsDone(), "GeomInt_IntSS::Line");
   return sline(Index + myNbrestr);
 }
 
@@ -165,8 +165,8 @@ const Handle(Geom_Curve)& GeomInt_IntSS::Line(const Standard_Integer Index) cons
 
 const Handle(Geom_Curve)& GeomInt_IntSS::Boundary(const Standard_Integer Index) const
 {
-  StdFail_NotDone_Raise_if(!myIntersector.IsDone(), "GeomInt_IntSS::Line");
-  Standard_OutOfRange_Raise_if(Index <= 0 || Index > myNbrestr, "GeomInt_IntSS::Boundary");
+  Standard_Raise_if<StdFail_NotDone>(!myIntersector.IsDone(), "GeomInt_IntSS::Line");
+  Standard_Raise_if<Standard_OutOfRange>(Index <= 0 || Index > myNbrestr, "GeomInt_IntSS::Boundary");
   return sline(Index);
 }
 
@@ -187,7 +187,7 @@ gp_Pnt2d GeomInt_IntSS::Pnt2d(const Standard_Integer Index, const Standard_Boole
 
 Standard_Boolean GeomInt_IntSS::HasLineOnS1(const Standard_Integer index) const
 {
-  StdFail_NotDone_Raise_if(!myIntersector.IsDone(), "GeomInt_IntSS::HasLineOnS1");
+  Standard_Raise_if<StdFail_NotDone>(!myIntersector.IsDone(), "GeomInt_IntSS::HasLineOnS1");
   return (!slineS1(index).IsNull());
 }
 
@@ -195,7 +195,7 @@ Standard_Boolean GeomInt_IntSS::HasLineOnS1(const Standard_Integer index) const
 
 Standard_Boolean GeomInt_IntSS::HasLineOnS2(const Standard_Integer index) const
 {
-  StdFail_NotDone_Raise_if(!myIntersector.IsDone(), "GeomInt_IntSS::HasLineOnS2");
+  Standard_Raise_if<StdFail_NotDone>(!myIntersector.IsDone(), "GeomInt_IntSS::HasLineOnS2");
   return (!slineS2(index).IsNull());
 }
 
@@ -203,7 +203,7 @@ Standard_Boolean GeomInt_IntSS::HasLineOnS2(const Standard_Integer index) const
 
 const Handle(Geom2d_Curve)& GeomInt_IntSS::LineOnS1(const Standard_Integer Index) const
 {
-  StdFail_NotDone_Raise_if(!myIntersector.IsDone(), "GeomInt_IntSS::LineOnS1");
+  Standard_Raise_if<StdFail_NotDone>(!myIntersector.IsDone(), "GeomInt_IntSS::LineOnS1");
   return slineS1(Index);
 }
 
@@ -211,6 +211,6 @@ const Handle(Geom2d_Curve)& GeomInt_IntSS::LineOnS1(const Standard_Integer Index
 
 const Handle(Geom2d_Curve)& GeomInt_IntSS::LineOnS2(const Standard_Integer Index) const
 {
-  StdFail_NotDone_Raise_if(!myIntersector.IsDone(), "GeomInt_IntSS::LineOnS2");
+  Standard_Raise_if<StdFail_NotDone>(!myIntersector.IsDone(), "GeomInt_IntSS::LineOnS2");
   return slineS2(Index);
 }

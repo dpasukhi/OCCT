@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <GeomLib_LogSample.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GeomLib_LogSample::GeomLib_LogSample(const Standard_Real    A,
                                      const Standard_Real    B,

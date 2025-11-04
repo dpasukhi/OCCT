@@ -16,15 +16,12 @@
 
 #include <NCollection_Allocator.hxx>
 #include <NCollection_BasePointerVector.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_OutOfMemory.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <Standard_OutOfRange.hxx>
 
 #include <NCollection_DefineAlloc.hxx>
 #include <NCollection_Iterator.hxx>
 #include <NCollection_OccAllocator.hxx>
-#include <StdFail_NotDone.hxx>
 #include <NCollection_IndexedIterator.hxx>
 
 #include <locale>

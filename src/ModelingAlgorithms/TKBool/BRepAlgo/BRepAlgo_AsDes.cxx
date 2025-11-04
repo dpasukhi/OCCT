@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <BRepAlgo_AsDes.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopTools_MapOfOrientedShape.hxx>

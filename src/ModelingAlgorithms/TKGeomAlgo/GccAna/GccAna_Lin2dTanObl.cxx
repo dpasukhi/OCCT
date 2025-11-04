@@ -19,7 +19,7 @@
 
 #include <ElCLib.hxx>
 #include <GccAna_Lin2dTanObl.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <gp_Circ2d.hxx>
 #include <gp_Dir2d.hxx>
@@ -28,8 +28,6 @@
 #include <gp_XY.hxx>
 #include <IntAna2d_AnaIntersection.hxx>
 #include <IntAna2d_IntPoint.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 
 //=========================================================================
 //   Creation of a straight line passing by a point : ThePoint                +

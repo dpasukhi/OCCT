@@ -21,7 +21,7 @@
 #include <Expr_Operators.hxx>
 #include <Expr_Sum.hxx>
 #include <Expr_UnaryMinus.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_AsciiString.hxx>
 

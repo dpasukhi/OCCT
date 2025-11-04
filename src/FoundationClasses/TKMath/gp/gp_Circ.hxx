@@ -20,7 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Describes a circle in 3D space.
 //! A circle is defined by its radius and positioned in space
@@ -67,7 +67,7 @@ public:
       : pos(theA2),
         radius(theRadius)
   {
-    Standard_ConstructionError_Raise_if(theRadius < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theRadius < 0.0,
                                         "gp_Circ() - radius should be positive number");
   }
 
@@ -89,7 +89,7 @@ public:
   //! Standard_ConstructionError if theRadius is negative.
   void SetRadius(const Standard_Real theRadius)
   {
-    Standard_ConstructionError_Raise_if(theRadius < 0.0,
+    Standard_Raise_if<Standard_ConstructionError>(theRadius < 0.0,
                                         "gp_Circ::SetRadius() - radius should be positive number");
     radius = theRadius;
   }

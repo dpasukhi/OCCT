@@ -24,7 +24,7 @@
 #include <math_NewtonFunctionSetRoot.hxx>
 #include <math_BFGS.hxx>
 #include <math_FRPR.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static void CorrectTol(const Standard_Real theU0, const Standard_Real theV0, math_Vector& theTol)
 {

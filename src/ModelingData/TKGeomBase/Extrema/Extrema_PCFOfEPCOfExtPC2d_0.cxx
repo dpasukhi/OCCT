@@ -16,8 +16,7 @@
 
 #include <Extrema_PCFOfEPCOfExtPC2d.hxx>
 
-#include <Standard_OutOfRange.hxx>
-#include <Standard_TypeMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor2d_Curve2d.hxx>
 #include <Extrema_Curve2dTool.hxx>
 #include <Extrema_POnCurv2d.hxx>

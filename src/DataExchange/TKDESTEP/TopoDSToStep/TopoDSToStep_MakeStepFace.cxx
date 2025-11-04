@@ -46,7 +46,7 @@
 #include <Precision.hxx>
 #include <ShapeAlgo.hxx>
 #include <ShapeAlgo_AlgoContainer.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_StepModel.hxx>
 #include <StepGeom_GeometricRepresentationContextAndParametricRepresentationContext.hxx>
 #include <StepGeom_Pcurve.hxx>
@@ -477,7 +477,7 @@ void TopoDSToStep_MakeStepFace::Init(const TopoDS_Face&                    aFace
 
 const Handle(StepShape_TopologicalRepresentationItem)& TopoDSToStep_MakeStepFace::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "TopoDSToStep_MakeStepFace::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "TopoDSToStep_MakeStepFace::Value() - no result");
   return myResult;
 }
 

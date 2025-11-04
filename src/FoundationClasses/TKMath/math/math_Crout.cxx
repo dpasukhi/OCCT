@@ -23,10 +23,8 @@
 
 #include <math_Crout.hxx>
 #include <math_Matrix.hxx>
-#include <math_NotSquare.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <math_Vector.hxx>
-#include <Standard_DimensionError.hxx>
-#include <StdFail_NotDone.hxx>
 
 math_Crout::math_Crout(const math_Matrix& A, const Standard_Real MinPivot)
     : InvA(1, A.RowNumber(), 1, A.ColNumber())
@@ -39,7 +37,7 @@ math_Crout::math_Crout(const math_Matrix& A, const Standard_Real MinPivot)
   math_Matrix L(1, Nctl, 1, Nctl);
   math_Vector Diag(1, Nctl);
 
-  math_NotSquare_Raise_if(Nctl != A.ColNumber(), " ");
+  Standard_Raise_if<math_NotSquare>(Nctl != A.ColNumber(), " ");
 
   Det = 1;
   for (i = 1; i <= Nctl; i++)
@@ -112,8 +110,8 @@ math_Crout::math_Crout(const math_Matrix& A, const Standard_Real MinPivot)
 
 void math_Crout::Solve(const math_Vector& B, math_Vector& X) const
 {
-  StdFail_NotDone_Raise_if(!Done, " ");
-  Standard_DimensionError_Raise_if((B.Length() != InvA.RowNumber()) || (X.Length() != B.Length()),
+  Standard_Raise_if<StdFail_NotDone>(!Done, " ");
+  Standard_Raise_if<Standard_DimensionError>((B.Length() != InvA.RowNumber()) || (X.Length() != B.Length()),
                                    " ");
 
   Standard_Integer n    = InvA.RowNumber();

@@ -20,7 +20,7 @@
 #include <CDM_MetaDataLookUpTable.hxx>
 #include <Standard_Dump.hxx>
 #include <CDF_Application.hxx>
-#include <Standard_NullObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <OSD_Thread.hxx>
@@ -143,7 +143,7 @@ TCollection_ExtendedString CDM_MetaData::Name() const
 
 TCollection_ExtendedString CDM_MetaData::Version() const
 {
-  Standard_NoSuchObject_Raise_if(!myHasVersion, "Document has no version");
+  Standard_Raise_if<Standard_NoSuchObject>(!myHasVersion, "Document has no version");
   return myVersion;
 }
 

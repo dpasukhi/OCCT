@@ -19,8 +19,7 @@
 #include <ProjLib_ProjectOnPlane.hxx>
 #include <Approx_FitAndDivide.hxx>
 #include <AppParCurves_MultiCurve.hxx>
-#include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Precision.hxx>
 #include <BSplCLib.hxx>
 #include <Geom_BezierCurve.hxx>

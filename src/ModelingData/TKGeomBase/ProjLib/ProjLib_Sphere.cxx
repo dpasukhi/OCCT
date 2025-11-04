@@ -28,8 +28,7 @@
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
 #include <ProjLib_Sphere.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -202,7 +201,7 @@ void ProjLib_Sphere::Project(const gp_Hypr& H)
 
 void ProjLib_Sphere::SetInBounds(const Standard_Real U)
 {
-  StdFail_NotDone_Raise_if(!isDone, "ProjLib_Sphere:SetInBounds");
+  Standard_Raise_if<StdFail_NotDone>(!isDone, "ProjLib_Sphere:SetInBounds");
 
   // first set the y of the first point in -pi/2 pi/2
   Standard_Real newY, Y = ElCLib::Value(U, myLin).Y();

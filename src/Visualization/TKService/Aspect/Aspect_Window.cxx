@@ -25,7 +25,7 @@
 
 #include <Aspect_Background.hxx>
 #include <Aspect_Window.hxx>
-#include <Aspect_WindowDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Quantity_Color.hxx>
 #include <Standard_Type.hxx>
 

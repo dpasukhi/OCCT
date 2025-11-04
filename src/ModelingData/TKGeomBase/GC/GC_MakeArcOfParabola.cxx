@@ -20,7 +20,7 @@
 #include <Geom_TrimmedCurve.hxx>
 #include <gp_Parab.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeArcOfParabola::GC_MakeArcOfParabola(const gp_Parab&        Parab,
                                            const gp_Pnt&          P1,
@@ -57,6 +57,6 @@ GC_MakeArcOfParabola::GC_MakeArcOfParabola(const gp_Parab&        Parab,
 
 const Handle(Geom_TrimmedCurve)& GC_MakeArcOfParabola::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeArcOfParabola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeArcOfParabola::Value() - no result");
   return TheArc;
 }

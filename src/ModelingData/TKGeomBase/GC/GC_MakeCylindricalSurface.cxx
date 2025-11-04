@@ -23,7 +23,7 @@
 #include <gp_Cylinder.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GC_MakeCylindricalSurface::GC_MakeCylindricalSurface(const gp_Cylinder& C)
 {
@@ -108,6 +108,6 @@ GC_MakeCylindricalSurface::GC_MakeCylindricalSurface(const gp_Cylinder& Cyl, con
 
 const Handle(Geom_CylindricalSurface)& GC_MakeCylindricalSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GC_MakeCylindricalSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GC_MakeCylindricalSurface::Value() - no result");
   return TheCylinder;
 }

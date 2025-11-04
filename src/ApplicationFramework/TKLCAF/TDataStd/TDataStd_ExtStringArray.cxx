@@ -74,7 +74,7 @@ TDataStd_ExtStringArray::TDataStd_ExtStringArray()
 
 void TDataStd_ExtStringArray::Init(const Standard_Integer lower, const Standard_Integer upper)
 {
-  Standard_RangeError_Raise_if(upper < lower, "TDataStd_ExtStringArray::Init");
+  Standard_Raise_if<Standard_RangeError>(upper < lower, "TDataStd_ExtStringArray::Init");
   Backup();
   myValue = new TColStd_HArray1OfExtendedString(lower, upper, "");
 }

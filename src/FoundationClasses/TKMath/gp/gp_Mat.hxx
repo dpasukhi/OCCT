@@ -16,9 +16,8 @@
 #define _gp_Mat_HeaderFile
 
 #include <gp.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_OStream.hxx>
-#include <Standard_ConstructionError.hxx>
 
 class gp_XYZ;
 
@@ -131,7 +130,7 @@ public:
                 const Standard_Integer theCol,
                 const Standard_Real    theValue)
   {
-    Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 3, " ");
+    Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 3, " ");
     myMat[theRow - 1][theCol - 1] = theValue;
   }
 
@@ -163,7 +162,7 @@ public:
   //! Raises OutOfRange if theRow < 1 or theRow > 3 or theCol < 1 or theCol > 3
   const Standard_Real& Value(const Standard_Integer theRow, const Standard_Integer theCol) const
   {
-    Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 3, " ");
+    Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 3, " ");
     return myMat[theRow - 1][theCol - 1];
   }
 
@@ -177,7 +176,7 @@ public:
   //! Raises OutOfRange if theRow < 1 or theRow > 3 or theCol < 1 or theCol > 3
   Standard_Real& ChangeValue(const Standard_Integer theRow, const Standard_Integer theCol)
   {
-    Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 3, " ");
+    Standard_Raise_if<Standard_OutOfRange>(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 3, " ");
     return myMat[theRow - 1][theCol - 1];
   }
 
@@ -368,7 +367,7 @@ inline constexpr void gp_Mat::Divide(const Standard_Real theScalar)
   {
     aVal = -aVal;
   }
-  Standard_ConstructionError_Raise_if(aVal <= gp::Resolution(), "gp_Mat : Divide by 0");
+  Standard_Raise_if<Standard_ConstructionError>(aVal <= gp::Resolution(), "gp_Mat : Divide by 0");
   const Standard_Real anUnSurScalar = 1.0 / theScalar;
   myMat[0][0] *= anUnSurScalar;
   myMat[0][1] *= anUnSurScalar;

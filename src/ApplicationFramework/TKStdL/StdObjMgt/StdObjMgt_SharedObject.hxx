@@ -14,7 +14,7 @@
 #ifndef _StdObjMgt_SharedObject_HeaderFile
 #define _StdObjMgt_SharedObject_HeaderFile
 
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StdObjMgt_Persistent.hxx>
 
 class StdObjMgt_SharedObject
@@ -133,7 +133,7 @@ public:
     {
       Handle(Persistent) aPersistent =
         DownCast<Persistent, typename Base::PersistentBase>::make(this->myPersistent);
-      Standard_NoSuchObject_Raise_if(
+      Standard_Raise_if<Standard_NoSuchObject>(
         aPersistent.IsNull(),
         "StdObjMgt_SharedObject::Delayed::Write - persistent object wasn't set for writing!");
       aPersistent->Write(theWriteData);
@@ -144,7 +144,7 @@ public:
     {
       Handle(Persistent) aPersistent =
         DownCast<Persistent, typename Base::PersistentBase>::make(this->myPersistent);
-      Standard_NoSuchObject_Raise_if(
+      Standard_Raise_if<Standard_NoSuchObject>(
         aPersistent.IsNull(),
         "StdObjMgt_SharedObject::Delayed::PChildren - persistent object wasn't set for writing!");
       aPersistent->PChildren(theChildren);
@@ -155,7 +155,7 @@ public:
     {
       Handle(Persistent) aPersistent =
         DownCast<Persistent, typename Base::PersistentBase>::make(this->myPersistent);
-      Standard_NoSuchObject_Raise_if(
+      Standard_Raise_if<Standard_NoSuchObject>(
         aPersistent.IsNull(),
         "StdObjMgt_SharedObject::Delayed::PName - persistent object wasn't set for writing!");
       return aPersistent->PName();

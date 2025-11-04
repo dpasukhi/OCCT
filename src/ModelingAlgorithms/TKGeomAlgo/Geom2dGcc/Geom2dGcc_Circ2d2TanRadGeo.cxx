@@ -14,7 +14,7 @@
 
 #include <Adaptor2d_OffsetCurve.hxx>
 #include <ElCLib.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <GccEnt_QualifiedLin.hxx>
 #include <Geom2dGcc_Circ2d2TanRadGeo.hxx>
@@ -27,9 +27,6 @@
 #include <gp_Pnt2d.hxx>
 #include <IntRes2d_Domain.hxx>
 #include <IntRes2d_IntersectionPoint.hxx>
-#include <Standard_NegativeValue.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 static const Standard_Integer aNbSolMAX = 16;

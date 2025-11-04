@@ -16,7 +16,7 @@
 
 #include <ExprIntrp.hxx>
 #include <ExprIntrp_Generator.hxx>
-#include <ExprIntrp_SyntaxError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <ExprIntrp_yaccanal.hxx>
 #include <ExprIntrp_yaccintrf.hxx>
 #include <Standard_ErrorHandler.hxx>

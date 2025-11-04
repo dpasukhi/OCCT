@@ -30,7 +30,7 @@
 #include <TopOpeBRepTool_EXPORT.hxx>
 #include <TopOpeBRepTool_SC.hxx>
 #include <TopOpeBRepTool_makeTransition.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #include <TopOpeBRepDS_InterferenceTool.hxx>
 #include <TopOpeBRepDS_PointIterator.hxx>

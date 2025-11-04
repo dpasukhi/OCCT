@@ -17,7 +17,7 @@
 #ifndef _TopoDS_Iterator_HeaderFile
 #define _TopoDS_Iterator_HeaderFile
 
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_ListIteratorOfListOfShape.hxx>
 #include <TopAbs_Orientation.hxx>
@@ -80,7 +80,7 @@ public:
   //! Standard_NoSuchObject if there is no current sub-shape.
   const TopoDS_Shape& Value() const
   {
-    Standard_NoSuchObject_Raise_if(!More(), "TopoDS_Iterator::Value");
+    Standard_Raise_if<Standard_NoSuchObject>(!More(), "TopoDS_Iterator::Value");
     return myShape;
   }
 

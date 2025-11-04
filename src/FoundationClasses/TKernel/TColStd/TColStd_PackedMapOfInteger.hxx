@@ -20,7 +20,7 @@
 #include <Standard_Boolean.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Integer.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_OStream.hxx>
 #include <Standard_Handle.hxx>
 
@@ -205,7 +205,7 @@ public:
     //! Query the iterated key.
     Standard_Integer Key() const
     {
-      Standard_NoSuchObject_Raise_if((myIntMask == ~0U),
+      Standard_Raise_if<Standard_NoSuchObject>((myIntMask == ~0U),
                                      "TColStd_MapIteratorOfPackedMapOfInteger::Key");
       return myKey;
     }

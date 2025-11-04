@@ -17,7 +17,7 @@
 #include <Interface_GeneralLib.hxx>
 
 #include <Interface_NodeOfGeneralLib.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Interface_GeneralModule.hxx>
 #include <Interface_Protocol.hxx>

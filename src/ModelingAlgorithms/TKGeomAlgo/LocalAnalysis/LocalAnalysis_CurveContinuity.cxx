@@ -19,7 +19,7 @@
 #include <gp_Vec.hxx>
 #include <LocalAnalysis_CurveContinuity.hxx>
 #include <LocalAnalysis_StatusErrorType.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 /***********************************************************************/
 void LocalAnalysis_CurveContinuity::CurvC0(GeomLProp_CLProps& Curv1, GeomLProp_CLProps& Curv2)

@@ -23,10 +23,9 @@
 #include <OpenGl_Text.hxx>
 #include <OpenGl_Window.hxx>
 
-#include <Aspect_GraphicDeviceDefinitionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Graphic3d_StructureManager.hxx>
 #include <OSD_Environment.hxx>
-#include <Standard_NotImplemented.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(OpenGl_GraphicDriver, Graphic3d_GraphicDriver)
 

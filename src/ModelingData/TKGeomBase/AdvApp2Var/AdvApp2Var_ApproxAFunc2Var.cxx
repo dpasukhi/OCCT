@@ -26,8 +26,7 @@
 #include <AdvApp2Var_Framework.hxx>
 #include <AdvApprox_Cutting.hxx>
 
-#include <Standard_ConstructionError.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TColStd_HArray2OfReal.hxx>

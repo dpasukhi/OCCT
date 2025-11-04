@@ -32,7 +32,7 @@
 #include <math_Matrix.hxx>
 #include <Precision.hxx>
 
-// #include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 //==============================================
 //    Calcul de la valeur de la fonction :
 //                       G(w) - S(teta,v) = 0

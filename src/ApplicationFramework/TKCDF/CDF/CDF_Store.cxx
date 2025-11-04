@@ -21,7 +21,7 @@
 #include <CDM_Document.hxx>
 #include <CDM_MetaData.hxx>
 #include <PCDM_StoreStatus.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 #define theMetaDataDriver                                                                          \
   Handle(CDF_Application)::DownCast((myCurrentDocument->Application()))->MetaDataDriver()
@@ -143,7 +143,7 @@ CDF_StoreSetNameStatus CDF_Store::SetName(const Standard_ExtString aName)
 
 void CDF_Store::Realize(const Message_ProgressRange& theRange)
 {
-  Standard_ProgramError_Raise_if(!myList->IsConsistent(), "information are missing");
+  Standard_Raise_if<Standard_ProgramError>(!myList->IsConsistent(), "information are missing");
   Handle(CDM_MetaData) m;
   myText   = "";
   myStatus = myList->Store(m, myText, theRange);

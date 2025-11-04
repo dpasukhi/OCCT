@@ -26,7 +26,7 @@
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
 #include <ShapeAnalysis_Surface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepShape_PolyLoop.hxx>
 #include <StepToGeom.hxx>
@@ -195,7 +195,7 @@ void StepToTopoDS_TranslatePolyLoop::Init(const Handle(StepShape_PolyLoop)& PL,
 
 const TopoDS_Shape& StepToTopoDS_TranslatePolyLoop::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslatePolyLoop::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslatePolyLoop::Value() - no result");
   return myResult;
 }
 

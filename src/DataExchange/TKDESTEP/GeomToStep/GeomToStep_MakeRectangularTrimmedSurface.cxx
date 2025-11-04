@@ -23,7 +23,7 @@
 #include <Geom_ToroidalSurface.hxx>
 #include <GeomToStep_MakeRectangularTrimmedSurface.hxx>
 #include <GeomToStep_MakeSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_RectangularTrimmedSurface.hxx>
 #include <StepGeom_Surface.hxx>
@@ -106,6 +106,6 @@ GeomToStep_MakeRectangularTrimmedSurface::GeomToStep_MakeRectangularTrimmedSurfa
 const Handle(StepGeom_RectangularTrimmedSurface)& GeomToStep_MakeRectangularTrimmedSurface::Value()
   const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeRectangularTrimmedSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeRectangularTrimmedSurface::Value() - no result");
   return theRectangularTrimmedSurface;
 }

@@ -16,7 +16,7 @@
 
 #include <HLRBRep_ThePolyhedronOfInterCSurf.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <HLRBRep_SurfaceTool.hxx>
 #include <gp_Pnt.hxx>
 #include <Bnd_Box.hxx>

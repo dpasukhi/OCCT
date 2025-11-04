@@ -74,7 +74,7 @@ TDataStd_IntegerArray::TDataStd_IntegerArray()
 
 void TDataStd_IntegerArray::Init(const Standard_Integer lower, const Standard_Integer upper)
 {
-  Standard_RangeError_Raise_if(upper < lower, "TDataStd_IntegerArray::Init");
+  Standard_Raise_if<Standard_RangeError>(upper < lower, "TDataStd_IntegerArray::Init");
   Backup();
   myValue = new TColStd_HArray1OfInteger(lower, upper, 0);
 }

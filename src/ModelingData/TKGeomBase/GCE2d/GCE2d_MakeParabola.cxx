@@ -21,7 +21,7 @@
 #include <gp_Ax22d.hxx>
 #include <gp_Parab2d.hxx>
 #include <gp_Pnt2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 GCE2d_MakeParabola::GCE2d_MakeParabola(const gp_Parab2d& Prb)
 {
@@ -78,6 +78,6 @@ GCE2d_MakeParabola::GCE2d_MakeParabola(const gp_Pnt2d& S1, const gp_Pnt2d& O)
 
 const Handle(Geom2d_Parabola)& GCE2d_MakeParabola::Value() const
 {
-  StdFail_NotDone_Raise_if(TheError != gce_Done, "GCE2d_MakeParabola::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(TheError != gce_Done, "GCE2d_MakeParabola::Value() - no result");
   return TheParabola;
 }

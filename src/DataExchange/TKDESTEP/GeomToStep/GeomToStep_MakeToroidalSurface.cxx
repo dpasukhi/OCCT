@@ -17,7 +17,7 @@
 #include <Geom_ToroidalSurface.hxx>
 #include <GeomToStep_MakeAxis2Placement3d.hxx>
 #include <GeomToStep_MakeToroidalSurface.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_ToroidalSurface.hxx>
 #include <TCollection_HAsciiString.hxx>
@@ -52,6 +52,6 @@ GeomToStep_MakeToroidalSurface::GeomToStep_MakeToroidalSurface(
 
 const Handle(StepGeom_ToroidalSurface)& GeomToStep_MakeToroidalSurface::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeToroidalSurface::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeToroidalSurface::Value() - no result");
   return theToroidalSurface;
 }

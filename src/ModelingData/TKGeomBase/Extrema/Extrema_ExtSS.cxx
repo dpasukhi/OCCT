@@ -20,8 +20,7 @@
 #include <Extrema_GenExtSS.hxx>
 #include <Extrema_POnSurf.hxx>
 #include <GeomAbs_SurfaceType.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Extrema_ExtSS::Extrema_ExtSS()
     : myS2(NULL),

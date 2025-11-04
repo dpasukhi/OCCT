@@ -20,7 +20,7 @@
 // #endif
 
 #include <math_DirectPolynomialRoots.hxx>
-#include <StdFail_InfiniteSolutions.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // Reference pour solution equation 3ieme degre et 2ieme degre :
 //     ALGORITHMES NUMERIQUES ANALYSE ET MISE EN OEUVRE, tome 2

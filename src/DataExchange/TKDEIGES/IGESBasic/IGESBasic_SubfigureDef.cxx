@@ -18,7 +18,7 @@
 
 #include <IGESBasic_SubfigureDef.hxx>
 #include <IGESData_IGESEntity.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
 #include <TCollection_HAsciiString.hxx>

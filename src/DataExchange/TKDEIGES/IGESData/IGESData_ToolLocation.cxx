@@ -27,7 +27,7 @@
 #include <IGESData_TransfEntity.hxx>
 #include <Interface_EntityIterator.hxx>
 #include <Interface_Macros.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESData_ToolLocation, Standard_Transient)

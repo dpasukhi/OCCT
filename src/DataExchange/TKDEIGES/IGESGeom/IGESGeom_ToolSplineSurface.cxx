@@ -31,7 +31,7 @@
 #include <Interface_ShareTool.hxx>
 #include <Message_Messenger.hxx>
 #include <Message_Msg.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 
 // MGE 30/07/98

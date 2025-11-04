@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopLoc_ItemLocation.hxx>
 #include <TopLoc_SListNodeOfItemLocation.hxx>
 #include <TopLoc_SListOfItemLocation.hxx>
@@ -49,7 +49,7 @@ TopLoc_SListOfItemLocation& TopLoc_SListOfItemLocation::Assign(
 
 const TopLoc_ItemLocation& TopLoc_SListOfItemLocation::Value() const
 {
-  Standard_NoSuchObject_Raise_if(myNode.IsNull(), "TopLoc_SListOfItemLocation::Value");
+  Standard_Raise_if<Standard_NoSuchObject>(myNode.IsNull(), "TopLoc_SListOfItemLocation::Value");
   return myNode->Value();
 }
 

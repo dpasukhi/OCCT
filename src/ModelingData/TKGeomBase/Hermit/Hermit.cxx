@@ -20,7 +20,7 @@
 #include <gp_Pnt2d.hxx>
 #include <Hermit.hxx>
 #include <Precision.hxx>
-#include <Standard_DimensionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Real.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColStd_Array1OfInteger.hxx>

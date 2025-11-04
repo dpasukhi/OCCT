@@ -25,7 +25,7 @@
 //=========================================================================
 
 #include <GccAna_Circ2d3Tan.hxx>
-#include <GccEnt_BadQualifier.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
 #include <GccEnt_QualifiedLin.hxx>
 #include <Geom2dGcc_Circ2d3TanIter.hxx>
@@ -39,7 +39,6 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <math_FunctionSetRoot.hxx>
-#include <StdFail_NotDone.hxx>
 
 Geom2dGcc_Circ2d3TanIter::Geom2dGcc_Circ2d3TanIter(const Geom2dGcc_QCurve& Qualified1,
                                                    const Geom2dGcc_QCurve& Qualified2,

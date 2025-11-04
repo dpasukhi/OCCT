@@ -17,8 +17,7 @@
 #include <Expr_RelationIterator.hxx>
 #include <Expr_SingleRelation.hxx>
 #include <Expr_SystemRelation.hxx>
-#include <Standard_NoMoreObject.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 Expr_RelationIterator::Expr_RelationIterator(const Handle(Expr_GeneralRelation)& rel)
     : myRelation(1, rel->NbOfSingleRelations())

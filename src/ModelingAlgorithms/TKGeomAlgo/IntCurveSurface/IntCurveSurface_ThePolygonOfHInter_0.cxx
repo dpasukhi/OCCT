@@ -16,7 +16,7 @@
 
 #include <IntCurveSurface_ThePolygonOfHInter.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <IntCurveSurface_TheHCurveTool.hxx>
 #include <Bnd_Box.hxx>

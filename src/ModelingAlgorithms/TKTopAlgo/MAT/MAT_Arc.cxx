@@ -16,7 +16,7 @@
 
 #include <MAT_Arc.hxx>
 #include <MAT_Node.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(MAT_Arc, Standard_Transient)

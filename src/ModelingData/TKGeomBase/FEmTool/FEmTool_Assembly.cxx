@@ -18,8 +18,7 @@
 #include <FEmTool_ListOfVectors.hxx>
 #include <FEmTool_ProfileMatrix.hxx>
 #include <math_Matrix.hxx>
-#include <Standard_DomainError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 
 //=================================================================================================

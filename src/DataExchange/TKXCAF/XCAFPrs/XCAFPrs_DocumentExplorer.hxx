@@ -139,7 +139,7 @@ public:
       return myCurrent;
     }
 
-    Standard_OutOfRange_Raise_if(theDepth < 0 || theDepth > myTop,
+    Standard_Raise_if<Standard_OutOfRange>(theDepth < 0 || theDepth > myTop,
                                  "XCAFPrs_DocumentExplorer::Current() out of range");
     return myNodeStack.Value(theDepth);
   }

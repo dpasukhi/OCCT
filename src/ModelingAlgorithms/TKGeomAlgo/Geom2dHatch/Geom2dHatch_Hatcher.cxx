@@ -27,7 +27,7 @@
 #include <IntRes2d_IntersectionSegment.hxx>
 #include <IntRes2d_Transition.hxx>
 #include <Precision.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TopAbs.hxx>
 #include <TopTrans_CurveTransition.hxx>
 
@@ -184,7 +184,7 @@ Standard_Integer Geom2dHatch_Hatcher::AddElement(const Geom2dAdaptor_Curve& Curv
 void Geom2dHatch_Hatcher::RemElement(const Standard_Integer IndE)
 {
 #if RAISE_IF_NOSUCHOBJECT
-  Standard_NoSuchObject_Raise_if(!myElements.IsBound(IndE), "");
+  Standard_Raise_if<Standard_NoSuchObject>(!myElements.IsBound(IndE), "");
 #endif
   for (Standard_Integer IndH = 1; IndH <= myNbHatchings; IndH++)
   {
@@ -274,7 +274,7 @@ Standard_Integer Geom2dHatch_Hatcher::AddHatching(const Geom2dAdaptor_Curve& Cur
 void Geom2dHatch_Hatcher::RemHatching(const Standard_Integer IndH)
 {
 #if RAISE_IF_NOSUCHOBJECT
-  Standard_NoSuchObject_Raise_if(!myHatchings.IsBound(IndH), "");
+  Standard_Raise_if<Standard_NoSuchObject>(!myHatchings.IsBound(IndH), "");
 #endif
   Geom2dHatch_Hatching& Hatching = myHatchings.ChangeFind(IndH);
   Hatching.ClrPoints();
@@ -345,7 +345,7 @@ Standard_Integer Geom2dHatch_Hatcher::Trim(const Geom2dAdaptor_Curve& Curve)
 void Geom2dHatch_Hatcher::Trim(const Standard_Integer IndH)
 {
 #if RAISE_IF_NOSUCHOBJECT
-  Standard_NoSuchObject_Raise_if(!myHatchings.IsBound(IndH), "");
+  Standard_Raise_if<Standard_NoSuchObject>(!myHatchings.IsBound(IndH), "");
 #endif
 
   Geom2dHatch_Hatching& Hatching = myHatchings.ChangeFind(IndH);
@@ -507,8 +507,8 @@ static void IntersectionPointDump(const IntRes2d_IntersectionPoint& Pnt,
 Standard_Boolean Geom2dHatch_Hatcher::Trim(const Standard_Integer IndH, const Standard_Integer IndE)
 {
 #if RAISE_IF_NOSUCHOBJECT
-  Standard_NoSuchObject_Raise_if(!myHatchings.IsBound(IndH), "");
-  Standard_NoSuchObject_Raise_if(!myElements.IsBound(IndE), "");
+  Standard_Raise_if<Standard_NoSuchObject>(!myHatchings.IsBound(IndH), "");
+  Standard_Raise_if<Standard_NoSuchObject>(!myElements.IsBound(IndE), "");
 #endif
 
   Geom2dHatch_Hatching& Hatching = myHatchings.ChangeFind(IndH);
@@ -1106,7 +1106,7 @@ void Geom2dHatch_Hatcher::ComputeDomains()
 void Geom2dHatch_Hatcher::ComputeDomains(const Standard_Integer IndH)
 {
 #if RAISE_IF_NOSUCHOBJECT
-  Standard_NoSuchObject_Raise_if(!myHatchings.IsBound(IndH), "");
+  Standard_Raise_if<Standard_NoSuchObject>(!myHatchings.IsBound(IndH), "");
 #endif
 
   Geom2dHatch_Hatching& Hatching = myHatchings.ChangeFind(IndH);
@@ -1730,12 +1730,12 @@ const HatchGen_Domain& Geom2dHatch_Hatcher::Domain(const Standard_Integer IndH,
                                                    const Standard_Integer IDom) const
 {
 #if RAISE_IF_NOSUCHOBJECT
-  Standard_NoSuchObject_Raise_if(!myHatchings.IsBound(IndH), "");
+  Standard_Raise_if<Standard_NoSuchObject>(!myHatchings.IsBound(IndH), "");
 #endif
   const Geom2dHatch_Hatching& Hatching = myHatchings.Find(IndH);
-  StdFail_NotDone_Raise_if(!Hatching.IsDone(), "Geom2dHatch_Hatcher::Domain");
+  Standard_Raise_if<StdFail_NotDone>(!Hatching.IsDone(), "Geom2dHatch_Hatcher::Domain");
 #if RAISE_IF_NOSUCHOBJECT
-  Standard_OutOfRange_Raise_if(IDom < 1 || IDom > Hatching.NbDomains(), "");
+  Standard_Raise_if<Standard_OutOfRange>(IDom < 1 || IDom > Hatching.NbDomains(), "");
 #endif
   const HatchGen_Domain& Domain = Hatching.Domain(IDom);
   return Domain;

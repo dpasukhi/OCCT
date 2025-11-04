@@ -20,7 +20,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_XYZ.hxx>
 #include <IGESDraw_RectArraySubfigure.hxx>
-#include <Standard_DimensionMismatch.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(IGESDraw_RectArraySubfigure, IGESData_IGESEntity)

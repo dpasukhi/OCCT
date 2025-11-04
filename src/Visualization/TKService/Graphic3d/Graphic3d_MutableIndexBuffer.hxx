@@ -48,7 +48,7 @@ public:
   //! Invalidate the given indexes (starting from 0)
   void Invalidate(Standard_Integer theIndexLower, Standard_Integer theIndexUpper)
   {
-    Standard_OutOfRange_Raise_if(theIndexLower > theIndexUpper,
+    Standard_Raise_if<Standard_OutOfRange>(theIndexLower > theIndexUpper,
                                  "Graphic3d_MutableIndexBuffer::Invalidate()");
     invalidate(
       Graphic3d_BufferRange(Stride * theIndexLower, Stride * (theIndexUpper - theIndexLower + 1)));

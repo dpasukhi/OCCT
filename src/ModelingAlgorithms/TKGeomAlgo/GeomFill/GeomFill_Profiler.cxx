@@ -21,8 +21,7 @@
 #include <GeomConvert.hxx>
 #include <GeomConvert_ApproxCurve.hxx>
 #include <GeomFill_Profiler.hxx>
-#include <Standard_DomainError.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -262,8 +261,8 @@ void GeomFill_Profiler::Poles(const Standard_Integer Index, TColgp_Array1OfPnt& 
   if (!myIsDone)
     throw StdFail_NotDone("GeomFill_Profiler::Degree");
 
-  Standard_DomainError_Raise_if(Poles.Length() != NbPoles(), "GeomFill_Profiler::Poles");
-  Standard_DomainError_Raise_if(Index < 1 || Index > mySequence.Length(),
+  Standard_Raise_if<Standard_DomainError>(Poles.Length() != NbPoles(), "GeomFill_Profiler::Poles");
+  Standard_Raise_if<Standard_DomainError>(Index < 1 || Index > mySequence.Length(),
                                 "GeomFill_Profiler::Poles");
 
   Handle(Geom_BSplineCurve) C = Handle(Geom_BSplineCurve)::DownCast(mySequence(Index));
@@ -278,8 +277,8 @@ void GeomFill_Profiler::Weights(const Standard_Integer Index, TColStd_Array1OfRe
   if (!myIsDone)
     throw StdFail_NotDone("GeomFill_Profiler::Degree");
 
-  Standard_DomainError_Raise_if(Weights.Length() != NbPoles(), "GeomFill_Profiler::Weights");
-  Standard_DomainError_Raise_if(Index < 1 || Index > mySequence.Length(),
+  Standard_Raise_if<Standard_DomainError>(Weights.Length() != NbPoles(), "GeomFill_Profiler::Weights");
+  Standard_Raise_if<Standard_DomainError>(Index < 1 || Index > mySequence.Length(),
                                 "GeomFill_Profiler::Weights");
 
   Handle(Geom_BSplineCurve) C = Handle(Geom_BSplineCurve)::DownCast(mySequence(Index));
@@ -310,7 +309,7 @@ void GeomFill_Profiler::KnotsAndMults(TColStd_Array1OfReal&    Knots,
 #ifndef No_Exception
   Standard_Integer n = NbKnots();
 #endif
-  Standard_DomainError_Raise_if(Knots.Length() != n || Mults.Length() != n,
+  Standard_Raise_if<Standard_DomainError>(Knots.Length() != n || Mults.Length() != n,
                                 "GeomFill_Profiler::KnotsAndMults");
 
   Handle(Geom_BSplineCurve) C = Handle(Geom_BSplineCurve)::DownCast(mySequence(1));

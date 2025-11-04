@@ -17,7 +17,7 @@
 //:   gka 09.04.99: S4136: eliminate BRepAPI::Precision()
 
 #include <BRep_Builder.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepShape_Vertex.hxx>
 #include <StepShape_VertexLoop.hxx>
@@ -119,7 +119,7 @@ void StepToTopoDS_TranslateVertexLoop::Init(const Handle(StepShape_VertexLoop)& 
 
 const TopoDS_Shape& StepToTopoDS_TranslateVertexLoop::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "StepToTopoDS_TranslateVertexLoop::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "StepToTopoDS_TranslateVertexLoop::Value() - no result");
   return myResult;
 }
 

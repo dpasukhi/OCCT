@@ -19,7 +19,7 @@
 #include <Adaptor3d_Curve.hxx>
 #include <ElCLib.hxx>
 #include <GeomEvaluator_SurfaceOfRevolution.hxx>
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_SurfaceOfRevolution, GeomAdaptor_Surface)
 
@@ -268,7 +268,7 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::UTrim(const Standard_
   (void)First;
   (void)Last;
   (void)Tol;
-  Standard_OutOfRange_Raise_if(Abs(First) > Eps || Abs(Last - 2. * M_PI) > Eps,
+  Standard_Raise_if<Standard_OutOfRange>(Abs(First) > Eps || Abs(Last - 2. * M_PI) > Eps,
                                "GeomAdaptor_SurfaceOfRevolution : UTrim : Parameters out of range");
 
   Handle(GeomAdaptor_SurfaceOfRevolution) HR =
@@ -442,7 +442,7 @@ GeomAbs_SurfaceType GeomAdaptor_SurfaceOfRevolution::GetType() const
 
 gp_Pln GeomAdaptor_SurfaceOfRevolution::Plane() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_Plane,
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_Plane,
                                  "GeomAdaptor_SurfaceOfRevolution:Plane");
 
   gp_Ax3        Axe       = myAxeRev;
@@ -461,7 +461,7 @@ gp_Pln GeomAdaptor_SurfaceOfRevolution::Plane() const
 
 gp_Cylinder GeomAdaptor_SurfaceOfRevolution::Cylinder() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_Cylinder,
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_Cylinder,
                                  "GeomAdaptor_SurfaceOfRevolution::Cylinder");
 
   gp_Pnt        P = Value(0., 0.);
@@ -473,7 +473,7 @@ gp_Cylinder GeomAdaptor_SurfaceOfRevolution::Cylinder() const
 
 gp_Cone GeomAdaptor_SurfaceOfRevolution::Cone() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_Cone, "GeomAdaptor_SurfaceOfRevolution:Cone");
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_Cone, "GeomAdaptor_SurfaceOfRevolution:Cone");
 
   gp_Ax3        Axe   = myAxeRev;
   gp_Dir        ldir  = (myBasisCurve->Line()).Direction();
@@ -497,7 +497,7 @@ gp_Cone GeomAdaptor_SurfaceOfRevolution::Cone() const
 
 gp_Sphere GeomAdaptor_SurfaceOfRevolution::Sphere() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_Sphere,
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_Sphere,
                                  "GeomAdaptor_SurfaceOfRevolution:Sphere");
 
   gp_Circ C   = myBasisCurve->Circle();
@@ -510,7 +510,7 @@ gp_Sphere GeomAdaptor_SurfaceOfRevolution::Sphere() const
 
 gp_Torus GeomAdaptor_SurfaceOfRevolution::Torus() const
 {
-  Standard_NoSuchObject_Raise_if(GetType() != GeomAbs_Torus,
+  Standard_Raise_if<Standard_NoSuchObject>(GetType() != GeomAbs_Torus,
                                  "GeomAdaptor_SurfaceOfRevolution:Torus");
 
   gp_Circ       C           = myBasisCurve->Circle();

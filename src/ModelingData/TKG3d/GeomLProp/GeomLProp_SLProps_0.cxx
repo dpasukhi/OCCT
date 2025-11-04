@@ -17,10 +17,7 @@
 #include <GeomLProp_SLProps.hxx>
 
 #include <Geom_Surface.hxx>
-#include <LProp_BadContinuity.hxx>
-#include <Standard_DomainError.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <LProp_NotDefined.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <GeomLProp_SurfaceTool.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>

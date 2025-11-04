@@ -18,8 +18,7 @@
 #include <GeomAPI_ProjectPointOnSurf.hxx>
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
@@ -266,7 +265,7 @@ Standard_Integer GeomAPI_ProjectPointOnSurf::NbPoints() const
 
 gp_Pnt GeomAPI_ProjectPointOnSurf::Point(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints(),
                                "GeomAPI_ProjectPointOnSurf::Point");
   return (myExtPS.Point(Index)).Value();
 }
@@ -277,7 +276,7 @@ void GeomAPI_ProjectPointOnSurf::Parameters(const Standard_Integer Index,
                                             Standard_Real&         U,
                                             Standard_Real&         V) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints(),
                                "GeomAPI_ProjectPointOnSurf::Parameter");
   (myExtPS.Point(Index)).Parameter(U, V);
 }
@@ -286,7 +285,7 @@ void GeomAPI_ProjectPointOnSurf::Parameters(const Standard_Integer Index,
 
 Standard_Real GeomAPI_ProjectPointOnSurf::Distance(const Standard_Integer Index) const
 {
-  Standard_OutOfRange_Raise_if(Index < 1 || Index > NbPoints(),
+  Standard_Raise_if<Standard_OutOfRange>(Index < 1 || Index > NbPoints(),
                                "GeomAPI_ProjectPointOnSurf::Distance");
   return sqrt(myExtPS.SquareDistance(Index));
 }
@@ -295,7 +294,7 @@ Standard_Real GeomAPI_ProjectPointOnSurf::Distance(const Standard_Integer Index)
 
 gp_Pnt GeomAPI_ProjectPointOnSurf::NearestPoint() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ProjectPointOnSurf::NearestPoint");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ProjectPointOnSurf::NearestPoint");
 
   return (myExtPS.Point(myIndex)).Value();
 }
@@ -318,7 +317,7 @@ GeomAPI_ProjectPointOnSurf::operator gp_Pnt() const
 
 void GeomAPI_ProjectPointOnSurf::LowerDistanceParameters(Standard_Real& U, Standard_Real& V) const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ProjectPointOnSurf::LowerDistanceParameters");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ProjectPointOnSurf::LowerDistanceParameters");
 
   (myExtPS.Point(myIndex)).Parameter(U, V);
 }
@@ -327,7 +326,7 @@ void GeomAPI_ProjectPointOnSurf::LowerDistanceParameters(Standard_Real& U, Stand
 
 Standard_Real GeomAPI_ProjectPointOnSurf::LowerDistance() const
 {
-  StdFail_NotDone_Raise_if(!myIsDone, "GeomAPI_ProjectPointOnSurf::LowerDistance");
+  Standard_Raise_if<StdFail_NotDone>(!myIsDone, "GeomAPI_ProjectPointOnSurf::LowerDistance");
 
   return sqrt(myExtPS.SquareDistance(myIndex));
 }

@@ -48,7 +48,7 @@
 #include <IntAna_Curve.hxx>
 #include <math_DirectPolynomialRoots.hxx>
 #include <Precision.hxx>
-#include <Standard_DomainError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 

@@ -15,7 +15,7 @@
 
 #include <math_EigenValuesSearcher.hxx>
 
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 namespace
 {

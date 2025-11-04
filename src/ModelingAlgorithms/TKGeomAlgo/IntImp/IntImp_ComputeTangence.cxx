@@ -14,7 +14,7 @@
 
 #include <IntImp_ComputeTangence.hxx>
 #include <IntImp_ConstIsoparametric.hxx>
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 static const IntImp_ConstIsoparametric staticChoixRef[4] = {
   IntImp_UIsoparametricOnCaro1,
@@ -25,7 +25,7 @@ static const IntImp_ConstIsoparametric staticChoixRef[4] = {
 
 IntImp_ConstIsoparametric ChoixRef(Standard_Integer theIndex)
 {
-  Standard_OutOfRange_Raise_if(theIndex < 0 || theIndex > 3,
+  Standard_Raise_if<Standard_OutOfRange>(theIndex < 0 || theIndex > 3,
                                "ChoixRef() in " __FILE__) return staticChoixRef[theIndex];
 }
 

@@ -16,7 +16,7 @@
 
 #include <BRepMesh_DiscretRoot.hxx>
 #include <IMeshTools_Context.hxx>
-#include <Standard_NumericError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //! Builds the mesh of a shape with respect of their
 //! correctly triangulated parts

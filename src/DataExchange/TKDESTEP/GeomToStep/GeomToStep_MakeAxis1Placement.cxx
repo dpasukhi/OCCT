@@ -21,7 +21,7 @@
 #include <GeomToStep_MakeDirection.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Ax2d.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StepData_Factors.hxx>
 #include <StepGeom_Axis1Placement.hxx>
 #include <StepGeom_CartesianPoint.hxx>
@@ -83,6 +83,6 @@ GeomToStep_MakeAxis1Placement::GeomToStep_MakeAxis1Placement(
 
 const Handle(StepGeom_Axis1Placement)& GeomToStep_MakeAxis1Placement::Value() const
 {
-  StdFail_NotDone_Raise_if(!done, "GeomToStep_MakeAxis1Placement::Value() - no result");
+  Standard_Raise_if<StdFail_NotDone>(!done, "GeomToStep_MakeAxis1Placement::Value() - no result");
   return theAxis1Placement;
 }

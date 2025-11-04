@@ -280,7 +280,7 @@ void AIS_Manipulator::SetPart(const Standard_Integer    theAxisIndex,
                               const AIS_ManipulatorMode theMode,
                               const Standard_Boolean    theIsEnabled)
 {
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     theAxisIndex < 0 || theAxisIndex > 2,
     "AIS_Manipulator::SetMode(): axis index should be between 0 and 2");
   switch (theMode)
@@ -483,7 +483,7 @@ Handle(AIS_InteractiveObject) AIS_Manipulator::Object(const Standard_Integer the
   Handle(AIS_ManipulatorObjectSequence) anOwner =
     Handle(AIS_ManipulatorObjectSequence)::DownCast(GetOwner());
 
-  Standard_ProgramError_Raise_if(theIndex < anOwner->Lower() || theIndex > anOwner->Upper(),
+  Standard_Raise_if<Standard_ProgramError>(theIndex < anOwner->Lower() || theIndex > anOwner->Upper(),
                                  "AIS_Manipulator::Object(): wrong index value");
 
   if (anOwner.IsNull() || anOwner->IsEmpty())

@@ -14,7 +14,7 @@
 // commercial license or contractual agreement.
 
 #include <NCollection_SparseArrayBase.hxx>
-#include <Standard_ProgramError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard.hxx>
 
 #include <algorithm>
@@ -85,9 +85,9 @@ void NCollection_SparseArrayBase::Clear()
   mySize     = 0;
 
   // consistency check
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     mySize != 0,
-    "NCollection_SparseArrayBase: Implementation error: inconsistent items count")
+    "NCollection_SparseArrayBase: Implementation error: inconsistent items count");
 }
 
 //=================================================================================================
@@ -175,9 +175,9 @@ void NCollection_SparseArrayBase::assign(const NCollection_SparseArrayBase& theO
       freeBlock(iBlock);
 
   // consistency check
-  Standard_ProgramError_Raise_if(
+  Standard_Raise_if<Standard_ProgramError>(
     mySize != theOther.mySize,
-    "NCollection_SparseArrayBase: Implementation error: inconsistent items count")
+    "NCollection_SparseArrayBase: Implementation error: inconsistent items count");
 }
 
 //=================================================================================================

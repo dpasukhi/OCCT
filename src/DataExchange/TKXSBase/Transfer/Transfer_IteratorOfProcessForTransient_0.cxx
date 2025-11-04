@@ -16,7 +16,7 @@
 
 #include <Transfer_IteratorOfProcessForTransient.hxx>
 
-#include <Standard_NoSuchObject.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Transient.hxx>
 #include <Transfer_ProcessForTransient.hxx>
 #include <Transfer_TransferMapOfProcessForTransient.hxx>

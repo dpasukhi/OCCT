@@ -24,20 +24,20 @@
 #include <gp_Dir2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf2d.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 //=================================================================================================
 
 gp_Lin2d::gp_Lin2d(const Standard_Real A, const Standard_Real B, const Standard_Real C)
 {
   const Standard_Real Norm2 = A * A + B * B;
-  Standard_ConstructionError_Raise_if(Norm2 <= gp::Resolution(), " ");
+  Standard_Raise_if<Standard_ConstructionError>(Norm2 <= gp::Resolution(), " ");
   const gp_Pnt2d P(-A * C / Norm2, -B * C / Norm2);
   const gp_Dir2d V(-B, A);
 
   //   gp_Pnt2d P;
   //   Standard_Real Norm = sqrt(A * A + B * B);
-  //   Standard_ConstructionError_Raise_if (Norm <= gp::Resolution(), " ");
+  //   Standard_Raise_if<Standard_ConstructionError>(Norm <= gp::Resolution(), " ");
   //   Standard_Real A1 = A/Norm;
   //   Standard_Real B1 = B/Norm;
   //   Standard_Real C1 = C/Norm;

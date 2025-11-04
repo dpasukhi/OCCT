@@ -34,7 +34,7 @@
 #include <Select3D_SensitiveSegment.hxx>
 #include <SelectMgr_EntityOwner.hxx>
 #include <SelectMgr_Selection.hxx>
-#include <Standard_NumericError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <StdPrs_Curve.hxx>
 #include <UnitsAPI.hxx>
 

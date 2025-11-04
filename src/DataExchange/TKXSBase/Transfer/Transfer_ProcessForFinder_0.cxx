@@ -18,7 +18,7 @@
 
 #include <Interface_Check.hxx>
 #include <Interface_CheckIterator.hxx>
-#include <Interface_InterfaceError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Message.hxx>
 #include <Message_Messenger.hxx>
 #include <Message_Msg.hxx>
@@ -39,8 +39,6 @@
 #include <Transfer_MultipleBinder.hxx>
 #include <Transfer_SimpleBinderOfTransient.hxx>
 #include <Transfer_StatusResult.hxx>
-#include <Transfer_TransferDeadLoop.hxx>
-#include <Transfer_TransferFailure.hxx>
 #include <Transfer_TransferMapOfProcessForFinder.hxx>
 #include <Transfer_VoidBinder.hxx>
 

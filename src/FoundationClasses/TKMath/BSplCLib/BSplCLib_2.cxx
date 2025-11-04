@@ -23,7 +23,7 @@
 #include <BSplCLib.hxx>
 #include <gp_Mat2d.hxx>
 #include <PLib.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_HArray1OfReal.hxx>
@@ -42,7 +42,7 @@ struct BSplCLib_DataContainer
   BSplCLib_DataContainer(Standard_Integer Degree)
   {
     (void)Degree; // avoid compiler warning
-    Standard_OutOfRange_Raise_if(Degree > BSplCLib::MaxDegree(),
+    Standard_Raise_if<Standard_OutOfRange>(Degree > BSplCLib::MaxDegree(),
                                  "BSplCLib: bspline degree is greater than maximum supported");
   }
 

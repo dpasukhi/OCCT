@@ -34,7 +34,7 @@
 #include <IntRes2d_IntersectionSegment.hxx>
 #include <IntRes2d_Position.hxx>
 #include <IntRes2d_Transition.hxx>
-#include <StdFail_UndefinedDerivative.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 // #define PERF
 

@@ -20,7 +20,7 @@
 #include <gp_Vec.hxx>
 #include <math_Matrix.hxx>
 #include <ProjLib_PrjFunc.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_FailureRegistry.hxx>
 
 ProjLib_PrjFunc::ProjLib_PrjFunc(const Adaptor3d_Curve*   C,
                                  const Standard_Real      FixVal,

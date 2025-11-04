@@ -16,7 +16,7 @@
 
 #include <IntCurveSurface_ThePolygonToolOfHInter.hxx>
 
-#include <Standard_OutOfRange.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <gp_Pnt.hxx>
 #include <IntCurveSurface_ThePolygonOfHInter.hxx>
 #include <Bnd_Box.hxx>

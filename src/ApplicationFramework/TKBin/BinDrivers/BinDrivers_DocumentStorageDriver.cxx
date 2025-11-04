@@ -21,7 +21,7 @@
 #include <BinMNaming_NamedShapeDriver.hxx>
 #include <Message_Messenger.hxx>
 #include <Standard_ErrorHandler.hxx>
-#include <Standard_NotImplemented.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <Standard_Type.hxx>
 #include <TNaming_NamedShape.hxx>
 

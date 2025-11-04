@@ -33,8 +33,7 @@
 #include <math_NewtonFunctionSetRoot.hxx>
 #include <math_Vector.hxx>
 #include <Precision.hxx>
-#include <Standard_OutOfRange.hxx>
-#include <StdFail_NotDone.hxx>
+#include <Standard_FailureRegistry.hxx>
 #include <TColStd_Array2OfInteger.hxx>
 
 // IMPLEMENT_HARRAY1(Extrema_HArray1OfSphere)
