@@ -1074,12 +1074,11 @@ TCollection_AsciiString TCollection_AsciiString::Split(const Standard_Integer th
 TCollection_AsciiString TCollection_AsciiString::SubString(const Standard_Integer theFromIndex,
                                                            const Standard_Integer theToIndex) const
 {
-  // note the we are doing here weird casts just to suppress annoying and meaningless warning
-  // -Wstrict-overflow
-  Standard_OutOfRange_Always_Raise_if(theFromIndex <= 0 || theToIndex <= 0
-                                        || (unsigned int)theToIndex > (unsigned int)myLength
-                                        || (unsigned int)theFromIndex > (unsigned int)theToIndex,
-                                      "TCollection_AsciiString::SubString() out of range");
+  if (theFromIndex <= 0 || theToIndex <= 0 || theToIndex > myLength || theFromIndex > theToIndex)
+  {
+    throw Standard_OutOfRange("TCollection_AsciiString::SubString() out of range");
+  }
+
   return TCollection_AsciiString(&myString[theFromIndex - 1], theToIndex - theFromIndex + 1);
 }
 
