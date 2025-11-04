@@ -17,22 +17,8 @@
 #ifndef _Standard_Underflow_HeaderFile
 #define _Standard_Underflow_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_NumericError.hxx>
-
-class Standard_Underflow;
-DEFINE_STANDARD_HANDLE(Standard_Underflow, Standard_NumericError)
-
-#if !defined No_Exception && !defined No_Standard_Underflow
-  #define Standard_Underflow_Raise_if(CONDITION, MESSAGE)                                          \
-    if (CONDITION)                                                                                 \
-      throw Standard_Underflow(MESSAGE);
-#else
-  #define Standard_Underflow_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_Underflow, Standard_NumericError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_Underflow.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_Underflow_HeaderFile

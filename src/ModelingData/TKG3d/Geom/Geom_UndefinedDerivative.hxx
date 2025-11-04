@@ -17,22 +17,8 @@
 #ifndef _Geom_UndefinedDerivative_HeaderFile
 #define _Geom_UndefinedDerivative_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Geom_UndefinedDerivative;
-DEFINE_STANDARD_HANDLE(Geom_UndefinedDerivative, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Geom_UndefinedDerivative
-  #define Geom_UndefinedDerivative_Raise_if(CONDITION, MESSAGE)                                    \
-    if (CONDITION)                                                                                 \
-      throw Geom_UndefinedDerivative(MESSAGE);
-#else
-  #define Geom_UndefinedDerivative_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Geom_UndefinedDerivative, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKG3d/Geom/Geom_UndefinedDerivative.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Geom_UndefinedDerivative_HeaderFile

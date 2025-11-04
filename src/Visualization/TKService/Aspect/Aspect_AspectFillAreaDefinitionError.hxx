@@ -16,21 +16,8 @@
 #ifndef _Aspect_AspectFillAreaDefinitionError_HeaderFile
 #define _Aspect_AspectFillAreaDefinitionError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_OutOfRange.hxx>
-
-class Aspect_AspectFillAreaDefinitionError;
-DEFINE_STANDARD_HANDLE(Aspect_AspectFillAreaDefinitionError, Standard_OutOfRange)
-
-#if !defined No_Exception && !defined No_Aspect_AspectFillAreaDefinitionError
-  #define Aspect_AspectFillAreaDefinitionError_Raise_if(CONDITION, MESSAGE)                        \
-    if (CONDITION)                                                                                 \
-      throw Aspect_AspectFillAreaDefinitionError(MESSAGE);
-#else
-  #define Aspect_AspectFillAreaDefinitionError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Aspect_AspectFillAreaDefinitionError, Standard_OutOfRange)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKService/Aspect/Aspect_AspectFillAreaDefinitionError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Aspect_AspectFillAreaDefinitionError_HeaderFile

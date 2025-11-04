@@ -17,22 +17,8 @@
 #ifndef _Standard_AbortiveTransaction_HeaderFile
 #define _Standard_AbortiveTransaction_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class Standard_AbortiveTransaction;
-DEFINE_STANDARD_HANDLE(Standard_AbortiveTransaction, Standard_Failure)
-
-#if !defined No_Exception && !defined No_Standard_AbortiveTransaction
-  #define Standard_AbortiveTransaction_Raise_if(CONDITION, MESSAGE)                                \
-    if (CONDITION)                                                                                 \
-      throw Standard_AbortiveTransaction(MESSAGE);
-#else
-  #define Standard_AbortiveTransaction_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_AbortiveTransaction, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_AbortiveTransaction.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_AbortiveTransaction_HeaderFile

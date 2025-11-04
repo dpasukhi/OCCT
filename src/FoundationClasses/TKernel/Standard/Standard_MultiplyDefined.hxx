@@ -17,22 +17,8 @@
 #ifndef _Standard_MultiplyDefined_HeaderFile
 #define _Standard_MultiplyDefined_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Standard_MultiplyDefined;
-DEFINE_STANDARD_HANDLE(Standard_MultiplyDefined, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Standard_MultiplyDefined
-  #define Standard_MultiplyDefined_Raise_if(CONDITION, MESSAGE)                                    \
-    if (CONDITION)                                                                                 \
-      throw Standard_MultiplyDefined(MESSAGE);
-#else
-  #define Standard_MultiplyDefined_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_MultiplyDefined, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_MultiplyDefined.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_MultiplyDefined_HeaderFile

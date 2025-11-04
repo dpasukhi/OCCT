@@ -17,22 +17,8 @@
 #ifndef _StdFail_UndefinedDerivative_HeaderFile
 #define _StdFail_UndefinedDerivative_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class StdFail_UndefinedDerivative;
-DEFINE_STANDARD_HANDLE(StdFail_UndefinedDerivative, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_StdFail_UndefinedDerivative
-  #define StdFail_UndefinedDerivative_Raise_if(CONDITION, MESSAGE)                                 \
-    if (CONDITION)                                                                                 \
-      throw StdFail_UndefinedDerivative(MESSAGE);
-#else
-  #define StdFail_UndefinedDerivative_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(StdFail_UndefinedDerivative, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/StdFail/StdFail_UndefinedDerivative.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _StdFail_UndefinedDerivative_HeaderFile

@@ -17,22 +17,8 @@
 #ifndef _StdFail_UndefinedValue_HeaderFile
 #define _StdFail_UndefinedValue_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class StdFail_UndefinedValue;
-DEFINE_STANDARD_HANDLE(StdFail_UndefinedValue, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_StdFail_UndefinedValue
-  #define StdFail_UndefinedValue_Raise_if(CONDITION, MESSAGE)                                      \
-    if (CONDITION)                                                                                 \
-      throw StdFail_UndefinedValue(MESSAGE);
-#else
-  #define StdFail_UndefinedValue_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(StdFail_UndefinedValue, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/StdFail/StdFail_UndefinedValue.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _StdFail_UndefinedValue_HeaderFile

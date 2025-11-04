@@ -17,21 +17,8 @@
 #ifndef _Quantity_DateDefinitionError_HeaderFile
 #define _Quantity_DateDefinitionError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Quantity_DateDefinitionError;
-DEFINE_STANDARD_HANDLE(Quantity_DateDefinitionError, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Quantity_DateDefinitionError
-  #define Quantity_DateDefinitionError_Raise_if(CONDITION, MESSAGE)                                \
-    if (CONDITION)                                                                                 \
-      throw Quantity_DateDefinitionError(MESSAGE);
-#else
-  #define Quantity_DateDefinitionError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Quantity_DateDefinitionError, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Quantity/Quantity_DateDefinitionError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Quantity_DateDefinitionError_HeaderFile

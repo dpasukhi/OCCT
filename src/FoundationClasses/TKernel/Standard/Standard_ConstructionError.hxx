@@ -17,22 +17,8 @@
 #ifndef _Standard_ConstructionError_HeaderFile
 #define _Standard_ConstructionError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Standard_ConstructionError;
-DEFINE_STANDARD_HANDLE(Standard_ConstructionError, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Standard_ConstructionError
-  #define Standard_ConstructionError_Raise_if(CONDITION, MESSAGE)                                  \
-    if (CONDITION)                                                                                 \
-      throw Standard_ConstructionError(MESSAGE);
-#else
-  #define Standard_ConstructionError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_ConstructionError, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_ConstructionError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_ConstructionError_HeaderFile

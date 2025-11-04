@@ -17,21 +17,8 @@
 #ifndef _Quantity_PeriodDefinitionError_HeaderFile
 #define _Quantity_PeriodDefinitionError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Quantity_PeriodDefinitionError;
-DEFINE_STANDARD_HANDLE(Quantity_PeriodDefinitionError, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Quantity_PeriodDefinitionError
-  #define Quantity_PeriodDefinitionError_Raise_if(CONDITION, MESSAGE)                              \
-    if (CONDITION)                                                                                 \
-      throw Quantity_PeriodDefinitionError(MESSAGE);
-#else
-  #define Quantity_PeriodDefinitionError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Quantity_PeriodDefinitionError, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Quantity/Quantity_PeriodDefinitionError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Quantity_PeriodDefinitionError_HeaderFile

@@ -17,22 +17,8 @@
 #ifndef _Transfer_TransferFailure_HeaderFile
 #define _Transfer_TransferFailure_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Interface_InterfaceError.hxx>
-
-class Transfer_TransferFailure;
-DEFINE_STANDARD_HANDLE(Transfer_TransferFailure, Interface_InterfaceError)
-
-#if !defined No_Exception && !defined No_Transfer_TransferFailure
-  #define Transfer_TransferFailure_Raise_if(CONDITION, MESSAGE)                                    \
-    if (CONDITION)                                                                                 \
-      throw Transfer_TransferFailure(MESSAGE);
-#else
-  #define Transfer_TransferFailure_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Transfer_TransferFailure, Interface_InterfaceError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/DataExchange/TKXSBase/Transfer/Transfer_TransferFailure.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Transfer_TransferFailure_HeaderFile

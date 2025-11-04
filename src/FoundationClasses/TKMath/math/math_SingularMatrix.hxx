@@ -17,22 +17,8 @@
 #ifndef _math_SingularMatrix_HeaderFile
 #define _math_SingularMatrix_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class math_SingularMatrix;
-DEFINE_STANDARD_HANDLE(math_SingularMatrix, Standard_Failure)
-
-#if !defined No_Exception && !defined No_math_SingularMatrix
-  #define math_SingularMatrix_Raise_if(CONDITION, MESSAGE)                                         \
-    if (CONDITION)                                                                                 \
-      throw math_SingularMatrix(MESSAGE);
-#else
-  #define math_SingularMatrix_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(math_SingularMatrix, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKMath/math/math_SingularMatrix.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _math_SingularMatrix_HeaderFile

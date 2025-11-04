@@ -17,22 +17,8 @@
 #ifndef _Standard_NegativeValue_HeaderFile
 #define _Standard_NegativeValue_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_RangeError.hxx>
-
-class Standard_NegativeValue;
-DEFINE_STANDARD_HANDLE(Standard_NegativeValue, Standard_RangeError)
-
-#if !defined No_Exception && !defined No_Standard_NegativeValue
-  #define Standard_NegativeValue_Raise_if(CONDITION, MESSAGE)                                      \
-    if (CONDITION)                                                                                 \
-      throw Standard_NegativeValue(MESSAGE);
-#else
-  #define Standard_NegativeValue_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_NegativeValue, Standard_RangeError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_NegativeValue.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_NegativeValue_HeaderFile

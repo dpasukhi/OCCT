@@ -17,22 +17,8 @@
 #ifndef _LProp_BadContinuity_HeaderFile
 #define _LProp_BadContinuity_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class LProp_BadContinuity;
-DEFINE_STANDARD_HANDLE(LProp_BadContinuity, Standard_Failure)
-
-#if !defined No_Exception && !defined No_LProp_BadContinuity
-  #define LProp_BadContinuity_Raise_if(CONDITION, MESSAGE)                                         \
-    if (CONDITION)                                                                                 \
-      throw LProp_BadContinuity(MESSAGE);
-#else
-  #define LProp_BadContinuity_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(LProp_BadContinuity, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKG2d/LProp/LProp_BadContinuity.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _LProp_BadContinuity_HeaderFile

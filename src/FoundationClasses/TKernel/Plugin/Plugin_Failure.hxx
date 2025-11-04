@@ -17,22 +17,8 @@
 #ifndef _Plugin_Failure_HeaderFile
 #define _Plugin_Failure_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class Plugin_Failure;
-DEFINE_STANDARD_HANDLE(Plugin_Failure, Standard_Failure)
-
-#if !defined No_Exception && !defined No_Plugin_Failure
-  #define Plugin_Failure_Raise_if(CONDITION, MESSAGE)                                              \
-    if (CONDITION)                                                                                 \
-      throw Plugin_Failure(MESSAGE);
-#else
-  #define Plugin_Failure_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Plugin_Failure, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Plugin/Plugin_Failure.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Plugin_Failure_HeaderFile

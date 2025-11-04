@@ -16,22 +16,8 @@
 #ifndef _Aspect_WindowError_HeaderFile
 #define _Aspect_WindowError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_OutOfRange.hxx>
-
-class Aspect_WindowError;
-DEFINE_STANDARD_HANDLE(Aspect_WindowError, Standard_OutOfRange)
-
-#if !defined No_Exception && !defined No_Aspect_WindowError
-  #define Aspect_WindowError_Raise_if(CONDITION, MESSAGE)                                          \
-    if (CONDITION)                                                                                 \
-      throw Aspect_WindowError(MESSAGE);
-#else
-  #define Aspect_WindowError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Aspect_WindowError, Standard_OutOfRange)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKService/Aspect/Aspect_WindowError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Aspect_WindowError_HeaderFile

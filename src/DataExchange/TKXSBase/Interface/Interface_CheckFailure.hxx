@@ -17,22 +17,8 @@
 #ifndef _Interface_CheckFailure_HeaderFile
 #define _Interface_CheckFailure_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Interface_InterfaceError.hxx>
-
-class Interface_CheckFailure;
-DEFINE_STANDARD_HANDLE(Interface_CheckFailure, Interface_InterfaceError)
-
-#if !defined No_Exception && !defined No_Interface_CheckFailure
-  #define Interface_CheckFailure_Raise_if(CONDITION, MESSAGE)                                      \
-    if (CONDITION)                                                                                 \
-      throw Interface_CheckFailure(MESSAGE);
-#else
-  #define Interface_CheckFailure_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Interface_CheckFailure, Interface_InterfaceError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/DataExchange/TKXSBase/Interface/Interface_CheckFailure.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Interface_CheckFailure_HeaderFile

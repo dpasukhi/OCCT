@@ -17,22 +17,8 @@
 #ifndef _math_NotSquare_HeaderFile
 #define _math_NotSquare_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DimensionError.hxx>
-
-class math_NotSquare;
-DEFINE_STANDARD_HANDLE(math_NotSquare, Standard_DimensionError)
-
-#if !defined No_Exception && !defined No_math_NotSquare
-  #define math_NotSquare_Raise_if(CONDITION, MESSAGE)                                              \
-    if (CONDITION)                                                                                 \
-      throw math_NotSquare(MESSAGE);
-#else
-  #define math_NotSquare_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(math_NotSquare, Standard_DimensionError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKMath/math/math_NotSquare.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _math_NotSquare_HeaderFile

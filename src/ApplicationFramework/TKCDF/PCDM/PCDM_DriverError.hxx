@@ -17,22 +17,8 @@
 #ifndef _PCDM_DriverError_HeaderFile
 #define _PCDM_DriverError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class PCDM_DriverError;
-DEFINE_STANDARD_HANDLE(PCDM_DriverError, Standard_Failure)
-
-#if !defined No_Exception && !defined No_PCDM_DriverError
-  #define PCDM_DriverError_Raise_if(CONDITION, MESSAGE)                                            \
-    if (CONDITION)                                                                                 \
-      throw PCDM_DriverError(MESSAGE);
-#else
-  #define PCDM_DriverError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(PCDM_DriverError, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ApplicationFramework/TKCDF/PCDM/PCDM_DriverError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _PCDM_DriverError_HeaderFile

@@ -17,22 +17,8 @@
 #ifndef _Standard_DimensionMismatch_HeaderFile
 #define _Standard_DimensionMismatch_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DimensionError.hxx>
-
-class Standard_DimensionMismatch;
-DEFINE_STANDARD_HANDLE(Standard_DimensionMismatch, Standard_DimensionError)
-
-#if !defined No_Exception && !defined No_Standard_DimensionMismatch
-  #define Standard_DimensionMismatch_Raise_if(CONDITION, MESSAGE)                                  \
-    if (CONDITION)                                                                                 \
-      throw Standard_DimensionMismatch(MESSAGE);
-#else
-  #define Standard_DimensionMismatch_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_DimensionMismatch, Standard_DimensionError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_DimensionMismatch.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_DimensionMismatch_HeaderFile

@@ -17,22 +17,8 @@
 #ifndef _Draw_Failure_HeaderFile
 #define _Draw_Failure_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class Draw_Failure;
-DEFINE_STANDARD_HANDLE(Draw_Failure, Standard_Failure)
-
-#if !defined No_Exception && !defined No_Draw_Failure
-  #define Draw_Failure_Raise_if(CONDITION, MESSAGE)                                                \
-    if (CONDITION)                                                                                 \
-      throw Draw_Failure(MESSAGE);
-#else
-  #define Draw_Failure_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Draw_Failure, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Draw/TKDraw/Draw/Draw_Failure.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Draw_Failure_HeaderFile

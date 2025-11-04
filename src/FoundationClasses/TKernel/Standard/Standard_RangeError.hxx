@@ -17,29 +17,8 @@
 #ifndef _Standard_RangeError_HeaderFile
 #define _Standard_RangeError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Standard_RangeError;
-DEFINE_STANDARD_HANDLE(Standard_RangeError, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Standard_RangeError
-  #if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
-    // suppress false-positive warnings produced by GCC optimizer
-    #define Standard_RangeError_Raise_if(CONDITION, MESSAGE)                                       \
-      _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wstrict-overflow\"") if (  \
-        CONDITION) throw Standard_RangeError(MESSAGE);                                             \
-      _Pragma("GCC diagnostic pop")
-  #else
-    #define Standard_RangeError_Raise_if(CONDITION, MESSAGE)                                       \
-      if (CONDITION)                                                                               \
-        throw Standard_RangeError(MESSAGE);
-  #endif
-#else
-  #define Standard_RangeError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_RangeError, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_RangeError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_RangeError_HeaderFile

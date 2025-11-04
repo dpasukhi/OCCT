@@ -17,22 +17,8 @@
 #ifndef _Standard_DimensionError_HeaderFile
 #define _Standard_DimensionError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Standard_DimensionError;
-DEFINE_STANDARD_HANDLE(Standard_DimensionError, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Standard_DimensionError
-  #define Standard_DimensionError_Raise_if(CONDITION, MESSAGE)                                     \
-    if (CONDITION)                                                                                 \
-      throw Standard_DimensionError(MESSAGE);
-#else
-  #define Standard_DimensionError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_DimensionError, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_DimensionError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_DimensionError_HeaderFile

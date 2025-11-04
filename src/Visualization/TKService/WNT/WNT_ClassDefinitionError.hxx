@@ -17,22 +17,8 @@
 #ifndef _WNT_ClassDefinitionError_HeaderFile
 #define _WNT_ClassDefinitionError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_ConstructionError.hxx>
-
-class WNT_ClassDefinitionError;
-DEFINE_STANDARD_HANDLE(WNT_ClassDefinitionError, Standard_ConstructionError)
-
-#if !defined No_Exception && !defined No_WNT_ClassDefinitionError
-  #define WNT_ClassDefinitionError_Raise_if(CONDITION, MESSAGE)                                    \
-    if (CONDITION)                                                                                 \
-      throw WNT_ClassDefinitionError(MESSAGE);
-#else
-  #define WNT_ClassDefinitionError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(WNT_ClassDefinitionError, Standard_ConstructionError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKService/WNT/WNT_ClassDefinitionError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _WNT_ClassDefinitionError_HeaderFile

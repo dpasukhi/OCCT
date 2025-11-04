@@ -17,22 +17,8 @@
 #ifndef _Storage_StreamWriteError_HeaderFile
 #define _Storage_StreamWriteError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class Storage_StreamWriteError;
-DEFINE_STANDARD_HANDLE(Storage_StreamWriteError, Standard_Failure)
-
-#if !defined No_Exception && !defined No_Storage_StreamWriteError
-  #define Storage_StreamWriteError_Raise_if(CONDITION, MESSAGE)                                    \
-    if (CONDITION)                                                                                 \
-      throw Storage_StreamWriteError(MESSAGE);
-#else
-  #define Storage_StreamWriteError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Storage_StreamWriteError, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Storage/Storage_StreamWriteError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Storage_StreamWriteError_HeaderFile

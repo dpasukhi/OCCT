@@ -17,22 +17,8 @@
 #ifndef _Expr_NotAssigned_HeaderFile
 #define _Expr_NotAssigned_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Expr_ExprFailure.hxx>
-
-class Expr_NotAssigned;
-DEFINE_STANDARD_HANDLE(Expr_NotAssigned, Expr_ExprFailure)
-
-#if !defined No_Exception && !defined No_Expr_NotAssigned
-  #define Expr_NotAssigned_Raise_if(CONDITION, MESSAGE)                                            \
-    if (CONDITION)                                                                                 \
-      throw Expr_NotAssigned(MESSAGE);
-#else
-  #define Expr_NotAssigned_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Expr_NotAssigned, Expr_ExprFailure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingAlgorithms/TKExpress/Expr/Expr_NotAssigned.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Expr_NotAssigned_HeaderFile

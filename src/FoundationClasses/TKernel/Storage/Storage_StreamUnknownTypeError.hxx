@@ -17,21 +17,8 @@
 #ifndef _Storage_StreamUnknownTypeError_HeaderFile
 #define _Storage_StreamUnknownTypeError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_SStream.hxx>
-#include <Storage_StreamReadError.hxx>
-
-class Storage_StreamUnknownTypeError;
-DEFINE_STANDARD_HANDLE(Storage_StreamUnknownTypeError, Storage_StreamReadError)
-
-#if !defined No_Exception && !defined No_Storage_StreamUnknownTypeError
-  #define Storage_StreamUnknownTypeError_Raise_if(CONDITION, MESSAGE)                              \
-    if (CONDITION)                                                                                 \
-      throw Storage_StreamUnknownTypeError(MESSAGE);
-#else
-  #define Storage_StreamUnknownTypeError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Storage_StreamUnknownTypeError, Storage_StreamReadError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Storage/Storage_StreamUnknownTypeError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Storage_StreamUnknownTypeError_HeaderFile

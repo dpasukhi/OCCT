@@ -17,22 +17,8 @@
 #ifndef _StdFail_InfiniteSolutions_HeaderFile
 #define _StdFail_InfiniteSolutions_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_Failure.hxx>
-
-class StdFail_InfiniteSolutions;
-DEFINE_STANDARD_HANDLE(StdFail_InfiniteSolutions, Standard_Failure)
-
-#if !defined No_Exception && !defined No_StdFail_InfiniteSolutions
-  #define StdFail_InfiniteSolutions_Raise_if(CONDITION, MESSAGE)                                   \
-    if (CONDITION)                                                                                 \
-      throw StdFail_InfiniteSolutions(MESSAGE);
-#else
-  #define StdFail_InfiniteSolutions_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(StdFail_InfiniteSolutions, Standard_Failure)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/StdFail/StdFail_InfiniteSolutions.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _StdFail_InfiniteSolutions_HeaderFile

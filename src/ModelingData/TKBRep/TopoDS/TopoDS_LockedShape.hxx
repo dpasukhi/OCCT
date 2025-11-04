@@ -17,25 +17,8 @@
 #ifndef _TopoDS_LockedShape_HeaderFile
 #define _TopoDS_LockedShape_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-//! An attempt was made to modify a geometry of Shape already
-//! shared or protected.
-
-class TopoDS_LockedShape;
-DEFINE_STANDARD_HANDLE(TopoDS_LockedShape, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_TopoDS_LockedShape
-  #define TopoDS_LockedShape_Raise_if(CONDITION, MESSAGE)                                          \
-    if (CONDITION)                                                                                 \
-      throw TopoDS_LockedShape(MESSAGE);
-#else
-  #define TopoDS_LockedShape_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(TopoDS_LockedShape, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKBRep/TopoDS/TopoDS_LockedShape.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _TopoDS_LockedShape_HeaderFile

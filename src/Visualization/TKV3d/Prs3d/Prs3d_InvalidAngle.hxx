@@ -17,22 +17,8 @@
 #ifndef _Prs3d_InvalidAngle_HeaderFile
 #define _Prs3d_InvalidAngle_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_RangeError.hxx>
-
-class Prs3d_InvalidAngle;
-DEFINE_STANDARD_HANDLE(Prs3d_InvalidAngle, Standard_RangeError)
-
-#if !defined No_Exception && !defined No_Prs3d_InvalidAngle
-  #define Prs3d_InvalidAngle_Raise_if(CONDITION, MESSAGE)                                          \
-    if (CONDITION)                                                                                 \
-      throw Prs3d_InvalidAngle(MESSAGE);
-#else
-  #define Prs3d_InvalidAngle_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Prs3d_InvalidAngle, Standard_RangeError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKV3d/Prs3d/Prs3d_InvalidAngle.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Prs3d_InvalidAngle_HeaderFile

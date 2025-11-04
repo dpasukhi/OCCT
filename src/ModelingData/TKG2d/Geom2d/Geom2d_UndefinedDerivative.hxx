@@ -17,22 +17,8 @@
 #ifndef _Geom2d_UndefinedDerivative_HeaderFile
 #define _Geom2d_UndefinedDerivative_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_DomainError.hxx>
-
-class Geom2d_UndefinedDerivative;
-DEFINE_STANDARD_HANDLE(Geom2d_UndefinedDerivative, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Geom2d_UndefinedDerivative
-  #define Geom2d_UndefinedDerivative_Raise_if(CONDITION, MESSAGE)                                  \
-    if (CONDITION)                                                                                 \
-      throw Geom2d_UndefinedDerivative(MESSAGE);
-#else
-  #define Geom2d_UndefinedDerivative_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Geom2d_UndefinedDerivative, Standard_DomainError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKG2d/Geom2d/Geom2d_UndefinedDerivative.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Geom2d_UndefinedDerivative_HeaderFile

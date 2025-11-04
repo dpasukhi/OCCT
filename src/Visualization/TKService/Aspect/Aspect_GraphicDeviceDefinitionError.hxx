@@ -16,22 +16,8 @@
 #ifndef _Aspect_GraphicDeviceDefinitionError_HeaderFile
 #define _Aspect_GraphicDeviceDefinitionError_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_OutOfRange.hxx>
-
-class Aspect_GraphicDeviceDefinitionError;
-DEFINE_STANDARD_HANDLE(Aspect_GraphicDeviceDefinitionError, Standard_OutOfRange)
-
-#if !defined No_Exception && !defined No_Aspect_GraphicDeviceDefinitionError
-  #define Aspect_GraphicDeviceDefinitionError_Raise_if(CONDITION, MESSAGE)                         \
-    if (CONDITION)                                                                                 \
-      throw Aspect_GraphicDeviceDefinitionError(MESSAGE);
-#else
-  #define Aspect_GraphicDeviceDefinitionError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Aspect_GraphicDeviceDefinitionError, Standard_OutOfRange)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKService/Aspect/Aspect_GraphicDeviceDefinitionError.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Aspect_GraphicDeviceDefinitionError_HeaderFile

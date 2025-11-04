@@ -17,22 +17,8 @@
 #ifndef _Standard_NullValue_HeaderFile
 #define _Standard_NullValue_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_DefineException.hxx>
-#include <Standard_SStream.hxx>
-#include <Standard_RangeError.hxx>
-
-class Standard_NullValue;
-DEFINE_STANDARD_HANDLE(Standard_NullValue, Standard_RangeError)
-
-#if !defined No_Exception && !defined No_Standard_NullValue
-  #define Standard_NullValue_Raise_if(CONDITION, MESSAGE)                                          \
-    if (CONDITION)                                                                                 \
-      throw Standard_NullValue(MESSAGE);
-#else
-  #define Standard_NullValue_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_NullValue, Standard_RangeError)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_NullValue.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_NullValue_HeaderFile

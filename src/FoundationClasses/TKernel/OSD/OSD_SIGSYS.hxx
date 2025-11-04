@@ -15,21 +15,8 @@
 #ifndef _OSD_SIGSYS_HeaderFile
 #define _OSD_SIGSYS_HeaderFile
 
-#include <Standard_Type.hxx>
-#include <Standard_SStream.hxx>
-#include <OSD_Signal.hxx>
-
-class OSD_SIGSYS;
-DEFINE_STANDARD_HANDLE(OSD_SIGSYS, OSD_Signal)
-
-#if !defined No_Exception && !defined No_OSD_SIGSYS
-  #define OSD_SIGSYS_Raise_if(CONDITION, MESSAGE)                                                  \
-    if (CONDITION)                                                                                 \
-      throw OSD_SIGSYS(MESSAGE);
-#else
-  #define OSD_SIGSYS_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(OSD_SIGSYS, OSD_Signal)
+#include <Standard_Macro.hxx>
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/OSD/OSD_SIGSYS.hxx.")
+#include <Standard_FailureRegistry.hxx>
 
 #endif // _OSD_SIGSYS_HeaderFile
