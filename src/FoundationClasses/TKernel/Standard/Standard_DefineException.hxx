@@ -69,28 +69,6 @@
     DEFINE_STANDARD_RTTI_INLINE(C1, C2)                                                            \
   };
 
-//! Defines a helper macro <C1>_Raise_if(CONDITION, MESSAGE) that throws <C1> when the condition is true.
-/*! The helper respects the global No_Exception switch and the per-exception No_<C1> switch, emulating the
-    boilerplate historically used in Standard_FailureRegistry.hxx. */
-#define DEFINE_STANDARD_RAISE_IF(C1)                                                                \
-#if !defined No_Exception && !defined No_##C1                                                      \
-  #define C1##_Raise_if(CONDITION, MESSAGE)                                                        \
-    if (CONDITION)                                                                                 \
-      throw C1(MESSAGE);                                                                           \
-#endif                                                                                              \
-#if defined No_Exception || defined No_##C1                                                        \
-  #define C1##_Raise_if(CONDITION, MESSAGE)                                                        \
-#endif
-
-//! Defines forward declaration, handle, helper macro and class definition for an OCCT exception.
-/*! Expands to the combination of class forward declaration, DEFINE_STANDARD_HANDLE, DEFINE_STANDARD_RAISE_IF
-    and DEFINE_STANDARD_EXCEPTION for the supplied pair of exception / base types. */
-#define DEFINE_STANDARD_EXCEPTION_WITH_RAISE(C1, C2)                                                \
-class C1;                                                                                           \
-DEFINE_STANDARD_HANDLE(C1, C2)                                                                      \
-DEFINE_STANDARD_RAISE_IF(C1)                                                                        \
-DEFINE_STANDARD_EXCEPTION(C1, C2)
-
 //! Obsolete macro, kept for compatibility with old code
 #define IMPLEMENT_STANDARD_EXCEPTION(C1)
 

@@ -18,7 +18,7 @@
 #define _V3d_BadValue_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKV3d/V3d/V3d_BadValue.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of V3d_BadValue.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _V3d_BadValue_HeaderFile

@@ -18,7 +18,7 @@
 #define _WNT_ClassDefinitionError_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKService/WNT/WNT_ClassDefinitionError.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of WNT_ClassDefinitionError.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _WNT_ClassDefinitionError_HeaderFile

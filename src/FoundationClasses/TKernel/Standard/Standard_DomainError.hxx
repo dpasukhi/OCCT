@@ -18,7 +18,7 @@
 #define _Standard_DomainError_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_DomainError.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Standard_DomainError.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_DomainError_HeaderFile

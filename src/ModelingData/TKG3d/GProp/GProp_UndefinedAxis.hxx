@@ -18,7 +18,7 @@
 #define _GProp_UndefinedAxis_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKG3d/GProp/GProp_UndefinedAxis.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of GProp_UndefinedAxis.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _GProp_UndefinedAxis_HeaderFile

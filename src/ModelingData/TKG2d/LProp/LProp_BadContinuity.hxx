@@ -18,7 +18,7 @@
 #define _LProp_BadContinuity_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKG2d/LProp/LProp_BadContinuity.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of LProp_BadContinuity.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _LProp_BadContinuity_HeaderFile

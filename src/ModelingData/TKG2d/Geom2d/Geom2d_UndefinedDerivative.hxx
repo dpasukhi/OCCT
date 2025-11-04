@@ -18,7 +18,7 @@
 #define _Geom2d_UndefinedDerivative_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKG2d/Geom2d/Geom2d_UndefinedDerivative.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Geom2d_UndefinedDerivative.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Geom2d_UndefinedDerivative_HeaderFile

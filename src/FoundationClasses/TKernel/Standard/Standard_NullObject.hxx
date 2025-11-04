@@ -18,7 +18,7 @@
 #define _Standard_NullObject_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_NullObject.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Standard_NullObject.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_NullObject_HeaderFile

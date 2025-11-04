@@ -18,7 +18,7 @@
 #define _StdFail_InfiniteSolutions_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/StdFail/StdFail_InfiniteSolutions.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of StdFail_InfiniteSolutions.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _StdFail_InfiniteSolutions_HeaderFile

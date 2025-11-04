@@ -18,7 +18,7 @@
 #define _GccAna_NoSolution_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingAlgorithms/TKGeomAlgo/GccAna/GccAna_NoSolution.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of GccAna_NoSolution.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _GccAna_NoSolution_HeaderFile

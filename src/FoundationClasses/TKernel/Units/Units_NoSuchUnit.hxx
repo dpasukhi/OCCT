@@ -18,7 +18,7 @@
 #define _Units_NoSuchUnit_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Units/Units_NoSuchUnit.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Units_NoSuchUnit.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Units_NoSuchUnit_HeaderFile

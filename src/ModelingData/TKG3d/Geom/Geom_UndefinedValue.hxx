@@ -18,7 +18,7 @@
 #define _Geom_UndefinedValue_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKG3d/Geom/Geom_UndefinedValue.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Geom_UndefinedValue.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Geom_UndefinedValue_HeaderFile

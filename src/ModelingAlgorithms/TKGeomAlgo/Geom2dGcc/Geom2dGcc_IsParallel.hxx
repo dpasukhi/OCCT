@@ -18,7 +18,7 @@
 #define _Geom2dGcc_IsParallel_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingAlgorithms/TKGeomAlgo/Geom2dGcc/Geom2dGcc_IsParallel.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Geom2dGcc_IsParallel.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Geom2dGcc_IsParallel_HeaderFile

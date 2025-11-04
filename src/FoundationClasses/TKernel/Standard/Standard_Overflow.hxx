@@ -18,7 +18,7 @@
 #define _Standard_Overflow_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_Overflow.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Standard_Overflow.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_Overflow_HeaderFile

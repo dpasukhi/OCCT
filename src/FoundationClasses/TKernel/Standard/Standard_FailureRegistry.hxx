@@ -14,751 +14,682 @@
 #ifndef _Standard_FailureRegistry_HeaderFile
 #define _Standard_FailureRegistry_HeaderFile
 
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_ProgramError.hxx
-// =======================================================================
-
 #include <Standard_Type.hxx>
 #include <Standard_DefineException.hxx>
 #include <Standard_SStream.hxx>
 #include <Standard_Failure.hxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_ProgramError, Standard_Failure)
+// Exception: Standard_ProgramError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Standard_ProgramError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Standard_ProgramError
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/ModelingData/TKBRep/TopoDS/TopoDS_FrozenShape.hxx
-// =======================================================================
+// Core Standard exceptions
 
-#include <Standard_DomainError.hxx>
+// Exception: Standard_DomainError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Standard_DomainError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Standard_DomainError
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_NumericError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Standard_NumericError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Standard_NumericError
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_RangeError (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_RangeError
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_RangeError
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_OutOfRange (base: Standard_RangeError)
+#define __OCCT_EXCEPTION_CLASS Standard_OutOfRange
+#define __OCCT_EXCEPTION_BASE Standard_RangeError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_OutOfRange
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_NullValue (base: Standard_RangeError)
+#define __OCCT_EXCEPTION_CLASS Standard_NullValue
+#define __OCCT_EXCEPTION_BASE Standard_RangeError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_NullValue
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_NullObject (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_NullObject
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_NullObject
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_TypeMismatch (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_TypeMismatch
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_TypeMismatch
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_ConstructionError (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_ConstructionError
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_ConstructionError
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_DimensionError (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_DimensionError
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_DimensionError
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_DimensionMismatch (base: Standard_DimensionError)
+#define __OCCT_EXCEPTION_CLASS Standard_DimensionMismatch
+#define __OCCT_EXCEPTION_BASE Standard_DimensionError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_DimensionMismatch
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_DivideByZero (base: Standard_NumericError)
+#define __OCCT_EXCEPTION_CLASS Standard_DivideByZero
+#define __OCCT_EXCEPTION_BASE Standard_NumericError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_DivideByZero
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_NegativeValue (base: Standard_RangeError)
+#define __OCCT_EXCEPTION_CLASS Standard_NegativeValue
+#define __OCCT_EXCEPTION_BASE Standard_RangeError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_NegativeValue
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_MultiplyDefined (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_MultiplyDefined
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_MultiplyDefined
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_NoSuchObject (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_NoSuchObject
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_NoSuchObject
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_NoMoreObject (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_NoMoreObject
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_NoMoreObject
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_NotImplemented (base: Standard_ProgramError)
+#define __OCCT_EXCEPTION_CLASS Standard_NotImplemented
+#define __OCCT_EXCEPTION_BASE Standard_ProgramError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_NotImplemented
+#include <Standard_DefineException.lxx>
 
 //! An attempt was made to modify a Shape already
 //! shared or protected.
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(TopoDS_FrozenShape, Standard_DomainError)
+// Exception: TopoDS_FrozenShape (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS TopoDS_FrozenShape
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_TopoDS_FrozenShape
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKV3d/V3d/V3d_UnMapped.hxx
-// =======================================================================
+// Exception: V3d_UnMapped (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS V3d_UnMapped
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_V3d_UnMapped
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(V3d_UnMapped, Standard_DomainError)
+// Exception: V3d_BadValue (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS V3d_BadValue
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_V3d_BadValue
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKV3d/V3d/V3d_BadValue.hxx
-// =======================================================================
+// Exception: Prs3d_InvalidAngle (base: Standard_RangeError)
+#define __OCCT_EXCEPTION_CLASS Prs3d_InvalidAngle
+#define __OCCT_EXCEPTION_BASE Standard_RangeError
+#define __OCCT_EXCEPTION_DISABLE No_Prs3d_InvalidAngle
+#include <Standard_DefineException.lxx>
 
-#include <Standard_OutOfRange.hxx>
+// Exception: WNT_ClassDefinitionError (base: Standard_ConstructionError)
+#define __OCCT_EXCEPTION_CLASS WNT_ClassDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_ConstructionError
+#define __OCCT_EXCEPTION_DISABLE No_WNT_ClassDefinitionError
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(V3d_BadValue, Standard_OutOfRange)
+// Exception: Graphic3d_StructureDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Graphic3d_StructureDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Graphic3d_StructureDefinitionError
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKV3d/Prs3d/Prs3d_InvalidAngle.hxx
-// =======================================================================
+// Exception: Graphic3d_PriorityDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Graphic3d_PriorityDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Graphic3d_PriorityDefinitionError
+#include <Standard_DefineException.lxx>
 
-#include <Standard_RangeError.hxx>
+// Exception: Graphic3d_MaterialDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Graphic3d_MaterialDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Graphic3d_MaterialDefinitionError
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Prs3d_InvalidAngle, Standard_RangeError)
+// Exception: Graphic3d_GroupDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Graphic3d_GroupDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Graphic3d_GroupDefinitionError
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKService/WNT/WNT_ClassDefinitionError.hxx
-// =======================================================================
+// Exception: Aspect_WindowError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_WindowError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_WindowError
+#include <Standard_DefineException.lxx>
 
-#include <Standard_ConstructionError.hxx>
+// Exception: Aspect_WindowDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_WindowDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_WindowDefinitionError
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(WNT_ClassDefinitionError, Standard_ConstructionError)
+// Exception: Aspect_IdentDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_IdentDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_IdentDefinitionError
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKService/Graphic3d/Graphic3d_StructureDefinitionError.hxx
-// =======================================================================
+// Exception: Aspect_GraphicDeviceDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_GraphicDeviceDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_GraphicDeviceDefinitionError
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Graphic3d_StructureDefinitionError, Standard_OutOfRange)
+// Exception: Aspect_DisplayConnectionDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_DisplayConnectionDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_DisplayConnectionDefinitionError
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKService/Graphic3d/Graphic3d_PriorityDefinitionError.hxx
-// =======================================================================
+// Exception: Aspect_AspectMarkerDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_AspectMarkerDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_AspectMarkerDefinitionError
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Graphic3d_PriorityDefinitionError, Standard_OutOfRange)
+// Exception: Aspect_AspectLineDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_AspectLineDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_AspectLineDefinitionError
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKService/Graphic3d/Graphic3d_MaterialDefinitionError.hxx
-// =======================================================================
+// Exception: Aspect_AspectFillAreaDefinitionError (base: Standard_OutOfRange)
+#define __OCCT_EXCEPTION_CLASS Aspect_AspectFillAreaDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_OutOfRange
+#define __OCCT_EXCEPTION_DISABLE No_Aspect_AspectFillAreaDefinitionError
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Graphic3d_MaterialDefinitionError, Standard_OutOfRange)
+// Exception: Geom_UndefinedValue (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Geom_UndefinedValue
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Geom_UndefinedValue
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/Visualization/TKService/Graphic3d/Graphic3d_GroupDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Graphic3d_GroupDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_WindowError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_WindowError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_WindowDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_WindowDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_IdentDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_IdentDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_GraphicDeviceDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_GraphicDeviceDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_DisplayConnectionDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_DisplayConnectionDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_AspectMarkerDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_AspectMarkerDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_AspectLineDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_AspectLineDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/Visualization/TKService/Aspect/Aspect_AspectFillAreaDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Aspect_AspectFillAreaDefinitionError, Standard_OutOfRange)
-
-// =======================================================================
-// From: src/ModelingData/TKG3d/Geom/Geom_UndefinedValue.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Geom_UndefinedValue, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingData/TKG3d/Geom/Geom_UndefinedDerivative.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Geom_UndefinedDerivative, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingData/TKG3d/GProp/GProp_UndefinedAxis.hxx
-// =======================================================================
+// Exception: Geom_UndefinedDerivative (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Geom_UndefinedDerivative
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Geom_UndefinedDerivative
+#include <Standard_DefineException.lxx>
 
 //! This exception is raised when a method makes reference to
 //! an undefined inertia axis of symmetry.
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(GProp_UndefinedAxis, Standard_DomainError)
+// Exception: GProp_UndefinedAxis (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS GProp_UndefinedAxis
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_GProp_UndefinedAxis
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/ModelingData/TKG2d/LProp/LProp_NotDefined.hxx
-// =======================================================================
+// Exception: LProp_NotDefined (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS LProp_NotDefined
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_LProp_NotDefined
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(LProp_NotDefined, Standard_Failure)
+// Exception: LProp_BadContinuity (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS LProp_BadContinuity
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_LProp_BadContinuity
+#include <Standard_DefineException.lxx>
 
-// =======================================================================
-// From: src/ModelingData/TKG2d/LProp/LProp_BadContinuity.hxx
-// =======================================================================
+// Exception: Geom2d_UndefinedValue (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Geom2d_UndefinedValue
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Geom2d_UndefinedValue
+#include <Standard_DefineException.lxx>
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(LProp_BadContinuity, Standard_Failure)
-
-// =======================================================================
-// From: src/ModelingData/TKG2d/Geom2d/Geom2d_UndefinedValue.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Geom2d_UndefinedValue, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingData/TKG2d/Geom2d/Geom2d_UndefinedDerivative.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Geom2d_UndefinedDerivative, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingData/TKBRep/TopoDS/TopoDS_UnCompatibleShapes.hxx
-// =======================================================================
+// Exception: Geom2d_UndefinedDerivative (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Geom2d_UndefinedDerivative
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Geom2d_UndefinedDerivative
+#include <Standard_DefineException.lxx>
 
 //! An incorrect insertion was attempted.
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(TopoDS_UnCompatibleShapes, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingData/TKBRep/TopoDS/TopoDS_LockedShape.hxx
-// =======================================================================
+// Exception: TopoDS_UnCompatibleShapes (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS TopoDS_UnCompatibleShapes
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_TopoDS_UnCompatibleShapes
+#include <Standard_DefineException.lxx>
 
 //! An attempt was made to modify a geometry of Shape already
 //! shared or protected.
 
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(TopoDS_LockedShape, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKTopAlgo/BRepExtrema/BRepExtrema_UnCompatibleShape.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(BRepExtrema_UnCompatibleShape, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKGeomAlgo/Geom2dGcc/Geom2dGcc_IsParallel.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Geom2dGcc_IsParallel, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKGeomAlgo/GccEnt/GccEnt_BadQualifier.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(GccEnt_BadQualifier, Standard_DomainError)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKGeomAlgo/GccAna/GccAna_NoSolution.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(GccAna_NoSolution, Standard_Failure)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKExpress/ExprIntrp/ExprIntrp_SyntaxError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(ExprIntrp_SyntaxError, Standard_Failure)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKExpress/Expr/Expr_NotEvaluable.hxx
-// =======================================================================
-
-#include <Expr_ExprFailure.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Expr_NotEvaluable, Expr_ExprFailure)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKExpress/Expr/Expr_NotAssigned.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Expr_NotAssigned, Expr_ExprFailure)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKExpress/Expr/Expr_InvalidOperand.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Expr_InvalidOperand, Expr_ExprFailure)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKExpress/Expr/Expr_InvalidFunction.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Expr_InvalidFunction, Expr_ExprFailure)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKExpress/Expr/Expr_InvalidAssignment.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Expr_InvalidAssignment, Expr_ExprFailure)
-
-// =======================================================================
-// From: src/ModelingAlgorithms/TKExpress/Expr/Expr_ExprFailure.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Expr_ExprFailure, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Units/Units_NoSuchUnit.hxx
-// =======================================================================
-
-#include <Standard_NoSuchObject.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Units_NoSuchUnit, Standard_NoSuchObject)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Units/Units_NoSuchType.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Units_NoSuchType, Standard_NoSuchObject)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Storage/Storage_StreamWriteError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Storage_StreamWriteError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Storage/Storage_StreamUnknownTypeError.hxx
-// =======================================================================
-
-#include <Storage_StreamReadError.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Storage_StreamUnknownTypeError, Storage_StreamReadError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Storage/Storage_StreamTypeMismatchError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Storage_StreamTypeMismatchError, Storage_StreamReadError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Storage/Storage_StreamReadError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Storage_StreamReadError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Storage/Storage_StreamModeError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Storage_StreamModeError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Storage/Storage_StreamFormatError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Storage_StreamFormatError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Storage/Storage_StreamExtCharParityError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Storage_StreamExtCharParityError, Storage_StreamReadError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/StdFail/StdFail_UndefinedValue.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(StdFail_UndefinedValue, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/StdFail/StdFail_UndefinedDerivative.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(StdFail_UndefinedDerivative, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/StdFail/StdFail_Undefined.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(StdFail_Undefined, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/StdFail/StdFail_NotDone.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(StdFail_NotDone, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/StdFail/StdFail_InfiniteSolutions.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(StdFail_InfiniteSolutions, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_Underflow.hxx
-// =======================================================================
-
-#include <Standard_NumericError.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_Underflow, Standard_NumericError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_TypeMismatch.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_TypeMismatch, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_RangeError.hxx
-// =======================================================================
-
-class Standard_RangeError;
-DEFINE_STANDARD_HANDLE(Standard_RangeError, Standard_DomainError)
-
-#if !defined No_Exception && !defined No_Standard_RangeError
-  #if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
-    // suppress false-positive warnings produced by GCC optimizer
-    #define Standard_RangeError_Raise_if(CONDITION, MESSAGE)                                       \
-      _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wstrict-overflow\"") if (  \
-        CONDITION) throw Standard_RangeError(MESSAGE);                                             \
-      _Pragma("GCC diagnostic pop")
-  #else
-    #define Standard_RangeError_Raise_if(CONDITION, MESSAGE)                                       \
-      if (CONDITION)                                                                               \
-        throw Standard_RangeError(MESSAGE);
-  #endif
-#else
-  #define Standard_RangeError_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_RangeError, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_Overflow.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_Overflow, Standard_NumericError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_OutOfRange.hxx
-// =======================================================================
-
-class Standard_OutOfRange;
-DEFINE_STANDARD_HANDLE(Standard_OutOfRange, Standard_RangeError)
-
-#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
-  // suppress false-positive warnings produced by GCC optimizer
-  #define Standard_OutOfRange_Always_Raise_if(CONDITION, MESSAGE)                                  \
-    _Pragma("GCC diagnostic push") _Pragma("GCC diagnostic ignored \"-Wstrict-overflow\"") if (    \
-      CONDITION) throw Standard_OutOfRange(MESSAGE);                                               \
-    _Pragma("GCC diagnostic pop")
-#else
-  #define Standard_OutOfRange_Always_Raise_if(CONDITION, MESSAGE)                                  \
-    if (CONDITION)                                                                                 \
-      throw Standard_OutOfRange(MESSAGE);
-#endif
-
-#if !defined No_Exception && !defined No_Standard_OutOfRange
-  #define Standard_OutOfRange_Raise_if(CONDITION, MESSAGE)                                         \
-    Standard_OutOfRange_Always_Raise_if(CONDITION, MESSAGE)
-#else
-  #define Standard_OutOfRange_Raise_if(CONDITION, MESSAGE)
-#endif
-
-DEFINE_STANDARD_EXCEPTION(Standard_OutOfRange, Standard_RangeError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_NumericError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_NumericError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_NullValue.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_NullValue, Standard_RangeError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_NullObject.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_NullObject, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_NotImplemented.hxx
-// =======================================================================
-
-#include <Standard_ProgramError.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_NotImplemented, Standard_ProgramError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_NoSuchObject.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_NoSuchObject, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_NoMoreObject.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_NoMoreObject, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_NegativeValue.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_NegativeValue, Standard_RangeError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_MultiplyDefined.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_MultiplyDefined, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_LicenseNotFound.hxx
-// =======================================================================
-
-#include <Standard_LicenseError.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_LicenseNotFound, Standard_LicenseError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_LicenseError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_LicenseError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_ImmutableObject.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_ImmutableObject, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_DomainError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_DomainError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_DivideByZero.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_DivideByZero, Standard_NumericError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_DimensionMismatch.hxx
-// =======================================================================
-
-#include <Standard_DimensionError.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_DimensionMismatch, Standard_DimensionError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_DimensionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_DimensionError, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_ConstructionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_ConstructionError, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Standard/Standard_AbortiveTransaction.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Standard_AbortiveTransaction, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Resource/Resource_NoSuchResource.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Resource_NoSuchResource, Standard_NoSuchObject)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Quantity/Quantity_PeriodDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Quantity_PeriodDefinitionError, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Quantity/Quantity_DateDefinitionError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Quantity_DateDefinitionError, Standard_DomainError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/Plugin/Plugin_Failure.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Plugin_Failure, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Signal.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Signal, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGSYS.hxx
-// =======================================================================
-
-#include <OSD_Signal.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGSYS, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGSEGV.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGSEGV, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGQUIT.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGQUIT, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGKILL.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGKILL, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGINT.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGINT, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGILL.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGILL, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGHUP.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGHUP, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_SIGBUS.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_SIGBUS, OSD_Signal)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_OSDError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_OSDError, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_STATUS_NO_MEMORY.hxx
-// =======================================================================
-
-#include <OSD_Exception.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_STATUS_NO_MEMORY, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_STACK_OVERFLOW.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_STACK_OVERFLOW, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_PRIV_INSTRUCTION.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_PRIV_INSTRUCTION, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_NONCONTINUABLE_EXCEPTION.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_NONCONTINUABLE_EXCEPTION, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_IN_PAGE_ERROR.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_IN_PAGE_ERROR, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_INVALID_DISPOSITION.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_INVALID_DISPOSITION, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_INT_OVERFLOW.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_INT_OVERFLOW, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_ILLEGAL_INSTRUCTION.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_ILLEGAL_INSTRUCTION, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_CTRL_BREAK.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_CTRL_BREAK, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_ARRAY_BOUNDS_EXCEEDED.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_ARRAY_BOUNDS_EXCEEDED, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception_ACCESS_VIOLATION.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception_ACCESS_VIOLATION, OSD_Exception)
-
-// =======================================================================
-// From: src/FoundationClasses/TKernel/OSD/OSD_Exception.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(OSD_Exception, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKMath/math/math_SingularMatrix.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(math_SingularMatrix, Standard_Failure)
-
-// =======================================================================
-// From: src/FoundationClasses/TKMath/math/math_NotSquare.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(math_NotSquare, Standard_DimensionError)
-
-// =======================================================================
-// From: src/FoundationClasses/TKMath/gp/gp_VectorWithNullMagnitude.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(gp_VectorWithNullMagnitude, Standard_DomainError)
-
-// =======================================================================
-// From: src/Draw/TKDraw/Draw/Draw_Failure.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Draw_Failure, Standard_Failure)
-
-// =======================================================================
-// From: src/DataExchange/TKXSBase/Transfer/Transfer_TransferFailure.hxx
-// =======================================================================
-
-#include <Interface_InterfaceError.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Transfer_TransferFailure, Interface_InterfaceError)
-
-// =======================================================================
-// From: src/DataExchange/TKXSBase/Transfer/Transfer_TransferDeadLoop.hxx
-// =======================================================================
-
-#include <Transfer_TransferFailure.hxx>
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Transfer_TransferDeadLoop, Transfer_TransferFailure)
-
-// =======================================================================
-// From: src/DataExchange/TKXSBase/Interface/Interface_InterfaceMismatch.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Interface_InterfaceMismatch, Interface_InterfaceError)
-
-// =======================================================================
-// From: src/DataExchange/TKXSBase/Interface/Interface_InterfaceError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Interface_InterfaceError, Standard_Failure)
-
-// =======================================================================
-// From: src/DataExchange/TKXSBase/Interface/Interface_CheckFailure.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(Interface_CheckFailure, Interface_InterfaceError)
-
-// =======================================================================
-// From: src/ApplicationFramework/TKCDF/PCDM/PCDM_DriverError.hxx
-// =======================================================================
-
-DEFINE_STANDARD_EXCEPTION_WITH_RAISE(PCDM_DriverError, Standard_Failure)
+// Exception: TopoDS_LockedShape (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS TopoDS_LockedShape
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_TopoDS_LockedShape
+#include <Standard_DefineException.lxx>
+
+// Exception: BRepExtrema_UnCompatibleShape (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS BRepExtrema_UnCompatibleShape
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_BRepExtrema_UnCompatibleShape
+#include <Standard_DefineException.lxx>
+
+// Exception: Geom2dGcc_IsParallel (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Geom2dGcc_IsParallel
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Geom2dGcc_IsParallel
+#include <Standard_DefineException.lxx>
+
+// Exception: GccEnt_BadQualifier (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS GccEnt_BadQualifier
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_GccEnt_BadQualifier
+#include <Standard_DefineException.lxx>
+
+// Exception: GccAna_NoSolution (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS GccAna_NoSolution
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_GccAna_NoSolution
+#include <Standard_DefineException.lxx>
+
+// Exception: ExprIntrp_SyntaxError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS ExprIntrp_SyntaxError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_ExprIntrp_SyntaxError
+#include <Standard_DefineException.lxx>
+
+// Exception: Expr_ExprFailure (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Expr_ExprFailure
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Expr_ExprFailure
+#include <Standard_DefineException.lxx>
+
+// Exception: Expr_NotEvaluable (base: Expr_ExprFailure)
+#define __OCCT_EXCEPTION_CLASS Expr_NotEvaluable
+#define __OCCT_EXCEPTION_BASE Expr_ExprFailure
+#define __OCCT_EXCEPTION_DISABLE No_Expr_NotEvaluable
+#include <Standard_DefineException.lxx>
+
+// Exception: Expr_NotAssigned (base: Expr_ExprFailure)
+#define __OCCT_EXCEPTION_CLASS Expr_NotAssigned
+#define __OCCT_EXCEPTION_BASE Expr_ExprFailure
+#define __OCCT_EXCEPTION_DISABLE No_Expr_NotAssigned
+#include <Standard_DefineException.lxx>
+
+// Exception: Expr_InvalidOperand (base: Expr_ExprFailure)
+#define __OCCT_EXCEPTION_CLASS Expr_InvalidOperand
+#define __OCCT_EXCEPTION_BASE Expr_ExprFailure
+#define __OCCT_EXCEPTION_DISABLE No_Expr_InvalidOperand
+#include <Standard_DefineException.lxx>
+
+// Exception: Expr_InvalidFunction (base: Expr_ExprFailure)
+#define __OCCT_EXCEPTION_CLASS Expr_InvalidFunction
+#define __OCCT_EXCEPTION_BASE Expr_ExprFailure
+#define __OCCT_EXCEPTION_DISABLE No_Expr_InvalidFunction
+#include <Standard_DefineException.lxx>
+
+// Exception: Expr_InvalidAssignment (base: Expr_ExprFailure)
+#define __OCCT_EXCEPTION_CLASS Expr_InvalidAssignment
+#define __OCCT_EXCEPTION_BASE Expr_ExprFailure
+#define __OCCT_EXCEPTION_DISABLE No_Expr_InvalidAssignment
+#include <Standard_DefineException.lxx>
+
+// Exception: Units_NoSuchUnit (base: Standard_NoSuchObject)
+#define __OCCT_EXCEPTION_CLASS Units_NoSuchUnit
+#define __OCCT_EXCEPTION_BASE Standard_NoSuchObject
+#define __OCCT_EXCEPTION_DISABLE No_Units_NoSuchUnit
+#include <Standard_DefineException.lxx>
+
+// Exception: Units_NoSuchType (base: Standard_NoSuchObject)
+#define __OCCT_EXCEPTION_CLASS Units_NoSuchType
+#define __OCCT_EXCEPTION_BASE Standard_NoSuchObject
+#define __OCCT_EXCEPTION_DISABLE No_Units_NoSuchType
+#include <Standard_DefineException.lxx>
+
+// Exception: Storage_StreamWriteError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Storage_StreamWriteError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Storage_StreamWriteError
+#include <Standard_DefineException.lxx>
+
+// Exception: Storage_StreamReadError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Storage_StreamReadError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Storage_StreamReadError
+#include <Standard_DefineException.lxx>
+
+// Exception: Storage_StreamUnknownTypeError (base: Storage_StreamReadError)
+#define __OCCT_EXCEPTION_CLASS Storage_StreamUnknownTypeError
+#define __OCCT_EXCEPTION_BASE Storage_StreamReadError
+#define __OCCT_EXCEPTION_DISABLE No_Storage_StreamUnknownTypeError
+#include <Standard_DefineException.lxx>
+
+// Exception: Storage_StreamTypeMismatchError (base: Storage_StreamReadError)
+#define __OCCT_EXCEPTION_CLASS Storage_StreamTypeMismatchError
+#define __OCCT_EXCEPTION_BASE Storage_StreamReadError
+#define __OCCT_EXCEPTION_DISABLE No_Storage_StreamTypeMismatchError
+#include <Standard_DefineException.lxx>
+
+// Exception: Storage_StreamModeError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Storage_StreamModeError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Storage_StreamModeError
+#include <Standard_DefineException.lxx>
+
+// Exception: Storage_StreamFormatError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Storage_StreamFormatError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Storage_StreamFormatError
+#include <Standard_DefineException.lxx>
+
+// Exception: Storage_StreamExtCharParityError (base: Storage_StreamReadError)
+#define __OCCT_EXCEPTION_CLASS Storage_StreamExtCharParityError
+#define __OCCT_EXCEPTION_BASE Storage_StreamReadError
+#define __OCCT_EXCEPTION_DISABLE No_Storage_StreamExtCharParityError
+#include <Standard_DefineException.lxx>
+
+// Exception: StdFail_UndefinedValue (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS StdFail_UndefinedValue
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_StdFail_UndefinedValue
+#include <Standard_DefineException.lxx>
+
+// Exception: StdFail_UndefinedDerivative (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS StdFail_UndefinedDerivative
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_StdFail_UndefinedDerivative
+#include <Standard_DefineException.lxx>
+
+// Exception: StdFail_Undefined (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS StdFail_Undefined
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_StdFail_Undefined
+#include <Standard_DefineException.lxx>
+
+// Exception: StdFail_NotDone (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS StdFail_NotDone
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_StdFail_NotDone
+#include <Standard_DefineException.lxx>
+
+// Exception: StdFail_InfiniteSolutions (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS StdFail_InfiniteSolutions
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_StdFail_InfiniteSolutions
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_Underflow (base: Standard_NumericError)
+#define __OCCT_EXCEPTION_CLASS Standard_Underflow
+#define __OCCT_EXCEPTION_BASE Standard_NumericError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_Underflow
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_Overflow (base: Standard_NumericError)
+#define __OCCT_EXCEPTION_CLASS Standard_Overflow
+#define __OCCT_EXCEPTION_BASE Standard_NumericError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_Overflow
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_LicenseError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Standard_LicenseError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Standard_LicenseError
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_LicenseNotFound (base: Standard_LicenseError)
+#define __OCCT_EXCEPTION_CLASS Standard_LicenseNotFound
+#define __OCCT_EXCEPTION_BASE Standard_LicenseError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_LicenseNotFound
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_ImmutableObject (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Standard_ImmutableObject
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Standard_ImmutableObject
+#include <Standard_DefineException.lxx>
+
+// Exception: Standard_AbortiveTransaction (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Standard_AbortiveTransaction
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Standard_AbortiveTransaction
+#include <Standard_DefineException.lxx>
+
+// Exception: Resource_NoSuchResource (base: Standard_NoSuchObject)
+#define __OCCT_EXCEPTION_CLASS Resource_NoSuchResource
+#define __OCCT_EXCEPTION_BASE Standard_NoSuchObject
+#define __OCCT_EXCEPTION_DISABLE No_Resource_NoSuchResource
+#include <Standard_DefineException.lxx>
+
+// Exception: Quantity_PeriodDefinitionError (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Quantity_PeriodDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Quantity_PeriodDefinitionError
+#include <Standard_DefineException.lxx>
+
+// Exception: Quantity_DateDefinitionError (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS Quantity_DateDefinitionError
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_Quantity_DateDefinitionError
+#include <Standard_DefineException.lxx>
+
+// Exception: Plugin_Failure (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Plugin_Failure
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Plugin_Failure
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Signal (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS OSD_Signal
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Signal
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGSYS (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGSYS
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGSYS
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGSEGV (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGSEGV
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGSEGV
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGQUIT (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGQUIT
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGQUIT
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGKILL (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGKILL
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGKILL
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGINT (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGINT
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGINT
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGILL (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGILL
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGILL
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGHUP (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGHUP
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGHUP
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_SIGBUS (base: OSD_Signal)
+#define __OCCT_EXCEPTION_CLASS OSD_SIGBUS
+#define __OCCT_EXCEPTION_BASE OSD_Signal
+#define __OCCT_EXCEPTION_DISABLE No_OSD_SIGBUS
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_OSDError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS OSD_OSDError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_OSD_OSDError
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_STATUS_NO_MEMORY (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_STATUS_NO_MEMORY
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_STATUS_NO_MEMORY
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_STACK_OVERFLOW (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_STACK_OVERFLOW
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_STACK_OVERFLOW
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_PRIV_INSTRUCTION (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_PRIV_INSTRUCTION
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_PRIV_INSTRUCTION
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_NONCONTINUABLE_EXCEPTION (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_NONCONTINUABLE_EXCEPTION
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_NONCONTINUABLE_EXCEPTION
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_IN_PAGE_ERROR (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_IN_PAGE_ERROR
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_IN_PAGE_ERROR
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_INVALID_DISPOSITION (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_INVALID_DISPOSITION
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_INVALID_DISPOSITION
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_INT_OVERFLOW (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_INT_OVERFLOW
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_INT_OVERFLOW
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_ILLEGAL_INSTRUCTION (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_ILLEGAL_INSTRUCTION
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_ILLEGAL_INSTRUCTION
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_CTRL_BREAK (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_CTRL_BREAK
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_CTRL_BREAK
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_ARRAY_BOUNDS_EXCEEDED (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_ARRAY_BOUNDS_EXCEEDED
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_ARRAY_BOUNDS_EXCEEDED
+#include <Standard_DefineException.lxx>
+
+// Exception: OSD_Exception_ACCESS_VIOLATION (base: OSD_Exception)
+#define __OCCT_EXCEPTION_CLASS OSD_Exception_ACCESS_VIOLATION
+#define __OCCT_EXCEPTION_BASE OSD_Exception
+#define __OCCT_EXCEPTION_DISABLE No_OSD_Exception_ACCESS_VIOLATION
+#include <Standard_DefineException.lxx>
+
+// Exception: math_SingularMatrix (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS math_SingularMatrix
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_math_SingularMatrix
+#include <Standard_DefineException.lxx>
+
+// Exception: math_NotSquare (base: Standard_DimensionError)
+#define __OCCT_EXCEPTION_CLASS math_NotSquare
+#define __OCCT_EXCEPTION_BASE Standard_DimensionError
+#define __OCCT_EXCEPTION_DISABLE No_math_NotSquare
+#include <Standard_DefineException.lxx>
+
+// Exception: gp_VectorWithNullMagnitude (base: Standard_DomainError)
+#define __OCCT_EXCEPTION_CLASS gp_VectorWithNullMagnitude
+#define __OCCT_EXCEPTION_BASE Standard_DomainError
+#define __OCCT_EXCEPTION_DISABLE No_gp_VectorWithNullMagnitude
+#include <Standard_DefineException.lxx>
+
+// Exception: Draw_Failure (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Draw_Failure
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Draw_Failure
+#include <Standard_DefineException.lxx>
+
+// Exception: Interface_InterfaceError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS Interface_InterfaceError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_Interface_InterfaceError
+#include <Standard_DefineException.lxx>
+
+// Exception: Transfer_TransferFailure (base: Interface_InterfaceError)
+#define __OCCT_EXCEPTION_CLASS Transfer_TransferFailure
+#define __OCCT_EXCEPTION_BASE Interface_InterfaceError
+#define __OCCT_EXCEPTION_DISABLE No_Transfer_TransferFailure
+#include <Standard_DefineException.lxx>
+
+// Exception: Transfer_TransferDeadLoop (base: Transfer_TransferFailure)
+#define __OCCT_EXCEPTION_CLASS Transfer_TransferDeadLoop
+#define __OCCT_EXCEPTION_BASE Transfer_TransferFailure
+#define __OCCT_EXCEPTION_DISABLE No_Transfer_TransferDeadLoop
+#include <Standard_DefineException.lxx>
+
+// Exception: Interface_InterfaceMismatch (base: Interface_InterfaceError)
+#define __OCCT_EXCEPTION_CLASS Interface_InterfaceMismatch
+#define __OCCT_EXCEPTION_BASE Interface_InterfaceError
+#define __OCCT_EXCEPTION_DISABLE No_Interface_InterfaceMismatch
+#include <Standard_DefineException.lxx>
+
+// Exception: Interface_CheckFailure (base: Interface_InterfaceError)
+#define __OCCT_EXCEPTION_CLASS Interface_CheckFailure
+#define __OCCT_EXCEPTION_BASE Interface_InterfaceError
+#define __OCCT_EXCEPTION_DISABLE No_Interface_CheckFailure
+#include <Standard_DefineException.lxx>
+
+// Exception: PCDM_DriverError (base: Standard_Failure)
+#define __OCCT_EXCEPTION_CLASS PCDM_DriverError
+#define __OCCT_EXCEPTION_BASE Standard_Failure
+#define __OCCT_EXCEPTION_DISABLE No_PCDM_DriverError
+#include <Standard_DefineException.lxx>
 
 #endif // _Standard_FailureRegistry_HeaderFile

@@ -18,7 +18,7 @@
 #define _StdFail_Undefined_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/StdFail/StdFail_Undefined.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of StdFail_Undefined.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _StdFail_Undefined_HeaderFile

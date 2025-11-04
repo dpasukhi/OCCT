@@ -18,7 +18,7 @@
 #define _Expr_NotEvaluable_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingAlgorithms/TKExpress/Expr/Expr_NotEvaluable.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Expr_NotEvaluable.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Expr_NotEvaluable_HeaderFile

@@ -18,7 +18,7 @@
 #define _Storage_StreamModeError_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Storage/Storage_StreamModeError.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Storage_StreamModeError.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Storage_StreamModeError_HeaderFile

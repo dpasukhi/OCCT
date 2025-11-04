@@ -18,7 +18,7 @@
 #define _TopoDS_FrozenShape_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKBRep/TopoDS/TopoDS_FrozenShape.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of TopoDS_FrozenShape.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _TopoDS_FrozenShape_HeaderFile

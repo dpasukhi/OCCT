@@ -21,6 +21,7 @@ set(OCCT_Standard_FILES
   Standard_CStringHasher.hxx
   Standard_DefineAlloc.hxx
   Standard_DefineException.hxx
+  Standard_DefineException.lxx
   Standard_DefineHandle.hxx
   Standard_DimensionError.hxx
   Standard_DimensionMismatch.hxx

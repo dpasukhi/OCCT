@@ -18,7 +18,7 @@
 #define _V3d_UnMapped_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/Visualization/TKV3d/V3d/V3d_UnMapped.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of V3d_UnMapped.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _V3d_UnMapped_HeaderFile

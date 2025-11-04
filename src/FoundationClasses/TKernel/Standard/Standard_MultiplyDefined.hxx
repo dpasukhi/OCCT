@@ -18,7 +18,7 @@
 #define _Standard_MultiplyDefined_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_MultiplyDefined.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Standard_MultiplyDefined.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_MultiplyDefined_HeaderFile

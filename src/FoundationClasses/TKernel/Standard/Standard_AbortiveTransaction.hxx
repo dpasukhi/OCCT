@@ -18,7 +18,7 @@
 #define _Standard_AbortiveTransaction_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_AbortiveTransaction.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Standard_AbortiveTransaction.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_AbortiveTransaction_HeaderFile

@@ -18,7 +18,7 @@
 #define _BRepExtrema_UnCompatibleShape_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingAlgorithms/TKTopAlgo/BRepExtrema/BRepExtrema_UnCompatibleShape.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of BRepExtrema_UnCompatibleShape.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _BRepExtrema_UnCompatibleShape_HeaderFile

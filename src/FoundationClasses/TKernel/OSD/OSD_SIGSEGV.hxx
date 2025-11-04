@@ -16,7 +16,7 @@
 #define _OSD_SIGSEGV_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/OSD/OSD_SIGSEGV.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of OSD_SIGSEGV.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _OSD_SIGSEGV_HeaderFile

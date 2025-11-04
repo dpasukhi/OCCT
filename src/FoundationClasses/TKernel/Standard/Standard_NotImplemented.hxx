@@ -18,7 +18,7 @@
 #define _Standard_NotImplemented_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/FoundationClasses/TKernel/Standard/Standard_NotImplemented.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of Standard_NotImplemented.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _Standard_NotImplemented_HeaderFile

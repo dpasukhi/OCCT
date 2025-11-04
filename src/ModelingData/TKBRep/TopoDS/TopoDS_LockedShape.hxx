@@ -18,7 +18,7 @@
 #define _TopoDS_LockedShape_HeaderFile
 
 #include <Standard_Macro.hxx>
-Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of src/ModelingData/TKBRep/TopoDS/TopoDS_LockedShape.hxx.")
+Standard_HEADER_DEPRECATED("Use Standard_FailureRegistry.hxx instead of TopoDS_LockedShape.hxx.")
 #include <Standard_FailureRegistry.hxx>
 
 #endif // _TopoDS_LockedShape_HeaderFile
