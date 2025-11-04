@@ -33,6 +33,7 @@ set(OCCT_Standard_FILES
   Standard_ExtCharacter.hxx
   Standard_Failure.cxx
   Standard_Failure.hxx
+  Standard_FailureRegistry.hxx
   Standard_WarningDisableFunctionCast.hxx
   Standard_GUID.cxx
   Standard_GUID.hxx
