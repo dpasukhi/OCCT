@@ -78,6 +78,7 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
   }
 
   // Try to open the file
+  try
   {
     OCC_CATCH_SIGNALS
     PCDM_ReadWriter::Open(aFileDriver, theFileName, Storage_VSRead);

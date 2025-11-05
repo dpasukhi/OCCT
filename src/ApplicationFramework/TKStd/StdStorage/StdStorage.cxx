@@ -57,6 +57,7 @@ Storage_Error StdStorage::Read(const TCollection_AsciiString& theFileName,
     return Storage_VSWrongFileDriver;
 
   // Try to open the file
+  try
   {
     OCC_CATCH_SIGNALS
     PCDM_ReadWriter::Open(aDriver, theFileName, Storage_VSRead);
