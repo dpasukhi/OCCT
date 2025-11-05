@@ -15,7 +15,6 @@
 #include <Standard_ErrorHandler.hxx>
 #include <Storage_TypeData.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
 #include <TCollection_AsciiString.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Storage_TypeData, Standard_Transient)
@@ -49,14 +48,14 @@ Standard_Boolean Storage_TypeData::Read(const Handle(Storage_BaseDriver)& theDri
   Standard_Integer len = theDriver->TypeSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
     {
       OCC_CATCH_SIGNALS
       theDriver->ReadTypeInformations(aTypeNum, aTypeName);
     }
-    catch (const Storage_StreamTypeMismatchError&)
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      myErrorStatus    = Storage_VSTypeMismatch;
+      myErrorStatus    = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadTypeInformations";
       return Standard_False;
     }

@@ -16,7 +16,6 @@
 #include <StdStorage_RootData.hxx>
 #include <StdStorage_Root.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
 #include <TCollection_AsciiString.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(StdStorage_RootData, Standard_Transient)

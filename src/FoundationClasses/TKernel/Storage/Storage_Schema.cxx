@@ -23,7 +23,6 @@
 #include <Storage_HSeqOfRoot.hxx>
 #include <Storage_Root.hxx>
 #include <Storage_Schema.hxx>
-#include <Storage_StreamWriteError.hxx>
 #include <Storage_TypeData.hxx>
 #include <Storage_TypedCallBack.hxx>
 #include <TCollection_AsciiString.hxx>
@@ -351,7 +350,6 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
 
   if ((theDriver->OpenMode() == Storage_VSWrite) || (theDriver->OpenMode() == Storage_VSReadWrite))
   {
-    try
     {
       OCC_CATCH_SIGNALS
       errorContext = "BeginWriteInfoSection";
@@ -460,9 +458,10 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
       errorContext = "EndWriteDataSection";
       theDriver->EndWriteDataSection();
     }
-    catch (Storage_StreamWriteError const&)
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      aData->SetErrorStatus(Storage_VSWriteError);
+      aData->SetErrorStatus(theDriver->ErrorStatus());
       aData->SetErrorStatusExtension(errorContext);
     }
   }
