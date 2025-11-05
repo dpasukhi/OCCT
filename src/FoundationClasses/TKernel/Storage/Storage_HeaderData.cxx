@@ -47,28 +47,21 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
   }
 
   {
-    try
+    OCC_CATCH_SIGNALS
+    theDriver->ReadInfo(myNBObj,
+                        myStorageVersion,
+                        myDate,
+                        mySchemaName,
+                        mySchemaVersion,
+                        myApplicationName,
+                        myApplicationVersion,
+                        myDataType,
+                        myUserInfo);
+
+    // Check for errors from the driver
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      OCC_CATCH_SIGNALS
-      theDriver->ReadInfo(myNBObj,
-                          myStorageVersion,
-                          myDate,
-                          mySchemaName,
-                          mySchemaVersion,
-                          myApplicationName,
-                          myApplicationVersion,
-                          myDataType,
-                          myUserInfo);
-    }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "ReadInfo";
-      return Standard_False;
-    }
-    catch (Storage_StreamExtCharParityError const&)
-    {
-      myErrorStatus    = Storage_VSExtCharParityError;
+      myErrorStatus = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadInfo";
       return Standard_False;
     }
@@ -90,20 +83,13 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
   }
 
   {
-    try
+    OCC_CATCH_SIGNALS
+    theDriver->ReadComment(myComments);
+
+    // Check for errors from the driver
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      OCC_CATCH_SIGNALS
-      theDriver->ReadComment(myComments);
-    }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "ReadComment";
-      return Standard_False;
-    }
-    catch (Storage_StreamExtCharParityError const&)
-    {
-      myErrorStatus    = Storage_VSExtCharParityError;
+      myErrorStatus = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadComment";
       return Standard_False;
     }

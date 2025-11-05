@@ -50,17 +50,11 @@ Standard_Boolean StdStorage_RootData::Read(const Handle(Storage_BaseDriver)& the
   Standard_Integer len = theDriver->RootSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
     {
       OCC_CATCH_SIGNALS
       theDriver->ReadRoot(aRootName, aRef, aTypeName);
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "ReadRoot";
-      return Standard_False;
-    }
+    
 
     Handle(StdStorage_Root) aRoot = new StdStorage_Root(aRootName, aRef, aTypeName);
     myObjects.Add(aRootName, aRoot);
@@ -98,17 +92,11 @@ Standard_Boolean StdStorage_RootData::Write(const Handle(Storage_BaseDriver)& th
   for (StdStorage_MapOfRoots::Iterator anIt(myObjects); anIt.More(); anIt.Next())
   {
     const Handle(StdStorage_Root)& aRoot = anIt.Value();
-    try
     {
       OCC_CATCH_SIGNALS
       theDriver->WriteRoot(aRoot->Name(), aRoot->Reference(), aRoot->Type());
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "ReadRoot";
-      return Standard_False;
-    }
+    
   }
 
   myErrorStatus = theDriver->EndWriteRootSection();

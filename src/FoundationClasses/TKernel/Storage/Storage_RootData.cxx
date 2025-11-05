@@ -52,17 +52,11 @@ Standard_Boolean Storage_RootData::Read(const Handle(Storage_BaseDriver)& theDri
   Standard_Integer len = theDriver->RootSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
     {
       OCC_CATCH_SIGNALS
       theDriver->ReadRoot(aRootName, aRef, aTypeName);
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "ReadRoot";
-      return Standard_False;
-    }
+    
 
     Handle(Storage_Root) aRoot = new Storage_Root(aRootName, aRef, aTypeName);
     myObjects.Bind(aRootName, aRoot);

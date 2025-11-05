@@ -51,17 +51,11 @@ Standard_Boolean StdStorage_TypeData::Read(const Handle(Storage_BaseDriver)& the
   Standard_Integer len = theDriver->TypeSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
     {
       OCC_CATCH_SIGNALS
       theDriver->ReadTypeInformations(aTypeNum, aTypeName);
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "ReadTypeInformations";
-      return Standard_False;
-    }
+    
 
     myPt.Add(aTypeName, aTypeNum);
   }
@@ -98,17 +92,11 @@ Standard_Boolean StdStorage_TypeData::Write(const Handle(Storage_BaseDriver)& th
   theDriver->SetTypeSectionSize(len);
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
     {
       OCC_CATCH_SIGNALS
       theDriver->WriteTypeInformations(i, Type(i));
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "WriteTypeInformations";
-      return Standard_False;
-    }
+    
   }
 
   myErrorStatus = theDriver->EndWriteTypeSection();

@@ -59,6 +59,12 @@ public:
   //! Returns false if stream reading is failed.
   Standard_EXPORT operator bool() const;
 
+  //! Returns the last error status.
+  Standard_Boolean HasError() const { return myHasError; }
+
+  //! Clears the error status.
+  void ClearError() { myHasError = Standard_False; }
+
   //! Reads real value from the stream.
   Standard_EXPORT Standard_Real ReadReal()
   {
@@ -136,6 +142,7 @@ private:
   Standard_IStream*   myStream;   ///< pointer to the stream
   uint64_t            myPosition; ///< equivalent to tellg returned value for fast access
   BinTools_ObjectType myLastType; ///< last type that was read
+  Standard_Boolean    myHasError; ///< indicates if an error occurred
 };
 
 #endif // _BinTools_IStream_HeaderFile

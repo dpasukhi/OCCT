@@ -241,7 +241,7 @@ Storage_Error FSD_CmpFile::BeginWriteInfoSection()
   myStream << FSD_CmpFile::MagicNumber() << '\n';
   myStream << "BEGIN_INFO_SECTION\n";
   if (myStream.bad())
-    throw Storage_StreamWriteError();
+    return Storage_VSWriteError;
 
   return Storage_VSOk;
 }
@@ -275,7 +275,10 @@ void FSD_CmpFile::WritePersistentObjectHeader(const Standard_Integer aRef,
 {
   myStream << "\n#" << aRef << "%" << aType << " ";
   if (myStream.bad())
-    throw Storage_StreamWriteError();
+  {
+    SetErrorStatus(Storage_VSWriteError);
+    return;
+  }
 }
 
 //=================================================================================================
@@ -283,7 +286,10 @@ void FSD_CmpFile::WritePersistentObjectHeader(const Standard_Integer aRef,
 void FSD_CmpFile::BeginWritePersistentObjectData()
 {
   if (myStream.bad())
-    throw Storage_StreamWriteError();
+  {
+    SetErrorStatus(Storage_VSWriteError);
+    return;
+  }
 }
 
 //=================================================================================================
@@ -291,7 +297,10 @@ void FSD_CmpFile::BeginWritePersistentObjectData()
 void FSD_CmpFile::BeginWriteObjectData()
 {
   if (myStream.bad())
-    throw Storage_StreamWriteError();
+  {
+    SetErrorStatus(Storage_VSWriteError);
+    return;
+  }
 }
 
 //=================================================================================================
@@ -299,7 +308,10 @@ void FSD_CmpFile::BeginWriteObjectData()
 void FSD_CmpFile::EndWriteObjectData()
 {
   if (myStream.bad())
-    throw Storage_StreamWriteError();
+  {
+    SetErrorStatus(Storage_VSWriteError);
+    return;
+  }
 }
 
 //=================================================================================================
@@ -307,7 +319,10 @@ void FSD_CmpFile::EndWriteObjectData()
 void FSD_CmpFile::EndWritePersistentObjectData()
 {
   if (myStream.bad())
-    throw Storage_StreamWriteError();
+  {
+    SetErrorStatus(Storage_VSWriteError);
+    return;
+  }
 }
 
 //=================================================================================================
@@ -322,13 +337,13 @@ void FSD_CmpFile::ReadPersistentObjectHeader(Standard_Integer& aRef, Standard_In
   {
     if (IsEnd() || (c != ' ') || (c == '\r') || (c == '\n'))
     {
-      throw Storage_StreamFormatError();
+      SetErrorStatus(Storage_VSFormatError); return Storage_VSOk;
     }
     myStream.get(c);
   }
 
   if (!(myStream >> aRef))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch); return Storage_VSOk;
 
   myStream.get(c);
 
@@ -336,13 +351,13 @@ void FSD_CmpFile::ReadPersistentObjectHeader(Standard_Integer& aRef, Standard_In
   {
     if (IsEnd() || (c != ' ') || (c == '\r') || (c == '\n'))
     {
-      throw Storage_StreamFormatError();
+      SetErrorStatus(Storage_VSFormatError); return Storage_VSOk;
     }
     myStream.get(c);
   }
 
   if (!(myStream >> aType))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch); return Storage_VSOk;
   //  std::cout << "REF:" << aRef << " TYPE:"<< aType << std::endl;
 }
 
@@ -378,7 +393,7 @@ void FSD_CmpFile::EndReadPersistentObjectData()
   {
     if (IsEnd() || (c != ' '))
     {
-      throw Storage_StreamFormatError();
+      SetErrorStatus(Storage_VSFormatError); return Storage_VSOk;
     }
     myStream.get(c);
   }

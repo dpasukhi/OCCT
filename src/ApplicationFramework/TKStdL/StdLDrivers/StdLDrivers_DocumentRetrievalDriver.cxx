@@ -78,7 +78,6 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
   }
 
   // Try to open the file
-  try
   {
     OCC_CATCH_SIGNALS
     PCDM_ReadWriter::Open(aFileDriver, theFileName, Storage_VSRead);
@@ -180,16 +179,12 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
   {
     Standard_Integer aRef = 0, aType = 0;
     Storage_Error    anError;
-    try
     {
       OCC_CATCH_SIGNALS
       aFileDriver->ReadReferenceType(aRef, aType);
       anError = Storage_VSOk;
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      anError = Storage_VSTypeMismatch;
-    }
+    
 
     raiseOnStorageError(anError);
 
@@ -204,24 +199,14 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
   for (i = 1; i <= theHeaderData.NumberOfObjects(); i++)
   {
     Storage_Error anError;
-    try
     {
       OCC_CATCH_SIGNALS
       aReadData.ReadPersistentObject(i);
       anError = Storage_VSOk;
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      anError = Storage_VSTypeMismatch;
-    }
-    catch (Storage_StreamFormatError const&)
-    {
-      anError = Storage_VSFormatError;
-    }
-    catch (Storage_StreamReadError const&)
-    {
-      anError = Storage_VSFormatError;
-    }
+    
+    
+    
 
     raiseOnStorageError(anError);
   }

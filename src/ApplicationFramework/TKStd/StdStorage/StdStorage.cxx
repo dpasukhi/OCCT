@@ -57,7 +57,6 @@ Storage_Error StdStorage::Read(const TCollection_AsciiString& theFileName,
     return Storage_VSWrongFileDriver;
 
   // Try to open the file
-  try
   {
     OCC_CATCH_SIGNALS
     PCDM_ReadWriter::Open(aDriver, theFileName, Storage_VSRead);
@@ -124,16 +123,12 @@ Storage_Error StdStorage::Read(const Handle(Storage_BaseDriver)& theDriver,
   for (Standard_Integer i = 1; i <= aNbRefs; i++)
   {
     Standard_Integer aRef = 0, aType = 0;
-    try
     {
       OCC_CATCH_SIGNALS
       theDriver->ReadReferenceType(aRef, aType);
       anError = Storage_VSOk;
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      anError = Storage_VSTypeMismatch;
-    }
+    
 
     if (anError != Storage_VSOk)
       return anError;
@@ -152,24 +147,14 @@ Storage_Error StdStorage::Read(const Handle(Storage_BaseDriver)& theDriver,
 
   for (Standard_Integer i = 1; i <= aHeaderData->NumberOfObjects(); i++)
   {
-    try
     {
       OCC_CATCH_SIGNALS
       aReadData.ReadPersistentObject(i);
       anError = Storage_VSOk;
     }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      anError = Storage_VSTypeMismatch;
-    }
-    catch (Storage_StreamFormatError const&)
-    {
-      anError = Storage_VSFormatError;
-    }
-    catch (Storage_StreamReadError const&)
-    {
-      anError = Storage_VSFormatError;
-    }
+    
+    
+    
 
     if (anError != Storage_VSOk)
       return anError;
@@ -269,7 +254,6 @@ Storage_Error StdStorage::Write(const Handle(Storage_BaseDriver)& theDriver,
   aHeaderData->SetStorageVersion(StdStorage::Version());
   aHeaderData->SetNumberOfObjects(aPObjs.Length());
 
-  try
   {
     // Write header section
     if (!aHeaderData->Write(theDriver))
@@ -319,10 +303,7 @@ Storage_Error StdStorage::Write(const Handle(Storage_BaseDriver)& theDriver,
     if (anError != Storage_VSOk)
       return anError;
   }
-  catch (Storage_StreamWriteError const&)
-  {
-    return Storage_VSWriteError;
-  }
+  
 
   return Storage_VSOk;
 }

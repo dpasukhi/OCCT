@@ -22,9 +22,11 @@
 #include <Standard_SStream.hxx>
 #include <Storage_StreamReadError.hxx>
 
+//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 class Storage_StreamTypeMismatchError;
 DEFINE_STANDARD_HANDLE(Storage_StreamTypeMismatchError, Storage_StreamReadError)
 
+//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 #if !defined No_Exception && !defined No_Storage_StreamTypeMismatchError
   #define Storage_StreamTypeMismatchError_Raise_if(CONDITION, MESSAGE)                             \
     if (CONDITION)                                                                                 \
@@ -33,6 +35,7 @@ DEFINE_STANDARD_HANDLE(Storage_StreamTypeMismatchError, Storage_StreamReadError)
   #define Storage_StreamTypeMismatchError_Raise_if(CONDITION, MESSAGE)
 #endif
 
+//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 DEFINE_STANDARD_EXCEPTION(Storage_StreamTypeMismatchError, Storage_StreamReadError)
 
 #endif // _Storage_StreamTypeMismatchError_HeaderFile

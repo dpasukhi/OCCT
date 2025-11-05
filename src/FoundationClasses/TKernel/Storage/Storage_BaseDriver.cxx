@@ -20,7 +20,8 @@
 IMPLEMENT_STANDARD_RTTIEXT(Storage_BaseDriver, Standard_Transient)
 
 Storage_BaseDriver::Storage_BaseDriver()
-    : myOpenMode(Storage_VSNone)
+    : myOpenMode(Storage_VSNone),
+      myErrorStatus(Storage_VSOk)
 {
 }
 

@@ -22,9 +22,11 @@
 #include <Standard_SStream.hxx>
 #include <Standard_Failure.hxx>
 
+//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 class Storage_StreamFormatError;
 DEFINE_STANDARD_HANDLE(Storage_StreamFormatError, Standard_Failure)
 
+//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 #if !defined No_Exception && !defined No_Storage_StreamFormatError
   #define Storage_StreamFormatError_Raise_if(CONDITION, MESSAGE)                                   \
     if (CONDITION)                                                                                 \
@@ -33,6 +35,7 @@ DEFINE_STANDARD_HANDLE(Storage_StreamFormatError, Standard_Failure)
   #define Storage_StreamFormatError_Raise_if(CONDITION, MESSAGE)
 #endif
 
+//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 DEFINE_STANDARD_EXCEPTION(Storage_StreamFormatError, Standard_Failure)
 
 #endif // _Storage_StreamFormatError_HeaderFile
