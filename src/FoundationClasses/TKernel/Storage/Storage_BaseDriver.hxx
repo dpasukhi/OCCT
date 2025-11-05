@@ -195,6 +195,9 @@ public:
 
 public:
   //!@name Error state management
+  //!
+  //! @warning Driver instances are NOT thread-safe and should not be shared across threads.
+  //! Each thread should use its own driver instance for file I/O operations.
 
   //! Returns the error status of the last operation.
   Storage_Error ErrorStatus() const { return myErrorStatus; }
