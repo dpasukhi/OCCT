@@ -59,7 +59,7 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
     // Check for errors from the driver
     if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      myErrorStatus = theDriver->ErrorStatus();
+      myErrorStatus    = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadInfo";
       return Standard_False;
     }
@@ -87,7 +87,7 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
     // Check for errors from the driver
     if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      myErrorStatus = theDriver->ErrorStatus();
+      myErrorStatus    = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadComment";
       return Standard_False;
     }

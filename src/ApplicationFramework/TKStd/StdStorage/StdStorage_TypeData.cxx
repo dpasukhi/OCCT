@@ -55,7 +55,6 @@ Standard_Boolean StdStorage_TypeData::Read(const Handle(Storage_BaseDriver)& the
       OCC_CATCH_SIGNALS
       theDriver->ReadTypeInformations(aTypeNum, aTypeName);
     }
-    
 
     myPt.Add(aTypeName, aTypeNum);
   }
@@ -96,7 +95,6 @@ Standard_Boolean StdStorage_TypeData::Write(const Handle(Storage_BaseDriver)& th
       OCC_CATCH_SIGNALS
       theDriver->WriteTypeInformations(i, Type(i));
     }
-    
   }
 
   myErrorStatus = theDriver->EndWriteTypeSection();

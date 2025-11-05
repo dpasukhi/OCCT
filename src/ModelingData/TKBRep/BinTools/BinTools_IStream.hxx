@@ -63,7 +63,8 @@ public:
   //! Use this method to check if any read operation has failed.
   //! Reading operations (operator>> for Standard_Real, Standard_Integer, etc.)
   //! set the error flag when the underlying stream read fails.
-  //! After detecting an error, callers should stop further read operations and handle the error appropriately.
+  //! After detecting an error, callers should stop further read operations and handle the error
+  //! appropriately.
   Standard_Boolean HasError() const { return myHasError; }
 
   //! Clears the error status.

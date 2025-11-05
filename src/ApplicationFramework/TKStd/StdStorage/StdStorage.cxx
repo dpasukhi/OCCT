@@ -300,7 +300,6 @@ Storage_Error StdStorage::Write(const Handle(Storage_BaseDriver)& theDriver,
     if (anError != Storage_VSOk)
       return anError;
   }
-  
 
   return Storage_VSOk;
 }

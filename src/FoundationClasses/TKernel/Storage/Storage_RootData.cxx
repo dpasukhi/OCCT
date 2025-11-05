@@ -56,7 +56,6 @@ Standard_Boolean Storage_RootData::Read(const Handle(Storage_BaseDriver)& theDri
       OCC_CATCH_SIGNALS
       theDriver->ReadRoot(aRootName, aRef, aTypeName);
     }
-    
 
     Handle(Storage_Root) aRoot = new Storage_Root(aRootName, aRef, aTypeName);
     myObjects.Bind(aRootName, aRoot);

@@ -200,16 +200,21 @@ public:
   Storage_Error ErrorStatus() const { return myErrorStatus; }
 
   //! Clears the error status.
-  void ClearErrorStatus() { myErrorStatus = Storage_VSOk; myErrorStatusExt.Clear(); }
+  void ClearErrorStatus()
+  {
+    myErrorStatus = Storage_VSOk;
+    myErrorStatusExt.Clear();
+  }
 
   //! Returns the extended error description.
   const TCollection_AsciiString& ErrorStatusExtension() const { return myErrorStatusExt; }
 
 protected:
   //! Sets the error status.
-  void SetErrorStatus(const Storage_Error theError, const TCollection_AsciiString& theExtension = TCollection_AsciiString())
+  void SetErrorStatus(const Storage_Error            theError,
+                      const TCollection_AsciiString& theExtension = TCollection_AsciiString())
   {
-    myErrorStatus = theError;
+    myErrorStatus    = theError;
     myErrorStatusExt = theExtension;
   }
 
