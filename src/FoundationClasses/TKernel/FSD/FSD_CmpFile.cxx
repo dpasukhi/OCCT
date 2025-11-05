@@ -337,13 +337,17 @@ void FSD_CmpFile::ReadPersistentObjectHeader(Standard_Integer& aRef, Standard_In
   {
     if (IsEnd() || (c != ' ') || (c == '\r') || (c == '\n'))
     {
-      SetErrorStatus(Storage_VSFormatError); return Storage_VSOk;
+      SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
 
   if (!(myStream >> aRef))
-    SetErrorStatus(Storage_VSTypeMismatch); return Storage_VSOk;
+  {
+    SetErrorStatus(Storage_VSTypeMismatch);
+    return;
+  }
 
   myStream.get(c);
 
@@ -351,13 +355,17 @@ void FSD_CmpFile::ReadPersistentObjectHeader(Standard_Integer& aRef, Standard_In
   {
     if (IsEnd() || (c != ' ') || (c == '\r') || (c == '\n'))
     {
-      SetErrorStatus(Storage_VSFormatError); return Storage_VSOk;
+      SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
 
   if (!(myStream >> aType))
-    SetErrorStatus(Storage_VSTypeMismatch); return Storage_VSOk;
+  {
+    SetErrorStatus(Storage_VSTypeMismatch);
+    return;
+  }
   //  std::cout << "REF:" << aRef << " TYPE:"<< aType << std::endl;
 }
 
@@ -393,7 +401,8 @@ void FSD_CmpFile::EndReadPersistentObjectData()
   {
     if (IsEnd() || (c != ' '))
     {
-      SetErrorStatus(Storage_VSFormatError); return Storage_VSOk;
+      SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }

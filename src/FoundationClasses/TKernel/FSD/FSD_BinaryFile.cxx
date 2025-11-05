@@ -260,10 +260,6 @@ Standard_Integer FSD_BinaryFile::PutInteger(Standard_OStream&      theOStream,
   if (!theOnlyCount)
   {
     theOStream.write((char*)&t, sizeof(Standard_Integer));
-    if (theOStream.fail())
-    {
-      SetErrorStatus(Storage_VSWriteError);
-    }
   }
 
   return sizeof(Standard_Integer);
@@ -338,13 +334,9 @@ void FSD_BinaryFile::GetReference(Standard_IStream& theIStream, Standard_Integer
 {
   theIStream.read((char*)&aValue, sizeof(Standard_Integer));
 
-  if (theIStream.gcount() != sizeof(Standard_Integer))
-  {
-    SetErrorStatus(Storage_VSTypeMismatch);
-  }
-
 #if OCCT_BINARY_FILE_DO_INVERSE
-  aValue = InverseInt(aValue);
+  if (theIStream.gcount() == sizeof(Standard_Integer))
+    aValue = InverseInt(aValue);
 #endif
 }
 
@@ -388,13 +380,9 @@ void FSD_BinaryFile::GetInteger(Standard_IStream& theIStream, Standard_Integer& 
 
   theIStream.read((char*)&theValue, sizeof(Standard_Integer));
 
-  if (theIStream.gcount() != sizeof(Standard_Integer))
-  {
-    SetErrorStatus(Storage_VSTypeMismatch);
-  }
-
 #if OCCT_BINARY_FILE_DO_INVERSE
-  theValue = InverseInt(theValue);
+  if (theIStream.gcount() == sizeof(Standard_Integer))
+    theValue = InverseInt(theValue);
 #endif
 }
 
@@ -1301,10 +1289,6 @@ Standard_Integer FSD_BinaryFile::WriteString(Standard_OStream&              theO
   if (anAsciiStrLen > 0 && !theOnlyCount)
   {
     theOStream.write(theString.ToCString(), theString.Length());
-    if (theOStream.fail())
-    {
-      SetErrorStatus(Storage_VSWriteError);
-    }
   }
 
   return aNumAndStrLen;
@@ -1353,14 +1337,18 @@ void FSD_BinaryFile::ReadString(Standard_IStream& theIStream, TCollection_AsciiS
 
     if (!theIStream.good())
     {
-      SetErrorStatus(Storage_VSFormatError); return;
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     theIStream.read(c, size);
 
     if (theIStream.gcount() != size)
     {
-      SetErrorStatus(Storage_VSFormatError); return;
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     c[size] = '\0';
@@ -1443,10 +1431,6 @@ Standard_Integer FSD_BinaryFile::WriteExtendedString(Standard_OStream&          
 #endif
 
     theOStream.write((char*)anExtStr, sizeof(Standard_ExtCharacter) * theString.Length());
-    if (theOStream.fail())
-    {
-      SetErrorStatus(Storage_VSWriteError);
-    }
   }
 
   return aNumAndStrLen;
@@ -1500,14 +1484,18 @@ void FSD_BinaryFile::ReadExtendedString(Standard_IStream&           theIStream,
 
     if (!theIStream.good())
     {
-      SetErrorStatus(Storage_VSFormatError); return;
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     const std::streamsize aNbBytes = std::streamsize(sizeof(Standard_ExtCharacter) * size);
     theIStream.read((char*)c, aNbBytes);
     if (theIStream.gcount() != aNbBytes)
     {
-      SetErrorStatus(Storage_VSFormatError); return;
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     c[size] = '\0';
