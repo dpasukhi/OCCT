@@ -363,7 +363,6 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
   if ((theDriver->OpenMode() == Storage_VSWrite) || (theDriver->OpenMode() == Storage_VSReadWrite))
   {
     {
-      OCC_CATCH_SIGNALS
       errorContext = "BeginWriteInfoSection";
       theDriver->BeginWriteInfoSection();
       CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()

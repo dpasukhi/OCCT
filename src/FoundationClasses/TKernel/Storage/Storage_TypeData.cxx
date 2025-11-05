@@ -49,7 +49,6 @@ Standard_Boolean Storage_TypeData::Read(const Handle(Storage_BaseDriver)& theDri
   for (Standard_Integer i = 1; i <= len; i++)
   {
     {
-      OCC_CATCH_SIGNALS
       theDriver->ReadTypeInformations(aTypeNum, aTypeName);
     }
 

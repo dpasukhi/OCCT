@@ -125,7 +125,6 @@ Storage_Error StdStorage::Read(const Handle(Storage_BaseDriver)& theDriver,
   {
     Standard_Integer aRef = 0, aType = 0;
     {
-      OCC_CATCH_SIGNALS
       theDriver->ReadReferenceType(aRef, aType);
     }
 
@@ -148,7 +147,6 @@ Storage_Error StdStorage::Read(const Handle(Storage_BaseDriver)& theDriver,
   for (Standard_Integer i = 1; i <= aHeaderData->NumberOfObjects(); i++)
   {
     {
-      OCC_CATCH_SIGNALS
       aReadData.ReadPersistentObject(i);
     }
 

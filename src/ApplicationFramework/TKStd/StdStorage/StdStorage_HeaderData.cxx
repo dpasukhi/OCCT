@@ -46,7 +46,6 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
   }
 
   {
-    OCC_CATCH_SIGNALS
     theDriver->ReadInfo(myNBObj,
                         myStorageVersion,
                         myDate,
@@ -81,7 +80,6 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
   }
 
   {
-    OCC_CATCH_SIGNALS
     theDriver->ReadComment(myComments);
   }
 
@@ -121,7 +119,6 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
   }
 
   {
-    OCC_CATCH_SIGNALS
     theDriver->WriteInfo(myNBObj,
                          myStorageVersion,
                          myDate,
@@ -156,7 +153,6 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
   }
 
   {
-    OCC_CATCH_SIGNALS
     theDriver->WriteComment(myComments);
   }
 

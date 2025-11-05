@@ -177,7 +177,6 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
   {
     Standard_Integer aRef = 0, aType = 0;
     {
-      OCC_CATCH_SIGNALS
       aFileDriver->ReadReferenceType(aRef, aType);
     }
 
@@ -194,7 +193,6 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
   for (i = 1; i <= theHeaderData.NumberOfObjects(); i++)
   {
     {
-      OCC_CATCH_SIGNALS
       aReadData.ReadPersistentObject(i);
     }
 

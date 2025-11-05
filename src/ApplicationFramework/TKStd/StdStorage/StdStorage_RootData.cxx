@@ -50,7 +50,6 @@ Standard_Boolean StdStorage_RootData::Read(const Handle(Storage_BaseDriver)& the
   for (Standard_Integer i = 1; i <= len; i++)
   {
     {
-      OCC_CATCH_SIGNALS
       theDriver->ReadRoot(aRootName, aRef, aTypeName);
     }
 
@@ -98,7 +97,6 @@ Standard_Boolean StdStorage_RootData::Write(const Handle(Storage_BaseDriver)& th
   {
     const Handle(StdStorage_Root)& aRoot = anIt.Value();
     {
-      OCC_CATCH_SIGNALS
       theDriver->WriteRoot(aRoot->Name(), aRoot->Reference(), aRoot->Type());
     }
 

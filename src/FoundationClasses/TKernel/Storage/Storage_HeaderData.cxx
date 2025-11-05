@@ -45,7 +45,6 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
   }
 
   {
-    OCC_CATCH_SIGNALS
     theDriver->ReadInfo(myNBObj,
                         myStorageVersion,
                         myDate,
@@ -80,7 +79,6 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
   }
 
   {
-    OCC_CATCH_SIGNALS
     theDriver->ReadComment(myComments);
   }
 

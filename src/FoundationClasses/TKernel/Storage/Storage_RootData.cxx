@@ -53,7 +53,6 @@ Standard_Boolean Storage_RootData::Read(const Handle(Storage_BaseDriver)& theDri
   for (Standard_Integer i = 1; i <= len; i++)
   {
     {
-      OCC_CATCH_SIGNALS
       theDriver->ReadRoot(aRootName, aRef, aTypeName);
     }
 

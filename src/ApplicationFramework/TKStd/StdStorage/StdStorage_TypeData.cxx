@@ -52,7 +52,6 @@ Standard_Boolean StdStorage_TypeData::Read(const Handle(Storage_BaseDriver)& the
   for (Standard_Integer i = 1; i <= len; i++)
   {
     {
-      OCC_CATCH_SIGNALS
       theDriver->ReadTypeInformations(aTypeNum, aTypeName);
     }
 
@@ -92,7 +91,6 @@ Standard_Boolean StdStorage_TypeData::Write(const Handle(Storage_BaseDriver)& th
   for (Standard_Integer i = 1; i <= len; i++)
   {
     {
-      OCC_CATCH_SIGNALS
       theDriver->WriteTypeInformations(i, Type(i));
     }
   }
