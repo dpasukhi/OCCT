@@ -766,8 +766,7 @@ Storage_Error FSD_File::BeginWriteCommentSection()
 {
   myStream << "BEGIN_COMMENT_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=================================================================================================
@@ -801,8 +800,7 @@ Storage_Error FSD_File::EndWriteCommentSection()
 {
   myStream << "END_COMMENT_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=======================================================================
@@ -851,8 +849,7 @@ Storage_Error FSD_File::BeginWriteTypeSection()
 {
   myStream << "BEGIN_TYPE_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=================================================================================================
@@ -886,8 +883,7 @@ Storage_Error FSD_File::EndWriteTypeSection()
 {
   myStream << "END_TYPE_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=======================================================================
@@ -951,8 +947,7 @@ Storage_Error FSD_File::BeginWriteRootSection()
 {
   myStream << "BEGIN_ROOT_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=================================================================================================
@@ -987,8 +982,7 @@ Storage_Error FSD_File::EndWriteRootSection()
 {
   myStream << "END_ROOT_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=======================================================================
@@ -1050,8 +1044,7 @@ Storage_Error FSD_File::BeginWriteRefSection()
 {
   myStream << "BEGIN_REF_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=================================================================================================
@@ -1084,8 +1077,7 @@ Storage_Error FSD_File::EndWriteRefSection()
 {
   myStream << "END_REF_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=======================================================================
@@ -1148,8 +1140,7 @@ Storage_Error FSD_File::BeginWriteDataSection()
 {
   myStream << "BEGIN_DATA_SECTION";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
-  return Storage_VSOk;
+    return Storage_VSWriteError;
 }
 
 //=================================================================================================
@@ -1219,7 +1210,7 @@ Storage_Error FSD_File::EndWriteDataSection()
 {
   myStream << "\nEND_DATA_SECTION\n";
   if (myStream.bad())
-    SetErrorStatus(Storage_VSWriteError);
+    return Storage_VSWriteError;
   return Storage_VSOk;
 }
 
@@ -1246,12 +1237,16 @@ void FSD_File::ReadPersistentObjectHeader(Standard_Integer& aRef, Standard_Integ
     if (IsEnd() || (c != ' ') || (c == '\n'))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
 
   if (!(myStream >> aRef))
+  {
     SetErrorStatus(Storage_VSTypeMismatch);
+    return;
+  }
 
   myStream.get(c);
 
@@ -1260,6 +1255,7 @@ void FSD_File::ReadPersistentObjectHeader(Standard_Integer& aRef, Standard_Integ
     if (IsEnd() || (c != ' ') || (c == '\n'))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
@@ -1271,12 +1267,16 @@ void FSD_File::ReadPersistentObjectHeader(Standard_Integer& aRef, Standard_Integ
     if (IsEnd() || (c != ' ') || (c == '\n'))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
 
   if (!(myStream >> aType))
+  {
     SetErrorStatus(Storage_VSTypeMismatch);
+    return;
+  }
   //  std::cout << "REF:" << aRef << " TYPE:"<< aType << std::endl;
 }
 
@@ -1291,6 +1291,7 @@ void FSD_File::BeginReadPersistentObjectData()
     if (IsEnd() || (c != ' ') || (c == '\n'))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
@@ -1309,6 +1310,7 @@ void FSD_File::BeginReadObjectData()
     if (IsEnd() || (c != ' ') || (c == '\n'))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
@@ -1327,6 +1329,7 @@ void FSD_File::EndReadObjectData()
     if (IsEnd() || (c != ' ') || (c == '\n'))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
@@ -1346,6 +1349,7 @@ void FSD_File::EndReadPersistentObjectData()
     if (IsEnd() || (c != ' ') || (c == '\n'))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }
@@ -1356,6 +1360,7 @@ void FSD_File::EndReadPersistentObjectData()
     if (IsEnd() || (c != ' '))
     {
       SetErrorStatus(Storage_VSFormatError);
+      return;
     }
     myStream.get(c);
   }

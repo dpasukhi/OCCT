@@ -182,7 +182,8 @@ BinTools_IStream& BinTools_IStream::operator>>(gp_Pnt& theValue)
 //=======================================================================
 BinTools_IStream& BinTools_IStream::operator>>(Standard_Byte& theValue)
 {
-  myStream->read((char*)&theValue, sizeof(Standard_Byte));
+  if (!myStream->read((char*)&theValue, sizeof(Standard_Byte)))
+    myHasError = Standard_True;
   myPosition += sizeof(Standard_Byte);
   return *this;
 }
@@ -193,8 +194,13 @@ BinTools_IStream& BinTools_IStream::operator>>(Standard_Byte& theValue)
 //=======================================================================
 BinTools_IStream& BinTools_IStream::operator>>(Standard_ShortReal& theValue)
 {
-  myStream->read((char*)&theValue, sizeof(Standard_ShortReal));
+  if (!myStream->read((char*)&theValue, sizeof(Standard_ShortReal)))
+    myHasError = Standard_True;
   myPosition += sizeof(Standard_ShortReal);
+#if DO_INVERSE
+  if (!myHasError)
+    theValue = InverseShortReal(theValue);
+#endif
   return *this;
 }
 

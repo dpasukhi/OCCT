@@ -179,15 +179,12 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
   for (i = 1; i <= len; i++)
   {
     Standard_Integer aRef = 0, aType = 0;
-    Storage_Error    anError;
     {
       OCC_CATCH_SIGNALS
       aFileDriver->ReadReferenceType(aRef, aType);
-      anError = Storage_VSOk;
     }
-    
 
-    raiseOnStorageError(anError);
+    raiseOnStorageError(aFileDriver->ErrorStatus());
 
     aReadData.CreatePersistentObject(aRef, anInstantiators(aType));
   }
@@ -199,17 +196,12 @@ Handle(StdObjMgt_Persistent) StdLDrivers_DocumentRetrievalDriver::read(
 
   for (i = 1; i <= theHeaderData.NumberOfObjects(); i++)
   {
-    Storage_Error anError;
     {
       OCC_CATCH_SIGNALS
       aReadData.ReadPersistentObject(i);
-      anError = Storage_VSOk;
     }
-    
-    
-    
 
-    raiseOnStorageError(anError);
+    raiseOnStorageError(aFileDriver->ErrorStatus());
   }
 
   raiseOnStorageError(aFileDriver->EndReadDataSection());

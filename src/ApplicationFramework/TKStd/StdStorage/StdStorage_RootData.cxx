@@ -54,7 +54,13 @@ Standard_Boolean StdStorage_RootData::Read(const Handle(Storage_BaseDriver)& the
       OCC_CATCH_SIGNALS
       theDriver->ReadRoot(aRootName, aRef, aTypeName);
     }
-    
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
+    {
+      myErrorStatus    = theDriver->ErrorStatus();
+      myErrorStatusExt = "ReadRoot";
+      return Standard_False;
+    }
 
     Handle(StdStorage_Root) aRoot = new StdStorage_Root(aRootName, aRef, aTypeName);
     myObjects.Add(aRootName, aRoot);
@@ -96,7 +102,13 @@ Standard_Boolean StdStorage_RootData::Write(const Handle(Storage_BaseDriver)& th
       OCC_CATCH_SIGNALS
       theDriver->WriteRoot(aRoot->Name(), aRoot->Reference(), aRoot->Type());
     }
-    
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
+    {
+      myErrorStatus    = theDriver->ErrorStatus();
+      myErrorStatusExt = "WriteRoot";
+      return Standard_False;
+    }
   }
 
   myErrorStatus = theDriver->EndWriteRootSection();
