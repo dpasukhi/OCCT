@@ -486,6 +486,7 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
         if (!p.IsNull())
         {
           WFunc->Value(p->_typenum)->Write(p, theDriver, me);
+          CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
           p->_typenum = 0;
         }
         bit.Next();

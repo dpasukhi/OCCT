@@ -136,7 +136,8 @@ BinTools_IStream& BinTools_IStream::operator>>(Standard_Real& theValue)
     myHasError = Standard_True;
   myPosition += sizeof(Standard_Real);
 #if DO_INVERSE
-  theValue = InverseReal(theValue);
+  if (!myHasError)
+    theValue = InverseReal(theValue);
 #endif
   return *this;
 }
@@ -151,7 +152,8 @@ BinTools_IStream& BinTools_IStream::operator>>(Standard_Integer& theValue)
     myHasError = Standard_True;
   myPosition += sizeof(Standard_Integer);
 #if DO_INVERSE
-  theValue = InverseInt(theValue);
+  if (!myHasError)
+    theValue = InverseInt(theValue);
 #endif
   return *this;
 }
