@@ -127,10 +127,9 @@ Storage_Error StdStorage::Read(const Handle(Storage_BaseDriver)& theDriver,
     {
       OCC_CATCH_SIGNALS
       theDriver->ReadReferenceType(aRef, aType);
-      anError = Storage_VSOk;
     }
-    
 
+    anError = theDriver->ErrorStatus();
     if (anError != Storage_VSOk)
       return anError;
 
@@ -151,12 +150,9 @@ Storage_Error StdStorage::Read(const Handle(Storage_BaseDriver)& theDriver,
     {
       OCC_CATCH_SIGNALS
       aReadData.ReadPersistentObject(i);
-      anError = Storage_VSOk;
     }
-    
-    
-    
 
+    anError = theDriver->ErrorStatus();
     if (anError != Storage_VSOk)
       return anError;
   }

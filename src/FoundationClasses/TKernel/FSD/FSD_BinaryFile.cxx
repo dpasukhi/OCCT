@@ -1309,7 +1309,12 @@ void FSD_BinaryFile::ReadString(TCollection_AsciiString& aString)
     Standard_Character* c =
       (Standard_Character*)Standard::Allocate((size + 1) * sizeof(Standard_Character));
     if (!fread(c, size, 1, myStream))
+    {
       SetErrorStatus(Storage_VSTypeMismatch);
+      Standard::Free(c);
+      aString.Clear();
+      return;
+    }
     c[size] = '\0';
     aString = c;
     Standard::Free(c);
@@ -1451,7 +1456,12 @@ void FSD_BinaryFile::ReadExtendedString(TCollection_ExtendedString& aString)
     Standard_ExtCharacter* c =
       (Standard_ExtCharacter*)Standard::Allocate((size + 1) * sizeof(Standard_ExtCharacter));
     if (!fread(c, size * sizeof(Standard_ExtCharacter), 1, myStream))
+    {
       SetErrorStatus(Storage_VSTypeMismatch);
+      Standard::Free(c);
+      aString.Clear();
+      return;
+    }
     c[size] = '\0';
 #if OCCT_BINARY_FILE_DO_INVERSE
     for (Standard_Integer i = 0; i < size; i++)

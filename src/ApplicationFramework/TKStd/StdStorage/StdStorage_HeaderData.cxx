@@ -57,8 +57,13 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
                         myDataType,
                         myUserInfo);
   }
-  
-  
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
+  {
+    myErrorStatus    = theDriver->ErrorStatus();
+    myErrorStatusExt = "ReadInfo";
+    return Standard_False;
+  }
 
   myErrorStatus = theDriver->EndReadInfoSection();
   if (myErrorStatus != Storage_VSOk)
@@ -79,8 +84,13 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
     OCC_CATCH_SIGNALS
     theDriver->ReadComment(myComments);
   }
-  
-  
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
+  {
+    myErrorStatus    = theDriver->ErrorStatus();
+    myErrorStatusExt = "ReadComment";
+    return Standard_False;
+  }
 
   myErrorStatus = theDriver->EndReadCommentSection();
   if (myErrorStatus != Storage_VSOk)
@@ -122,8 +132,13 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
                          myDataType,
                          myUserInfo);
   }
-  
-  
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
+  {
+    myErrorStatus    = theDriver->ErrorStatus();
+    myErrorStatusExt = "WriteInfo";
+    return Standard_False;
+  }
 
   myErrorStatus = theDriver->EndWriteInfoSection();
   if (myErrorStatus != Storage_VSOk)
@@ -144,8 +159,13 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
     OCC_CATCH_SIGNALS
     theDriver->WriteComment(myComments);
   }
-  
-  
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
+  {
+    myErrorStatus    = theDriver->ErrorStatus();
+    myErrorStatusExt = "WriteComment";
+    return Standard_False;
+  }
 
   myErrorStatus = theDriver->EndWriteCommentSection();
   if (myErrorStatus != Storage_VSOk)

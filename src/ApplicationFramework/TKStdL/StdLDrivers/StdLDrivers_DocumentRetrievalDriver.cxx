@@ -21,9 +21,6 @@
 #include <Storage_TypeData.hxx>
 #include <Storage_RootData.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamFormatError.hxx>
-#include <Storage_StreamReadError.hxx>
 
 #include <PCDM.hxx>
 #include <PCDM_ReadWriter.hxx>

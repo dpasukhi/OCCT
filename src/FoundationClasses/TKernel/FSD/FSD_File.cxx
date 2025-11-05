@@ -767,6 +767,7 @@ Storage_Error FSD_File::BeginWriteCommentSection()
   myStream << "BEGIN_COMMENT_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=================================================================================================
@@ -801,6 +802,7 @@ Storage_Error FSD_File::EndWriteCommentSection()
   myStream << "END_COMMENT_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=======================================================================
@@ -818,10 +820,13 @@ Storage_Error FSD_File::BeginReadCommentSection()
 void FSD_File::ReadComment(TColStd_SequenceOfExtendedString& aCom)
 {
   TCollection_ExtendedString line;
-  Standard_Integer           len, i;
+  Standard_Integer           len = 0, i;
 
   if (!(myStream >> len))
+  {
     SetErrorStatus(Storage_VSTypeMismatch);
+    return;
+  }
 
   FlushEndOfLine();
 
@@ -850,6 +855,7 @@ Storage_Error FSD_File::BeginWriteTypeSection()
   myStream << "BEGIN_TYPE_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=================================================================================================
@@ -884,6 +890,7 @@ Storage_Error FSD_File::EndWriteTypeSection()
   myStream << "END_TYPE_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=======================================================================
@@ -900,10 +907,13 @@ Storage_Error FSD_File::BeginReadTypeSection()
 
 Standard_Integer FSD_File::TypeSectionSize()
 {
-  Standard_Integer i;
+  Standard_Integer i = 0;
 
   if (!(myStream >> i))
+  {
     SetErrorStatus(Storage_VSTypeMismatch);
+    return 0;
+  }
 
   FlushEndOfLine();
 
@@ -948,6 +958,7 @@ Storage_Error FSD_File::BeginWriteRootSection()
   myStream << "BEGIN_ROOT_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=================================================================================================
@@ -983,6 +994,7 @@ Storage_Error FSD_File::EndWriteRootSection()
   myStream << "END_ROOT_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=======================================================================
@@ -999,10 +1011,13 @@ Storage_Error FSD_File::BeginReadRootSection()
 
 Standard_Integer FSD_File::RootSectionSize()
 {
-  Standard_Integer i;
+  Standard_Integer i = 0;
 
   if (!(myStream >> i))
+  {
     SetErrorStatus(Storage_VSTypeMismatch);
+    return 0;
+  }
 
   FlushEndOfLine();
 
@@ -1045,6 +1060,7 @@ Storage_Error FSD_File::BeginWriteRefSection()
   myStream << "BEGIN_REF_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=================================================================================================
@@ -1078,6 +1094,7 @@ Storage_Error FSD_File::EndWriteRefSection()
   myStream << "END_REF_SECTION\n";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=======================================================================
@@ -1094,10 +1111,13 @@ Storage_Error FSD_File::BeginReadRefSection()
 
 Standard_Integer FSD_File::RefSectionSize()
 {
-  Standard_Integer i;
+  Standard_Integer i = 0;
 
   if (!(myStream >> i))
+  {
     SetErrorStatus(Storage_VSTypeMismatch);
+    return 0;
+  }
   FlushEndOfLine();
 
   return i;
@@ -1141,6 +1161,7 @@ Storage_Error FSD_File::BeginWriteDataSection()
   myStream << "BEGIN_DATA_SECTION";
   if (myStream.bad())
     return Storage_VSWriteError;
+  return Storage_VSOk;
 }
 
 //=================================================================================================
