@@ -82,112 +82,86 @@ Standard_Real Geom_Surface::VPeriod() const
 
 //=================================================================================================
 
-void Geom_Surface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
+std::optional<gp_Pnt> Geom_Surface::D0(const Standard_Real U, const Standard_Real V) const
 {
-  if (auto aResult = D0(U, V))
+  try
   {
-    P = *aResult;
+    gp_Pnt P;
+    D0(U, V, P);
+    return P;
   }
-  else
+  catch (const Standard_Failure&)
   {
-    throw Geom_UndefinedValue("Geom_Surface::D0 - computation failed");
+    return std::nullopt;
   }
 }
 
 //=================================================================================================
 
-void Geom_Surface::D1(const Standard_Real U,
-                      const Standard_Real V,
-                      gp_Pnt&             P,
-                      gp_Vec&             D1U,
-                      gp_Vec&             D1V) const
+std::optional<GeomEvaluator_Surface::D1Result> Geom_Surface::D1(const Standard_Real U,
+                                                                  const Standard_Real V) const
 {
-  if (auto aResult = D1(U, V))
+  try
   {
-    P   = aResult->theValue;
-    D1U = aResult->theD1U;
-    D1V = aResult->theD1V;
+    GeomEvaluator_Surface::D1Result aResult;
+    D1(U, V, aResult.theValue, aResult.theD1U, aResult.theD1V);
+    return aResult;
   }
-  else
+  catch (const Standard_Failure&)
   {
-    throw Geom_UndefinedValue("Geom_Surface::D1 - computation failed");
+    return std::nullopt;
   }
 }
 
 //=================================================================================================
 
-void Geom_Surface::D2(const Standard_Real U,
-                      const Standard_Real V,
-                      gp_Pnt&             P,
-                      gp_Vec&             D1U,
-                      gp_Vec&             D1V,
-                      gp_Vec&             D2U,
-                      gp_Vec&             D2V,
-                      gp_Vec&             D2UV) const
+std::optional<GeomEvaluator_Surface::D2Result> Geom_Surface::D2(const Standard_Real U,
+                                                                  const Standard_Real V) const
 {
-  if (auto aResult = D2(U, V))
+  try
   {
-    P    = aResult->theValue;
-    D1U  = aResult->theD1U;
-    D1V  = aResult->theD1V;
-    D2U  = aResult->theD2U;
-    D2V  = aResult->theD2V;
-    D2UV = aResult->theD2UV;
+    GeomEvaluator_Surface::D2Result aResult;
+    D2(U, V, aResult.theValue, aResult.theD1U, aResult.theD1V, aResult.theD2U, aResult.theD2V, aResult.theD2UV);
+    return aResult;
   }
-  else
+  catch (const Standard_Failure&)
   {
-    throw Geom_UndefinedValue("Geom_Surface::D2 - computation failed");
+    return std::nullopt;
   }
 }
 
 //=================================================================================================
 
-void Geom_Surface::D3(const Standard_Real U,
-                      const Standard_Real V,
-                      gp_Pnt&             P,
-                      gp_Vec&             D1U,
-                      gp_Vec&             D1V,
-                      gp_Vec&             D2U,
-                      gp_Vec&             D2V,
-                      gp_Vec&             D2UV,
-                      gp_Vec&             D3U,
-                      gp_Vec&             D3V,
-                      gp_Vec&             D3UUV,
-                      gp_Vec&             D3UVV) const
+std::optional<GeomEvaluator_Surface::D3Result> Geom_Surface::D3(const Standard_Real U,
+                                                                  const Standard_Real V) const
 {
-  if (auto aResult = D3(U, V))
+  try
   {
-    P     = aResult->theValue;
-    D1U   = aResult->theD1U;
-    D1V   = aResult->theD1V;
-    D2U   = aResult->theD2U;
-    D2V   = aResult->theD2V;
-    D2UV  = aResult->theD2UV;
-    D3U   = aResult->theD3U;
-    D3V   = aResult->theD3V;
-    D3UUV = aResult->theD3UUV;
-    D3UVV = aResult->theD3UVV;
+    GeomEvaluator_Surface::D3Result aResult;
+    D3(U, V, aResult.theValue, aResult.theD1U, aResult.theD1V, aResult.theD2U, aResult.theD2V, aResult.theD2UV,
+       aResult.theD3U, aResult.theD3V, aResult.theD3UUV, aResult.theD3UVV);
+    return aResult;
   }
-  else
+  catch (const Standard_Failure&)
   {
-    throw Geom_UndefinedValue("Geom_Surface::D3 - computation failed");
+    return std::nullopt;
   }
 }
 
 //=================================================================================================
 
-gp_Vec Geom_Surface::DN(const Standard_Real    U,
-                        const Standard_Real    V,
-                        const Standard_Integer Nu,
-                        const Standard_Integer Nv) const
+std::optional<gp_Vec> Geom_Surface::DN(const Standard_Real    U,
+                                        const Standard_Real    V,
+                                        const Standard_Integer Nu,
+                                        const Standard_Integer Nv) const
 {
-  if (auto aResult = DN(U, V, Nu, Nv))
+  try
   {
-    return *aResult;
+    return DN(U, V, Nu, Nv);
   }
-  else
+  catch (const Standard_Failure&)
   {
-    throw Geom_UndefinedValue("Geom_Surface::DN - computation failed");
+    return std::nullopt;
   }
 }
 

@@ -218,7 +218,7 @@ public:
   //! Computes the point of parameter U,V on the surface.
   //! @return Point value if calculation succeeds, std::nullopt otherwise
   Standard_EXPORT virtual std::optional<gp_Pnt> D0(const Standard_Real U,
-                                                     const Standard_Real V) const = 0;
+                                                     const Standard_Real V) const;
 
   //! @deprecated Use D0() returning std::optional instead
   //! Computes the point of parameter U,V on the surface.
@@ -226,7 +226,7 @@ public:
   Standard_DEPRECATED("Use D0() returning std::optional instead")
   Standard_EXPORT virtual void D0(const Standard_Real U,
                                    const Standard_Real V,
-                                   gp_Pnt&             P) const;
+                                   gp_Pnt&             P) const = 0;
 
   //! Computes the point P and the first derivatives in the directions U and V at this point.
   //! Raised if the continuity of the surface is not C1.
@@ -234,7 +234,7 @@ public:
   //! Tip: use GeomLib::NormEstim() to calculate surface normal at specified (U, V) point.
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
   Standard_EXPORT virtual std::optional<GeomEvaluator_Surface::D1Result> D1(const Standard_Real U,
-                                                                              const Standard_Real V) const = 0;
+                                                                              const Standard_Real V) const;
 
   //! @deprecated Use D1() returning std::optional instead
   //! Computes the point P and the first derivatives in the directions U and V at this point.
@@ -244,14 +244,14 @@ public:
                                    const Standard_Real V,
                                    gp_Pnt&             P,
                                    gp_Vec&             D1U,
-                                   gp_Vec&             D1V) const;
+                                   gp_Vec&             D1V) const = 0;
 
   //! Computes the point P, the first and the second derivatives in
   //! the directions U and V at this point.
   //! Raised if the continuity of the surface is not C2.
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
   Standard_EXPORT virtual std::optional<GeomEvaluator_Surface::D2Result> D2(const Standard_Real U,
-                                                                              const Standard_Real V) const = 0;
+                                                                              const Standard_Real V) const;
 
   //! @deprecated Use D2() returning std::optional instead
   //! Computes the point P, the first and the second derivatives in
@@ -265,14 +265,14 @@ public:
                                    gp_Vec&             D1V,
                                    gp_Vec&             D2U,
                                    gp_Vec&             D2V,
-                                   gp_Vec&             D2UV) const;
+                                   gp_Vec&             D2UV) const = 0;
 
   //! Computes the point P, the first,the second and the third
   //! derivatives in the directions U and V at this point.
   //! Raised if the continuity of the surface is not C2.
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
   Standard_EXPORT virtual std::optional<GeomEvaluator_Surface::D3Result> D3(const Standard_Real U,
-                                                                              const Standard_Real V) const = 0;
+                                                                              const Standard_Real V) const;
 
   //! @deprecated Use D3() returning std::optional instead
   //! Computes the point P, the first,the second and the third
@@ -290,7 +290,7 @@ public:
                                    gp_Vec&             D3U,
                                    gp_Vec&             D3V,
                                    gp_Vec&             D3UUV,
-                                   gp_Vec&             D3UVV) const;
+                                   gp_Vec&             D3UVV) const = 0;
 
   //! Computes the derivative of order Nu in the direction U and Nv in the direction V at the point
   //! P(U, V).
@@ -301,7 +301,7 @@ public:
   Standard_EXPORT virtual std::optional<gp_Vec> DN(const Standard_Real    U,
                                                     const Standard_Real    V,
                                                     const Standard_Integer Nu,
-                                                    const Standard_Integer Nv) const = 0;
+                                                    const Standard_Integer Nv) const;
 
   //! @deprecated Use DN() returning std::optional instead
   //! Computes the derivative of order Nu in the direction U and Nv in the direction V at the point
@@ -313,7 +313,7 @@ public:
   Standard_EXPORT virtual gp_Vec DN(const Standard_Real    U,
                                      const Standard_Real    V,
                                      const Standard_Integer Nu,
-                                     const Standard_Integer Nv) const;
+                                     const Standard_Integer Nv) const = 0;
 
   //! Computes the point of parameter (U, V) on the surface.
   //!
