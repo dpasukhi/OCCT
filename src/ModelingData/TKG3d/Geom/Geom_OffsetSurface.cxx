@@ -316,10 +316,6 @@ GeomAbs_Shape Geom_OffsetSurface::Continuity() const
 
 void Geom_OffsetSurface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
 {
-#ifdef CHECK
-  if (myBasisSurfContinuity == GeomAbs_C0)
-    throw Geom_UndefinedValue();
-#endif
   if (equivSurf.IsNull())
     myEvaluator->D0(U, V, P);
   else

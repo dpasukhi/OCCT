@@ -90,53 +90,60 @@ private:
               Standard_Real& theVMax) const;
 
   //! Recalculate D1 values of base surface into D0 value of offset surface
-  void CalculateD0(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   const gp_Vec&       theD1U,
-                   const gp_Vec&       theD1V) const;
+  //! @return Standard_True if calculation is successful, Standard_False otherwise
+  Standard_Boolean CalculateD0(const Standard_Real theU,
+                                const Standard_Real theV,
+                                gp_Pnt&             theValue,
+                                const gp_Vec&       theD1U,
+                                const gp_Vec&       theD1V) const;
   //! Recalculate D2 values of base surface into D1 values of offset surface
-  void CalculateD1(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   gp_Vec&             theD1U,
-                   gp_Vec&             theD1V,
-                   const gp_Vec&       theD2U,
-                   const gp_Vec&       theD2V,
-                   const gp_Vec&       theD2UV) const;
+  //! @return Standard_True if calculation is successful, Standard_False otherwise
+  Standard_Boolean CalculateD1(const Standard_Real theU,
+                                const Standard_Real theV,
+                                gp_Pnt&             theValue,
+                                gp_Vec&             theD1U,
+                                gp_Vec&             theD1V,
+                                const gp_Vec&       theD2U,
+                                const gp_Vec&       theD2V,
+                                const gp_Vec&       theD2UV) const;
   //! Recalculate D3 values of base surface into D2 values of offset surface
-  void CalculateD2(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   gp_Vec&             theD1U,
-                   gp_Vec&             theD1V,
-                   gp_Vec&             theD2U,
-                   gp_Vec&             theD2V,
-                   gp_Vec&             theD2UV,
-                   const gp_Vec&       theD3U,
-                   const gp_Vec&       theD3V,
-                   const gp_Vec&       theD3UUV,
-                   const gp_Vec&       theD3UVV) const;
+  //! @return Standard_True if calculation is successful, Standard_False otherwise
+  Standard_Boolean CalculateD2(const Standard_Real theU,
+                                const Standard_Real theV,
+                                gp_Pnt&             theValue,
+                                gp_Vec&             theD1U,
+                                gp_Vec&             theD1V,
+                                gp_Vec&             theD2U,
+                                gp_Vec&             theD2V,
+                                gp_Vec&             theD2UV,
+                                const gp_Vec&       theD3U,
+                                const gp_Vec&       theD3V,
+                                const gp_Vec&       theD3UUV,
+                                const gp_Vec&       theD3UVV) const;
   //! Recalculate D3 values of base surface into D3 values of offset surface
-  void CalculateD3(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   gp_Vec&             theD1U,
-                   gp_Vec&             theD1V,
-                   gp_Vec&             theD2U,
-                   gp_Vec&             theD2V,
-                   gp_Vec&             theD2UV,
-                   gp_Vec&             theD3U,
-                   gp_Vec&             theD3V,
-                   gp_Vec&             theD3UUV,
-                   gp_Vec&             theD3UVV) const;
+  //! @return Standard_True if calculation is successful, Standard_False otherwise
+  Standard_Boolean CalculateD3(const Standard_Real theU,
+                                const Standard_Real theV,
+                                gp_Pnt&             theValue,
+                                gp_Vec&             theD1U,
+                                gp_Vec&             theD1V,
+                                gp_Vec&             theD2U,
+                                gp_Vec&             theD2V,
+                                gp_Vec&             theD2UV,
+                                gp_Vec&             theD3U,
+                                gp_Vec&             theD3V,
+                                gp_Vec&             theD3UUV,
+                                gp_Vec&             theD3UVV) const;
   //! Calculate DN of offset surface based on derivatives of base surface
-  gp_Vec CalculateDN(const Standard_Real    theU,
-                     const Standard_Real    theV,
-                     const Standard_Integer theNu,
-                     const Standard_Integer theNv,
-                     const gp_Vec&          theD1U,
-                     const gp_Vec&          theD1V) const;
+  //! @param[out] theResult the result vector
+  //! @return Standard_True if calculation is successful, Standard_False otherwise
+  Standard_Boolean CalculateDN(const Standard_Real    theU,
+                                const Standard_Real    theV,
+                                const Standard_Integer theNu,
+                                const Standard_Integer theNv,
+                                const gp_Vec&          theD1U,
+                                const gp_Vec&          theD1V,
+                                gp_Vec&                theResult) const;
 
   //! Calculate value of base surface/adaptor
   void BaseD0(const Standard_Real theU, const Standard_Real theV, gp_Pnt& theValue) const;

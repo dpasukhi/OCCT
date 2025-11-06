@@ -274,17 +274,17 @@ void GeomEvaluator_OffsetSurface::D0(const Standard_Real theU,
 
     CheckInfinite(aD1U, aD1V);
 
-    try
+    if (CalculateD0(aU, aV, theValue, aD1U, aD1V))
     {
-      CalculateD0(aU, aV, theValue, aD1U, aD1V);
       break;
     }
-    catch (Geom_UndefinedValue&)
+    else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        throw;
+        throw Geom_UndefinedValue(
+          "GeomEvaluator_OffsetSurface::D0(): Unable to calculate normal");
       }
     }
   }
@@ -304,17 +304,17 @@ void GeomEvaluator_OffsetSurface::D1(const Standard_Real theU,
 
     CheckInfinite(theD1U, theD1V);
 
-    try
+    if (CalculateD1(aU, aV, theValue, theD1U, theD1V, aD2U, aD2V, aD2UV))
     {
-      CalculateD1(aU, aV, theValue, theD1U, theD1V, aD2U, aD2V, aD2UV);
       break;
     }
-    catch (Geom_UndefinedValue&)
+    else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        throw;
+        throw Geom_UndefinedValue(
+          "GeomEvaluator_OffsetSurface::D1(): Unable to calculate normal");
       }
     }
   }
@@ -337,28 +337,28 @@ void GeomEvaluator_OffsetSurface::D2(const Standard_Real theU,
 
     CheckInfinite(theD1U, theD1V);
 
-    try
+    if (CalculateD2(aU,
+                    aV,
+                    theValue,
+                    theD1U,
+                    theD1V,
+                    theD2U,
+                    theD2V,
+                    theD2UV,
+                    aD3U,
+                    aD3V,
+                    aD3UUV,
+                    aD3UVV))
     {
-      CalculateD2(aU,
-                  aV,
-                  theValue,
-                  theD1U,
-                  theD1V,
-                  theD2U,
-                  theD2V,
-                  theD2UV,
-                  aD3U,
-                  aD3V,
-                  aD3UUV,
-                  aD3UVV);
       break;
     }
-    catch (Geom_UndefinedValue&)
+    else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        throw;
+        throw Geom_UndefinedValue(
+          "GeomEvaluator_OffsetSurface::D2(): Unable to calculate normal");
       }
     }
   }
@@ -395,28 +395,28 @@ void GeomEvaluator_OffsetSurface::D3(const Standard_Real theU,
 
     CheckInfinite(theD1U, theD1V);
 
-    try
+    if (CalculateD3(aU,
+                    aV,
+                    theValue,
+                    theD1U,
+                    theD1V,
+                    theD2U,
+                    theD2V,
+                    theD2UV,
+                    theD3U,
+                    theD3V,
+                    theD3UUV,
+                    theD3UVV))
     {
-      CalculateD3(aU,
-                  aV,
-                  theValue,
-                  theD1U,
-                  theD1V,
-                  theD2U,
-                  theD2V,
-                  theD2UV,
-                  theD3U,
-                  theD3V,
-                  theD3UUV,
-                  theD3UVV);
       break;
     }
-    catch (Geom_UndefinedValue&)
+    else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        throw;
+        throw Geom_UndefinedValue(
+          "GeomEvaluator_OffsetSurface::D3(): Unable to calculate normal");
       }
     }
   }
@@ -441,16 +441,18 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
 
     CheckInfinite(aD1U, aD1V);
 
-    try
+    gp_Vec aResult;
+    if (CalculateDN(aU, aV, theDerU, theDerV, aD1U, aD1V, aResult))
     {
-      return CalculateDN(aU, aV, theDerU, theDerV, aD1U, aD1V);
+      return aResult;
     }
-    catch (Geom_UndefinedValue&)
+    else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        throw;
+        throw Geom_UndefinedValue(
+          "GeomEvaluator_OffsetSurface::DN(): Unable to calculate normal");
       }
     }
   }
@@ -552,11 +554,11 @@ void GeomEvaluator_OffsetSurface::BaseD3(const Standard_Real theU,
                    theD3UVV);
 }
 
-void GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Real theU,
-                                              const Standard_Real theV,
-                                              gp_Pnt&             theValue,
-                                              const gp_Vec&       theD1U,
-                                              const gp_Vec&       theD1V) const
+Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Real theU,
+                                                           const Standard_Real theV,
+                                                           gp_Pnt&             theValue,
+                                                           const gp_Vec&       theD1U,
+                                                           const gp_Vec&       theD1V) const
 {
   // Normalize derivatives before normal calculation because it gives more stable result.
   // There will be normalized only derivatives greater than 1.0 to avoid differences in last
@@ -630,21 +632,21 @@ void GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Real theU,
     }
 
     if (NStatus != CSLib_Defined)
-      throw Geom_UndefinedValue(
-        "GeomEvaluator_OffsetSurface::CalculateD0(): Unable to calculate normal");
+      return Standard_False;
 
     theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
   }
+  return Standard_True;
 }
 
-void GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real theU,
-                                              const Standard_Real theV,
-                                              gp_Pnt&             theValue,
-                                              gp_Vec&             theD1U,
-                                              gp_Vec&             theD1V,
-                                              const gp_Vec&       theD2U,
-                                              const gp_Vec&       theD2V,
-                                              const gp_Vec&       theD2UV) const
+Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real theU,
+                                                           const Standard_Real theV,
+                                                           gp_Pnt&             theValue,
+                                                           gp_Vec&             theD1U,
+                                                           gp_Vec&             theD1V,
+                                                           const gp_Vec&       theD2U,
+                                                           const gp_Vec&       theD2V,
+                                                           const gp_Vec&       theD2UV) const
 {
   // Check offset side.
   Handle(Geom_BSplineSurface) L;
@@ -715,7 +717,7 @@ void GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real theU,
     theD1U += myOffset * aSign * aN1U;
     theD1V += myOffset * aSign * aN1V;
 
-    return;
+    return Standard_True;
   }
 
   Standard_Integer   OrderU, OrderV;
@@ -790,27 +792,27 @@ void GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real theU,
   }
 
   if (NStatus != CSLib_Defined)
-    throw Geom_UndefinedValue(
-      "GeomEvaluator_OffsetSurface::CalculateD1(): Unable to calculate normal");
+    return Standard_False;
 
   theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
 
   theD1U = DerSurf(1, 0) + myOffset * aSign * CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
   theD1V = DerSurf(0, 1) + myOffset * aSign * CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
+  return Standard_True;
 }
 
-void GeomEvaluator_OffsetSurface::CalculateD2(const Standard_Real theU,
-                                              const Standard_Real theV,
-                                              gp_Pnt&             theValue,
-                                              gp_Vec&             theD1U,
-                                              gp_Vec&             theD1V,
-                                              gp_Vec&             theD2U,
-                                              gp_Vec&             theD2V,
-                                              gp_Vec&             theD2UV,
-                                              const gp_Vec&       theD3U,
-                                              const gp_Vec&       theD3V,
-                                              const gp_Vec&       theD3UUV,
-                                              const gp_Vec&       theD3UVV) const
+Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD2(const Standard_Real theU,
+                                                           const Standard_Real theV,
+                                                           gp_Pnt&             theValue,
+                                                           gp_Vec&             theD1U,
+                                                           gp_Vec&             theD1V,
+                                                           gp_Vec&             theD2U,
+                                                           gp_Vec&             theD2V,
+                                                           gp_Vec&             theD2UV,
+                                                           const gp_Vec&       theD3U,
+                                                           const gp_Vec&       theD3V,
+                                                           const gp_Vec&       theD3UUV,
+                                                           const gp_Vec&       theD3UVV) const
 {
   gp_Dir             Normal;
   CSLib_NormalStatus NStatus;
@@ -865,8 +867,7 @@ void GeomEvaluator_OffsetSurface::CalculateD2(const Standard_Real theU,
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    throw Geom_UndefinedValue(
-      "GeomEvaluator_OffsetSurface::CalculateD2(): Unable to calculate normal");
+    return Standard_False;
 
   theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
 
@@ -889,20 +890,21 @@ void GeomEvaluator_OffsetSurface::CalculateD2(const Standard_Real theU,
   theD2U += aSign * myOffset * CSLib::DNNormal(2, 0, DerNUV, OrderU, OrderV);
   theD2V += aSign * myOffset * CSLib::DNNormal(0, 2, DerNUV, OrderU, OrderV);
   theD2UV += aSign * myOffset * CSLib::DNNormal(1, 1, DerNUV, OrderU, OrderV);
+  return Standard_True;
 }
 
-void GeomEvaluator_OffsetSurface::CalculateD3(const Standard_Real theU,
-                                              const Standard_Real theV,
-                                              gp_Pnt&             theValue,
-                                              gp_Vec&             theD1U,
-                                              gp_Vec&             theD1V,
-                                              gp_Vec&             theD2U,
-                                              gp_Vec&             theD2V,
-                                              gp_Vec&             theD2UV,
-                                              gp_Vec&             theD3U,
-                                              gp_Vec&             theD3V,
-                                              gp_Vec&             theD3UUV,
-                                              gp_Vec&             theD3UVV) const
+Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD3(const Standard_Real theU,
+                                                           const Standard_Real theV,
+                                                           gp_Pnt&             theValue,
+                                                           gp_Vec&             theD1U,
+                                                           gp_Vec&             theD1V,
+                                                           gp_Vec&             theD2U,
+                                                           gp_Vec&             theD2V,
+                                                           gp_Vec&             theD2UV,
+                                                           gp_Vec&             theD3U,
+                                                           gp_Vec&             theD3V,
+                                                           gp_Vec&             theD3UUV,
+                                                           gp_Vec&             theD3UVV) const
 {
   gp_Dir             Normal;
   CSLib_NormalStatus NStatus;
@@ -955,8 +957,7 @@ void GeomEvaluator_OffsetSurface::CalculateD3(const Standard_Real theU,
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    throw Geom_UndefinedValue(
-      "GeomEvaluator_OffsetSurface::CalculateD3(): Unable to calculate normal");
+    return Standard_False;
 
   theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
 
@@ -991,14 +992,16 @@ void GeomEvaluator_OffsetSurface::CalculateD3(const Standard_Real theU,
   theD3V += aSign * myOffset * CSLib::DNNormal(0, 3, DerNUV, OrderU, OrderV);
   theD3UUV += aSign * myOffset * CSLib::DNNormal(2, 1, DerNUV, OrderU, OrderV);
   theD3UVV += aSign * myOffset * CSLib::DNNormal(1, 2, DerNUV, OrderU, OrderV);
+  return Standard_True;
 }
 
-gp_Vec GeomEvaluator_OffsetSurface::CalculateDN(const Standard_Real    theU,
-                                                const Standard_Real    theV,
-                                                const Standard_Integer theNu,
-                                                const Standard_Integer theNv,
-                                                const gp_Vec&          theD1U,
-                                                const gp_Vec&          theD1V) const
+Standard_Boolean GeomEvaluator_OffsetSurface::CalculateDN(const Standard_Real    theU,
+                                                           const Standard_Real    theV,
+                                                           const Standard_Integer theNu,
+                                                           const Standard_Integer theNv,
+                                                           const gp_Vec&          theD1U,
+                                                           const gp_Vec&          theD1V,
+                                                           gp_Vec&                theResult) const
 {
   gp_Dir             Normal;
   CSLib_NormalStatus NStatus;
@@ -1068,17 +1071,15 @@ gp_Vec GeomEvaluator_OffsetSurface::CalculateDN(const Standard_Real    theU,
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    throw Geom_UndefinedValue(
-      "GeomEvaluator_OffsetSurface::CalculateDN(): Unable to calculate normal");
+    return Standard_False;
 
-  gp_Vec D;
   if (!myBaseSurf.IsNull())
-    D = myBaseSurf->DN(theU, theV, theNu, theNv);
+    theResult = myBaseSurf->DN(theU, theV, theNu, theNv);
   else
-    D = myBaseAdaptor->DN(theU, theV, theNu, theNv);
+    theResult = myBaseAdaptor->DN(theU, theV, theNu, theNv);
 
-  D += aSign * myOffset * CSLib::DNNormal(theNu, theNv, DerNUV, OrderU, OrderV);
-  return D;
+  theResult += aSign * myOffset * CSLib::DNNormal(theNu, theNv, DerNUV, OrderU, OrderV);
+  return Standard_True;
 }
 
 void GeomEvaluator_OffsetSurface::Bounds(Standard_Real& theUMin,
