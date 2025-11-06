@@ -314,163 +314,104 @@ GeomAbs_Shape Geom_OffsetSurface::Continuity() const
 
 //=================================================================================================
 
-void Geom_OffsetSurface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
+std::optional<gp_Pnt> Geom_OffsetSurface::D0(const Standard_Real U, const Standard_Real V) const
 {
   if (equivSurf.IsNull())
   {
-    if (auto aResult = myEvaluator->D0(U, V))
-    {
-      P = *aResult;
-    }
-    else
-    {
-      throw Geom_UndefinedValue("Geom_OffsetSurface::D0 - computation failed");
-    }
+    return myEvaluator->D0(U, V);
   }
   else
-    equivSurf->D0(U, V, P);
+  {
+    return equivSurf->D0(U, V);
+  }
 }
 
 //=================================================================================================
 
-void Geom_OffsetSurface::D1(const Standard_Real U,
-                            const Standard_Real V,
-                            gp_Pnt&             P,
-                            gp_Vec&             D1U,
-                            gp_Vec&             D1V) const
+std::optional<GeomEvaluator_Surface::D1Result> Geom_OffsetSurface::D1(const Standard_Real U,
+                                                                        const Standard_Real V) const
 {
 #ifdef CHECK
   if (myBasisSurfContinuity == GeomAbs_C0 || myBasisSurfContinuity == GeomAbs_C1)
-    throw Geom_UndefinedDerivative();
+    return std::nullopt;
 #endif
   if (equivSurf.IsNull())
   {
-    if (auto aResult = myEvaluator->D1(U, V))
-    {
-      P   = aResult->theValue;
-      D1U = aResult->theD1U;
-      D1V = aResult->theD1V;
-    }
-    else
-    {
-      throw Geom_UndefinedValue("Geom_OffsetSurface::D1 - computation failed");
-    }
+    return myEvaluator->D1(U, V);
   }
   else
-    equivSurf->D1(U, V, P, D1U, D1V);
+  {
+    return equivSurf->D1(U, V);
+  }
 }
 
 //=================================================================================================
 
-void Geom_OffsetSurface::D2(const Standard_Real U,
-                            const Standard_Real V,
-                            gp_Pnt&             P,
-                            gp_Vec&             D1U,
-                            gp_Vec&             D1V,
-                            gp_Vec&             D2U,
-                            gp_Vec&             D2V,
-                            gp_Vec&             D2UV) const
+std::optional<GeomEvaluator_Surface::D2Result> Geom_OffsetSurface::D2(const Standard_Real U,
+                                                                        const Standard_Real V) const
 {
 #ifdef CHECK
   if (myBasisSurfContinuity == GeomAbs_C0 || myBasisSurfContinuity == GeomAbs_C1
       || myBasisSurfContinuity == GeomAbs_C2)
-    throw Geom_UndefinedDerivative();
+    return std::nullopt;
 #endif
   if (equivSurf.IsNull())
   {
-    if (auto aResult = myEvaluator->D2(U, V))
-    {
-      P    = aResult->theValue;
-      D1U  = aResult->theD1U;
-      D1V  = aResult->theD1V;
-      D2U  = aResult->theD2U;
-      D2V  = aResult->theD2V;
-      D2UV = aResult->theD2UV;
-    }
-    else
-    {
-      throw Geom_UndefinedValue("Geom_OffsetSurface::D2 - computation failed");
-    }
+    return myEvaluator->D2(U, V);
   }
   else
-    equivSurf->D2(U, V, P, D1U, D1V, D2U, D2V, D2UV);
+  {
+    return equivSurf->D2(U, V);
+  }
 }
 
 //=================================================================================================
 
-void Geom_OffsetSurface::D3(const Standard_Real U,
-                            const Standard_Real V,
-                            gp_Pnt&             P,
-                            gp_Vec&             D1U,
-                            gp_Vec&             D1V,
-                            gp_Vec&             D2U,
-                            gp_Vec&             D2V,
-                            gp_Vec&             D2UV,
-                            gp_Vec&             D3U,
-                            gp_Vec&             D3V,
-                            gp_Vec&             D3UUV,
-                            gp_Vec&             D3UVV) const
+std::optional<GeomEvaluator_Surface::D3Result> Geom_OffsetSurface::D3(const Standard_Real U,
+                                                                        const Standard_Real V) const
 {
 #ifdef CHECK
   if (!(basisSurf->IsCNu(4) && basisSurf->IsCNv(4)))
   {
-    throw Geom_UndefinedDerivative();
+    return std::nullopt;
   }
 #endif
   if (equivSurf.IsNull())
   {
-    if (auto aResult = myEvaluator->D3(U, V))
-    {
-      P     = aResult->theValue;
-      D1U   = aResult->theD1U;
-      D1V   = aResult->theD1V;
-      D2U   = aResult->theD2U;
-      D2V   = aResult->theD2V;
-      D2UV  = aResult->theD2UV;
-      D3U   = aResult->theD3U;
-      D3V   = aResult->theD3V;
-      D3UUV = aResult->theD3UUV;
-      D3UVV = aResult->theD3UVV;
-    }
-    else
-    {
-      throw Geom_UndefinedValue("Geom_OffsetSurface::D3 - computation failed");
-    }
+    return myEvaluator->D3(U, V);
   }
   else
-    equivSurf->D3(U, V, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+  {
+    return equivSurf->D3(U, V);
+  }
 }
 
 //=================================================================================================
 
-gp_Vec Geom_OffsetSurface::DN(const Standard_Real    U,
-                              const Standard_Real    V,
-                              const Standard_Integer Nu,
-                              const Standard_Integer Nv) const
+std::optional<gp_Vec> Geom_OffsetSurface::DN(const Standard_Real    U,
+                                              const Standard_Real    V,
+                                              const Standard_Integer Nu,
+                                              const Standard_Integer Nv) const
 {
-  Standard_RangeError_Raise_if(Nu < 0 || Nv < 0 || Nu + Nv < 1, " ");
+  if (Nu < 0 || Nv < 0 || Nu + Nv < 1)
+  {
+    return std::nullopt;
+  }
 #ifdef CHECK
   if (!(basisSurf->IsCNu(Nu) && basisSurf->IsCNv(Nv)))
   {
-    throw Geom_UndefinedDerivative();
+    return std::nullopt;
   }
 #endif
-  gp_Vec D(0, 0, 0);
 
   if (equivSurf.IsNull())
   {
-    if (auto aResult = myEvaluator->DN(U, V, Nu, Nv))
-    {
-      D = *aResult;
-    }
-    else
-    {
-      throw Geom_UndefinedValue("Geom_OffsetSurface::DN - computation failed");
-    }
+    return myEvaluator->DN(U, V, Nu, Nv);
   }
   else
-    D = equivSurf->DN(U, V, Nu, Nv);
-  return D;
+  {
+    return equivSurf->DN(U, V, Nu, Nv);
+  }
 }
 
 ////*************************************************

@@ -49,11 +49,11 @@ std::optional<gp_Pnt> GeomEvaluator_SurfaceOfExtrusion::D0(const Standard_Real t
   return aValue;
 }
 
-std::optional<GeomEvaluator_D1Result> GeomEvaluator_SurfaceOfExtrusion::D1(
+std::optional<GeomEvaluator_Surface::D1Result> GeomEvaluator_SurfaceOfExtrusion::D1(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
-  GeomEvaluator_D1Result aResult;
+  GeomEvaluator_Surface::D1Result aResult;
   if (!myBaseAdaptor.IsNull())
     myBaseAdaptor->D1(theU, aResult.theValue, aResult.theD1U);
   else
@@ -64,11 +64,11 @@ std::optional<GeomEvaluator_D1Result> GeomEvaluator_SurfaceOfExtrusion::D1(
   return aResult;
 }
 
-std::optional<GeomEvaluator_D2Result> GeomEvaluator_SurfaceOfExtrusion::D2(
+std::optional<GeomEvaluator_Surface::D2Result> GeomEvaluator_SurfaceOfExtrusion::D2(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
-  GeomEvaluator_D2Result aResult;
+  GeomEvaluator_Surface::D2Result aResult;
   if (!myBaseAdaptor.IsNull())
     myBaseAdaptor->D2(theU, aResult.theValue, aResult.theD1U, aResult.theD2U);
   else
@@ -82,11 +82,11 @@ std::optional<GeomEvaluator_D2Result> GeomEvaluator_SurfaceOfExtrusion::D2(
   return aResult;
 }
 
-std::optional<GeomEvaluator_D3Result> GeomEvaluator_SurfaceOfExtrusion::D3(
+std::optional<GeomEvaluator_Surface::D3Result> GeomEvaluator_SurfaceOfExtrusion::D3(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
-  GeomEvaluator_D3Result aResult;
+  GeomEvaluator_Surface::D3Result aResult;
   if (!myBaseAdaptor.IsNull())
     myBaseAdaptor->D3(theU, aResult.theValue, aResult.theD1U, aResult.theD2U, aResult.theD3U);
   else

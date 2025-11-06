@@ -55,11 +55,11 @@ std::optional<gp_Pnt> GeomEvaluator_SurfaceOfRevolution::D0(const Standard_Real 
   return aValue;
 }
 
-std::optional<GeomEvaluator_D1Result> GeomEvaluator_SurfaceOfRevolution::D1(
+std::optional<GeomEvaluator_Surface::D1Result> GeomEvaluator_SurfaceOfRevolution::D1(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
-  GeomEvaluator_D1Result aResult;
+  GeomEvaluator_Surface::D1Result aResult;
   if (!myBaseAdaptor.IsNull())
     myBaseAdaptor->D1(theV, aResult.theValue, aResult.theD1V);
   else
@@ -81,11 +81,11 @@ std::optional<GeomEvaluator_D1Result> GeomEvaluator_SurfaceOfRevolution::D1(
   return aResult;
 }
 
-std::optional<GeomEvaluator_D2Result> GeomEvaluator_SurfaceOfRevolution::D2(
+std::optional<GeomEvaluator_Surface::D2Result> GeomEvaluator_SurfaceOfRevolution::D2(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
-  GeomEvaluator_D2Result aResult;
+  GeomEvaluator_Surface::D2Result aResult;
   if (!myBaseAdaptor.IsNull())
     myBaseAdaptor->D2(theV, aResult.theValue, aResult.theD1V, aResult.theD2V);
   else
@@ -113,11 +113,11 @@ std::optional<GeomEvaluator_D2Result> GeomEvaluator_SurfaceOfRevolution::D2(
   return aResult;
 }
 
-std::optional<GeomEvaluator_D3Result> GeomEvaluator_SurfaceOfRevolution::D3(
+std::optional<GeomEvaluator_Surface::D3Result> GeomEvaluator_SurfaceOfRevolution::D3(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
-  GeomEvaluator_D3Result aResult;
+  GeomEvaluator_Surface::D3Result aResult;
   if (!myBaseAdaptor.IsNull())
     myBaseAdaptor->D3(theV, aResult.theValue, aResult.theD1V, aResult.theD2V, aResult.theD3V);
   else

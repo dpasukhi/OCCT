@@ -40,16 +40,16 @@ public:
                                             const Standard_Real theV) const Standard_OVERRIDE;
   //! Value and first derivatives of surface
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
-  Standard_EXPORT std::optional<GeomEvaluator_D1Result> D1(const Standard_Real theU,
-                                                            const Standard_Real theV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<D1Result> D1(const Standard_Real theU,
+                                              const Standard_Real theV) const Standard_OVERRIDE;
   //! Value, first and second derivatives of surface
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
-  Standard_EXPORT std::optional<GeomEvaluator_D2Result> D2(const Standard_Real theU,
-                                                            const Standard_Real theV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<D2Result> D2(const Standard_Real theU,
+                                              const Standard_Real theV) const Standard_OVERRIDE;
   //! Value, first, second and third derivatives of surface
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
-  Standard_EXPORT std::optional<GeomEvaluator_D3Result> D3(const Standard_Real theU,
-                                                            const Standard_Real theV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<D3Result> D3(const Standard_Real theU,
+                                              const Standard_Real theV) const Standard_OVERRIDE;
   //! Calculates N-th derivatives of surface, where N = theDerU + theDerV.
   //!
   //! Raises if N < 1 or theDerU < 0 or theDerV < 0

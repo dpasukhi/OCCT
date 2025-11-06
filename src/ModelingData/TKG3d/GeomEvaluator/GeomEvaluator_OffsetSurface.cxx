@@ -289,7 +289,7 @@ std::optional<gp_Pnt> GeomEvaluator_OffsetSurface::D0(const Standard_Real theU,
   }
 }
 
-std::optional<GeomEvaluator_D1Result> GeomEvaluator_OffsetSurface::D1(
+std::optional<GeomEvaluator_Surface::D1Result> GeomEvaluator_OffsetSurface::D1(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
@@ -317,7 +317,7 @@ std::optional<GeomEvaluator_D1Result> GeomEvaluator_OffsetSurface::D1(
   }
 }
 
-std::optional<GeomEvaluator_D2Result> GeomEvaluator_OffsetSurface::D2(
+std::optional<GeomEvaluator_Surface::D2Result> GeomEvaluator_OffsetSurface::D2(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
@@ -356,7 +356,7 @@ std::optional<GeomEvaluator_D2Result> GeomEvaluator_OffsetSurface::D2(
   }
 }
 
-std::optional<GeomEvaluator_D3Result> GeomEvaluator_OffsetSurface::D3(
+std::optional<GeomEvaluator_Surface::D3Result> GeomEvaluator_OffsetSurface::D3(
   const Standard_Real theU,
   const Standard_Real theV) const
 {
@@ -623,7 +623,7 @@ std::optional<gp_Pnt> GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Re
   return aValue;
 }
 
-std::optional<GeomEvaluator_D1Result> GeomEvaluator_OffsetSurface::CalculateD1(
+std::optional<GeomEvaluator_Surface::D1Result> GeomEvaluator_OffsetSurface::CalculateD1(
   const Standard_Real theU,
   const Standard_Real theV,
   const gp_Pnt&       theBaseValue,
@@ -633,7 +633,7 @@ std::optional<GeomEvaluator_D1Result> GeomEvaluator_OffsetSurface::CalculateD1(
   const gp_Vec&       theD2V,
   const gp_Vec&       theD2UV) const
 {
-  GeomEvaluator_D1Result aResult;
+  GeomEvaluator_Surface::D1Result aResult;
   aResult.theValue = theBaseValue;
   aResult.theD1U   = theBaseD1U;
   aResult.theD1V   = theBaseD1V;
@@ -791,7 +791,7 @@ std::optional<GeomEvaluator_D1Result> GeomEvaluator_OffsetSurface::CalculateD1(
   return aResult;
 }
 
-std::optional<GeomEvaluator_D2Result> GeomEvaluator_OffsetSurface::CalculateD2(
+std::optional<GeomEvaluator_Surface::D2Result> GeomEvaluator_OffsetSurface::CalculateD2(
   const Standard_Real theU,
   const Standard_Real theV,
   const gp_Pnt&       theBaseValue,
@@ -805,7 +805,7 @@ std::optional<GeomEvaluator_D2Result> GeomEvaluator_OffsetSurface::CalculateD2(
   const gp_Vec&       theD3UUV,
   const gp_Vec&       theD3UVV) const
 {
-  GeomEvaluator_D2Result aResult;
+  GeomEvaluator_Surface::D2Result aResult;
   aResult.theValue = theBaseValue;
 
   gp_Dir             Normal;
@@ -887,7 +887,7 @@ std::optional<GeomEvaluator_D2Result> GeomEvaluator_OffsetSurface::CalculateD2(
   return aResult;
 }
 
-std::optional<GeomEvaluator_D3Result> GeomEvaluator_OffsetSurface::CalculateD3(
+std::optional<GeomEvaluator_Surface::D3Result> GeomEvaluator_OffsetSurface::CalculateD3(
   const Standard_Real theU,
   const Standard_Real theV,
   const gp_Pnt&       theBaseValue,
@@ -901,7 +901,7 @@ std::optional<GeomEvaluator_D3Result> GeomEvaluator_OffsetSurface::CalculateD3(
   const gp_Vec&       theBaseD3UUV,
   const gp_Vec&       theBaseD3UVV) const
 {
-  GeomEvaluator_D3Result aResult;
+  GeomEvaluator_Surface::D3Result aResult;
   aResult.theValue = theBaseValue;
 
   gp_Dir             Normal;
