@@ -13,7 +13,6 @@
 // commercial license or contractual agreement.
 
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamExtCharParityError.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 

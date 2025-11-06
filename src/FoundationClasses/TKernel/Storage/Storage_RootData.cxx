@@ -13,11 +13,9 @@
 // commercial license or contractual agreement.
 
 #include <Standard_Persistent.hxx>
-#include <Standard_ErrorHandler.hxx>
 #include <Storage_RootData.hxx>
 #include <Storage_Root.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
 #include <Storage_DataMapIteratorOfMapOfPers.hxx>
 #include <TCollection_AsciiString.hxx>
 

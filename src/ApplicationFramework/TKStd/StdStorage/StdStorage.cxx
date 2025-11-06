@@ -29,9 +29,6 @@
 #include <StdStorage_BacketOfPersistent.hxx>
 #include <Storage.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamFormatError.hxx>
-#include <Storage_StreamWriteError.hxx>
 
 #include <stdio.h>
 

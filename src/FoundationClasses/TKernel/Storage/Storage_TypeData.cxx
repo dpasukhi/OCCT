@@ -12,7 +12,6 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_ErrorHandler.hxx>
 #include <Storage_TypeData.hxx>
 #include <Storage_BaseDriver.hxx>
 #include <TCollection_AsciiString.hxx>

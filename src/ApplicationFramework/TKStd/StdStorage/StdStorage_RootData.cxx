@@ -12,7 +12,6 @@
 // commercial license or contractual agreement.
 
 #include <StdObjMgt_Persistent.hxx>
-#include <Standard_ErrorHandler.hxx>
 #include <StdStorage_RootData.hxx>
 #include <StdStorage_Root.hxx>
 #include <Storage_BaseDriver.hxx>
