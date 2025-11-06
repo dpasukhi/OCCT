@@ -17,54 +17,77 @@
 
 #include <Standard_Transient.hxx>
 #include <Standard_Type.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Vec.hxx>
+#include <optional>
 
-class gp_Pnt;
-class gp_Vec;
+//! Result structures for surface evaluation methods
+struct GeomEvaluator_D1Result
+{
+  gp_Pnt theValue;
+  gp_Vec theD1U;
+  gp_Vec theD1V;
+};
+
+struct GeomEvaluator_D2Result
+{
+  gp_Pnt theValue;
+  gp_Vec theD1U;
+  gp_Vec theD1V;
+  gp_Vec theD2U;
+  gp_Vec theD2V;
+  gp_Vec theD2UV;
+};
+
+struct GeomEvaluator_D3Result
+{
+  gp_Pnt theValue;
+  gp_Vec theD1U;
+  gp_Vec theD1V;
+  gp_Vec theD2U;
+  gp_Vec theD2V;
+  gp_Vec theD2UV;
+  gp_Vec theD3U;
+  gp_Vec theD3V;
+  gp_Vec theD3UUV;
+  gp_Vec theD3UVV;
+};
 
 //! Interface for calculation of values and derivatives for different kinds of surfaces.
 //! Works both with adaptors and surfaces.
+//! All methods return std::optional to properly handle calculation failures.
 class GeomEvaluator_Surface : public Standard_Transient
 {
 public:
   GeomEvaluator_Surface() {}
 
   //! Value of surface
-  virtual void D0(const Standard_Real theU, const Standard_Real theV, gp_Pnt& theValue) const = 0;
+  //! @return Point value if calculation succeeds, std::nullopt otherwise
+  virtual std::optional<gp_Pnt> D0(const Standard_Real theU, const Standard_Real theV) const = 0;
+
   //! Value and first derivatives of surface
-  virtual void D1(const Standard_Real theU,
-                  const Standard_Real theV,
-                  gp_Pnt&             theValue,
-                  gp_Vec&             theD1U,
-                  gp_Vec&             theD1V) const = 0;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  virtual std::optional<GeomEvaluator_D1Result> D1(const Standard_Real theU,
+                                                    const Standard_Real theV) const = 0;
+
   //! Value, first and second derivatives of surface
-  virtual void D2(const Standard_Real theU,
-                  const Standard_Real theV,
-                  gp_Pnt&             theValue,
-                  gp_Vec&             theD1U,
-                  gp_Vec&             theD1V,
-                  gp_Vec&             theD2U,
-                  gp_Vec&             theD2V,
-                  gp_Vec&             theD2UV) const = 0;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  virtual std::optional<GeomEvaluator_D2Result> D2(const Standard_Real theU,
+                                                    const Standard_Real theV) const = 0;
+
   //! Value, first, second and third derivatives of surface
-  virtual void D3(const Standard_Real theU,
-                  const Standard_Real theV,
-                  gp_Pnt&             theValue,
-                  gp_Vec&             theD1U,
-                  gp_Vec&             theD1V,
-                  gp_Vec&             theD2U,
-                  gp_Vec&             theD2V,
-                  gp_Vec&             theD2UV,
-                  gp_Vec&             theD3U,
-                  gp_Vec&             theD3V,
-                  gp_Vec&             theD3UUV,
-                  gp_Vec&             theD3UVV) const = 0;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  virtual std::optional<GeomEvaluator_D3Result> D3(const Standard_Real theU,
+                                                    const Standard_Real theV) const = 0;
+
   //! Calculates N-th derivatives of surface, where N = theDerU + theDerV.
   //!
   //! Raises if N < 1 or theDerU < 0 or theDerV < 0
-  virtual gp_Vec DN(const Standard_Real    theU,
-                    const Standard_Real    theV,
-                    const Standard_Integer theDerU,
-                    const Standard_Integer theDerV) const = 0;
+  //! @return Derivative vector if calculation succeeds, std::nullopt otherwise
+  virtual std::optional<gp_Vec> DN(const Standard_Real    theU,
+                                    const Standard_Real    theV,
+                                    const Standard_Integer theDerU,
+                                    const Standard_Integer theDerV) const = 0;
 
   virtual Handle(GeomEvaluator_Surface) ShallowCopy() const = 0;
 

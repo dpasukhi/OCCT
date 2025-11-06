@@ -262,200 +262,160 @@ GeomEvaluator_OffsetSurface::GeomEvaluator_OffsetSurface(
 {
 }
 
-void GeomEvaluator_OffsetSurface::D0(const Standard_Real theU,
-                                     const Standard_Real theV,
-                                     gp_Pnt&             theValue) const
+std::optional<gp_Pnt> GeomEvaluator_OffsetSurface::D0(const Standard_Real theU,
+                                                       const Standard_Real theV) const
 {
-  // Error handling strategy:
-  // 1. Try to calculate offset-corrected value at (theU, theV)
-  // 2. If normal calculation fails, try at a shifted point (boundary handling)
-  // 3. If both fail, return base surface point without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
+    gp_Pnt aValue;
     gp_Vec aD1U, aD1V;
-    BaseD1(aU, aV, theValue, aD1U, aD1V);
+    BaseD1(aU, aV, aValue, aD1U, aD1V);
 
     CheckInfinite(aD1U, aD1V);
 
-    if (CalculateD0(aU, aV, theValue, aD1U, aD1V))
+    if (auto aResult = CalculateD0(aU, aV, aValue, aD1U, aD1V))
     {
-      break;
+      return aResult;
     }
     else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate offset correction - theValue contains base surface point
-        // This provides a meaningful fallback rather than undefined/invalid geometry
-        return;
+        return std::nullopt;
       }
     }
   }
 }
 
-void GeomEvaluator_OffsetSurface::D1(const Standard_Real theU,
-                                     const Standard_Real theV,
-                                     gp_Pnt&             theValue,
-                                     gp_Vec&             theD1U,
-                                     gp_Vec&             theD1V) const
+std::optional<GeomEvaluator_D1Result> GeomEvaluator_OffsetSurface::D1(
+  const Standard_Real theU,
+  const Standard_Real theV) const
 {
-  // Error handling strategy:
-  // 1. Try to calculate offset-corrected values at (theU, theV)
-  // 2. If normal calculation fails, try at a shifted point (boundary handling)
-  // 3. If both fail, return base surface values without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
-    gp_Vec aD2U, aD2V, aD2UV;
-    BaseD2(aU, aV, theValue, theD1U, theD1V, aD2U, aD2V, aD2UV);
+    gp_Pnt aValue;
+    gp_Vec aD1U, aD1V, aD2U, aD2V, aD2UV;
+    BaseD2(aU, aV, aValue, aD1U, aD1V, aD2U, aD2V, aD2UV);
 
-    CheckInfinite(theD1U, theD1V);
+    CheckInfinite(aD1U, aD1V);
 
-    if (CalculateD1(aU, aV, theValue, theD1U, theD1V, aD2U, aD2V, aD2UV))
+    if (auto aResult = CalculateD1(aU, aV, aValue, aD1U, aD1V, aD2U, aD2V, aD2UV))
     {
-      break;
+      return aResult;
     }
     else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
-      if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
+      if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate offset correction - output parameters contain base surface values
-        // This provides a meaningful fallback rather than undefined/invalid geometry
-        return;
+        return std::nullopt;
       }
     }
   }
 }
 
-void GeomEvaluator_OffsetSurface::D2(const Standard_Real theU,
-                                     const Standard_Real theV,
-                                     gp_Pnt&             theValue,
-                                     gp_Vec&             theD1U,
-                                     gp_Vec&             theD1V,
-                                     gp_Vec&             theD2U,
-                                     gp_Vec&             theD2V,
-                                     gp_Vec&             theD2UV) const
+std::optional<GeomEvaluator_D2Result> GeomEvaluator_OffsetSurface::D2(
+  const Standard_Real theU,
+  const Standard_Real theV) const
 {
-  // Error handling strategy:
-  // 1. Try to calculate offset-corrected values at (theU, theV)
-  // 2. If normal calculation fails, try at a shifted point (boundary handling)
-  // 3. If both fail, return base surface values without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
-    gp_Vec aD3U, aD3V, aD3UUV, aD3UVV;
-    BaseD3(aU, aV, theValue, theD1U, theD1V, theD2U, theD2V, theD2UV, aD3U, aD3V, aD3UUV, aD3UVV);
+    gp_Pnt aValue;
+    gp_Vec aD1U, aD1V, aD2U, aD2V, aD2UV, aD3U, aD3V, aD3UUV, aD3UVV;
+    BaseD3(aU, aV, aValue, aD1U, aD1V, aD2U, aD2V, aD2UV, aD3U, aD3V, aD3UUV, aD3UVV);
 
-    CheckInfinite(theD1U, theD1V);
+    CheckInfinite(aD1U, aD1V);
 
-    if (CalculateD2(aU,
-                    aV,
-                    theValue,
-                    theD1U,
-                    theD1V,
-                    theD2U,
-                    theD2V,
-                    theD2UV,
-                    aD3U,
-                    aD3V,
-                    aD3UUV,
-                    aD3UVV))
+    if (auto aResult = CalculateD2(aU,
+                                    aV,
+                                    aValue,
+                                    aD1U,
+                                    aD1V,
+                                    aD2U,
+                                    aD2V,
+                                    aD2UV,
+                                    aD3U,
+                                    aD3V,
+                                    aD3UUV,
+                                    aD3UVV))
     {
-      break;
+      return aResult;
     }
     else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
-      if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
+      if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate offset correction - output parameters contain base surface values
-        // This provides a meaningful fallback rather than undefined/invalid geometry
-        return;
+        return std::nullopt;
       }
     }
   }
 }
 
-void GeomEvaluator_OffsetSurface::D3(const Standard_Real theU,
-                                     const Standard_Real theV,
-                                     gp_Pnt&             theValue,
-                                     gp_Vec&             theD1U,
-                                     gp_Vec&             theD1V,
-                                     gp_Vec&             theD2U,
-                                     gp_Vec&             theD2V,
-                                     gp_Vec&             theD2UV,
-                                     gp_Vec&             theD3U,
-                                     gp_Vec&             theD3V,
-                                     gp_Vec&             theD3UUV,
-                                     gp_Vec&             theD3UVV) const
+std::optional<GeomEvaluator_D3Result> GeomEvaluator_OffsetSurface::D3(
+  const Standard_Real theU,
+  const Standard_Real theV) const
 {
-  // Error handling strategy:
-  // 1. Try to calculate offset-corrected values at (theU, theV)
-  // 2. If normal calculation fails, try at a shifted point (boundary handling)
-  // 3. If both fail, return base surface values without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
+    gp_Pnt aValue;
+    gp_Vec aD1U, aD1V, aD2U, aD2V, aD2UV, aD3U, aD3V, aD3UUV, aD3UVV;
     BaseD3(aU,
            aV,
-           theValue,
-           theD1U,
-           theD1V,
-           theD2U,
-           theD2V,
-           theD2UV,
-           theD3U,
-           theD3V,
-           theD3UUV,
-           theD3UVV);
+           aValue,
+           aD1U,
+           aD1V,
+           aD2U,
+           aD2V,
+           aD2UV,
+           aD3U,
+           aD3V,
+           aD3UUV,
+           aD3UVV);
 
-    CheckInfinite(theD1U, theD1V);
+    CheckInfinite(aD1U, aD1V);
 
-    if (CalculateD3(aU,
-                    aV,
-                    theValue,
-                    theD1U,
-                    theD1V,
-                    theD2U,
-                    theD2V,
-                    theD2UV,
-                    theD3U,
-                    theD3V,
-                    theD3UUV,
-                    theD3UVV))
+    if (auto aResult = CalculateD3(aU,
+                                    aV,
+                                    aValue,
+                                    aD1U,
+                                    aD1V,
+                                    aD2U,
+                                    aD2V,
+                                    aD2UV,
+                                    aD3U,
+                                    aD3V,
+                                    aD3UUV,
+                                    aD3UVV))
     {
-      break;
+      return aResult;
     }
     else
     {
       // if failed at parametric boundary, try taking derivative at shifted point
-      if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
+      if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate offset correction - output parameters contain base surface values
-        // This provides a meaningful fallback rather than undefined/invalid geometry
-        return;
+        return std::nullopt;
       }
     }
   }
 }
 
-gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
-                                       const Standard_Real    theV,
-                                       const Standard_Integer theDerU,
-                                       const Standard_Integer theDerV) const
+std::optional<gp_Vec> GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
+                                                       const Standard_Real    theV,
+                                                       const Standard_Integer theDerU,
+                                                       const Standard_Integer theDerV) const
 {
   Standard_RangeError_Raise_if(theDerU < 0, "GeomEvaluator_OffsetSurface::DN(): theDerU < 0");
   Standard_RangeError_Raise_if(theDerV < 0, "GeomEvaluator_OffsetSurface::DN(): theDerV < 0");
   Standard_RangeError_Raise_if(theDerU + theDerV < 1,
                                "GeomEvaluator_OffsetSurface::DN(): theDerU + theDerV < 1");
 
-  // Error handling strategy:
-  // 1. Try to calculate offset-corrected derivative at (theU, theV)
-  // 2. If normal calculation fails, try at a shifted point (boundary handling)
-  // 3. If both fail, return base surface derivative without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
@@ -465,8 +425,7 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
 
     CheckInfinite(aD1U, aD1V);
 
-    gp_Vec aResult;
-    if (CalculateDN(aU, aV, theDerU, theDerV, aD1U, aD1V, aResult))
+    if (auto aResult = CalculateDN(aU, aV, theDerU, theDerV, aD1U, aD1V))
     {
       return aResult;
     }
@@ -475,12 +434,7 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate offset correction - return base surface derivative
-        // This provides a meaningful fallback rather than invalid/arbitrary value
-        if (!myBaseSurf.IsNull())
-          return myBaseSurf->DN(theU, theV, theDerU, theDerV);
-        else
-          return myBaseAdaptor->DN(theU, theV, theDerU, theDerV);
+        return std::nullopt;
       }
     }
   }
@@ -582,12 +536,14 @@ void GeomEvaluator_OffsetSurface::BaseD3(const Standard_Real theU,
                    theD3UVV);
 }
 
-Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Real theU,
-                                                           const Standard_Real theV,
-                                                           gp_Pnt&             theValue,
-                                                           const gp_Vec&       theD1U,
-                                                           const gp_Vec&       theD1V) const
+std::optional<gp_Pnt> GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Real theU,
+                                                                const Standard_Real theV,
+                                                                const gp_Pnt&       theBaseValue,
+                                                                const gp_Vec&       theD1U,
+                                                                const gp_Vec&       theD1V) const
 {
+  gp_Pnt aValue = theBaseValue;
+
   // Normalize derivatives before normal calculation because it gives more stable result.
   // There will be normalized only derivatives greater than 1.0 to avoid differences in last
   // significant digit
@@ -605,7 +561,7 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Real th
   {
     // Non singular case. Simple computations.
     aNorm.Normalize();
-    theValue.SetXYZ(theValue.XYZ() + myOffset * aNorm.XYZ());
+    aValue.SetXYZ(aValue.XYZ() + myOffset * aNorm.XYZ());
   }
   else
   {
@@ -660,22 +616,28 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD0(const Standard_Real th
     }
 
     if (NStatus != CSLib_Defined)
-      return Standard_False;
+      return std::nullopt;
 
-    theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
+    aValue.SetXYZ(aValue.XYZ() + myOffset * aSign * Normal.XYZ());
   }
-  return Standard_True;
+  return aValue;
 }
 
-Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real theU,
-                                                           const Standard_Real theV,
-                                                           gp_Pnt&             theValue,
-                                                           gp_Vec&             theD1U,
-                                                           gp_Vec&             theD1V,
-                                                           const gp_Vec&       theD2U,
-                                                           const gp_Vec&       theD2V,
-                                                           const gp_Vec&       theD2UV) const
+std::optional<GeomEvaluator_D1Result> GeomEvaluator_OffsetSurface::CalculateD1(
+  const Standard_Real theU,
+  const Standard_Real theV,
+  const gp_Pnt&       theBaseValue,
+  const gp_Vec&       theBaseD1U,
+  const gp_Vec&       theBaseD1V,
+  const gp_Vec&       theD2U,
+  const gp_Vec&       theD2V,
+  const gp_Vec&       theD2UV) const
 {
+  GeomEvaluator_D1Result aResult;
+  aResult.theValue = theBaseValue;
+  aResult.theD1U   = theBaseD1U;
+  aResult.theD1V   = theBaseD1V;
+
   // Check offset side.
   Handle(Geom_BSplineSurface) L;
   Standard_Boolean            isOpposite = Standard_False;
@@ -685,8 +647,8 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real th
   // Normalize derivatives before normal calculation because it gives more stable result.
   // There will be normalized only derivatives greater than 1.0 to avoid differences in last
   // significant digit
-  gp_Vec        aD1U(theD1U);
-  gp_Vec        aD1V(theD1V);
+  gp_Vec        aD1U(theBaseD1U);
+  gp_Vec        aD1V(theBaseD1V);
   Standard_Real aD1UNorm2 = aD1U.SquareMagnitude();
   Standard_Real aD1VNorm2 = aD1V.SquareMagnitude();
   if (aD1UNorm2 > 1.0)
@@ -716,36 +678,36 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real th
     // AlongU or AlongV leads to more complex D1 computation
     // Try to compute D0 and D1 much simpler
     aNorm.Normalize();
-    theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * aNorm.XYZ());
+    aResult.theValue.SetXYZ(aResult.theValue.XYZ() + myOffset * aSign * aNorm.XYZ());
 
     gp_Vec        aN0(aNorm.XYZ()), aN1U, aN1V;
-    Standard_Real aScale = (theD1U ^ theD1V).Dot(aN0);
-    aN1U.SetX(theD2U.Y() * theD1V.Z() + theD1U.Y() * theD2UV.Z() - theD2U.Z() * theD1V.Y()
-              - theD1U.Z() * theD2UV.Y());
-    aN1U.SetY((theD2U.X() * theD1V.Z() + theD1U.X() * theD2UV.Z() - theD2U.Z() * theD1V.X()
-               - theD1U.Z() * theD2UV.X())
+    Standard_Real aScale = (theBaseD1U ^ theBaseD1V).Dot(aN0);
+    aN1U.SetX(theD2U.Y() * theBaseD1V.Z() + theBaseD1U.Y() * theD2UV.Z()
+              - theD2U.Z() * theBaseD1V.Y() - theBaseD1U.Z() * theD2UV.Y());
+    aN1U.SetY((theD2U.X() * theBaseD1V.Z() + theBaseD1U.X() * theD2UV.Z()
+               - theD2U.Z() * theBaseD1V.X() - theBaseD1U.Z() * theD2UV.X())
               * -1.0);
-    aN1U.SetZ(theD2U.X() * theD1V.Y() + theD1U.X() * theD2UV.Y() - theD2U.Y() * theD1V.X()
-              - theD1U.Y() * theD2UV.X());
+    aN1U.SetZ(theD2U.X() * theBaseD1V.Y() + theBaseD1U.X() * theD2UV.Y()
+              - theD2U.Y() * theBaseD1V.X() - theBaseD1U.Y() * theD2UV.X());
     Standard_Real aScaleU = aN1U.Dot(aN0);
     aN1U.Subtract(aScaleU * aN0);
     aN1U /= aScale;
 
-    aN1V.SetX(theD2UV.Y() * theD1V.Z() + theD2V.Z() * theD1U.Y() - theD2UV.Z() * theD1V.Y()
-              - theD2V.Y() * theD1U.Z());
-    aN1V.SetY((theD2UV.X() * theD1V.Z() + theD2V.Z() * theD1U.X() - theD2UV.Z() * theD1V.X()
-               - theD2V.X() * theD1U.Z())
+    aN1V.SetX(theD2UV.Y() * theBaseD1V.Z() + theD2V.Z() * theBaseD1U.Y()
+              - theD2UV.Z() * theBaseD1V.Y() - theD2V.Y() * theBaseD1U.Z());
+    aN1V.SetY((theD2UV.X() * theBaseD1V.Z() + theD2V.Z() * theBaseD1U.X()
+               - theD2UV.Z() * theBaseD1V.X() - theD2V.X() * theBaseD1U.Z())
               * -1.0);
-    aN1V.SetZ(theD2UV.X() * theD1V.Y() + theD2V.Y() * theD1U.X() - theD2UV.Y() * theD1V.X()
-              - theD2V.X() * theD1U.Y());
+    aN1V.SetZ(theD2UV.X() * theBaseD1V.Y() + theD2V.Y() * theBaseD1U.X()
+              - theD2UV.Y() * theBaseD1V.X() - theD2V.X() * theBaseD1U.Y());
     Standard_Real aScaleV = aN1V.Dot(aN0);
     aN1V.Subtract(aScaleV * aN0);
     aN1V /= aScale;
 
-    theD1U += myOffset * aSign * aN1U;
-    theD1V += myOffset * aSign * aN1V;
+    aResult.theD1U += myOffset * aSign * aN1U;
+    aResult.theD1V += myOffset * aSign * aN1V;
 
-    return Standard_True;
+    return aResult;
   }
 
   Standard_Integer   OrderU, OrderV;
@@ -754,8 +716,8 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real th
   Standard_Real      Umin = 0, Umax = 0, Vmin = 0, Vmax = 0;
   Bounds(Umin, Umax, Vmin, Vmax);
 
-  DerSurf.SetValue(1, 0, theD1U);
-  DerSurf.SetValue(0, 1, theD1V);
+  DerSurf.SetValue(1, 0, theBaseD1U);
+  DerSurf.SetValue(0, 1, theBaseD1V);
   DerSurf.SetValue(1, 1, theD2UV);
   DerSurf.SetValue(2, 0, theD2U);
   DerSurf.SetValue(0, 2, theD2V);
@@ -781,8 +743,8 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real th
                 OrderV);
   if (NStatus == CSLib_InfinityOfSolutions)
   {
-    gp_Vec aNewDU = theD1U;
-    gp_Vec aNewDV = theD1V;
+    gp_Vec aNewDU = theBaseD1U;
+    gp_Vec aNewDV = theBaseD1V;
     // Replace zero derivative and try to calculate normal
     if (ReplaceDerivative(theU, theV, aNewDU, aNewDV, the_D1MagTol * the_D1MagTol))
     {
@@ -820,31 +782,35 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD1(const Standard_Real th
   }
 
   if (NStatus != CSLib_Defined)
-    return Standard_False;
+    return std::nullopt;
 
-  theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
+  aResult.theValue.SetXYZ(aResult.theValue.XYZ() + myOffset * aSign * Normal.XYZ());
 
-  theD1U = DerSurf(1, 0) + myOffset * aSign * CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
-  theD1V = DerSurf(0, 1) + myOffset * aSign * CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
-  return Standard_True;
+  aResult.theD1U = DerSurf(1, 0) + myOffset * aSign * CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
+  aResult.theD1V = DerSurf(0, 1) + myOffset * aSign * CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
+  return aResult;
 }
 
-Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD2(const Standard_Real theU,
-                                                           const Standard_Real theV,
-                                                           gp_Pnt&             theValue,
-                                                           gp_Vec&             theD1U,
-                                                           gp_Vec&             theD1V,
-                                                           gp_Vec&             theD2U,
-                                                           gp_Vec&             theD2V,
-                                                           gp_Vec&             theD2UV,
-                                                           const gp_Vec&       theD3U,
-                                                           const gp_Vec&       theD3V,
-                                                           const gp_Vec&       theD3UUV,
-                                                           const gp_Vec&       theD3UVV) const
+std::optional<GeomEvaluator_D2Result> GeomEvaluator_OffsetSurface::CalculateD2(
+  const Standard_Real theU,
+  const Standard_Real theV,
+  const gp_Pnt&       theBaseValue,
+  const gp_Vec&       theBaseD1U,
+  const gp_Vec&       theBaseD1V,
+  const gp_Vec&       theBaseD2U,
+  const gp_Vec&       theBaseD2V,
+  const gp_Vec&       theBaseD2UV,
+  const gp_Vec&       theD3U,
+  const gp_Vec&       theD3V,
+  const gp_Vec&       theD3UUV,
+  const gp_Vec&       theD3UVV) const
 {
+  GeomEvaluator_D2Result aResult;
+  aResult.theValue = theBaseValue;
+
   gp_Dir             Normal;
   CSLib_NormalStatus NStatus;
-  CSLib::Normal(theD1U, theD1V, the_D1MagTol, NStatus, Normal);
+  CSLib::Normal(theBaseD1U, theBaseD1V, the_D1MagTol, NStatus, Normal);
 
   const Standard_Integer MaxOrder = (NStatus == CSLib_Defined) ? 0 : 3;
   Standard_Integer       OrderU, OrderV;
@@ -854,11 +820,11 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD2(const Standard_Real th
   Standard_Real Umin = 0, Umax = 0, Vmin = 0, Vmax = 0;
   Bounds(Umin, Umax, Vmin, Vmax);
 
-  DerSurf.SetValue(1, 0, theD1U);
-  DerSurf.SetValue(0, 1, theD1V);
-  DerSurf.SetValue(1, 1, theD2UV);
-  DerSurf.SetValue(2, 0, theD2U);
-  DerSurf.SetValue(0, 2, theD2V);
+  DerSurf.SetValue(1, 0, theBaseD1U);
+  DerSurf.SetValue(0, 1, theBaseD1V);
+  DerSurf.SetValue(1, 1, theBaseD2UV);
+  DerSurf.SetValue(2, 0, theBaseD2U);
+  DerSurf.SetValue(0, 2, theBaseD2V);
   DerSurf.SetValue(3, 0, theD3U);
   DerSurf.SetValue(2, 1, theD3UUV);
   DerSurf.SetValue(1, 2, theD3UVV);
@@ -895,48 +861,52 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD2(const Standard_Real th
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    return Standard_False;
+    return std::nullopt;
 
-  theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
+  aResult.theValue.SetXYZ(aResult.theValue.XYZ() + myOffset * aSign * Normal.XYZ());
 
-  theD1U = DerSurf(1, 0) + myOffset * aSign * CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
-  theD1V = DerSurf(0, 1) + myOffset * aSign * CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
+  aResult.theD1U = DerSurf(1, 0) + myOffset * aSign * CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
+  aResult.theD1V = DerSurf(0, 1) + myOffset * aSign * CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
 
   if (!myBaseSurf.IsNull())
   {
-    theD2U  = myBaseSurf->DN(theU, theV, 2, 0);
-    theD2V  = myBaseSurf->DN(theU, theV, 0, 2);
-    theD2UV = myBaseSurf->DN(theU, theV, 1, 1);
+    aResult.theD2U  = myBaseSurf->DN(theU, theV, 2, 0);
+    aResult.theD2V  = myBaseSurf->DN(theU, theV, 0, 2);
+    aResult.theD2UV = myBaseSurf->DN(theU, theV, 1, 1);
   }
   else
   {
-    theD2U  = myBaseAdaptor->DN(theU, theV, 2, 0);
-    theD2V  = myBaseAdaptor->DN(theU, theV, 0, 2);
-    theD2UV = myBaseAdaptor->DN(theU, theV, 1, 1);
+    aResult.theD2U  = myBaseAdaptor->DN(theU, theV, 2, 0);
+    aResult.theD2V  = myBaseAdaptor->DN(theU, theV, 0, 2);
+    aResult.theD2UV = myBaseAdaptor->DN(theU, theV, 1, 1);
   }
 
-  theD2U += aSign * myOffset * CSLib::DNNormal(2, 0, DerNUV, OrderU, OrderV);
-  theD2V += aSign * myOffset * CSLib::DNNormal(0, 2, DerNUV, OrderU, OrderV);
-  theD2UV += aSign * myOffset * CSLib::DNNormal(1, 1, DerNUV, OrderU, OrderV);
-  return Standard_True;
+  aResult.theD2U += aSign * myOffset * CSLib::DNNormal(2, 0, DerNUV, OrderU, OrderV);
+  aResult.theD2V += aSign * myOffset * CSLib::DNNormal(0, 2, DerNUV, OrderU, OrderV);
+  aResult.theD2UV += aSign * myOffset * CSLib::DNNormal(1, 1, DerNUV, OrderU, OrderV);
+  return aResult;
 }
 
-Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD3(const Standard_Real theU,
-                                                           const Standard_Real theV,
-                                                           gp_Pnt&             theValue,
-                                                           gp_Vec&             theD1U,
-                                                           gp_Vec&             theD1V,
-                                                           gp_Vec&             theD2U,
-                                                           gp_Vec&             theD2V,
-                                                           gp_Vec&             theD2UV,
-                                                           gp_Vec&             theD3U,
-                                                           gp_Vec&             theD3V,
-                                                           gp_Vec&             theD3UUV,
-                                                           gp_Vec&             theD3UVV) const
+std::optional<GeomEvaluator_D3Result> GeomEvaluator_OffsetSurface::CalculateD3(
+  const Standard_Real theU,
+  const Standard_Real theV,
+  const gp_Pnt&       theBaseValue,
+  const gp_Vec&       theBaseD1U,
+  const gp_Vec&       theBaseD1V,
+  const gp_Vec&       theBaseD2U,
+  const gp_Vec&       theBaseD2V,
+  const gp_Vec&       theBaseD2UV,
+  const gp_Vec&       theBaseD3U,
+  const gp_Vec&       theBaseD3V,
+  const gp_Vec&       theBaseD3UUV,
+  const gp_Vec&       theBaseD3UVV) const
 {
+  GeomEvaluator_D3Result aResult;
+  aResult.theValue = theBaseValue;
+
   gp_Dir             Normal;
   CSLib_NormalStatus NStatus;
-  CSLib::Normal(theD1U, theD1V, the_D1MagTol, NStatus, Normal);
+  CSLib::Normal(theBaseD1U, theBaseD1V, the_D1MagTol, NStatus, Normal);
   const Standard_Integer MaxOrder = (NStatus == CSLib_Defined) ? 0 : 3;
   Standard_Integer       OrderU, OrderV;
   TColgp_Array2OfVec     DerNUV(0, MaxOrder + 3, 0, MaxOrder + 3);
@@ -944,15 +914,15 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD3(const Standard_Real th
   Standard_Real          Umin = 0, Umax = 0, Vmin = 0, Vmax = 0;
   Bounds(Umin, Umax, Vmin, Vmax);
 
-  DerSurf.SetValue(1, 0, theD1U);
-  DerSurf.SetValue(0, 1, theD1V);
-  DerSurf.SetValue(1, 1, theD2UV);
-  DerSurf.SetValue(2, 0, theD2U);
-  DerSurf.SetValue(0, 2, theD2V);
-  DerSurf.SetValue(3, 0, theD3U);
-  DerSurf.SetValue(2, 1, theD3UUV);
-  DerSurf.SetValue(1, 2, theD3UVV);
-  DerSurf.SetValue(0, 3, theD3V);
+  DerSurf.SetValue(1, 0, theBaseD1U);
+  DerSurf.SetValue(0, 1, theBaseD1V);
+  DerSurf.SetValue(1, 1, theBaseD2UV);
+  DerSurf.SetValue(2, 0, theBaseD2U);
+  DerSurf.SetValue(0, 2, theBaseD2V);
+  DerSurf.SetValue(3, 0, theBaseD3U);
+  DerSurf.SetValue(2, 1, theBaseD3UUV);
+  DerSurf.SetValue(1, 2, theBaseD3UVV);
+  DerSurf.SetValue(0, 3, theBaseD3V);
 
   //*********************
   Handle(Geom_BSplineSurface) L;
@@ -985,51 +955,51 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateD3(const Standard_Real th
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    return Standard_False;
+    return std::nullopt;
 
-  theValue.SetXYZ(theValue.XYZ() + myOffset * aSign * Normal.XYZ());
+  aResult.theValue.SetXYZ(aResult.theValue.XYZ() + myOffset * aSign * Normal.XYZ());
 
-  theD1U = DerSurf(1, 0) + myOffset * aSign * CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
-  theD1V = DerSurf(0, 1) + myOffset * aSign * CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
+  aResult.theD1U = DerSurf(1, 0) + myOffset * aSign * CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
+  aResult.theD1V = DerSurf(0, 1) + myOffset * aSign * CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
 
   if (!myBaseSurf.IsNull())
   {
-    theD2U   = myBaseSurf->DN(theU, theV, 2, 0);
-    theD2V   = myBaseSurf->DN(theU, theV, 0, 2);
-    theD2UV  = myBaseSurf->DN(theU, theV, 1, 1);
-    theD3U   = myBaseSurf->DN(theU, theV, 3, 0);
-    theD3V   = myBaseSurf->DN(theU, theV, 0, 3);
-    theD3UUV = myBaseSurf->DN(theU, theV, 2, 1);
-    theD3UVV = myBaseSurf->DN(theU, theV, 1, 2);
+    aResult.theD2U   = myBaseSurf->DN(theU, theV, 2, 0);
+    aResult.theD2V   = myBaseSurf->DN(theU, theV, 0, 2);
+    aResult.theD2UV  = myBaseSurf->DN(theU, theV, 1, 1);
+    aResult.theD3U   = myBaseSurf->DN(theU, theV, 3, 0);
+    aResult.theD3V   = myBaseSurf->DN(theU, theV, 0, 3);
+    aResult.theD3UUV = myBaseSurf->DN(theU, theV, 2, 1);
+    aResult.theD3UVV = myBaseSurf->DN(theU, theV, 1, 2);
   }
   else
   {
-    theD2U   = myBaseAdaptor->DN(theU, theV, 2, 0);
-    theD2V   = myBaseAdaptor->DN(theU, theV, 0, 2);
-    theD2UV  = myBaseAdaptor->DN(theU, theV, 1, 1);
-    theD3U   = myBaseAdaptor->DN(theU, theV, 3, 0);
-    theD3V   = myBaseAdaptor->DN(theU, theV, 0, 3);
-    theD3UUV = myBaseAdaptor->DN(theU, theV, 2, 1);
-    theD3UVV = myBaseAdaptor->DN(theU, theV, 1, 2);
+    aResult.theD2U   = myBaseAdaptor->DN(theU, theV, 2, 0);
+    aResult.theD2V   = myBaseAdaptor->DN(theU, theV, 0, 2);
+    aResult.theD2UV  = myBaseAdaptor->DN(theU, theV, 1, 1);
+    aResult.theD3U   = myBaseAdaptor->DN(theU, theV, 3, 0);
+    aResult.theD3V   = myBaseAdaptor->DN(theU, theV, 0, 3);
+    aResult.theD3UUV = myBaseAdaptor->DN(theU, theV, 2, 1);
+    aResult.theD3UVV = myBaseAdaptor->DN(theU, theV, 1, 2);
   }
 
-  theD2U += aSign * myOffset * CSLib::DNNormal(2, 0, DerNUV, OrderU, OrderV);
-  theD2V += aSign * myOffset * CSLib::DNNormal(0, 2, DerNUV, OrderU, OrderV);
-  theD2UV += aSign * myOffset * CSLib::DNNormal(1, 1, DerNUV, OrderU, OrderV);
-  theD3U += aSign * myOffset * CSLib::DNNormal(3, 0, DerNUV, OrderU, OrderV);
-  theD3V += aSign * myOffset * CSLib::DNNormal(0, 3, DerNUV, OrderU, OrderV);
-  theD3UUV += aSign * myOffset * CSLib::DNNormal(2, 1, DerNUV, OrderU, OrderV);
-  theD3UVV += aSign * myOffset * CSLib::DNNormal(1, 2, DerNUV, OrderU, OrderV);
-  return Standard_True;
+  aResult.theD2U += aSign * myOffset * CSLib::DNNormal(2, 0, DerNUV, OrderU, OrderV);
+  aResult.theD2V += aSign * myOffset * CSLib::DNNormal(0, 2, DerNUV, OrderU, OrderV);
+  aResult.theD2UV += aSign * myOffset * CSLib::DNNormal(1, 1, DerNUV, OrderU, OrderV);
+  aResult.theD3U += aSign * myOffset * CSLib::DNNormal(3, 0, DerNUV, OrderU, OrderV);
+  aResult.theD3V += aSign * myOffset * CSLib::DNNormal(0, 3, DerNUV, OrderU, OrderV);
+  aResult.theD3UUV += aSign * myOffset * CSLib::DNNormal(2, 1, DerNUV, OrderU, OrderV);
+  aResult.theD3UVV += aSign * myOffset * CSLib::DNNormal(1, 2, DerNUV, OrderU, OrderV);
+  return aResult;
 }
 
-Standard_Boolean GeomEvaluator_OffsetSurface::CalculateDN(const Standard_Real    theU,
-                                                           const Standard_Real    theV,
-                                                           const Standard_Integer theNu,
-                                                           const Standard_Integer theNv,
-                                                           const gp_Vec&          theD1U,
-                                                           const gp_Vec&          theD1V,
-                                                           gp_Vec&                theResult) const
+std::optional<gp_Vec> GeomEvaluator_OffsetSurface::CalculateDN(
+  const Standard_Real    theU,
+  const Standard_Real    theV,
+  const Standard_Integer theNu,
+  const Standard_Integer theNv,
+  const gp_Vec&          theD1U,
+  const gp_Vec&          theD1V) const
 {
   gp_Dir             Normal;
   CSLib_NormalStatus NStatus;
@@ -1099,15 +1069,16 @@ Standard_Boolean GeomEvaluator_OffsetSurface::CalculateDN(const Standard_Real   
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    return Standard_False;
+    return std::nullopt;
 
+  gp_Vec aResult;
   if (!myBaseSurf.IsNull())
-    theResult = myBaseSurf->DN(theU, theV, theNu, theNv);
+    aResult = myBaseSurf->DN(theU, theV, theNu, theNv);
   else
-    theResult = myBaseAdaptor->DN(theU, theV, theNu, theNv);
+    aResult = myBaseAdaptor->DN(theU, theV, theNu, theNv);
 
-  theResult += aSign * myOffset * CSLib::DNNormal(theNu, theNv, DerNUV, OrderU, OrderV);
-  return Standard_True;
+  aResult += aSign * myOffset * CSLib::DNNormal(theNu, theNv, DerNUV, OrderU, OrderV);
+  return aResult;
 }
 
 void GeomEvaluator_OffsetSurface::Bounds(Standard_Real& theUMin,
