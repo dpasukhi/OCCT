@@ -1389,6 +1389,63 @@ GeomAbs_Shape Geom_BezierSurface::Continuity() const
 
 //=================================================================================================
 
+std::optional<gp_Pnt> Geom_BezierSurface::D0(const Standard_Real U, const Standard_Real V) const
+{
+  gp_Pnt P;
+  Standard_Real           array_u[2] = {0.0, 1.0};
+  Standard_Real           array_v[2] = {0.0, 1.0};
+  Standard_Integer        mult_u[2]  = {UDegree() + 1, UDegree() + 1};
+  Standard_Integer        mult_v[2]  = {VDegree() + 1, VDegree() + 1};
+  TColStd_Array1OfReal    biduknots(array_u[0], 1, 2);
+  TColStd_Array1OfInteger bidumults(mult_u[0], 1, 2);
+  TColStd_Array1OfReal    bidvknots(array_v[0], 1, 2);
+  TColStd_Array1OfInteger bidvmults(mult_v[0], 1, 2);
+  if (urational || vrational)
+  {
+    BSplSLib::D0(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 &weights->Array2(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 P);
+  }
+  else
+  {
+
+    BSplSLib::D0(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 BSplSLib::NoWeights(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 P);
+  }
+  return P;
+}
+
+//=================================================================================================
+
 void Geom_BezierSurface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
 {
   Standard_Real           array_u[2] = {0.0, 1.0};
