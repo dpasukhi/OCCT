@@ -143,6 +143,13 @@ void Geom_SurfaceOfLinearExtrusion::Bounds(Standard_Real& U1,
 
 //=================================================================================================
 
+std::optional<gp_Pnt> Geom_SurfaceOfLinearExtrusion::D0(const Standard_Real U, const Standard_Real V) const
+{
+  return myEvaluator->D0(U, V);
+}
+
+//=================================================================================================
+
 void Geom_SurfaceOfLinearExtrusion::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
 {
   if (auto aResult = myEvaluator->D0(U, V))
@@ -153,6 +160,14 @@ void Geom_SurfaceOfLinearExtrusion::D0(const Standard_Real U, const Standard_Rea
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfLinearExtrusion::D0 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D1Result> Geom_SurfaceOfLinearExtrusion::D1(const Standard_Real U,
+                                                                                   const Standard_Real V) const
+{
+  return myEvaluator->D1(U, V);
 }
 
 //=================================================================================================
@@ -173,6 +188,14 @@ void Geom_SurfaceOfLinearExtrusion::D1(const Standard_Real U,
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfLinearExtrusion::D1 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D2Result> Geom_SurfaceOfLinearExtrusion::D2(const Standard_Real U,
+                                                                                   const Standard_Real V) const
+{
+  return myEvaluator->D2(U, V);
 }
 
 //=================================================================================================
@@ -199,6 +222,14 @@ void Geom_SurfaceOfLinearExtrusion::D2(const Standard_Real U,
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfLinearExtrusion::D2 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D3Result> Geom_SurfaceOfLinearExtrusion::D3(const Standard_Real U,
+                                                                                   const Standard_Real V) const
+{
+  return myEvaluator->D3(U, V);
 }
 
 //=================================================================================================
@@ -233,6 +264,16 @@ void Geom_SurfaceOfLinearExtrusion::D3(const Standard_Real U,
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfLinearExtrusion::D3 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<gp_Vec> Geom_SurfaceOfLinearExtrusion::DN(const Standard_Real    U,
+                                                         const Standard_Real    V,
+                                                         const Standard_Integer Nu,
+                                                         const Standard_Integer Nv) const
+{
+  return myEvaluator->DN(U, V, Nu, Nv);
 }
 
 //=================================================================================================

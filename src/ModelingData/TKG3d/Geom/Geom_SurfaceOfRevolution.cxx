@@ -229,6 +229,13 @@ void Geom_SurfaceOfRevolution::Bounds(Standard_Real& U1,
 
 //=================================================================================================
 
+std::optional<gp_Pnt> Geom_SurfaceOfRevolution::D0(const Standard_Real U, const Standard_Real V) const
+{
+  return myEvaluator->D0(U, V);
+}
+
+//=================================================================================================
+
 void Geom_SurfaceOfRevolution::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
 {
   if (auto aResult = myEvaluator->D0(U, V))
@@ -239,6 +246,14 @@ void Geom_SurfaceOfRevolution::D0(const Standard_Real U, const Standard_Real V, 
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfRevolution::D0 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D1Result> Geom_SurfaceOfRevolution::D1(const Standard_Real U,
+                                                                              const Standard_Real V) const
+{
+  return myEvaluator->D1(U, V);
 }
 
 //=================================================================================================
@@ -259,6 +274,14 @@ void Geom_SurfaceOfRevolution::D1(const Standard_Real U,
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfRevolution::D1 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D2Result> Geom_SurfaceOfRevolution::D2(const Standard_Real U,
+                                                                              const Standard_Real V) const
+{
+  return myEvaluator->D2(U, V);
 }
 
 //=================================================================================================
@@ -285,6 +308,14 @@ void Geom_SurfaceOfRevolution::D2(const Standard_Real U,
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfRevolution::D2 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D3Result> Geom_SurfaceOfRevolution::D3(const Standard_Real U,
+                                                                              const Standard_Real V) const
+{
+  return myEvaluator->D3(U, V);
 }
 
 //=================================================================================================
@@ -319,6 +350,16 @@ void Geom_SurfaceOfRevolution::D3(const Standard_Real U,
   {
     throw Geom_UndefinedValue("Geom_SurfaceOfRevolution::D3 - computation failed");
   }
+}
+
+//=================================================================================================
+
+std::optional<gp_Vec> Geom_SurfaceOfRevolution::DN(const Standard_Real    U,
+                                                    const Standard_Real    V,
+                                                    const Standard_Integer Nu,
+                                                    const Standard_Integer Nv) const
+{
+  return myEvaluator->DN(U, V, Nu, Nv);
 }
 
 //=================================================================================================
