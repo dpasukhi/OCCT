@@ -1106,40 +1106,20 @@ public:
   //! value and derivatives computation
   Standard_EXPORT const TColStd_Array2OfReal* Weights() const;
 
-  Standard_EXPORT void D0(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<gp_Pnt> D0(const Standard_Real U,
+                                            const Standard_Real V) const override;
 
   //! Raised if the continuity of the surface is not C1.
-  Standard_EXPORT void D1(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D1Result> D1(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! Raised if the continuity of the surface is not C2.
-  Standard_EXPORT void D2(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V,
-                          gp_Vec&             D2U,
-                          gp_Vec&             D2V,
-                          gp_Vec&             D2UV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D2Result> D2(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! Raised if the continuity of the surface is not C3.
-  Standard_EXPORT void D3(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V,
-                          gp_Vec&             D2U,
-                          gp_Vec&             D2V,
-                          gp_Vec&             D2UV,
-                          gp_Vec&             D3U,
-                          gp_Vec&             D3V,
-                          gp_Vec&             D3UUV,
-                          gp_Vec&             D3UVV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D3Result> D3(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! Nu is the order of derivation in the U parametric direction and
   //! Nv is the order of derivation in the V parametric direction.
@@ -1162,10 +1142,10 @@ public:
   //! the evaluations are the same as if we consider the whole
   //! definition of the surface. Of course the evaluations are
   //! different outside this parametric domain.
-  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
-                            const Standard_Real    V,
-                            const Standard_Integer Nu,
-                            const Standard_Integer Nv) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<gp_Vec> DN(const Standard_Real    U,
+                                            const Standard_Real    V,
+                                            const Standard_Integer Nu,
+                                            const Standard_Integer Nv) const override;
 
   //! Raised if FromUK1 = ToUK2 or FromVK1 = ToVK2.
   Standard_EXPORT void LocalD0(const Standard_Real    U,

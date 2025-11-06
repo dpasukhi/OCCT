@@ -113,13 +113,209 @@ Standard_Boolean Geom_BSplineSurface::IsCNv(const Standard_Integer N) const
 
 //=================================================================================================
 
-//=================================================================================================
+std::optional<gp_Pnt> Geom_BSplineSurface::D0(const Standard_Real U, const Standard_Real V) const
+{
+  Standard_Real aNewU = U;
+  Standard_Real aNewV = V;
+  PeriodicNormalization(aNewU, aNewV);
+
+  gp_Pnt P;
+  BSplSLib::D0(aNewU,
+               aNewV,
+               0,
+               0,
+               POLES,
+               &WEIGHTS,
+               UFKNOTS,
+               VFKNOTS,
+               FMULTS,
+               FMULTS,
+               udeg,
+               vdeg,
+               urational,
+               vrational,
+               uperiodic,
+               vperiodic,
+               P);
+  return P;
+}
 
 //=================================================================================================
 
-//=================================================================================================
+std::optional<GeomEvaluator_Surface::D1Result> Geom_BSplineSurface::D1(const Standard_Real U,
+                                                                         const Standard_Real V) const
+{
+  Standard_Real aNewU = U;
+  Standard_Real aNewV = V;
+  PeriodicNormalization(aNewU, aNewV);
+
+  Standard_Integer uindex = 0, vindex = 0;
+
+  BSplCLib::LocateParameter(udeg, uknots->Array1(), &umults->Array1(), U, uperiodic, uindex, aNewU);
+  uindex = BSplCLib::FlatIndex(udeg, uindex, umults->Array1(), uperiodic);
+
+  BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
+  vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
+
+  GeomEvaluator_Surface::D1Result aResult;
+  BSplSLib::D1(aNewU,
+               aNewV,
+               uindex,
+               vindex,
+               POLES,
+               &WEIGHTS,
+               UFKNOTS,
+               VFKNOTS,
+               FMULTS,
+               FMULTS,
+               udeg,
+               vdeg,
+               urational,
+               vrational,
+               uperiodic,
+               vperiodic,
+               aResult.theValue,
+               aResult.theD1U,
+               aResult.theD1V);
+  return aResult;
+}
 
 //=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D2Result> Geom_BSplineSurface::D2(const Standard_Real U,
+                                                                         const Standard_Real V) const
+{
+  Standard_Real aNewU = U;
+  Standard_Real aNewV = V;
+  PeriodicNormalization(aNewU, aNewV);
+
+  Standard_Integer uindex = 0, vindex = 0;
+
+  BSplCLib::LocateParameter(udeg, uknots->Array1(), &umults->Array1(), U, uperiodic, uindex, aNewU);
+  uindex = BSplCLib::FlatIndex(udeg, uindex, umults->Array1(), uperiodic);
+
+  BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
+  vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
+
+  GeomEvaluator_Surface::D2Result aResult;
+  BSplSLib::D2(aNewU,
+               aNewV,
+               uindex,
+               vindex,
+               POLES,
+               &WEIGHTS,
+               UFKNOTS,
+               VFKNOTS,
+               FMULTS,
+               FMULTS,
+               udeg,
+               vdeg,
+               urational,
+               vrational,
+               uperiodic,
+               vperiodic,
+               aResult.theValue,
+               aResult.theD1U,
+               aResult.theD1V,
+               aResult.theD2U,
+               aResult.theD2V,
+               aResult.theD2UV);
+  return aResult;
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D3Result> Geom_BSplineSurface::D3(const Standard_Real U,
+                                                                         const Standard_Real V) const
+{
+  Standard_Real aNewU = U;
+  Standard_Real aNewV = V;
+  PeriodicNormalization(aNewU, aNewV);
+
+  Standard_Integer uindex = 0, vindex = 0;
+
+  BSplCLib::LocateParameter(udeg, uknots->Array1(), &umults->Array1(), U, uperiodic, uindex, aNewU);
+  uindex = BSplCLib::FlatIndex(udeg, uindex, umults->Array1(), uperiodic);
+
+  BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
+  vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
+
+  GeomEvaluator_Surface::D3Result aResult;
+  BSplSLib::D3(aNewU,
+               aNewV,
+               uindex,
+               vindex,
+               POLES,
+               &WEIGHTS,
+               UFKNOTS,
+               VFKNOTS,
+               FMULTS,
+               FMULTS,
+               udeg,
+               vdeg,
+               urational,
+               vrational,
+               uperiodic,
+               vperiodic,
+               aResult.theValue,
+               aResult.theD1U,
+               aResult.theD1V,
+               aResult.theD2U,
+               aResult.theD2V,
+               aResult.theD2UV,
+               aResult.theD3U,
+               aResult.theD3V,
+               aResult.theD3UUV,
+               aResult.theD3UVV);
+  return aResult;
+}
+
+//=================================================================================================
+
+std::optional<gp_Vec> Geom_BSplineSurface::DN(const Standard_Real    U,
+                                               const Standard_Real    V,
+                                               const Standard_Integer Nu,
+                                               const Standard_Integer Nv) const
+{
+  if (Nu + Nv < 1 || Nu < 0 || Nv < 0)
+  {
+    return std::nullopt;
+  }
+
+  Standard_Real aNewU = U;
+  Standard_Real aNewV = V;
+  PeriodicNormalization(aNewU, aNewV);
+
+  Standard_Integer uindex = 0, vindex = 0;
+
+  BSplCLib::LocateParameter(udeg, uknots->Array1(), &umults->Array1(), U, uperiodic, uindex, aNewU);
+  uindex = BSplCLib::FlatIndex(udeg, uindex, umults->Array1(), uperiodic);
+
+  BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
+  vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
+
+  gp_Vec Vn;
+  BSplSLib::DN(aNewU,
+               aNewV,
+               Nu,
+               Nv,
+               uindex,
+               vindex,
+               POLES,
+               &WEIGHTS,
+               UFKNOTS,
+               VFKNOTS,
+               FMULTS,
+               FMULTS,
+               udeg,
+               vdeg,
+               urational,
+               vrational,
+               uperiodic,
+               vperiodic,
+               Vn);
+  return Vn;
+}
 
 //=================================================================================================
 
