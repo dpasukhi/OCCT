@@ -257,20 +257,56 @@ public:
   Standard_EXPORT std::optional<gp_Pnt> D0(const Standard_Real U,
                                             const Standard_Real V) const Standard_OVERRIDE;
 
+  //! @deprecated Use D0() returning std::optional instead
+  Standard_EXPORT void D0(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P) const Standard_OVERRIDE;
+
   //! Computes the point P and the first derivatives in the directions U and V at this point.
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
   Standard_EXPORT std::optional<GeomEvaluator_Surface::D1Result> D1(const Standard_Real U,
                                                                       const Standard_Real V) const Standard_OVERRIDE;
+
+  //! @deprecated Use D1() returning std::optional instead
+  Standard_EXPORT void D1(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V) const Standard_OVERRIDE;
 
   //! Computes the point P, the first and the second derivatives in the directions U and V at this point.
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
   Standard_EXPORT std::optional<GeomEvaluator_Surface::D2Result> D2(const Standard_Real U,
                                                                       const Standard_Real V) const Standard_OVERRIDE;
 
+  //! @deprecated Use D2() returning std::optional instead
+  Standard_EXPORT void D2(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V,
+                          gp_Vec&             D2U,
+                          gp_Vec&             D2V,
+                          gp_Vec&             D2UV) const Standard_OVERRIDE;
+
   //! Computes the point P, the first,the second and the third derivatives in the directions U and V at this point.
   //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
   Standard_EXPORT std::optional<GeomEvaluator_Surface::D3Result> D3(const Standard_Real U,
                                                                       const Standard_Real V) const Standard_OVERRIDE;
+
+  //! @deprecated Use D3() returning std::optional instead
+  Standard_EXPORT void D3(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V,
+                          gp_Vec&             D2U,
+                          gp_Vec&             D2V,
+                          gp_Vec&             D2UV,
+                          gp_Vec&             D3U,
+                          gp_Vec&             D3V,
+                          gp_Vec&             D3UUV,
+                          gp_Vec&             D3UVV) const Standard_OVERRIDE;
 
   //! Computes the derivative of order Nu in the direction u and Nv in the direction v.
   //!
@@ -290,6 +326,12 @@ public:
                                             const Standard_Real    V,
                                             const Standard_Integer Nu,
                                             const Standard_Integer Nv) const Standard_OVERRIDE;
+
+  //! @deprecated Use DN() returning std::optional instead
+  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
+                            const Standard_Real    V,
+                            const Standard_Integer Nu,
+                            const Standard_Integer Nv) const Standard_OVERRIDE;
 
   //! Applies the transformation T to this offset surface.
   //! Note: the basis surface is also modified.
