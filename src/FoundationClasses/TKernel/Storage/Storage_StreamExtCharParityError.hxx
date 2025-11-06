@@ -22,11 +22,14 @@
 #include <Standard_SStream.hxx>
 #include <Storage_StreamReadError.hxx>
 
-//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
-class Storage_StreamExtCharParityError;
+//! @deprecated OCCT 7.9.0 - This exception is deprecated and no longer thrown.
+//! Error handling is now performed via Storage_Error enum and error state management
+//! through Storage_BaseDriver::ErrorStatus() instead of exceptions.
+class Standard_DEPRECATED(
+  "This exception is no longer thrown; use Storage_BaseDriver::ErrorStatus() for error state management")
+  Storage_StreamExtCharParityError;
 DEFINE_STANDARD_HANDLE(Storage_StreamExtCharParityError, Storage_StreamReadError)
 
-//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 #if !defined No_Exception && !defined No_Storage_StreamExtCharParityError
   #define Storage_StreamExtCharParityError_Raise_if(CONDITION, MESSAGE)                            \
     if (CONDITION)                                                                                 \
@@ -35,7 +38,6 @@ DEFINE_STANDARD_HANDLE(Storage_StreamExtCharParityError, Storage_StreamReadError
   #define Storage_StreamExtCharParityError_Raise_if(CONDITION, MESSAGE)
 #endif
 
-//! @deprecated Deprecated in OCCT. Use Storage_Error enum and error state management instead.
 DEFINE_STANDARD_EXCEPTION(Storage_StreamExtCharParityError, Storage_StreamReadError)
 
 #endif // _Storage_StreamExtCharParityError_HeaderFile
