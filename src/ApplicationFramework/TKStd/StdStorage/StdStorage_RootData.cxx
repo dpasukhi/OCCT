@@ -49,9 +49,7 @@ Standard_Boolean StdStorage_RootData::Read(const Handle(Storage_BaseDriver)& the
   Standard_Integer len = theDriver->RootSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    {
-      theDriver->ReadRoot(aRootName, aRef, aTypeName);
-    }
+    theDriver->ReadRoot(aRootName, aRef, aTypeName);
 
     if (theDriver->ErrorStatus() != Storage_VSOk)
     {
@@ -96,9 +94,7 @@ Standard_Boolean StdStorage_RootData::Write(const Handle(Storage_BaseDriver)& th
   for (StdStorage_MapOfRoots::Iterator anIt(myObjects); anIt.More(); anIt.Next())
   {
     const Handle(StdStorage_Root)& aRoot = anIt.Value();
-    {
-      theDriver->WriteRoot(aRoot->Name(), aRoot->Reference(), aRoot->Type());
-    }
+    theDriver->WriteRoot(aRoot->Name(), aRoot->Reference(), aRoot->Type());
 
     if (theDriver->ErrorStatus() != Storage_VSOk)
     {

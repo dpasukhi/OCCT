@@ -124,9 +124,7 @@ Storage_Error StdStorage::Read(const Handle(Storage_BaseDriver)& theDriver,
   for (Standard_Integer i = 1; i <= aNbRefs; i++)
   {
     Standard_Integer aRef = 0, aType = 0;
-    {
-      theDriver->ReadReferenceType(aRef, aType);
-    }
+    theDriver->ReadReferenceType(aRef, aType);
 
     anError = theDriver->ErrorStatus();
     if (anError != Storage_VSOk)

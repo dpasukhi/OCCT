@@ -45,17 +45,15 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
     return Standard_False;
   }
 
-  {
-    theDriver->ReadInfo(myNBObj,
-                        myStorageVersion,
-                        myDate,
-                        mySchemaName,
-                        mySchemaVersion,
-                        myApplicationName,
-                        myApplicationVersion,
-                        myDataType,
-                        myUserInfo);
-  }
+  theDriver->ReadInfo(myNBObj,
+                      myStorageVersion,
+                      myDate,
+                      mySchemaName,
+                      mySchemaVersion,
+                      myApplicationName,
+                      myApplicationVersion,
+                      myDataType,
+                      myUserInfo);
 
   if (theDriver->ErrorStatus() != Storage_VSOk)
   {
@@ -79,9 +77,7 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
     return Standard_False;
   }
 
-  {
-    theDriver->ReadComment(myComments);
-  }
+  theDriver->ReadComment(myComments);
 
   if (theDriver->ErrorStatus() != Storage_VSOk)
   {
@@ -118,17 +114,15 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
     return Standard_False;
   }
 
-  {
-    theDriver->WriteInfo(myNBObj,
-                         myStorageVersion,
-                         myDate,
-                         mySchemaName,
-                         mySchemaVersion,
-                         myApplicationName,
-                         myApplicationVersion,
-                         myDataType,
-                         myUserInfo);
-  }
+  theDriver->WriteInfo(myNBObj,
+                       myStorageVersion,
+                       myDate,
+                       mySchemaName,
+                       mySchemaVersion,
+                       myApplicationName,
+                       myApplicationVersion,
+                       myDataType,
+                       myUserInfo);
 
   if (theDriver->ErrorStatus() != Storage_VSOk)
   {
@@ -152,9 +146,7 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
     return Standard_False;
   }
 
-  {
-    theDriver->WriteComment(myComments);
-  }
+  theDriver->WriteComment(myComments);
 
   if (theDriver->ErrorStatus() != Storage_VSOk)
   {

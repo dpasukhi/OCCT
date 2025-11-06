@@ -44,17 +44,15 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
     return Standard_False;
   }
 
-  {
-    theDriver->ReadInfo(myNBObj,
-                        myStorageVersion,
-                        myDate,
-                        mySchemaName,
-                        mySchemaVersion,
-                        myApplicationName,
-                        myApplicationVersion,
-                        myDataType,
-                        myUserInfo);
-  }
+  theDriver->ReadInfo(myNBObj,
+                      myStorageVersion,
+                      myDate,
+                      mySchemaName,
+                      mySchemaVersion,
+                      myApplicationName,
+                      myApplicationVersion,
+                      myDataType,
+                      myUserInfo);
 
   if (theDriver->ErrorStatus() != Storage_VSOk)
   {
@@ -78,9 +76,7 @@ Standard_Boolean Storage_HeaderData::Read(const Handle(Storage_BaseDriver)& theD
     return Standard_False;
   }
 
-  {
-    theDriver->ReadComment(myComments);
-  }
+  theDriver->ReadComment(myComments);
 
   if (theDriver->ErrorStatus() != Storage_VSOk)
   {

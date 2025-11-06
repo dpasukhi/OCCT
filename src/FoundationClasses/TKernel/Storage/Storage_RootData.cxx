@@ -52,9 +52,7 @@ Standard_Boolean Storage_RootData::Read(const Handle(Storage_BaseDriver)& theDri
   Standard_Integer len = theDriver->RootSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    {
-      theDriver->ReadRoot(aRootName, aRef, aTypeName);
-    }
+    theDriver->ReadRoot(aRootName, aRef, aTypeName);
 
     if (theDriver->ErrorStatus() != Storage_VSOk)
     {

@@ -48,9 +48,7 @@ Standard_Boolean Storage_TypeData::Read(const Handle(Storage_BaseDriver)& theDri
   Standard_Integer len = theDriver->TypeSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    {
-      theDriver->ReadTypeInformations(aTypeNum, aTypeName);
-    }
+    theDriver->ReadTypeInformations(aTypeNum, aTypeName);
 
     if (theDriver->ErrorStatus() != Storage_VSOk)
     {
