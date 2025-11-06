@@ -303,18 +303,6 @@ public:
                                                     const Standard_Integer Nu,
                                                     const Standard_Integer Nv) const = 0;
 
-  //! @deprecated Use DN() returning std::optional instead
-  //! Computes the derivative of order Nu in the direction U and Nv in the direction V at the point
-  //! P(U, V).
-  //!
-  //! Raised if the continuity of the surface is not CNu in the U direction or not CNv in the V
-  //! direction. Raised if Nu + Nv < 1 or Nu < 0 or Nv < 0.
-  Standard_DEPRECATED("Use DN() returning std::optional instead")
-  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
-                            const Standard_Real    V,
-                            const Standard_Integer Nu,
-                            const Standard_Integer Nv) const;
-
   //! Computes the point of parameter (U, V) on the surface.
   //!
   //! It is implemented with D0.

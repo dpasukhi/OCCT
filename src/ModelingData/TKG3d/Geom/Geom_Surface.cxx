@@ -176,23 +176,6 @@ void Geom_Surface::D3(const Standard_Real U,
 
 //=================================================================================================
 
-gp_Vec Geom_Surface::DN(const Standard_Real    U,
-                        const Standard_Real    V,
-                        const Standard_Integer Nu,
-                        const Standard_Integer Nv) const
-{
-  if (auto aResult = DN(U, V, Nu, Nv))
-  {
-    return *aResult;
-  }
-  else
-  {
-    throw Geom_UndefinedDerivative("Geom_Surface::DN - computation failed");
-  }
-}
-
-//=================================================================================================
-
 gp_Pnt Geom_Surface::Value(const Standard_Real U, const Standard_Real V) const
 {
   gp_Pnt P;
