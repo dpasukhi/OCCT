@@ -748,7 +748,10 @@ void GeomAdaptor_Surface::D0(const Standard_Real U, const Standard_Real V, gp_Pn
     case GeomAbs_SurfaceOfRevolution:
       Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D0: evaluator is not initialized");
-      myNestedEvaluator->D0(U, V, P);
+      if (auto aResult = myNestedEvaluator->D0(U, V))
+        P = *aResult;
+      else
+        throw Standard_Failure("myNestedEvaluator->D0 failed");
       break;
 
     default:
@@ -808,7 +811,14 @@ void GeomAdaptor_Surface::D1(const Standard_Real U,
     case GeomAbs_OffsetSurface:
       Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D1: evaluator is not initialized");
-      myNestedEvaluator->D1(u, v, P, D1U, D1V);
+      if (auto aResult = myNestedEvaluator->D1(u, v))
+      {
+        P   = aResult->theValue;
+        D1U = aResult->theD1U;
+        D1V = aResult->theD1V;
+      }
+      else
+        throw Standard_Failure("myNestedEvaluator->D1 failed");
       break;
 
     default:
@@ -871,7 +881,17 @@ void GeomAdaptor_Surface::D2(const Standard_Real U,
     case GeomAbs_OffsetSurface:
       Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D2: evaluator is not initialized");
-      myNestedEvaluator->D2(u, v, P, D1U, D1V, D2U, D2V, D2UV);
+      if (auto aResult = myNestedEvaluator->D2(u, v))
+      {
+        P    = aResult->theValue;
+        D1U  = aResult->theD1U;
+        D1V  = aResult->theD1V;
+        D2U  = aResult->theD2U;
+        D2V  = aResult->theD2V;
+        D2UV = aResult->theD2UV;
+      }
+      else
+        throw Standard_Failure("myNestedEvaluator->D2 failed");
       break;
 
     default: {
@@ -923,7 +943,21 @@ void GeomAdaptor_Surface::D3(const Standard_Real U,
   {
     case GeomAbs_BSplineSurface: {
       if ((USide == 0) && (VSide == 0))
-        myBSplineSurface->D3(u, v, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+        if (auto aResult = myBSplineSurface->D3(u, v))
+        {
+          P     = aResult->theValue;
+          D1U   = aResult->theD1U;
+          D1V   = aResult->theD1V;
+          D2U   = aResult->theD2U;
+          D2V   = aResult->theD2V;
+          D2UV  = aResult->theD2UV;
+          D3U   = aResult->theD3U;
+          D3V   = aResult->theD3V;
+          D3UUV = aResult->theD3UUV;
+          D3UVV = aResult->theD3UVV;
+        }
+        else
+          throw Standard_Failure("myBSplineSurface->D3 failed");
       else
       {
         if (IfUVBound(u, v, Ideb, Ifin, IVdeb, IVfin, USide, VSide))
@@ -944,7 +978,21 @@ void GeomAdaptor_Surface::D3(const Standard_Real U,
                                     D3UUV,
                                     D3UVV);
         else
-          myBSplineSurface->D3(u, v, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+          if (auto aResult = myBSplineSurface->D3(u, v))
+        {
+          P     = aResult->theValue;
+          D1U   = aResult->theD1U;
+          D1V   = aResult->theD1V;
+          D2U   = aResult->theD2U;
+          D2V   = aResult->theD2V;
+          D2UV  = aResult->theD2UV;
+          D3U   = aResult->theD3U;
+          D3V   = aResult->theD3V;
+          D3UUV = aResult->theD3UUV;
+          D3UVV = aResult->theD3UVV;
+        }
+        else
+          throw Standard_Failure("myBSplineSurface->D3 failed");
       }
       break;
     }
@@ -954,7 +1002,21 @@ void GeomAdaptor_Surface::D3(const Standard_Real U,
     case GeomAbs_OffsetSurface:
       Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::D3: evaluator is not initialized");
-      myNestedEvaluator->D3(u, v, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+      if (auto aResult = myNestedEvaluator->D3(u, v))
+      {
+        P     = aResult->theValue;
+        D1U   = aResult->theD1U;
+        D1V   = aResult->theD1V;
+        D2U   = aResult->theD2U;
+        D2V   = aResult->theD2V;
+        D2UV  = aResult->theD2UV;
+        D3U   = aResult->theD3U;
+        D3V   = aResult->theD3V;
+        D3UUV = aResult->theD3UUV;
+        D3UVV = aResult->theD3UVV;
+      }
+      else
+        throw Standard_Failure("myNestedEvaluator->D3 failed");
       break;
 
     default: {
@@ -998,13 +1060,19 @@ gp_Vec GeomAdaptor_Surface::DN(const Standard_Real    U,
   {
     case GeomAbs_BSplineSurface: {
       if ((USide == 0) && (VSide == 0))
-        return myBSplineSurface->DN(u, v, Nu, Nv);
+        if (auto aResult = myBSplineSurface->DN(u, v, Nu, Nv))
+          return *aResult;
+        else
+          throw Standard_Failure("myBSplineSurface->DN failed");
       else
       {
         if (IfUVBound(u, v, Ideb, Ifin, IVdeb, IVfin, USide, VSide))
           return myBSplineSurface->LocalDN(u, v, Ideb, Ifin, IVdeb, IVfin, Nu, Nv);
         else
-          return myBSplineSurface->DN(u, v, Nu, Nv);
+          if (auto aResult = myBSplineSurface->DN(u, v, Nu, Nv))
+          return *aResult;
+        else
+          throw Standard_Failure("myBSplineSurface->DN failed");
       }
     }
 
@@ -1013,7 +1081,10 @@ gp_Vec GeomAdaptor_Surface::DN(const Standard_Real    U,
     case GeomAbs_OffsetSurface:
       Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
                                      "GeomAdaptor_Surface::DN: evaluator is not initialized");
-      return myNestedEvaluator->DN(u, v, Nu, Nv);
+      if (auto aResult = myNestedEvaluator->DN(u, v, Nu, Nv))
+        return *aResult;
+      else
+        throw Standard_Failure("myNestedEvaluator->DN failed");
 
     case GeomAbs_Plane:
     case GeomAbs_Cylinder:
@@ -1026,7 +1097,10 @@ gp_Vec GeomAdaptor_Surface::DN(const Standard_Real    U,
       break;
   }
 
-  return mySurface->DN(u, v, Nu, Nv);
+  if (auto aResult = mySurface->DN(u, v, Nu, Nv))
+    return *aResult;
+  else
+    throw Standard_Failure("mySurface->DN failed");
 }
 
 //=================================================================================================
