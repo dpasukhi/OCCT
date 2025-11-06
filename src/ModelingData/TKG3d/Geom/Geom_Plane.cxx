@@ -204,6 +204,13 @@ void Geom_Plane::Coefficients(Standard_Real& A,
 
 //=================================================================================================
 
+std::optional<gp_Pnt> Geom_Plane::D0(const Standard_Real U, const Standard_Real V) const
+{
+  return ElSLib::PlaneValue(U, V, pos);
+}
+
+//=================================================================================================
+
 void Geom_Plane::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
 {
 
@@ -212,10 +219,33 @@ void Geom_Plane::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
 
 //=================================================================================================
 
+std::optional<GeomEvaluator_Surface::D1Result> Geom_Plane::D1(const Standard_Real U,
+                                                                const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D1Result aResult;
+  ElSLib::PlaneD1(U, V, pos, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  return aResult;
+}
+
+//=================================================================================================
+
 void Geom_Plane::D1(const Standard_Real U, const Standard_Real V, Pnt& P, Vec& D1U, Vec& D1V) const
 {
 
   ElSLib::PlaneD1(U, V, pos, P, D1U, D1V);
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D2Result> Geom_Plane::D2(const Standard_Real U,
+                                                                const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D2Result aResult;
+  ElSLib::PlaneD1(U, V, pos, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  aResult.theD2U.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2V.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2UV.SetCoord(0.0, 0.0, 0.0);
+  return aResult;
 }
 
 //=================================================================================================
@@ -234,6 +264,23 @@ void Geom_Plane::D2(const Standard_Real U,
   D2U.SetCoord(0.0, 0.0, 0.0);
   D2V.SetCoord(0.0, 0.0, 0.0);
   D2UV.SetCoord(0.0, 0.0, 0.0);
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D3Result> Geom_Plane::D3(const Standard_Real U,
+                                                                const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D3Result aResult;
+  ElSLib::PlaneD1(U, V, pos, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  aResult.theD2U.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2V.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2UV.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3U.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3V.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3UUV.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3UVV.SetCoord(0.0, 0.0, 0.0);
+  return aResult;
 }
 
 //=================================================================================================
@@ -259,6 +306,28 @@ void Geom_Plane::D3(const Standard_Real U,
   D3V.SetCoord(0.0, 0.0, 0.0);
   D3UUV.SetCoord(0.0, 0.0, 0.0);
   D3UVV.SetCoord(0.0, 0.0, 0.0);
+}
+
+//=================================================================================================
+
+std::optional<gp_Vec> Geom_Plane::DN(const Standard_Real,
+                                      const Standard_Real,
+                                      const Standard_Integer Nu,
+                                      const Standard_Integer Nv) const
+{
+  if (Nu < 0 || Nv < 0 || Nu + Nv < 1)
+  {
+    return std::nullopt;
+  }
+  if (Nu == 0 && Nv == 1)
+  {
+    return Vec(pos.YDirection());
+  }
+  else if (Nu == 1 && Nv == 0)
+  {
+    return Vec(pos.XDirection());
+  }
+  return Vec(0.0, 0.0, 0.0);
 }
 
 //=================================================================================================
