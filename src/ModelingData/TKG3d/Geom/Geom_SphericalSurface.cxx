@@ -210,9 +210,28 @@ void Geom_SphericalSurface::Coefficients(Standard_Real& A1,
 
 //=================================================================================================
 
+std::optional<gp_Pnt> Geom_SphericalSurface::D0(const Standard_Real U, const Standard_Real V) const
+{
+  gp_Pnt P;
+  ElSLib::SphereD0(U, V, pos, radius, P);
+  return P;
+}
+
+//=================================================================================================
+
 void Geom_SphericalSurface::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
 {
   ElSLib::SphereD0(U, V, pos, radius, P);
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D1Result> Geom_SphericalSurface::D1(const Standard_Real U,
+                                                                           const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D1Result aResult;
+  ElSLib::SphereD1(U, V, pos, radius, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  return aResult;
 }
 
 //=================================================================================================
@@ -224,6 +243,16 @@ void Geom_SphericalSurface::D1(const Standard_Real U,
                                Vec&                D1V) const
 {
   ElSLib::SphereD1(U, V, pos, radius, P, D1U, D1V);
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D2Result> Geom_SphericalSurface::D2(const Standard_Real U,
+                                                                           const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D2Result aResult;
+  ElSLib::SphereD2(U, V, pos, radius, aResult.theValue, aResult.theD1U, aResult.theD1V, aResult.theD2U, aResult.theD2V, aResult.theD2UV);
+  return aResult;
 }
 
 //=================================================================================================
@@ -242,6 +271,29 @@ void Geom_SphericalSurface::D2(const Standard_Real U,
 
 //=================================================================================================
 
+std::optional<GeomEvaluator_Surface::D3Result> Geom_SphericalSurface::D3(const Standard_Real U,
+                                                                           const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D3Result aResult;
+  ElSLib::SphereD3(U,
+                   V,
+                   pos,
+                   radius,
+                   aResult.theValue,
+                   aResult.theD1U,
+                   aResult.theD1V,
+                   aResult.theD2U,
+                   aResult.theD2V,
+                   aResult.theD2UV,
+                   aResult.theD3U,
+                   aResult.theD3V,
+                   aResult.theD3UUV,
+                   aResult.theD3UVV);
+  return aResult;
+}
+
+//=================================================================================================
+
 void Geom_SphericalSurface::D3(const Standard_Real U,
                                const Standard_Real V,
                                Pnt&                P,
@@ -256,6 +308,20 @@ void Geom_SphericalSurface::D3(const Standard_Real U,
                                Vec&                D3UVV) const
 {
   ElSLib::SphereD3(U, V, pos, radius, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+}
+
+//=================================================================================================
+
+std::optional<gp_Vec> Geom_SphericalSurface::DN(const Standard_Real    U,
+                                                 const Standard_Real    V,
+                                                 const Standard_Integer Nu,
+                                                 const Standard_Integer Nv) const
+{
+  if (Nu + Nv < 1 || Nu < 0 || Nv < 0)
+  {
+    return std::nullopt;
+  }
+  return ElSLib::SphereDN(U, V, pos, radius, Nu, Nv);
 }
 
 //=================================================================================================
