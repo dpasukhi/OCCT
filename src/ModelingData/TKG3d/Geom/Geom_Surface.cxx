@@ -187,7 +187,7 @@ gp_Vec Geom_Surface::DN(const Standard_Real    U,
   }
   else
   {
-    throw Geom_UndefinedValue("Geom_Surface::DN - computation failed");
+    throw Geom_UndefinedDerivative("Geom_Surface::DN - computation failed");
   }
 }
 
