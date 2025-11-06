@@ -55,6 +55,13 @@ Standard_Boolean StdStorage_TypeData::Read(const Handle(Storage_BaseDriver)& the
       theDriver->ReadTypeInformations(aTypeNum, aTypeName);
     }
 
+    if (theDriver->ErrorStatus() != Storage_VSOk)
+    {
+      myErrorStatus    = theDriver->ErrorStatus();
+      myErrorStatusExt = "ReadTypeInformations";
+      return Standard_False;
+    }
+
     myPt.Add(aTypeName, aTypeNum);
   }
 
@@ -92,6 +99,13 @@ Standard_Boolean StdStorage_TypeData::Write(const Handle(Storage_BaseDriver)& th
   {
     {
       theDriver->WriteTypeInformations(i, Type(i));
+    }
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
+    {
+      myErrorStatus    = theDriver->ErrorStatus();
+      myErrorStatusExt = "WriteTypeInformations";
+      return Standard_False;
     }
   }
 

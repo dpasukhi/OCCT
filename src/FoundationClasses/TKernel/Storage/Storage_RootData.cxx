@@ -56,6 +56,13 @@ Standard_Boolean Storage_RootData::Read(const Handle(Storage_BaseDriver)& theDri
       theDriver->ReadRoot(aRootName, aRef, aTypeName);
     }
 
+    if (theDriver->ErrorStatus() != Storage_VSOk)
+    {
+      myErrorStatus    = theDriver->ErrorStatus();
+      myErrorStatusExt = "ReadRoot";
+      return Standard_False;
+    }
+
     Handle(Storage_Root) aRoot = new Storage_Root(aRootName, aRef, aTypeName);
     myObjects.Bind(aRootName, aRoot);
   }

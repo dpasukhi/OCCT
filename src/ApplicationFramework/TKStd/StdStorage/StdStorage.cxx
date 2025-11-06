@@ -274,7 +274,13 @@ Storage_Error StdStorage::Write(const Handle(Storage_BaseDriver)& theDriver,
     {
       Handle(StdObjMgt_Persistent) aPObj = anIt.Value();
       if (!aPObj.IsNull())
+      {
         theDriver->WriteReferenceType(aPObj->RefNum(), aPObj->TypeNum());
+
+        anError = theDriver->ErrorStatus();
+        if (anError != Storage_VSOk)
+          return anError;
+      }
     }
 
     anError = theDriver->EndWriteRefSection();
