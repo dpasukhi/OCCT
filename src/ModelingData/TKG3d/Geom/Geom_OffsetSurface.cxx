@@ -317,7 +317,16 @@ GeomAbs_Shape Geom_OffsetSurface::Continuity() const
 void Geom_OffsetSurface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
 {
   if (equivSurf.IsNull())
-    myEvaluator->D0(U, V, P);
+  {
+    if (auto aResult = myEvaluator->D0(U, V))
+    {
+      P = *aResult;
+    }
+    else
+    {
+      throw Geom_UndefinedValue("Geom_OffsetSurface::D0 - computation failed");
+    }
+  }
   else
     equivSurf->D0(U, V, P);
 }
@@ -335,7 +344,18 @@ void Geom_OffsetSurface::D1(const Standard_Real U,
     throw Geom_UndefinedDerivative();
 #endif
   if (equivSurf.IsNull())
-    myEvaluator->D1(U, V, P, D1U, D1V);
+  {
+    if (auto aResult = myEvaluator->D1(U, V))
+    {
+      P   = aResult->theValue;
+      D1U = aResult->theD1U;
+      D1V = aResult->theD1V;
+    }
+    else
+    {
+      throw Geom_UndefinedValue("Geom_OffsetSurface::D1 - computation failed");
+    }
+  }
   else
     equivSurf->D1(U, V, P, D1U, D1V);
 }
@@ -357,7 +377,21 @@ void Geom_OffsetSurface::D2(const Standard_Real U,
     throw Geom_UndefinedDerivative();
 #endif
   if (equivSurf.IsNull())
-    myEvaluator->D2(U, V, P, D1U, D1V, D2U, D2V, D2UV);
+  {
+    if (auto aResult = myEvaluator->D2(U, V))
+    {
+      P    = aResult->theValue;
+      D1U  = aResult->theD1U;
+      D1V  = aResult->theD1V;
+      D2U  = aResult->theD2U;
+      D2V  = aResult->theD2V;
+      D2UV = aResult->theD2UV;
+    }
+    else
+    {
+      throw Geom_UndefinedValue("Geom_OffsetSurface::D2 - computation failed");
+    }
+  }
   else
     equivSurf->D2(U, V, P, D1U, D1V, D2U, D2V, D2UV);
 }
@@ -384,7 +418,25 @@ void Geom_OffsetSurface::D3(const Standard_Real U,
   }
 #endif
   if (equivSurf.IsNull())
-    myEvaluator->D3(U, V, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+  {
+    if (auto aResult = myEvaluator->D3(U, V))
+    {
+      P     = aResult->theValue;
+      D1U   = aResult->theD1U;
+      D1V   = aResult->theD1V;
+      D2U   = aResult->theD2U;
+      D2V   = aResult->theD2V;
+      D2UV  = aResult->theD2UV;
+      D3U   = aResult->theD3U;
+      D3V   = aResult->theD3V;
+      D3UUV = aResult->theD3UUV;
+      D3UVV = aResult->theD3UVV;
+    }
+    else
+    {
+      throw Geom_UndefinedValue("Geom_OffsetSurface::D3 - computation failed");
+    }
+  }
   else
     equivSurf->D3(U, V, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
 }
@@ -406,7 +458,16 @@ gp_Vec Geom_OffsetSurface::DN(const Standard_Real    U,
   gp_Vec D(0, 0, 0);
 
   if (equivSurf.IsNull())
-    D = myEvaluator->DN(U, V, Nu, Nv);
+  {
+    if (auto aResult = myEvaluator->DN(U, V, Nu, Nv))
+    {
+      D = *aResult;
+    }
+    else
+    {
+      throw Geom_UndefinedValue("Geom_OffsetSurface::DN - computation failed");
+    }
+  }
   else
     D = equivSurf->DN(U, V, Nu, Nv);
   return D;
