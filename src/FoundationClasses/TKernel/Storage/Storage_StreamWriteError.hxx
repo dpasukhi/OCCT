@@ -25,8 +25,8 @@
 //! @deprecated OCCT 7.9.0 - This exception is deprecated and no longer thrown.
 //! Error handling is now performed via Storage_Error enum and error state management
 //! through Storage_BaseDriver::ErrorStatus() instead of exceptions.
-class Standard_DEPRECATED(
-  "This exception is no longer thrown; use Storage_BaseDriver::ErrorStatus() for error state management")
+class Standard_DEPRECATED("This exception is no longer thrown; use "
+                          "Storage_BaseDriver::ErrorStatus() for error state management")
   Storage_StreamWriteError;
 DEFINE_STANDARD_HANDLE(Storage_StreamWriteError, Standard_Failure)
 

@@ -347,17 +347,17 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
   aData->HeaderData()->SetSchemaName(myName);
   aData->HeaderData()->SetSchemaVersion(myVersion);
 
-  // Helper macro to check driver error status after each operation
-  // and return early if an error occurred
-  #define CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED() \
-    if (theDriver->ErrorStatus() != Storage_VSOk) \
-    { \
-      aData->SetErrorStatus(theDriver->ErrorStatus()); \
-      aData->SetErrorStatusExtension(errorContext); \
-      iData->Clear(); \
-      Clear(); \
-      return; \
-    }
+// Helper macro to check driver error status after each operation
+// and return early if an error occurred
+#define CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()                                                  \
+  if (theDriver->ErrorStatus() != Storage_VSOk)                                                    \
+  {                                                                                                \
+    aData->SetErrorStatus(theDriver->ErrorStatus());                                               \
+    aData->SetErrorStatusExtension(errorContext);                                                  \
+    iData->Clear();                                                                                \
+    Clear();                                                                                       \
+    return;                                                                                        \
+  }
 
   if ((theDriver->OpenMode() == Storage_VSWrite) || (theDriver->OpenMode() == Storage_VSReadWrite))
   {
@@ -502,8 +502,8 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
     aData->SetErrorStatusExtension("OpenMode");
   }
 
-  // Clean up the helper macro
-  #undef CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED
+// Clean up the helper macro
+#undef CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED
 
   iData->Clear();
   Clear();
