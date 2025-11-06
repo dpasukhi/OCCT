@@ -508,24 +508,33 @@ void GeomFill_Darboux::GetAverageLaw(gp_Vec& ATangent, gp_Vec& ANormal, gp_Vec& 
   ATangent           = gp_Vec(0, 0, 0);
   ANormal            = gp_Vec(0, 0, 0);
   ABiNormal          = gp_Vec(0, 0, 0);
-  Standard_Real Step = (myTrimmed->LastParameter() - myTrimmed->FirstParameter()) / Num;
-  Standard_Real Param;
+  Standard_Real    Step         = (myTrimmed->LastParameter() - myTrimmed->FirstParameter()) / Num;
+  Standard_Real    Param;
+  Standard_Integer aSuccessCount = 0;
   for (Standard_Integer i = 0; i <= Num; i++)
   {
     Param = myTrimmed->FirstParameter() + i * Step;
     if (Param > myTrimmed->LastParameter())
       Param = myTrimmed->LastParameter();
-    D0(Param, T, N, BN);
-    ATangent += T;
-    ANormal += N;
-    ABiNormal += BN;
+    if (D0(Param, T, N, BN))
+    {
+      ATangent += T;
+      ANormal += N;
+      ABiNormal += BN;
+      aSuccessCount++;
+    }
+    // Skip samples where calculation failed
   }
-  ATangent /= Num + 1;
-  ANormal /= Num + 1;
 
-  ATangent.Normalize();
-  ABiNormal = ATangent.Crossed(ANormal).Normalized();
-  ANormal   = ABiNormal.Crossed(ATangent);
+  if (aSuccessCount > 0)
+  {
+    ATangent /= aSuccessCount;
+    ANormal /= aSuccessCount;
+
+    ATangent.Normalize();
+    ABiNormal = ATangent.Crossed(ANormal).Normalized();
+    ANormal   = ABiNormal.Crossed(ATangent);
+  }
 }
 
 Standard_Boolean GeomFill_Darboux::IsConstant() const

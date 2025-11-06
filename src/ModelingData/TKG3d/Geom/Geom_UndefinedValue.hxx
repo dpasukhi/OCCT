@@ -37,7 +37,6 @@ DEFINE_STANDARD_HANDLE(Geom_UndefinedValue, Standard_DomainError)
   #define Geom_UndefinedValue_Raise_if(CONDITION, MESSAGE)
 #endif
 
-//! @deprecated This exception class is deprecated.
 DEFINE_STANDARD_EXCEPTION(Geom_UndefinedValue, Standard_DomainError)
 
 #endif // _Geom_UndefinedValue_HeaderFile

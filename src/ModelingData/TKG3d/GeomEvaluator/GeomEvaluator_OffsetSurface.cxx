@@ -283,8 +283,8 @@ void GeomEvaluator_OffsetSurface::D0(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        throw Geom_UndefinedValue(
-          "GeomEvaluator_OffsetSurface::D0(): Unable to calculate normal");
+        // Unable to calculate normal - return with unmodified output parameters
+        return;
       }
     }
   }
@@ -313,8 +313,8 @@ void GeomEvaluator_OffsetSurface::D1(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        throw Geom_UndefinedValue(
-          "GeomEvaluator_OffsetSurface::D1(): Unable to calculate normal");
+        // Unable to calculate normal - return with unmodified output parameters
+        return;
       }
     }
   }
@@ -357,8 +357,8 @@ void GeomEvaluator_OffsetSurface::D2(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        throw Geom_UndefinedValue(
-          "GeomEvaluator_OffsetSurface::D2(): Unable to calculate normal");
+        // Unable to calculate normal - return with unmodified output parameters
+        return;
       }
     }
   }
@@ -415,8 +415,8 @@ void GeomEvaluator_OffsetSurface::D3(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        throw Geom_UndefinedValue(
-          "GeomEvaluator_OffsetSurface::D3(): Unable to calculate normal");
+        // Unable to calculate normal - return with unmodified output parameters
+        return;
       }
     }
   }
@@ -451,8 +451,8 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        throw Geom_UndefinedValue(
-          "GeomEvaluator_OffsetSurface::DN(): Unable to calculate normal");
+        // Unable to calculate normal - return zero vector
+        return gp_Vec(0.0, 0.0, 0.0);
       }
     }
   }
