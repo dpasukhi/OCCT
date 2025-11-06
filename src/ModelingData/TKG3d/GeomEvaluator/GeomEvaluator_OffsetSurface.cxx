@@ -266,6 +266,10 @@ void GeomEvaluator_OffsetSurface::D0(const Standard_Real theU,
                                      const Standard_Real theV,
                                      gp_Pnt&             theValue) const
 {
+  // Error handling strategy:
+  // 1. Try to calculate offset-corrected value at (theU, theV)
+  // 2. If normal calculation fails, try at a shifted point (boundary handling)
+  // 3. If both fail, return base surface point without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
@@ -283,7 +287,8 @@ void GeomEvaluator_OffsetSurface::D0(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate normal - return with unmodified output parameters
+        // Unable to calculate offset correction - theValue contains base surface point
+        // This provides a meaningful fallback rather than undefined/invalid geometry
         return;
       }
     }
@@ -296,6 +301,10 @@ void GeomEvaluator_OffsetSurface::D1(const Standard_Real theU,
                                      gp_Vec&             theD1U,
                                      gp_Vec&             theD1V) const
 {
+  // Error handling strategy:
+  // 1. Try to calculate offset-corrected values at (theU, theV)
+  // 2. If normal calculation fails, try at a shifted point (boundary handling)
+  // 3. If both fail, return base surface values without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
@@ -313,7 +322,8 @@ void GeomEvaluator_OffsetSurface::D1(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        // Unable to calculate normal - return with unmodified output parameters
+        // Unable to calculate offset correction - output parameters contain base surface values
+        // This provides a meaningful fallback rather than undefined/invalid geometry
         return;
       }
     }
@@ -329,6 +339,10 @@ void GeomEvaluator_OffsetSurface::D2(const Standard_Real theU,
                                      gp_Vec&             theD2V,
                                      gp_Vec&             theD2UV) const
 {
+  // Error handling strategy:
+  // 1. Try to calculate offset-corrected values at (theU, theV)
+  // 2. If normal calculation fails, try at a shifted point (boundary handling)
+  // 3. If both fail, return base surface values without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
@@ -357,7 +371,8 @@ void GeomEvaluator_OffsetSurface::D2(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        // Unable to calculate normal - return with unmodified output parameters
+        // Unable to calculate offset correction - output parameters contain base surface values
+        // This provides a meaningful fallback rather than undefined/invalid geometry
         return;
       }
     }
@@ -377,6 +392,10 @@ void GeomEvaluator_OffsetSurface::D3(const Standard_Real theU,
                                      gp_Vec&             theD3UUV,
                                      gp_Vec&             theD3UVV) const
 {
+  // Error handling strategy:
+  // 1. Try to calculate offset-corrected values at (theU, theV)
+  // 2. If normal calculation fails, try at a shifted point (boundary handling)
+  // 3. If both fail, return base surface values without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
@@ -415,7 +434,8 @@ void GeomEvaluator_OffsetSurface::D3(const Standard_Real theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, theD1U, theD1V))
       {
-        // Unable to calculate normal - return with unmodified output parameters
+        // Unable to calculate offset correction - output parameters contain base surface values
+        // This provides a meaningful fallback rather than undefined/invalid geometry
         return;
       }
     }
@@ -432,6 +452,10 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
   Standard_RangeError_Raise_if(theDerU + theDerV < 1,
                                "GeomEvaluator_OffsetSurface::DN(): theDerU + theDerV < 1");
 
+  // Error handling strategy:
+  // 1. Try to calculate offset-corrected derivative at (theU, theV)
+  // 2. If normal calculation fails, try at a shifted point (boundary handling)
+  // 3. If both fail, return base surface derivative without offset correction (fallback)
   Standard_Real aU = theU, aV = theV;
   for (;;)
   {
@@ -451,7 +475,8 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate offset correction - return base surface derivative without offset
+        // Unable to calculate offset correction - return base surface derivative
+        // This provides a meaningful fallback rather than invalid/arbitrary value
         if (!myBaseSurf.IsNull())
           return myBaseSurf->DN(theU, theV, theDerU, theDerV);
         else
