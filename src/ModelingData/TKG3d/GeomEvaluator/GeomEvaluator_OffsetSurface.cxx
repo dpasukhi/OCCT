@@ -451,8 +451,11 @@ gp_Vec GeomEvaluator_OffsetSurface::DN(const Standard_Real    theU,
       // if failed at parametric boundary, try taking derivative at shifted point
       if (!shiftPoint(theU, theV, aU, aV, myBaseSurf, myBaseAdaptor, aD1U, aD1V))
       {
-        // Unable to calculate normal - return zero vector
-        return gp_Vec(0.0, 0.0, 0.0);
+        // Unable to calculate offset correction - return base surface derivative without offset
+        if (!myBaseSurf.IsNull())
+          return myBaseSurf->DN(theU, theV, theDerU, theDerV);
+        else
+          return myBaseAdaptor->DN(theU, theV, theDerU, theDerV);
       }
     }
   }
