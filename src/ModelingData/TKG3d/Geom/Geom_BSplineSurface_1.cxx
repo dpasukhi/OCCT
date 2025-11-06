@@ -1745,7 +1745,7 @@ void Geom_BSplineSurface::MovePoint(const Standard_Real    U,
 
   TColgp_Array2OfPnt npoles(1, poles->UpperRow(), 1, poles->UpperCol());
   gp_Pnt             P0;
-  D0(U, V, P0);
+  Geom_Surface::D0(U, V, P0);  // Use base class wrapper (name hiding in derived class)
   gp_Vec           Displ(P0, P);
   Standard_Boolean rational = (urational || vrational);
   BSplSLib::MovePoint(U,

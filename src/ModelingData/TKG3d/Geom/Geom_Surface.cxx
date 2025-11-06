@@ -279,23 +279,6 @@ void Geom_Surface::D3(const Standard_Real U,
 
 //=================================================================================================
 
-gp_Vec Geom_Surface::DN(const Standard_Real    U,
-                        const Standard_Real    V,
-                        const Standard_Integer Nu,
-                        const Standard_Integer Nv) const
-{
-  if (auto aResult = DN(U, V, Nu, Nv))
-  {
-    return *aResult;
-  }
-  else
-  {
-    throw Geom_UndefinedDerivative("Geom_Surface::DN - computation failed");
-  }
-}
-
-//=================================================================================================
-
 void Geom_Surface::DumpJson(Standard_OStream& theOStream, Standard_Integer theDepth) const
 {
   OCCT_DUMP_TRANSIENT_CLASS_BEGIN(theOStream)
