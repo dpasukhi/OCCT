@@ -220,10 +220,10 @@ static void derivatives(Standard_Integer                   theMaxOrder,
       {
         if (i + j > theMinOrder)
         {
-          theDerSurf.SetValue(i, j, theBasisSurf->DN(theU, theV, i, j));
+          theDerSurf.SetValue(i, j, unwrapDN(theBasisSurf->DN(theU, theV, i, j)));
           if (i != j && j <= theDerSurf.UpperRow() && i <= theDerSurf.UpperCol())
           {
-            theDerSurf.SetValue(j, i, theBasisSurf->DN(theU, theV, j, i));
+            theDerSurf.SetValue(j, i, unwrapDN(theBasisSurf->DN(theU, theV, j, i)));
           }
         }
       }
@@ -887,9 +887,9 @@ std::optional<GeomEvaluator_Surface::D2Result> GeomEvaluator_OffsetSurface::Calc
 
   if (!myBaseSurf.IsNull())
   {
-    aResult.theD2U  = myBaseSurf->DN(theU, theV, 2, 0);
-    aResult.theD2V  = myBaseSurf->DN(theU, theV, 0, 2);
-    aResult.theD2UV = myBaseSurf->DN(theU, theV, 1, 1);
+    aResult.theD2U  = unwrapDN(myBaseSurf->DN(theU, theV, 2, 0));
+    aResult.theD2V  = unwrapDN(myBaseSurf->DN(theU, theV, 0, 2));
+    aResult.theD2UV = unwrapDN(myBaseSurf->DN(theU, theV, 1, 1));
   }
   else
   {
