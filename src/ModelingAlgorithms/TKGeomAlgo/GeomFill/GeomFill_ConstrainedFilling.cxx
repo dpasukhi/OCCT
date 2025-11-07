@@ -1651,12 +1651,20 @@ void GeomFill_ConstrainedFilling::CheckResult(const Standard_Integer I)
   {
     pbound[k] = bou->Value(ww);
     if (!donor)
-      surf->D0(uu, vv, pres[k]);
+    {
+      if (auto aResult = surf->D0(uu, vv))
+        pres[k] = *aResult;
+    }
     else
     {
       vbound[k] = bou->Norm(ww);
       gp_Vec V1, V2;
-      surf->D1(uu, vv, pres[k], V1, V2);
+      if (auto aResult = surf->D1(uu, vv))
+      {
+        pres[k] = aResult->theValue;
+        V1      = aResult->theD1U;
+        V2      = aResult->theD1V;
+      }
       vres[k] = V1.Crossed(V2);
       if (vres[k].Magnitude() > 1.e-15 && vbound[k].Magnitude() > 1.e-15)
       {

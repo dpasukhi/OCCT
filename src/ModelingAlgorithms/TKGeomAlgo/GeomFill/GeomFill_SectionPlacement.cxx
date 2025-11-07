@@ -763,7 +763,8 @@ gp_Trsf GeomFill_SectionPlacement::Transformation(const Standard_Boolean WithTra
   gp_Pnt P(0., 0., 0.), PSection(0., 0., 0.);
 
   // Calcul des reperes
-  myLaw->D0(PathParam, M, V);
+  if (auto aResult = myLaw->D0(PathParam, M))
+        V = *aResult;
 
   P.SetXYZ(V.XYZ());
   D.SetXYZ(M.Column(3));
