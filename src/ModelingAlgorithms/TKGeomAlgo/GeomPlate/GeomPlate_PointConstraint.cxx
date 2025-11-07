@@ -66,7 +66,15 @@ GeomPlate_PointConstraint::GeomPlate_PointConstraint(const Standard_Real        
       hasPnt2dOnSurf(Standard_False)
 
 {
-  Surf->D2(myU, myV, myPoint, myD11, myD12, myD21, myD22, myD23);
+  if (auto aResult = Surf->D2(myU, myV))
+      {
+        myPoint = aResult->theValue;
+        myD11 = aResult->theD1U;
+        myD12 = aResult->theD1V;
+        myD21 = aResult->theD2U;
+        myD22 = aResult->theD2V;
+        myD23 = aResult->theD2UV;
+      }
   myLProp.SetSurface(Surf);
 }
 

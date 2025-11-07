@@ -763,7 +763,8 @@ void GeomPlate_BuildPlateSurface::EcartContraintesMil(const Standard_Integer    
           else
             P2d = ProjectPoint(Pi);
         }
-        myGeomPlateSurface->D0(P2d.Coord(1), P2d.Coord(2), Pf);
+        if (auto aResult = myGeomPlateSurface->D0(P2d.Coord(1), P2d.Coord(2)))
+        Pf = *aResult;
         an->Init(0);
         courb->Init(0);
         d->ChangeValue(i) = Pf.Distance(Pi);
@@ -783,7 +784,12 @@ void GeomPlate_BuildPlateSurface::EcartContraintesMil(const Standard_Integer    
           else
             P2d = ProjectPoint(Pi);
         }
-        myGeomPlateSurface->D1(P2d.Coord(1), P2d.Coord(2), Pf, v1f, v2f);
+        if (auto aResult = myGeomPlateSurface->D1(P2d.Coord(1), P2d.Coord(2)))
+      {
+        Pf = aResult->theValue;
+        v1f = aResult->theD1U;
+        v2f = aResult->theD1V;
+      }
         d->ChangeValue(i)   = Pf.Distance(Pi);
         v3i                 = v1i ^ v2i;
         v3f                 = v1f ^ v2f;
@@ -2146,7 +2152,8 @@ void GeomPlate_BuildPlateSurface::Discretise(
 
                     AC2d.D0(Inter, P2d);
                     LinCont->D0(Inter, P3d);
-                    mySurfInit->D0(P2d.Coord(1), P2d.Coord(2), PP);
+                    if (auto aResult = mySurfInit->D0(P2d.Coord(1), P2d.Coord(2)))
+        PP = *aResult;
                     Pdif.SetCoord(-PP.Coord(1) + P3d.Coord(1),
                                   -PP.Coord(2) + P3d.Coord(2),
                                   -PP.Coord(3) + P3d.Coord(3));
@@ -2187,7 +2194,8 @@ void GeomPlate_BuildPlateSurface::Discretise(
 
               AC2d.D0(Inter, P2d);
               LinCont->D0(Inter, P3d);
-              mySurfInit->D0(P2d.Coord(1), P2d.Coord(2), PP);
+              if (auto aResult = mySurfInit->D0(P2d.Coord(1), P2d.Coord(2)))
+        PP = *aResult;
               Pdif.SetCoord(-PP.Coord(1) + P3d.Coord(1),
                             -PP.Coord(2) + P3d.Coord(2),
                             -PP.Coord(3) + P3d.Coord(3));
@@ -2288,7 +2296,8 @@ void GeomPlate_BuildPlateSurface::LoadCurve(const Standard_Integer NbBoucle,
             else
               P2d = ProjectPoint(P3d);
           }
-          mySurfInit->D0(P2d.Coord(1), P2d.Coord(2), PP);
+          if (auto aResult = mySurfInit->D0(P2d.Coord(1), P2d.Coord(2)))
+        PP = *aResult;
           Pdif.SetCoord(-PP.Coord(1) + P3d.Coord(1),
                         -PP.Coord(2) + P3d.Coord(2),
                         -PP.Coord(3) + P3d.Coord(3));
@@ -2300,7 +2309,12 @@ void GeomPlate_BuildPlateSurface::LoadCurve(const Standard_Integer NbBoucle,
           { // ==1
             gp_Vec V1, V2, V3, V4;
             CC->D1(myPlateCont->Value(i).Value(j), PP, V1, V2);
-            mySurfInit->D1(P2d.Coord(1), P2d.Coord(2), PP, V3, V4);
+            if (auto aResult = mySurfInit->D1(P2d.Coord(1), P2d.Coord(2)))
+      {
+        PP = aResult->theValue;
+        V3 = aResult->theD1U;
+        V4 = aResult->theD1V;
+      }
 
             Plate_D1 D1final(V1.XYZ(), V2.XYZ());
             Plate_D1 D1init(V3.XYZ(), V4.XYZ());
@@ -2339,7 +2353,15 @@ void GeomPlate_BuildPlateSurface::LoadCurve(const Standard_Integer NbBoucle,
           {
             gp_Vec V1, V2, V3, V4, V5, V6, V7, V8, V9, V10;
             CC->D2(myPlateCont->Value(i).Value(j), PP, V1, V2, V5, V6, V7);
-            mySurfInit->D2(P2d.Coord(1), P2d.Coord(2), PP, V3, V4, V8, V9, V10);
+            if (auto aResult = mySurfInit->D2(P2d.Coord(1), P2d.Coord(2)))
+      {
+        PP = aResult->theValue;
+        V3 = aResult->theD1U;
+        V4 = aResult->theD1V;
+        V8 = aResult->theD2U;
+        V9 = aResult->theD2V;
+        V10 = aResult->theD2UV;
+      }
 
             Plate_D1 D1final(V1.XYZ(), V2.XYZ());
             Plate_D1 D1init(V3.XYZ(), V4.XYZ());
@@ -2379,7 +2401,8 @@ void GeomPlate_BuildPlateSurface::LoadPoint(const Standard_Integer, const Standa
   {
     myPntCont->Value(i)->D0(P3d);
     P2d = myPntCont->Value(i)->Pnt2dOnSurf();
-    mySurfInit->D0(P2d.Coord(1), P2d.Coord(2), PP);
+    if (auto aResult = mySurfInit->D0(P2d.Coord(1), P2d.Coord(2)))
+        PP = *aResult;
     Pdif.SetCoord(-PP.Coord(1) + P3d.Coord(1),
                   -PP.Coord(2) + P3d.Coord(2),
                   -PP.Coord(3) + P3d.Coord(3));
@@ -2390,7 +2413,12 @@ void GeomPlate_BuildPlateSurface::LoadPoint(const Standard_Integer, const Standa
     { // ==1
       gp_Vec V1, V2, V3, V4;
       myPntCont->Value(i)->D1(PP, V1, V2);
-      mySurfInit->D1(P2d.Coord(1), P2d.Coord(2), PP, V3, V4);
+      if (auto aResult = mySurfInit->D1(P2d.Coord(1), P2d.Coord(2)))
+      {
+        PP = aResult->theValue;
+        V3 = aResult->theD1U;
+        V4 = aResult->theD1V;
+      }
       Plate_D1 D1final(V1.XYZ(), V2.XYZ());
       Plate_D1 D1init(V3.XYZ(), V4.XYZ());
       if (!myFree)
@@ -2410,7 +2438,15 @@ void GeomPlate_BuildPlateSurface::LoadPoint(const Standard_Integer, const Standa
       gp_Vec V1, V2, V3, V4, V5, V6, V7, V8, V9, V10;
       myPntCont->Value(i)->D2(PP, V1, V2, V5, V6, V7);
       //	gp_Vec Tv2 = V1^V2;
-      mySurfInit->D2(P2d.Coord(1), P2d.Coord(2), PP, V3, V4, V8, V9, V10);
+      if (auto aResult = mySurfInit->D2(P2d.Coord(1), P2d.Coord(2)))
+      {
+        PP = aResult->theValue;
+        V3 = aResult->theD1U;
+        V4 = aResult->theD1V;
+        V8 = aResult->theD2U;
+        V9 = aResult->theD2V;
+        V10 = aResult->theD2UV;
+      }
       Plate_D1 D1final(V1.XYZ(), V2.XYZ());
       Plate_D1 D1init(V3.XYZ(), V4.XYZ());
       Plate_D2 D2final(V5.XYZ(), V6.XYZ(), V7.XYZ());
@@ -2600,13 +2636,19 @@ void GeomPlate_BuildPlateSurface::VerifPoints(Standard_Real& Dist,
       case 0:
         P2d = PntCont->Pnt2dOnSurf();
         PntCont->D0(Pi);
-        myGeomPlateSurface->D0(P2d.Coord(1), P2d.Coord(2), Pf);
+        if (auto aResult = myGeomPlateSurface->D0(P2d.Coord(1), P2d.Coord(2)))
+        Pf = *aResult;
         Dist = Pf.Distance(Pi);
         break;
       case 1:
         PntCont->D1(Pi, v1i, v2i);
         P2d = PntCont->Pnt2dOnSurf();
-        myGeomPlateSurface->D1(P2d.Coord(1), P2d.Coord(2), Pf, v1f, v2f);
+        if (auto aResult = myGeomPlateSurface->D1(P2d.Coord(1), P2d.Coord(2)))
+      {
+        Pf = aResult->theValue;
+        v1f = aResult->theD1U;
+        v2f = aResult->theD1V;
+      }
         Dist = Pf.Distance(Pi);
         v3i  = v1i ^ v2i;
         v3f  = v1f ^ v2f;
