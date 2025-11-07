@@ -1446,6 +1446,272 @@ std::optional<gp_Pnt> Geom_BezierSurface::D0(const Standard_Real U, const Standa
 
 //=================================================================================================
 
+std::optional<GeomEvaluator_Surface::D1Result> Geom_BezierSurface::D1(const Standard_Real U,
+                                                                        const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D1Result aResult;
+  Standard_Real                   array_u[2] = {0.0, 1.0};
+  Standard_Real                   array_v[2] = {0.0, 1.0};
+  Standard_Integer                mult_u[2]  = {UDegree() + 1, UDegree() + 1};
+  Standard_Integer                mult_v[2]  = {VDegree() + 1, VDegree() + 1};
+  TColStd_Array1OfReal            biduknots(array_u[0], 1, 2);
+  TColStd_Array1OfInteger         bidumults(mult_u[0], 1, 2);
+  TColStd_Array1OfReal            bidvknots(array_v[0], 1, 2);
+  TColStd_Array1OfInteger         bidvmults(mult_v[0], 1, 2);
+  if (urational || vrational)
+  {
+    BSplSLib::D1(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 &weights->Array2(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V);
+  }
+  else
+  {
+    BSplSLib::D1(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 BSplSLib::NoWeights(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V);
+  }
+  return aResult;
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D2Result> Geom_BezierSurface::D2(const Standard_Real U,
+                                                                        const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D2Result aResult;
+  Standard_Real                   array_u[2] = {0.0, 1.0};
+  Standard_Real                   array_v[2] = {0.0, 1.0};
+  Standard_Integer                mult_u[2]  = {UDegree() + 1, UDegree() + 1};
+  Standard_Integer                mult_v[2]  = {VDegree() + 1, VDegree() + 1};
+  TColStd_Array1OfReal            biduknots(array_u[0], 1, 2);
+  TColStd_Array1OfInteger         bidumults(mult_u[0], 1, 2);
+  TColStd_Array1OfReal            bidvknots(array_v[0], 1, 2);
+  TColStd_Array1OfInteger         bidvmults(mult_v[0], 1, 2);
+  if (urational || vrational)
+  {
+    BSplSLib::D2(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 &weights->Array2(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V,
+                 aResult.theD2U,
+                 aResult.theD2V,
+                 aResult.theD2UV);
+  }
+  else
+  {
+    BSplSLib::D2(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 BSplSLib::NoWeights(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V,
+                 aResult.theD2U,
+                 aResult.theD2V,
+                 aResult.theD2UV);
+  }
+  return aResult;
+}
+
+//=================================================================================================
+
+std::optional<GeomEvaluator_Surface::D3Result> Geom_BezierSurface::D3(const Standard_Real U,
+                                                                        const Standard_Real V) const
+{
+  GeomEvaluator_Surface::D3Result aResult;
+  Standard_Real                   array_u[2] = {0.0, 1.0};
+  Standard_Real                   array_v[2] = {0.0, 1.0};
+  Standard_Integer                mult_u[2]  = {UDegree() + 1, UDegree() + 1};
+  Standard_Integer                mult_v[2]  = {VDegree() + 1, VDegree() + 1};
+  TColStd_Array1OfReal            biduknots(array_u[0], 1, 2);
+  TColStd_Array1OfInteger         bidumults(mult_u[0], 1, 2);
+  TColStd_Array1OfReal            bidvknots(array_v[0], 1, 2);
+  TColStd_Array1OfInteger         bidvmults(mult_v[0], 1, 2);
+  if (urational || vrational)
+  {
+    BSplSLib::D3(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 &weights->Array2(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V,
+                 aResult.theD2U,
+                 aResult.theD2V,
+                 aResult.theD2UV,
+                 aResult.theD3U,
+                 aResult.theD3V,
+                 aResult.theD3UUV,
+                 aResult.theD3UVV);
+  }
+  else
+  {
+    BSplSLib::D3(U,
+                 V,
+                 1,
+                 1,
+                 poles->Array2(),
+                 BSplSLib::NoWeights(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V,
+                 aResult.theD2U,
+                 aResult.theD2V,
+                 aResult.theD2UV,
+                 aResult.theD3U,
+                 aResult.theD3V,
+                 aResult.theD3UUV,
+                 aResult.theD3UVV);
+  }
+  return aResult;
+}
+
+//=================================================================================================
+
+std::optional<gp_Vec> Geom_BezierSurface::DN(const Standard_Real    U,
+                                              const Standard_Real    V,
+                                              const Standard_Integer Nu,
+                                              const Standard_Integer Nv) const
+{
+  gp_Vec                      aResult;
+  Standard_Real               array_u[2] = {0.0, 1.0};
+  Standard_Real               array_v[2] = {0.0, 1.0};
+  Standard_Integer            mult_u[2]  = {UDegree() + 1, UDegree() + 1};
+  Standard_Integer            mult_v[2]  = {VDegree() + 1, VDegree() + 1};
+  TColStd_Array1OfReal        biduknots(array_u[0], 1, 2);
+  TColStd_Array1OfInteger     bidumults(mult_u[0], 1, 2);
+  TColStd_Array1OfReal        bidvknots(array_v[0], 1, 2);
+  TColStd_Array1OfInteger     bidvmults(mult_v[0], 1, 2);
+  if (urational || vrational)
+  {
+    BSplSLib::DN(U,
+                 V,
+                 Nu,
+                 Nv,
+                 1,
+                 1,
+                 poles->Array2(),
+                 &weights->Array2(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult);
+  }
+  else
+  {
+    BSplSLib::DN(U,
+                 V,
+                 Nu,
+                 Nv,
+                 1,
+                 1,
+                 poles->Array2(),
+                 BSplSLib::NoWeights(),
+                 biduknots,
+                 bidvknots,
+                 &bidumults,
+                 &bidvmults,
+                 UDegree(),
+                 VDegree(),
+                 urational,
+                 vrational,
+                 Standard_False,
+                 Standard_False,
+                 aResult);
+  }
+  return aResult;
+}
+
+//=================================================================================================
+
 Standard_Integer Geom_BezierSurface::NbUPoles() const
 {
   return poles->ColLength();
