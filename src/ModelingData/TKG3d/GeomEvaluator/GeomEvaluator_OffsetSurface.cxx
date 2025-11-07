@@ -32,6 +32,23 @@ namespace
 // tolerance for considering derivative to be null
 const Standard_Real the_D1MagTol = 1.e-9;
 
+// Helper function to unwrap DN() results that may be std::optional<gp_Vec> or gp_Vec
+template <typename T>
+gp_Vec unwrapDN(const T& theResult)
+{
+  if constexpr (std::is_same_v<T, std::optional<gp_Vec>>)
+  {
+    if (theResult)
+      return *theResult;
+    else
+      throw Standard_Failure("DN computation failed");
+  }
+  else
+  {
+    return theResult;
+  }
+}
+
 // If calculation of normal fails, try shifting the point towards the center
 // of the parametric space of the surface, in the hope that derivatives
 // are better defined there.
@@ -163,10 +180,10 @@ static void derivatives(Standard_Integer                   theMaxOrder,
           if (i + j > theMinOrder)
           {
             DerSurfL.SetValue(i, j, theL->DN(theU, theV, i, j));
-            theDerSurf.SetValue(i, j, theBasisSurf->DN(theU, theV, i, j));
+            theDerSurf.SetValue(i, j, unwrapDN(theBasisSurf->DN(theU, theV, i, j)));
             if (i != j && j <= theNU + 1)
             {
-              theDerSurf.SetValue(j, i, theBasisSurf->DN(theU, theV, j, i));
+              theDerSurf.SetValue(j, i, unwrapDN(theBasisSurf->DN(theU, theV, j, i)));
               DerSurfL.SetValue(j, i, theL->DN(theU, theV, j, i));
             }
           }
@@ -178,10 +195,10 @@ static void derivatives(Standard_Integer                   theMaxOrder,
           if (i + j > theMinOrder)
           {
             DerSurfL.SetValue(i, j, theL->DN(theU, theV, i, j));
-            theDerSurf.SetValue(i, j, theBasisSurf->DN(theU, theV, i, j));
+            theDerSurf.SetValue(i, j, unwrapDN(theBasisSurf->DN(theU, theV, i, j)));
             if (i != j && i <= theNV + 1)
             {
-              theDerSurf.SetValue(j, i, theBasisSurf->DN(theU, theV, j, i));
+              theDerSurf.SetValue(j, i, unwrapDN(theBasisSurf->DN(theU, theV, j, i)));
               DerSurfL.SetValue(j, i, theL->DN(theU, theV, j, i));
             }
           }
@@ -964,13 +981,13 @@ std::optional<GeomEvaluator_Surface::D3Result> GeomEvaluator_OffsetSurface::Calc
 
   if (!myBaseSurf.IsNull())
   {
-    aResult.theD2U   = myBaseSurf->DN(theU, theV, 2, 0);
-    aResult.theD2V   = myBaseSurf->DN(theU, theV, 0, 2);
-    aResult.theD2UV  = myBaseSurf->DN(theU, theV, 1, 1);
-    aResult.theD3U   = myBaseSurf->DN(theU, theV, 3, 0);
-    aResult.theD3V   = myBaseSurf->DN(theU, theV, 0, 3);
-    aResult.theD3UUV = myBaseSurf->DN(theU, theV, 2, 1);
-    aResult.theD3UVV = myBaseSurf->DN(theU, theV, 1, 2);
+    aResult.theD2U   = unwrapDN(myBaseSurf->DN(theU, theV, 2, 0));
+    aResult.theD2V   = unwrapDN(myBaseSurf->DN(theU, theV, 0, 2));
+    aResult.theD2UV  = unwrapDN(myBaseSurf->DN(theU, theV, 1, 1));
+    aResult.theD3U   = unwrapDN(myBaseSurf->DN(theU, theV, 3, 0));
+    aResult.theD3V   = unwrapDN(myBaseSurf->DN(theU, theV, 0, 3));
+    aResult.theD3UUV = unwrapDN(myBaseSurf->DN(theU, theV, 2, 1));
+    aResult.theD3UVV = unwrapDN(myBaseSurf->DN(theU, theV, 1, 2));
   }
   else
   {
@@ -1073,7 +1090,7 @@ std::optional<gp_Vec> GeomEvaluator_OffsetSurface::CalculateDN(
 
   gp_Vec aResult;
   if (!myBaseSurf.IsNull())
-    aResult = myBaseSurf->DN(theU, theV, theNu, theNv);
+    aResult = unwrapDN(myBaseSurf->DN(theU, theV, theNu, theNv));
   else
     aResult = myBaseAdaptor->DN(theU, theV, theNu, theNv);
 
