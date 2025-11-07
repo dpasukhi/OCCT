@@ -145,12 +145,29 @@ static void derivatives(Standard_Integer                   theMaxOrder,
     switch (theMinOrder)
     {
       case 1:
-        theL->D1(theU, theV, P, DL1U, DL1V);
+        if (auto aD1 = theL->D1(theU, theV))
+        {
+          P    = aD1->theValue;
+          DL1U = aD1->theD1U;
+          DL1V = aD1->theD1V;
+        }
+        else
+          throw Standard_Failure("theL->D1 failed");
         DerSurfL.SetValue(1, 0, DL1U);
         DerSurfL.SetValue(0, 1, DL1V);
         break;
       case 2:
-        theL->D2(theU, theV, P, DL1U, DL1V, DL2U, DL2V, DL2UV);
+        if (auto aD2 = theL->D2(theU, theV))
+        {
+          P     = aD2->theValue;
+          DL1U  = aD2->theD1U;
+          DL1V  = aD2->theD1V;
+          DL2U  = aD2->theD2U;
+          DL2V  = aD2->theD2V;
+          DL2UV = aD2->theD2UV;
+        }
+        else
+          throw Standard_Failure("theL->D2 failed");
         DerSurfL.SetValue(1, 0, DL1U);
         DerSurfL.SetValue(0, 1, DL1V);
         DerSurfL.SetValue(1, 1, DL2UV);
@@ -158,7 +175,21 @@ static void derivatives(Standard_Integer                   theMaxOrder,
         DerSurfL.SetValue(0, 2, DL2V);
         break;
       case 3:
-        theL->D3(theU, theV, P, DL1U, DL1V, DL2U, DL2V, DL2UV, DL3U, DL3V, DL3UUV, DL3UVV);
+        if (auto aD3 = theL->D3(theU, theV))
+        {
+          P      = aD3->theValue;
+          DL1U   = aD3->theD1U;
+          DL1V   = aD3->theD1V;
+          DL2U   = aD3->theD2U;
+          DL2V   = aD3->theD2V;
+          DL2UV  = aD3->theD2UV;
+          DL3U   = aD3->theD3U;
+          DL3V   = aD3->theD3V;
+          DL3UUV = aD3->theD3UUV;
+          DL3UVV = aD3->theD3UVV;
+        }
+        else
+          throw Standard_Failure("theL->D3 failed");
         DerSurfL.SetValue(1, 0, DL1U);
         DerSurfL.SetValue(0, 1, DL1V);
         DerSurfL.SetValue(1, 1, DL2UV);
@@ -179,12 +210,12 @@ static void derivatives(Standard_Integer                   theMaxOrder,
         for (j = i; j <= theMaxOrder + theNV + 1; j++)
           if (i + j > theMinOrder)
           {
-            DerSurfL.SetValue(i, j, theL->DN(theU, theV, i, j));
+            DerSurfL.SetValue(i, j, unwrapDN(theL->DN(theU, theV, i, j)));
             theDerSurf.SetValue(i, j, unwrapDN(theBasisSurf->DN(theU, theV, i, j)));
             if (i != j && j <= theNU + 1)
             {
               theDerSurf.SetValue(j, i, unwrapDN(theBasisSurf->DN(theU, theV, j, i)));
-              DerSurfL.SetValue(j, i, theL->DN(theU, theV, j, i));
+              DerSurfL.SetValue(j, i, unwrapDN(theL->DN(theU, theV, j, i)));
             }
           }
     }
@@ -194,12 +225,12 @@ static void derivatives(Standard_Integer                   theMaxOrder,
         for (i = j; i <= theMaxOrder + theNU + 1; i++)
           if (i + j > theMinOrder)
           {
-            DerSurfL.SetValue(i, j, theL->DN(theU, theV, i, j));
+            DerSurfL.SetValue(i, j, unwrapDN(theL->DN(theU, theV, i, j)));
             theDerSurf.SetValue(i, j, unwrapDN(theBasisSurf->DN(theU, theV, i, j)));
             if (i != j && i <= theNV + 1)
             {
               theDerSurf.SetValue(j, i, unwrapDN(theBasisSurf->DN(theU, theV, j, i)));
-              DerSurfL.SetValue(j, i, theL->DN(theU, theV, j, i));
+              DerSurfL.SetValue(j, i, unwrapDN(theL->DN(theU, theV, j, i)));
             }
           }
     }
