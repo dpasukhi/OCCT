@@ -93,8 +93,7 @@ static Standard_Boolean CheckSense(const TColGeom_SequenceOfCurve& Seq1,
   Standard_Real             u = f, h = Abs(f - l) / 20.;
   for (iP = 1; iP <= NP; iP++)
   {
-    if (auto aResult = C1->D0(u))
-          Tab(iP) = *aResult;
+    C1->D0(u, Tab(iP));
     u += h;
     if ((u - f) * (u - l) > 0.0)
       u = l;
@@ -112,21 +111,17 @@ static Standard_Boolean CheckSense(const TColGeom_SequenceOfCurve& Seq1,
   Standard_Real alpha1, alpha2, alpha3;
   gp_Pnt        P1, P2;
   u = (f + l - h) / 2 - h;
-  if (auto aResult = C1->D0(u))
-        P1 = *aResult;
+  C1->D0(u, P1);
   u += h;
-  if (auto aResult = C1->D0(u))
-        P2 = *aResult;
+  C1->D0(u, P2);
   alpha1 = gp_Vec(Pos, P1).AngleWithRef(gp_Vec(Pos, P2), AxeRef.Direction());
   P1     = P2;
   u += h;
-  if (auto aResult = C1->D0(u))
-        P2 = *aResult;
+  C1->D0(u, P2);
   alpha2 = gp_Vec(Pos, P1).AngleWithRef(gp_Vec(Pos, P2), AxeRef.Direction());
   P1     = P2;
   u += h;
-  if (auto aResult = C1->D0(u))
-        P2 = *aResult;
+  C1->D0(u, P2);
   alpha3 = gp_Vec(Pos, P1).AngleWithRef(gp_Vec(Pos, P2), AxeRef.Direction());
   Seq2.Append(C1);
 
@@ -139,8 +134,7 @@ static Standard_Boolean CheckSense(const TColGeom_SequenceOfCurve& Seq1,
     u                            = f;
     for (iP = 1; iP <= NP; iP++)
     {
-      if (auto aResult = C2->D0(u))
-            Tab(iP) = *aResult;
+      C2->D0(u, Tab(iP));
       u += h;
       if ((u - f) * (u - l) > 0.0)
         u = l;
@@ -154,21 +148,17 @@ static Standard_Boolean CheckSense(const TColGeom_SequenceOfCurve& Seq1,
     Pos = Axe.Location();
     Standard_Real beta1, beta2, beta3;
     u = (f + l - h) / 2 - h;
-    if (auto aResult = C2->D0(u))
-        P1 = *aResult;
+    C2->D0(u, P1);
     u += h;
-    if (auto aResult = C2->D0(u))
-        P2 = *aResult;
+    C2->D0(u, P2);
     beta1 = gp_Vec(Pos, P1).AngleWithRef(gp_Vec(Pos, P2), AxeRef.Direction());
     P1    = P2;
     u += h;
-    if (auto aResult = C2->D0(u))
-          P2 = *aResult;
+    C2->D0(u, P2);
     beta2 = gp_Vec(Pos, P1).AngleWithRef(gp_Vec(Pos, P2), AxeRef.Direction());
     P1    = P2;
     u += h;
-    if (auto aResult = C2->D0(u))
-          P2 = *aResult;
+    C2->D0(u, P2);
     beta3 = gp_Vec(Pos, P1).AngleWithRef(gp_Vec(Pos, P2), AxeRef.Direction());
 
     // meme sens ?
