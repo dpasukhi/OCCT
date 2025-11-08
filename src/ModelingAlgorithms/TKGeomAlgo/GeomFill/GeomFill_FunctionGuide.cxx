@@ -104,8 +104,7 @@ void GeomFill_FunctionGuide::SetParam(const Standard_Real,
     TheLaw->Knots(Knots);
     TColgp_Array1OfPnt   Poles(1, NbPoles);
     TColStd_Array1OfReal Weights(1, NbPoles);
-    if (auto aResult = TheLaw->D0(TheUonS, Poles))
-        Weights = *aResult;
+    TheLaw->D0(TheUonS, Poles, Weights);
     if (TheLaw->IsRational())
       TheCurve = new (Geom_BSplineCurve)(Poles, Weights, Knots, Mult, Deg, TheLaw->IsUPeriodic());
     else
