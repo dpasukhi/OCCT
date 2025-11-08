@@ -499,8 +499,7 @@ static Standard_Boolean IsSweepParallelSpine(const Handle(GeomFill_LocationLaw)&
   theLoc->GetDomain(aFirst, aLast);
 
   // Get the first transformation
-  if (auto aResult = theLoc->D0(aFirst, M))
-        VBegin = *aResult;
+  theLoc->D0(aFirst, M, VBegin);
 
   GTfBegin.SetVectorialPart(M);
   GTfBegin.SetTranslationPart(VBegin.XYZ());
@@ -519,8 +518,7 @@ static Standard_Boolean IsSweepParallelSpine(const Handle(GeomFill_LocationLaw)&
                     GTfBegin(3, 4));
 
   // Get the last transformation
-  if (auto aResult = theLoc->D0(aLast, M))
-        VEnd = *aResult;
+  theLoc->D0(aLast, M, VEnd);
 
   GTfEnd.SetVectorialPart(M);
   GTfEnd.SetTranslationPart(VEnd.XYZ());
@@ -596,10 +594,8 @@ Standard_Boolean GeomFill_Sweep::BuildKPart()
   {
     // Donne de la translation
     gp_Vec DP, DS;
-    if (auto aResult = myLoc->D0(1, M))
-        DS = *aResult;
-    if (auto aResult = myLoc->D0(0, M))
-        V = *aResult;
+    myLoc->D0(1, M, DS);
+    myLoc->D0(0, M, V);
     DP = DS - V;
     DP.Normalize();
     gp_GTrsf Tf;
@@ -801,10 +797,8 @@ Standard_Boolean GeomFill_Sweep::BuildKPart()
       isVPeriodic = (Abs(Last - First - 2 * M_PI) < 1.e-15);
       Standard_Real RotRadius;
       gp_Vec        DP, DS, DN;
-      if (auto aResult = myLoc->D0(0.1, M))
-        DS = *aResult;
-      if (auto aResult = myLoc->D0(0, M))
-        V = *aResult;
+      myLoc->D0(0.1, M, DS);
+      myLoc->D0(0, M, V);
       myLoc->Rotation(Centre);
 
       DP = DS - V;
