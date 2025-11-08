@@ -23,6 +23,7 @@
 #include <TColGeom_HArray2OfSurface.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <Geom_Surface.hxx>
+#include <GeomEvaluator_Surface.hxx>
 #include <ShapeExtend_Parametrisation.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <Standard_Integer.hxx>
@@ -287,50 +288,30 @@ public:
   Standard_EXPORT virtual Standard_Boolean IsCNv(const Standard_Integer N) const Standard_OVERRIDE;
 
   //! Computes the point of parameter U,V on the grid.
-  Standard_EXPORT virtual void D0(const Standard_Real U,
-                                  const Standard_Real V,
-                                  gp_Pnt&             P) const Standard_OVERRIDE;
+  Standard_EXPORT virtual std::optional<gp_Pnt> D0(const Standard_Real U,
+                                                    const Standard_Real V) const Standard_OVERRIDE;
 
   //! Computes the point P and the first derivatives in the
   //! directions U and V at this point.
-  Standard_EXPORT virtual void D1(const Standard_Real U,
-                                  const Standard_Real V,
-                                  gp_Pnt&             P,
-                                  gp_Vec&             D1U,
-                                  gp_Vec&             D1V) const Standard_OVERRIDE;
+  Standard_EXPORT virtual std::optional<GeomEvaluator_Surface::D1Result> D1(const Standard_Real U,
+                                                                             const Standard_Real V) const Standard_OVERRIDE;
 
   //! Computes the point P, the first and the second derivatives in
   //! the directions U and V at this point.
-  Standard_EXPORT virtual void D2(const Standard_Real U,
-                                  const Standard_Real V,
-                                  gp_Pnt&             P,
-                                  gp_Vec&             D1U,
-                                  gp_Vec&             D1V,
-                                  gp_Vec&             D2U,
-                                  gp_Vec&             D2V,
-                                  gp_Vec&             D2UV) const Standard_OVERRIDE;
+  Standard_EXPORT virtual std::optional<GeomEvaluator_Surface::D2Result> D2(const Standard_Real U,
+                                                                             const Standard_Real V) const Standard_OVERRIDE;
 
   //! Computes the point P, the first,the second and the third
   //! derivatives in the directions U and V at this point.
-  Standard_EXPORT virtual void D3(const Standard_Real U,
-                                  const Standard_Real V,
-                                  gp_Pnt&             P,
-                                  gp_Vec&             D1U,
-                                  gp_Vec&             D1V,
-                                  gp_Vec&             D2U,
-                                  gp_Vec&             D2V,
-                                  gp_Vec&             D2UV,
-                                  gp_Vec&             D3U,
-                                  gp_Vec&             D3V,
-                                  gp_Vec&             D3UUV,
-                                  gp_Vec&             D3UVV) const Standard_OVERRIDE;
+  Standard_EXPORT virtual std::optional<GeomEvaluator_Surface::D3Result> D3(const Standard_Real U,
+                                                                             const Standard_Real V) const Standard_OVERRIDE;
 
   //! Computes the derivative of order Nu in the direction U and Nv
   //! in the direction V at the point P(U, V).
-  Standard_EXPORT virtual gp_Vec DN(const Standard_Real    U,
-                                    const Standard_Real    V,
-                                    const Standard_Integer Nu,
-                                    const Standard_Integer Nv) const Standard_OVERRIDE;
+  Standard_EXPORT virtual std::optional<gp_Vec> DN(const Standard_Real    U,
+                                                    const Standard_Real    V,
+                                                    const Standard_Integer Nu,
+                                                    const Standard_Integer Nv) const Standard_OVERRIDE;
 
   //! Computes the point of parameter pnt on the grid.
   Standard_EXPORT gp_Pnt Value(const gp_Pnt2d& pnt) const;

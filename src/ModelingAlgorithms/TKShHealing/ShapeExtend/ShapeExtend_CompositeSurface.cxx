@@ -16,6 +16,7 @@
 
 #include <Geom_Curve.hxx>
 #include <Geom_Geometry.hxx>
+#include <GeomEvaluator_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Trsf.hxx>
@@ -506,72 +507,53 @@ Standard_Boolean ShapeExtend_CompositeSurface::IsVClosed() const
 
 //=================================================================================================
 
-void ShapeExtend_CompositeSurface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
+std::optional<gp_Pnt> ShapeExtend_CompositeSurface::D0(const Standard_Real U, const Standard_Real V) const
 {
   Standard_Integer i  = LocateUParameter(U);
   Standard_Integer j  = LocateVParameter(V);
   gp_Pnt2d         uv = GlobalToLocal(i, j, gp_Pnt2d(U, V));
-  myPatches->Value(i, j)->D0(uv.X(), uv.Y(), P);
+  return myPatches->Value(i, j)->D0(uv.X(), uv.Y());
 }
 
 //=================================================================================================
 
-void ShapeExtend_CompositeSurface::D1(const Standard_Real U,
-                                      const Standard_Real V,
-                                      gp_Pnt&             P,
-                                      gp_Vec&             D1U,
-                                      gp_Vec&             D1V) const
+std::optional<GeomEvaluator_Surface::D1Result> ShapeExtend_CompositeSurface::D1(const Standard_Real U,
+                                                                                const Standard_Real V) const
 {
   Standard_Integer i  = LocateUParameter(U);
   Standard_Integer j  = LocateVParameter(V);
   gp_Pnt2d         uv = GlobalToLocal(i, j, gp_Pnt2d(U, V));
-  myPatches->Value(i, j)->D1(uv.X(), uv.Y(), P, D1U, D1V);
+  return myPatches->Value(i, j)->D1(uv.X(), uv.Y());
 }
 
 //=================================================================================================
 
-void ShapeExtend_CompositeSurface::D2(const Standard_Real U,
-                                      const Standard_Real V,
-                                      gp_Pnt&             P,
-                                      gp_Vec&             D1U,
-                                      gp_Vec&             D1V,
-                                      gp_Vec&             D2U,
-                                      gp_Vec&             D2V,
-                                      gp_Vec&             D2UV) const
+std::optional<GeomEvaluator_Surface::D2Result> ShapeExtend_CompositeSurface::D2(const Standard_Real U,
+                                                                                const Standard_Real V) const
 {
   Standard_Integer i  = LocateUParameter(U);
   Standard_Integer j  = LocateVParameter(V);
   gp_Pnt2d         uv = GlobalToLocal(i, j, gp_Pnt2d(U, V));
-  myPatches->Value(i, j)->D2(uv.X(), uv.Y(), P, D1U, D1V, D2U, D2V, D2UV);
+  return myPatches->Value(i, j)->D2(uv.X(), uv.Y());
 }
 
 //=================================================================================================
 
-void ShapeExtend_CompositeSurface::D3(const Standard_Real U,
-                                      const Standard_Real V,
-                                      gp_Pnt&             P,
-                                      gp_Vec&             D1U,
-                                      gp_Vec&             D1V,
-                                      gp_Vec&             D2U,
-                                      gp_Vec&             D2V,
-                                      gp_Vec&             D2UV,
-                                      gp_Vec&             D3U,
-                                      gp_Vec&             D3V,
-                                      gp_Vec&             D3UUV,
-                                      gp_Vec&             D3UVV) const
+std::optional<GeomEvaluator_Surface::D3Result> ShapeExtend_CompositeSurface::D3(const Standard_Real U,
+                                                                                const Standard_Real V) const
 {
   Standard_Integer i  = LocateUParameter(U);
   Standard_Integer j  = LocateVParameter(V);
   gp_Pnt2d         uv = GlobalToLocal(i, j, gp_Pnt2d(U, V));
-  myPatches->Value(i, j)->D3(uv.X(), uv.Y(), P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+  return myPatches->Value(i, j)->D3(uv.X(), uv.Y());
 }
 
 //=================================================================================================
 
-gp_Vec ShapeExtend_CompositeSurface::DN(const Standard_Real    U,
-                                        const Standard_Real    V,
-                                        const Standard_Integer Nu,
-                                        const Standard_Integer Nv) const
+std::optional<gp_Vec> ShapeExtend_CompositeSurface::DN(const Standard_Real    U,
+                                                       const Standard_Real    V,
+                                                       const Standard_Integer Nu,
+                                                       const Standard_Integer Nv) const
 {
   Standard_Integer i  = LocateUParameter(U);
   Standard_Integer j  = LocateVParameter(V);
