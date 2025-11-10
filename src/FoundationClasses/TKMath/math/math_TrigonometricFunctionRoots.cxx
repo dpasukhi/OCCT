@@ -81,18 +81,21 @@ void math_TrigonometricFunctionRoots::Perform(const Standard_Real A,
                                               const Standard_Real SupBound)
 {
 
-  Standard_Integer     i, j = 0, k, l, NZer = 0, Nit = 10;
-  Standard_Real        Depi, Delta, Mod, AA, BB, CC, MyBorneInf;
-  Standard_Real        Teta, X;
-  Standard_Real        Eps, Tol1 = 1.e-15;
-  TColStd_Array1OfReal ko(1, 5), Zer(1, 4);
-  Standard_Boolean     Flag4;
+  Standard_Integer i, j = 0, k, l, NZer = 0, Nit = 10;
+  Standard_Real    Depi, Delta, Mod, AA, BB, CC, MyBorneInf;
+  Standard_Real    Teta, X;
+  Standard_Real    Eps, Tol1 = 1.e-15;
+  math_Vector      ko(1, 5), Zer(1, 4);
+  Standard_Boolean Flag4;
   InfiniteStatus = Standard_False;
   Done           = Standard_True;
 
   Eps = 1.5e-12;
 
-  Depi = M_PI + M_PI;
+  // Mathematical constants - pre-computed for performance
+  static const Standard_Real HALF_PI         = M_PI * 0.5;
+  static const Standard_Real THREE_HALVES_PI = M_PI * 1.5;
+  Depi                                       = M_PI + M_PI;
   if (InfBound <= RealFirst() && SupBound >= RealLast())
   {
     MyBorneInf = 0.0;
@@ -295,8 +298,8 @@ void math_TrigonometricFunctionRoots::Perform(const Standard_Real A,
       {
         // 2 * B * sin * cos + C * cos = 0
         NZer   = 2;
-        Zer(1) = M_PI / 2.0;
-        Zer(2) = M_PI * 3.0 / 2.0;
+        Zer(1) = HALF_PI;
+        Zer(2) = THREE_HALVES_PI;
 
         AA = -C / (B * 2);
         if (Abs(AA) <= 1.0 + Precision::PConfusion())
@@ -304,14 +307,14 @@ void math_TrigonometricFunctionRoots::Perform(const Standard_Real A,
           NZer = 4;
           if (AA >= 1.0)
           {
-            Zer(3) = M_PI / 2.0;
-            Zer(4) = M_PI / 2.0;
+            Zer(3) = HALF_PI;
+            Zer(4) = HALF_PI;
           }
           else if (AA <= -1.0)
           {
 
-            Zer(3) = M_PI * 3.0 / 2.0;
-            Zer(4) = M_PI * 3.0 / 2.0;
+            Zer(3) = THREE_HALVES_PI;
+            Zer(4) = THREE_HALVES_PI;
           }
           else
           {

@@ -772,7 +772,8 @@ void math_FunctionSetRoot::Perform(math_FunctionSetWithDerivatives& F,
   {
     const Standard_Real aSupBound  = Min(theSupBound(i), Precision::Infinite());
     const Standard_Real anInfBound = Max(theInfBound(i), -Precision::Infinite());
-    InvLengthMax(i)                = 1. / Max((aSupBound - anInfBound) / 4, 1.e-9);
+    const Standard_Real aRange     = (aSupBound - anInfBound) * 0.25;
+    InvLengthMax(i)                = 1. / Max(aRange, 1.e-9);
   }
 
   MyDirFunction    F_Dir(Temp1, Temp2, Temp3, Temp4, F);
