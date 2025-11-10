@@ -20,7 +20,6 @@
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
 
-#include <TColStd_HArray1OfReal.hxx>
 #include <Standard_Integer.hxx>
 #include <math_Vector.hxx>
 
@@ -39,9 +38,9 @@ public:
 
 protected:
 private:
-  Handle(TColStd_HArray1OfReal) myPoints;
-  Handle(TColStd_HArray1OfReal) myWeights;
-  Standard_Boolean              myIsDone;
+  math_Vector      myPoints;
+  math_Vector      myWeights;
+  Standard_Boolean myIsDone;
 };
 
 #endif // _math_ComputeGaussPointsAndWeights_HeaderFile

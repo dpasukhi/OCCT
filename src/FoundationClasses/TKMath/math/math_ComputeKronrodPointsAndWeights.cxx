@@ -22,16 +22,12 @@
 
 math_ComputeKronrodPointsAndWeights::math_ComputeKronrodPointsAndWeights(
   const Standard_Integer Number)
+    : myPoints(1, 2 * Number + 1), myWeights(1, 2 * Number + 1), myIsDone(Standard_False)
 {
-  myIsDone = Standard_False;
-
   try
   {
     Standard_Integer i, j;
     Standard_Integer a2NP1 = 2 * Number + 1;
-
-    myPoints  = new TColStd_HArray1OfReal(1, a2NP1);
-    myWeights = new TColStd_HArray1OfReal(1, a2NP1);
 
     TColStd_Array1OfReal aDiag(1, a2NP1);
     TColStd_Array1OfReal aSubDiag(1, a2NP1);
@@ -60,40 +56,39 @@ math_ComputeKronrodPointsAndWeights::math_ComputeKronrodPointsAndWeights(
     }
 
     // Algorithm calculates weights and points symmetrically and uses -1 index
-    // by design. Memory corruption is avoided by moving pointer `s` to the
-    // next element and saving original pointer into `ss` for the proper memory
-    // releasing. Similarly, `t` and `tt` are addressed.
+    // by design. Using math_Vector with base index -1 for exception safety.
     Standard_Integer aNd2 = Number / 2;
-    Standard_Real*   s    = new Standard_Real[aNd2 + 2];
-    Standard_Real*   t    = new Standard_Real[aNd2 + 2];
-    Standard_Real*   ss   = s++;
-    Standard_Real*   tt   = t++;
+    math_Vector      s(-1, aNd2);
+    math_Vector      t(-1, aNd2);
 
     for (i = -1; i <= aNd2; i++)
     {
-      s[i] = 0.;
-      t[i] = 0.;
+      s(i) = 0.;
+      t(i) = 0.;
     }
 
     // Generation of Jacobi-Kronrod matrix.
-    Standard_Real* aa = new Standard_Real[a2NP1 + 1];
-    Standard_Real* bb = new Standard_Real[a2NP1 + 1];
+    // Using base index 0 to support offset pointer access pattern (a = aa + 1).
+    math_Vector aa(0, a2NP1);
+    math_Vector bb(0, a2NP1);
     for (i = 1; i <= a2NP1; i++)
     {
-      aa[i] = aDiag(i);
-      bb[i] = aSubDiag(i);
+      aa(i) = aDiag(i);
+      bb(i) = aSubDiag(i);
     }
-    Standard_Real*   ptrtmp;
+    math_Vector*     ptrtmp;
     Standard_Real    u;
     Standard_Integer m;
     Standard_Integer k;
     Standard_Integer l;
 
-    Standard_Real* a = aa + 1;
-    Standard_Real* b = bb + 1;
+    // Create offset views: a points to aa[1..], b points to bb[1..]
+    // Using pointer arithmetic for compatibility with original algorithm.
+    Standard_Real* a = &aa(1);
+    Standard_Real* b = &bb(1);
 
     // Eastward phase.
-    t[0] = b[Number + 1];
+    t(0) = b[Number + 1];
 
     for (m = 0; m <= n - 2; m++)
     {
@@ -102,17 +97,15 @@ math_ComputeKronrodPointsAndWeights::math_ComputeKronrodPointsAndWeights(
       for (k = (m + 1) / 2; k >= 0; k--)
       {
         l = m - k;
-        u += (a[k + n + 1] - a[l]) * t[k] + b[k + n + 1] * s[k - 1] - b[l] * s[k];
-        s[k] = u;
+        u += (a[k + n + 1] - a[l]) * t(k) + b[k + n + 1] * s(k - 1) - b[l] * s(k);
+        s(k) = u;
       }
 
-      ptrtmp = t;
-      t      = s;
-      s      = ptrtmp;
+      std::swap(s, t);
     }
 
     for (j = aNd2; j >= 0; j--)
-      s[j] = s[j - 1];
+      s(j) = s(j - 1);
 
     // Southward phase.
     for (m = n - 1; m <= 2 * n - 3; m++)
@@ -123,38 +116,33 @@ math_ComputeKronrodPointsAndWeights::math_ComputeKronrodPointsAndWeights(
       {
         l = m - k;
         j = n - 1 - l;
-        u += -(a[k + n + 1] - a[l]) * t[j] - b[k + n + 1] * s[j] + b[l] * s[j + 1];
-        s[j] = u;
+        u += -(a[k + n + 1] - a[l]) * t(j) - b[k + n + 1] * s(j) + b[l] * s(j + 1);
+        s(j) = u;
       }
 
       if (m % 2 == 0)
       {
         k            = m / 2;
-        a[k + n + 1] = a[k] + (s[j] - b[k + n + 1] * s[j + 1]) / t[j + 1];
+        a[k + n + 1] = a[k] + (s(j) - b[k + n + 1] * s(j + 1)) / t(j + 1);
       }
       else
       {
         k            = (m + 1) / 2;
-        b[k + n + 1] = s[j] / s[j + 1];
+        b[k + n + 1] = s(j) / s(j + 1);
       }
 
-      ptrtmp = t;
-      t      = s;
-      s      = ptrtmp;
+      std::swap(s, t);
     }
 
     // Termination phase.
-    a[2 * Number] = a[n - 1] - b[2 * Number] * s[0] / t[0];
+    a[2 * Number] = a[n - 1] - b[2 * Number] * s(0) / t(0);
 
-    delete[] ss;
-    delete[] tt;
+    // Copy results back to aDiag and aSubDiag
     for (i = 1; i <= a2NP1; i++)
     {
-      aDiag(i)    = aa[i];
-      aSubDiag(i) = bb[i];
+      aDiag(i)    = aa(i);
+      aSubDiag(i) = bb(i);
     }
-    delete[] aa;
-    delete[] bb;
 
     for (i = 1; i <= a2NP1; i++)
       aSubDiag(i) = Sqrt(aSubDiag(i));
@@ -178,8 +166,8 @@ math_ComputeKronrodPointsAndWeights::math_ComputeKronrodPointsAndWeights(
 
       for (i = 1; i <= a2NP1; i++)
       {
-        myPoints->ChangeValue(i)  = VWarray(i).Value();
-        myWeights->ChangeValue(i) = VWarray(i).Weight();
+        myPoints(i)  = VWarray(i).Value();
+        myWeights(i) = VWarray(i).Weight();
       }
       myIsDone = Standard_True;
     }
@@ -196,20 +184,10 @@ Standard_Boolean math_ComputeKronrodPointsAndWeights::IsDone() const
 
 math_Vector math_ComputeKronrodPointsAndWeights::Points() const
 {
-  Standard_Integer Number = myPoints->Length();
-  math_Vector      thePoints(1, Number);
-  for (Standard_Integer i = 1; i <= Number; i++)
-    thePoints(i) = myPoints->Value(i);
-
-  return thePoints;
+  return myPoints;
 }
 
 math_Vector math_ComputeKronrodPointsAndWeights::Weights() const
 {
-  Standard_Integer Number = myWeights->Length();
-  math_Vector      theWeights(1, Number);
-  for (Standard_Integer i = 1; i <= Number; i++)
-    theWeights(i) = myWeights->Value(i);
-
-  return theWeights;
+  return myWeights;
 }

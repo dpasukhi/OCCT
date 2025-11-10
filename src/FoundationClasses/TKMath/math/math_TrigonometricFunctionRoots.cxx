@@ -195,7 +195,7 @@ void math_TrigonometricFunctionRoots::Perform(const Standard_Real A,
         }
         // On rend les solutions entre InfBound et SupBound:
         // =================================================
-        Zer(i) += IntegerPart(Mod) * 2. * M_PI;
+        Zer(i) += IntegerPart(Mod) * Depi;
         X = Zer(i) - MyBorneInf;
         if ((X >= (-Epsilon(Delta))) && (X <= Delta + Epsilon(Delta)))
         {
@@ -277,7 +277,7 @@ void math_TrigonometricFunctionRoots::Perform(const Standard_Real A,
           }
           // On rend les solutions entre InfBound et SupBound:
           // =================================================
-          Zer(i) += IntegerPart(Mod) * 2. * M_PI;
+          Zer(i) += IntegerPart(Mod) * Depi;
           X = Zer(i) - MyBorneInf;
           if ((X >= (-Precision::PConfusion())) && (X <= Delta + Precision::PConfusion()))
           {
@@ -329,7 +329,7 @@ void math_TrigonometricFunctionRoots::Perform(const Standard_Real A,
           }
           // On rend les solutions entre InfBound et SupBound:
           // =================================================
-          Zer(i) += IntegerPart(Mod) * 2. * M_PI;
+          Zer(i) += IntegerPart(Mod) * Depi;
           X = Zer(i) - MyBorneInf;
           if ((X >= (-Precision::PConfusion())) && (X <= Delta + Precision::PConfusion()))
           {
