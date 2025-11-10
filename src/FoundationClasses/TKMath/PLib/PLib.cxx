@@ -1118,9 +1118,9 @@ void PLib::EvalPoly2Var(const Standard_Real    UParameter,
 //
 //  where n = VDegree
 {
-  Standard_Integer     Udim = (VDegree + 1) * Dimension, index = Udim * UDerivativeRequest;
-  TColStd_Array1OfReal Curve(1, Udim * (UDerivativeRequest + 1));
-  TColStd_Array1OfReal Point(1, Dimension * (VDerivativeRequest + 1));
+  Standard_Integer Udim = (VDegree + 1) * Dimension, index = Udim * UDerivativeRequest;
+  math_Vector      Curve(1, Udim * (UDerivativeRequest + 1));
+  math_Vector      Point(1, Dimension * (VDerivativeRequest + 1));
   Standard_Real*       Result = (Standard_Real*)&Curve.ChangeValue(1);
   Standard_Real*       Digit  = (Standard_Real*)&Point.ChangeValue(1);
   Standard_Real*       ResultArray;
@@ -1499,9 +1499,9 @@ void PLib::CoefficientsPoles(const TColgp_Array1OfPnt&   Coefs,
                              TColgp_Array1OfPnt&         Poles,
                              TColStd_Array1OfReal*       Weights)
 {
-  TColStd_Array1OfReal tempC(1, 3 * Coefs.Length());
+  math_Vector tempC(1, 3 * Coefs.Length());
   PLib::SetPoles(Coefs, tempC);
-  TColStd_Array1OfReal tempP(1, 3 * Poles.Length());
+  math_Vector tempP(1, 3 * Poles.Length());
   PLib::SetPoles(Coefs, tempP);
   PLib::CoefficientsPoles(3, tempC, WCoefs, tempP, Weights);
   PLib::GetPoles(tempP, Poles);
@@ -1514,9 +1514,9 @@ void PLib::CoefficientsPoles(const TColgp_Array1OfPnt2d& Coefs,
                              TColgp_Array1OfPnt2d&       Poles,
                              TColStd_Array1OfReal*       Weights)
 {
-  TColStd_Array1OfReal tempC(1, 2 * Coefs.Length());
+  math_Vector tempC(1, 2 * Coefs.Length());
   PLib::SetPoles(Coefs, tempC);
-  TColStd_Array1OfReal tempP(1, 2 * Poles.Length());
+  math_Vector tempP(1, 2 * Poles.Length());
   PLib::SetPoles(Coefs, tempP);
   PLib::CoefficientsPoles(2, tempC, WCoefs, tempP, Weights);
   PLib::GetPoles(tempP, Poles);
@@ -1619,7 +1619,7 @@ void PLib::Trimming(const Standard_Real   U1,
                     TColgp_Array1OfPnt&   Coefs,
                     TColStd_Array1OfReal* WCoefs)
 {
-  TColStd_Array1OfReal temp(1, 3 * Coefs.Length());
+  math_Vector temp(1, 3 * Coefs.Length());
   PLib::SetPoles(Coefs, temp);
   PLib::Trimming(U1, U2, 3, temp, WCoefs);
   PLib::GetPoles(temp, Coefs);
@@ -1632,7 +1632,7 @@ void PLib::Trimming(const Standard_Real   U1,
                     TColgp_Array1OfPnt2d& Coefs,
                     TColStd_Array1OfReal* WCoefs)
 {
-  TColStd_Array1OfReal temp(1, 2 * Coefs.Length());
+  math_Vector temp(1, 2 * Coefs.Length());
   PLib::SetPoles(Coefs, temp);
   PLib::Trimming(U1, U2, 2, temp, WCoefs);
   PLib::GetPoles(temp, Coefs);
@@ -1839,12 +1839,12 @@ void PLib::UTrimming(const Standard_Real   U1,
                      TColStd_Array2OfReal* WCoeffs)
 {
   Standard_Boolean     rat = WCoeffs != NULL;
-  Standard_Integer     lr  = Coeffs.LowerRow();
-  Standard_Integer     ur  = Coeffs.UpperRow();
-  Standard_Integer     lc  = Coeffs.LowerCol();
-  Standard_Integer     uc  = Coeffs.UpperCol();
-  TColgp_Array1OfPnt   Temp(lr, ur);
-  TColStd_Array1OfReal Temw(lr, ur);
+  Standard_Integer   lr = Coeffs.LowerRow();
+  Standard_Integer   ur = Coeffs.UpperRow();
+  Standard_Integer   lc = Coeffs.LowerCol();
+  Standard_Integer   uc = Coeffs.UpperCol();
+  TColgp_Array1OfPnt Temp(lr, ur);
+  math_Vector        Temw(lr, ur);
 
   for (Standard_Integer icol = lc; icol <= uc; icol++)
   {
@@ -1877,12 +1877,12 @@ void PLib::VTrimming(const Standard_Real   V1,
                      TColStd_Array2OfReal* WCoeffs)
 {
   Standard_Boolean     rat = WCoeffs != NULL;
-  Standard_Integer     lr  = Coeffs.LowerRow();
-  Standard_Integer     ur  = Coeffs.UpperRow();
-  Standard_Integer     lc  = Coeffs.LowerCol();
-  Standard_Integer     uc  = Coeffs.UpperCol();
-  TColgp_Array1OfPnt   Temp(lc, uc);
-  TColStd_Array1OfReal Temw(lc, uc);
+  Standard_Integer   lr = Coeffs.LowerRow();
+  Standard_Integer   ur = Coeffs.UpperRow();
+  Standard_Integer   lc = Coeffs.LowerCol();
+  Standard_Integer   uc = Coeffs.UpperCol();
+  TColgp_Array1OfPnt Temp(lc, uc);
+  math_Vector        Temw(lc, uc);
 
   for (Standard_Integer irow = lr; irow <= ur; irow++)
   {

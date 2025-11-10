@@ -209,8 +209,7 @@ Standard_Real PLib_JacobiPolynomial::MaxError(const Standard_Integer theDimensio
                                               const Standard_Integer theNewDegree) const
 {
   // Buffering on stack to avoid dynamic allocation in this frequently called method
-  std::array<Standard_Real, THE_MAX_DEGREE + 2> aMaxErrBuffer;
-  TColStd_Array1OfReal                          aTabMax(aMaxErrBuffer.front(), 0, myDegree + 1);
+  math_Vector aTabMax(0, myDegree + 1);
   MaxValue(aTabMax);
 
   const Standard_Integer aBegIdx = 2 * (myNivConstr + 1);
@@ -244,8 +243,8 @@ void PLib_JacobiPolynomial::ReduceDegree(const Standard_Integer theDimension,
   const Standard_Integer anIdx   = 2 * (myNivConstr + 1) - 1;
   const Standard_Integer aCutIdx = anIdx + 1;
 
-  math_Vector          aMaxErrDim(1, theDimension, 0.);
-  TColStd_Array1OfReal aTabMax(0, myDegree + 1);
+  math_Vector aMaxErrDim(1, theDimension, 0.);
+  math_Vector aTabMax(0, myDegree + 1);
   MaxValue(aTabMax);
 
   Standard_Real* const aJacArray = &theJacCoeff;
