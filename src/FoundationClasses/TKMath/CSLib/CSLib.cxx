@@ -20,10 +20,10 @@
 #include <gp_Dir.hxx>
 #include <gp_Vec.hxx>
 #include <math_FunctionRoots.hxx>
+#include <math_Vector.hxx>
 #include <PLib.hxx>
 #include <Precision.hxx>
 #include <TColgp_Array2OfVec.hxx>
-#include <TColStd_Array1OfReal.hxx>
 #include <TColStd_Array2OfReal.hxx>
 
 void CSLib::Normal(
@@ -222,7 +222,7 @@ void CSLib::Normal(const Standard_Integer    MaxOrder,
     {
       gp_Vec Vk0;
       Vk0 = DerNUV(OrderU, OrderV);
-      TColStd_Array1OfReal Ratio(0, Order);
+      math_Vector Ratio(0, Order);
       // Calculate lambda i
       i                        = 0;
       Standard_Boolean definie = Standard_False;
@@ -311,7 +311,7 @@ void CSLib::Normal(const Standard_Integer    MaxOrder,
         {
           // ranking by increasing order of roots of SAPS in Sol0
 
-          TColStd_Array1OfReal Sol0(0, FindRoots.NbSolutions() + 1);
+          math_Vector Sol0(0, FindRoots.NbSolutions() + 1);
           Sol0(1)            = FindRoots.Value(1);
           Standard_Integer n = 1;
           while (n <= FindRoots.NbSolutions())

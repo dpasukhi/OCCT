@@ -23,7 +23,7 @@
 
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <NCollection_Handle.hxx>
-#include <TColStd_Array1OfReal.hxx>
+#include <math_Vector.hxx>
 #include <TColgp_SequenceOfPnt2d.hxx>
 
 class gp_Pnt2d;
@@ -92,14 +92,14 @@ private:
   //! Assign operator is forbidden
   const CSLib_Class2d& operator=(const CSLib_Class2d& Other) const;
 
-  NCollection_Handle<TColStd_Array1OfReal> MyPnts2dX, MyPnts2dY;
-  Standard_Real                            Tolu{};
-  Standard_Real                            Tolv{};
-  Standard_Integer                         N{};
-  Standard_Real                            Umin{};
-  Standard_Real                            Vmin{};
-  Standard_Real                            Umax{};
-  Standard_Real                            Vmax{};
+  NCollection_Handle<math_Vector> MyPnts2dX, MyPnts2dY;
+  Standard_Real                   Tolu{};
+  Standard_Real                   Tolv{};
+  Standard_Integer                N{};
+  Standard_Real                   Umin{};
+  Standard_Real                   Vmin{};
+  Standard_Real                   Umax{};
+  Standard_Real                   Vmax{};
 };
 
 #endif // _CSLib_Class2d_HeaderFile

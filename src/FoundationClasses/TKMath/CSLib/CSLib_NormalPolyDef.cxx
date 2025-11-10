@@ -18,7 +18,7 @@
 #include <PLib.hxx>
 
 //=============================================================================
-CSLib_NormalPolyDef::CSLib_NormalPolyDef(const Standard_Integer k0, const TColStd_Array1OfReal& li)
+CSLib_NormalPolyDef::CSLib_NormalPolyDef(const Standard_Integer k0, const math_Vector& li)
     //=============================================================================
     : myTABli(0, k0)
 {
