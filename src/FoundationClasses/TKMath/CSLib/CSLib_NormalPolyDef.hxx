@@ -21,8 +21,8 @@
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
 
-#include <TColStd_Array1OfReal.hxx>
 #include <math_FunctionWithDerivative.hxx>
+#include <math_Vector.hxx>
 #include <Standard_Boolean.hxx>
 
 class CSLib_NormalPolyDef : public math_FunctionWithDerivative
@@ -30,7 +30,7 @@ class CSLib_NormalPolyDef : public math_FunctionWithDerivative
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT CSLib_NormalPolyDef(const Standard_Integer k0, const TColStd_Array1OfReal& li);
+  Standard_EXPORT CSLib_NormalPolyDef(const Standard_Integer k0, const math_Vector& li);
 
   //! computes the value <F>of the function for the variable <X>.
   //! Returns True if the calculation were successfully done,
@@ -53,8 +53,8 @@ public:
 
 protected:
 private:
-  Standard_Integer     myK0;
-  TColStd_Array1OfReal myTABli;
+  Standard_Integer myK0;
+  math_Vector      myTABli;
 };
 
 #endif // _CSLib_NormalPolyDef_HeaderFile
