@@ -23,6 +23,7 @@
 #include <math_FunctionRoots.hxx>
 #include <math_FunctionWithDerivative.hxx>
 #include <math_BracketedRoot.hxx>
+#include <math_Vector.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 #define ITMAX 100
