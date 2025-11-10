@@ -76,7 +76,6 @@ math_ComputeKronrodPointsAndWeights::math_ComputeKronrodPointsAndWeights(
       aa(i) = aDiag(i);
       bb(i) = aSubDiag(i);
     }
-    math_Vector*     ptrtmp;
     Standard_Real    u;
     Standard_Integer m;
     Standard_Integer k;

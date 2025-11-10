@@ -28,6 +28,7 @@
 #include <math_DirectPolynomialRoots.hxx>
 #include <math_FunctionWithDerivative.hxx>
 #include <math_NewtonFunctionRoot.hxx>
+#include <math_Vector.hxx>
 #include <Precision.hxx>
 
 math_TrigonometricFunctionRoots::math_TrigonometricFunctionRoots(const Standard_Real theD,
