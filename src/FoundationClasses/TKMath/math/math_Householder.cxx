@@ -122,8 +122,9 @@ void math_Householder::Perform(const math_Matrix& A, const math_Matrix& B, const
       qki = Q(k, i);
       h += qki * qki; // = ||a||*||a||     = EUAI
     }
-    f = Q(i, i); // = a1              = AII
-    g = f < 1.e-15 ? Sqrt(h) : -Sqrt(h);
+    f                       = Q(i, i); // = a1              = AII
+    const Standard_Real sqrtH = Sqrt(h);
+    g                       = f < 1.e-15 ? sqrtH : -sqrtH;
     if (fabs(g) <= EPS)
     {
       Done = Standard_False;
