@@ -16,11 +16,12 @@
 #include <math_Function.hxx>
 #include <StdFail_NotDone.hxx>
 
-// waiting for NotDone Exception
-#define GOLD 1.618034
-#define CGOLD 0.3819660
-#define GLIMIT 100.0
-#define TINY 1.0e-20
+// Mathematical constants for golden ratio search
+static constexpr Standard_Real GOLD   = 1.618034;   // Golden ratio
+static constexpr Standard_Real CGOLD  = 0.3819660;  // Complement of golden ratio
+static constexpr Standard_Real GLIMIT = 100.0;      // Maximum magnification allowed
+static constexpr Standard_Real TINY   = 1.0e-20;    // Small number to prevent division by zero
+
 #ifdef MAX
   #undef MAX
 #endif
