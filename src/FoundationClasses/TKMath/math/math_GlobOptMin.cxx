@@ -90,7 +90,7 @@ math_GlobOptMin::math_GlobOptMin(math_MultipleVarFunction* theFunc,
 
   for (i = 1; i <= myN; i++)
   {
-    myMaxV(i) = (myB(i) - myA(i)) / 3.0;
+    myMaxV(i) = (myB(i) - myA(i)) * (1.0 / 3.0);
   }
 
   myTol     = theDiscretizationTol;
@@ -135,7 +135,7 @@ void math_GlobOptMin::SetGlobalParams(math_MultipleVarFunction* theFunc,
 
   for (i = 1; i <= myN; i++)
   {
-    myMaxV(i) = (myB(i) - myA(i)) / 3.0;
+    myMaxV(i) = (myB(i) - myA(i)) * (1.0 / 3.0);
   }
 
   myTol     = theDiscretizationTol;
@@ -164,7 +164,7 @@ void math_GlobOptMin::SetLocalParams(const math_Vector& theLocalA, const math_Ve
 
   for (i = 1; i <= myN; i++)
   {
-    myMaxV(i) = (myB(i) - myA(i)) / 3.0;
+    myMaxV(i) = (myB(i) - myA(i)) * (1.0 / 3.0);
   }
 
   myDone = Standard_False;

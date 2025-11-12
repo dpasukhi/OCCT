@@ -62,8 +62,9 @@ void math_PSO::Perform(const math_Vector&     theSteps,
 {
   // Initialization.
   math_Vector aMinUV(1, myN), aMaxUV(1, myN);
-  aMinUV   = myLowBorder + (myUppBorder - myLowBorder) / aBorderDivisor;
-  aMaxUV   = myUppBorder - (myUppBorder - myLowBorder) / aBorderDivisor;
+  math_Vector aBorderOffset = (myUppBorder - myLowBorder) / aBorderDivisor;
+  aMinUV   = myLowBorder + aBorderOffset;
+  aMaxUV   = myUppBorder - aBorderOffset;
   myNbIter = theNbIter;
   mySteps  = theSteps;
 
@@ -125,8 +126,9 @@ void math_PSO::performPSOWithGivenParticles(math_PSOParticlesPool& theParticles,
                                             const Standard_Integer theNbIter)
 {
   math_Vector aMinUV(1, myN), aMaxUV(1, myN);
-  aMinUV                            = myLowBorder + (myUppBorder - myLowBorder) / aBorderDivisor;
-  aMaxUV                            = myUppBorder - (myUppBorder - myLowBorder) / aBorderDivisor;
+  math_Vector aBorderOffset         = (myUppBorder - myLowBorder) / aBorderDivisor;
+  aMinUV                            = myLowBorder + aBorderOffset;
+  aMaxUV                            = myUppBorder - aBorderOffset;
   myNbIter                          = theNbIter;
   myNbParticles                     = theNbParticles;
   math_PSOParticlesPool& aParticles = theParticles;

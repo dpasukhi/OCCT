@@ -395,8 +395,12 @@ void math_BFGS::Perform(math_MultipleVarFunctionWithGradient& F, const math_Vect
 
     for (i = 1; i <= n; i++)
     {
+      // Cache products to avoid redundant multiplications in inner loop
+      Standard_Real facXi  = fac * xi(i);
+      Standard_Real fadHdg = fad * hdg(i);
+      Standard_Real faeDg  = fae * dg(i);
       for (j = 1; j <= n; j++)
-        hessin(i, j) += fac * xi(i) * xi(j) - fad * hdg(i) * hdg(j) + fae * dg(i) * dg(j);
+        hessin(i, j) += facXi * xi(j) - fadHdg * hdg(j) + faeDg * dg(j);
     }
 
     for (i = 1; i <= n; i++)

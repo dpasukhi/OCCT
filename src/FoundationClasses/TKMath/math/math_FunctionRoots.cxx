@@ -23,6 +23,7 @@
 #include <math_FunctionRoots.hxx>
 #include <math_FunctionWithDerivative.hxx>
 #include <math_BracketedRoot.hxx>
+#include <math_Vector.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
 #define ITMAX 100
@@ -309,13 +310,13 @@ math_FunctionRoots::math_FunctionRoots(math_FunctionWithDerivative& F,
     //-- recherche d un intervalle ou F(xi) et F(xj) sont de signes differents
     //-- A .............................................................. B
     //-- X0   X1   X2 ........................................  Xn-1      Xn
-    Standard_Integer     i;
-    Standard_Real        X = X0;
-    Standard_Boolean     Ok;
-    double               dx = (XN - X0) / N;
-    TColStd_Array1OfReal ptrval(0, N);
-    Standard_Integer     Nvalid = -1;
-    Standard_Real        aux    = 0;
+    Standard_Integer i;
+    Standard_Real    X = X0;
+    Standard_Boolean Ok;
+    double           dx     = (XN - X0) / N;
+    math_Vector      ptrval(0, N);
+    Standard_Integer Nvalid = -1;
+    Standard_Real    aux    = 0;
     for (i = 0; i <= N; i++, X += dx)
     {
       if (X > XN)

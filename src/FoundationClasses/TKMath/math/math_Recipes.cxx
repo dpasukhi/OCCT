@@ -130,13 +130,16 @@ Standard_Integer Jacobi(math_Matrix& a, math_Vector& d, math_Matrix& v, Standard
     {
       for (iq = ip + 1; iq <= n; iq++)
       {
-        g = 100.0 * fabs(a(ip, iq));
-        if (i > 4 && fabs(d(ip)) + g == fabs(d(ip)) && fabs(d(iq)) + g == fabs(d(iq)))
+        g                       = 100.0 * fabs(a(ip, iq));
+        const Standard_Real absDip = fabs(d(ip));
+        const Standard_Real absDiq = fabs(d(iq));
+        if (i > 4 && absDip + g == absDip && absDiq + g == absDiq)
           a(ip, iq) = 0.0;
         else if (fabs(a(ip, iq)) > tresh)
         {
-          h = d(iq) - d(ip);
-          if (fabs(h) + g == fabs(h))
+          h                      = d(iq) - d(ip);
+          const Standard_Real absH = fabs(h);
+          if (absH + g == absH)
             t = a(ip, iq) / h;
           else
           {
@@ -380,8 +383,9 @@ Standard_Integer SVD_Decompose(math_Matrix& a, math_Vector& w, math_Matrix& v, m
       {
         for (k = i; k <= m; k++)
         {
-          a(k, i) /= scale;
-          s += a(k, i) * a(k, i);
+          Standard_Real& akiRef = a(k, i);
+          akiRef /= scale;
+          s += akiRef * akiRef;
         }
         f       = a(i, i);
         g       = -SIGN(sqrt(s), f);
@@ -418,8 +422,9 @@ Standard_Integer SVD_Decompose(math_Matrix& a, math_Vector& w, math_Matrix& v, m
       {
         for (k = l; k <= n; k++)
         {
-          a(i, k) /= scale;
-          s += a(i, k) * a(i, k);
+          Standard_Real& aikRef = a(i, k);
+          aikRef /= scale;
+          s += aikRef * aikRef;
         }
         f       = a(i, l);
         g       = -SIGN(sqrt(s), f);

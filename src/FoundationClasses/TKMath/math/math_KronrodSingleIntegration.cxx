@@ -321,8 +321,10 @@ Standard_Boolean math_KronrodSingleIntegration::GKRule(math_Function&      theFu
 
     f1(i) = aVal1;
     f2(i) = aVal2;
-    aGaussVal += (aVal1 + aVal2) * theGaussW.Value(i / 2);
-    theValue += (aVal1 + aVal2) * theKronrodW.Value(i);
+    // Cache sum to avoid redundant addition in weight calculations
+    Standard_Real aSum = aVal1 + aVal2;
+    aGaussVal += aSum * theGaussW.Value(i / 2);
+    theValue += aSum * theKronrodW.Value(i);
   }
 
   // Compute value in the middle point.

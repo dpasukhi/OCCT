@@ -186,9 +186,11 @@ void math_FRPR::Perform(math_MultipleVarFunctionWithGradient& F, const math_Vect
 
     for (j = 1; j <= n; j++)
     {
-      gg += g(j) * g(j);
-      //	   dgg += TheGradient(j)*TheGradient(j);  //for Fletcher-Reeves
-      dgg += (TheGradient(j) + g(j)) * TheGradient(j); // for Polak-Ribiere
+      const Standard_Real gj    = g(j);
+      const Standard_Real gradJ = TheGradient(j);
+      gg += gj * gj;
+      //	   dgg += gradJ * gradJ;  //for Fletcher-Reeves
+      dgg += (gradJ + gj) * gradJ; // for Polak-Ribiere
     }
 
     if (gg == 0.0)

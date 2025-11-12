@@ -21,13 +21,10 @@
 #include <algorithm>
 
 math_ComputeGaussPointsAndWeights::math_ComputeGaussPointsAndWeights(const Standard_Integer Number)
+    : myPoints(1, Number), myWeights(1, Number), myIsDone(Standard_False)
 {
-  myIsDone = Standard_False;
-
   try
   {
-    myPoints  = new TColStd_HArray1OfReal(1, Number);
-    myWeights = new TColStd_HArray1OfReal(1, Number);
 
     Standard_Integer i;
 
@@ -70,8 +67,8 @@ math_ComputeGaussPointsAndWeights::math_ComputeGaussPointsAndWeights(const Stand
 
       for (i = 1; i <= Number; i++)
       {
-        myPoints->ChangeValue(i)  = VWarray(i).Value();
-        myWeights->ChangeValue(i) = VWarray(i).Weight();
+        myPoints(i)  = VWarray(i).Value();
+        myWeights(i) = VWarray(i).Weight();
       }
       myIsDone = Standard_True;
     }
@@ -88,20 +85,10 @@ Standard_Boolean math_ComputeGaussPointsAndWeights::IsDone() const
 
 math_Vector math_ComputeGaussPointsAndWeights::Points() const
 {
-  Standard_Integer Number = myPoints->Length();
-  math_Vector      thePoints(1, Number);
-  for (Standard_Integer i = 1; i <= Number; i++)
-    thePoints(i) = myPoints->Value(i);
-
-  return thePoints;
+  return myPoints;
 }
 
 math_Vector math_ComputeGaussPointsAndWeights::Weights() const
 {
-  Standard_Integer Number = myWeights->Length();
-  math_Vector      theWeights(1, Number);
-  for (Standard_Integer i = 1; i <= Number; i++)
-    theWeights(i) = myWeights->Value(i);
-
-  return theWeights;
+  return myWeights;
 }

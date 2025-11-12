@@ -29,7 +29,8 @@
 const Standard_Real ZERO             = 1.0e-30;
 const Standard_Real EPSILON          = RealEpsilon();
 const Standard_Real RADIX            = 2;
-const Standard_Real Un_Sur_Log_RADIX = 1.0 / log(2.0);
+// Pre-computed constant: 1.0 / log(2.0) = log2(e) = 1/ln(2)
+const Standard_Real Un_Sur_Log_RADIX = 1.442695040888963407359924681001892137;
 
 static Standard_Real Value(const Standard_Integer N, Standard_Real* Poly, const Standard_Real X)
 {
