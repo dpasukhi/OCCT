@@ -22,10 +22,14 @@
 #include <Standard_SStream.hxx>
 #include <Standard_DomainError.hxx>
 
-class Geom_UndefinedValue;
+//! @deprecated This exception class is deprecated and should not be used in new code.
+//! Use boolean return values or output parameters to signal errors instead.
+class Standard_DEPRECATED("Use boolean return values or output parameters instead of throwing exceptions")
+  Geom_UndefinedValue;
 DEFINE_STANDARD_HANDLE(Geom_UndefinedValue, Standard_DomainError)
 
 #if !defined No_Exception && !defined No_Geom_UndefinedValue
+  //! @deprecated This macro is deprecated. Use boolean return values instead.
   #define Geom_UndefinedValue_Raise_if(CONDITION, MESSAGE)                                         \
     if (CONDITION)                                                                                 \
       throw Geom_UndefinedValue(MESSAGE);

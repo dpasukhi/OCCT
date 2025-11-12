@@ -159,9 +159,15 @@ gp_XYZ NLPlate_NLPlate::EvaluateDerivative(const gp_XY&           point2d,
 {
   gp_XYZ Value(0., 0., 0.);
   if ((iu == 0) && (iv == 0))
-    Value = myInitialSurface->Value(point2d.X(), point2d.Y()).XYZ();
+  {
+    if (auto aResult = myInitialSurface->D0(point2d.X(), point2d.Y()))
+      Value = aResult->XYZ();
+  }
   else
-    Value = myInitialSurface->DN(point2d.X(), point2d.Y(), iu, iv).XYZ();
+  {
+    if (auto aResult = myInitialSurface->DN(point2d.X(), point2d.Y(), iu, iv))
+      Value = aResult->XYZ();
+  }
 
   for (NLPlate_ListIteratorOfStackOfPlate SI(mySOP); SI.More(); SI.Next())
   {

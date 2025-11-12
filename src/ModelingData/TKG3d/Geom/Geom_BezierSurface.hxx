@@ -447,24 +447,14 @@ public:
   //! continuity is infinite.
   Standard_EXPORT GeomAbs_Shape Continuity() const Standard_OVERRIDE;
 
-  Standard_EXPORT void D0(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<gp_Pnt> D0(const Standard_Real U,
+                                            const Standard_Real V) const override;
 
-  Standard_EXPORT void D1(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D1Result> D1(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
-  Standard_EXPORT void D2(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V,
-                          gp_Vec&             D2U,
-                          gp_Vec&             D2V,
-                          gp_Vec&             D2UV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D2Result> D2(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! Computes P, the point of parameters (U, V) of this Bezier surface, and
   //! - one or more of the following sets of vectors:
@@ -474,18 +464,8 @@ public:
   //! - D3U, D3V, D3UUV and D3UVV, the third
   //! derivative vectors at this point.
   //! Note: The parameters U and V can be outside the bounds of the surface.
-  Standard_EXPORT void D3(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V,
-                          gp_Vec&             D2U,
-                          gp_Vec&             D2V,
-                          gp_Vec&             D2UV,
-                          gp_Vec&             D3U,
-                          gp_Vec&             D3V,
-                          gp_Vec&             D3UUV,
-                          gp_Vec&             D3UVV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D3Result> D3(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! Computes the derivative of order Nu in the u
   //! parametric direction, and Nv in the v parametric
@@ -494,10 +474,10 @@ public:
   //! Exceptions
   //! Standard_RangeError if:
   //! - Nu + Nv is less than 1, or Nu or Nv is negative.
-  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
-                            const Standard_Real    V,
-                            const Standard_Integer Nu,
-                            const Standard_Integer Nv) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<gp_Vec> DN(const Standard_Real    U,
+                                            const Standard_Real    V,
+                                            const Standard_Integer Nu,
+                                            const Standard_Integer Nv) const override;
 
   //! Returns the number of poles in the U direction.
   Standard_EXPORT Standard_Integer NbUPoles() const;

@@ -113,12 +113,13 @@ Standard_Boolean Geom_BSplineSurface::IsCNv(const Standard_Integer N) const
 
 //=================================================================================================
 
-void Geom_BSplineSurface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
+std::optional<gp_Pnt> Geom_BSplineSurface::D0(const Standard_Real U, const Standard_Real V) const
 {
   Standard_Real aNewU = U;
   Standard_Real aNewV = V;
   PeriodicNormalization(aNewU, aNewV);
 
+  gp_Pnt P;
   BSplSLib::D0(aNewU,
                aNewV,
                0,
@@ -136,15 +137,13 @@ void Geom_BSplineSurface::D0(const Standard_Real U, const Standard_Real V, gp_Pn
                uperiodic,
                vperiodic,
                P);
+  return P;
 }
 
 //=================================================================================================
 
-void Geom_BSplineSurface::D1(const Standard_Real U,
-                             const Standard_Real V,
-                             gp_Pnt&             P,
-                             gp_Vec&             D1U,
-                             gp_Vec&             D1V) const
+std::optional<GeomEvaluator_Surface::D1Result> Geom_BSplineSurface::D1(const Standard_Real U,
+                                                                         const Standard_Real V) const
 {
   Standard_Real aNewU = U;
   Standard_Real aNewV = V;
@@ -158,6 +157,7 @@ void Geom_BSplineSurface::D1(const Standard_Real U,
   BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
   vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
 
+  GeomEvaluator_Surface::D1Result aResult;
   BSplSLib::D1(aNewU,
                aNewV,
                uindex,
@@ -174,21 +174,16 @@ void Geom_BSplineSurface::D1(const Standard_Real U,
                vrational,
                uperiodic,
                vperiodic,
-               P,
-               D1U,
-               D1V);
+               aResult.theValue,
+               aResult.theD1U,
+               aResult.theD1V);
+  return aResult;
 }
 
 //=================================================================================================
 
-void Geom_BSplineSurface::D2(const Standard_Real U,
-                             const Standard_Real V,
-                             gp_Pnt&             P,
-                             gp_Vec&             D1U,
-                             gp_Vec&             D1V,
-                             gp_Vec&             D2U,
-                             gp_Vec&             D2V,
-                             gp_Vec&             D2UV) const
+std::optional<GeomEvaluator_Surface::D2Result> Geom_BSplineSurface::D2(const Standard_Real U,
+                                                                         const Standard_Real V) const
 {
   Standard_Real aNewU = U;
   Standard_Real aNewV = V;
@@ -202,6 +197,7 @@ void Geom_BSplineSurface::D2(const Standard_Real U,
   BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
   vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
 
+  GeomEvaluator_Surface::D2Result aResult;
   BSplSLib::D2(aNewU,
                aNewV,
                uindex,
@@ -218,33 +214,37 @@ void Geom_BSplineSurface::D2(const Standard_Real U,
                vrational,
                uperiodic,
                vperiodic,
-               P,
-               D1U,
-               D1V,
-               D2U,
-               D2V,
-               D2UV);
+               aResult.theValue,
+               aResult.theD1U,
+               aResult.theD1V,
+               aResult.theD2U,
+               aResult.theD2V,
+               aResult.theD2UV);
+  return aResult;
 }
 
 //=================================================================================================
 
-void Geom_BSplineSurface::D3(const Standard_Real U,
-                             const Standard_Real V,
-                             gp_Pnt&             P,
-                             gp_Vec&             D1U,
-                             gp_Vec&             D1V,
-                             gp_Vec&             D2U,
-                             gp_Vec&             D2V,
-                             gp_Vec&             D2UV,
-                             gp_Vec&             D3U,
-                             gp_Vec&             D3V,
-                             gp_Vec&             D3UUV,
-                             gp_Vec&             D3UVV) const
+std::optional<GeomEvaluator_Surface::D3Result> Geom_BSplineSurface::D3(const Standard_Real U,
+                                                                         const Standard_Real V) const
 {
-  BSplSLib::D3(U,
-               V,
-               0,
-               0,
+  Standard_Real aNewU = U;
+  Standard_Real aNewV = V;
+  PeriodicNormalization(aNewU, aNewV);
+
+  Standard_Integer uindex = 0, vindex = 0;
+
+  BSplCLib::LocateParameter(udeg, uknots->Array1(), &umults->Array1(), U, uperiodic, uindex, aNewU);
+  uindex = BSplCLib::FlatIndex(udeg, uindex, umults->Array1(), uperiodic);
+
+  BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
+  vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
+
+  GeomEvaluator_Surface::D3Result aResult;
+  BSplSLib::D3(aNewU,
+               aNewV,
+               uindex,
+               vindex,
                POLES,
                &WEIGHTS,
                UFKNOTS,
@@ -257,32 +257,50 @@ void Geom_BSplineSurface::D3(const Standard_Real U,
                vrational,
                uperiodic,
                vperiodic,
-               P,
-               D1U,
-               D1V,
-               D2U,
-               D2V,
-               D2UV,
-               D3U,
-               D3V,
-               D3UUV,
-               D3UVV);
+               aResult.theValue,
+               aResult.theD1U,
+               aResult.theD1V,
+               aResult.theD2U,
+               aResult.theD2V,
+               aResult.theD2UV,
+               aResult.theD3U,
+               aResult.theD3V,
+               aResult.theD3UUV,
+               aResult.theD3UVV);
+  return aResult;
 }
 
 //=================================================================================================
 
-gp_Vec Geom_BSplineSurface::DN(const Standard_Real    U,
-                               const Standard_Real    V,
-                               const Standard_Integer Nu,
-                               const Standard_Integer Nv) const
+std::optional<gp_Vec> Geom_BSplineSurface::DN(const Standard_Real    U,
+                                               const Standard_Real    V,
+                                               const Standard_Integer Nu,
+                                               const Standard_Integer Nv) const
 {
+  if (Nu + Nv < 1 || Nu < 0 || Nv < 0)
+  {
+    return std::nullopt;
+  }
+
+  Standard_Real aNewU = U;
+  Standard_Real aNewV = V;
+  PeriodicNormalization(aNewU, aNewV);
+
+  Standard_Integer uindex = 0, vindex = 0;
+
+  BSplCLib::LocateParameter(udeg, uknots->Array1(), &umults->Array1(), U, uperiodic, uindex, aNewU);
+  uindex = BSplCLib::FlatIndex(udeg, uindex, umults->Array1(), uperiodic);
+
+  BSplCLib::LocateParameter(vdeg, vknots->Array1(), &vmults->Array1(), V, vperiodic, vindex, aNewV);
+  vindex = BSplCLib::FlatIndex(vdeg, vindex, vmults->Array1(), vperiodic);
+
   gp_Vec Vn;
-  BSplSLib::DN(U,
-               V,
+  BSplSLib::DN(aNewU,
+               aNewV,
                Nu,
                Nv,
-               0,
-               0,
+               uindex,
+               vindex,
                POLES,
                &WEIGHTS,
                UFKNOTS,
@@ -1727,7 +1745,7 @@ void Geom_BSplineSurface::MovePoint(const Standard_Real    U,
 
   TColgp_Array2OfPnt npoles(1, poles->UpperRow(), 1, poles->UpperCol());
   gp_Pnt             P0;
-  D0(U, V, P0);
+  Geom_Surface::D0(U, V, P0);  // Use base class wrapper (name hiding in derived class)
   gp_Vec           Displ(P0, P);
   Standard_Boolean rational = (urational || vrational);
   BSplSLib::MovePoint(U,

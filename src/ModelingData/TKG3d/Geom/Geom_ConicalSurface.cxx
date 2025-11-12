@@ -258,63 +258,76 @@ void Geom_ConicalSurface::Coefficients(Standard_Real& A1,
 
 //=================================================================================================
 
-void Geom_ConicalSurface::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
+std::optional<gp_Pnt> Geom_ConicalSurface::D0(const Standard_Real U, const Standard_Real V) const
 {
-
-  P = ElSLib::ConeValue(U, V, pos, radius, semiAngle);
+  return ElSLib::ConeValue(U, V, pos, radius, semiAngle);
 }
 
 //=================================================================================================
 
-void Geom_ConicalSurface::D1(const Standard_Real U,
-                             const Standard_Real V,
-                             Pnt&                P,
-                             Vec&                D1U,
-                             Vec&                D1V) const
+std::optional<GeomEvaluator_Surface::D1Result> Geom_ConicalSurface::D1(const Standard_Real U,
+                                                                         const Standard_Real V) const
 {
-  ElSLib::ConeD1(U, V, pos, radius, semiAngle, P, D1U, D1V);
+  GeomEvaluator_Surface::D1Result aResult;
+  ElSLib::ConeD1(U, V, pos, radius, semiAngle, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  return aResult;
 }
 
 //=================================================================================================
 
-void Geom_ConicalSurface::D2(const Standard_Real U,
-                             const Standard_Real V,
-                             Pnt&                P,
-                             Vec&                D1U,
-                             Vec&                D1V,
-                             Vec&                D2U,
-                             Vec&                D2V,
-                             Vec&                D2UV) const
+std::optional<GeomEvaluator_Surface::D2Result> Geom_ConicalSurface::D2(const Standard_Real U,
+                                                                         const Standard_Real V) const
 {
-  ElSLib::ConeD2(U, V, pos, radius, semiAngle, P, D1U, D1V, D2U, D2V, D2UV);
+  GeomEvaluator_Surface::D2Result aResult;
+  ElSLib::ConeD2(U,
+                 V,
+                 pos,
+                 radius,
+                 semiAngle,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V,
+                 aResult.theD2U,
+                 aResult.theD2V,
+                 aResult.theD2UV);
+  return aResult;
 }
 
 //=================================================================================================
 
-void Geom_ConicalSurface::D3(const Standard_Real U,
-                             const Standard_Real V,
-                             Pnt&                P,
-                             Vec&                D1U,
-                             Vec&                D1V,
-                             Vec&                D2U,
-                             Vec&                D2V,
-                             Vec&                D2UV,
-                             Vec&                D3U,
-                             Vec&                D3V,
-                             Vec&                D3UUV,
-                             Vec&                D3UVV) const
+std::optional<GeomEvaluator_Surface::D3Result> Geom_ConicalSurface::D3(const Standard_Real U,
+                                                                         const Standard_Real V) const
 {
-  ElSLib::ConeD3(U, V, pos, radius, semiAngle, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+  GeomEvaluator_Surface::D3Result aResult;
+  ElSLib::ConeD3(U,
+                 V,
+                 pos,
+                 radius,
+                 semiAngle,
+                 aResult.theValue,
+                 aResult.theD1U,
+                 aResult.theD1V,
+                 aResult.theD2U,
+                 aResult.theD2V,
+                 aResult.theD2UV,
+                 aResult.theD3U,
+                 aResult.theD3V,
+                 aResult.theD3UUV,
+                 aResult.theD3UVV);
+  return aResult;
 }
 
 //=================================================================================================
 
-Vec Geom_ConicalSurface::DN(const Standard_Real    U,
-                            const Standard_Real    V,
-                            const Standard_Integer Nu,
-                            const Standard_Integer Nv) const
+std::optional<gp_Vec> Geom_ConicalSurface::DN(const Standard_Real    U,
+                                               const Standard_Real    V,
+                                               const Standard_Integer Nu,
+                                               const Standard_Integer Nv) const
 {
-  Standard_RangeError_Raise_if(Nu + Nv < 1 || Nu < 0 || Nv < 0, " ");
+  if (Nu + Nv < 1 || Nu < 0 || Nv < 0)
+  {
+    return std::nullopt;
+  }
   if (Nv > 1)
   {
     return Vec(0.0, 0.0, 0.0);

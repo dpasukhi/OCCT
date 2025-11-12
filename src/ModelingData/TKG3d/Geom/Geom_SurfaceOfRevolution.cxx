@@ -229,60 +229,41 @@ void Geom_SurfaceOfRevolution::Bounds(Standard_Real& U1,
 
 //=================================================================================================
 
-void Geom_SurfaceOfRevolution::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
+std::optional<gp_Pnt> Geom_SurfaceOfRevolution::D0(const Standard_Real U, const Standard_Real V) const
 {
-  myEvaluator->D0(U, V, P);
+  return myEvaluator->D0(U, V);
 }
 
 //=================================================================================================
 
-void Geom_SurfaceOfRevolution::D1(const Standard_Real U,
-                                  const Standard_Real V,
-                                  Pnt&                P,
-                                  Vec&                D1U,
-                                  Vec&                D1V) const
+std::optional<GeomEvaluator_Surface::D1Result> Geom_SurfaceOfRevolution::D1(const Standard_Real U,
+                                                                              const Standard_Real V) const
 {
-  myEvaluator->D1(U, V, P, D1U, D1V);
+  return myEvaluator->D1(U, V);
 }
 
 //=================================================================================================
 
-void Geom_SurfaceOfRevolution::D2(const Standard_Real U,
-                                  const Standard_Real V,
-                                  Pnt&                P,
-                                  Vec&                D1U,
-                                  Vec&                D1V,
-                                  Vec&                D2U,
-                                  Vec&                D2V,
-                                  Vec&                D2UV) const
+std::optional<GeomEvaluator_Surface::D2Result> Geom_SurfaceOfRevolution::D2(const Standard_Real U,
+                                                                              const Standard_Real V) const
 {
-  myEvaluator->D2(U, V, P, D1U, D1V, D2U, D2V, D2UV);
+  return myEvaluator->D2(U, V);
 }
 
 //=================================================================================================
 
-void Geom_SurfaceOfRevolution::D3(const Standard_Real U,
-                                  const Standard_Real V,
-                                  Pnt&                P,
-                                  Vec&                D1U,
-                                  Vec&                D1V,
-                                  Vec&                D2U,
-                                  Vec&                D2V,
-                                  Vec&                D2UV,
-                                  Vec&                D3U,
-                                  Vec&                D3V,
-                                  Vec&                D3UUV,
-                                  Vec&                D3UVV) const
+std::optional<GeomEvaluator_Surface::D3Result> Geom_SurfaceOfRevolution::D3(const Standard_Real U,
+                                                                              const Standard_Real V) const
 {
-  myEvaluator->D3(U, V, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+  return myEvaluator->D3(U, V);
 }
 
 //=================================================================================================
 
-Vec Geom_SurfaceOfRevolution::DN(const Standard_Real    U,
-                                 const Standard_Real    V,
-                                 const Standard_Integer Nu,
-                                 const Standard_Integer Nv) const
+std::optional<gp_Vec> Geom_SurfaceOfRevolution::DN(const Standard_Real    U,
+                                                    const Standard_Real    V,
+                                                    const Standard_Integer Nu,
+                                                    const Standard_Integer Nv) const
 {
   return myEvaluator->DN(U, V, Nu, Nv);
 }

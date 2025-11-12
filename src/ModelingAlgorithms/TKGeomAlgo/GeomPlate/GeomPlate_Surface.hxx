@@ -23,6 +23,7 @@
 #include <Plate_Plate.hxx>
 #include <Geom_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <GeomEvaluator_Surface.hxx>
 #include <Standard_Integer.hxx>
 #include <TColgp_SequenceOfXY.hxx>
 class gp_Trsf;
@@ -204,46 +205,26 @@ public:
   //!
   //! Raised only for an "OffsetSurface" if it is not possible to
   //! compute the current point.
-  Standard_EXPORT void D0(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<gp_Pnt> D0(const Standard_Real U,
+                                            const Standard_Real V) const override;
 
   //! Computes the point P and the first derivatives in the
   //! directions U and V at this point.
   //! Raised if the continuity of the surface is not C1.
-  Standard_EXPORT void D1(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D1Result> D1(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! Computes the point P, the first and the second derivatives in
   //! the directions U and V at this point.
   //! Raised if the continuity of the surface is not C2.
-  Standard_EXPORT void D2(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V,
-                          gp_Vec&             D2U,
-                          gp_Vec&             D2V,
-                          gp_Vec&             D2UV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D2Result> D2(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! Computes the point P, the first,the second and the third
   //! derivatives in the directions U and V at this point.
   //! Raised if the continuity of the surface is not C2.
-  Standard_EXPORT void D3(const Standard_Real U,
-                          const Standard_Real V,
-                          gp_Pnt&             P,
-                          gp_Vec&             D1U,
-                          gp_Vec&             D1V,
-                          gp_Vec&             D2U,
-                          gp_Vec&             D2V,
-                          gp_Vec&             D2UV,
-                          gp_Vec&             D3U,
-                          gp_Vec&             D3V,
-                          gp_Vec&             D3UUV,
-                          gp_Vec&             D3UVV) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<GeomEvaluator_Surface::D3Result> D3(const Standard_Real U,
+                                                                      const Standard_Real V) const override;
 
   //! ---Purpose ;
   //! Computes the derivative of order Nu in the direction U and Nv
@@ -252,10 +233,10 @@ public:
   //! Raised if the continuity of the surface is not CNu in the U
   //! direction or not CNv in the V direction.
   //! Raised if Nu + Nv < 1 or Nu < 0 or Nv < 0.
-  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
-                            const Standard_Real    V,
-                            const Standard_Integer Nu,
-                            const Standard_Integer Nv) const Standard_OVERRIDE;
+  Standard_EXPORT std::optional<gp_Vec> DN(const Standard_Real    U,
+                                            const Standard_Real    V,
+                                            const Standard_Integer Nu,
+                                            const Standard_Integer Nv) const override;
 
   Standard_EXPORT Handle(Geom_Geometry) Copy() const Standard_OVERRIDE;
 

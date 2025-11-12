@@ -19,6 +19,7 @@
 #include <GeomLProp_SurfaceTool.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
+#include <Standard_Failure.hxx>
 
 void GeomLProp_SurfaceTool::Value(const Handle(Geom_Surface)& S,
                                   const Standard_Real         U,
@@ -59,7 +60,10 @@ gp_Vec GeomLProp_SurfaceTool::DN(const Handle(Geom_Surface)& S,
                                  const Standard_Integer      IU,
                                  const Standard_Integer      IV)
 {
-  return S->DN(U, V, IU, IV);
+  if (auto aResult = S->DN(U, V, IU, IV))
+    return *aResult;
+  else
+    throw Standard_Failure("GeomLProp_SurfaceTool::DN - computation failed");
 }
 
 Standard_Integer GeomLProp_SurfaceTool::Continuity(const Handle(Geom_Surface)& S)

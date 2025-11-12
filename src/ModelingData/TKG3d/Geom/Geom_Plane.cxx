@@ -204,72 +204,62 @@ void Geom_Plane::Coefficients(Standard_Real& A,
 
 //=================================================================================================
 
-void Geom_Plane::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
+std::optional<gp_Pnt> Geom_Plane::D0(const Standard_Real U, const Standard_Real V) const
 {
-
-  P = ElSLib::PlaneValue(U, V, pos);
+  return ElSLib::PlaneValue(U, V, pos);
 }
 
 //=================================================================================================
 
-void Geom_Plane::D1(const Standard_Real U, const Standard_Real V, Pnt& P, Vec& D1U, Vec& D1V) const
+std::optional<GeomEvaluator_Surface::D1Result> Geom_Plane::D1(const Standard_Real U,
+                                                                const Standard_Real V) const
 {
-
-  ElSLib::PlaneD1(U, V, pos, P, D1U, D1V);
+  GeomEvaluator_Surface::D1Result aResult;
+  ElSLib::PlaneD1(U, V, pos, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  return aResult;
 }
 
 //=================================================================================================
 
-void Geom_Plane::D2(const Standard_Real U,
-                    const Standard_Real V,
-                    Pnt&                P,
-                    Vec&                D1U,
-                    Vec&                D1V,
-                    Vec&                D2U,
-                    Vec&                D2V,
-                    Vec&                D2UV) const
+std::optional<GeomEvaluator_Surface::D2Result> Geom_Plane::D2(const Standard_Real U,
+                                                                const Standard_Real V) const
 {
-
-  ElSLib::PlaneD1(U, V, pos, P, D1U, D1V);
-  D2U.SetCoord(0.0, 0.0, 0.0);
-  D2V.SetCoord(0.0, 0.0, 0.0);
-  D2UV.SetCoord(0.0, 0.0, 0.0);
+  GeomEvaluator_Surface::D2Result aResult;
+  ElSLib::PlaneD1(U, V, pos, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  aResult.theD2U.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2V.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2UV.SetCoord(0.0, 0.0, 0.0);
+  return aResult;
 }
 
 //=================================================================================================
 
-void Geom_Plane::D3(const Standard_Real U,
-                    const Standard_Real V,
-                    Pnt&                P,
-                    Vec&                D1U,
-                    Vec&                D1V,
-                    Vec&                D2U,
-                    Vec&                D2V,
-                    Vec&                D2UV,
-                    Vec&                D3U,
-                    Vec&                D3V,
-                    Vec&                D3UUV,
-                    Vec&                D3UVV) const
+std::optional<GeomEvaluator_Surface::D3Result> Geom_Plane::D3(const Standard_Real U,
+                                                                const Standard_Real V) const
 {
-  ElSLib::PlaneD1(U, V, pos, P, D1U, D1V);
-  D2U.SetCoord(0.0, 0.0, 0.0);
-  D2V.SetCoord(0.0, 0.0, 0.0);
-  D2UV.SetCoord(0.0, 0.0, 0.0);
-  D3U.SetCoord(0.0, 0.0, 0.0);
-  D3V.SetCoord(0.0, 0.0, 0.0);
-  D3UUV.SetCoord(0.0, 0.0, 0.0);
-  D3UVV.SetCoord(0.0, 0.0, 0.0);
+  GeomEvaluator_Surface::D3Result aResult;
+  ElSLib::PlaneD1(U, V, pos, aResult.theValue, aResult.theD1U, aResult.theD1V);
+  aResult.theD2U.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2V.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD2UV.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3U.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3V.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3UUV.SetCoord(0.0, 0.0, 0.0);
+  aResult.theD3UVV.SetCoord(0.0, 0.0, 0.0);
+  return aResult;
 }
 
 //=================================================================================================
 
-Vec Geom_Plane::DN(const Standard_Real,
-                   const Standard_Real,
-                   const Standard_Integer Nu,
-                   const Standard_Integer Nv) const
+std::optional<gp_Vec> Geom_Plane::DN(const Standard_Real,
+                                      const Standard_Real,
+                                      const Standard_Integer Nu,
+                                      const Standard_Integer Nv) const
 {
-
-  Standard_RangeError_Raise_if(Nu < 0 || Nv < 0 || Nu + Nv < 1, " ");
+  if (Nu < 0 || Nv < 0 || Nu + Nv < 1)
+  {
+    return std::nullopt;
+  }
   if (Nu == 0 && Nv == 1)
   {
     return Vec(pos.YDirection());

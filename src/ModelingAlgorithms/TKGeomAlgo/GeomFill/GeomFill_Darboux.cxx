@@ -60,13 +60,14 @@ static gp_Vec DDeriv(const gp_Vec& F, const gp_Vec& DF, const gp_Vec& D2F)
 //=======================================================================
 // function : NormalD0
 // purpose  : computes Normal to Surface
+// @return Standard_True if calculation is successful, Standard_False otherwise
 //=======================================================================
-static void NormalD0(const Standard_Real              U,
-                     const Standard_Real              V,
-                     const Handle(Adaptor3d_Surface)& Surf,
-                     gp_Dir&                          Normal,
-                     Standard_Integer&                OrderU,
-                     Standard_Integer&                OrderV)
+static Standard_Boolean NormalD0(const Standard_Real              U,
+                                  const Standard_Real              V,
+                                  const Handle(Adaptor3d_Surface)& Surf,
+                                  gp_Dir&                          Normal,
+                                  Standard_Integer&                OrderU,
+                                  Standard_Integer&                OrderV)
 {
   //  gp_Vec D1U,D1V,D2U,D2V,DUV;
   gp_Vec        D1U, D1V;
@@ -75,7 +76,7 @@ static void NormalD0(const Standard_Real              U,
   OrderU = OrderV = 0;
 #ifdef CHECK
   if (Cont == GeomAbs_C0)
-    throw Geom_UndefinedValue();
+    return Standard_False;
 #endif
   gp_Pnt P;
   Surf->D1(U, V, P, D1U, D1V);
@@ -87,7 +88,7 @@ static void NormalD0(const Standard_Real              U,
   {
     if (Cont == GeomAbs_C0 || Cont == GeomAbs_C1)
     {
-      throw Geom_UndefinedValue();
+      return Standard_False;
     }
     Standard_Integer   MaxOrder = 3;
     TColgp_Array2OfVec DerNUV(0, MaxOrder, 0, MaxOrder);
@@ -140,21 +141,23 @@ static void NormalD0(const Standard_Real              U,
                     << DerSurf(i, j).Y() << "," << DerSurf(i, j).Z() << std::endl;
         }
 #endif
-      throw Geom_UndefinedValue();
+      return Standard_False;
     }
   }
+  return Standard_True;
 }
 
 //=======================================================================
 // function : NormalD1
 // purpose  : computes Normal to Surface and its first derivative
+// @return Standard_True if calculation is successful, Standard_False otherwise
 //=======================================================================
-static void NormalD1(const Standard_Real              U,
-                     const Standard_Real              V,
-                     const Handle(Adaptor3d_Surface)& Surf,
-                     gp_Dir&                          Normal,
-                     gp_Vec&                          D1UNormal,
-                     gp_Vec&                          D1VNormal)
+static Standard_Boolean NormalD1(const Standard_Real              U,
+                                  const Standard_Real              V,
+                                  const Handle(Adaptor3d_Surface)& Surf,
+                                  gp_Dir&                          Normal,
+                                  gp_Vec&                          D1UNormal,
+                                  gp_Vec&                          D1VNormal)
 {
 #ifdef CHECK
   GeomAbs_Shape Cont = (Surf->Surface().UContinuity() < Surf->Surface().VContinuity())
@@ -220,25 +223,27 @@ static void NormalD1(const Standard_Real              U,
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    throw Geom_UndefinedValue();
+    return Standard_False;
 
   D1UNormal = CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
   D1VNormal = CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
+  return Standard_True;
 }
 
 //=======================================================================
 // function : NormalD2
 // purpose  : computes Normal to Surface and its first and second derivatives
+// @return Standard_True if calculation is successful, Standard_False otherwise
 //=======================================================================
-static void NormalD2(const Standard_Real              U,
-                     const Standard_Real              V,
-                     const Handle(Adaptor3d_Surface)& Surf,
-                     gp_Dir&                          Normal,
-                     gp_Vec&                          D1UNormal,
-                     gp_Vec&                          D1VNormal,
-                     gp_Vec&                          D2UNormal,
-                     gp_Vec&                          D2VNormal,
-                     gp_Vec&                          D2UVNormal)
+static Standard_Boolean NormalD2(const Standard_Real              U,
+                                  const Standard_Real              V,
+                                  const Handle(Adaptor3d_Surface)& Surf,
+                                  gp_Dir&                          Normal,
+                                  gp_Vec&                          D1UNormal,
+                                  gp_Vec&                          D1VNormal,
+                                  gp_Vec&                          D2UNormal,
+                                  gp_Vec&                          D2VNormal,
+                                  gp_Vec&                          D2UVNormal)
 {
 #ifdef CHECK
   GeomAbs_Shape Cont = (Surf->Surface().UContinuity() < Surf->Surface().VContinuity())
@@ -309,13 +314,14 @@ static void NormalD2(const Standard_Real              U,
                 OrderU,
                 OrderV);
   if (NStatus != CSLib_Defined)
-    throw Geom_UndefinedValue();
+    return Standard_False;
 
   D1UNormal  = CSLib::DNNormal(1, 0, DerNUV, OrderU, OrderV);
   D1VNormal  = CSLib::DNNormal(0, 1, DerNUV, OrderU, OrderV);
   D2UNormal  = CSLib::DNNormal(2, 0, DerNUV, OrderU, OrderV);
   D2VNormal  = CSLib::DNNormal(0, 2, DerNUV, OrderU, OrderV);
   D2UVNormal = CSLib::DNNormal(1, 1, DerNUV, OrderU, OrderV);
+  return Standard_True;
 }
 
 GeomFill_Darboux::GeomFill_Darboux() {}
@@ -346,7 +352,8 @@ Standard_Boolean GeomFill_Darboux::D0(const Standard_Real Param,
 
   //  Normal = dS_du.Crossed(dS_dv).Normalized();
   gp_Dir NormalDir;
-  NormalD0(C2d.X(), C2d.Y(), mySupport, NormalDir, OrderU, OrderV);
+  if (!NormalD0(C2d.X(), C2d.Y(), mySupport, NormalDir, OrderU, OrderV))
+    return Standard_False;
   BiNormal.SetXYZ(NormalDir.XYZ());
 
   mySupport->D1(C2d.X(), C2d.Y(), S, dS_du, dS_dv);
@@ -393,7 +400,8 @@ Standard_Boolean GeomFill_Darboux::D1(const Standard_Real Param,
 
   gp_Dir NormalDir;
   gp_Vec D1UNormal, D1VNormal;
-  NormalD1(C2d.X(), C2d.Y(), mySupport, NormalDir, D1UNormal, D1VNormal);
+  if (!NormalD1(C2d.X(), C2d.Y(), mySupport, NormalDir, D1UNormal, D1VNormal))
+    return Standard_False;
   BiNormal.SetXYZ(NormalDir.XYZ());
   DBiNormal = D1UNormal * D2d.X() + D1VNormal * D2d.Y();
 
@@ -459,15 +467,16 @@ Standard_Boolean GeomFill_Darboux::D2(const Standard_Real Param,
 
   gp_Dir NormalDir;
   gp_Vec D1UNormal, D1VNormal, D2UNormal, D2VNormal, D2UVNormal;
-  NormalD2(C2d.X(),
-           C2d.Y(),
-           mySupport,
-           NormalDir,
-           D1UNormal,
-           D1VNormal,
-           D2UNormal,
-           D2VNormal,
-           D2UVNormal);
+  if (!NormalD2(C2d.X(),
+                C2d.Y(),
+                mySupport,
+                NormalDir,
+                D1UNormal,
+                D1VNormal,
+                D2UNormal,
+                D2VNormal,
+                D2UVNormal))
+    return Standard_False;
   BiNormal.SetXYZ(NormalDir.XYZ());
   DBiNormal  = D1UNormal * D2d.X() + D1VNormal * D2d.Y();
   D2BiNormal = D1UNormal * D2_2d.X() + D1VNormal * D2_2d.Y() + D2UNormal * D2d.X() * D2d.X()
@@ -499,24 +508,33 @@ void GeomFill_Darboux::GetAverageLaw(gp_Vec& ATangent, gp_Vec& ANormal, gp_Vec& 
   ATangent           = gp_Vec(0, 0, 0);
   ANormal            = gp_Vec(0, 0, 0);
   ABiNormal          = gp_Vec(0, 0, 0);
-  Standard_Real Step = (myTrimmed->LastParameter() - myTrimmed->FirstParameter()) / Num;
-  Standard_Real Param;
+  Standard_Real    Step         = (myTrimmed->LastParameter() - myTrimmed->FirstParameter()) / Num;
+  Standard_Real    Param;
+  Standard_Integer aSuccessCount = 0;
   for (Standard_Integer i = 0; i <= Num; i++)
   {
     Param = myTrimmed->FirstParameter() + i * Step;
     if (Param > myTrimmed->LastParameter())
       Param = myTrimmed->LastParameter();
-    D0(Param, T, N, BN);
-    ATangent += T;
-    ANormal += N;
-    ABiNormal += BN;
+    if (D0(Param, T, N, BN))
+    {
+      ATangent += T;
+      ANormal += N;
+      ABiNormal += BN;
+      aSuccessCount++;
+    }
+    // Skip samples where calculation failed
   }
-  ATangent /= Num + 1;
-  ANormal /= Num + 1;
 
-  ATangent.Normalize();
-  ABiNormal = ATangent.Crossed(ANormal).Normalized();
-  ANormal   = ABiNormal.Crossed(ATangent);
+  if (aSuccessCount > 0)
+  {
+    ATangent /= aSuccessCount;
+    ANormal /= aSuccessCount;
+
+    ATangent.Normalize();
+    ABiNormal = ATangent.Crossed(ANormal).Normalized();
+    ANormal   = ABiNormal.Crossed(ATangent);
+  }
 }
 
 Standard_Boolean GeomFill_Darboux::IsConstant() const

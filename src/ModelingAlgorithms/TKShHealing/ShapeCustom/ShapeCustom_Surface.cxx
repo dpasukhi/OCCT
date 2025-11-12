@@ -337,7 +337,12 @@ Handle(Geom_Surface) ShapeCustom_Surface::ConvertToAnalytical(const Standard_Rea
         Handle(Geom_ToroidalSurface) anObject = new Geom_ToroidalSurface(aAx3, RR1, RR2);
         if (j == 2)
           anObject->UReverse();
-        anObject->D1(0., 0., resPnt, resD1U, resD1V);
+        if (auto aResult = anObject->D1(0., 0.))
+        {
+          resPnt  = aResult->theValue;
+          resD1U  = aResult->theD1U;
+          resD1V  = aResult->theD1V;
+        }
 #ifdef OCCT_DEBUG
         if (resD1U.Dot(origD1U) < 0 && j != 2)
           std::cout << " Tore a inverser !" << std::endl;

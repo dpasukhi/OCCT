@@ -39,44 +39,29 @@ public:
   void SetOffsetValue(Standard_Real theOffset) { myOffset = theOffset; }
 
   //! Value of surface
-  Standard_EXPORT void D0(const Standard_Real theU,
-                          const Standard_Real theV,
-                          gp_Pnt&             theValue) const Standard_OVERRIDE;
+  //! @return Point value if calculation succeeds, std::nullopt otherwise
+  Standard_EXPORT std::optional<gp_Pnt> D0(const Standard_Real theU,
+                                            const Standard_Real theV) const Standard_OVERRIDE;
   //! Value and first derivatives of surface
-  Standard_EXPORT void D1(const Standard_Real theU,
-                          const Standard_Real theV,
-                          gp_Pnt&             theValue,
-                          gp_Vec&             theD1U,
-                          gp_Vec&             theD1V) const Standard_OVERRIDE;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  Standard_EXPORT std::optional<D1Result> D1(const Standard_Real theU,
+                                              const Standard_Real theV) const Standard_OVERRIDE;
   //! Value, first and second derivatives of surface
-  Standard_EXPORT void D2(const Standard_Real theU,
-                          const Standard_Real theV,
-                          gp_Pnt&             theValue,
-                          gp_Vec&             theD1U,
-                          gp_Vec&             theD1V,
-                          gp_Vec&             theD2U,
-                          gp_Vec&             theD2V,
-                          gp_Vec&             theD2UV) const Standard_OVERRIDE;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  Standard_EXPORT std::optional<D2Result> D2(const Standard_Real theU,
+                                              const Standard_Real theV) const Standard_OVERRIDE;
   //! Value, first, second and third derivatives of surface
-  Standard_EXPORT void D3(const Standard_Real theU,
-                          const Standard_Real theV,
-                          gp_Pnt&             theValue,
-                          gp_Vec&             theD1U,
-                          gp_Vec&             theD1V,
-                          gp_Vec&             theD2U,
-                          gp_Vec&             theD2V,
-                          gp_Vec&             theD2UV,
-                          gp_Vec&             theD3U,
-                          gp_Vec&             theD3V,
-                          gp_Vec&             theD3UUV,
-                          gp_Vec&             theD3UVV) const Standard_OVERRIDE;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  Standard_EXPORT std::optional<D3Result> D3(const Standard_Real theU,
+                                              const Standard_Real theV) const Standard_OVERRIDE;
   //! Calculates N-th derivatives of surface, where N = theDerU + theDerV.
   //!
   //! Raises if N < 1 or theDerU < 0 or theDerV < 0
-  Standard_EXPORT gp_Vec DN(const Standard_Real    theU,
-                            const Standard_Real    theV,
-                            const Standard_Integer theDerU,
-                            const Standard_Integer theDerV) const Standard_OVERRIDE;
+  //! @return Derivative vector if calculation succeeds, std::nullopt otherwise
+  Standard_EXPORT std::optional<gp_Vec> DN(const Standard_Real    theU,
+                                            const Standard_Real    theV,
+                                            const Standard_Integer theDerU,
+                                            const Standard_Integer theDerV) const Standard_OVERRIDE;
 
   Standard_EXPORT Handle(GeomEvaluator_Surface) ShallowCopy() const Standard_OVERRIDE;
 
@@ -90,53 +75,58 @@ private:
               Standard_Real& theVMax) const;
 
   //! Recalculate D1 values of base surface into D0 value of offset surface
-  void CalculateD0(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   const gp_Vec&       theD1U,
-                   const gp_Vec&       theD1V) const;
+  //! @return Point value if calculation succeeds, std::nullopt otherwise
+  std::optional<gp_Pnt> CalculateD0(const Standard_Real theU,
+                                     const Standard_Real theV,
+                                     const gp_Pnt&       theBaseValue,
+                                     const gp_Vec&       theD1U,
+                                     const gp_Vec&       theD1V) const;
   //! Recalculate D2 values of base surface into D1 values of offset surface
-  void CalculateD1(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   gp_Vec&             theD1U,
-                   gp_Vec&             theD1V,
-                   const gp_Vec&       theD2U,
-                   const gp_Vec&       theD2V,
-                   const gp_Vec&       theD2UV) const;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  std::optional<D1Result> CalculateD1(const Standard_Real theU,
+                                       const Standard_Real theV,
+                                       const gp_Pnt&       theBaseValue,
+                                       const gp_Vec&       theBaseD1U,
+                                       const gp_Vec&       theBaseD1V,
+                                       const gp_Vec&       theD2U,
+                                       const gp_Vec&       theD2V,
+                                       const gp_Vec&       theD2UV) const;
   //! Recalculate D3 values of base surface into D2 values of offset surface
-  void CalculateD2(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   gp_Vec&             theD1U,
-                   gp_Vec&             theD1V,
-                   gp_Vec&             theD2U,
-                   gp_Vec&             theD2V,
-                   gp_Vec&             theD2UV,
-                   const gp_Vec&       theD3U,
-                   const gp_Vec&       theD3V,
-                   const gp_Vec&       theD3UUV,
-                   const gp_Vec&       theD3UVV) const;
-  //! Recalculate D3 values of base surface into D3 values of offset surface
-  void CalculateD3(const Standard_Real theU,
-                   const Standard_Real theV,
-                   gp_Pnt&             theValue,
-                   gp_Vec&             theD1U,
-                   gp_Vec&             theD1V,
-                   gp_Vec&             theD2U,
-                   gp_Vec&             theD2V,
-                   gp_Vec&             theD2UV,
-                   gp_Vec&             theD3U,
-                   gp_Vec&             theD3V,
-                   gp_Vec&             theD3UUV,
-                   gp_Vec&             theD3UVV) const;
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  std::optional<D2Result> CalculateD2(const Standard_Real theU,
+                                       const Standard_Real theV,
+                                       const gp_Pnt&       theBaseValue,
+                                       const gp_Vec&       theBaseD1U,
+                                       const gp_Vec&       theBaseD1V,
+                                       const gp_Vec&       theBaseD2U,
+                                       const gp_Vec&       theBaseD2V,
+                                       const gp_Vec&       theBaseD2UV,
+                                       const gp_Vec&       theD3U,
+                                       const gp_Vec&       theD3V,
+                                       const gp_Vec&       theD3UUV,
+                                       const gp_Vec&       theD3UVV) const;
+  //! Recalculate base surface values into D3 values of offset surface
+  //! @return Result structure with point and derivatives if calculation succeeds, std::nullopt otherwise
+  std::optional<D3Result> CalculateD3(const Standard_Real theU,
+                                       const Standard_Real theV,
+                                       const gp_Pnt&       theBaseValue,
+                                       const gp_Vec&       theBaseD1U,
+                                       const gp_Vec&       theBaseD1V,
+                                       const gp_Vec&       theBaseD2U,
+                                       const gp_Vec&       theBaseD2V,
+                                       const gp_Vec&       theBaseD2UV,
+                                       const gp_Vec&       theBaseD3U,
+                                       const gp_Vec&       theBaseD3V,
+                                       const gp_Vec&       theBaseD3UUV,
+                                       const gp_Vec&       theBaseD3UVV) const;
   //! Calculate DN of offset surface based on derivatives of base surface
-  gp_Vec CalculateDN(const Standard_Real    theU,
-                     const Standard_Real    theV,
-                     const Standard_Integer theNu,
-                     const Standard_Integer theNv,
-                     const gp_Vec&          theD1U,
-                     const gp_Vec&          theD1V) const;
+  //! @return Derivative vector if calculation succeeds, std::nullopt otherwise
+  std::optional<gp_Vec> CalculateDN(const Standard_Real    theU,
+                                     const Standard_Real    theV,
+                                     const Standard_Integer theNu,
+                                     const Standard_Integer theNv,
+                                     const gp_Vec&          theD1U,
+                                     const gp_Vec&          theD1V) const;
 
   //! Calculate value of base surface/adaptor
   void BaseD0(const Standard_Real theU, const Standard_Real theV, gp_Pnt& theValue) const;

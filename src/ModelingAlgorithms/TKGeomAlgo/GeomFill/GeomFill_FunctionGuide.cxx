@@ -141,7 +141,8 @@ Standard_Boolean GeomFill_FunctionGuide::Value(const math_Vector& X, math_Vector
   gp_Pnt P, P1;
 
   TheGuide->D0(X(1), P);
-  TheSurface->D0(X(2), X(3), P1);
+  if (auto aResult = TheSurface->D0(X(2), X(3)))
+        P1 = *aResult;
 
   F(1) = P.Coord(1) - P1.Coord(1);
   F(2) = P.Coord(2) - P1.Coord(2);
@@ -160,7 +161,12 @@ Standard_Boolean GeomFill_FunctionGuide::Derivatives(const math_Vector& X, math_
   gp_Vec DP, DP1U, DP1V;
 
   TheGuide->D1(X(1), P, DP);
-  TheSurface->D1(X(2), X(3), P1, DP1U, DP1V);
+  if (auto aResult = TheSurface->D1(X(2), X(3)))
+      {
+        P1   = aResult->theValue;
+        DP1U = aResult->theD1U;
+        DP1V = aResult->theD1V;
+      }
 
   Standard_Integer i;
   for (i = 1; i <= 3; i++)
@@ -185,7 +191,12 @@ Standard_Boolean GeomFill_FunctionGuide::Values(const math_Vector& X,
   gp_Vec DP, DP1U, DP1V;
 
   TheGuide->D1(X(1), P, DP);                  // derivee de la generatrice
-  TheSurface->D1(X(2), X(3), P1, DP1U, DP1V); // derivee de la new surface
+  if (auto aResult = TheSurface->D1(X(2), X(3)))
+      {
+        P1   = aResult->theValue;
+        DP1U = aResult->theD1U;
+        DP1V = aResult->theD1V;
+      } // derivee de la new surface
 
   Standard_Integer i;
   for (i = 1; i <= 3; i++)
@@ -311,8 +322,18 @@ void GeomFill_FunctionGuide::DSDT(const Standard_Real U,
 
   TheCurve->D1(R(1), P1, DP1); // guide
   TheCurve->D1(X0(1), P2, DP2);
-  TheSurface->D1(R(2), R(3), P1, DP1U, DP1V); // surface
-  TheSurface->D1(X0(2), X0(3), P2, DP2U, DP2V); //derivee de la new surface
+  if (auto aResult = TheSurface->D1(R(2), R(3)))
+      {
+        P1   = aResult->theValue;
+        DP1U = aResult->theD1U;
+        DP1V = aResult->theD1V;
+      } // surface
+  if (auto aResult = TheSurface->D1(X0(2), X0(3)))
+      {
+        P2   = aResult->theValue;
+        DP2U = aResult->theD1U;
+        DP2V = aResult->theD1V;
+      } //derivee de la new surface
 
   Standard_Real h = Param0 - Param;
 
@@ -341,7 +362,15 @@ void GeomFill_FunctionGuide::DSDT(const Standard_Real U,
   gp_Vec D2PU, D2PV, D2PUV;
 
   TheCurve->D2(X(1), P1, DP, D2P);
-  TheSurface->D2(X(2), X(3), P, DPU, DPV, D2PU, D2PV, D2PUV);
+  if (auto aResult = TheSurface->D2(X(2), X(3)))
+      {
+        P    = aResult->theValue;
+        DPU  = aResult->theD1U;
+        DPV  = aResult->theD1V;
+        D2PU  = aResult->theD2U;
+        D2PV  = aResult->theD2V;
+        D2PUV = aResult->theD2UV;
+      }
 
   T.Init(0.); // tenseur
 

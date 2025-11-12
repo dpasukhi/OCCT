@@ -244,7 +244,8 @@ Standard_Boolean ShapeCustom_SweptToElementary::NewCurve2d(const TopoDS_Edge&   
         Standard_Real                    U1, U2, V1, V2;
         SR->Bounds(U1, U2, V1, V2);
         gp_Pnt P0;
-        SR->D0(U1, V1, P0);
+        if (auto aResult = SR->D0(U1, V1))
+          P0 = *aResult;
         Handle(ShapeAnalysis_Surface) sas = new ShapeAnalysis_Surface(NS);
         gp_Pnt2d                      p2d = sas->ValueOfUV(P0, Precision::Confusion());
         gp_Vec2d                      shift(p2d.X() - U1, p2d.Y() - V1);
@@ -260,10 +261,12 @@ Standard_Boolean ShapeCustom_SweptToElementary::NewCurve2d(const TopoDS_Edge&   
         Handle(Geom_SphericalSurface)    SPH = Handle(Geom_SphericalSurface)::DownCast(NS);
         Standard_Real                    US1, US2, VS1, VS2;
         SPH->Bounds(US1, US2, VS1, VS2);
-        SPH->D0(US1, VS1, PS);
+        if (auto aResult = SPH->D0(US1, VS1))
+          PS = *aResult;
         Standard_Real UR1, UR2, VR1, VR2;
         SR->Bounds(UR1, UR2, VR1, VR2);
-        SR->D0(UR1, VR1, PR);
+        if (auto aResult = SR->D0(UR1, VR1))
+          PR = *aResult;
         gp_Pnt        P0 = SPH->Location();
         gp_Vec        VS(P0, PS);
         gp_Vec        VR(P0, PR);
