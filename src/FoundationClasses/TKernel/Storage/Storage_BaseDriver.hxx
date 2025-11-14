@@ -194,6 +194,34 @@ public:
   Standard_EXPORT virtual Storage_Error Close() = 0;
 
 public:
+  //!@name Error state management
+  //!
+  //! @warning Driver instances are NOT thread-safe and should not be shared across threads.
+  //! Each thread should use its own driver instance for file I/O operations.
+
+  //! Returns the error status of the last operation.
+  Storage_Error ErrorStatus() const { return myErrorStatus; }
+
+  //! Clears the error status.
+  void ClearErrorStatus()
+  {
+    myErrorStatus = Storage_VSOk;
+    myErrorStatusExt.Clear();
+  }
+
+  //! Returns the extended error description.
+  const TCollection_AsciiString& ErrorStatusExtension() const { return myErrorStatusExt; }
+
+protected:
+  //! Sets the error status.
+  void SetErrorStatus(const Storage_Error            theError,
+                      const TCollection_AsciiString& theExtension = TCollection_AsciiString())
+  {
+    myErrorStatus    = theError;
+    myErrorStatusExt = theExtension;
+  }
+
+public:
   //!@name Output methods
 
   Standard_EXPORT virtual Storage_BaseDriver& PutReference(const Standard_Integer aValue) = 0;
@@ -265,6 +293,8 @@ protected:
 private:
   Storage_OpenMode        myOpenMode;
   TCollection_AsciiString myName;
+  Storage_Error           myErrorStatus;
+  TCollection_AsciiString myErrorStatusExt;
 };
 
 #endif // _Storage_BaseDriver_HeaderFile

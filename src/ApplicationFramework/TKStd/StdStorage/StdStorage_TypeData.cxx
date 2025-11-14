@@ -11,11 +11,9 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_ErrorHandler.hxx>
 #include <StdDrivers.hxx>
 #include <StdStorage_TypeData.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
 #include <TCollection_AsciiString.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(StdStorage_TypeData, Standard_Transient)
@@ -51,14 +49,11 @@ Standard_Boolean StdStorage_TypeData::Read(const Handle(Storage_BaseDriver)& the
   Standard_Integer len = theDriver->TypeSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
+    theDriver->ReadTypeInformations(aTypeNum, aTypeName);
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      OCC_CATCH_SIGNALS
-      theDriver->ReadTypeInformations(aTypeNum, aTypeName);
-    }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
+      myErrorStatus    = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadTypeInformations";
       return Standard_False;
     }
@@ -98,14 +93,11 @@ Standard_Boolean StdStorage_TypeData::Write(const Handle(Storage_BaseDriver)& th
   theDriver->SetTypeSectionSize(len);
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
+    theDriver->WriteTypeInformations(i, Type(i));
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      OCC_CATCH_SIGNALS
-      theDriver->WriteTypeInformations(i, Type(i));
-    }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
+      myErrorStatus    = theDriver->ErrorStatus();
       myErrorStatusExt = "WriteTypeInformations";
       return Standard_False;
     }

@@ -195,10 +195,10 @@ Storage_BaseDriver& FSD_BinaryFile::PutReference(const Standard_Integer aValue)
   Standard_Integer t = InverseInt(aValue);
 
   if (!fwrite(&t, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #else
   if (!fwrite(&aValue, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #endif
   return *this;
 }
@@ -208,7 +208,7 @@ Storage_BaseDriver& FSD_BinaryFile::PutReference(const Standard_Integer aValue)
 Storage_BaseDriver& FSD_BinaryFile::PutCharacter(const Standard_Character aValue)
 {
   if (!fwrite(&aValue, sizeof(Standard_Character), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
   return *this;
 }
 
@@ -220,10 +220,10 @@ Storage_BaseDriver& FSD_BinaryFile::PutExtCharacter(const Standard_ExtCharacter 
   Standard_ExtCharacter t = InverseExtChar(aValue);
 
   if (!fwrite(&t, sizeof(Standard_ExtCharacter), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #else
   if (!fwrite(&aValue, sizeof(Standard_ExtCharacter), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #endif
   return *this;
 }
@@ -236,10 +236,10 @@ Storage_BaseDriver& FSD_BinaryFile::PutInteger(const Standard_Integer aValue)
   Standard_Integer t = InverseInt(aValue);
 
   if (!fwrite(&t, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #else
   if (!fwrite(&aValue, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #endif
 
   return *this;
@@ -260,10 +260,6 @@ Standard_Integer FSD_BinaryFile::PutInteger(Standard_OStream&      theOStream,
   if (!theOnlyCount)
   {
     theOStream.write((char*)&t, sizeof(Standard_Integer));
-    if (theOStream.fail())
-    {
-      throw Storage_StreamWriteError();
-    }
   }
 
   return sizeof(Standard_Integer);
@@ -279,7 +275,7 @@ Storage_BaseDriver& FSD_BinaryFile::PutBoolean(const Standard_Boolean aValue)
   Standard_Integer t = aValue ? 1 : 0;
 #endif
   if (!fwrite(&t, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
   return *this;
 }
 
@@ -291,10 +287,10 @@ Storage_BaseDriver& FSD_BinaryFile::PutReal(const Standard_Real aValue)
   Standard_Real t = InverseReal(aValue);
 
   if (!fwrite(&t, sizeof(Standard_Real), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #else
   if (!fwrite(&aValue, sizeof(Standard_Real), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #endif
   return *this;
 }
@@ -307,10 +303,10 @@ Storage_BaseDriver& FSD_BinaryFile::PutShortReal(const Standard_ShortReal aValue
   Standard_ShortReal t = InverseShortReal(aValue);
 
   if (!fwrite(&t, sizeof(Standard_ShortReal), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #else
   if (!fwrite(&aValue, sizeof(Standard_ShortReal), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 #endif
   return *this;
 }
@@ -323,7 +319,7 @@ Storage_BaseDriver& FSD_BinaryFile::PutShortReal(const Standard_ShortReal aValue
 Storage_BaseDriver& FSD_BinaryFile::GetReference(Standard_Integer& aValue)
 {
   if (!fread(&aValue, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch);
 #if OCCT_BINARY_FILE_DO_INVERSE
   aValue = InverseInt(aValue);
 #endif
@@ -338,13 +334,9 @@ void FSD_BinaryFile::GetReference(Standard_IStream& theIStream, Standard_Integer
 {
   theIStream.read((char*)&aValue, sizeof(Standard_Integer));
 
-  if (theIStream.gcount() != sizeof(Standard_Integer))
-  {
-    throw Storage_StreamTypeMismatchError();
-  }
-
 #if OCCT_BINARY_FILE_DO_INVERSE
-  aValue = InverseInt(aValue);
+  if (theIStream.gcount() == sizeof(Standard_Integer))
+    aValue = InverseInt(aValue);
 #endif
 }
 
@@ -353,7 +345,7 @@ void FSD_BinaryFile::GetReference(Standard_IStream& theIStream, Standard_Integer
 Storage_BaseDriver& FSD_BinaryFile::GetCharacter(Standard_Character& aValue)
 {
   if (!fread(&aValue, sizeof(Standard_Character), 1, myStream))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch);
   return *this;
 }
 
@@ -362,7 +354,7 @@ Storage_BaseDriver& FSD_BinaryFile::GetCharacter(Standard_Character& aValue)
 Storage_BaseDriver& FSD_BinaryFile::GetExtCharacter(Standard_ExtCharacter& aValue)
 {
   if (!fread(&aValue, sizeof(Standard_ExtCharacter), 1, myStream))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch);
 #if OCCT_BINARY_FILE_DO_INVERSE
   aValue = InverseExtChar(aValue);
 #endif
@@ -374,7 +366,7 @@ Storage_BaseDriver& FSD_BinaryFile::GetExtCharacter(Standard_ExtCharacter& aValu
 Storage_BaseDriver& FSD_BinaryFile::GetInteger(Standard_Integer& aValue)
 {
   if (!fread(&aValue, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch);
 #if OCCT_BINARY_FILE_DO_INVERSE
   aValue = InverseInt(aValue);
 #endif
@@ -388,13 +380,9 @@ void FSD_BinaryFile::GetInteger(Standard_IStream& theIStream, Standard_Integer& 
 
   theIStream.read((char*)&theValue, sizeof(Standard_Integer));
 
-  if (theIStream.gcount() != sizeof(Standard_Integer))
-  {
-    throw Storage_StreamTypeMismatchError();
-  }
-
 #if OCCT_BINARY_FILE_DO_INVERSE
-  theValue = InverseInt(theValue);
+  if (theIStream.gcount() == sizeof(Standard_Integer))
+    theValue = InverseInt(theValue);
 #endif
 }
 
@@ -404,7 +392,7 @@ Storage_BaseDriver& FSD_BinaryFile::GetBoolean(Standard_Boolean& aValue)
 {
   Standard_Integer anInt = 0;
   if (!fread(&anInt, sizeof(Standard_Integer), 1, myStream))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch);
 #if OCCT_BINARY_FILE_DO_INVERSE
   anInt = InverseInt(anInt);
 #endif
@@ -417,7 +405,7 @@ Storage_BaseDriver& FSD_BinaryFile::GetBoolean(Standard_Boolean& aValue)
 Storage_BaseDriver& FSD_BinaryFile::GetReal(Standard_Real& aValue)
 {
   if (!fread(&aValue, sizeof(Standard_Real), 1, myStream))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch);
 #if OCCT_BINARY_FILE_DO_INVERSE
   aValue = InverseReal(aValue);
 #endif
@@ -429,7 +417,7 @@ Storage_BaseDriver& FSD_BinaryFile::GetReal(Standard_Real& aValue)
 Storage_BaseDriver& FSD_BinaryFile::GetShortReal(Standard_ShortReal& aValue)
 {
   if (!fread(&aValue, sizeof(Standard_ShortReal), 1, myStream))
-    throw Storage_StreamTypeMismatchError();
+    SetErrorStatus(Storage_VSTypeMismatch);
 #if OCCT_BINARY_FILE_DO_INVERSE
   aValue = InverseShortReal(aValue);
 #endif
@@ -466,7 +454,7 @@ Storage_Error FSD_BinaryFile::BeginWriteInfoSection()
   myHeader.testindian = aWrapUnion.aResult;
 
   if (!fwrite(FSD_BinaryFile::MagicNumber(), strlen(FSD_BinaryFile::MagicNumber()), 1, myStream))
-    throw Storage_StreamWriteError();
+    SetErrorStatus(Storage_VSWriteError);
 
   myHeader.binfo = (Standard_Integer)ftell(myStream);
   WriteHeader();
@@ -1280,7 +1268,7 @@ void FSD_BinaryFile::WriteString(const TCollection_AsciiString& aString)
   if (size > 0)
   {
     if (!fwrite(aString.ToCString(), aString.Length(), 1, myStream))
-      throw Storage_StreamWriteError();
+      SetErrorStatus(Storage_VSWriteError);
   }
 }
 
@@ -1301,10 +1289,6 @@ Standard_Integer FSD_BinaryFile::WriteString(Standard_OStream&              theO
   if (anAsciiStrLen > 0 && !theOnlyCount)
   {
     theOStream.write(theString.ToCString(), theString.Length());
-    if (theOStream.fail())
-    {
-      throw Storage_StreamWriteError();
-    }
   }
 
   return aNumAndStrLen;
@@ -1325,7 +1309,12 @@ void FSD_BinaryFile::ReadString(TCollection_AsciiString& aString)
     Standard_Character* c =
       (Standard_Character*)Standard::Allocate((size + 1) * sizeof(Standard_Character));
     if (!fread(c, size, 1, myStream))
-      throw Storage_StreamWriteError();
+    {
+      SetErrorStatus(Storage_VSTypeMismatch);
+      Standard::Free(c);
+      aString.Clear();
+      return;
+    }
     c[size] = '\0';
     aString = c;
     Standard::Free(c);
@@ -1353,14 +1342,18 @@ void FSD_BinaryFile::ReadString(Standard_IStream& theIStream, TCollection_AsciiS
 
     if (!theIStream.good())
     {
-      throw Storage_StreamReadError();
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     theIStream.read(c, size);
 
     if (theIStream.gcount() != size)
     {
-      throw Storage_StreamReadError();
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     c[size] = '\0';
@@ -1405,7 +1398,7 @@ void FSD_BinaryFile::WriteExtendedString(const TCollection_ExtendedString& aStri
     anExtStr = aString.ToExtString();
 #endif
     if (!fwrite(anExtStr, sizeof(Standard_ExtCharacter) * aString.Length(), 1, myStream))
-      throw Storage_StreamWriteError();
+      SetErrorStatus(Storage_VSWriteError);
   }
 }
 
@@ -1443,10 +1436,6 @@ Standard_Integer FSD_BinaryFile::WriteExtendedString(Standard_OStream&          
 #endif
 
     theOStream.write((char*)anExtStr, sizeof(Standard_ExtCharacter) * theString.Length());
-    if (theOStream.fail())
-    {
-      throw Storage_StreamWriteError();
-    }
   }
 
   return aNumAndStrLen;
@@ -1467,7 +1456,12 @@ void FSD_BinaryFile::ReadExtendedString(TCollection_ExtendedString& aString)
     Standard_ExtCharacter* c =
       (Standard_ExtCharacter*)Standard::Allocate((size + 1) * sizeof(Standard_ExtCharacter));
     if (!fread(c, size * sizeof(Standard_ExtCharacter), 1, myStream))
-      throw Storage_StreamWriteError();
+    {
+      SetErrorStatus(Storage_VSTypeMismatch);
+      Standard::Free(c);
+      aString.Clear();
+      return;
+    }
     c[size] = '\0';
 #if OCCT_BINARY_FILE_DO_INVERSE
     for (Standard_Integer i = 0; i < size; i++)
@@ -1500,14 +1494,18 @@ void FSD_BinaryFile::ReadExtendedString(Standard_IStream&           theIStream,
 
     if (!theIStream.good())
     {
-      throw Storage_StreamReadError();
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     const std::streamsize aNbBytes = std::streamsize(sizeof(Standard_ExtCharacter) * size);
     theIStream.read((char*)c, aNbBytes);
     if (theIStream.gcount() != aNbBytes)
     {
-      throw Storage_StreamReadError();
+      aString.Clear();
+      Standard::Free(c);
+      return;
     }
 
     c[size] = '\0';

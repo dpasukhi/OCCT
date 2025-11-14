@@ -11,11 +11,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_ErrorHandler.hxx>
 #include <StdStorage_HeaderData.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
-#include <Storage_StreamExtCharParityError.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 
@@ -45,28 +42,19 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
     return Standard_False;
   }
 
-  try
+  theDriver->ReadInfo(myNBObj,
+                      myStorageVersion,
+                      myDate,
+                      mySchemaName,
+                      mySchemaVersion,
+                      myApplicationName,
+                      myApplicationVersion,
+                      myDataType,
+                      myUserInfo);
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
   {
-    OCC_CATCH_SIGNALS
-    theDriver->ReadInfo(myNBObj,
-                        myStorageVersion,
-                        myDate,
-                        mySchemaName,
-                        mySchemaVersion,
-                        myApplicationName,
-                        myApplicationVersion,
-                        myDataType,
-                        myUserInfo);
-  }
-  catch (Storage_StreamTypeMismatchError const&)
-  {
-    myErrorStatus    = Storage_VSTypeMismatch;
-    myErrorStatusExt = "ReadInfo";
-    return Standard_False;
-  }
-  catch (Storage_StreamExtCharParityError const&)
-  {
-    myErrorStatus    = Storage_VSExtCharParityError;
+    myErrorStatus    = theDriver->ErrorStatus();
     myErrorStatusExt = "ReadInfo";
     return Standard_False;
   }
@@ -86,20 +74,11 @@ Standard_Boolean StdStorage_HeaderData::Read(const Handle(Storage_BaseDriver)& t
     return Standard_False;
   }
 
-  try
+  theDriver->ReadComment(myComments);
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
   {
-    OCC_CATCH_SIGNALS
-    theDriver->ReadComment(myComments);
-  }
-  catch (Storage_StreamTypeMismatchError const&)
-  {
-    myErrorStatus    = Storage_VSTypeMismatch;
-    myErrorStatusExt = "ReadComment";
-    return Standard_False;
-  }
-  catch (Storage_StreamExtCharParityError const&)
-  {
-    myErrorStatus    = Storage_VSExtCharParityError;
+    myErrorStatus    = theDriver->ErrorStatus();
     myErrorStatusExt = "ReadComment";
     return Standard_False;
   }
@@ -132,28 +111,19 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
     return Standard_False;
   }
 
-  try
+  theDriver->WriteInfo(myNBObj,
+                       myStorageVersion,
+                       myDate,
+                       mySchemaName,
+                       mySchemaVersion,
+                       myApplicationName,
+                       myApplicationVersion,
+                       myDataType,
+                       myUserInfo);
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
   {
-    OCC_CATCH_SIGNALS
-    theDriver->WriteInfo(myNBObj,
-                         myStorageVersion,
-                         myDate,
-                         mySchemaName,
-                         mySchemaVersion,
-                         myApplicationName,
-                         myApplicationVersion,
-                         myDataType,
-                         myUserInfo);
-  }
-  catch (Storage_StreamTypeMismatchError const&)
-  {
-    myErrorStatus    = Storage_VSTypeMismatch;
-    myErrorStatusExt = "WriteInfo";
-    return Standard_False;
-  }
-  catch (Storage_StreamExtCharParityError const&)
-  {
-    myErrorStatus    = Storage_VSExtCharParityError;
+    myErrorStatus    = theDriver->ErrorStatus();
     myErrorStatusExt = "WriteInfo";
     return Standard_False;
   }
@@ -173,20 +143,11 @@ Standard_Boolean StdStorage_HeaderData::Write(const Handle(Storage_BaseDriver)& 
     return Standard_False;
   }
 
-  try
+  theDriver->WriteComment(myComments);
+
+  if (theDriver->ErrorStatus() != Storage_VSOk)
   {
-    OCC_CATCH_SIGNALS
-    theDriver->WriteComment(myComments);
-  }
-  catch (Storage_StreamTypeMismatchError const&)
-  {
-    myErrorStatus    = Storage_VSTypeMismatch;
-    myErrorStatusExt = "WriteComment";
-    return Standard_False;
-  }
-  catch (Storage_StreamExtCharParityError const&)
-  {
-    myErrorStatus    = Storage_VSExtCharParityError;
+    myErrorStatus    = theDriver->ErrorStatus();
     myErrorStatusExt = "WriteComment";
     return Standard_False;
   }
