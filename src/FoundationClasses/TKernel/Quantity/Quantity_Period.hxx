@@ -32,7 +32,8 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! Creates a Period
-  //! With:      0 <= dd
+  //! With:
+  //! 0 <= dd
   //! 0 <= hh
   //! 0 <= mn
   //! 0 <= ss
@@ -111,22 +112,41 @@ public:
   Quantity_Period operator+(const Quantity_Period& anOther) const { return Add(anOther); }
 
   //! Returns TRUE if both <me> and <other> are equal.
-  Standard_EXPORT Standard_Boolean IsEqual(const Quantity_Period& anOther) const;
+  constexpr Standard_Boolean IsEqual(const Quantity_Period& anOther) const noexcept
+  {
+    return (mySec == anOther.mySec && myUSec == anOther.myUSec);
+  }
 
-  Standard_Boolean operator==(const Quantity_Period& anOther) const { return IsEqual(anOther); }
+  constexpr Standard_Boolean operator==(const Quantity_Period& anOther) const noexcept
+  {
+    return IsEqual(anOther);
+  }
 
   //! Returns TRUE if <me> is shorter than <other>.
-  Standard_EXPORT Standard_Boolean IsShorter(const Quantity_Period& anOther) const;
+  constexpr Standard_Boolean IsShorter(const Quantity_Period& anOther) const noexcept
+  {
+    return (mySec < anOther.mySec) || (mySec == anOther.mySec && myUSec < anOther.myUSec);
+  }
 
-  Standard_Boolean operator<(const Quantity_Period& anOther) const { return IsShorter(anOther); }
+  constexpr Standard_Boolean operator<(const Quantity_Period& anOther) const noexcept
+  {
+    return IsShorter(anOther);
+  }
 
   //! Returns TRUE if <me> is longer then <other>.
-  Standard_EXPORT Standard_Boolean IsLonger(const Quantity_Period& anOther) const;
+  constexpr Standard_Boolean IsLonger(const Quantity_Period& anOther) const noexcept
+  {
+    return (mySec > anOther.mySec) || (mySec == anOther.mySec && myUSec > anOther.myUSec);
+  }
 
-  Standard_Boolean operator>(const Quantity_Period& anOther) const { return IsLonger(anOther); }
+  constexpr Standard_Boolean operator>(const Quantity_Period& anOther) const noexcept
+  {
+    return IsLonger(anOther);
+  }
 
   //! Checks the validity of a Period in form (dd,hh,mn,ss,mil,mic)
-  //! With:      0 <= dd
+  //! With:
+  //! 0 <= dd
   //! 0 <= hh
   //! 0 <= mn
   //! 0 <= ss
@@ -140,7 +160,8 @@ public:
                                                   const Standard_Integer mics = 0);
 
   //! Checks the validity of a Period in form (ss,mic)
-  //! With:      0 <= ss
+  //! With:
+  //! 0 <= ss
   //! 0 <= mics
   Standard_EXPORT static Standard_Boolean IsValid(const Standard_Integer ss,
                                                   const Standard_Integer mics = 0);
