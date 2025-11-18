@@ -22,7 +22,12 @@
 #include <Standard_SStream.hxx>
 #include <Storage_StreamReadError.hxx>
 
-class Storage_StreamTypeMismatchError;
+//! @deprecated OCCT 7.9.0 - This exception is deprecated and no longer thrown.
+//! Error handling is now performed via Storage_Error enum and error state management
+//! through Storage_BaseDriver::ErrorStatus() instead of exceptions.
+class Standard_DEPRECATED("This exception is no longer thrown; use "
+                          "Storage_BaseDriver::ErrorStatus() for error state management")
+  Storage_StreamTypeMismatchError;
 DEFINE_STANDARD_HANDLE(Storage_StreamTypeMismatchError, Storage_StreamReadError)
 
 #if !defined No_Exception && !defined No_Storage_StreamTypeMismatchError
