@@ -55,20 +55,20 @@ void CSLib_Class2d::Init(const TCol_Containers2d& TP2d,
     N         = TP2d.Length();
     Tolu      = aTolu;
     Tolv      = aTolv;
-    MyPnts2dX = new TColStd_Array1OfReal(0, N);
-    MyPnts2dY = new TColStd_Array1OfReal(0, N);
+    MyPnts2dX = new math_Vector(0, N);
+    MyPnts2dY = new math_Vector(0, N);
     du        = umax - umin;
     dv        = vmax - vmin;
     //
     iLower = TP2d.Lower();
     for (i = 0; i < N; ++i)
     {
-      const gp_Pnt2d& aP2D      = TP2d(i + iLower);
-      MyPnts2dX->ChangeValue(i) = Transform2d(aP2D.X(), umin, du);
-      MyPnts2dY->ChangeValue(i) = Transform2d(aP2D.Y(), vmin, dv);
+      const gp_Pnt2d& aP2D = TP2d(i + iLower);
+      (*MyPnts2dX)(i)      = Transform2d(aP2D.X(), umin, du);
+      (*MyPnts2dY)(i)      = Transform2d(aP2D.Y(), vmin, dv);
     }
-    MyPnts2dX->ChangeLast() = MyPnts2dX->First();
-    MyPnts2dY->ChangeLast() = MyPnts2dY->First();
+    (*MyPnts2dX)(MyPnts2dX->Upper()) = (*MyPnts2dX)(MyPnts2dX->Lower());
+    (*MyPnts2dY)(MyPnts2dY->Upper()) = (*MyPnts2dY)(MyPnts2dY->Lower());
     //
     if (du > aPrc)
     {
