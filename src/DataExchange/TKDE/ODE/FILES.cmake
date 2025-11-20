@@ -24,12 +24,12 @@ set(OCCT_ODE_FILES
   ODE_Curve3dFile.cxx
   ODE_Curve2dFile.hxx
   ODE_Curve2dFile.cxx
-  #ODE_TopologyFile.hxx
-  #ODE_TopologyFile.cxx
-  #ODE_TriangulationFile.hxx
-  #ODE_TriangulationFile.cxx
-  #ODE_PolygonFile.hxx
-  #ODE_PolygonFile.cxx
+  ODE_TopologyFile.hxx
+  ODE_TopologyFile.cxx
+  ODE_TriangulationFile.hxx
+  ODE_TriangulationFile.cxx
+  ODE_PolygonFile.hxx
+  ODE_PolygonFile.cxx
 #
   ## Writer and Reader
   #ODE_Writer.hxx
