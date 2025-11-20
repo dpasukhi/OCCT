@@ -29,8 +29,9 @@ if (TARGET CapnProto::capnp)
     add_custom_command(
       OUTPUT ${SCHEMA_OUTPUT_H} ${SCHEMA_OUTPUT_CPP}
       COMMAND ${CAPNP_EXECUTABLE} compile
-              -o${CAPNPC_CXX_EXECUTABLE}
+              -o${CAPNPC_CXX_EXECUTABLE}:${ODE_SCHEMA_OUTPUT_DIR}
               --src-prefix=${ODE_SCHEMA_DIR}
+              -I${ODE_SCHEMA_DIR}
               ${SCHEMA}
       DEPENDS ${SCHEMA}
       WORKING_DIRECTORY ${ODE_SCHEMA_DIR}
