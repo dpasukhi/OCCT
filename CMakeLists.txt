@@ -1017,6 +1017,12 @@ foreach (OCCT_3RDPARTY_LIST ${OCCT_3RDPARTY_CMAKE_LIST})
   OCCT_INCLUDE_CMAKE_FILE (${OCCT_3RDPARTY_LIST})
 endforeach()
 
+# Cap'n Proto library for ODE format
+find_package(CapnProto HINTS
+  /opt/homebrew/Cellar/capnp/1.2.0/lib/cmake/CapnProto
+  /opt/homebrew/Cellar/capnp/1.2.0
+)
+
 if (USE_TK)
   add_definitions (-DHAVE_TK)
 else()

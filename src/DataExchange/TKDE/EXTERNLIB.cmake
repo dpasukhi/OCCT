@@ -3,4 +3,6 @@ set(OCCT_TKDE_EXTERNAL_LIBS
   TKernel
   TKMath
   TKBRep
+  TKG3d
+  TKG2d
 )

@@ -1,0 +1,52 @@
+// Copyright (c) 2025 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#ifndef _ODEHash_AxisPlacement2d_HeaderFile
+#define _ODEHash_AxisPlacement2d_HeaderFile
+
+#include <Standard_HashUtils.hxx>
+#include <gp_Ax22d.hxx>
+#include <ODEHash_Point2dHasher.pxx>
+#include <ODEHash_Direction2dHasher.pxx>
+
+//! OCCT-style hasher for gp_Ax22d (2D coordinate system).
+//! Used for geometry deduplication in ODE format.
+struct ODEHash_AxisPlacement2d
+{
+  // Hashes a 2D axis placement by its location, X direction, and Y direction.
+  std::size_t operator()(const gp_Ax22d& theAxisPlacement) const noexcept
+  {
+    const ODEHash_Point2dHasher aPointHasher;
+    const ODEHash_Direction2dHasher aDirHasher;
+
+    const std::size_t aHashes[3] = {
+      aPointHasher(theAxisPlacement.Location()),
+      aDirHasher(theAxisPlacement.XDirection()),
+      aDirHasher(theAxisPlacement.YDirection())
+    };
+    return opencascade::hashBytes(aHashes, sizeof(aHashes));
+  }
+
+  // Compares two 2D axis placements.
+  bool operator()(const gp_Ax22d& theAxisPlacement1, const gp_Ax22d& theAxisPlacement2) const noexcept
+  {
+    const ODEHash_Point2dHasher aPointHasher;
+    const ODEHash_Direction2dHasher aDirHasher;
+
+    return aPointHasher(theAxisPlacement1.Location(), theAxisPlacement2.Location()) &&
+           aDirHasher(theAxisPlacement1.XDirection(), theAxisPlacement2.XDirection()) &&
+           aDirHasher(theAxisPlacement1.YDirection(), theAxisPlacement2.YDirection());
+  }
+};
+
+#endif // _ODEHash_AxisPlacement2d_HeaderFile
