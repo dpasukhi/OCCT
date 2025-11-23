@@ -7,6 +7,9 @@ set(OCCT_TKMath_GTests_FILES
   Bnd_BoundSortBox_Test.cxx
   Bnd_Box_Test.cxx
   Bnd_OBB_Test.cxx
+  CSLib_Class2d_Test.cxx
+  CSLib_Normal_Test.cxx
+  CSLib_NormalPolyDef_Test.cxx
   ElCLib_Test.cxx
   gp_Ax3_Test.cxx
   gp_Mat_Test.cxx

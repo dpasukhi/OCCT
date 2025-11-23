@@ -26,13 +26,13 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_Array2OfReal.hxx>
 
-void CSLib::Normal(
+//=================================================================================================
 
-  const gp_Vec&           D1U,
-  const gp_Vec&           D1V,
-  const Standard_Real     SinTol,
-  CSLib_DerivativeStatus& theStatus,
-  gp_Dir&                 Normal)
+void CSLib::Normal(const gp_Vec&           D1U,
+                   const gp_Vec&           D1V,
+                   const Standard_Real     SinTol,
+                   CSLib_DerivativeStatus& theStatus,
+                   gp_Dir&                 Normal)
 {
 
   // Function: Calculation of the normal from tangents by u and by v.
@@ -67,17 +67,17 @@ void CSLib::Normal(
   }
 }
 
-void CSLib::Normal(
+//=================================================================================================
 
-  const gp_Vec&       D1U,
-  const gp_Vec&       D1V,
-  const gp_Vec&       D2U,
-  const gp_Vec&       D2V,
-  const gp_Vec&       DUV,
-  const Standard_Real SinTol,
-  Standard_Boolean&   Done,
-  CSLib_NormalStatus& theStatus,
-  gp_Dir&             Normal)
+void CSLib::Normal(const gp_Vec&       D1U,
+                   const gp_Vec&       D1V,
+                   const gp_Vec&       D2U,
+                   const gp_Vec&       D2V,
+                   const gp_Vec&       DUV,
+                   const Standard_Real SinTol,
+                   Standard_Boolean&   Done,
+                   CSLib_NormalStatus& theStatus,
+                   gp_Dir&             Normal)
 {
 
   //  Calculation of an approximate normale in case of a null normal.
@@ -140,30 +140,39 @@ void CSLib::Normal(
   }
 }
 
-void CSLib::Normal(
+//=================================================================================================
 
-  const gp_Vec&       D1U,
-  const gp_Vec&       D1V,
-  const Standard_Real MagTol,
-  CSLib_NormalStatus& theStatus,
-  gp_Dir&             Normal)
+void CSLib::Normal(const gp_Vec&       D1U,
+                   const gp_Vec&       D1V,
+                   const Standard_Real MagTol,
+                   CSLib_NormalStatus& theStatus,
+                   gp_Dir&             Normal)
 {
   // Function: Calculate the normal from tangents by u and by v.
 
-  Standard_Real D1UMag  = D1U.Magnitude();
-  Standard_Real D1VMag  = D1V.Magnitude();
-  gp_Vec        D1UvD1V = D1U.Crossed(D1V);
-  Standard_Real NMag    = D1UvD1V.Magnitude();
+  // Optimize by comparing squared magnitudes first to avoid sqrt() calls
+  const Standard_Real MagTol2 = MagTol * MagTol;
+  const Standard_Real D1UMag2 = D1U.SquareMagnitude();
+  const Standard_Real D1VMag2 = D1V.SquareMagnitude();
 
-  if (NMag <= MagTol || D1UMag <= MagTol || D1VMag <= MagTol)
+  // Check if tangent vectors are too small
+  if (D1UMag2 <= MagTol2 || D1VMag2 <= MagTol2)
   {
-
     theStatus = CSLib_Singular;
-    //     if (D1UMag <= MagTol || D1VMag <= MagTol && NMag > MagTol) MagTol = 2* NMag;
+    return;
+  }
+
+  gp_Vec              D1UvD1V = D1U.Crossed(D1V);
+  const Standard_Real NMag2   = D1UvD1V.SquareMagnitude();
+
+  if (NMag2 <= MagTol2)
+  {
+    theStatus = CSLib_Singular;
   }
   else
   {
-    // Firstly normalize tangent vectors D1U and D1V (this method is more stable)
+    // Normalize tangent vectors D1U and D1V for numerical stability
+    // This approach is more stable than normalizing the cross product directly
     gp_Dir aD1U(D1U);
     gp_Dir aD1V(D1V);
     Normal    = gp_Dir(aD1U.Crossed(aD1V));
@@ -171,8 +180,8 @@ void CSLib::Normal(
   }
 }
 
-// Calculate normal vector in singular cases
-//
+//=================================================================================================
+
 void CSLib::Normal(const Standard_Integer    MaxOrder,
                    const TColgp_Array2OfVec& DerNUV,
                    const Standard_Real       SinTol,
@@ -187,14 +196,22 @@ void CSLib::Normal(const Standard_Integer    MaxOrder,
                    Standard_Integer&         OrderU,
                    Standard_Integer&         OrderV)
 {
-  //  Standard_Integer i,l,Order=-1;
+  // This function handles the computation of normals at singular points where
+  // the standard cross product D1U ^ D1V is null or undefined. It uses higher
+  // order derivatives to find the first non-null derivative direction.
+  //
+  // Algorithm:
+  // 1. Search for the first order k0 where at least one derivative is non-null
+  // 2. Check if all derivatives at order k0 are parallel and point in same direction
+  // 3. If conditions are met, determine the normal orientation using polynomial analysis
+
   Standard_Integer i = 0, Order = -1;
   Standard_Boolean Trouve = Standard_False;
-  //  theStatus = Singular;
-  Standard_Real Norme;
-  gp_Vec        D;
-  // Find k0 such that all derivatives N=dS/du ^ dS/dv are null
-  // till order k0-1
+  Standard_Real    Norme;
+  gp_Vec           D;
+
+  // Find the first order k0 such that at least one derivative N=dS/du ^ dS/dv
+  // is non-null. All derivatives of lower orders (0 to k0-1) must be null.
   while (!Trouve && Order < MaxOrder)
   {
     Order++;
@@ -250,15 +267,19 @@ void CSLib::Normal(const Standard_Integer    MaxOrder,
         i++;
       } // end while
       if (!definie)
-      { // All lambda i exist
+      { // All lambda i exist - all derivatives at order k0 are parallel to Vk0
         Standard_Integer SP;
         Standard_Real    inf, sup;
         inf = 0.0 - M_PI;
         sup = 0.0 + M_PI;
         Standard_Boolean FU, LU, FV, LV;
 
-        // Creation of the domain of definition depending on the position
-        // of a single point (medium, border, corner).
+        // Creation of the angular domain [inf, sup] for polynomial root finding
+        // The domain depends on whether the point (U,V) is in the interior,
+        // on an edge, or at a corner of the parameter domain.
+        // - Interior point: [-π, π]
+        // - Edge point: restricted to appropriate half-plane
+        // - Corner point: restricted to appropriate quadrant
         FU = (std::abs(U - Umin) < Precision::PConfusion());
         LU = (std::abs(U - Umax) < Precision::PConfusion());
         FV = (std::abs(V - Vmin) < Precision::PConfusion());
@@ -301,9 +322,13 @@ void CSLib::Normal(const Standard_Integer    MaxOrder,
         }
         Standard_Boolean CS    = 0;
         Standard_Real    Vprec = 0., Vsuiv = 0.;
-        // Creation of the polynom
+
+        // Create the polynomial function whose sign determines normal orientation
+        // The polynomial is built from the ratios of derivative magnitudes
         CSLib_NormalPolyDef Poly(Order, Ratio);
-        // Find zeros of SAPS
+
+        // Find zeros of the polynomial in the angular domain
+        // This determines where the normal direction changes sign
         math_FunctionRoots
           FindRoots(Poly, inf, sup, 200, 1e-5, Precision::Confusion(), Precision::Confusion());
         // If there are zeros
@@ -359,15 +384,17 @@ void CSLib::Normal(const Standard_Integer    MaxOrder,
         }
         // fin if(MFR.IsDone() && MFR.NbSolutions()>0)
 
+        // Determine the sign of the polynomial (SP):
+        // SP = 0  : polynomial changes sign -> infinity of solutions (ambiguous normal)
+        // SP = 1  : polynomial always positive -> normal in +Vk0 direction
+        // SP = -1 : polynomial always negative -> normal in -Vk0 direction
         if (CS)
-          // Polynom changes the sign
-          SP = 0;
+          SP = 0; // Sign changes - ambiguous
         else if (Vsuiv > 0)
-          // Polynom is always positive
-          SP = 1;
+          SP = 1; // Always positive
         else
-          // Polynom is always negative
-          SP = -1;
+          SP = -1; // Always negative
+
         if (SP == 0)
           theStatus = CSLib_InfinityOfSolutions;
         else
@@ -385,9 +412,8 @@ void CSLib::Normal(const Standard_Integer    MaxOrder,
   }
 }
 
-//
-// Calculate the derivative of the non-normed normal vector
-//
+//=================================================================================================
+
 gp_Vec CSLib::DNNUV(const Standard_Integer    Nu,
                     const Standard_Integer    Nv,
                     const TColgp_Array2OfVec& DerSurf)
@@ -425,26 +451,41 @@ gp_Vec CSLib::DNNUV(const Standard_Integer    Nu,
   return D;
 }
 
-//
-// Calculate the derivatives of the normed normal vector depending on the  derivatives
-// of the non-normed normal vector
-//
+//=================================================================================================
+
 gp_Vec CSLib::DNNormal(const Standard_Integer    Nu,
                        const Standard_Integer    Nv,
                        const TColgp_Array2OfVec& DerNUV,
                        const Standard_Integer    Iduref,
                        const Standard_Integer    Idvref)
 {
+  // Calculate the derivatives of the normalized normal vector from the derivatives
+  // of the non-normalized normal vector
+  //
+  // This function computes d^(Nu+Nv)n/(du^Nu dv^Nv) where n is the unit normal vector.
+  // The computation uses the chain rule and Leibniz formula for derivatives of products.
+  //
+  // Algorithm:
+  // 1. Start with the reference normalized normal at (Iduref, Idvref)
+  // 2. Build up derivatives iteratively using previously computed lower-order derivatives
+  // 3. For each derivative order (p,q), compute:
+  //    - Scalar product n·D^(p,q)n (stored in TabScal)
+  //    - Magnitude ||D^(p,q)NUV|| (stored in TabNorm)
+  //    - Normalized derivative vector D^(p,q)n (stored in DerVecNor)
+
   const Standard_Integer Kderiv = Nu + Nv;
-  TColgp_Array2OfVec     DerVecNor(0, Kderiv, 0, Kderiv);
-  TColStd_Array2OfReal   TabScal(0, Kderiv, 0, Kderiv);
-  TColStd_Array2OfReal   TabNorm(0, Kderiv, 0, Kderiv);
-  gp_Vec                 DerNor = (DerNUV.Value(Iduref, Idvref)).Normalized();
+  TColgp_Array2OfVec     DerVecNor(0, Kderiv, 0, Kderiv); // Normalized derivative vectors
+  TColStd_Array2OfReal   TabScal(0, Kderiv, 0, Kderiv);   // Scalar products n·D^(p,q)n
+  TColStd_Array2OfReal   TabNorm(0, Kderiv, 0, Kderiv);   // Magnitudes ||D^(p,q)NUV||
+
+  // Initialize with the base normalized normal vector
+  gp_Vec DerNor = (DerNUV.Value(Iduref, Idvref)).Normalized();
   DerVecNor.SetValue(0, 0, DerNor);
   Standard_Real Dnorm = DerNUV.Value(Iduref, Idvref) * DerVecNor.Value(0, 0);
   TabNorm.SetValue(0, 0, Dnorm);
   TabScal.SetValue(0, 0, 0.);
 
+  // Iteratively compute derivatives of increasing order
   for (Standard_Integer Mderiv = 1; Mderiv <= Kderiv; Mderiv++)
   {
     for (Standard_Integer Pderiv = 0; Pderiv <= Mderiv; Pderiv++)
@@ -455,7 +496,8 @@ gp_Vec CSLib::DNNormal(const Standard_Integer    Nu,
         continue;
       }
 
-      //  Compute n . derivee(p,q) of n
+      // Compute the scalar product n · D^(p,q)n using Leibniz rule
+      // This accounts for all combinations of lower-order derivatives
       Standard_Real Scal = 0.;
       if (Pderiv > Qderiv)
       {

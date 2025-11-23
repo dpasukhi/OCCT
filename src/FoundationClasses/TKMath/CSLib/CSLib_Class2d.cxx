@@ -61,11 +61,18 @@ void CSLib_Class2d::Init(const TCol_Containers2d& TP2d,
     dv        = vmax - vmin;
     //
     iLower = TP2d.Lower();
+
+    // Optimize by avoiding repeated Transform2d calls - compute directly
+    const Standard_Boolean useTransformU = (du > aPrc);
+    const Standard_Boolean useTransformV = (dv > aPrc);
+    const Standard_Real invDu = useTransformU ? (1.0 / du) : 1.0;
+    const Standard_Real invDv = useTransformV ? (1.0 / dv) : 1.0;
+
     for (i = 0; i < N; ++i)
     {
-      const gp_Pnt2d& aP2D      = TP2d(i + iLower);
-      MyPnts2dX->ChangeValue(i) = Transform2d(aP2D.X(), umin, du);
-      MyPnts2dY->ChangeValue(i) = Transform2d(aP2D.Y(), vmin, dv);
+      const gp_Pnt2d& aP2D = TP2d(i + iLower);
+      MyPnts2dX->ChangeValue(i) = useTransformU ? ((aP2D.X() - umin) * invDu) : aP2D.X();
+      MyPnts2dY->ChangeValue(i) = useTransformV ? ((aP2D.Y() - vmin) * invDv) : aP2D.Y();
     }
     MyPnts2dX->ChangeLast() = MyPnts2dX->First();
     MyPnts2dY->ChangeLast() = MyPnts2dY->First();
@@ -240,25 +247,23 @@ Standard_Integer CSLib_Class2d::InternalSiDans(const Standard_Real Px, const Sta
   return (nbc & 1);
 }
 
-// modified by NIZNHY-PKV Fri Jan 15 09:03:48 2010f
 //=======================================================================
-// function : InternalSiDansOuOn
-// purpose  : same code as above + test on ON (return(-1) in this case
-//=======================================================================
+
 Standard_Integer CSLib_Class2d::InternalSiDansOuOn(const Standard_Real Px,
                                                    const Standard_Real Py) const
 {
   Standard_Integer nbc, i, ip1, SH, NH, iRet;
   Standard_Real    x, y, nx, ny, aX;
   Standard_Real    aYmin;
-  //
-  nbc   = 0;
+
+  // Initialize ray casting algorithm
+  nbc   = 0;  // Count of ray intersections with polygon edges
   i     = 0;
   ip1   = 1;
-  x     = (MyPnts2dX->Value(i) - Px);
+  x     = (MyPnts2dX->Value(i) - Px);  // Relative coordinates
   y     = (MyPnts2dY->Value(i) - Py);
   aYmin = y;
-  SH    = (y < 0.) ? -1 : 1;
+  SH    = (y < 0.) ? -1 : 1;  // Sign of Y coordinate
   for (i = 0; i < N; i++, ip1++)
   {
 
@@ -273,7 +278,7 @@ Standard_Integer CSLib_Class2d::InternalSiDansOuOn(const Standard_Real Px,
     // find Y coordinate of polyline for current X gka
     // in order to detect possible status ON
     Standard_Real aDx = (MyPnts2dX->Value(ip1) - MyPnts2dX->Value(ip1 - 1));
-    if ((MyPnts2dX->Value(ip1 - 1) - Px) * nx < 0.)
+    if ((MyPnts2dX->Value(ip1 - 1) - Px) * nx < 0. && std::abs(aDx) > Precision::Confusion())
     {
 
       Standard_Real aCurPY =
@@ -322,7 +327,6 @@ Standard_Integer CSLib_Class2d::InternalSiDansOuOn(const Standard_Real Px,
   return iRet;
 }
 
-// modified by NIZNHY-PKV Fri Jan 15 09:03:55 2010t
 //=================================================================================================
 
 Standard_Real Transform2d(const Standard_Real u,
