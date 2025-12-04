@@ -12,7 +12,6 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Standard_ErrorHandler.hxx>
 #include <Standard_Type.hxx>
 #include <Storage.hxx>
 #include <Storage_BaseDriver.hxx>
@@ -23,7 +22,6 @@
 #include <Storage_HSeqOfRoot.hxx>
 #include <Storage_Root.hxx>
 #include <Storage_Schema.hxx>
-#include <Storage_StreamWriteError.hxx>
 #include <Storage_TypeData.hxx>
 #include <Storage_TypedCallBack.hxx>
 #include <TCollection_AsciiString.hxx>
@@ -349,13 +347,25 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
   aData->HeaderData()->SetSchemaName(myName);
   aData->HeaderData()->SetSchemaVersion(myVersion);
 
+// Helper macro to check driver error status after each operation
+// and return early if an error occurred
+#define CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()                                                  \
+  if (theDriver->ErrorStatus() != Storage_VSOk)                                                    \
+  {                                                                                                \
+    aData->SetErrorStatus(theDriver->ErrorStatus());                                               \
+    aData->SetErrorStatusExtension(errorContext);                                                  \
+    iData->Clear();                                                                                \
+    Clear();                                                                                       \
+    return;                                                                                        \
+  }
+
   if ((theDriver->OpenMode() == Storage_VSWrite) || (theDriver->OpenMode() == Storage_VSReadWrite))
   {
-    try
     {
-      OCC_CATCH_SIGNALS
       errorContext = "BeginWriteInfoSection";
       theDriver->BeginWriteInfoSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
+
       errorContext = "WriteInfo";
       theDriver->WriteInfo(aData->NumberOfObjects(),
                            aData->StorageVersion(),
@@ -366,15 +376,23 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
                            aData->ApplicationVersion(),
                            aData->DataType(),
                            aData->UserInfo());
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
+
       errorContext = "EndWriteInfoSection";
       theDriver->EndWriteInfoSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
 
       errorContext = "BeginWriteCommentSection";
       theDriver->BeginWriteCommentSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
+
       errorContext = "WriteComment";
       theDriver->WriteComment(aData->Comments());
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
+
       errorContext = "EndWriteCommentSection";
       theDriver->EndWriteCommentSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
 
       Handle(TColStd_HSequenceOfAsciiString) tlist;
 
@@ -382,6 +400,8 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
 
       errorContext = "BeginWriteTypeSection";
       theDriver->BeginWriteTypeSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
+
       len = aData->NumberOfTypes();
 
       Handle(Storage_HArrayOfCallBack) WFunc = new Storage_HArrayOfCallBack(1, len);
@@ -401,44 +421,57 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
       for (i = 1; i <= len; i++)
       {
         theDriver->WriteTypeInformations(i, tlist->Value(i).ToCString());
+        CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
       }
 
       errorContext = "EndWriteTypeSection";
       theDriver->EndWriteTypeSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
 
       errorContext = "BeginWriteRootSection";
       theDriver->BeginWriteRootSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
+
       theDriver->SetRootSectionSize(plist->Length());
 
       errorContext = "WriteRoot";
       for (i = 1; i <= plist->Length(); i++)
       {
         theDriver->WriteRoot(plist->Value(i)->Name(), i, "PDocStd_Document");
+        CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
       }
 
       errorContext = "EndWriteRootSection";
       theDriver->EndWriteRootSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
 
       errorContext = "BeginWriteRefSection";
       theDriver->BeginWriteRefSection();
-      theDriver->SetRefSectionSize(iData->myObjId - 1);
-      errorContext = "WriteReferenceType";
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
 
+      theDriver->SetRefSectionSize(iData->myObjId - 1);
+
+      errorContext = "WriteReferenceType";
       Storage_BucketIterator bit(&iData->myPtoA);
 
       while (bit.More())
       {
         p = bit.Value();
         if (!p.IsNull())
+        {
           theDriver->WriteReferenceType(p->_refnum, p->_typenum);
+          CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
+        }
         bit.Next();
       }
 
       errorContext = "EndWriteRefSection";
       theDriver->EndWriteRefSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
 
       errorContext = "BeginWriteDataSection";
       theDriver->BeginWriteDataSection();
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
 
       Handle(Storage_Schema) me = this;
 
@@ -452,6 +485,7 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
         if (!p.IsNull())
         {
           WFunc->Value(p->_typenum)->Write(p, theDriver, me);
+          CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
           p->_typenum = 0;
         }
         bit.Next();
@@ -459,11 +493,7 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
 
       errorContext = "EndWriteDataSection";
       theDriver->EndWriteDataSection();
-    }
-    catch (Storage_StreamWriteError const&)
-    {
-      aData->SetErrorStatus(Storage_VSWriteError);
-      aData->SetErrorStatusExtension(errorContext);
+      CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED()
     }
   }
   else
@@ -471,6 +501,9 @@ void Storage_Schema::Write(const Handle(Storage_BaseDriver)& theDriver,
     aData->SetErrorStatus(Storage_VSModeError);
     aData->SetErrorStatusExtension("OpenMode");
   }
+
+// Clean up the helper macro
+#undef CHECK_DRIVER_ERROR_AND_RETURN_IF_FAILED
 
   iData->Clear();
   Clear();
