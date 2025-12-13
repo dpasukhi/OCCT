@@ -131,10 +131,8 @@ StdPrs_BRepFont::StdPrs_BRepFont()
 
 void StdPrs_BRepFont::init()
 {
-  mySurface                              = new Geom_Plane(gp_Pln(gp::XOY()));
-  myCurve2dAdaptor                       = new Geom2dAdaptor_Curve();
-  Handle(Adaptor3d_Surface) aSurfAdaptor = new GeomAdaptor_Surface(mySurface);
-  myCurvOnSurf.Load(aSurfAdaptor);
+  mySurface = new Geom_Plane(gp_Pln(gp::XOY()));
+  mySurfaceAdaptor.Load(mySurface);
 }
 
 //=================================================================================================
@@ -270,13 +268,12 @@ bool StdPrs_BRepFont::to3d(const Handle(Geom2d_Curve)& theCurve2d,
 {
   Standard_Real aMaxDeviation   = 0.0;
   Standard_Real anAverDeviation = 0.0;
-  myCurve2dAdaptor->Load(theCurve2d);
-  const Handle(Adaptor2d_Curve2d)& aCurve = myCurve2dAdaptor; // to avoid ambiguity
-  myCurvOnSurf.Load(aCurve);
+  myCurve2dAdaptor.Load(theCurve2d);
   GeomLib::BuildCurve3d(myPrecision,
-                        myCurvOnSurf,
-                        myCurve2dAdaptor->FirstParameter(),
-                        myCurve2dAdaptor->LastParameter(),
+                        myCurve2dAdaptor,
+                        mySurfaceAdaptor,
+                        myCurve2dAdaptor.FirstParameter(),
+                        myCurve2dAdaptor.LastParameter(),
                         theCurve3d,
                         aMaxDeviation,
                         anAverDeviation,

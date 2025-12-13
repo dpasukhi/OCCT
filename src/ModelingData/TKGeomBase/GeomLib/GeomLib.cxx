@@ -1181,6 +1181,230 @@ void GeomLib::BuildCurve3d(const Standard_Real       Tolerance,
   }
 }
 
+//=======================================================================
+// class : GeomLib_COS_RefEvaluator
+// purpose: Evaluator for Curve On Surface using adaptor references
+//=======================================================================
+
+class GeomLib_COS_RefEvaluator : public AdvApprox_EvaluatorFunction
+{
+public:
+  GeomLib_COS_RefEvaluator(Geom2dAdaptor_Curve&       thePCurve,
+                           const GeomAdaptor_Surface& theSurface,
+                           Standard_Real              theFirst,
+                           Standard_Real              theLast)
+      : myPCurve(thePCurve),
+        mySurface(theSurface),
+        myTrimFirst(theFirst),
+        myTrimLast(theLast)
+  {
+  }
+
+  virtual void Evaluate(Standard_Integer* Dimension,
+                        Standard_Real     StartEnd[2],
+                        Standard_Real*    Parameter,
+                        Standard_Integer* DerivativeRequest,
+                        Standard_Real*    Result, // [Dimension]
+                        Standard_Integer* ErrorCode) Standard_OVERRIDE;
+
+private:
+  // Evaluate point on surface at 2D curve parameter
+  void evaluateD0(Standard_Real theParam, gp_Pnt& thePoint) const;
+  void evaluateD1(Standard_Real theParam, gp_Pnt& thePoint, gp_Vec& theD1) const;
+  void evaluateD2(Standard_Real theParam, gp_Pnt& thePoint, gp_Vec& theD1, gp_Vec& theD2) const;
+
+  Geom2dAdaptor_Curve&       myPCurve;
+  const GeomAdaptor_Surface& mySurface;
+  Standard_Real              myTrimFirst;
+  Standard_Real              myTrimLast;
+};
+
+void GeomLib_COS_RefEvaluator::evaluateD0(Standard_Real theParam, gp_Pnt& thePoint) const
+{
+  gp_Pnt2d aPnt2d;
+  myPCurve.D0(theParam, aPnt2d);
+  mySurface.D0(aPnt2d.X(), aPnt2d.Y(), thePoint);
+}
+
+void GeomLib_COS_RefEvaluator::evaluateD1(Standard_Real theParam, gp_Pnt& thePoint, gp_Vec& theD1) const
+{
+  gp_Pnt2d aPnt2d;
+  gp_Vec2d aDC2d;
+  myPCurve.D1(theParam, aPnt2d, aDC2d);
+
+  gp_Pnt aP;
+  gp_Vec aDU, aDV;
+  mySurface.D1(aPnt2d.X(), aPnt2d.Y(), aP, aDU, aDV);
+
+  thePoint = aP;
+  theD1    = aDC2d.X() * aDU + aDC2d.Y() * aDV;
+}
+
+void GeomLib_COS_RefEvaluator::evaluateD2(Standard_Real theParam,
+                                          gp_Pnt&       thePoint,
+                                          gp_Vec&       theD1,
+                                          gp_Vec&       theD2) const
+{
+  gp_Pnt2d aPnt2d;
+  gp_Vec2d aDC2d, aD2C2d;
+  myPCurve.D2(theParam, aPnt2d, aDC2d, aD2C2d);
+
+  gp_Pnt aP;
+  gp_Vec aDU, aDV, aDUU, aDVV, aDUV;
+  mySurface.D2(aPnt2d.X(), aPnt2d.Y(), aP, aDU, aDV, aDUU, aDVV, aDUV);
+
+  thePoint = aP;
+  theD1    = aDC2d.X() * aDU + aDC2d.Y() * aDV;
+  theD2    = aD2C2d.X() * aDU + aD2C2d.Y() * aDV + aDC2d.X() * aDC2d.X() * aDUU
+           + 2.0 * aDC2d.X() * aDC2d.Y() * aDUV + aDC2d.Y() * aDC2d.Y() * aDVV;
+}
+
+void GeomLib_COS_RefEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
+                                        Standard_Real     DebutFin[2],
+                                        Standard_Real*    Parameter,
+                                        Standard_Integer* DerivativeRequest,
+                                        Standard_Real*    Result,
+                                        Standard_Integer* ReturnCode)
+{
+  // Update trim parameters if needed
+  if ((DebutFin[0] != myTrimFirst) || (DebutFin[1] != myTrimLast))
+  {
+    myTrimFirst = DebutFin[0];
+    myTrimLast  = DebutFin[1];
+  }
+
+  gp_Pnt aPoint;
+  if (*DerivativeRequest == 0)
+  {
+    evaluateD0(*Parameter, aPoint);
+    for (Standard_Integer ii = 0; ii < 3; ii++)
+      Result[ii] = aPoint.Coord(ii + 1);
+  }
+  else if (*DerivativeRequest == 1)
+  {
+    gp_Vec aVec;
+    evaluateD1(*Parameter, aPoint, aVec);
+    for (Standard_Integer ii = 0; ii < 3; ii++)
+      Result[ii] = aVec.Coord(ii + 1);
+  }
+  else if (*DerivativeRequest == 2)
+  {
+    gp_Vec aVec1, aVec2;
+    evaluateD2(*Parameter, aPoint, aVec1, aVec2);
+    for (Standard_Integer ii = 0; ii < 3; ii++)
+      Result[ii] = aVec2.Coord(ii + 1);
+  }
+  ReturnCode[0] = 0;
+}
+
+//=================================================================================================
+
+void GeomLib::BuildCurve3d(const Standard_Real      theTolerance,
+                           Geom2dAdaptor_Curve&     thePCurve,
+                           const GeomAdaptor_Surface& theSurface,
+                           const Standard_Real      theFirstParameter,
+                           const Standard_Real      theLastParameter,
+                           Handle(Geom_Curve)&      theNewCurve,
+                           Standard_Real&           theMaxDeviation,
+                           Standard_Real&           theAverageDeviation,
+                           const GeomAbs_Shape      theContinuity,
+                           const Standard_Integer   theMaxDegree,
+                           const Standard_Integer   theMaxSegment)
+{
+  theMaxDeviation     = 0.0;
+  theAverageDeviation = 0.0;
+
+  // Check for plane case - fast path
+  Handle(Geom_Plane) aPlane;
+  Handle(Geom_RectangularTrimmedSurface) aRT =
+    Handle(Geom_RectangularTrimmedSurface)::DownCast(theSurface.Surface());
+  if (aRT.IsNull())
+  {
+    aPlane = Handle(Geom_Plane)::DownCast(theSurface.Surface());
+  }
+  else
+  {
+    aPlane = Handle(Geom_Plane)::DownCast(aRT->BasisSurface());
+  }
+
+  if (!aPlane.IsNull())
+  {
+    // Compute the 3D curve directly
+    gp_Ax2 anAxes = aPlane->Position().Ax2();
+    theNewCurve   = GeomLib::To3d(anAxes, thePCurve.Curve());
+    return;
+  }
+
+  // Check for iso line case
+  Handle(Geom2dAdaptor_Curve) aTrimmedC2D =
+    Handle(Geom2dAdaptor_Curve)::DownCast(thePCurve.Trim(theFirstParameter, theLastParameter, Precision::PConfusion()));
+  Handle(GeomAdaptor_Surface) aSurfHandle = new GeomAdaptor_Surface(theSurface.Surface(),
+                                                                     theSurface.FirstUParameter(),
+                                                                     theSurface.LastUParameter(),
+                                                                     theSurface.FirstVParameter(),
+                                                                     theSurface.LastVParameter());
+
+  Standard_Boolean isU, isForward;
+  Standard_Real    aParam;
+  if (!aTrimmedC2D.IsNull() && isIsoLine(aTrimmedC2D, isU, aParam, isForward))
+  {
+    theNewCurve = buildC3dOnIsoLine(aTrimmedC2D,
+                                    aSurfHandle,
+                                    theFirstParameter,
+                                    theLastParameter,
+                                    theTolerance,
+                                    isU,
+                                    aParam,
+                                    isForward);
+    if (!theNewCurve.IsNull())
+    {
+      return;
+    }
+  }
+
+  // General case: approximation
+  Handle(TColStd_HArray1OfReal) aTolerance1DPtr, aTolerance2DPtr;
+  Handle(TColStd_HArray1OfReal) aTolerance3DPtr = new TColStd_HArray1OfReal(1, 1);
+  aTolerance3DPtr->SetValue(1, theTolerance);
+
+  // Get discontinuities from the surface, not the curve
+  // For a curve on surface, continuity depends on both
+  Standard_Integer     aNbIntervalC2 = thePCurve.NbIntervals(GeomAbs_C2);
+  TColStd_Array1OfReal aParamC2(1, aNbIntervalC2 + 1);
+  thePCurve.Intervals(aParamC2, GeomAbs_C2);
+
+  Standard_Integer     aNbIntervalC3 = thePCurve.NbIntervals(GeomAbs_C3);
+  TColStd_Array1OfReal aParamC3(1, aNbIntervalC3 + 1);
+  thePCurve.Intervals(aParamC3, GeomAbs_C3);
+
+  // Create evaluator
+  GeomLib_COS_RefEvaluator anEvaluator(thePCurve, theSurface, theFirstParameter - 1., theLastParameter + 1.);
+
+  // Approximation
+  AdvApprox_PrefAndRec      aPreferential(aParamC2, aParamC3);
+  AdvApprox_ApproxAFunction anApproximator(0,
+                                           0,
+                                           1,
+                                           aTolerance1DPtr,
+                                           aTolerance2DPtr,
+                                           aTolerance3DPtr,
+                                           theFirstParameter,
+                                           theLastParameter,
+                                           theContinuity,
+                                           theMaxDegree,
+                                           theMaxSegment,
+                                           anEvaluator,
+                                           aPreferential);
+
+  if (anApproximator.HasResult())
+  {
+    GeomLib_MakeCurvefromApprox aCurveBuilder(anApproximator);
+    theNewCurve         = aCurveBuilder.Curve(1);
+    theMaxDeviation     = anApproximator.MaxError(3, 1);
+    theAverageDeviation = anApproximator.AverageError(3, 1);
+  }
+}
+
 //=================================================================================================
 
 void GeomLib::AdjustExtremity(Handle(Geom_BoundedCurve)& Curve,

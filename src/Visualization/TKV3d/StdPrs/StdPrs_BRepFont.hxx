@@ -15,11 +15,11 @@
 #ifndef _StdPrs_BRepFont_H__
 #define _StdPrs_BRepFont_H__
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <Font_FTFont.hxx>
 #include <Font_TextFormatter.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Geom2dConvert_CompCurveToBSplineCurve.hxx>
 #include <NCollection_DataMap.hxx>
 #include <NCollection_String.hxx>
@@ -216,8 +216,8 @@ protected:                                                        //! @name Prot
   // clang-format on
 
 protected: //! @name Shared temporary variables for glyph construction
-  Adaptor3d_CurveOnSurface              myCurvOnSurf;
-  Handle(Geom2dAdaptor_Curve)           myCurve2dAdaptor;
+  GeomAdaptor_Surface                   mySurfaceAdaptor;
+  Geom2dAdaptor_Curve                   myCurve2dAdaptor;
   Geom2dConvert_CompCurveToBSplineCurve myConcatMaker;
   TColgp_Array1OfPnt2d                  my3Poles;
   TColgp_Array1OfPnt2d                  my4Poles;

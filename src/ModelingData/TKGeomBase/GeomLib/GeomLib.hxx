@@ -38,6 +38,8 @@ class Adaptor3d_Curve;
 class Geom_BSplineSurface;
 class Geom_BezierSurface;
 class Geom_Surface;
+class Geom2dAdaptor_Curve;
+class GeomAdaptor_Surface;
 
 typedef class Adaptor2d_Curve2d Adaptor2d_Curve2d;
 
@@ -91,6 +93,30 @@ public:
                                            const GeomAbs_Shape       Continuity = GeomAbs_C1,
                                            const Standard_Integer    MaxDegree  = 14,
                                            const Standard_Integer    MaxSegment = 30);
+
+  //! Builds a 3D curve from a 2D curve on surface.
+  //! @param theTolerance approximation tolerance
+  //! @param thePCurve 2D curve adaptor
+  //! @param theSurface surface adaptor
+  //! @param theFirstParameter first parameter of the curve
+  //! @param theLastParameter last parameter of the curve
+  //! @param theNewCurve resulting 3D curve
+  //! @param theMaxDeviation maximum deviation
+  //! @param theAverageDeviation average deviation
+  //! @param theContinuity desired continuity (default GeomAbs_C1)
+  //! @param theMaxDegree maximum degree (default 14)
+  //! @param theMaxSegment maximum number of segments (default 30)
+  Standard_EXPORT static void BuildCurve3d(const Standard_Real      theTolerance,
+                                           Geom2dAdaptor_Curve&     thePCurve,
+                                           const GeomAdaptor_Surface& theSurface,
+                                           const Standard_Real      theFirstParameter,
+                                           const Standard_Real      theLastParameter,
+                                           Handle(Geom_Curve)&      theNewCurve,
+                                           Standard_Real&           theMaxDeviation,
+                                           Standard_Real&           theAverageDeviation,
+                                           const GeomAbs_Shape      theContinuity = GeomAbs_C1,
+                                           const Standard_Integer   theMaxDegree  = 14,
+                                           const Standard_Integer   theMaxSegment = 30);
 
   Standard_EXPORT static void AdjustExtremity(Handle(Geom_BoundedCurve)& Curve,
                                               const gp_Pnt&              P1,
