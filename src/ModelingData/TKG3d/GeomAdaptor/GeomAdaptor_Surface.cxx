@@ -28,6 +28,7 @@
 #include <BSplCLib.hxx>
 #include <BSplSLib_Cache.hxx>
 #include <Geom_BezierSurface.hxx>
+#include <Geom_BSplineSurface.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_ConicalSurface.hxx>
 #include <Geom_Curve.hxx>
@@ -41,9 +42,6 @@
 #include <Geom_SurfaceOfRevolution.hxx>
 #include <Geom_ToroidalSurface.hxx>
 #include <GeomAdaptor_Curve.hxx>
-#include <GeomEvaluator_OffsetSurface.hxx>
-#include <GeomEvaluator_SurfaceOfExtrusion.hxx>
-#include <GeomEvaluator_SurfaceOfRevolution.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Cone.hxx>
 #include <gp_Cylinder.hxx>
@@ -78,11 +76,6 @@ GeomAdaptor_Surface::GeomAdaptor_Surface(const GeomAdaptor_Surface& theOther)
       myBSplineSurface(theOther.myBSplineSurface),
       mySurfaceType(theOther.mySurfaceType)
 {
-  // Deep copy the nested evaluator if present
-  if (!theOther.myNestedEvaluator.IsNull())
-  {
-    myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
-  }
   // Note: mySurfaceCache is intentionally not copied - it will be rebuilt on demand
 }
 
@@ -99,8 +92,7 @@ GeomAdaptor_Surface::GeomAdaptor_Surface(GeomAdaptor_Surface&& theOther) noexcep
       myTolV(theOther.myTolV),
       myBSplineSurface(std::move(theOther.myBSplineSurface)),
       mySurfaceCache(std::move(theOther.mySurfaceCache)),
-      mySurfaceType(theOther.mySurfaceType),
-      myNestedEvaluator(std::move(theOther.myNestedEvaluator))
+      mySurfaceType(theOther.mySurfaceType)
 {
   theOther.myUFirst      = 0.0;
   theOther.myULast       = 0.0;
@@ -127,14 +119,6 @@ GeomAdaptor_Surface& GeomAdaptor_Surface::operator=(const GeomAdaptor_Surface& t
     myBSplineSurface = theOther.myBSplineSurface;
     mySurfaceType    = theOther.mySurfaceType;
     mySurfaceCache.Nullify(); // Will be rebuilt on demand
-    if (!theOther.myNestedEvaluator.IsNull())
-    {
-      myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
-    }
-    else
-    {
-      myNestedEvaluator.Nullify();
-    }
   }
   return *this;
 }
@@ -145,17 +129,16 @@ GeomAdaptor_Surface& GeomAdaptor_Surface::operator=(GeomAdaptor_Surface&& theOth
 {
   if (this != &theOther)
   {
-    mySurface         = std::move(theOther.mySurface);
-    myUFirst          = theOther.myUFirst;
-    myULast           = theOther.myULast;
-    myVFirst          = theOther.myVFirst;
-    myVLast           = theOther.myVLast;
-    myTolU            = theOther.myTolU;
-    myTolV            = theOther.myTolV;
-    myBSplineSurface  = std::move(theOther.myBSplineSurface);
-    mySurfaceCache    = std::move(theOther.mySurfaceCache);
-    mySurfaceType     = theOther.mySurfaceType;
-    myNestedEvaluator = std::move(theOther.myNestedEvaluator);
+    mySurface        = std::move(theOther.mySurface);
+    myUFirst         = theOther.myUFirst;
+    myULast          = theOther.myULast;
+    myVFirst         = theOther.myVFirst;
+    myVLast          = theOther.myVLast;
+    myTolU           = theOther.myTolU;
+    myTolV           = theOther.myTolV;
+    myBSplineSurface = std::move(theOther.myBSplineSurface);
+    mySurfaceCache   = std::move(theOther.mySurfaceCache);
+    mySurfaceType    = theOther.mySurfaceType;
 
     theOther.myUFirst      = 0.0;
     theOther.myULast       = 0.0;
@@ -238,12 +221,7 @@ Handle(Adaptor3d_Surface) GeomAdaptor_Surface::ShallowCopy() const
   aCopy->myTolU           = myTolU;
   aCopy->myTolV           = myTolV;
   aCopy->myBSplineSurface = myBSplineSurface;
-
-  aCopy->mySurfaceType = mySurfaceType;
-  if (!myNestedEvaluator.IsNull())
-  {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
-  }
+  aCopy->mySurfaceType    = mySurfaceType;
 
   return aCopy;
 }
@@ -269,7 +247,6 @@ void GeomAdaptor_Surface::load(const Handle(Geom_Surface)& S,
   if (mySurface != S)
   {
     mySurface = S;
-    myNestedEvaluator.Nullify();
     myBSplineSurface.Nullify();
 
     const Handle(Standard_Type)& TheType = S->DynamicType();
@@ -292,51 +269,18 @@ void GeomAdaptor_Surface::load(const Handle(Geom_Surface)& S,
     else if (TheType == STANDARD_TYPE(Geom_ToroidalSurface))
       mySurfaceType = GeomAbs_Torus;
     else if (TheType == STANDARD_TYPE(Geom_SurfaceOfRevolution))
-    {
       mySurfaceType = GeomAbs_SurfaceOfRevolution;
-      Handle(Geom_SurfaceOfRevolution) myRevSurf =
-        Handle(Geom_SurfaceOfRevolution)::DownCast(mySurface);
-      // Create nested adaptor for base curve
-      Handle(Geom_Curve)  aBaseCurve   = myRevSurf->BasisCurve();
-      GeomAdaptor_Curve*  aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
-      // Create corresponding evaluator (takes ownership of adaptor)
-      myNestedEvaluator = new GeomEvaluator_SurfaceOfRevolution(aBaseAdaptor,
-                                                                myRevSurf->Direction(),
-                                                                myRevSurf->Location());
-    }
     else if (TheType == STANDARD_TYPE(Geom_SurfaceOfLinearExtrusion))
-    {
       mySurfaceType = GeomAbs_SurfaceOfExtrusion;
-      Handle(Geom_SurfaceOfLinearExtrusion) myExtSurf =
-        Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(mySurface);
-      // Create nested adaptor for base curve
-      Handle(Geom_Curve)  aBaseCurve   = myExtSurf->BasisCurve();
-      GeomAdaptor_Curve*  aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
-      // Create corresponding evaluator (takes ownership of adaptor)
-      myNestedEvaluator =
-        new GeomEvaluator_SurfaceOfExtrusion(aBaseAdaptor, myExtSurf->Direction());
-    }
     else if (TheType == STANDARD_TYPE(Geom_BezierSurface))
-    {
       mySurfaceType = GeomAbs_BezierSurface;
-    }
     else if (TheType == STANDARD_TYPE(Geom_BSplineSurface))
     {
       mySurfaceType    = GeomAbs_BSplineSurface;
       myBSplineSurface = Handle(Geom_BSplineSurface)::DownCast(mySurface);
     }
     else if (TheType == STANDARD_TYPE(Geom_OffsetSurface))
-    {
-      mySurfaceType                        = GeomAbs_OffsetSurface;
-      Handle(Geom_OffsetSurface) myOffSurf = Handle(Geom_OffsetSurface)::DownCast(mySurface);
-      // Create nested adaptor for base surface
-      Handle(Geom_Surface)        aBaseSurf = myOffSurf->BasisSurface();
-      Handle(GeomAdaptor_Surface) aBaseAdaptor =
-        new GeomAdaptor_Surface(aBaseSurf, myUFirst, myULast, myVFirst, myVLast, myTolU, myTolV);
-      myNestedEvaluator = new GeomEvaluator_OffsetSurface(aBaseAdaptor,
-                                                          myOffSurf->Offset(),
-                                                          myOffSurf->OsculatingSurface());
-    }
+      mySurfaceType = GeomAbs_OffsetSurface;
     else
       mySurfaceType = GeomAbs_OtherSurface;
   }
@@ -880,14 +824,6 @@ void GeomAdaptor_Surface::D0(const Standard_Real U, const Standard_Real V, gp_Pn
       mySurfaceCache->D0(U, V, P);
       break;
 
-    case GeomAbs_OffsetSurface:
-    case GeomAbs_SurfaceOfExtrusion:
-    case GeomAbs_SurfaceOfRevolution:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
-                                     "GeomAdaptor_Surface::D0: evaluator is not initialized");
-      myNestedEvaluator->D0(U, V, P);
-      break;
-
     default:
       mySurface->D0(U, V, P);
   }
@@ -939,14 +875,6 @@ void GeomAdaptor_Surface::D1(const Standard_Real U,
       }
       break;
     }
-
-    case GeomAbs_SurfaceOfExtrusion:
-    case GeomAbs_SurfaceOfRevolution:
-    case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
-                                     "GeomAdaptor_Surface::D1: evaluator is not initialized");
-      myNestedEvaluator->D1(u, v, P, D1U, D1V);
-      break;
 
     default:
       mySurface->D1(u, v, P, D1U, D1V);
@@ -1003,18 +931,8 @@ void GeomAdaptor_Surface::D2(const Standard_Real U,
       break;
     }
 
-    case GeomAbs_SurfaceOfExtrusion:
-    case GeomAbs_SurfaceOfRevolution:
-    case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
-                                     "GeomAdaptor_Surface::D2: evaluator is not initialized");
-      myNestedEvaluator->D2(u, v, P, D1U, D1V, D2U, D2V, D2UV);
-      break;
-
-    default: {
+    default:
       mySurface->D2(u, v, P, D1U, D1V, D2U, D2V, D2UV);
-      break;
-    }
   }
 }
 
@@ -1086,18 +1004,8 @@ void GeomAdaptor_Surface::D3(const Standard_Real U,
       break;
     }
 
-    case GeomAbs_SurfaceOfExtrusion:
-    case GeomAbs_SurfaceOfRevolution:
-    case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
-                                     "GeomAdaptor_Surface::D3: evaluator is not initialized");
-      myNestedEvaluator->D3(u, v, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-      break;
-
-    default: {
+    default:
       mySurface->D3(u, v, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-      break;
-    }
   }
 }
 
@@ -1148,10 +1056,6 @@ gp_Vec GeomAdaptor_Surface::DN(const Standard_Real    U,
     case GeomAbs_SurfaceOfExtrusion:
     case GeomAbs_SurfaceOfRevolution:
     case GeomAbs_OffsetSurface:
-      Standard_NoSuchObject_Raise_if(myNestedEvaluator.IsNull(),
-                                     "GeomAdaptor_Surface::DN: evaluator is not initialized");
-      return myNestedEvaluator->DN(u, v, Nu, Nv);
-
     case GeomAbs_Plane:
     case GeomAbs_Cylinder:
     case GeomAbs_Cone:

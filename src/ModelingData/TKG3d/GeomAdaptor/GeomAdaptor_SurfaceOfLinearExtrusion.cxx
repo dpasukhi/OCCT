@@ -18,9 +18,9 @@
 
 #include <GeomAdaptor_Curve.hxx>
 #include <gp_Ax3.hxx>
-#include <GeomEvaluator_SurfaceOfExtrusion.hxx>
 #include <Standard_NoSuchObject.hxx>
 #include <Standard_NotImplemented.hxx>
+#include <Standard_RangeError.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_SurfaceOfLinearExtrusion, GeomAdaptor_Surface)
 
@@ -88,10 +88,6 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::ShallowCopy() co
   aCopy->myBSplineSurface = myBSplineSurface;
 
   aCopy->mySurfaceType = mySurfaceType;
-  if (!myNestedEvaluator.IsNull())
-  {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
-  }
 
   return aCopy;
 }
@@ -113,11 +109,6 @@ void GeomAdaptor_SurfaceOfLinearExtrusion::Load(const gp_Dir& V)
   myDirection = V;
 
   mySurfaceType = GeomAbs_SurfaceOfExtrusion;
-  if (myBasisCurve != nullptr)
-  {
-    GeomAdaptor_Curve* aBaseAdaptor = new GeomAdaptor_Curve(myBasisCurve->Copy());
-    myNestedEvaluator = new GeomEvaluator_SurfaceOfExtrusion(aBaseAdaptor, myDirection);
-  }
 }
 
 //=================================================================================================
@@ -465,4 +456,114 @@ Handle(Adaptor3d_Curve) GeomAdaptor_SurfaceOfLinearExtrusion::BasisCurve() const
 {
   throw Standard_NotImplemented(
     "GeomAdaptor_SurfaceOfLinearExtrusion::BasisCurve() - use BasisCurvePtr() instead");
+}
+
+//=================================================================================================
+
+gp_Pnt GeomAdaptor_SurfaceOfLinearExtrusion::Value(const Standard_Real theU,
+                                                    const Standard_Real theV) const
+{
+  gp_Pnt aP;
+  D0(theU, theV, aP);
+  return aP;
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D0(const Standard_Real theU,
+                                               const Standard_Real theV,
+                                               gp_Pnt&             theValue) const
+{
+  myBasisCurve->D0(theU, theValue);
+
+  // Shift by V along direction
+  theValue.SetXYZ(theValue.XYZ() + theV * myDirection.XYZ());
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D1(const Standard_Real theU,
+                                               const Standard_Real theV,
+                                               gp_Pnt&             theValue,
+                                               gp_Vec&             theD1U,
+                                               gp_Vec&             theD1V) const
+{
+  myBasisCurve->D1(theU, theValue, theD1U);
+
+  theD1V = myDirection;
+  // Shift by V along direction
+  theValue.SetXYZ(theValue.XYZ() + theV * myDirection.XYZ());
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D2(const Standard_Real theU,
+                                               const Standard_Real theV,
+                                               gp_Pnt&             theValue,
+                                               gp_Vec&             theD1U,
+                                               gp_Vec&             theD1V,
+                                               gp_Vec&             theD2U,
+                                               gp_Vec&             theD2V,
+                                               gp_Vec&             theD2UV) const
+{
+  myBasisCurve->D2(theU, theValue, theD1U, theD2U);
+
+  theD1V = myDirection;
+  theD2V.SetCoord(0.0, 0.0, 0.0);
+  theD2UV.SetCoord(0.0, 0.0, 0.0);
+
+  // Shift by V along direction
+  theValue.SetXYZ(theValue.XYZ() + theV * myDirection.XYZ());
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D3(const Standard_Real theU,
+                                               const Standard_Real theV,
+                                               gp_Pnt&             theValue,
+                                               gp_Vec&             theD1U,
+                                               gp_Vec&             theD1V,
+                                               gp_Vec&             theD2U,
+                                               gp_Vec&             theD2V,
+                                               gp_Vec&             theD2UV,
+                                               gp_Vec&             theD3U,
+                                               gp_Vec&             theD3V,
+                                               gp_Vec&             theD3UUV,
+                                               gp_Vec&             theD3UVV) const
+{
+  myBasisCurve->D3(theU, theValue, theD1U, theD2U, theD3U);
+
+  theD1V = myDirection;
+  theD2V.SetCoord(0.0, 0.0, 0.0);
+  theD2UV.SetCoord(0.0, 0.0, 0.0);
+  theD3V.SetCoord(0.0, 0.0, 0.0);
+  theD3UUV.SetCoord(0.0, 0.0, 0.0);
+  theD3UVV.SetCoord(0.0, 0.0, 0.0);
+
+  // Shift by V along direction
+  theValue.SetXYZ(theValue.XYZ() + theV * myDirection.XYZ());
+}
+
+//=================================================================================================
+
+gp_Vec GeomAdaptor_SurfaceOfLinearExtrusion::DN(const Standard_Real    theU,
+                                                 const Standard_Real,
+                                                 const Standard_Integer theDerU,
+                                                 const Standard_Integer theDerV) const
+{
+  Standard_RangeError_Raise_if(theDerU < 0, "GeomAdaptor_SurfaceOfLinearExtrusion::DN(): theDerU < 0");
+  Standard_RangeError_Raise_if(theDerV < 0, "GeomAdaptor_SurfaceOfLinearExtrusion::DN(): theDerV < 0");
+  Standard_RangeError_Raise_if(theDerU + theDerV < 1,
+                               "GeomAdaptor_SurfaceOfLinearExtrusion::DN(): theDerU + theDerV < 1");
+
+  gp_Vec aResult(0.0, 0.0, 0.0);
+  if (theDerV == 0)
+  {
+    aResult = myBasisCurve->DN(theU, theDerU);
+  }
+  else if (theDerU == 0 && theDerV == 1)
+  {
+    aResult = gp_Vec(myDirection);
+  }
+  return aResult;
 }

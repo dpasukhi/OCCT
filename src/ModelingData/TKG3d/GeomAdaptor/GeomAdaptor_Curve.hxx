@@ -23,7 +23,6 @@
 #include <GeomAbs_CurveType.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <GeomAdaptor_CurveModifier.hxx>
-#include <GeomEvaluator_Curve.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Elips.hxx>
 #include <gp_Hypr.hxx>
@@ -343,7 +342,6 @@ private:
 
   Handle(Geom_BSplineCurve)      myBSplineCurve;    //!< B-spline representation to prevent castings
   mutable Handle(BSplCLib_Cache) myCurveCache;      //!< Cached data for B-spline or Bezier curve
-  Handle(GeomEvaluator_Curve)    myNestedEvaluator; //!< Calculates value of offset curve
 };
 
 #endif // _GeomAdaptor_Curve_HeaderFile

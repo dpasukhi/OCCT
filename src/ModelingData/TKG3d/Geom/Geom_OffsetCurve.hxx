@@ -24,7 +24,6 @@
 #include <GeomAbs_Shape.hxx>
 #include <Geom_Curve.hxx>
 #include <Standard_Integer.hxx>
-#include <GeomEvaluator_OffsetCurve.hxx>
 
 class gp_Pnt;
 class gp_Vec;
@@ -293,11 +292,63 @@ public:
 
 protected:
 private:
-  Handle(Geom_Curve)                basisCurve;
-  gp_Dir                            direction;
-  Standard_Real                     offsetValue;
-  GeomAbs_Shape                     myBasisCurveContinuity;
-  Handle(GeomEvaluator_OffsetCurve) myEvaluator;
+  //! Calculates D0 for offset curve.
+  //! @param[in,out] theValue on input: basis curve point; on output: offset point
+  //! @param[in] theD1 first derivative of basis curve
+  void calculateD0(gp_Pnt& theValue, const gp_Vec& theD1) const;
+
+  //! Calculates D1 for offset curve.
+  //! @param[in,out] theValue on input: basis curve point; on output: offset point
+  //! @param[in,out] theD1 on input: first derivative of basis curve; on output: offset curve D1
+  //! @param[in] theD2 second derivative of basis curve
+  void calculateD1(gp_Pnt& theValue, gp_Vec& theD1, const gp_Vec& theD2) const;
+
+  //! Calculates D2 for offset curve.
+  //! @param[in,out] theValue on input: basis curve point; on output: offset point
+  //! @param[in,out] theD1 on input: first derivative of basis curve; on output: offset curve D1
+  //! @param[in,out] theD2 on input: second derivative of basis curve; on output: offset curve D2
+  //! @param[in] theD3 third derivative of basis curve
+  //! @param[in] theIsDirChange flag indicating direction change at singular point
+  void calculateD2(gp_Pnt&       theValue,
+                   gp_Vec&       theD1,
+                   gp_Vec&       theD2,
+                   const gp_Vec& theD3,
+                   bool          theIsDirChange) const;
+
+  //! Calculates D3 for offset curve.
+  //! @param[in,out] theValue on input: basis curve point; on output: offset point
+  //! @param[in,out] theD1 on input: first derivative of basis curve; on output: offset curve D1
+  //! @param[in,out] theD2 on input: second derivative of basis curve; on output: offset curve D2
+  //! @param[in,out] theD3 on input: third derivative of basis curve; on output: offset curve D3
+  //! @param[in] theD4 fourth derivative of basis curve
+  //! @param[in] theIsDirChange flag indicating direction change at singular point
+  void calculateD3(gp_Pnt&       theValue,
+                   gp_Vec&       theD1,
+                   gp_Vec&       theD2,
+                   gp_Vec&       theD3,
+                   const gp_Vec& theD4,
+                   bool          theIsDirChange) const;
+
+  //! Adjusts derivatives at singular points where first derivative has zero magnitude.
+  //! Uses higher-order derivatives to determine direction.
+  //! @param[in] theMaxDerivative maximum derivative order to compute
+  //! @param[in] theU parameter value
+  //! @param[in,out] theD1 first derivative (adjusted)
+  //! @param[in,out] theD2 second derivative (adjusted)
+  //! @param[in,out] theD3 third derivative (adjusted)
+  //! @param[in,out] theD4 fourth derivative (adjusted)
+  //! @return true if direction was changed
+  bool adjustDerivative(int     theMaxDerivative,
+                        double  theU,
+                        gp_Vec& theD1,
+                        gp_Vec& theD2,
+                        gp_Vec& theD3,
+                        gp_Vec& theD4) const;
+
+  Handle(Geom_Curve) basisCurve;
+  gp_Dir             direction;
+  Standard_Real      offsetValue;
+  GeomAbs_Shape      myBasisCurveContinuity;
 };
 
 #endif // _Geom_OffsetCurve_HeaderFile

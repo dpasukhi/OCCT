@@ -38,7 +38,6 @@
 #include <Geom_TrimmedCurve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <GeomAdaptor_Surface.hxx>
-#include <GeomEvaluator_OffsetCurve.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Elips.hxx>
 #include <gp_Hypr.hxx>
@@ -68,11 +67,6 @@ GeomAdaptor_Curve::GeomAdaptor_Curve(const GeomAdaptor_Curve& theOther)
       myLast(theOther.myLast),
       myBSplineCurve(theOther.myBSplineCurve)
 {
-  if (!theOther.myNestedEvaluator.IsNull())
-  {
-    myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
-  }
-
   // Deep copy the modifier
   std::visit(
     [this](const auto& mod)
@@ -107,8 +101,7 @@ GeomAdaptor_Curve::GeomAdaptor_Curve(GeomAdaptor_Curve&& theOther) noexcept
       myLast(theOther.myLast),
       myModifier(std::move(theOther.myModifier)),
       myBSplineCurve(std::move(theOther.myBSplineCurve)),
-      myCurveCache(std::move(theOther.myCurveCache)),
-      myNestedEvaluator(std::move(theOther.myNestedEvaluator))
+      myCurveCache(std::move(theOther.myCurveCache))
 {
   theOther.myTypeCurve = GeomAbs_OtherCurve;
   theOther.myFirst     = 0.0;
@@ -121,14 +114,13 @@ GeomAdaptor_Curve& GeomAdaptor_Curve::operator=(GeomAdaptor_Curve&& theOther) no
 {
   if (this != &theOther)
   {
-    myCurve           = std::move(theOther.myCurve);
-    myTypeCurve       = theOther.myTypeCurve;
-    myFirst           = theOther.myFirst;
-    myLast            = theOther.myLast;
-    myModifier        = std::move(theOther.myModifier);
-    myBSplineCurve    = std::move(theOther.myBSplineCurve);
-    myCurveCache      = std::move(theOther.myCurveCache);
-    myNestedEvaluator = std::move(theOther.myNestedEvaluator);
+    myCurve        = std::move(theOther.myCurve);
+    myTypeCurve    = theOther.myTypeCurve;
+    myFirst        = theOther.myFirst;
+    myLast         = theOther.myLast;
+    myModifier     = std::move(theOther.myModifier);
+    myBSplineCurve = std::move(theOther.myBSplineCurve);
+    myCurveCache   = std::move(theOther.myCurveCache);
 
     theOther.myTypeCurve = GeomAbs_OtherCurve;
     theOther.myFirst     = 0.0;
@@ -149,15 +141,6 @@ GeomAdaptor_Curve& GeomAdaptor_Curve::operator=(const GeomAdaptor_Curve& theOthe
     myLast         = theOther.myLast;
     myBSplineCurve = theOther.myBSplineCurve;
     myCurveCache.Nullify();
-
-    if (!theOther.myNestedEvaluator.IsNull())
-    {
-      myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
-    }
-    else
-    {
-      myNestedEvaluator.Nullify();
-    }
 
     // Deep copy the modifier
     std::visit(
@@ -196,11 +179,6 @@ GeomAdaptor_Curve GeomAdaptor_Curve::Copy() const
   aCopy.myFirst        = myFirst;
   aCopy.myLast         = myLast;
   aCopy.myBSplineCurve = myBSplineCurve;
-
-  if (!myNestedEvaluator.IsNull())
-  {
-    aCopy.myNestedEvaluator = myNestedEvaluator->ShallowCopy();
-  }
 
   // Deep copy the modifier
   std::visit(
@@ -246,7 +224,6 @@ void GeomAdaptor_Curve::Reset()
 {
   myTypeCurve = GeomAbs_OtherCurve;
   myCurve.Nullify();
-  myNestedEvaluator.Nullify();
   myBSplineCurve.Nullify();
   myCurveCache.Nullify();
   myFirst    = 0.0;
@@ -403,7 +380,6 @@ void GeomAdaptor_Curve::load(const Handle(Geom_Curve) & C, double UFirst, double
   if (myCurve != C)
   {
     myCurve = C;
-    myNestedEvaluator.Nullify();
     myBSplineCurve.Nullify();
 
     const Handle(Standard_Type)& TheType = C->DynamicType();
@@ -442,17 +418,7 @@ void GeomAdaptor_Curve::load(const Handle(Geom_Curve) & C, double UFirst, double
     }
     else if (TheType == STANDARD_TYPE(Geom_OffsetCurve))
     {
-      myTypeCurve                            = GeomAbs_OffsetCurve;
-      Handle(Geom_OffsetCurve) anOffsetCurve = Handle(Geom_OffsetCurve)::DownCast(myCurve);
-      // Create nested adaptor for base curve
-      Handle(Geom_Curve) aBaseCurve = anOffsetCurve->BasisCurve();
-      // Note: Using a temporary GeomAdaptor_Curve on heap for backward compatibility
-      // with GeomEvaluator_OffsetCurve which expects Handle(Adaptor3d_Curve)
-      // This will be cleaned up when we remove Adaptor3d_Curve completely
-      GeomAdaptor_Curve* aBaseAdaptor = new GeomAdaptor_Curve();
-      aBaseAdaptor->Load(aBaseCurve);
-      myNestedEvaluator =
-        new GeomEvaluator_OffsetCurve(aBaseAdaptor, anOffsetCurve->Offset(), anOffsetCurve->Direction());
+      myTypeCurve = GeomAbs_OffsetCurve;
     }
     else
     {
@@ -821,9 +787,6 @@ void GeomAdaptor_Curve::evaluateD0(double U, gp_Pnt& P) const
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D0(U, P);
-      break;
-
     default:
       myCurve->D0(U, P);
   }
@@ -854,9 +817,6 @@ void GeomAdaptor_Curve::evaluateD1(double U, gp_Pnt& P, gp_Vec& V) const
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D1(U, P, V);
-      break;
-
     default:
       myCurve->D1(U, P, V);
   }
@@ -887,9 +847,6 @@ void GeomAdaptor_Curve::evaluateD2(double U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2) 
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D2(U, P, V1, V2);
-      break;
-
     default:
       myCurve->D2(U, P, V1, V2);
   }
@@ -920,9 +877,6 @@ void GeomAdaptor_Curve::evaluateD3(double U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2, 
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D3(U, P, V1, V2, V3);
-      break;
-
     default:
       myCurve->D3(U, P, V1, V2, V3);
   }
@@ -1069,9 +1023,6 @@ gp_Vec GeomAdaptor_Curve::DN(double U, int N) const
     }
 
     case GeomAbs_OffsetCurve:
-      aResult = myNestedEvaluator->DN(U, N);
-      break;
-
     default:
       aResult = myCurve->DN(U, N);
   }

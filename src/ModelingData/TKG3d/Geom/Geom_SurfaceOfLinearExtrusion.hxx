@@ -21,7 +21,6 @@
 #include <Standard_Type.hxx>
 
 #include <Geom_SweptSurface.hxx>
-#include <GeomEvaluator_SurfaceOfExtrusion.hxx>
 #include <Standard_Integer.hxx>
 class Geom_Curve;
 class gp_Dir;
@@ -278,7 +277,6 @@ public:
 
 protected:
 private:
-  Handle(GeomEvaluator_SurfaceOfExtrusion) myEvaluator;
 };
 
 #endif // _Geom_SurfaceOfLinearExtrusion_HeaderFile

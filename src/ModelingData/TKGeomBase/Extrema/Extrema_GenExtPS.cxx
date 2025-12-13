@@ -18,7 +18,11 @@
 
 #include <Extrema_GenExtPS.hxx>
 
+#include <Adaptor3d_Curve.hxx>
+#include <Adaptor3d_Surface.hxx>
 #include <Bnd_HArray1OfSphere.hxx>
+#include <GeomAbs_CurveType.hxx>
+#include <GeomAbs_SurfaceType.hxx>
 #include <Bnd_Sphere.hxx>
 #include <Extrema_ExtFlag.hxx>
 #include <Extrema_HUBTreeOfSphere.hxx>
@@ -27,7 +31,9 @@
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineCurve.hxx>
+#include <Geom_BSplineSurface.hxx>
 #include <Geom_OffsetSurface.hxx>
+#include <GeomAbs_IsoType.hxx>
 #include <gp_Pnt.hxx>
 #include <math_FunctionSetRoot.hxx>
 #include <math_NewtonFunctionSetRoot.hxx>

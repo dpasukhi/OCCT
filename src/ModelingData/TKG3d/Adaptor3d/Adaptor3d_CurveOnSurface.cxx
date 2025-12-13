@@ -24,6 +24,7 @@
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
+#include <Geom_BSplineSurface.hxx>
 #include <Geom_OffsetSurface.hxx>
 #include <Geom_SurfaceOfRevolution.hxx>
 #include <gp_Ax22d.hxx>

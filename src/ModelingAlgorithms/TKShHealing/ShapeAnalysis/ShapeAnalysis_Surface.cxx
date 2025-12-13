@@ -34,6 +34,7 @@
 #include <BndLib_Add3dCurve.hxx>
 #include <ElSLib.hxx>
 #include <Geom_BezierSurface.hxx>
+#include <Geom_BSplineSurface.hxx>
 #include <Geom_BoundedSurface.hxx>
 #include <Geom_ConicalSurface.hxx>
 #include <Geom_Curve.hxx>

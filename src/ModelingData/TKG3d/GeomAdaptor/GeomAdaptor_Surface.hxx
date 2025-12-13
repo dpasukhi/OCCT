@@ -20,7 +20,6 @@
 #include <Adaptor3d_Surface.hxx>
 #include <BSplSLib_Cache.hxx>
 #include <GeomAbs_Shape.hxx>
-#include <GeomEvaluator_Surface.hxx>
 #include <Geom_Surface.hxx>
 #include <Standard_NullObject.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -378,9 +377,6 @@ protected:
   mutable Handle(BSplSLib_Cache) mySurfaceCache;   ///< Cached data for B-spline or Bezier surface
 
   GeomAbs_SurfaceType mySurfaceType;
-  // clang-format off
-  Handle(GeomEvaluator_Surface) myNestedEvaluator; ///< Calculates values of nested complex surfaces (offset surface, surface of extrusion or revolution)
-  // clang-format on
 };
 
 #endif // _GeomAdaptor_Surface_HeaderFile

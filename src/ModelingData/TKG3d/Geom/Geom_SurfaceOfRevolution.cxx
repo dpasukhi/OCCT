@@ -22,7 +22,6 @@
 #include <Geom_Geometry.hxx>
 #include <Geom_SurfaceOfRevolution.hxx>
 #include <Geom_UndefinedDerivative.hxx>
-#include <GeomEvaluator_SurfaceOfRevolution.hxx>
 #include <gp.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Ax2.hxx>
@@ -82,9 +81,7 @@ Geom_SurfaceOfRevolution::Geom_SurfaceOfRevolution(const Handle(Geom_Curve)& C, 
 
 void Geom_SurfaceOfRevolution::UReverse()
 {
-
   direction.Reverse();
-  myEvaluator->SetDirection(direction);
 }
 
 //=================================================================================================
@@ -179,38 +176,30 @@ Standard_Boolean Geom_SurfaceOfRevolution::IsVPeriodic() const
 
 void Geom_SurfaceOfRevolution::SetAxis(const Ax1& A1)
 {
-
   direction = A1.Direction();
   loc       = A1.Location();
-  myEvaluator->SetAxis(A1);
 }
 
 //=================================================================================================
 
 void Geom_SurfaceOfRevolution::SetDirection(const Dir& V)
 {
-
   direction = V;
-  myEvaluator->SetDirection(direction);
 }
 
 //=================================================================================================
 
 void Geom_SurfaceOfRevolution::SetBasisCurve(const Handle(Geom_Curve)& C)
 {
-
-  basisCurve  = Handle(Geom_Curve)::DownCast(C->Copy());
-  smooth      = C->Continuity();
-  myEvaluator = new GeomEvaluator_SurfaceOfRevolution(basisCurve, direction, loc);
+  basisCurve = Handle(Geom_Curve)::DownCast(C->Copy());
+  smooth     = C->Continuity();
 }
 
 //=================================================================================================
 
 void Geom_SurfaceOfRevolution::SetLocation(const Pnt& P)
 {
-
   loc = P;
-  myEvaluator->SetLocation(loc);
 }
 
 //=================================================================================================
@@ -231,7 +220,11 @@ void Geom_SurfaceOfRevolution::Bounds(Standard_Real& U1,
 
 void Geom_SurfaceOfRevolution::D0(const Standard_Real U, const Standard_Real V, Pnt& P) const
 {
-  myEvaluator->D0(U, V, P);
+  basisCurve->D0(V, P);
+
+  gp_Trsf aRotation;
+  aRotation.SetRotation(Ax1(loc, direction), U);
+  P.Transform(aRotation);
 }
 
 //=================================================================================================
@@ -242,7 +235,21 @@ void Geom_SurfaceOfRevolution::D1(const Standard_Real U,
                                   Vec&                D1U,
                                   Vec&                D1V) const
 {
-  myEvaluator->D1(U, V, P, D1U, D1V);
+  basisCurve->D1(V, P, D1V);
+
+  // Vector from center of rotation to the point on rotated curve
+  gp_XYZ aCQ = P.XYZ() - loc.XYZ();
+  D1U        = Vec(direction.XYZ().Crossed(aCQ));
+  // If the point is placed on the axis of revolution then derivatives on U are undefined.
+  // Manually set them to zero.
+  if (D1U.SquareMagnitude() < Precision::SquareConfusion())
+    D1U.SetCoord(0.0, 0.0, 0.0);
+
+  gp_Trsf aRotation;
+  aRotation.SetRotation(Ax1(loc, direction), U);
+  P.Transform(aRotation);
+  D1U.Transform(aRotation);
+  D1V.Transform(aRotation);
 }
 
 //=================================================================================================
@@ -256,7 +263,27 @@ void Geom_SurfaceOfRevolution::D2(const Standard_Real U,
                                   Vec&                D2V,
                                   Vec&                D2UV) const
 {
-  myEvaluator->D2(U, V, P, D1U, D1V, D2U, D2V, D2UV);
+  basisCurve->D2(V, P, D1V, D2V);
+
+  // Vector from center of rotation to the point on rotated curve
+  gp_XYZ        aCQ  = P.XYZ() - loc.XYZ();
+  const gp_XYZ& aDir = direction.XYZ();
+  D1U                = Vec(aDir.Crossed(aCQ));
+  // If the point is placed on the axis of revolution then derivatives on U are undefined.
+  // Manually set them to zero.
+  if (D1U.SquareMagnitude() < Precision::SquareConfusion())
+    D1U.SetCoord(0.0, 0.0, 0.0);
+  D2U  = Vec(aDir.Dot(aCQ) * aDir - aCQ);
+  D2UV = Vec(aDir.Crossed(D1V.XYZ()));
+
+  gp_Trsf aRotation;
+  aRotation.SetRotation(Ax1(loc, direction), U);
+  P.Transform(aRotation);
+  D1U.Transform(aRotation);
+  D1V.Transform(aRotation);
+  D2U.Transform(aRotation);
+  D2V.Transform(aRotation);
+  D2UV.Transform(aRotation);
 }
 
 //=================================================================================================
@@ -274,7 +301,34 @@ void Geom_SurfaceOfRevolution::D3(const Standard_Real U,
                                   Vec&                D3UUV,
                                   Vec&                D3UVV) const
 {
-  myEvaluator->D3(U, V, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+  basisCurve->D3(V, P, D1V, D2V, D3V);
+
+  // Vector from center of rotation to the point on rotated curve
+  gp_XYZ        aCQ  = P.XYZ() - loc.XYZ();
+  const gp_XYZ& aDir = direction.XYZ();
+  D1U                = Vec(aDir.Crossed(aCQ));
+  // If the point is placed on the axis of revolution then derivatives on U are undefined.
+  // Manually set them to zero.
+  if (D1U.SquareMagnitude() < Precision::SquareConfusion())
+    D1U.SetCoord(0.0, 0.0, 0.0);
+  D2U   = Vec(aDir.Dot(aCQ) * aDir - aCQ);
+  D2UV  = Vec(aDir.Crossed(D1V.XYZ()));
+  D3U   = -D1U;
+  D3UUV = Vec(aDir.Dot(D1V.XYZ()) * aDir - D1V.XYZ());
+  D3UVV = Vec(aDir.Crossed(D2V.XYZ()));
+
+  gp_Trsf aRotation;
+  aRotation.SetRotation(Ax1(loc, direction), U);
+  P.Transform(aRotation);
+  D1U.Transform(aRotation);
+  D1V.Transform(aRotation);
+  D2U.Transform(aRotation);
+  D2V.Transform(aRotation);
+  D2UV.Transform(aRotation);
+  D3U.Transform(aRotation);
+  D3V.Transform(aRotation);
+  D3UUV.Transform(aRotation);
+  D3UVV.Transform(aRotation);
 }
 
 //=================================================================================================
@@ -284,7 +338,45 @@ Vec Geom_SurfaceOfRevolution::DN(const Standard_Real    U,
                                  const Standard_Integer Nu,
                                  const Standard_Integer Nv) const
 {
-  return myEvaluator->DN(U, V, Nu, Nv);
+  Standard_RangeError_Raise_if(Nu < 0, "Geom_SurfaceOfRevolution::DN(): Nu < 0");
+  Standard_RangeError_Raise_if(Nv < 0, "Geom_SurfaceOfRevolution::DN(): Nv < 0");
+  Standard_RangeError_Raise_if(Nu + Nv < 1, "Geom_SurfaceOfRevolution::DN(): Nu + Nv < 1");
+
+  gp_Trsf aRotation;
+  aRotation.SetRotation(Ax1(loc, direction), U);
+
+  Pnt aP;
+  Vec aDV;
+  Vec aResult;
+  if (Nu == 0)
+  {
+    aResult = basisCurve->DN(V, Nv);
+  }
+  else
+  {
+    if (Nv == 0)
+    {
+      basisCurve->D0(V, aP);
+      aDV = Vec(aP.XYZ() - loc.XYZ());
+    }
+    else
+    {
+      aDV = basisCurve->DN(V, Nv);
+    }
+
+    const gp_XYZ& aDir = direction.XYZ();
+    if (Nu % 4 == 1)
+      aResult = Vec(aDir.Crossed(aDV.XYZ()));
+    else if (Nu % 4 == 2)
+      aResult = Vec(aDir.Dot(aDV.XYZ()) * aDir - aDV.XYZ());
+    else if (Nu % 4 == 3)
+      aResult = Vec(aDir.Crossed(aDV.XYZ())) * (-1.0);
+    else
+      aResult = Vec(aDV.XYZ() - aDir.Dot(aDV.XYZ()) * aDir);
+  }
+
+  aResult.Transform(aRotation);
+  return aResult;
 }
 
 //=================================================================================================
@@ -342,14 +434,11 @@ Handle(Geom_Curve) Geom_SurfaceOfRevolution::VIso(const Standard_Real V) const
 
 void Geom_SurfaceOfRevolution::Transform(const Trsf& T)
 {
-
   loc.Transform(T);
   direction.Transform(T);
   basisCurve->Transform(T);
   if (T.ScaleFactor() * T.HVectorialPart().Determinant() < 0.)
     UReverse();
-  myEvaluator->SetDirection(direction);
-  myEvaluator->SetLocation(loc);
 }
 
 //=================================================================================================

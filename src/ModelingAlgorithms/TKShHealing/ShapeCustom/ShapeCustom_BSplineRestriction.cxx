@@ -30,6 +30,8 @@
 #include <Geom2dConvert_ApproxCurve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BezierSurface.hxx>
+#include <Geom_BSplineCurve.hxx>
+#include <Geom_BSplineSurface.hxx>
 #include <Geom_Conic.hxx>
 #include <Geom_ConicalSurface.hxx>
 #include <Geom_Curve.hxx>

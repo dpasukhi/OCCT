@@ -177,6 +177,52 @@ public:
 
   Standard_EXPORT const gp_Ax3& Axis() const;
 
+  //! Computes the point of parameters U,V on the surface.
+  Standard_EXPORT gp_Pnt Value(const Standard_Real U,
+                               const Standard_Real V) const Standard_OVERRIDE;
+
+  //! Computes the point of parameters U,V on the surface.
+  Standard_EXPORT void D0(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P) const Standard_OVERRIDE;
+
+  //! Computes the point and the first derivatives on the surface.
+  Standard_EXPORT void D1(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V) const Standard_OVERRIDE;
+
+  //! Computes the point, the first and second derivatives on the surface.
+  Standard_EXPORT void D2(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V,
+                          gp_Vec&             D2U,
+                          gp_Vec&             D2V,
+                          gp_Vec&             D2UV) const Standard_OVERRIDE;
+
+  //! Computes the point, the first, second and third derivatives on the surface.
+  Standard_EXPORT void D3(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V,
+                          gp_Vec&             D2U,
+                          gp_Vec&             D2V,
+                          gp_Vec&             D2UV,
+                          gp_Vec&             D3U,
+                          gp_Vec&             D3V,
+                          gp_Vec&             D3UUV,
+                          gp_Vec&             D3UVV) const Standard_OVERRIDE;
+
+  //! Computes the derivative of order Nu in the direction U and Nv in the direction V.
+  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
+                            const Standard_Real    V,
+                            const Standard_Integer Nu,
+                            const Standard_Integer Nv) const Standard_OVERRIDE;
+
   Standard_EXPORT Handle(Adaptor3d_Curve) BasisCurve() const Standard_OVERRIDE;
 
   //! Returns the basis curve adaptor (non-owning pointer).
