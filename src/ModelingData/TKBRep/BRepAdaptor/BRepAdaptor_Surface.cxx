@@ -145,6 +145,16 @@ void BRepAdaptor_Surface::Initialize(const TopoDS_Face& F, const Standard_Boolea
   else
     mySurf.Load(aSurface);
   myTrsf = L.Transformation();
+
+  // Set transformation modifier on mySurf for automatic coordinate transformation
+  if (myTrsf.Form() != gp_Identity)
+  {
+    mySurf.SetTransformation(myTrsf);
+  }
+  else
+  {
+    mySurf.ClearModifier();
+  }
 }
 
 //=================================================================================================
@@ -246,7 +256,7 @@ BRepAdaptor_Surface BRepAdaptor_Surface::VTrimByValue(double theFirst,
 
 gp_Pnt BRepAdaptor_Surface::Value(const Standard_Real U, const Standard_Real V) const
 {
-  return mySurf.Value(U, V).Transformed(myTrsf);
+  return mySurf.Value(U, V);
 }
 
 //=================================================================================================
@@ -254,7 +264,6 @@ gp_Pnt BRepAdaptor_Surface::Value(const Standard_Real U, const Standard_Real V) 
 void BRepAdaptor_Surface::D0(const Standard_Real U, const Standard_Real V, gp_Pnt& P) const
 {
   mySurf.D0(U, V, P);
-  P.Transform(myTrsf);
 }
 
 //=================================================================================================
@@ -266,9 +275,6 @@ void BRepAdaptor_Surface::D1(const Standard_Real U,
                              gp_Vec&             D1V) const
 {
   mySurf.D1(U, V, P, D1U, D1V);
-  P.Transform(myTrsf);
-  D1U.Transform(myTrsf);
-  D1V.Transform(myTrsf);
 }
 
 //=================================================================================================
@@ -283,12 +289,6 @@ void BRepAdaptor_Surface::D2(const Standard_Real U,
                              gp_Vec&             D2UV) const
 {
   mySurf.D2(U, V, P, D1U, D1V, D2U, D2V, D2UV);
-  P.Transform(myTrsf);
-  D1U.Transform(myTrsf);
-  D1V.Transform(myTrsf);
-  D2U.Transform(myTrsf);
-  D2V.Transform(myTrsf);
-  D2UV.Transform(myTrsf);
 }
 
 //=================================================================================================
@@ -307,16 +307,6 @@ void BRepAdaptor_Surface::D3(const Standard_Real U,
                              gp_Vec&             D3UVV) const
 {
   mySurf.D3(U, V, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-  P.Transform(myTrsf);
-  D1U.Transform(myTrsf);
-  D1V.Transform(myTrsf);
-  D2U.Transform(myTrsf);
-  D2V.Transform(myTrsf);
-  D2UV.Transform(myTrsf);
-  D3U.Transform(myTrsf);
-  D3V.Transform(myTrsf);
-  D3UUV.Transform(myTrsf);
-  D3UVV.Transform(myTrsf);
 }
 
 //=================================================================================================
@@ -326,42 +316,42 @@ gp_Vec BRepAdaptor_Surface::DN(const Standard_Real    U,
                                const Standard_Integer Nu,
                                const Standard_Integer Nv) const
 {
-  return mySurf.DN(U, V, Nu, Nv).Transformed(myTrsf);
+  return mySurf.DN(U, V, Nu, Nv);
 }
 
 //=================================================================================================
 
 gp_Pln BRepAdaptor_Surface::Plane() const
 {
-  return mySurf.Plane().Transformed(myTrsf);
+  return mySurf.Plane();
 }
 
 //=================================================================================================
 
 gp_Cylinder BRepAdaptor_Surface::Cylinder() const
 {
-  return mySurf.Cylinder().Transformed(myTrsf);
+  return mySurf.Cylinder();
 }
 
 //=================================================================================================
 
 gp_Sphere BRepAdaptor_Surface::Sphere() const
 {
-  return mySurf.Sphere().Transformed(myTrsf);
+  return mySurf.Sphere();
 }
 
 //=================================================================================================
 
 gp_Cone BRepAdaptor_Surface::Cone() const
 {
-  return mySurf.Cone().Transformed(myTrsf);
+  return mySurf.Cone();
 }
 
 //=================================================================================================
 
 gp_Torus BRepAdaptor_Surface::Torus() const
 {
-  return mySurf.Torus().Transformed(myTrsf);
+  return mySurf.Torus();
 }
 
 //=================================================================================================
@@ -382,14 +372,14 @@ Handle(Geom_BSplineSurface) BRepAdaptor_Surface::BSpline() const
 
 gp_Ax1 BRepAdaptor_Surface::AxeOfRevolution() const
 {
-  return mySurf.AxeOfRevolution().Transformed(myTrsf);
+  return mySurf.AxeOfRevolution();
 }
 
 //=================================================================================================
 
 gp_Dir BRepAdaptor_Surface::Direction() const
 {
-  return mySurf.Direction().Transformed(myTrsf);
+  return mySurf.Direction();
 }
 
 //=================================================================================================

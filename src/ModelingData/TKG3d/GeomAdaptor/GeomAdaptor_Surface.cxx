@@ -74,6 +74,7 @@ GeomAdaptor_Surface::GeomAdaptor_Surface(const GeomAdaptor_Surface& theOther)
       myTolU(theOther.myTolU),
       myTolV(theOther.myTolV),
       myBSplineSurface(theOther.myBSplineSurface),
+      myModifier(theOther.myModifier),
       mySurfaceType(theOther.mySurfaceType)
 {
   // Note: mySurfaceCache is intentionally not copied - it will be rebuilt on demand
@@ -92,6 +93,7 @@ GeomAdaptor_Surface::GeomAdaptor_Surface(GeomAdaptor_Surface&& theOther) noexcep
       myTolV(theOther.myTolV),
       myBSplineSurface(std::move(theOther.myBSplineSurface)),
       mySurfaceCache(std::move(theOther.mySurfaceCache)),
+      myModifier(std::move(theOther.myModifier)),
       mySurfaceType(theOther.mySurfaceType)
 {
   theOther.myUFirst      = 0.0;
@@ -117,6 +119,7 @@ GeomAdaptor_Surface& GeomAdaptor_Surface::operator=(const GeomAdaptor_Surface& t
     myTolU           = theOther.myTolU;
     myTolV           = theOther.myTolV;
     myBSplineSurface = theOther.myBSplineSurface;
+    myModifier       = theOther.myModifier;
     mySurfaceType    = theOther.mySurfaceType;
     mySurfaceCache.Nullify(); // Will be rebuilt on demand
   }
@@ -138,6 +141,7 @@ GeomAdaptor_Surface& GeomAdaptor_Surface::operator=(GeomAdaptor_Surface&& theOth
     myTolV           = theOther.myTolV;
     myBSplineSurface = std::move(theOther.myBSplineSurface);
     mySurfaceCache   = std::move(theOther.mySurfaceCache);
+    myModifier       = std::move(theOther.myModifier);
     mySurfaceType    = theOther.mySurfaceType;
 
     theOther.myUFirst      = 0.0;
@@ -221,6 +225,7 @@ Handle(Adaptor3d_Surface) GeomAdaptor_Surface::ShallowCopy() const
   aCopy->myTolU           = myTolU;
   aCopy->myTolV           = myTolV;
   aCopy->myBSplineSurface = myBSplineSurface;
+  aCopy->myModifier       = myModifier;
   aCopy->mySurfaceType    = mySurfaceType;
 
   return aCopy;
@@ -827,6 +832,12 @@ void GeomAdaptor_Surface::D0(const Standard_Real U, const Standard_Real V, gp_Pn
     default:
       mySurface->D0(U, V, P);
   }
+
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->Transform(P);
+  }
 }
 
 //=================================================================================================
@@ -878,6 +889,12 @@ void GeomAdaptor_Surface::D1(const Standard_Real U,
 
     default:
       mySurface->D1(u, v, P, D1U, D1V);
+  }
+
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->TransformD1(P, D1U, D1V);
   }
 }
 
@@ -933,6 +950,12 @@ void GeomAdaptor_Surface::D2(const Standard_Real U,
 
     default:
       mySurface->D2(u, v, P, D1U, D1V, D2U, D2V, D2UV);
+  }
+
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->TransformD2(P, D1U, D1V, D2U, D2V, D2UV);
   }
 }
 
@@ -1007,6 +1030,12 @@ void GeomAdaptor_Surface::D3(const Standard_Real U,
     default:
       mySurface->D3(u, v, P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
   }
+
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->TransformD3(P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
+  }
 }
 
 //=================================================================================================
@@ -1039,18 +1068,20 @@ gp_Vec GeomAdaptor_Surface::DN(const Standard_Real    U,
     v     = myVLast;
   }
 
+  gp_Vec aResult;
   switch (mySurfaceType)
   {
     case GeomAbs_BSplineSurface: {
       if ((USide == 0) && (VSide == 0))
-        return myBSplineSurface->DN(u, v, Nu, Nv);
+        aResult = myBSplineSurface->DN(u, v, Nu, Nv);
       else
       {
         if (IfUVBound(u, v, Ideb, Ifin, IVdeb, IVfin, USide, VSide))
-          return myBSplineSurface->LocalDN(u, v, Ideb, Ifin, IVdeb, IVfin, Nu, Nv);
+          aResult = myBSplineSurface->LocalDN(u, v, Ideb, Ifin, IVdeb, IVfin, Nu, Nv);
         else
-          return myBSplineSurface->DN(u, v, Nu, Nv);
+          aResult = myBSplineSurface->DN(u, v, Nu, Nv);
       }
+      break;
     }
 
     case GeomAbs_SurfaceOfExtrusion:
@@ -1064,10 +1095,17 @@ gp_Vec GeomAdaptor_Surface::DN(const Standard_Real    U,
     case GeomAbs_BezierSurface:
     case GeomAbs_OtherSurface:
     default:
+      aResult = mySurface->DN(u, v, Nu, Nv);
       break;
   }
 
-  return mySurface->DN(u, v, Nu, Nv);
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->Transform(aResult);
+  }
+
+  return aResult;
 }
 
 //=================================================================================================
@@ -1214,7 +1252,13 @@ gp_Pln GeomAdaptor_Surface::Plane() const
 {
   if (mySurfaceType != GeomAbs_Plane)
     throw Standard_NoSuchObject("GeomAdaptor_Surface::Plane");
-  return Handle(Geom_Plane)::DownCast(mySurface)->Pln();
+  gp_Pln aResult = Handle(Geom_Plane)::DownCast(mySurface)->Pln();
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    aResult = pTrsf->Transformed(aResult);
+  }
+  return aResult;
 }
 
 //=================================================================================================
@@ -1223,7 +1267,13 @@ gp_Cylinder GeomAdaptor_Surface::Cylinder() const
 {
   if (mySurfaceType != GeomAbs_Cylinder)
     throw Standard_NoSuchObject("GeomAdaptor_Surface::Cylinder");
-  return Handle(Geom_CylindricalSurface)::DownCast(mySurface)->Cylinder();
+  gp_Cylinder aResult = Handle(Geom_CylindricalSurface)::DownCast(mySurface)->Cylinder();
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    aResult = pTrsf->Transformed(aResult);
+  }
+  return aResult;
 }
 
 //=================================================================================================
@@ -1232,7 +1282,13 @@ gp_Cone GeomAdaptor_Surface::Cone() const
 {
   if (mySurfaceType != GeomAbs_Cone)
     throw Standard_NoSuchObject("GeomAdaptor_Surface::Cone");
-  return Handle(Geom_ConicalSurface)::DownCast(mySurface)->Cone();
+  gp_Cone aResult = Handle(Geom_ConicalSurface)::DownCast(mySurface)->Cone();
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    aResult = pTrsf->Transformed(aResult);
+  }
+  return aResult;
 }
 
 //=================================================================================================
@@ -1241,7 +1297,13 @@ gp_Sphere GeomAdaptor_Surface::Sphere() const
 {
   if (mySurfaceType != GeomAbs_Sphere)
     throw Standard_NoSuchObject("GeomAdaptor_Surface::Sphere");
-  return Handle(Geom_SphericalSurface)::DownCast(mySurface)->Sphere();
+  gp_Sphere aResult = Handle(Geom_SphericalSurface)::DownCast(mySurface)->Sphere();
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    aResult = pTrsf->Transformed(aResult);
+  }
+  return aResult;
 }
 
 //=================================================================================================
@@ -1250,7 +1312,13 @@ gp_Torus GeomAdaptor_Surface::Torus() const
 {
   if (mySurfaceType != GeomAbs_Torus)
     throw Standard_NoSuchObject("GeomAdaptor_Surface::Torus");
-  return Handle(Geom_ToroidalSurface)::DownCast(mySurface)->Torus();
+  gp_Torus aResult = Handle(Geom_ToroidalSurface)::DownCast(mySurface)->Torus();
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    aResult = pTrsf->Transformed(aResult);
+  }
+  return aResult;
 }
 
 //=================================================================================================
@@ -1401,7 +1469,13 @@ gp_Ax1 GeomAdaptor_Surface::AxeOfRevolution() const
 {
   if (mySurfaceType != GeomAbs_SurfaceOfRevolution)
     throw Standard_NoSuchObject("GeomAdaptor_Surface::AxeOfRevolution");
-  return Handle(Geom_SurfaceOfRevolution)::DownCast(mySurface)->Axis();
+  gp_Ax1 aResult = Handle(Geom_SurfaceOfRevolution)::DownCast(mySurface)->Axis();
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    aResult = pTrsf->Transformed(aResult);
+  }
+  return aResult;
 }
 
 //=================================================================================================
@@ -1410,7 +1484,13 @@ gp_Dir GeomAdaptor_Surface::Direction() const
 {
   if (mySurfaceType != GeomAbs_SurfaceOfExtrusion)
     throw Standard_NoSuchObject("GeomAdaptor_Surface::Direction");
-  return Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(mySurface)->Direction();
+  gp_Dir aResult = Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(mySurface)->Direction();
+  // Apply transformation modifier if present
+  if (const auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    aResult = pTrsf->Transformed(aResult);
+  }
+  return aResult;
 }
 
 //=================================================================================================

@@ -21,6 +21,7 @@
 #include <BSplSLib_Cache.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Geom_Surface.hxx>
+#include <GeomAdaptor_SurfaceModifier.hxx>
 #include <Standard_NullObject.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
@@ -120,6 +121,23 @@ public:
   }
 
   const Handle(Geom_Surface)& Surface() const { return mySurface; }
+
+  //--- Modifier Management ---
+
+  //! Check if this adaptor has a modifier set.
+  [[nodiscard]] bool HasModifier() const { return !IsEmptyModifier(myModifier); }
+
+  //! Returns the modifier variant.
+  [[nodiscard]] const GeomAdaptor_SurfaceModifierVariant& Modifier() const { return myModifier; }
+
+  //! Clear any modifier, making this a direct surface adaptor.
+  void ClearModifier() { myModifier = std::monostate{}; }
+
+  //! Set a transformation modifier.
+  //! @param theTrsf the transformation to apply to all evaluation results
+  void SetTransformation(const gp_Trsf& theTrsf) { myModifier = GeomAdaptor_TrsfModifier(theTrsf); }
+
+  //--- Parameter Domain ---
 
   virtual Standard_Real FirstUParameter() const Standard_OVERRIDE { return myUFirst; }
 
@@ -373,8 +391,9 @@ protected:
   Standard_Real        myTolU;
   Standard_Real        myTolV;
 
-  Handle(Geom_BSplineSurface)    myBSplineSurface; ///< B-spline representation to prevent downcasts
-  mutable Handle(BSplSLib_Cache) mySurfaceCache;   ///< Cached data for B-spline or Bezier surface
+  Handle(Geom_BSplineSurface)       myBSplineSurface; ///< B-spline representation to prevent downcasts
+  mutable Handle(BSplSLib_Cache)    mySurfaceCache;   ///< Cached data for B-spline or Bezier surface
+  GeomAdaptor_SurfaceModifierVariant myModifier;      ///< Optional modifier for transformation
 
   GeomAbs_SurfaceType mySurfaceType;
 };
