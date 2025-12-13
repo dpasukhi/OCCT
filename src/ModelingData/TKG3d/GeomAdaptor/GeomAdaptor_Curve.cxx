@@ -250,6 +250,30 @@ void GeomAdaptor_Curve::SetCurveOnSurface(std::unique_ptr<Geom2dAdaptor_Curve> t
 
 //==================================================================================================
 
+const Geom2dAdaptor_Curve& GeomAdaptor_Curve::GetPCurve() const
+{
+  const auto* aCOS = std::get_if<GeomAdaptor_CurveOnSurfaceModifier>(&myModifier);
+  if (aCOS == nullptr || aCOS->PCurve() == nullptr)
+  {
+    throw Standard_NoSuchObject("GeomAdaptor_Curve::GetPCurve - no CurveOnSurface modifier");
+  }
+  return *aCOS->PCurve();
+}
+
+//==================================================================================================
+
+const GeomAdaptor_Surface& GeomAdaptor_Curve::GetSurface() const
+{
+  const auto* aCOS = std::get_if<GeomAdaptor_CurveOnSurfaceModifier>(&myModifier);
+  if (aCOS == nullptr || aCOS->Surface() == nullptr)
+  {
+    throw Standard_NoSuchObject("GeomAdaptor_Curve::GetSurface - no CurveOnSurface modifier");
+  }
+  return *aCOS->Surface();
+}
+
+//==================================================================================================
+
 void GeomAdaptor_Curve::SetIsoCurve(std::unique_ptr<GeomAdaptor_Surface> theSurface,
                                     GeomAbs_IsoType                      theIsoType,
                                     double                               theParam)

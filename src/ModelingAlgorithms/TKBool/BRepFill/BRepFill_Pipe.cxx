@@ -14,7 +14,6 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepBuilderAPI_Transform.hxx>
@@ -33,7 +32,10 @@
 #include <Geom_OffsetCurve.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
+
+#include <memory>
 #include <GeomFill_CorrectedFrenet.hxx>
 #include <GeomFill_CurveAndTrihedron.hxx>
 #include <GeomFill_DiscreteTrihedron.hxx>
@@ -106,10 +108,11 @@ static void UpdateTolFromTopOrBottomPCurve(const TopoDS_Face& aFace, TopoDS_Edge
   if (aCurve.IsNull())
     return;
 
-  Handle(Geom2dAdaptor_Curve) GAHC2d = new Geom2dAdaptor_Curve(aPCurve, fpar, lpar);
-  Handle(Geom_Surface)        aSurf  = BRep_Tool::Surface(aFace);
-  Handle(GeomAdaptor_Surface) GAHS   = new GeomAdaptor_Surface(aSurf);
-  Adaptor3d_CurveOnSurface    ConS(GAHC2d, GAHS);
+  auto                 aPCurveAdaptor = std::make_unique<Geom2dAdaptor_Curve>(aPCurve, fpar, lpar);
+  Handle(Geom_Surface) aSurf          = BRep_Tool::Surface(aFace);
+  auto                 aSurfAdaptor   = std::make_unique<GeomAdaptor_Surface>(aSurf);
+  GeomAdaptor_Curve    ConS;
+  ConS.SetCurveOnSurface(std::move(aPCurveAdaptor), std::move(aSurfAdaptor));
 
   Standard_Real          Tol      = BRep_Tool::Tolerance(anEdge);
   Standard_Real          InitTol  = Tol;

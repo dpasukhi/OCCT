@@ -20,6 +20,7 @@
 #include <Standard.hxx>
 #include <Standard_Type.hxx>
 
+#include <Adaptor3d_CurveOnSurface.hxx>
 #include <GeomPlate_CurveConstraint.hxx>
 #include <Standard_Integer.hxx>
 
@@ -33,14 +34,22 @@ class BRepFill_CurveConstraint : public GeomPlate_CurveConstraint
 {
 
 public:
-  //! Create a constraint
-  //! Order is the order of the constraint. The possible values for order are -1,0,1,2.
-  //! Order i means constraints Gi
-  //! Npt is the number of points associated with the constraint.
-  //! TolDist is the maximum error to satisfy for G0 constraints
-  //! TolAng is the maximum error to satisfy for G1 constraints
-  //! TolCurv is the maximum error to satisfy for G2 constraints
-  //! These errors can be replaced by laws of criterion.
+  //! Create a constraint from a GeomAdaptor_Curve with CurveOnSurface modifier.
+  //! @param theBoundary curve adaptor with COS modifier set
+  //! @param theOrder continuity order (-1, 0, 1, 2)
+  //! @param theNPt number of points on the curve
+  //! @param theTolDist distance tolerance (G0)
+  //! @param theTolAng angular tolerance (G1)
+  //! @param theTolCurv curvature tolerance (G2)
+  Standard_EXPORT BRepFill_CurveConstraint(GeomAdaptor_Curve&&    theBoundary,
+                                           const Standard_Integer theOrder,
+                                           const Standard_Integer theNPt     = 10,
+                                           const Standard_Real    theTolDist = 0.0001,
+                                           const Standard_Real    theTolAng  = 0.01,
+                                           const Standard_Real    theTolCurv = 0.1);
+
+  //! Create a constraint from an Adaptor3d_CurveOnSurface (backward compatibility).
+  //! @deprecated Use the constructor taking GeomAdaptor_Curve&& instead.
   Standard_EXPORT BRepFill_CurveConstraint(const Handle(Adaptor3d_CurveOnSurface)& Boundary,
                                            const Standard_Integer                  Order,
                                            const Standard_Integer                  NPt     = 10,
@@ -48,6 +57,7 @@ public:
                                            const Standard_Real                     TolAng  = 0.01,
                                            const Standard_Real                     TolCurv = 0.1);
 
+  //! Create a constraint from a 3D curve (for G0, G-1 continuity).
   Standard_EXPORT BRepFill_CurveConstraint(const Handle(Adaptor3d_Curve)& Boundary,
                                            const Standard_Integer         Tang,
                                            const Standard_Integer         NPt     = 10,

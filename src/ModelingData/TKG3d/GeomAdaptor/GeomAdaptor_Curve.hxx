@@ -187,6 +187,20 @@ public:
                                    double                               theFirst,
                                    double                               theLast);
 
+  //! Check if this adaptor has a curve-on-surface modifier.
+  //! @return true if the modifier is CurveOnSurfaceModifier
+  [[nodiscard]] bool HasCurveOnSurface() const { return IsCurveOnSurfaceModifier(myModifier); }
+
+  //! Returns the PCurve adaptor of the curve-on-surface modifier.
+  //! @return reference to the 2D curve adaptor
+  //! @pre HasCurveOnSurface() must be true
+  [[nodiscard]] Standard_EXPORT const Geom2dAdaptor_Curve& GetPCurve() const;
+
+  //! Returns the surface adaptor of the curve-on-surface modifier.
+  //! @return reference to the surface adaptor
+  //! @pre HasCurveOnSurface() must be true
+  [[nodiscard]] Standard_EXPORT const GeomAdaptor_Surface& GetSurface() const;
+
   //--- Parameter Domain ---
 
   [[nodiscard]] Standard_Real FirstParameter() const Standard_OVERRIDE { return myFirst; }

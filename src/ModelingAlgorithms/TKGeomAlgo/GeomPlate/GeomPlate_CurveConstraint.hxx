@@ -17,10 +17,15 @@
 #ifndef _GeomPlate_CurveConstraint_HeaderFile
 #define _GeomPlate_CurveConstraint_HeaderFile
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomLProp_SLProps.hxx>
 
+#include <memory>
+
+class Adaptor2d_Curve2d;
 class Geom2d_Curve;
+class Geom2dAdaptor_Curve;
+class GeomAdaptor_Surface;
 class Law_Function;
 class gp_Pnt;
 class gp_Vec;
@@ -36,7 +41,8 @@ public:
   //! Initializes an empty curve constraint object.
   Standard_EXPORT GeomPlate_CurveConstraint();
 
-  //! Create a constraint
+  //! Create a constraint from a GeomAdaptor_Curve.
+  //! If the curve has a CurveOnSurface modifier, it will be used for surface constraint evaluation.
   //! Order is the order of the constraint. The possible values for order are -1,0,1,2.
   //! Order i means constraints Gi
   //! Npt is the number of points associated with the constraint.
@@ -45,12 +51,23 @@ public:
   //! TolCurv is the maximum error to satisfy for G2 constraints
   //! These errors can be replaced by laws of criterion.
   //! Raises ConstructionError if Order is not -1 , 0, 1, 2
-  Standard_EXPORT GeomPlate_CurveConstraint(const Handle(Adaptor3d_Curve)& Boundary,
-                                            const Standard_Integer         Order,
-                                            const Standard_Integer         NPt     = 10,
-                                            const Standard_Real            TolDist = 0.0001,
-                                            const Standard_Real            TolAng  = 0.01,
-                                            const Standard_Real            TolCurv = 0.1);
+  Standard_EXPORT GeomPlate_CurveConstraint(GeomAdaptor_Curve&&    theBoundary,
+                                            const Standard_Integer theOrder,
+                                            const Standard_Integer theNPt     = 10,
+                                            const Standard_Real    theTolDist = 0.0001,
+                                            const Standard_Real    theTolAng  = 0.01,
+                                            const Standard_Real    theTolCurv = 0.1);
+
+  //! Create a constraint from an Adaptor3d_Curve.
+  //! If the curve is an Adaptor3d_CurveOnSurface, its surface will be used for constraint evaluation.
+  //! Otherwise, it must be a GeomAdaptor_Curve or a derived class.
+  //! @deprecated Use the constructor taking GeomAdaptor_Curve&& instead.
+  Standard_EXPORT GeomPlate_CurveConstraint(const Handle(Adaptor3d_Curve)& theBoundary,
+                                            const Standard_Integer         theOrder,
+                                            const Standard_Integer         theNPt     = 10,
+                                            const Standard_Real            theTolDist = 0.0001,
+                                            const Standard_Real            theTolAng  = 0.01,
+                                            const Standard_Real            theTolCurv = 0.1);
 
   //! Allows you to set the order of continuity required for
   //! the constraints: G0, G1, and G2, controlled
@@ -125,6 +142,8 @@ public:
                           gp_Vec&             V4,
                           gp_Vec&             V5) const;
 
+  //! Returns the 3D curve of this constraint as a Handle.
+  //! @return handle to a shallow copy of the internal GeomAdaptor_Curve
   Standard_EXPORT Handle(Adaptor3d_Curve) Curve3d() const;
 
   //! loads a 2d curve associated the surface resulting of the constraints
@@ -146,25 +165,39 @@ public:
   DEFINE_STANDARD_RTTIEXT(GeomPlate_CurveConstraint, Standard_Transient)
 
 protected:
-  Handle(Adaptor3d_CurveOnSurface) myFrontiere;
-  Standard_Integer                 myNbPoints;
-  Standard_Integer                 myOrder;
-  Handle(Adaptor3d_Curve)          my3dCurve;
-  Standard_Integer                 myTang;
-  Handle(Geom2d_Curve)             my2dCurve;
-  Handle(Adaptor2d_Curve2d)        myHCurve2d;
-  Handle(Law_Function)             myG0Crit;
-  Handle(Law_Function)             myG1Crit;
-  Handle(Law_Function)             myG2Crit;
-  Standard_Boolean                 myConstG0;
-  Standard_Boolean                 myConstG1;
-  Standard_Boolean                 myConstG2;
-  GeomLProp_SLProps                myLProp;
-  Standard_Real                    myTolDist;
-  Standard_Real                    myTolAng;
-  Standard_Real                    myTolCurv;
-  Standard_Real                    myTolU;
-  Standard_Real                    myTolV;
+  //! Returns true if this constraint has a curve-on-surface (frontiere).
+  Standard_Boolean HasCurveOnSurface() const
+  {
+    return myCurve != nullptr && myCurve->HasCurveOnSurface();
+  }
+
+  //! Returns the PCurve of the curve-on-surface constraint.
+  //! @return reference to the 2D curve adaptor
+  const Geom2dAdaptor_Curve& GetPCurve() const { return myCurve->GetPCurve(); }
+
+  //! Returns the surface of the curve-on-surface constraint.
+  //! @return reference to the surface adaptor
+  const GeomAdaptor_Surface& GetSurface() const { return myCurve->GetSurface(); }
+
+protected:
+  std::unique_ptr<GeomAdaptor_Curve> myCurve;     //!< The constraint curve (may have COS modifier)
+  Standard_Integer                   myNbPoints;
+  Standard_Integer                   myOrder;
+  Standard_Integer                   myTang;
+  Handle(Geom2d_Curve)               my2dCurve;
+  Handle(Adaptor2d_Curve2d)          myHCurve2d;
+  Handle(Law_Function)               myG0Crit;
+  Handle(Law_Function)               myG1Crit;
+  Handle(Law_Function)               myG2Crit;
+  Standard_Boolean                   myConstG0;
+  Standard_Boolean                   myConstG1;
+  Standard_Boolean                   myConstG2;
+  GeomLProp_SLProps                  myLProp;
+  Standard_Real                      myTolDist;
+  Standard_Real                      myTolAng;
+  Standard_Real                      myTolCurv;
+  Standard_Real                      myTolU;
+  Standard_Real                      myTolV;
 };
 
 #endif // _GeomPlate_CurveConstraint_HeaderFile
