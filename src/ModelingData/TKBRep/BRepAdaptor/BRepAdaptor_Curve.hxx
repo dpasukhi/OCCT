@@ -17,7 +17,6 @@
 #ifndef _BRepAdaptor_Curve_HeaderFile
 #define _BRepAdaptor_Curve_HeaderFile
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <gp_Trsf.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <TopoDS_Edge.hxx>
@@ -29,7 +28,8 @@
 #include <GeomAbs_CurveType.hxx>
 
 class TopoDS_Face;
-class Adaptor3d_CurveOnSurface;
+class Geom2dAdaptor_Curve;
+class GeomAdaptor_Surface;
 class gp_Pnt;
 class gp_Vec;
 class gp_Lin;
@@ -118,8 +118,13 @@ public:
   //! Returns the Curve of the edge.
   Standard_EXPORT const GeomAdaptor_Curve& Curve() const;
 
-  //! Returns the CurveOnSurface of the edge.
-  Standard_EXPORT const Adaptor3d_CurveOnSurface& CurveOnSurface() const;
+  //! Returns the PCurve (2D parametric curve) for a curve-on-surface.
+  //! @throw Standard_NoSuchObject if this is not a curve-on-surface.
+  Standard_EXPORT const Geom2dAdaptor_Curve& GetPCurve() const;
+
+  //! Returns the Surface for a curve-on-surface.
+  //! @throw Standard_NoSuchObject if this is not a curve-on-surface.
+  Standard_EXPORT const GeomAdaptor_Surface& GetSurface() const;
 
   //! Returns the edge.
   Standard_EXPORT const TopoDS_Edge& Edge() const;
@@ -243,10 +248,9 @@ public:
   Standard_EXPORT Handle(Geom_OffsetCurve) OffsetCurve() const Standard_OVERRIDE;
 
 private:
-  gp_Trsf                          myTrsf;
-  GeomAdaptor_Curve                myCurve;
-  Handle(Adaptor3d_CurveOnSurface) myConSurf;
-  TopoDS_Edge                      myEdge;
+  gp_Trsf           myTrsf;
+  GeomAdaptor_Curve myCurve;
+  TopoDS_Edge       myEdge;
 };
 
 #endif // _BRepAdaptor_Curve_HeaderFile

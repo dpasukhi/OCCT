@@ -15,6 +15,7 @@
 
 #include <BRepMesh_EdgeDiscret.hxx>
 #include <BRepMesh_Deflection.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <IMeshData_Model.hxx>
 #include <IMeshData_Face.hxx>
 #include <IMeshData_PCurve.hxx>
@@ -291,7 +292,7 @@ void BRepMesh_EdgeDiscret::Tessellate2d(const IMeshData::IEdgeHandle& theDEdge,
       aDFace,
       aCurveArray);
 
-    const Handle(Adaptor2d_Curve2d)& aGeomPCurve = aProvider.GetPCurve();
+    const Geom2dAdaptor_Curve& aGeomPCurve = aProvider.GetPCurve();
 
     Standard_Integer aParamIdx, aParamNb;
     if (theUpdateEnds)
@@ -310,7 +311,7 @@ void BRepMesh_EdgeDiscret::Tessellate2d(const IMeshData::IEdgeHandle& theDEdge,
       const Standard_Real aParam = aProvider.Parameter(aParamIdx, aCurve->GetPoint(aParamIdx));
 
       gp_Pnt2d aPoint2d;
-      aGeomPCurve->D0(aParam, aPoint2d);
+      aGeomPCurve.D0(aParam, aPoint2d);
       if (theUpdateEnds)
       {
         aPCurve->AddPoint(aPoint2d, aParam);

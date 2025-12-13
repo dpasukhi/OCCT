@@ -22,8 +22,8 @@
 #include <TopExp_Explorer.hxx>
 #include <Geom_Plane.hxx>
 #include <TopExp.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Standard_Failure.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
 
@@ -123,18 +123,17 @@ void BRepMesh_CurveTessellator::init()
 
   if (myCurve.IsCurveOnSurface())
   {
-    const Adaptor3d_CurveOnSurface&  aCurve   = myCurve.CurveOnSurface();
-    const Handle(Adaptor3d_Surface)& aSurface = aCurve.GetSurface();
+    const GeomAdaptor_Surface& aSurface = myCurve.GetSurface();
 
     constexpr Standard_Real aTol = Precision::Confusion();
-    const Standard_Real     aDu  = aSurface->UResolution(aTol);
-    const Standard_Real     aDv  = aSurface->VResolution(aTol);
+    const Standard_Real     aDu  = aSurface.UResolution(aTol);
+    const Standard_Real     aDv  = aSurface.VResolution(aTol);
 
-    myFaceRangeU[0] = aSurface->FirstUParameter() - aDu;
-    myFaceRangeU[1] = aSurface->LastUParameter() + aDu;
+    myFaceRangeU[0] = aSurface.FirstUParameter() - aDu;
+    myFaceRangeU[1] = aSurface.LastUParameter() + aDu;
 
-    myFaceRangeV[0] = aSurface->FirstVParameter() - aDv;
-    myFaceRangeV[1] = aSurface->LastVParameter() + aDv;
+    myFaceRangeV[0] = aSurface.FirstVParameter() - aDv;
+    myFaceRangeV[1] = aSurface.LastVParameter() + aDv;
   }
 
   addInternalVertices();
@@ -236,22 +235,21 @@ Standard_Boolean BRepMesh_CurveTessellator::Value(const Standard_Integer theInde
 
   // If point coordinates are out of surface range,
   // it is necessary to re-project point.
-  const Adaptor3d_CurveOnSurface&  aCurve   = myCurve.CurveOnSurface();
-  const Handle(Adaptor3d_Surface)& aSurface = aCurve.GetSurface();
-  if (aSurface->GetType() != GeomAbs_BSplineSurface && aSurface->GetType() != GeomAbs_BezierSurface
-      && aSurface->GetType() != GeomAbs_OtherSurface)
+  const GeomAdaptor_Surface& aSurface = myCurve.GetSurface();
+  if (aSurface.GetType() != GeomAbs_BSplineSurface && aSurface.GetType() != GeomAbs_BezierSurface
+      && aSurface.GetType() != GeomAbs_OtherSurface)
   {
     return Standard_True;
   }
 
   // Let skip periodic case.
-  if (aSurface->IsUPeriodic() || aSurface->IsVPeriodic())
+  if (aSurface.IsUPeriodic() || aSurface.IsVPeriodic())
   {
     return Standard_True;
   }
 
   gp_Pnt2d aUV;
-  aCurve.GetCurve()->D0(theParameter, aUV);
+  myCurve.GetPCurve().D0(theParameter, aUV);
   // Point lies within the surface range - nothing to do.
   if (aUV.X() > myFaceRangeU[0] && aUV.X() < myFaceRangeU[1] && aUV.Y() > myFaceRangeV[0]
       && aUV.Y() < myFaceRangeV[1])
@@ -260,7 +258,7 @@ Standard_Boolean BRepMesh_CurveTessellator::Value(const Standard_Integer theInde
   }
 
   gp_Pnt aPntOnSurf;
-  aSurface->D0(aUV.X(), aUV.Y(), aPntOnSurf);
+  aSurface.D0(aUV.X(), aUV.Y(), aPntOnSurf);
 
   return (thePoint.SquareDistance(aPntOnSurf) < myEdgeSqTol);
   /*}

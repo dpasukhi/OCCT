@@ -17,6 +17,7 @@
 #ifndef _Contap_Line_HeaderFile
 #define _Contap_Line_HeaderFile
 
+#include <Adaptor2d_Curve2d.hxx>
 #include <Contap_IType.hxx>
 #include <Contap_TheHSequenceOfPoint.hxx>
 #include <gp_Dir.hxx>

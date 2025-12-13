@@ -17,6 +17,7 @@
 #ifndef _Contap_Point_HeaderFile
 #define _Contap_Point_HeaderFile
 
+#include <Adaptor2d_Curve2d.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>

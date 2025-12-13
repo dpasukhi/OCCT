@@ -24,7 +24,6 @@
 #include <Standard_DefineAlloc.hxx>
 #include <Extrema_LocateExtPC.hxx>
 #include <BRepAdaptor_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 
 class gp_Pnt;
@@ -141,10 +140,7 @@ public:
   }
 
   //! Returns pcurve used to compute parameters.
-  const Handle(Adaptor2d_Curve2d)& GetPCurve() const
-  {
-    return myCurveAdaptor.CurveOnSurface().GetCurve();
-  }
+  const Geom2dAdaptor_Curve& GetPCurve() const { return myCurveAdaptor.GetPCurve(); }
 
 private:
   ParametersCollection myParameters;

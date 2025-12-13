@@ -18,6 +18,7 @@
 
 #include <BRepOffset_Inter2d.hxx>
 
+#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BOPTools_AlgoTools.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_GCurve.hxx>
