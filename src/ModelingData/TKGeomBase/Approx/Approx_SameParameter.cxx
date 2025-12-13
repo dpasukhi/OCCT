@@ -16,7 +16,6 @@
 
 #include <Approx_SameParameter.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Extrema_ExtPC.hxx>
@@ -37,9 +36,9 @@
 class Approx_SameParameter_Evaluator : public AdvApprox_EvaluatorFunction
 {
 public:
-  Approx_SameParameter_Evaluator(const TColStd_Array1OfReal&      theFlatKnots,
-                                 const TColStd_Array1OfReal&      thePoles,
-                                 const Handle(Adaptor2d_Curve2d)& theHCurve2d)
+  Approx_SameParameter_Evaluator(const TColStd_Array1OfReal&       theFlatKnots,
+                                 const TColStd_Array1OfReal&       thePoles,
+                                 const Handle(Geom2dAdaptor_Curve)& theHCurve2d)
       : FlatKnots(theFlatKnots),
         Poles(thePoles),
         HCurve2d(theHCurve2d)
@@ -54,9 +53,9 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  const TColStd_Array1OfReal& FlatKnots;
-  const TColStd_Array1OfReal& Poles;
-  Handle(Adaptor2d_Curve2d)   HCurve2d;
+  const TColStd_Array1OfReal&  FlatKnots;
+  const TColStd_Array1OfReal&  Poles;
+  Handle(Geom2dAdaptor_Curve) HCurve2d;
 };
 
 //=================================================================================================
@@ -297,10 +296,10 @@ Approx_SameParameter::Approx_SameParameter(const Handle(Adaptor3d_Curve)&   C3D,
 
 //=================================================================================================
 
-Approx_SameParameter::Approx_SameParameter(const Handle(Adaptor3d_Curve)&   C3D,
-                                           const Handle(Adaptor2d_Curve2d)& C2D,
-                                           const Handle(Adaptor3d_Surface)& S,
-                                           const Standard_Real              Tol)
+Approx_SameParameter::Approx_SameParameter(const Handle(Adaptor3d_Curve)&    C3D,
+                                           const Handle(Geom2dAdaptor_Curve)& C2D,
+                                           const Handle(Adaptor3d_Surface)&  S,
+                                           const Standard_Real               Tol)
     : myDeltaMin(Precision::PConfusion()),
       mySameParameter(Standard_True),
       myDone(Standard_False)
@@ -326,10 +325,11 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
 
   // Create and fill data structure.
   Approx_SameParameter_Data aData;
-  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
-  aPCrv->Load(myHCurve2d);
-  auto aSrf = std::make_unique<GeomAdaptor_Surface>();
-  aSrf->Load(mySurf);
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(myHCurve2d->Curve(),
+                                                     myHCurve2d->FirstParameter(),
+                                                     myHCurve2d->LastParameter());
+  Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
   aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   aData.myC2dPF   = aData.myCOnS.FirstParameter();
@@ -449,11 +449,11 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
       {
         GeomAdaptor_Curve           ACS = aData.myCOnS;
         GeomLib_MakeCurvefromApprox aCurveBuilder(anApproximator);
-        Handle(Geom2d_BSplineCurve) aC2d      = aCurveBuilder.Curve2dFromTwo1d(1, 2);
-        Handle(Adaptor2d_Curve2d)   aHCurve2d = new Geom2dAdaptor_Curve(aC2d);
+        Handle(Geom2d_BSplineCurve)  aC2d      = aCurveBuilder.Curve2dFromTwo1d(1, 2);
+        Handle(Geom2dAdaptor_Curve) aHCurve2d = new Geom2dAdaptor_Curve(aC2d);
         auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2d);
-        auto aSrf = std::make_unique<GeomAdaptor_Surface>();
-        aSrf->Load(mySurf);
+        Handle(GeomAdaptor_Surface) aGeomSrfAdp = Handle(GeomAdaptor_Surface)::DownCast(mySurf);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSrfAdp->Surface());
         aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
         myTolReached = ComputeTolReached(myC3d, aData.myCOnS, 2 * myNbSamples);
@@ -489,10 +489,11 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
     // deflection.
 
     // Original 2d curve.
-    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
-    aPCrv->Load(myHCurve2d);
-    auto aSrf = std::make_unique<GeomAdaptor_Surface>();
-    aSrf->Load(mySurf);
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(myHCurve2d->Curve(),
+                                                       myHCurve2d->FirstParameter(),
+                                                       myHCurve2d->LastParameter());
+    Handle(GeomAdaptor_Surface) aGeomSrfAdp2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSrfAdp2->Surface());
     aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
     myTolReached = ComputeTolReached(myC3d, aData.myCOnS, 2 * myNbSamples);
@@ -533,11 +534,11 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
     }
 
     GeomLib_MakeCurvefromApprox aCurveBuilder(anApproximator);
-    Handle(Geom2d_BSplineCurve) aC2d      = aCurveBuilder.Curve2dFromTwo1d(1, 2);
-    Handle(Adaptor2d_Curve2d)   aHCurve2d = new Geom2dAdaptor_Curve(aC2d);
+    Handle(Geom2d_BSplineCurve)  aC2d      = aCurveBuilder.Curve2dFromTwo1d(1, 2);
+    Handle(Geom2dAdaptor_Curve) aHCurve2d = new Geom2dAdaptor_Curve(aC2d);
     auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2d);
-    auto aSrf = std::make_unique<GeomAdaptor_Surface>();
-    aSrf->Load(mySurf);
+    Handle(GeomAdaptor_Surface) aGeomSrfAdp3 = Handle(GeomAdaptor_Surface)::DownCast(mySurf);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSrfAdp3->Surface());
     aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
     Standard_Real anApproxTol = ComputeTolReached(myC3d, aData.myCOnS, 2 * myNbSamples);

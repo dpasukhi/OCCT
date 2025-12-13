@@ -392,10 +392,14 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
   }
 
   GeomAdaptor_Curve aCurveOnSurf;
-  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
-  aPCrv->Load(TrimmedC2D);
-  auto aSrf = std::make_unique<GeomAdaptor_Surface>();
-  aSrf->Load(mySurf);
+  // Downcast to Geom2dAdaptor_Curve to get the underlying Geom2d_Curve
+  Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(TrimmedC2D);
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                     aGeom2dAdaptor->FirstParameter(),
+                                                     aGeom2dAdaptor->LastParameter());
+  // Downcast to GeomAdaptor_Surface to get the underlying Geom_Surface
+  Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
   aCurveOnSurf.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   Handle(GeomAdaptor_Curve) HCOnS = new GeomAdaptor_Curve(aCurveOnSurf);

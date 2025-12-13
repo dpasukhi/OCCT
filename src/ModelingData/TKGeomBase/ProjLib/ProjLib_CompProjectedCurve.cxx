@@ -38,8 +38,9 @@
 #include <Standard_OutOfRange.hxx>
 #include <Standard_TypeMismatch.hxx>
 #include <TColgp_HSequenceOfPnt.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Geom_BSplineCurve.hxx>
+#include <memory>
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2d_Line.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
@@ -102,8 +103,8 @@ struct SplitDS
   Standard_Real    myPerMaxParam;
   Standard_Integer myPeriodicDir;
 
-  Adaptor3d_CurveOnSurface* myExtCCCurve1;
-  Standard_Real             myExtCCLast2DParam;
+  GeomAdaptor_Curve* myExtCCCurve1;
+  Standard_Real      myExtCCLast2DParam;
 
   Extrema_ExtPS* myExtPS;
 
@@ -2226,9 +2227,14 @@ void SplitOnDirection(SplitDS& theSplitDS)
       : theSplitDS.mySurface->LastVParameter() - theSplitDS.mySurface->FirstVParameter();
 
   // Create line which is represent periodic border.
-  Handle(Geom2d_Curve)        aC2GC = new Geom2d_Line(aStartPnt, aDir);
-  Handle(Geom2dAdaptor_Curve) aC    = new Geom2dAdaptor_Curve(aC2GC, 0, aLast2DParam);
-  Adaptor3d_CurveOnSurface    aCOnS(aC, theSplitDS.mySurface);
+  Handle(Geom2d_Curve) aC2GC = new Geom2d_Line(aStartPnt, aDir);
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2GC, 0, aLast2DParam);
+  // Downcast to GeomAdaptor_Surface to get the underlying Geom_Surface
+  Handle(GeomAdaptor_Surface) aGeomSurf =
+    Handle(GeomAdaptor_Surface)::DownCast(theSplitDS.mySurface);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurf->Surface());
+  GeomAdaptor_Curve aCOnS;
+  aCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
   theSplitDS.myExtCCCurve1      = &aCOnS;
   theSplitDS.myExtCCLast2DParam = aLast2DParam;
 

@@ -18,6 +18,7 @@
 #define _Approx_SameParameter_HeaderFile
 
 #include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAdaptor_Curve.hxx>
 
 class Geom_Curve;
@@ -45,10 +46,10 @@ public:
                                        const Standard_Real              Tol);
 
   //! Warning: the C3D and C2D must have the same parametric domain.
-  Standard_EXPORT Approx_SameParameter(const Handle(Adaptor3d_Curve)&   C3D,
-                                       const Handle(Adaptor2d_Curve2d)& C2D,
-                                       const Handle(Adaptor3d_Surface)& S,
-                                       const Standard_Real              Tol);
+  Standard_EXPORT Approx_SameParameter(const Handle(Adaptor3d_Curve)&    C3D,
+                                       const Handle(Geom2dAdaptor_Curve)& C2D,
+                                       const Handle(Adaptor3d_Surface)&  S,
+                                       const Standard_Real               Tol);
 
   //!@Returns .false. if calculations failed,
   //! .true. if calculations succeed
@@ -166,9 +167,9 @@ private:
   Standard_Boolean                 mySameParameter;
   Standard_Boolean                 myDone;
   Standard_Real                    myTolReached;
-  Handle(Geom2d_Curve)      myCurve2d;
-  Handle(Adaptor2d_Curve2d) myHCurve2d;
-  Handle(Adaptor3d_Curve)   myC3d;
+  Handle(Geom2d_Curve)       myCurve2d;
+  Handle(Geom2dAdaptor_Curve) myHCurve2d;
+  Handle(Adaptor3d_Curve)    myC3d;
   Handle(Adaptor3d_Surface) mySurf;
   Handle(GeomAdaptor_Curve) myCurveOnSurface;
 };
