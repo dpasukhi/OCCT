@@ -1667,7 +1667,10 @@ Handle(GeomFill_Boundary) ChFi3d_mkbound(const Handle(Adaptor3d_Surface)& HS,
   Handle(GeomAdaptor_Curve)   HCOnS = new GeomAdaptor_Curve();
   {
     auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(*HC);
-    auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS->Surface());
+    Handle(GeomAdaptor_Surface) aGeomSurf = Handle(GeomAdaptor_Surface)::DownCast(HS);
+    if (aGeomSurf.IsNull())
+      throw Standard_Failure("ChFi3d_mkbound: HS must be a GeomAdaptor_Surface");
+    auto aSrf  = std::make_unique<GeomAdaptor_Surface>(*aGeomSurf);
     HCOnS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
   }
   if (isfreeboundary)

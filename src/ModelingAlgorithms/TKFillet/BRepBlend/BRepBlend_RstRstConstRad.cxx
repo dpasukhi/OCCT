@@ -16,7 +16,8 @@
 
 #include <BRepBlend_RstRstConstRad.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Blend_Point.hxx>
@@ -56,16 +57,14 @@ static void t3dto2d(Standard_Real& a,
 //=================================================================================================
 
 BRepBlend_RstRstConstRad::BRepBlend_RstRstConstRad(const Handle(Adaptor3d_Surface)& Surf1,
-                                                   const Handle(Adaptor2d_Curve2d)& Rst1,
+                                                   const Handle(Geom2dAdaptor_Curve)& Rst1,
                                                    const Handle(Adaptor3d_Surface)& Surf2,
-                                                   const Handle(Adaptor2d_Curve2d)& Rst2,
+                                                   const Handle(Geom2dAdaptor_Curve)& Rst2,
                                                    const Handle(Adaptor3d_Curve)&   CGuide)
     : surf1(Surf1),
       surf2(Surf2),
       rst1(Rst1),
       rst2(Rst2),
-      cons1(Rst1, Surf1),
-      cons2(Rst2, Surf2),
       guide(CGuide),
       tguide(CGuide),
       prmrst1(0.0),
@@ -80,6 +79,20 @@ BRepBlend_RstRstConstRad::BRepBlend_RstRstConstRad(const Handle(Adaptor3d_Surfac
       distmin(RealLast()),
       mySShape(BlendFunc_Rational)
 {
+  Handle(GeomAdaptor_Surface) aGeomSurf1 = Handle(GeomAdaptor_Surface)::DownCast(Surf1);
+  Handle(GeomAdaptor_Surface) aGeomSurf2 = Handle(GeomAdaptor_Surface)::DownCast(Surf2);
+  if (!aGeomSurf1.IsNull() && !Rst1.IsNull())
+  {
+    auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(*Rst1);
+    auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(*aGeomSurf1);
+    cons1.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+  }
+  if (!aGeomSurf2.IsNull() && !Rst2.IsNull())
+  {
+    auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(*Rst2);
+    auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(*aGeomSurf2);
+    cons2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+  }
 }
 
 //=================================================================================================
@@ -142,9 +155,9 @@ Standard_Boolean BRepBlend_RstRstConstRad::Values(const math_Vector& X,
 //=================================================================================================
 
 void BRepBlend_RstRstConstRad::Set(const Handle(Adaptor3d_Surface)& SurfRef1,
-                                   const Handle(Adaptor2d_Curve2d)& RstRef1,
+                                   const Handle(Geom2dAdaptor_Curve)& RstRef1,
                                    const Handle(Adaptor3d_Surface)& SurfRef2,
-                                   const Handle(Adaptor2d_Curve2d)& RstRef2)
+                                   const Handle(Geom2dAdaptor_Curve)& RstRef2)
 {
   surfref1 = SurfRef1;
   surfref2 = SurfRef2;

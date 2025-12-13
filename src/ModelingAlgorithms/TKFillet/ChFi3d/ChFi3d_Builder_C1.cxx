@@ -158,16 +158,23 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& fb,
 {
   GeomAdaptor_Curve c1;
   {
-    auto aPCrv1 = std::make_unique<BRepAdaptor_Curve2d>(*pcfb);
-    auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(fb->ChangeSurface().Surface());
+    Handle(Geom2dAdaptor_Curve) aPCrv1Handle = Handle(Geom2dAdaptor_Curve)::DownCast(pcfb);
+    Handle(GeomAdaptor_Surface) aSrf1Handle = Handle(GeomAdaptor_Surface)::DownCast(fb);
+    if (aPCrv1Handle.IsNull() || aSrf1Handle.IsNull())
+      return Standard_False;
+    auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(*aPCrv1Handle);
+    auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(*aSrf1Handle);
     c1.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
   }
   Handle(Geom2d_Curve)        pc  = fi.PCurveOnSurf();
   Handle(Geom2dAdaptor_Curve) hpc = new Geom2dAdaptor_Curve(pc);
   GeomAdaptor_Curve           c2;
   {
+    Handle(GeomAdaptor_Surface) aSrf2Handle = Handle(GeomAdaptor_Surface)::DownCast(surf);
+    if (aSrf2Handle.IsNull())
+      return Standard_False;
     auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(*hpc);
-    auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(surf->Surface());
+    auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(*aSrf2Handle);
     c2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
   }
   Extrema_LocateExtCC         ext(c1, c2, pared, wop);
@@ -352,10 +359,17 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& face,
 {
   if (!cp.IsOnArc())
     return 0;
+  // Downcast to concrete types
+  Handle(Geom2dAdaptor_Curve) aEdgeOnFaceHandle = Handle(Geom2dAdaptor_Curve)::DownCast(edonface);
+  Handle(GeomAdaptor_Surface) aFaceSurfHandle   = Handle(GeomAdaptor_Surface)::DownCast(face);
+  Handle(GeomAdaptor_Surface) aSurfHandle       = Handle(GeomAdaptor_Surface)::DownCast(surf);
+  if (aEdgeOnFaceHandle.IsNull() || aFaceSurfHandle.IsNull() || aSurfHandle.IsNull())
+    return 0;
+
   GeomAdaptor_Curve c1;
   {
-    auto aEdgeOnFace = std::make_unique<BRepAdaptor_Curve2d>(*edonface);
-    auto aFaceSurf   = std::make_unique<GeomAdaptor_Surface>(face->ChangeSurface().Surface());
+    auto aEdgeOnFace = std::make_unique<Geom2dAdaptor_Curve>(*aEdgeOnFaceHandle);
+    auto aFaceSurf   = std::make_unique<GeomAdaptor_Surface>(*aFaceSurfHandle);
     c1.SetCurveOnSurface(std::move(aEdgeOnFace), std::move(aFaceSurf));
   }
   Standard_Real                   pared  = cp.ParameterOnArc();
@@ -370,7 +384,7 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& face,
   GeomAdaptor_Curve               c2;
   {
     auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(*hpc);
-    auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(surf->Surface());
+    auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(*aSurfHandle);
     c2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
   }
 

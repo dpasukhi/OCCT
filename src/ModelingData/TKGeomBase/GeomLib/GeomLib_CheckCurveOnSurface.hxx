@@ -19,7 +19,7 @@
 #include <Precision.hxx>
 #include <Standard.hxx>
 
-class Adaptor3d_CurveOnSurface;
+class GeomAdaptor_Curve;
 
 //! Computes the max distance between 3D-curve and 2D-curve
 //! in some surface.
@@ -44,9 +44,10 @@ public:
   Standard_EXPORT void Init();
 
   //! Computes the max distance for the 3d curve <myCurve>
-  //! and 2d curve <theCurveOnSurface>
+  //! and curve-on-surface <theCurveOnSurface>
+  //! The curve-on-surface must have CurveOnSurface modifier set (HasCurveOnSurface() == true).
   //! If isMultiThread == Standard_True then computation will be performed in parallel.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_CurveOnSurface)& theCurveOnSurface);
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Curve)& theCurveOnSurface);
 
   //! Sets parallel flag
   void SetParallel(const Standard_Boolean theIsParallel) { myIsParallel = theIsParallel; }

@@ -392,9 +392,15 @@ static Standard_Integer projpcurve(Draw_Interpretor& di, Standard_Integer argc, 
   }
 
   GeomAdaptor_Curve aCOnS;
-  auto              aPCrv = std::make_unique<BRepAdaptor_Curve2d>(aEdge, aFace);
-  auto              aSrf  = std::make_unique<BRepAdaptor_Surface>(aFace, Standard_False);
-  aCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+  Standard_Real aFirst, aLast;
+  Handle(Geom2d_Curve) aC2d = BRep_Tool::CurveOnSurface(aEdge, aFace, aFirst, aLast);
+  Handle(Geom_Surface) aSurf = BRep_Tool::Surface(aFace);
+  if (!aC2d.IsNull() && !aSurf.IsNull())
+  {
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2d, aFirst, aLast);
+    auto aSrf  = std::make_unique<GeomAdaptor_Surface>(aSurf);
+    aCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+  }
 
   gp_Pnt              aPnt;
   Standard_Real       aParam;

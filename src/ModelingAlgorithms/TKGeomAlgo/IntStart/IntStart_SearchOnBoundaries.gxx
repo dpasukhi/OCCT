@@ -18,7 +18,7 @@
 #include <Geom_Curve.hxx>
 #include <BRepAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom_Line.hxx>
@@ -64,7 +64,7 @@
   #include <GeomLib.hxx>
 #endif
 
-static Standard_Boolean IsDegenerated(const Handle(Adaptor3d_CurveOnSurface)& theCurve);
+static Standard_Boolean IsDegenerated(const Handle(GeomAdaptor_Curve)& theCurve);
 static Standard_Boolean IsDegenerated(const IntSurf_Quadric& theQuadric);
 
 static void FindVertex(const TheArc&,
@@ -163,7 +163,7 @@ void FindVertex(const TheArc&                 A,
   }
 }
 
-Standard_Boolean IsDegenerated(const Handle(Adaptor3d_CurveOnSurface)& theCurve)
+Standard_Boolean IsDegenerated(const Handle(GeomAdaptor_Curve)& theCurve)
 {
   if (theCurve->GetType() == GeomAbs_Circle)
   {
@@ -374,46 +374,58 @@ static void BoundedArc(const TheArc&                 A,
     {
       // Exact solution
       Handle(Adaptor3d_Surface) aSurf = Func.Surface();
-      Adaptor3d_CurveOnSurface  ConS(A, aSurf);
-      TypeConS = ConS.GetType();
+
+      // Create GeomAdaptor_Curve with curve-on-surface modifier
+      Handle(GeomAdaptor_Curve) HConS = new GeomAdaptor_Curve();
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(A);
+        Handle(GeomAdaptor_Surface) aGeomSurface = Handle(GeomAdaptor_Surface)::DownCast(aSurf);
+        if (!aGeom2dAdaptor.IsNull() && !aGeomSurface.IsNull())
+        {
+          auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(*aGeom2dAdaptor);
+          auto aSrf  = std::make_unique<GeomAdaptor_Surface>(*aGeomSurface);
+          HConS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        }
+      }
+      TypeConS = HConS->GetType();
 #ifdef OCCT_DEBUG
       Handle(Geom_Curve) CurveConS;
       switch (TypeConS)
       {
         case GeomAbs_Line: {
-          CurveConS = new Geom_Line(ConS.Line());
+          CurveConS = new Geom_Line(HConS->Line());
           break;
         }
         case GeomAbs_Circle: {
-          CurveConS = new Geom_Circle(ConS.Circle());
+          CurveConS = new Geom_Circle(HConS->Circle());
           break;
         }
         case GeomAbs_Ellipse: {
-          CurveConS = new Geom_Ellipse(ConS.Ellipse());
+          CurveConS = new Geom_Ellipse(HConS->Ellipse());
           break;
         }
         case GeomAbs_Hyperbola: {
-          CurveConS = new Geom_Hyperbola(ConS.Hyperbola());
+          CurveConS = new Geom_Hyperbola(HConS->Hyperbola());
           break;
         }
         case GeomAbs_Parabola: {
-          CurveConS = new Geom_Parabola(ConS.Parabola());
+          CurveConS = new Geom_Parabola(HConS->Parabola());
           break;
         }
         case GeomAbs_BezierCurve: {
-          CurveConS = ConS.Bezier();
+          CurveConS = HConS->Bezier();
           break;
         }
         case GeomAbs_BSplineCurve: {
-          CurveConS = ConS.BSpline();
+          CurveConS = HConS->BSpline();
           break;
         }
         default: {
           Standard_Real MaxDeviation, AverageDeviation;
           GeomLib::BuildCurve3d(1.e-5,
-                                ConS,
-                                ConS.FirstParameter(),
-                                ConS.LastParameter(),
+                                *HConS,
+                                HConS->FirstParameter(),
+                                HConS->LastParameter(),
                                 CurveConS,
                                 MaxDeviation,
                                 AverageDeviation);
@@ -421,7 +433,6 @@ static void BoundedArc(const TheArc&                 A,
         }
       }
 #endif
-      Handle(Adaptor3d_CurveOnSurface) HConS = new Adaptor3d_CurveOnSurface(ConS);
       Handle(Geom_Surface)             QuadSurf;
       switch (TypeQuad)
       {

@@ -536,10 +536,10 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
     GeomLib_MakeCurvefromApprox aCurveBuilder(anApproximator);
     Handle(Geom2d_BSplineCurve)  aC2d      = aCurveBuilder.Curve2dFromTwo1d(1, 2);
     Handle(Geom2dAdaptor_Curve) aHCurve2d = new Geom2dAdaptor_Curve(aC2d);
-    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2d);
+    auto aPCrvNew = std::make_unique<Geom2dAdaptor_Curve>(aC2d);
     Handle(GeomAdaptor_Surface) aGeomSrfAdp3 = Handle(GeomAdaptor_Surface)::DownCast(mySurf);
-    auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSrfAdp3->Surface());
-    aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    auto aSrfNew = std::make_unique<GeomAdaptor_Surface>(aGeomSrfAdp3->Surface());
+    aData.myCOnS.SetCurveOnSurface(std::move(aPCrvNew), std::move(aSrfNew));
 
     Standard_Real anApproxTol = ComputeTolReached(myC3d, aData.myCOnS, 2 * myNbSamples);
     if (anApproxTol < myTolReached)

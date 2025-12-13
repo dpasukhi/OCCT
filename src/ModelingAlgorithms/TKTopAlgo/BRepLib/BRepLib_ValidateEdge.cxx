@@ -15,6 +15,8 @@
 
 #include <BRepCheck.hxx>
 #include <Extrema_LocateExtPC.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomLib_CheckCurveOnSurface.hxx>
 
 //=================================================================================================
@@ -68,13 +70,28 @@ Standard_Real BRepLib_ValidateEdge::correctTolerance(Standard_Real theTolerance)
   Standard_Real aCurvePrecision   = BRepCheck::PrecCurve(*myReferenceCurve);
   Standard_Real aSurfacePrecision = 0.0;
 
-  if (myOtherCurve->GetType() == GeomAbs_OtherCurve)
+  // Check if this is a curve on surface by downcasting to GeomAdaptor_Curve
+  Handle(GeomAdaptor_Curve) aGeomAdaptorCurve = Handle(GeomAdaptor_Curve)::DownCast(myOtherCurve);
+  if (!aGeomAdaptorCurve.IsNull() && aGeomAdaptorCurve->HasCurveOnSurface())
   {
-    // This is a curve on surface, get surface precision
-    const Handle(Adaptor3d_Surface)& aSurface = myOtherCurve->GetSurface();
-    if (!aSurface.IsNull())
+    // This is a curve on surface, compute surface precision inline
+    // (similar to BRepCheck::PrecSurface logic)
+    const GeomAdaptor_Surface& aSurface = aGeomAdaptorCurve->GetSurface();
+    aSurfacePrecision = RealEpsilon();
+    if (aSurface.GetType() == GeomAbs_Cone)
     {
-      aSurfacePrecision = BRepCheck::PrecSurface(aSurface);
+      gp_Cone aCone = aSurface.Cone();
+      Standard_Real aX[4];
+      aCone.Location().Coord(aX[0], aX[1], aX[2]);
+      aX[3] = aCone.RefRadius();
+      for (Standard_Integer i = 0; i < 4; ++i)
+      {
+        if (aX[i] < 0.)
+          aX[i] = -aX[i];
+        Standard_Real aXE = Epsilon(aX[i]);
+        if (aXE > aSurfacePrecision)
+          aSurfacePrecision = aXE;
+      }
     }
   }
 
@@ -244,7 +261,13 @@ void BRepLib_ValidateEdge::processExact()
 {
   GeomLib_CheckCurveOnSurface aCheckCurveOnSurface(myReferenceCurve);
   aCheckCurveOnSurface.SetParallel(myIsMultiThread);
-  aCheckCurveOnSurface.Perform(myOtherCurve);
+  Handle(GeomAdaptor_Curve) aGeomCurve = Handle(GeomAdaptor_Curve)::DownCast(myOtherCurve);
+  if (aGeomCurve.IsNull())
+  {
+    myIsDone = Standard_False;
+    return;
+  }
+  aCheckCurveOnSurface.Perform(aGeomCurve);
   myIsDone = aCheckCurveOnSurface.IsDone();
   if (myIsDone)
   {

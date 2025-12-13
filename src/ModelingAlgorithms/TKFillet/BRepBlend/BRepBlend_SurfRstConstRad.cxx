@@ -14,7 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Blend_Point.hxx>
 #include <BlendFunc.hxx>
 #include <BRepBlend_SurfRstConstRad.hxx>
@@ -54,12 +55,11 @@ static void t3dto2d(Standard_Real& a,
 
 BRepBlend_SurfRstConstRad::BRepBlend_SurfRstConstRad(const Handle(Adaptor3d_Surface)& Surf,
                                                      const Handle(Adaptor3d_Surface)& SurfRst,
-                                                     const Handle(Adaptor2d_Curve2d)& Rst,
+                                                     const Handle(Geom2dAdaptor_Curve)& Rst,
                                                      const Handle(Adaptor3d_Curve)&   CGuide)
     : surf(Surf),
       surfrst(SurfRst),
       rst(Rst),
-      cons(Rst, SurfRst),
       guide(CGuide),
       tguide(CGuide),
       prmrst(0.0),
@@ -73,6 +73,13 @@ BRepBlend_SurfRstConstRad::BRepBlend_SurfRstConstRad(const Handle(Adaptor3d_Surf
       distmin(RealLast()),
       mySShape(BlendFunc_Rational)
 {
+  Handle(GeomAdaptor_Surface) aGeomSurf = Handle(GeomAdaptor_Surface)::DownCast(SurfRst);
+  if (!aGeomSurf.IsNull() && !Rst.IsNull())
+  {
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(*Rst);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(*aGeomSurf);
+    cons.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+  }
 }
 
 //=================================================================================================
@@ -250,7 +257,7 @@ Standard_Boolean BRepBlend_SurfRstConstRad::Values(const math_Vector& X,
 //=================================================================================================
 
 void BRepBlend_SurfRstConstRad::Set(const Handle(Adaptor3d_Surface)& SurfRef,
-                                    const Handle(Adaptor2d_Curve2d)& RstRef)
+                                    const Handle(Geom2dAdaptor_Curve)& RstRef)
 {
   surfref = SurfRef;
   rstref  = RstRef;

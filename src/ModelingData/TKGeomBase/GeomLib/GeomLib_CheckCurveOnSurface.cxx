@@ -15,7 +15,7 @@
 #include <GeomLib_CheckCurveOnSurface.hxx>
 
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
@@ -40,12 +40,12 @@ static Standard_Boolean MinComputing(GeomLib_CheckCurveOnSurface_TargetFunc& the
                                      Standard_Real&                          theBestValue,
                                      Standard_Real&                          theBestParameter);
 
-static Standard_Integer FillSubIntervals(const Handle(Adaptor3d_Curve)&   theCurve3d,
-                                         const Handle(Adaptor2d_Curve2d)& theCurve2d,
-                                         const Standard_Real              theFirst,
-                                         const Standard_Real              theLast,
-                                         Standard_Integer&                theNbParticles,
-                                         TColStd_Array1OfReal* const      theSubIntervals = 0);
+static Standard_Integer FillSubIntervals(const Handle(Adaptor3d_Curve)&    theCurve3d,
+                                         const Handle(Geom2dAdaptor_Curve)& theCurve2d,
+                                         const Standard_Real               theFirst,
+                                         const Standard_Real               theLast,
+                                         Standard_Integer&                 theNbParticles,
+                                         TColStd_Array1OfReal* const       theSubIntervals = 0);
 
 //=======================================================================
 // class   : GeomLib_CheckCurveOnSurface_TargetFunc
@@ -341,9 +341,9 @@ void GeomLib_CheckCurveOnSurface::Init(const Handle(Adaptor3d_Curve)& theCurve,
 
 //=================================================================================================
 
-void GeomLib_CheckCurveOnSurface::Perform(const Handle(Adaptor3d_CurveOnSurface)& theCurveOnSurface)
+void GeomLib_CheckCurveOnSurface::Perform(const Handle(GeomAdaptor_Curve)& theCurveOnSurface)
 {
-  if (myCurve.IsNull() || theCurveOnSurface.IsNull())
+  if (myCurve.IsNull() || theCurveOnSurface.IsNull() || !theCurveOnSurface->HasCurveOnSurface())
   {
     myErrorStatus = 1;
     return;
@@ -367,8 +367,9 @@ void GeomLib_CheckCurveOnSurface::Perform(const Handle(Adaptor3d_CurveOnSurface)
   // at least one particle in every monotonicity interval. Therefore,
   // number of particles should be equal to n.
 
+  Handle(Geom2dAdaptor_Curve) aPCurve = new Geom2dAdaptor_Curve(theCurveOnSurface->GetPCurve());
   const Standard_Integer aNbSubIntervals = FillSubIntervals(myCurve,
-                                                            theCurveOnSurface->GetCurve(),
+                                                            aPCurve,
                                                             myCurve->FirstParameter(),
                                                             myCurve->LastParameter(),
                                                             aNbParticles);
@@ -385,7 +386,7 @@ void GeomLib_CheckCurveOnSurface::Perform(const Handle(Adaptor3d_CurveOnSurface)
 
     TColStd_Array1OfReal anIntervals(1, aNbSubIntervals + 1);
     FillSubIntervals(myCurve,
-                     theCurveOnSurface->GetCurve(),
+                     aPCurve,
                      myCurve->FirstParameter(),
                      myCurve->LastParameter(),
                      aNbParticles,
@@ -440,12 +441,12 @@ void GeomLib_CheckCurveOnSurface::Perform(const Handle(Adaptor3d_CurveOnSurface)
 //            (fills theSubIntervals array).
 //            Returns number of subintervals.
 //=======================================================================
-Standard_Integer FillSubIntervals(const Handle(Adaptor3d_Curve)&   theCurve3d,
-                                  const Handle(Adaptor2d_Curve2d)& theCurve2d,
-                                  const Standard_Real              theFirst,
-                                  const Standard_Real              theLast,
-                                  Standard_Integer&                theNbParticles,
-                                  TColStd_Array1OfReal* const      theSubIntervals)
+Standard_Integer FillSubIntervals(const Handle(Adaptor3d_Curve)&    theCurve3d,
+                                  const Handle(Geom2dAdaptor_Curve)& theCurve2d,
+                                  const Standard_Real               theFirst,
+                                  const Standard_Real               theLast,
+                                  Standard_Integer&                 theNbParticles,
+                                  TColStd_Array1OfReal* const       theSubIntervals)
 {
   const Standard_Integer     aMaxKnots     = 101;
   const Standard_Real        anArrTempC[2] = {theFirst, theLast};

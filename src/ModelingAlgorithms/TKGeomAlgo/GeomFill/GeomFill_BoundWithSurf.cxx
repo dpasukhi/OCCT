@@ -18,6 +18,8 @@
 
 #include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -81,10 +83,10 @@ gp_Vec GeomFill_BoundWithSurf::Norm(const Standard_Real U) const
   Standard_Real w = U;
   if (!myPar.IsNull())
     w = myPar->Value(U);
-  myConS.GetCurve()->Value(w).Coord(x, y);
+  myConS.GetPCurve().Value(w).Coord(x, y);
   gp_Pnt P;
   gp_Vec Su, Sv;
-  myConS.GetSurface()->D1(x, y, P, Su, Sv);
+  myConS.GetSurface().D1(x, y, P, Su, Sv);
   Su.Cross(Sv);
   Su.Normalize();
   return Su;
@@ -104,13 +106,13 @@ void GeomFill_BoundWithSurf::D1Norm(const Standard_Real U, gp_Vec& N, gp_Vec& DN
   Standard_Real w = U, dw = 1.;
   if (!myPar.IsNull())
     myPar->D1(U, w, dw);
-  myConS.GetCurve()->D1(w, P2d, V2d);
+  myConS.GetPCurve().D1(w, P2d, V2d);
   P2d.Coord(x, y);
   V2d.Multiply(dw);
   V2d.Coord(dx, dy);
   gp_Pnt P;
   gp_Vec Su, Sv, Suu, Suv, Svv;
-  myConS.GetSurface()->D2(x, y, P, Su, Sv, Suu, Svv, Suv);
+  myConS.GetSurface().D2(x, y, P, Su, Sv, Suu, Svv, Suv);
   N = Su.Crossed(Sv);
   N.Normalize();
   Standard_Real nsuu = N.Dot(Suu), nsuv = N.Dot(Suv), nsvv = N.Dot(Svv);

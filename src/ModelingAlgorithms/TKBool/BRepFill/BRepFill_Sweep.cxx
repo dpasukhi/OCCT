@@ -289,10 +289,10 @@ static Standard_Boolean CheckSameParameter(const Handle(Adaptor3d_Curve)&   C3d,
 // with exact calculation method of edge tolerance
 //=======================================================================
 static Standard_Boolean CheckSameParameterExact(
-  const Handle(Adaptor3d_Curve)& C3d,
-  const Handle(Adaptor3d_Curve)& curveOnSurface,
-  const Standard_Real            tol3d,
-  Standard_Real&                 tolreached)
+  const Handle(Adaptor3d_Curve)&   C3d,
+  const Handle(GeomAdaptor_Curve)& curveOnSurface,
+  const Standard_Real              tol3d,
+  Standard_Real&                   tolreached)
 {
   GeomLib_CheckCurveOnSurface aCheckCurveOnSurface(C3d);
   aCheckCurveOnSurface.SetParallel(Standard_False);
@@ -368,8 +368,8 @@ static Standard_Boolean SameParameter(TopoDS_Edge&                E,
     return Standard_False;
   }
 
-  Handle(Adaptor3d_Curve) curve3d        = sp.Curve3d();
-  Handle(Adaptor3d_Curve) curveOnSurface = sp.CurveOnSurface();
+  Handle(Adaptor3d_Curve)   curve3d        = sp.Curve3d();
+  Handle(GeomAdaptor_Curve) curveOnSurface = sp.CurveOnSurface();
 
   if (!CheckSameParameterExact(curve3d, curveOnSurface, tol3d, ResTol) && ResTol > tolreached)
   {

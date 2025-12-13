@@ -775,7 +775,7 @@ Standard_Boolean IntTools_Tools::ComputeTolerance(const Handle(Geom_Curve)&   th
     auto aSrf = std::make_unique<GeomAdaptor_Surface>(theSurf);
     aCurveOnSurface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
   }
-  const Handle(Adaptor3d_Curve) anAdaptorCurveOnSurface = new GeomAdaptor_Curve(aCurveOnSurface);
+  const Handle(GeomAdaptor_Curve) anAdaptorCurveOnSurface = new GeomAdaptor_Curve(aCurveOnSurface);
 
   aCS.Init(aGeomAdaptorCurve, theTolRange);
   aCS.SetParallel(theToRunParallel);

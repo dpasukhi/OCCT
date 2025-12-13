@@ -44,8 +44,8 @@
 #include <GeomLib.hxx>
 
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <AdvApprox_PrefAndRec.hxx>
 #include <CSLib.hxx>
 #include <CSLib_NormalStatus.hxx>
@@ -997,9 +997,9 @@ void GeomLib::SameRange(const Standard_Real         Tolerance,
 class GeomLib_CurveOnSurfaceEvaluator : public AdvApprox_EvaluatorFunction
 {
 public:
-  GeomLib_CurveOnSurfaceEvaluator(Adaptor3d_CurveOnSurface& theCurveOnSurface,
-                                  Standard_Real             theFirst,
-                                  Standard_Real             theLast)
+  GeomLib_CurveOnSurfaceEvaluator(GeomAdaptor_Curve& theCurveOnSurface,
+                                  Standard_Real      theFirst,
+                                  Standard_Real      theLast)
       : CurveOnSurface(theCurveOnSurface),
         FirstParam(theFirst),
         LastParam(theLast)
@@ -1014,11 +1014,11 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Adaptor3d_CurveOnSurface& CurveOnSurface;
-  Standard_Real             FirstParam;
-  Standard_Real             LastParam;
+  GeomAdaptor_Curve& CurveOnSurface;
+  Standard_Real      FirstParam;
+  Standard_Real      LastParam;
 
-  Handle(Adaptor3d_Curve) TrimCurve;
+  GeomAdaptor_Curve TrimCurve;
 };
 
 void GeomLib_CurveOnSurfaceEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
@@ -1033,7 +1033,7 @@ void GeomLib_CurveOnSurfaceEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
   // Gestion des positionnements gauche / droite
   if ((DebutFin[0] != FirstParam) || (DebutFin[1] != LastParam))
   {
-    TrimCurve  = CurveOnSurface.Trim(DebutFin[0], DebutFin[1], Precision::PConfusion());
+    TrimCurve  = CurveOnSurface.TrimByValue(DebutFin[0], DebutFin[1], Precision::PConfusion());
     FirstParam = DebutFin[0];
     LastParam  = DebutFin[1];
   }
@@ -1041,7 +1041,7 @@ void GeomLib_CurveOnSurfaceEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
   // Positionemment
   if (*DerivativeRequest == 0)
   {
-    TrimCurve->D0((*Parameter), Point);
+    TrimCurve.D0((*Parameter), Point);
 
     for (Standard_Integer ii = 0; ii < 3; ii++)
       Result[ii] = Point.Coord(ii + 1);
@@ -1049,14 +1049,14 @@ void GeomLib_CurveOnSurfaceEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
   if (*DerivativeRequest == 1)
   {
     gp_Vec Vector;
-    TrimCurve->D1((*Parameter), Point, Vector);
+    TrimCurve.D1((*Parameter), Point, Vector);
     for (Standard_Integer ii = 0; ii < 3; ii++)
       Result[ii] = Vector.Coord(ii + 1);
   }
   if (*DerivativeRequest == 2)
   {
     gp_Vec Vector, VecBis;
-    TrimCurve->D2((*Parameter), Point, VecBis, Vector);
+    TrimCurve.D2((*Parameter), Point, VecBis, Vector);
     for (Standard_Integer ii = 0; ii < 3; ii++)
       Result[ii] = Vector.Coord(ii + 1);
   }
@@ -1065,31 +1065,28 @@ void GeomLib_CurveOnSurfaceEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
 
 //=================================================================================================
 
-void GeomLib::BuildCurve3d(const Standard_Real       Tolerance,
-                           Adaptor3d_CurveOnSurface& Curve,
-                           const Standard_Real       FirstParameter,
-                           const Standard_Real       LastParameter,
-                           Handle(Geom_Curve)&       NewCurvePtr,
-                           Standard_Real&            MaxDeviation,
-                           Standard_Real&            AverageDeviation,
-                           const GeomAbs_Shape       Continuity,
-                           const Standard_Integer    MaxDegree,
-                           const Standard_Integer    MaxSegment)
+void GeomLib::BuildCurve3d(const Standard_Real    Tolerance,
+                           GeomAdaptor_Curve&     Curve,
+                           const Standard_Real    FirstParameter,
+                           const Standard_Real    LastParameter,
+                           Handle(Geom_Curve)&    NewCurvePtr,
+                           Standard_Real&         MaxDeviation,
+                           Standard_Real&         AverageDeviation,
+                           const GeomAbs_Shape    Continuity,
+                           const Standard_Integer MaxDegree,
+                           const Standard_Integer MaxSegment)
 
 {
 
   MaxDeviation     = 0.0e0;
   AverageDeviation = 0.0e0;
-  Handle(GeomAdaptor_Surface) geom_adaptor_surface_ptr(
-    Handle(GeomAdaptor_Surface)::DownCast(Curve.GetSurface()));
-  Handle(Geom2dAdaptor_Curve) geom_adaptor_curve_ptr(
-    Handle(Geom2dAdaptor_Curve)::DownCast(Curve.GetCurve()));
 
-  if (!geom_adaptor_curve_ptr.IsNull() && !geom_adaptor_surface_ptr.IsNull())
+  if (Curve.HasCurveOnSurface())
   {
-    Handle(Geom_Plane)         P;
-    const GeomAdaptor_Surface& geom_surface = *geom_adaptor_surface_ptr;
+    const GeomAdaptor_Surface& geom_surface  = Curve.GetSurface();
+    const Geom2dAdaptor_Curve& geom2d_curve  = Curve.GetPCurve();
 
+    Handle(Geom_Plane) P;
     Handle(Geom_RectangularTrimmedSurface) RT =
       Handle(Geom_RectangularTrimmedSurface)::DownCast(geom_surface.Surface());
     if (RT.IsNull())
@@ -1104,15 +1101,15 @@ void GeomLib::BuildCurve3d(const Standard_Real       Tolerance,
     if (!P.IsNull())
     {
       // compute the 3d curve
-      gp_Ax2                     axes         = P->Position().Ax2();
-      const Geom2dAdaptor_Curve& geom2d_curve = *geom_adaptor_curve_ptr;
-      NewCurvePtr                             = GeomLib::To3d(axes, geom2d_curve.Curve());
+      gp_Ax2 axes = P->Position().Ax2();
+      NewCurvePtr = GeomLib::To3d(axes, geom2d_curve.Curve());
       return;
     }
 
-    Handle(Adaptor2d_Curve2d) TrimmedC2D =
-      geom_adaptor_curve_ptr->Trim(FirstParameter, LastParameter, Precision::PConfusion());
+    Handle(Geom2dAdaptor_Curve) TrimmedC2D = new Geom2dAdaptor_Curve(
+      geom2d_curve.TrimByValue(FirstParameter, LastParameter, Precision::PConfusion()));
 
+    Handle(GeomAdaptor_Surface) geom_adaptor_surface_ptr = new GeomAdaptor_Surface(geom_surface);
     Standard_Boolean isU, isForward;
     Standard_Real    aParam;
     if (isIsoLine(TrimmedC2D, isU, aParam, isForward))
@@ -1337,7 +1334,7 @@ void GeomLib::BuildCurve3d(const Standard_Real      theTolerance,
 
   // Check for iso line case
   Handle(Geom2dAdaptor_Curve) aTrimmedC2D =
-    Handle(Geom2dAdaptor_Curve)::DownCast(thePCurve.Trim(theFirstParameter, theLastParameter, Precision::PConfusion()));
+    new Geom2dAdaptor_Curve(thePCurve.TrimByValue(theFirstParameter, theLastParameter, Precision::PConfusion()));
   Handle(GeomAdaptor_Surface) aSurfHandle = new GeomAdaptor_Surface(theSurface.Surface(),
                                                                      theSurface.FirstUParameter(),
                                                                      theSurface.LastUParameter(),
@@ -3160,10 +3157,10 @@ static Standard_Boolean CompareWeightPoles(const TColgp_Array1OfPnt&         the
 
 //=================================================================================================
 
-Standard_Boolean GeomLib::isIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
-                                    Standard_Boolean&                theIsU,
-                                    Standard_Real&                   theParam,
-                                    Standard_Boolean&                theIsForward)
+Standard_Boolean GeomLib::isIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
+                                    Standard_Boolean&                  theIsU,
+                                    Standard_Real&                     theParam,
+                                    Standard_Boolean&                  theIsForward)
 {
   // These variables are used to check line state (vertical or horizontal).
   Standard_Boolean isAppropriateType = Standard_False;
@@ -3238,8 +3235,8 @@ Standard_Boolean GeomLib::isIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
 
 //=================================================================================================
 
-Handle(Geom_Curve) GeomLib::buildC3dOnIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
-                                              const Handle(Adaptor3d_Surface)& theSurf,
+Handle(Geom_Curve) GeomLib::buildC3dOnIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
+                                              const Handle(GeomAdaptor_Surface)& theSurf,
                                               const Standard_Real              theFirst,
                                               const Standard_Real              theLast,
                                               const Standard_Real              theTolerance,
@@ -3247,16 +3244,14 @@ Handle(Geom_Curve) GeomLib::buildC3dOnIsoLine(const Handle(Adaptor2d_Curve2d)& t
                                               const Standard_Real              theParam,
                                               const Standard_Boolean           theIsForward)
 {
-  // Convert adapter to the appropriate type.
-  Handle(GeomAdaptor_Surface) aGeomAdapter = Handle(GeomAdaptor_Surface)::DownCast(theSurf);
-  if (aGeomAdapter.IsNull())
+  if (theSurf.IsNull())
     return Handle(Geom_Curve)();
 
   if (theSurf->GetType() == GeomAbs_Sphere)
     return Handle(Geom_Curve)();
 
   // Extract isoline
-  Handle(Geom_Surface) aSurf = aGeomAdapter->Surface();
+  Handle(Geom_Surface) aSurf = theSurf->Surface();
   Handle(Geom_Curve)   aC3d;
 
   gp_Pnt2d aF2d = theC2D->Value(theC2D->FirstParameter());

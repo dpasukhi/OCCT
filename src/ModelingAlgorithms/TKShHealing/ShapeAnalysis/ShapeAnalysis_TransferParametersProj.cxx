@@ -182,7 +182,7 @@ Standard_Real ShapeAnalysis_TransferParametersProj::PreformSegment(const Standar
     // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
     GeomAdaptor_Curve Ad1;
     auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(myCurve2d, First, Last);
-    auto aSrf = myAC3d.GetSurfacePtr()->ShallowCopy();
+    auto aSrf  = std::make_unique<GeomAdaptor_Surface>(myAC3d.GetSurface());
     Ad1.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
     projDev = sac.Project(Ad1, p1, myPrecision, pproj, ppar); // pdn

@@ -341,11 +341,11 @@ Standard_Boolean GeomFill_Darboux::D0(const Standard_Real Param,
   gp_Vec2d                  D2d;
   gp_Pnt                    S;
   gp_Vec                    dS_du, dS_dv;
-  GeomAdaptor_Curve*        aTrimmedCurve = static_cast<GeomAdaptor_Curve*>(myTrimmed.get());
-  Handle(Adaptor2d_Curve2d) myCurve2d     = aTrimmedCurve->GetCurve();
-  Handle(Adaptor3d_Surface) mySupport     = aTrimmedCurve->GetSurface();
-  Standard_Integer          OrderU, OrderV;
-  myCurve2d->D1(Param, C2d, D2d);
+  GeomAdaptor_Curve*         aTrimmedCurve = static_cast<GeomAdaptor_Curve*>(myTrimmed.get());
+  const Geom2dAdaptor_Curve& myCurve2d     = aTrimmedCurve->GetPCurve();
+  Handle(GeomAdaptor_Surface) mySupport    = new GeomAdaptor_Surface(aTrimmedCurve->GetSurface());
+  Standard_Integer           OrderU, OrderV;
+  myCurve2d.D1(Param, C2d, D2d);
 
   //  Normal = dS_du.Crossed(dS_dv).Normalized();
   gp_Dir NormalDir;
@@ -377,11 +377,11 @@ Standard_Boolean GeomFill_Darboux::D1(const Standard_Real Param,
   gp_Vec2d                  D2d, D2_2d;
   gp_Pnt                    S;
   gp_Vec                    dS_du, dS_dv, d2S_du, d2S_dv, d2S_duv, F, DF;
-  GeomAdaptor_Curve*        aTrimmedCurve = static_cast<GeomAdaptor_Curve*>(myTrimmed.get());
-  Handle(Adaptor2d_Curve2d) myCurve2d     = aTrimmedCurve->GetCurve();
-  Handle(Adaptor3d_Surface) mySupport     = aTrimmedCurve->GetSurface();
+  GeomAdaptor_Curve*          aTrimmedCurve = static_cast<GeomAdaptor_Curve*>(myTrimmed.get());
+  const Geom2dAdaptor_Curve&  myCurve2d     = aTrimmedCurve->GetPCurve();
+  Handle(GeomAdaptor_Surface) mySupport     = new GeomAdaptor_Surface(aTrimmedCurve->GetSurface());
   //  Standard_Integer Order;
-  myCurve2d->D2(Param, C2d, D2d, D2_2d);
+  myCurve2d.D2(Param, C2d, D2d, D2_2d);
   mySupport->D2(C2d.X(), C2d.Y(), S, dS_du, dS_dv, d2S_du, d2S_dv, d2S_duv);
   //  if(D2d.Magnitude() <= Precision::Confusion())
   //    DoTSingular(Param, Order);
@@ -421,11 +421,11 @@ Standard_Boolean GeomFill_Darboux::D2(const Standard_Real Param,
   gp_Vec2d D2d, D2_2d, D3_2d;
   gp_Pnt   S;
   gp_Vec   dS_du, dS_dv, d2S_du, d2S_dv, d2S_duv, d3S_du, d3S_dv, d3S_duuv, d3S_duvv, F, DF, D2F;
-  GeomAdaptor_Curve*        aTrimmedCurve = static_cast<GeomAdaptor_Curve*>(myTrimmed.get());
-  Handle(Adaptor2d_Curve2d) myCurve2d     = aTrimmedCurve->GetCurve();
-  Handle(Adaptor3d_Surface) mySupport     = aTrimmedCurve->GetSurface();
+  GeomAdaptor_Curve*          aTrimmedCurve = static_cast<GeomAdaptor_Curve*>(myTrimmed.get());
+  const Geom2dAdaptor_Curve&  myCurve2d     = aTrimmedCurve->GetPCurve();
+  Handle(GeomAdaptor_Surface) mySupport     = new GeomAdaptor_Surface(aTrimmedCurve->GetSurface());
   //  Standard_Integer Order;
-  myCurve2d->D3(Param, C2d, D2d, D2_2d, D3_2d);
+  myCurve2d.D3(Param, C2d, D2d, D2_2d, D3_2d);
   mySupport->D3(C2d.X(),
                 C2d.Y(),
                 S,

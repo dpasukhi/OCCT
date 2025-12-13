@@ -403,7 +403,7 @@ void ShapeFix_EdgeProjAux::Init2d(const Standard_Real preci)
   // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
   GeomAdaptor_Curve COnS;
   auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(theCurve2d, cf, cl);
-  auto aSrf = std::make_unique<GeomAdaptor_Surface>(Surf);
+  auto aSrf  = std::make_unique<GeomAdaptor_Surface>(SA);
   COnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   // ----------------------------------------------

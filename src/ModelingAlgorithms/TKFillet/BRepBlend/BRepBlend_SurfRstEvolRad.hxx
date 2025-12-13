@@ -18,6 +18,7 @@
 #define _BRepBlend_SurfRstEvolRad_HeaderFile
 
 #include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
@@ -49,7 +50,7 @@ public:
 
   Standard_EXPORT BRepBlend_SurfRstEvolRad(const Handle(Adaptor3d_Surface)& Surf,
                                            const Handle(Adaptor3d_Surface)& SurfRst,
-                                           const Handle(Adaptor2d_Curve2d)& Rst,
+                                           const Handle(Geom2dAdaptor_Curve)& Rst,
                                            const Handle(Adaptor3d_Curve)&   CGuide,
                                            const Handle(Law_Function)&      Evol);
 
@@ -81,7 +82,7 @@ public:
                                           math_Matrix&       D) Standard_OVERRIDE;
 
   Standard_EXPORT void Set(const Handle(Adaptor3d_Surface)& SurfRef,
-                           const Handle(Adaptor2d_Curve2d)& RstRef);
+                           const Handle(Geom2dAdaptor_Curve)& RstRef);
 
   Standard_EXPORT void Set(const Standard_Real Param) Standard_OVERRIDE;
 
@@ -226,7 +227,7 @@ protected:
 private:
   Handle(Adaptor3d_Surface)    surf;
   Handle(Adaptor3d_Surface)    surfrst;
-  Handle(Adaptor2d_Curve2d)    rst;
+  Handle(Geom2dAdaptor_Curve)    rst;
   GeomAdaptor_Curve            cons;
   Handle(Adaptor3d_Curve)      guide;
   Handle(Adaptor3d_Curve)      tguide;
@@ -250,7 +251,7 @@ private:
   Standard_Real                normtg;
   Standard_Real                theD;
   Handle(Adaptor3d_Surface)    surfref;
-  Handle(Adaptor2d_Curve2d)    rstref;
+  Handle(Geom2dAdaptor_Curve)    rstref;
   Standard_Real                maxang;
   Standard_Real                minang;
   Standard_Real                distmin;

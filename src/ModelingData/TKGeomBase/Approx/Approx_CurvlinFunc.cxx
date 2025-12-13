@@ -181,10 +181,12 @@ void Approx_CurvlinFunc::Init()
       break;
     case 2:
       {
-        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
-        aPCrv->Load(myC2D1);
-        auto aSrf = std::make_unique<GeomAdaptor_Surface>();
-        aSrf->Load(mySurf1);
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                           aGeom2dAdaptor->FirstParameter(),
+                                                           aGeom2dAdaptor->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
         CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
         Init(CurOnSur, mySi_1, myUi_1);
         myFirstU1 = CurOnSur.FirstParameter();
@@ -194,19 +196,23 @@ void Approx_CurvlinFunc::Init()
       }
     case 3:
       {
-        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>();
-        aPCrv1->Load(myC2D1);
-        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>();
-        aSrf1->Load(mySurf1);
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor1 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor1->Curve(),
+                                                            aGeom2dAdaptor1->FirstParameter(),
+                                                            aGeom2dAdaptor1->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor1 = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor1->Surface());
         CurOnSur.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
         Init(CurOnSur, mySi_1, myUi_1);
         myFirstU1 = CurOnSur.FirstParameter();
         myLastU1  = CurOnSur.LastParameter();
 
-        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>();
-        aPCrv2->Load(myC2D2);
-        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>();
-        aSrf2->Load(mySurf2);
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor2 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor2->Curve(),
+                                                            aGeom2dAdaptor2->FirstParameter(),
+                                                            aGeom2dAdaptor2->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor2->Surface());
         CurOnSur.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
         Init(CurOnSur, mySi_2, myUi_2);
         myFirstU2 = CurOnSur.FirstParameter();
@@ -288,32 +294,52 @@ Standard_Real Approx_CurvlinFunc::LastParameter() const
 
 Standard_Integer Approx_CurvlinFunc::NbIntervals(const GeomAbs_Shape S) const
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
+  GeomAdaptor_Curve CurOnSur;
 
   switch (myCase)
   {
     case 1:
       return myC3D->NbIntervals(S);
     case 2:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      return CurOnSur.NbIntervals(S);
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                           aGeom2dAdaptor->FirstParameter(),
+                                                           aGeom2dAdaptor->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        return CurOnSur.NbIntervals(S);
+      }
     case 3:
-      Standard_Integer NbInt;
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      NbInt = CurOnSur.NbIntervals(S);
-      TColStd_Array1OfReal T1(1, NbInt + 1);
-      CurOnSur.Intervals(T1, S);
-      CurOnSur.Load(myC2D2);
-      CurOnSur.Load(mySurf2);
-      NbInt = CurOnSur.NbIntervals(S);
-      TColStd_Array1OfReal T2(1, NbInt + 1);
-      CurOnSur.Intervals(T2, S);
+      {
+        Standard_Integer NbInt;
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor1 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor1->Curve(),
+                                                            aGeom2dAdaptor1->FirstParameter(),
+                                                            aGeom2dAdaptor1->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor1 = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor1->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+        NbInt = CurOnSur.NbIntervals(S);
+        TColStd_Array1OfReal T1(1, NbInt + 1);
+        CurOnSur.Intervals(T1, S);
 
-      TColStd_SequenceOfReal Fusion;
-      GeomLib::FuseIntervals(T1, T2, Fusion);
-      return Fusion.Length() - 1;
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor2 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor2->Curve(),
+                                                            aGeom2dAdaptor2->FirstParameter(),
+                                                            aGeom2dAdaptor2->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor2->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+        NbInt = CurOnSur.NbIntervals(S);
+        TColStd_Array1OfReal T2(1, NbInt + 1);
+        CurOnSur.Intervals(T2, S);
+
+        TColStd_SequenceOfReal Fusion;
+        GeomLib::FuseIntervals(T1, T2, Fusion);
+        return Fusion.Length() - 1;
+      }
   }
 
   // POP pour WNT
@@ -322,8 +348,8 @@ Standard_Integer Approx_CurvlinFunc::NbIntervals(const GeomAbs_Shape S) const
 
 void Approx_CurvlinFunc::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S) const
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
-  Standard_Integer         i;
+  GeomAdaptor_Curve CurOnSur;
+  Standard_Integer  i;
 
   switch (myCase)
   {
@@ -331,28 +357,48 @@ void Approx_CurvlinFunc::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape 
       myC3D->Intervals(T, S);
       break;
     case 2:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      CurOnSur.Intervals(T, S);
-      break;
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                           aGeom2dAdaptor->FirstParameter(),
+                                                           aGeom2dAdaptor->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        CurOnSur.Intervals(T, S);
+        break;
+      }
     case 3:
-      Standard_Integer NbInt;
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      NbInt = CurOnSur.NbIntervals(S);
-      TColStd_Array1OfReal T1(1, NbInt + 1);
-      CurOnSur.Intervals(T1, S);
-      CurOnSur.Load(myC2D2);
-      CurOnSur.Load(mySurf2);
-      NbInt = CurOnSur.NbIntervals(S);
-      TColStd_Array1OfReal T2(1, NbInt + 1);
-      CurOnSur.Intervals(T2, S);
+      {
+        Standard_Integer NbInt;
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor1 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor1->Curve(),
+                                                            aGeom2dAdaptor1->FirstParameter(),
+                                                            aGeom2dAdaptor1->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor1 = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor1->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+        NbInt = CurOnSur.NbIntervals(S);
+        TColStd_Array1OfReal T1(1, NbInt + 1);
+        CurOnSur.Intervals(T1, S);
 
-      TColStd_SequenceOfReal Fusion;
-      GeomLib::FuseIntervals(T1, T2, Fusion);
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor2 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor2->Curve(),
+                                                            aGeom2dAdaptor2->FirstParameter(),
+                                                            aGeom2dAdaptor2->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor2->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+        NbInt = CurOnSur.NbIntervals(S);
+        TColStd_Array1OfReal T2(1, NbInt + 1);
+        CurOnSur.Intervals(T2, S);
 
-      for (i = 1; i <= Fusion.Length(); i++)
-        T.ChangeValue(i) = Fusion.Value(i);
+        TColStd_SequenceOfReal Fusion;
+        GeomLib::FuseIntervals(T1, T2, Fusion);
+
+        for (i = 1; i <= Fusion.Length(); i++)
+          T.ChangeValue(i) = Fusion.Value(i);
+      }
   }
 
   for (i = 1; i <= T.Length(); i++)
@@ -368,9 +414,9 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
   if ((Last - First) < Tol)
     return;
 
-  Standard_Real                    FirstU, LastU;
-  Adaptor3d_CurveOnSurface         CurOnSur;
-  Handle(Adaptor3d_CurveOnSurface) HCurOnSur;
+  Standard_Real         FirstU, LastU;
+  GeomAdaptor_Curve     CurOnSur;
+  Handle(Adaptor3d_Curve) HTrimmedCurve;
 
   switch (myCase)
   {
@@ -381,37 +427,67 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
       myC3D  = myC3D->Trim(FirstU, LastU, Tol);
       break;
     case 3:
-      CurOnSur.Load(myC2D2);
-      CurOnSur.Load(mySurf2);
-      HCurOnSur =
-        Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(myFirstU2, myLastU2, Tol));
-      myC2D2  = HCurOnSur->GetCurve();
-      mySurf2 = HCurOnSur->GetSurface();
-      CurOnSur.Load(myC2D2);
-      CurOnSur.Load(mySurf2);
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor2 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor2->Curve(),
+                                                            aGeom2dAdaptor2->FirstParameter(),
+                                                            aGeom2dAdaptor2->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor2->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
 
-      FirstU    = GetUParameter(CurOnSur, First, 1);
-      LastU     = GetUParameter(CurOnSur, Last, 1);
-      HCurOnSur = Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(FirstU, LastU, Tol));
-      myC2D2    = HCurOnSur->GetCurve();
-      mySurf2   = HCurOnSur->GetSurface();
+        HTrimmedCurve = CurOnSur.Trim(myFirstU2, myLastU2, Tol);
+        Handle(GeomAdaptor_Curve) aTrimmedGeomCurve2 = Handle(GeomAdaptor_Curve)::DownCast(HTrimmedCurve);
+        myC2D2 = new Geom2dAdaptor_Curve(aTrimmedGeomCurve2->GetPCurve());
+        mySurf2 = new GeomAdaptor_Surface(aTrimmedGeomCurve2->GetSurface());
 
-      Standard_FALLTHROUGH
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptorNew2 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+        auto aPCrvNew2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptorNew2->Curve(),
+                                                               aGeom2dAdaptorNew2->FirstParameter(),
+                                                               aGeom2dAdaptorNew2->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptorNew2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+        auto aSrfNew2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptorNew2->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrvNew2), std::move(aSrfNew2));
+
+        FirstU = GetUParameter(CurOnSur, First, 1);
+        LastU  = GetUParameter(CurOnSur, Last, 1);
+        HTrimmedCurve = CurOnSur.Trim(FirstU, LastU, Tol);
+        aTrimmedGeomCurve2 = Handle(GeomAdaptor_Curve)::DownCast(HTrimmedCurve);
+        myC2D2 = new Geom2dAdaptor_Curve(aTrimmedGeomCurve2->GetPCurve());
+        mySurf2 = new GeomAdaptor_Surface(aTrimmedGeomCurve2->GetSurface());
+
+        Standard_FALLTHROUGH
+      }
     case 2:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      HCurOnSur =
-        Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(myFirstU1, myLastU1, Tol));
-      myC2D1  = HCurOnSur->GetCurve();
-      mySurf1 = HCurOnSur->GetSurface();
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor1 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor1->Curve(),
+                                                            aGeom2dAdaptor1->FirstParameter(),
+                                                            aGeom2dAdaptor1->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor1 = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor1->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
 
-      FirstU    = GetUParameter(CurOnSur, First, 1);
-      LastU     = GetUParameter(CurOnSur, Last, 1);
-      HCurOnSur = Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(FirstU, LastU, Tol));
-      myC2D1    = HCurOnSur->GetCurve();
-      mySurf1   = HCurOnSur->GetSurface();
+        HTrimmedCurve = CurOnSur.Trim(myFirstU1, myLastU1, Tol);
+        Handle(GeomAdaptor_Curve) aTrimmedGeomCurve1 = Handle(GeomAdaptor_Curve)::DownCast(HTrimmedCurve);
+        myC2D1 = new Geom2dAdaptor_Curve(aTrimmedGeomCurve1->GetPCurve());
+        mySurf1 = new GeomAdaptor_Surface(aTrimmedGeomCurve1->GetSurface());
+
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptorNew1 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrvNew1 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptorNew1->Curve(),
+                                                               aGeom2dAdaptorNew1->FirstParameter(),
+                                                               aGeom2dAdaptorNew1->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptorNew1 = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrfNew1 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptorNew1->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrvNew1), std::move(aSrfNew1));
+
+        FirstU = GetUParameter(CurOnSur, First, 1);
+        LastU  = GetUParameter(CurOnSur, Last, 1);
+        HTrimmedCurve = CurOnSur.Trim(FirstU, LastU, Tol);
+        aTrimmedGeomCurve1 = Handle(GeomAdaptor_Curve)::DownCast(HTrimmedCurve);
+        myC2D1 = new Geom2dAdaptor_Curve(aTrimmedGeomCurve1->GetPCurve());
+        mySurf1 = new GeomAdaptor_Surface(aTrimmedGeomCurve1->GetSurface());
+      }
   }
   myFirstS = First;
   myLastS  = Last;
@@ -419,8 +495,8 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
 
 void Approx_CurvlinFunc::Length()
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
-  Standard_Real            FirstU, LastU;
+  GeomAdaptor_Curve CurOnSur;
+  Standard_Real     FirstU, LastU;
 
   switch (myCase)
   {
@@ -431,25 +507,45 @@ void Approx_CurvlinFunc::Length()
       myLength1 = myLength2 = 0;
       break;
     case 2:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      FirstU    = CurOnSur.FirstParameter();
-      LastU     = CurOnSur.LastParameter();
-      myLength  = Length(CurOnSur, FirstU, LastU);
-      myLength1 = myLength2 = 0;
-      break;
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                           aGeom2dAdaptor->FirstParameter(),
+                                                           aGeom2dAdaptor->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        FirstU    = CurOnSur.FirstParameter();
+        LastU     = CurOnSur.LastParameter();
+        myLength  = Length(CurOnSur, FirstU, LastU);
+        myLength1 = myLength2 = 0;
+        break;
+      }
     case 3:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      FirstU    = CurOnSur.FirstParameter();
-      LastU     = CurOnSur.LastParameter();
-      myLength1 = Length(CurOnSur, FirstU, LastU);
-      CurOnSur.Load(myC2D2);
-      CurOnSur.Load(mySurf2);
-      FirstU    = CurOnSur.FirstParameter();
-      LastU     = CurOnSur.LastParameter();
-      myLength2 = Length(CurOnSur, FirstU, LastU);
-      myLength  = (myLength1 + myLength2) / 2;
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor1 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor1->Curve(),
+                                                            aGeom2dAdaptor1->FirstParameter(),
+                                                            aGeom2dAdaptor1->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor1 = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor1->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+        FirstU    = CurOnSur.FirstParameter();
+        LastU     = CurOnSur.LastParameter();
+        myLength1 = Length(CurOnSur, FirstU, LastU);
+
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor2 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor2->Curve(),
+                                                            aGeom2dAdaptor2->FirstParameter(),
+                                                            aGeom2dAdaptor2->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor2->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+        FirstU    = CurOnSur.FirstParameter();
+        LastU     = CurOnSur.LastParameter();
+        myLength2 = Length(CurOnSur, FirstU, LastU);
+        myLength  = (myLength1 + myLength2) / 2;
+      }
   }
 }
 
@@ -470,8 +566,8 @@ Standard_Real Approx_CurvlinFunc::GetLength() const
 
 Standard_Real Approx_CurvlinFunc::GetSParameter(const Standard_Real U) const
 {
-  Standard_Real            S = 0, S1, S2;
-  Adaptor3d_CurveOnSurface CurOnSur;
+  Standard_Real     S = 0, S1, S2;
+  GeomAdaptor_Curve CurOnSur;
 
   switch (myCase)
   {
@@ -479,18 +575,38 @@ Standard_Real Approx_CurvlinFunc::GetSParameter(const Standard_Real U) const
       S = GetSParameter(*myC3D, U, myLength);
       break;
     case 2:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      S = GetSParameter(CurOnSur, U, myLength);
-      break;
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                           aGeom2dAdaptor->FirstParameter(),
+                                                           aGeom2dAdaptor->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        S = GetSParameter(CurOnSur, U, myLength);
+        break;
+      }
     case 3:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      S1 = GetSParameter(CurOnSur, U, myLength1);
-      CurOnSur.Load(myC2D2);
-      CurOnSur.Load(mySurf2);
-      S2 = GetSParameter(CurOnSur, U, myLength2);
-      S  = (S1 + S2) / 2;
+      {
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor1 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor1->Curve(),
+                                                            aGeom2dAdaptor1->FirstParameter(),
+                                                            aGeom2dAdaptor1->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor1 = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor1->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+        S1 = GetSParameter(CurOnSur, U, myLength1);
+
+        Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor2 = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor2->Curve(),
+                                                            aGeom2dAdaptor2->FirstParameter(),
+                                                            aGeom2dAdaptor2->LastParameter());
+        Handle(GeomAdaptor_Surface) aGeomSurfAdaptor2 = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor2->Surface());
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+        S2 = GetSParameter(CurOnSur, U, myLength2);
+        S  = (S1 + S2) / 2;
+      }
   }
   return S;
 }
@@ -680,12 +796,19 @@ Standard_Boolean Approx_CurvlinFunc::EvalCurOnSur(const Standard_Real    S,
   Handle(Adaptor2d_Curve2d) Cur2D;
   Handle(Adaptor3d_Surface) Surf;
   Standard_Real             U = 0, Length = 0;
+  GeomAdaptor_Curve         CurOnSur;
 
   if (NumberOfCurve == 1)
   {
     Cur2D = myC2D1;
     Surf  = mySurf1;
-    Adaptor3d_CurveOnSurface CurOnSur(myC2D1, mySurf1);
+    Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D1);
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                       aGeom2dAdaptor->FirstParameter(),
+                                                       aGeom2dAdaptor->LastParameter());
+    Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf1);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
+    CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     U = GetUParameter(CurOnSur, S, 1);
     if (myCase == 3)
       Length = myLength1;
@@ -696,7 +819,13 @@ Standard_Boolean Approx_CurvlinFunc::EvalCurOnSur(const Standard_Real    S,
   {
     Cur2D = myC2D2;
     Surf  = mySurf2;
-    Adaptor3d_CurveOnSurface CurOnSur(myC2D2, mySurf2);
+    Handle(Geom2dAdaptor_Curve) aGeom2dAdaptor = Handle(Geom2dAdaptor_Curve)::DownCast(myC2D2);
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dAdaptor->Curve(),
+                                                       aGeom2dAdaptor->FirstParameter(),
+                                                       aGeom2dAdaptor->LastParameter());
+    Handle(GeomAdaptor_Surface) aGeomSurfAdaptor = Handle(GeomAdaptor_Surface)::DownCast(mySurf2);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurfAdaptor->Surface());
+    CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     U      = GetUParameter(CurOnSur, S, 2);
     Length = myLength2;
   }

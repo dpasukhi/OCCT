@@ -1026,19 +1026,19 @@ static void RefEdgeInter(const TopoDS_Face&                         F,
 
 static Standard_Integer evaluateMaxSegment(const GeomAdaptor_Curve& aCurveOnSurface)
 {
-  const Handle(Adaptor3d_Surface)& aSurf   = aCurveOnSurface.GetSurface();
-  const Handle(Adaptor2d_Curve2d)& aCurv2d = aCurveOnSurface.GetCurve();
+  const GeomAdaptor_Surface&  aSurf   = aCurveOnSurface.GetSurface();
+  const Geom2dAdaptor_Curve&  aCurv2d = aCurveOnSurface.GetPCurve();
 
   Standard_Real aNbSKnots = 0, aNbC2dKnots = 0;
 
-  if (aSurf->GetType() == GeomAbs_BSplineSurface)
+  if (aSurf.GetType() == GeomAbs_BSplineSurface)
   {
-    Handle(Geom_BSplineSurface) aBSpline = aSurf->BSpline();
+    Handle(Geom_BSplineSurface) aBSpline = aSurf.BSpline();
     aNbSKnots                            = std::max(aBSpline->NbUKnots(), aBSpline->NbVKnots());
   }
-  if (aCurv2d->GetType() == GeomAbs_BSplineCurve)
+  if (aCurv2d.GetType() == GeomAbs_BSplineCurve)
   {
-    aNbC2dKnots = aCurv2d->NbKnots();
+    aNbC2dKnots = aCurv2d.NbKnots();
   }
   Standard_Integer aReturn = (Standard_Integer)(30 + std::max(aNbSKnots, aNbC2dKnots));
   return aReturn;
