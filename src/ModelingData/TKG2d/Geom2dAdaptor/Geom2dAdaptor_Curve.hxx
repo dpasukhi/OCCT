@@ -50,12 +50,27 @@ class Geom2dAdaptor_Curve : public Adaptor2d_Curve2d
 public:
   Standard_EXPORT Geom2dAdaptor_Curve();
 
+  //! Copy constructor.
+  Standard_EXPORT Geom2dAdaptor_Curve(const Geom2dAdaptor_Curve& theOther);
+
+  //! Move constructor.
+  Standard_EXPORT Geom2dAdaptor_Curve(Geom2dAdaptor_Curve&& theOther) noexcept;
+
   Standard_EXPORT Geom2dAdaptor_Curve(const Handle(Geom2d_Curve)& C);
 
   //! Standard_ConstructionError is raised if Ufirst>Ulast
   Standard_EXPORT Geom2dAdaptor_Curve(const Handle(Geom2d_Curve)& C,
                                       const Standard_Real         UFirst,
                                       const Standard_Real         ULast);
+
+  //! Copy assignment operator.
+  Standard_EXPORT Geom2dAdaptor_Curve& operator=(const Geom2dAdaptor_Curve& theOther);
+
+  //! Move assignment operator.
+  Standard_EXPORT Geom2dAdaptor_Curve& operator=(Geom2dAdaptor_Curve&& theOther) noexcept;
+
+  //! Creates an explicit deep copy of the adaptor.
+  [[nodiscard]] Standard_EXPORT Geom2dAdaptor_Curve Copy() const;
 
   //! Shallow copy of adaptor
   Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
@@ -116,6 +131,15 @@ public:
   Standard_EXPORT Handle(Adaptor2d_Curve2d) Trim(const Standard_Real First,
                                                  const Standard_Real Last,
                                                  const Standard_Real Tol) const Standard_OVERRIDE;
+
+  //! Returns a trimmed curve by value.
+  //! @param theFirst the first parameter
+  //! @param theLast the last parameter
+  //! @param theTol tolerance (unused)
+  //! @return trimmed curve adaptor by value
+  [[nodiscard]] Standard_EXPORT Geom2dAdaptor_Curve TrimByValue(double theFirst,
+                                                                double theLast,
+                                                                double theTol) const;
 
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
 

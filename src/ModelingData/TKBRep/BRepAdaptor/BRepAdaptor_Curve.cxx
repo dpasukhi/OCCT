@@ -47,6 +47,76 @@ BRepAdaptor_Curve::BRepAdaptor_Curve() {}
 
 //=================================================================================================
 
+BRepAdaptor_Curve::BRepAdaptor_Curve(const BRepAdaptor_Curve& theOther)
+    : Adaptor3d_Curve(),
+      myTrsf(theOther.myTrsf),
+      myCurve(theOther.myCurve),
+      myEdge(theOther.myEdge)
+{
+  if (!theOther.myConSurf.IsNull())
+  {
+    myConSurf = Handle(Adaptor3d_CurveOnSurface)::DownCast(theOther.myConSurf->ShallowCopy());
+  }
+}
+
+//=================================================================================================
+
+BRepAdaptor_Curve::BRepAdaptor_Curve(BRepAdaptor_Curve&& theOther) noexcept
+    : Adaptor3d_Curve(),
+      myTrsf(theOther.myTrsf),
+      myCurve(std::move(theOther.myCurve)),
+      myConSurf(std::move(theOther.myConSurf)),
+      myEdge(std::move(theOther.myEdge))
+{
+  theOther.myTrsf = gp_Trsf();
+}
+
+//=================================================================================================
+
+BRepAdaptor_Curve& BRepAdaptor_Curve::operator=(const BRepAdaptor_Curve& theOther)
+{
+  if (this != &theOther)
+  {
+    myTrsf   = theOther.myTrsf;
+    myCurve  = theOther.myCurve;
+    myEdge   = theOther.myEdge;
+    if (!theOther.myConSurf.IsNull())
+    {
+      myConSurf = Handle(Adaptor3d_CurveOnSurface)::DownCast(theOther.myConSurf->ShallowCopy());
+    }
+    else
+    {
+      myConSurf.Nullify();
+    }
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+BRepAdaptor_Curve& BRepAdaptor_Curve::operator=(BRepAdaptor_Curve&& theOther) noexcept
+{
+  if (this != &theOther)
+  {
+    myTrsf    = theOther.myTrsf;
+    myCurve   = std::move(theOther.myCurve);
+    myConSurf = std::move(theOther.myConSurf);
+    myEdge    = std::move(theOther.myEdge);
+
+    theOther.myTrsf = gp_Trsf();
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+BRepAdaptor_Curve BRepAdaptor_Curve::Copy() const
+{
+  return BRepAdaptor_Curve(*this);
+}
+
+//=================================================================================================
+
 BRepAdaptor_Curve::BRepAdaptor_Curve(const TopoDS_Edge& E)
 {
   Initialize(E);
@@ -274,25 +344,27 @@ Handle(Adaptor3d_Curve) BRepAdaptor_Curve::Trim(const Standard_Real First,
                                                 const Standard_Real Last,
                                                 const Standard_Real Tol) const
 {
-  // On fait une copie de this pour garder la trsf.
-  Handle(BRepAdaptor_Curve) res;
+  return new BRepAdaptor_Curve(TrimByValue(First, Last, Tol));
+}
+
+//=================================================================================================
+
+BRepAdaptor_Curve BRepAdaptor_Curve::TrimByValue(double theFirst, double theLast, double theTol) const
+{
+  BRepAdaptor_Curve aResult = Copy();
   if (myConSurf.IsNull())
   {
-    Standard_Real      pf = FirstParameter(), pl = LastParameter();
-    Handle(Geom_Curve) C = myCurve.Curve();
-    const_cast<GeomAdaptor_Curve*>(&myCurve)->Load(C, First, Last);
-    res = new BRepAdaptor_Curve(*this);
-    const_cast<GeomAdaptor_Curve*>(&myCurve)->Load(C, pf, pl);
+    // Trim the underlying GeomAdaptor_Curve
+    Handle(Geom_Curve) aCurve = myCurve.Curve();
+    aResult.myCurve.Load(aCurve, theFirst, theLast);
   }
   else
   {
-    Handle(Adaptor3d_CurveOnSurface) sav = myConSurf;
-    const_cast<Handle(Adaptor3d_CurveOnSurface)&>(myConSurf) =
-      Handle(Adaptor3d_CurveOnSurface)::DownCast(myConSurf->Trim(First, Last, Tol));
-    res                                                      = new BRepAdaptor_Curve(*this);
-    const_cast<Handle(Adaptor3d_CurveOnSurface)&>(myConSurf) = sav;
+    // Trim the curve-on-surface
+    aResult.myConSurf =
+      Handle(Adaptor3d_CurveOnSurface)::DownCast(myConSurf->Trim(theFirst, theLast, theTol));
   }
-  return res;
+  return aResult;
 }
 
 //=================================================================================================

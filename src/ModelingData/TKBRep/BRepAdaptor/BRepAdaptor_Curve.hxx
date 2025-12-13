@@ -62,6 +62,12 @@ public:
   //! Creates an undefined Curve with no Edge loaded.
   Standard_EXPORT BRepAdaptor_Curve();
 
+  //! Copy constructor.
+  Standard_EXPORT BRepAdaptor_Curve(const BRepAdaptor_Curve& theOther);
+
+  //! Move constructor.
+  Standard_EXPORT BRepAdaptor_Curve(BRepAdaptor_Curve&& theOther) noexcept;
+
   //! Creates a Curve to access the geometry of edge <E>.
   Standard_EXPORT BRepAdaptor_Curve(const TopoDS_Edge& E);
 
@@ -71,6 +77,15 @@ public:
   //! is raised if the edge does not have a pcurve on
   //! the face.
   Standard_EXPORT BRepAdaptor_Curve(const TopoDS_Edge& E, const TopoDS_Face& F);
+
+  //! Copy assignment operator.
+  Standard_EXPORT BRepAdaptor_Curve& operator=(const BRepAdaptor_Curve& theOther);
+
+  //! Move assignment operator.
+  Standard_EXPORT BRepAdaptor_Curve& operator=(BRepAdaptor_Curve&& theOther) noexcept;
+
+  //! Creates an explicit deep copy of the adaptor.
+  [[nodiscard]] Standard_EXPORT BRepAdaptor_Curve Copy() const;
 
   //! Shallow copy of adaptor
   Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
@@ -137,6 +152,15 @@ public:
   Standard_EXPORT Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
                                                const Standard_Real Last,
                                                const Standard_Real Tol) const Standard_OVERRIDE;
+
+  //! Returns a trimmed curve by value.
+  //! @param theFirst the first parameter
+  //! @param theLast the last parameter
+  //! @param theTol tolerance (unused)
+  //! @return trimmed curve adaptor by value
+  [[nodiscard]] Standard_EXPORT BRepAdaptor_Curve TrimByValue(double theFirst,
+                                                              double theLast,
+                                                              double theTol) const;
 
   Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
 

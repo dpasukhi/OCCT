@@ -29,9 +29,9 @@ GeomEvaluator_OffsetCurve::GeomEvaluator_OffsetCurve(const Handle(Geom_Curve)& t
 {
 }
 
-GeomEvaluator_OffsetCurve::GeomEvaluator_OffsetCurve(const Handle(GeomAdaptor_Curve)& theBase,
-                                                     const Standard_Real              theOffset,
-                                                     const gp_Dir&                    theDirection)
+GeomEvaluator_OffsetCurve::GeomEvaluator_OffsetCurve(GeomAdaptor_Curve*  theBase,
+                                                     const Standard_Real theOffset,
+                                                     const gp_Dir&       theDirection)
     : GeomEvaluator_Curve(),
       myBaseAdaptor(theBase),
       myOffset(theOffset),
@@ -114,12 +114,11 @@ gp_Vec GeomEvaluator_OffsetCurve::DN(const Standard_Real    theU,
 Handle(GeomEvaluator_Curve) GeomEvaluator_OffsetCurve::ShallowCopy() const
 {
   Handle(GeomEvaluator_OffsetCurve) aCopy;
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
   {
-    aCopy = new GeomEvaluator_OffsetCurve(
-      Handle(GeomAdaptor_Curve)::DownCast(myBaseAdaptor->ShallowCopy()),
-      myOffset,
-      myOffsetDir);
+    // Create a copy of the adaptor on heap
+    GeomAdaptor_Curve* aCopiedAdaptor = new GeomAdaptor_Curve(myBaseAdaptor->Copy());
+    aCopy = new GeomEvaluator_OffsetCurve(aCopiedAdaptor, myOffset, myOffsetDir);
   }
   else
   {
@@ -130,7 +129,7 @@ Handle(GeomEvaluator_Curve) GeomEvaluator_OffsetCurve::ShallowCopy() const
 
 void GeomEvaluator_OffsetCurve::BaseD0(const Standard_Real theU, gp_Pnt& theValue) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D0(theU, theValue);
   else
     myBaseCurve->D0(theU, theValue);
@@ -140,7 +139,7 @@ void GeomEvaluator_OffsetCurve::BaseD1(const Standard_Real theU,
                                        gp_Pnt&             theValue,
                                        gp_Vec&             theD1) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D1(theU, theValue, theD1);
   else
     myBaseCurve->D1(theU, theValue, theD1);
@@ -151,7 +150,7 @@ void GeomEvaluator_OffsetCurve::BaseD2(const Standard_Real theU,
                                        gp_Vec&             theD1,
                                        gp_Vec&             theD2) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D2(theU, theValue, theD1, theD2);
   else
     myBaseCurve->D2(theU, theValue, theD1, theD2);
@@ -163,7 +162,7 @@ void GeomEvaluator_OffsetCurve::BaseD3(const Standard_Real theU,
                                        gp_Vec&             theD2,
                                        gp_Vec&             theD3) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D3(theU, theValue, theD1, theD2, theD3);
   else
     myBaseCurve->D3(theU, theValue, theD1, theD2, theD3);
@@ -176,7 +175,7 @@ void GeomEvaluator_OffsetCurve::BaseD4(const Standard_Real theU,
                                        gp_Vec&             theD3,
                                        gp_Vec&             theD4) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
   {
     myBaseAdaptor->D3(theU, theValue, theD1, theD2, theD3);
     theD4 = myBaseAdaptor->DN(theU, 4);
@@ -191,7 +190,7 @@ void GeomEvaluator_OffsetCurve::BaseD4(const Standard_Real theU,
 gp_Vec GeomEvaluator_OffsetCurve::BaseDN(const Standard_Real    theU,
                                          const Standard_Integer theDeriv) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     return myBaseAdaptor->DN(theU, theDeriv);
   return myBaseCurve->DN(theU, theDeriv);
 }
@@ -413,7 +412,7 @@ Standard_Boolean GeomEvaluator_OffsetCurve::AdjustDerivative(
   Standard_Boolean isDirectionChange = Standard_False;
   Standard_Real    anUinfium;
   Standard_Real    anUsupremum;
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
   {
     anUinfium   = myBaseAdaptor->FirstParameter();
     anUsupremum = myBaseAdaptor->LastParameter();

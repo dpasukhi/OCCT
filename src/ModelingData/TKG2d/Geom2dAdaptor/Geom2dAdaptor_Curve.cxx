@@ -175,6 +175,93 @@ Geom2dAdaptor_Curve::Geom2dAdaptor_Curve()
 
 //=================================================================================================
 
+Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(const Geom2dAdaptor_Curve& theOther)
+    : Adaptor2d_Curve2d(),
+      myCurve(theOther.myCurve),
+      myTypeCurve(theOther.myTypeCurve),
+      myFirst(theOther.myFirst),
+      myLast(theOther.myLast),
+      myBSplineCurve(theOther.myBSplineCurve)
+{
+  // Deep copy the nested evaluator if present
+  if (!theOther.myNestedEvaluator.IsNull())
+  {
+    myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
+  }
+  // Note: myCurveCache is intentionally not copied - it will be rebuilt on demand
+}
+
+//=================================================================================================
+
+Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(Geom2dAdaptor_Curve&& theOther) noexcept
+    : Adaptor2d_Curve2d(),
+      myCurve(std::move(theOther.myCurve)),
+      myTypeCurve(theOther.myTypeCurve),
+      myFirst(theOther.myFirst),
+      myLast(theOther.myLast),
+      myBSplineCurve(std::move(theOther.myBSplineCurve)),
+      myCurveCache(std::move(theOther.myCurveCache)),
+      myNestedEvaluator(std::move(theOther.myNestedEvaluator))
+{
+  theOther.myTypeCurve = GeomAbs_OtherCurve;
+  theOther.myFirst     = 0.0;
+  theOther.myLast      = 0.0;
+}
+
+//=================================================================================================
+
+Geom2dAdaptor_Curve& Geom2dAdaptor_Curve::operator=(const Geom2dAdaptor_Curve& theOther)
+{
+  if (this != &theOther)
+  {
+    myCurve        = theOther.myCurve;
+    myTypeCurve    = theOther.myTypeCurve;
+    myFirst        = theOther.myFirst;
+    myLast         = theOther.myLast;
+    myBSplineCurve = theOther.myBSplineCurve;
+    myCurveCache.Nullify(); // Will be rebuilt on demand
+    if (!theOther.myNestedEvaluator.IsNull())
+    {
+      myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
+    }
+    else
+    {
+      myNestedEvaluator.Nullify();
+    }
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+Geom2dAdaptor_Curve& Geom2dAdaptor_Curve::operator=(Geom2dAdaptor_Curve&& theOther) noexcept
+{
+  if (this != &theOther)
+  {
+    myCurve           = std::move(theOther.myCurve);
+    myTypeCurve       = theOther.myTypeCurve;
+    myFirst           = theOther.myFirst;
+    myLast            = theOther.myLast;
+    myBSplineCurve    = std::move(theOther.myBSplineCurve);
+    myCurveCache      = std::move(theOther.myCurveCache);
+    myNestedEvaluator = std::move(theOther.myNestedEvaluator);
+
+    theOther.myTypeCurve = GeomAbs_OtherCurve;
+    theOther.myFirst     = 0.0;
+    theOther.myLast      = 0.0;
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+Geom2dAdaptor_Curve Geom2dAdaptor_Curve::Copy() const
+{
+  return Geom2dAdaptor_Curve(*this);
+}
+
+//=================================================================================================
+
 Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(const Handle(Geom2d_Curve)& theCrv)
     : myTypeCurve(GeomAbs_OtherCurve),
       myFirst(0.0),
@@ -488,11 +575,22 @@ void Geom2dAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape
 
 Handle(Adaptor2d_Curve2d) Geom2dAdaptor_Curve::Trim(const Standard_Real First,
                                                     const Standard_Real Last,
-                                                    // const Standard_Real Tol) const
-                                                    const Standard_Real) const
+                                                    const Standard_Real Tol) const
 {
-  Handle(Geom2dAdaptor_Curve) HE = new Geom2dAdaptor_Curve(myCurve, First, Last);
-  return HE;
+  return new Geom2dAdaptor_Curve(TrimByValue(First, Last, Tol));
+}
+
+//=================================================================================================
+
+Geom2dAdaptor_Curve Geom2dAdaptor_Curve::TrimByValue(double theFirst,
+                                                     double theLast,
+                                                     double) const
+{
+  Geom2dAdaptor_Curve aResult = Copy();
+  aResult.myFirst             = theFirst;
+  aResult.myLast              = theLast;
+  aResult.myCurveCache.Nullify(); // Invalidate cache for new parameter range
+  return aResult;
 }
 
 //=================================================================================================

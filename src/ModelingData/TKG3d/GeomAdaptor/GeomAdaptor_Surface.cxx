@@ -66,6 +66,117 @@ IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_Surface, Adaptor3d_Surface)
 
 //=================================================================================================
 
+GeomAdaptor_Surface::GeomAdaptor_Surface(const GeomAdaptor_Surface& theOther)
+    : Adaptor3d_Surface(),
+      mySurface(theOther.mySurface),
+      myUFirst(theOther.myUFirst),
+      myULast(theOther.myULast),
+      myVFirst(theOther.myVFirst),
+      myVLast(theOther.myVLast),
+      myTolU(theOther.myTolU),
+      myTolV(theOther.myTolV),
+      myBSplineSurface(theOther.myBSplineSurface),
+      mySurfaceType(theOther.mySurfaceType)
+{
+  // Deep copy the nested evaluator if present
+  if (!theOther.myNestedEvaluator.IsNull())
+  {
+    myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
+  }
+  // Note: mySurfaceCache is intentionally not copied - it will be rebuilt on demand
+}
+
+//=================================================================================================
+
+GeomAdaptor_Surface::GeomAdaptor_Surface(GeomAdaptor_Surface&& theOther) noexcept
+    : Adaptor3d_Surface(),
+      mySurface(std::move(theOther.mySurface)),
+      myUFirst(theOther.myUFirst),
+      myULast(theOther.myULast),
+      myVFirst(theOther.myVFirst),
+      myVLast(theOther.myVLast),
+      myTolU(theOther.myTolU),
+      myTolV(theOther.myTolV),
+      myBSplineSurface(std::move(theOther.myBSplineSurface)),
+      mySurfaceCache(std::move(theOther.mySurfaceCache)),
+      mySurfaceType(theOther.mySurfaceType),
+      myNestedEvaluator(std::move(theOther.myNestedEvaluator))
+{
+  theOther.myUFirst      = 0.0;
+  theOther.myULast       = 0.0;
+  theOther.myVFirst      = 0.0;
+  theOther.myVLast       = 0.0;
+  theOther.myTolU        = 0.0;
+  theOther.myTolV        = 0.0;
+  theOther.mySurfaceType = GeomAbs_OtherSurface;
+}
+
+//=================================================================================================
+
+GeomAdaptor_Surface& GeomAdaptor_Surface::operator=(const GeomAdaptor_Surface& theOther)
+{
+  if (this != &theOther)
+  {
+    mySurface        = theOther.mySurface;
+    myUFirst         = theOther.myUFirst;
+    myULast          = theOther.myULast;
+    myVFirst         = theOther.myVFirst;
+    myVLast          = theOther.myVLast;
+    myTolU           = theOther.myTolU;
+    myTolV           = theOther.myTolV;
+    myBSplineSurface = theOther.myBSplineSurface;
+    mySurfaceType    = theOther.mySurfaceType;
+    mySurfaceCache.Nullify(); // Will be rebuilt on demand
+    if (!theOther.myNestedEvaluator.IsNull())
+    {
+      myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
+    }
+    else
+    {
+      myNestedEvaluator.Nullify();
+    }
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+GeomAdaptor_Surface& GeomAdaptor_Surface::operator=(GeomAdaptor_Surface&& theOther) noexcept
+{
+  if (this != &theOther)
+  {
+    mySurface         = std::move(theOther.mySurface);
+    myUFirst          = theOther.myUFirst;
+    myULast           = theOther.myULast;
+    myVFirst          = theOther.myVFirst;
+    myVLast           = theOther.myVLast;
+    myTolU            = theOther.myTolU;
+    myTolV            = theOther.myTolV;
+    myBSplineSurface  = std::move(theOther.myBSplineSurface);
+    mySurfaceCache    = std::move(theOther.mySurfaceCache);
+    mySurfaceType     = theOther.mySurfaceType;
+    myNestedEvaluator = std::move(theOther.myNestedEvaluator);
+
+    theOther.myUFirst      = 0.0;
+    theOther.myULast       = 0.0;
+    theOther.myVFirst      = 0.0;
+    theOther.myVLast       = 0.0;
+    theOther.myTolU        = 0.0;
+    theOther.myTolV        = 0.0;
+    theOther.mySurfaceType = GeomAbs_OtherSurface;
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+GeomAdaptor_Surface GeomAdaptor_Surface::Copy() const
+{
+  return GeomAdaptor_Surface(*this);
+}
+
+//=================================================================================================
+
 GeomAbs_Shape LocalContinuity(Standard_Integer         Degree,
                               Standard_Integer         Nb,
                               TColStd_Array1OfReal&    TK,
@@ -186,9 +297,9 @@ void GeomAdaptor_Surface::load(const Handle(Geom_Surface)& S,
       Handle(Geom_SurfaceOfRevolution) myRevSurf =
         Handle(Geom_SurfaceOfRevolution)::DownCast(mySurface);
       // Create nested adaptor for base curve
-      Handle(Geom_Curve)      aBaseCurve   = myRevSurf->BasisCurve();
-      Handle(Adaptor3d_Curve) aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
-      // Create corresponding evaluator
+      Handle(Geom_Curve)  aBaseCurve   = myRevSurf->BasisCurve();
+      GeomAdaptor_Curve*  aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
+      // Create corresponding evaluator (takes ownership of adaptor)
       myNestedEvaluator = new GeomEvaluator_SurfaceOfRevolution(aBaseAdaptor,
                                                                 myRevSurf->Direction(),
                                                                 myRevSurf->Location());
@@ -199,9 +310,9 @@ void GeomAdaptor_Surface::load(const Handle(Geom_Surface)& S,
       Handle(Geom_SurfaceOfLinearExtrusion) myExtSurf =
         Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(mySurface);
       // Create nested adaptor for base curve
-      Handle(Geom_Curve)      aBaseCurve   = myExtSurf->BasisCurve();
-      Handle(Adaptor3d_Curve) aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
-      // Create corresponding evaluator
+      Handle(Geom_Curve)  aBaseCurve   = myExtSurf->BasisCurve();
+      GeomAdaptor_Curve*  aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
+      // Create corresponding evaluator (takes ownership of adaptor)
       myNestedEvaluator =
         new GeomEvaluator_SurfaceOfExtrusion(aBaseAdaptor, myExtSurf->Direction());
     }
@@ -602,8 +713,7 @@ Handle(Adaptor3d_Surface) GeomAdaptor_Surface::UTrim(const Standard_Real First,
                                                      const Standard_Real Last,
                                                      const Standard_Real Tol) const
 {
-  return Handle(GeomAdaptor_Surface)(
-    new GeomAdaptor_Surface(mySurface, First, Last, myVFirst, myVLast, Tol, myTolV));
+  return new GeomAdaptor_Surface(UTrimByValue(First, Last, Tol));
 }
 
 //=================================================================================================
@@ -612,8 +722,35 @@ Handle(Adaptor3d_Surface) GeomAdaptor_Surface::VTrim(const Standard_Real First,
                                                      const Standard_Real Last,
                                                      const Standard_Real Tol) const
 {
-  return Handle(GeomAdaptor_Surface)(
-    new GeomAdaptor_Surface(mySurface, myUFirst, myULast, First, Last, myTolU, Tol));
+  return new GeomAdaptor_Surface(VTrimByValue(First, Last, Tol));
+}
+
+//=================================================================================================
+
+GeomAdaptor_Surface GeomAdaptor_Surface::UTrimByValue(double theFirst,
+                                                      double theLast,
+                                                      double theTol) const
+{
+  GeomAdaptor_Surface aResult = Copy();
+  aResult.myUFirst            = theFirst;
+  aResult.myULast             = theLast;
+  aResult.myTolU              = theTol;
+  aResult.mySurfaceCache.Nullify(); // Invalidate cache for new parameter range
+  return aResult;
+}
+
+//=================================================================================================
+
+GeomAdaptor_Surface GeomAdaptor_Surface::VTrimByValue(double theFirst,
+                                                      double theLast,
+                                                      double theTol) const
+{
+  GeomAdaptor_Surface aResult = Copy();
+  aResult.myVFirst            = theFirst;
+  aResult.myVLast             = theLast;
+  aResult.myTolV              = theTol;
+  aResult.mySurfaceCache.Nullify(); // Invalidate cache for new parameter range
+  return aResult;
 }
 
 //=================================================================================================
@@ -1376,14 +1513,9 @@ gp_Dir GeomAdaptor_Surface::Direction() const
 
 Handle(Adaptor3d_Curve) GeomAdaptor_Surface::BasisCurve() const
 {
-  Handle(Geom_Curve) C;
-  if (mySurfaceType == GeomAbs_SurfaceOfExtrusion)
-    C = Handle(Geom_SurfaceOfLinearExtrusion)::DownCast(mySurface)->BasisCurve();
-  else if (mySurfaceType == GeomAbs_SurfaceOfRevolution)
-    C = Handle(Geom_SurfaceOfRevolution)::DownCast(mySurface)->BasisCurve();
-  else
-    throw Standard_NoSuchObject("GeomAdaptor_Surface::BasisCurve");
-  return Handle(GeomAdaptor_Curve)(new GeomAdaptor_Curve(C));
+  // TODO: This method will be changed to return GeomAdaptor_Curve by value
+  // when GeomAdaptor_Surface is fully rewritten. For now, use BasisGeomCurve() instead.
+  throw Standard_NotImplemented("GeomAdaptor_Surface::BasisCurve() - use BasisGeomCurve() instead");
 }
 
 //=================================================================================================

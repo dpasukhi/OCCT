@@ -23,9 +23,9 @@
 
 #include <GeomAdaptor_Curve.hxx>
 
-#include <Adaptor3d_Curve.hxx>
 #include <BSplCLib.hxx>
 #include <BSplCLib_Cache.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_Circle.hxx>
@@ -37,6 +37,7 @@
 #include <Geom_Parabola.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomEvaluator_OffsetCurve.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Elips.hxx>
@@ -53,47 +54,276 @@
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
-// #include <GeomConvert_BSplineCurveKnotSplitting.hxx>
-static const Standard_Real PosTol = Precision::PConfusion() / 2;
+static const double PosTol = Precision::PConfusion() / 2;
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_Curve, Adaptor3d_Curve)
 
-//=================================================================================================
+//==================================================================================================
 
-Handle(Adaptor3d_Curve) GeomAdaptor_Curve::ShallowCopy() const
+GeomAdaptor_Curve::GeomAdaptor_Curve(const GeomAdaptor_Curve& theOther)
+    : Adaptor3d_Curve(),
+      myCurve(theOther.myCurve),
+      myTypeCurve(theOther.myTypeCurve),
+      myFirst(theOther.myFirst),
+      myLast(theOther.myLast),
+      myBSplineCurve(theOther.myBSplineCurve)
 {
-  Handle(GeomAdaptor_Curve) aCopy = new GeomAdaptor_Curve();
+  if (!theOther.myNestedEvaluator.IsNull())
+  {
+    myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
+  }
 
-  aCopy->myCurve        = myCurve;
-  aCopy->myTypeCurve    = myTypeCurve;
-  aCopy->myFirst        = myFirst;
-  aCopy->myLast         = myLast;
-  aCopy->myBSplineCurve = myBSplineCurve;
+  // Deep copy the modifier
+  std::visit(
+    [this](const auto& mod)
+    {
+      using T = std::decay_t<decltype(mod)>;
+      if constexpr (std::is_same_v<T, std::monostate>)
+      {
+        myModifier = std::monostate{};
+      }
+      else if constexpr (std::is_same_v<T, GeomAdaptor_TrsfModifier>)
+      {
+        myModifier = mod; // TrsfModifier is copyable
+      }
+      else if constexpr (std::is_same_v<T, GeomAdaptor_CurveOnSurfaceModifier>)
+      {
+        myModifier = mod.Copy();
+      }
+      else if constexpr (std::is_same_v<T, GeomAdaptor_IsoCurveModifier>)
+      {
+        myModifier = mod.Copy();
+      }
+    },
+    theOther.myModifier);
+}
+
+//==================================================================================================
+
+GeomAdaptor_Curve::GeomAdaptor_Curve(GeomAdaptor_Curve&& theOther) noexcept
+    : myCurve(std::move(theOther.myCurve)),
+      myTypeCurve(theOther.myTypeCurve),
+      myFirst(theOther.myFirst),
+      myLast(theOther.myLast),
+      myModifier(std::move(theOther.myModifier)),
+      myBSplineCurve(std::move(theOther.myBSplineCurve)),
+      myCurveCache(std::move(theOther.myCurveCache)),
+      myNestedEvaluator(std::move(theOther.myNestedEvaluator))
+{
+  theOther.myTypeCurve = GeomAbs_OtherCurve;
+  theOther.myFirst     = 0.0;
+  theOther.myLast      = 0.0;
+}
+
+//==================================================================================================
+
+GeomAdaptor_Curve& GeomAdaptor_Curve::operator=(GeomAdaptor_Curve&& theOther) noexcept
+{
+  if (this != &theOther)
+  {
+    myCurve           = std::move(theOther.myCurve);
+    myTypeCurve       = theOther.myTypeCurve;
+    myFirst           = theOther.myFirst;
+    myLast            = theOther.myLast;
+    myModifier        = std::move(theOther.myModifier);
+    myBSplineCurve    = std::move(theOther.myBSplineCurve);
+    myCurveCache      = std::move(theOther.myCurveCache);
+    myNestedEvaluator = std::move(theOther.myNestedEvaluator);
+
+    theOther.myTypeCurve = GeomAbs_OtherCurve;
+    theOther.myFirst     = 0.0;
+    theOther.myLast      = 0.0;
+  }
+  return *this;
+}
+
+//==================================================================================================
+
+GeomAdaptor_Curve& GeomAdaptor_Curve::operator=(const GeomAdaptor_Curve& theOther)
+{
+  if (this != &theOther)
+  {
+    myCurve        = theOther.myCurve;
+    myTypeCurve    = theOther.myTypeCurve;
+    myFirst        = theOther.myFirst;
+    myLast         = theOther.myLast;
+    myBSplineCurve = theOther.myBSplineCurve;
+    myCurveCache.Nullify();
+
+    if (!theOther.myNestedEvaluator.IsNull())
+    {
+      myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
+    }
+    else
+    {
+      myNestedEvaluator.Nullify();
+    }
+
+    // Deep copy the modifier
+    std::visit(
+      [this](const auto& mod)
+      {
+        using T = std::decay_t<decltype(mod)>;
+        if constexpr (std::is_same_v<T, std::monostate>)
+        {
+          myModifier = std::monostate{};
+        }
+        else if constexpr (std::is_same_v<T, GeomAdaptor_TrsfModifier>)
+        {
+          myModifier = mod; // TrsfModifier is copyable
+        }
+        else if constexpr (std::is_same_v<T, GeomAdaptor_CurveOnSurfaceModifier>)
+        {
+          myModifier = mod.Copy();
+        }
+        else if constexpr (std::is_same_v<T, GeomAdaptor_IsoCurveModifier>)
+        {
+          myModifier = mod.Copy();
+        }
+      },
+      theOther.myModifier);
+  }
+  return *this;
+}
+
+//==================================================================================================
+
+GeomAdaptor_Curve GeomAdaptor_Curve::Copy() const
+{
+  GeomAdaptor_Curve aCopy;
+  aCopy.myCurve        = myCurve;
+  aCopy.myTypeCurve    = myTypeCurve;
+  aCopy.myFirst        = myFirst;
+  aCopy.myLast         = myLast;
+  aCopy.myBSplineCurve = myBSplineCurve;
+
   if (!myNestedEvaluator.IsNull())
   {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
+    aCopy.myNestedEvaluator = myNestedEvaluator->ShallowCopy();
   }
+
+  // Deep copy the modifier
+  std::visit(
+    [&aCopy](const auto& mod)
+    {
+      using T = std::decay_t<decltype(mod)>;
+      if constexpr (std::is_same_v<T, std::monostate>)
+      {
+        aCopy.myModifier = std::monostate{};
+      }
+      else if constexpr (std::is_same_v<T, GeomAdaptor_TrsfModifier>)
+      {
+        aCopy.myModifier = mod; // TrsfModifier is copyable
+      }
+      else if constexpr (std::is_same_v<T, GeomAdaptor_CurveOnSurfaceModifier>)
+      {
+        aCopy.myModifier = mod.Copy();
+      }
+      else if constexpr (std::is_same_v<T, GeomAdaptor_IsoCurveModifier>)
+      {
+        aCopy.myModifier = mod.Copy();
+      }
+    },
+    myModifier);
 
   return aCopy;
 }
 
-//=======================================================================
-// function : LocalContinuity
-// purpose  : Computes the Continuity of a BSplineCurve
+//==================================================================================================
+
+GeomAdaptor_Curve::~GeomAdaptor_Curve() = default;
+
+//==================================================================================================
+
+Handle(Adaptor3d_Curve) GeomAdaptor_Curve::ShallowCopy() const
+{
+  return new GeomAdaptor_Curve(*this);
+}
+
+//==================================================================================================
+
+void GeomAdaptor_Curve::Reset()
+{
+  myTypeCurve = GeomAbs_OtherCurve;
+  myCurve.Nullify();
+  myNestedEvaluator.Nullify();
+  myBSplineCurve.Nullify();
+  myCurveCache.Nullify();
+  myFirst    = 0.0;
+  myLast     = 0.0;
+  myModifier = std::monostate{};
+}
+
+//==================================================================================================
+
+void GeomAdaptor_Curve::SetCurveOnSurface(std::unique_ptr<Geom2dAdaptor_Curve> thePCurve,
+                                          std::unique_ptr<GeomAdaptor_Surface> theSurface)
+{
+  GeomAdaptor_CurveOnSurfaceModifier aModifier(std::move(thePCurve), std::move(theSurface));
+
+  // Update parameter bounds from the PCurve
+  myFirst = aModifier.FirstParameter();
+  myLast  = aModifier.LastParameter();
+
+  // Update curve type based on the modifier's detected type
+  myTypeCurve = aModifier.GetType();
+
+  myModifier = std::move(aModifier);
+}
+
+//==================================================================================================
+
+void GeomAdaptor_Curve::SetIsoCurve(std::unique_ptr<GeomAdaptor_Surface> theSurface,
+                                    GeomAbs_IsoType                      theIsoType,
+                                    double                               theParam)
+{
+  GeomAdaptor_IsoCurveModifier aModifier(std::move(theSurface), theIsoType, theParam);
+
+  // Update parameter bounds from the modifier
+  myFirst = aModifier.FirstParameter();
+  myLast  = aModifier.LastParameter();
+
+  // Update curve type based on the modifier's detected type
+  myTypeCurve = aModifier.GetType();
+
+  myModifier = std::move(aModifier);
+}
+
+//==================================================================================================
+
+void GeomAdaptor_Curve::SetIsoCurve(std::unique_ptr<GeomAdaptor_Surface> theSurface,
+                                    GeomAbs_IsoType                      theIsoType,
+                                    double                               theParam,
+                                    double                               theFirst,
+                                    double                               theLast)
+{
+  GeomAdaptor_IsoCurveModifier aModifier(std::move(theSurface), theIsoType, theParam, theFirst, theLast);
+
+  // Update parameter bounds from the modifier
+  myFirst = aModifier.FirstParameter();
+  myLast  = aModifier.LastParameter();
+
+  // Update curve type based on the modifier's detected type
+  myTypeCurve = aModifier.GetType();
+
+  myModifier = std::move(aModifier);
+}
+
+//==================================================================================================
+// LocalContinuity: Computes the Continuity of a BSplineCurve
 //           between the parameters U1 and U2
 //           The continuity is C(d-m)
 //             with   d = degree,
 //                    m = max multiplicity of the Knots between U1 and U2
-//=======================================================================
+//==================================================================================================
 
-GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(const Standard_Real U1,
-                                                 const Standard_Real U2) const
+GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(double U1, double U2) const
 {
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_BSplineCurve, " ");
-  Standard_Integer               Nb     = myBSplineCurve->NbKnots();
-  Standard_Integer               Index1 = 0;
-  Standard_Integer               Index2 = 0;
-  Standard_Real                  newFirst, newLast;
+  int                            Nb     = myBSplineCurve->NbKnots();
+  int                            Index1 = 0;
+  int                            Index2 = 0;
+  double                         newFirst, newLast;
   const TColStd_Array1OfReal&    TK = myBSplineCurve->Knots();
   const TColStd_Array1OfInteger& TM = myBSplineCurve->Multiplicities();
   BSplCLib::LocateParameter(myBSplineCurve->Degree(),
@@ -121,7 +351,7 @@ GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(const Standard_Real U1,
   }
   if (std::abs(newLast - TK(Index2)) < Precision::PConfusion())
     Index2--;
-  Standard_Integer MultMax;
+  int MultMax;
   // attention aux courbes peridiques.
   if ((myBSplineCurve->IsPeriodic()) && (Index1 == Nb))
     Index1 = 1;
@@ -133,7 +363,7 @@ GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(const Standard_Real U1,
   else
   {
     MultMax = TM(Index1 + 1);
-    for (Standard_Integer i = Index1 + 1; i <= Index2; i++)
+    for (int i = Index1 + 1; i <= Index2; i++)
     {
       if (TM(i) > MultMax)
         MultMax = TM(i);
@@ -162,23 +392,9 @@ GeomAbs_Shape GeomAdaptor_Curve::LocalContinuity(const Standard_Real U1,
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-void GeomAdaptor_Curve::Reset()
-{
-  myTypeCurve = GeomAbs_OtherCurve;
-  myCurve.Nullify();
-  myNestedEvaluator.Nullify();
-  myBSplineCurve.Nullify();
-  myCurveCache.Nullify();
-  myFirst = myLast = 0.0;
-}
-
-//=================================================================================================
-
-void GeomAdaptor_Curve::load(const Handle(Geom_Curve)& C,
-                             const Standard_Real       UFirst,
-                             const Standard_Real       ULast)
+void GeomAdaptor_Curve::load(const Handle(Geom_Curve) & C, double UFirst, double ULast)
 {
   myFirst = UFirst;
   myLast  = ULast;
@@ -229,11 +445,14 @@ void GeomAdaptor_Curve::load(const Handle(Geom_Curve)& C,
       myTypeCurve                            = GeomAbs_OffsetCurve;
       Handle(Geom_OffsetCurve) anOffsetCurve = Handle(Geom_OffsetCurve)::DownCast(myCurve);
       // Create nested adaptor for base curve
-      Handle(Geom_Curve)        aBaseCurve   = anOffsetCurve->BasisCurve();
-      Handle(GeomAdaptor_Curve) aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
-      myNestedEvaluator                      = new GeomEvaluator_OffsetCurve(aBaseAdaptor,
-                                                        anOffsetCurve->Offset(),
-                                                        anOffsetCurve->Direction());
+      Handle(Geom_Curve) aBaseCurve = anOffsetCurve->BasisCurve();
+      // Note: Using a temporary GeomAdaptor_Curve on heap for backward compatibility
+      // with GeomEvaluator_OffsetCurve which expects Handle(Adaptor3d_Curve)
+      // This will be cleaned up when we remove Adaptor3d_Curve completely
+      GeomAdaptor_Curve* aBaseAdaptor = new GeomAdaptor_Curve();
+      aBaseAdaptor->Load(aBaseCurve);
+      myNestedEvaluator =
+        new GeomEvaluator_OffsetCurve(aBaseAdaptor, anOffsetCurve->Offset(), anOffsetCurve->Direction());
     }
     else
     {
@@ -246,7 +465,7 @@ void GeomAdaptor_Curve::load(const Handle(Geom_Curve)& C,
 //    --     Global methods - Apply to the whole curve.
 //    --
 
-//=================================================================================================
+//==================================================================================================
 
 GeomAbs_Shape GeomAdaptor_Curve::Continuity() const
 {
@@ -282,9 +501,9 @@ GeomAbs_Shape GeomAdaptor_Curve::Continuity() const
   return GeomAbs_CN;
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Integer GeomAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
+int GeomAdaptor_Curve::NbIntervals(GeomAbs_Shape S) const
 {
   if (myTypeCurve == GeomAbs_BSplineCurve)
   {
@@ -293,8 +512,8 @@ Standard_Integer GeomAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
       return 1;
     }
 
-    Standard_Integer aDegree = myBSplineCurve->Degree();
-    Standard_Integer aCont;
+    int aDegree = myBSplineCurve->Degree();
+    int aCont;
 
     switch (S)
     {
@@ -314,7 +533,7 @@ Standard_Integer GeomAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
         throw Standard_DomainError("GeomAdaptor_Curve::NbIntervals()");
     }
 
-    Standard_Real anEps = std::min(Resolution(Precision::Confusion()), Precision::PConfusion());
+    double anEps = std::min(Resolution(Precision::Confusion()), Precision::PConfusion());
 
     return BSplCLib::Intervals(myBSplineCurve->Knots(),
                                myBSplineCurve->Multiplicities(),
@@ -329,8 +548,8 @@ Standard_Integer GeomAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
 
   else if (myTypeCurve == GeomAbs_OffsetCurve)
   {
-    Standard_Integer myNbIntervals = 1;
-    GeomAbs_Shape    BaseS         = GeomAbs_C0;
+    int           myNbIntervals = 1;
+    GeomAbs_Shape BaseS         = GeomAbs_C0;
     switch (S)
     {
       case GeomAbs_G1:
@@ -353,7 +572,7 @@ Standard_Integer GeomAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
     // akm 05/04/02 (OCC278)  If our curve is trimmed we must recalculate
     //                    the number of intervals obtained from the basis to
     //              vvv   reflect parameter bounds
-    Standard_Integer iNbBasisInt = C.NbIntervals(BaseS), iInt;
+    int iNbBasisInt = C.NbIntervals(BaseS), iInt;
     if (iNbBasisInt > 1)
     {
       TColStd_Array1OfReal rdfInter(1, 1 + iNbBasisInt);
@@ -372,9 +591,9 @@ Standard_Integer GeomAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S) const
+void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, GeomAbs_Shape S) const
 {
   if (myTypeCurve == GeomAbs_BSplineCurve)
   {
@@ -385,8 +604,8 @@ void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S
       return;
     }
 
-    Standard_Integer aDegree = myBSplineCurve->Degree();
-    Standard_Integer aCont;
+    int aDegree = myBSplineCurve->Degree();
+    int aCont;
 
     switch (S)
     {
@@ -406,7 +625,7 @@ void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S
         throw Standard_DomainError("GeomAdaptor_Curve::Intervals()");
     }
 
-    Standard_Real anEps = std::min(Resolution(Precision::Confusion()), Precision::PConfusion());
+    double anEps = std::min(Resolution(Precision::Confusion()), Precision::PConfusion());
 
     BSplCLib::Intervals(myBSplineCurve->Knots(),
                         myBSplineCurve->Multiplicities(),
@@ -421,8 +640,8 @@ void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S
 
   else if (myTypeCurve == GeomAbs_OffsetCurve)
   {
-    Standard_Integer myNbIntervals = 1;
-    GeomAbs_Shape    BaseS         = GeomAbs_C0;
+    int           myNbIntervals = 1;
+    GeomAbs_Shape BaseS         = GeomAbs_C0;
     switch (S)
     {
       case GeomAbs_G1:
@@ -445,7 +664,7 @@ void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S
     // akm 05/04/02 (OCC278)  If our curve is trimmed we must recalculate
     //                    the array of intervals obtained from the basis to
     //              vvv   reflect parameter bounds
-    Standard_Integer iNbBasisInt = C.NbIntervals(BaseS), iInt;
+    int iNbBasisInt = C.NbIntervals(BaseS), iInt;
     if (iNbBasisInt > 1)
     {
       TColStd_Array1OfReal rdfInter(1, 1 + iNbBasisInt);
@@ -468,18 +687,28 @@ void GeomAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
 Handle(Adaptor3d_Curve) GeomAdaptor_Curve::Trim(const Standard_Real First,
-                                                const Standard_Real Last,
-                                                const Standard_Real /*Tol*/) const
+                                                 const Standard_Real Last,
+                                                 const Standard_Real Tol) const
 {
-  return Handle(GeomAdaptor_Curve)(new GeomAdaptor_Curve(myCurve, First, Last));
+  return new GeomAdaptor_Curve(TrimByValue(First, Last, Tol));
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Boolean GeomAdaptor_Curve::IsClosed() const
+GeomAdaptor_Curve GeomAdaptor_Curve::TrimByValue(double First, double Last, double /*Tol*/) const
+{
+  GeomAdaptor_Curve aResult = Copy();
+  aResult.myFirst           = First;
+  aResult.myLast            = Last;
+  return aResult;
+}
+
+//==================================================================================================
+
+bool GeomAdaptor_Curve::IsClosed() const
 {
   if (!Precision::IsPositiveInfinite(myLast) && !Precision::IsNegativeInfinite(myFirst))
   {
@@ -487,32 +716,34 @@ Standard_Boolean GeomAdaptor_Curve::IsClosed() const
     const gp_Pnt Pf = Value(myLast);
     return (Pd.Distance(Pf) <= Precision::Confusion());
   }
-  return Standard_False;
+  return false;
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Boolean GeomAdaptor_Curve::IsPeriodic() const
+bool GeomAdaptor_Curve::IsPeriodic() const
 {
+  if (myCurve.IsNull())
+    return false;
   return myCurve->IsPeriodic();
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Real GeomAdaptor_Curve::Period() const
+double GeomAdaptor_Curve::Period() const
 {
   return myCurve->LastParameter() - myCurve->FirstParameter();
 }
 
-//=================================================================================================
+//==================================================================================================
 
-void GeomAdaptor_Curve::RebuildCache(const Standard_Real theParameter) const
+void GeomAdaptor_Curve::RebuildCache(double theParameter) const
 {
   if (myTypeCurve == GeomAbs_BezierCurve)
   {
     // Create cache for Bezier
     Handle(Geom_BezierCurve) aBezier = Handle(Geom_BezierCurve)::DownCast(myCurve);
-    Standard_Integer         aDeg    = aBezier->Degree();
+    int                      aDeg    = aBezier->Degree();
     TColStd_Array1OfReal     aFlatKnots(BSplCLib::FlatBezierKnots(aDeg), 1, 2 * (aDeg + 1));
     if (myCurveCache.IsNull())
       myCurveCache = new BSplCLib_Cache(aDeg,
@@ -538,11 +769,9 @@ void GeomAdaptor_Curve::RebuildCache(const Standard_Real theParameter) const
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Boolean GeomAdaptor_Curve::IsBoundary(const Standard_Real theU,
-                                               Standard_Integer&   theSpanStart,
-                                               Standard_Integer&   theSpanFinish) const
+bool GeomAdaptor_Curve::IsBoundary(double theU, int& theSpanStart, int& theSpanFinish) const
 {
   if (!myBSplineCurve.IsNull() && (theU == myFirst || theU == myLast))
   {
@@ -562,29 +791,21 @@ Standard_Boolean GeomAdaptor_Curve::IsBoundary(const Standard_Real theU,
       if (theSpanStart >= theSpanFinish)
         theSpanStart = theSpanFinish - 1;
     }
-    return Standard_True;
+    return true;
   }
-  return Standard_False;
+  return false;
 }
 
-//=================================================================================================
+//==================================================================================================
 
-gp_Pnt GeomAdaptor_Curve::Value(const Standard_Real U) const
-{
-  gp_Pnt aValue;
-  D0(U, aValue);
-  return aValue;
-}
-
-//=================================================================================================
-
-void GeomAdaptor_Curve::D0(const Standard_Real U, gp_Pnt& P) const
+void GeomAdaptor_Curve::evaluateD0(double U, gp_Pnt& P) const
 {
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
-    case GeomAbs_BSplineCurve: {
-      Standard_Integer aStart = 0, aFinish = 0;
+    case GeomAbs_BSplineCurve:
+    {
+      int aStart = 0, aFinish = 0;
       if (IsBoundary(U, aStart, aFinish))
       {
         myBSplineCurve->LocalD0(U, aStart, aFinish, P);
@@ -608,15 +829,16 @@ void GeomAdaptor_Curve::D0(const Standard_Real U, gp_Pnt& P) const
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-void GeomAdaptor_Curve::D1(const Standard_Real U, gp_Pnt& P, gp_Vec& V) const
+void GeomAdaptor_Curve::evaluateD1(double U, gp_Pnt& P, gp_Vec& V) const
 {
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
-    case GeomAbs_BSplineCurve: {
-      Standard_Integer aStart = 0, aFinish = 0;
+    case GeomAbs_BSplineCurve:
+    {
+      int aStart = 0, aFinish = 0;
       if (IsBoundary(U, aStart, aFinish))
       {
         myBSplineCurve->LocalD1(U, aStart, aFinish, P, V);
@@ -640,15 +862,16 @@ void GeomAdaptor_Curve::D1(const Standard_Real U, gp_Pnt& P, gp_Vec& V) const
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-void GeomAdaptor_Curve::D2(const Standard_Real U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2) const
+void GeomAdaptor_Curve::evaluateD2(double U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2) const
 {
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
-    case GeomAbs_BSplineCurve: {
-      Standard_Integer aStart = 0, aFinish = 0;
+    case GeomAbs_BSplineCurve:
+    {
+      int aStart = 0, aFinish = 0;
       if (IsBoundary(U, aStart, aFinish))
       {
         myBSplineCurve->LocalD2(U, aStart, aFinish, P, V1, V2);
@@ -672,19 +895,16 @@ void GeomAdaptor_Curve::D2(const Standard_Real U, gp_Pnt& P, gp_Vec& V1, gp_Vec&
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-void GeomAdaptor_Curve::D3(const Standard_Real U,
-                           gp_Pnt&             P,
-                           gp_Vec&             V1,
-                           gp_Vec&             V2,
-                           gp_Vec&             V3) const
+void GeomAdaptor_Curve::evaluateD3(double U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2, gp_Vec& V3) const
 {
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
-    case GeomAbs_BSplineCurve: {
-      Standard_Integer aStart = 0, aFinish = 0;
+    case GeomAbs_BSplineCurve:
+    {
+      int aStart = 0, aFinish = 0;
       if (IsBoundary(U, aStart, aFinish))
       {
         myBSplineCurve->LocalD3(U, aStart, aFinish, P, V1, V2, V3);
@@ -708,58 +928,192 @@ void GeomAdaptor_Curve::D3(const Standard_Real U,
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-gp_Vec GeomAdaptor_Curve::DN(const Standard_Real U, const Standard_Integer N) const
+void GeomAdaptor_Curve::D0(double U, gp_Pnt& P) const
 {
+  // Check for modifiers first
+  if (auto* pCOS = std::get_if<GeomAdaptor_CurveOnSurfaceModifier>(&myModifier))
+  {
+    pCOS->D0(U, P);
+    return;
+  }
+
+  if (auto* pIso = std::get_if<GeomAdaptor_IsoCurveModifier>(&myModifier))
+  {
+    pIso->D0(U, P);
+    return;
+  }
+
+  // Evaluate base curve
+  evaluateD0(U, P);
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->Transform(P);
+  }
+}
+
+//==================================================================================================
+
+void GeomAdaptor_Curve::D1(double U, gp_Pnt& P, gp_Vec& V) const
+{
+  // Check for modifiers first
+  if (auto* pCOS = std::get_if<GeomAdaptor_CurveOnSurfaceModifier>(&myModifier))
+  {
+    pCOS->D1(U, P, V);
+    return;
+  }
+
+  if (auto* pIso = std::get_if<GeomAdaptor_IsoCurveModifier>(&myModifier))
+  {
+    pIso->D1(U, P, V);
+    return;
+  }
+
+  // Evaluate base curve
+  evaluateD1(U, P, V);
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->Transform(P, V);
+  }
+}
+
+//==================================================================================================
+
+void GeomAdaptor_Curve::D2(double U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2) const
+{
+  // Check for modifiers first
+  if (auto* pCOS = std::get_if<GeomAdaptor_CurveOnSurfaceModifier>(&myModifier))
+  {
+    pCOS->D2(U, P, V1, V2);
+    return;
+  }
+
+  if (auto* pIso = std::get_if<GeomAdaptor_IsoCurveModifier>(&myModifier))
+  {
+    pIso->D2(U, P, V1, V2);
+    return;
+  }
+
+  // Evaluate base curve
+  evaluateD2(U, P, V1, V2);
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->Transform(P, V1, V2);
+  }
+}
+
+//==================================================================================================
+
+void GeomAdaptor_Curve::D3(double U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2, gp_Vec& V3) const
+{
+  // Check for modifiers first
+  if (auto* pCOS = std::get_if<GeomAdaptor_CurveOnSurfaceModifier>(&myModifier))
+  {
+    pCOS->D3(U, P, V1, V2, V3);
+    return;
+  }
+
+  if (auto* pIso = std::get_if<GeomAdaptor_IsoCurveModifier>(&myModifier))
+  {
+    pIso->D3(U, P, V1, V2, V3);
+    return;
+  }
+
+  // Evaluate base curve
+  evaluateD3(U, P, V1, V2, V3);
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->Transform(P, V1, V2, V3);
+  }
+}
+
+//==================================================================================================
+
+gp_Vec GeomAdaptor_Curve::DN(double U, int N) const
+{
+  // Check for modifiers first
+  if (auto* pCOS = std::get_if<GeomAdaptor_CurveOnSurfaceModifier>(&myModifier))
+  {
+    return pCOS->DN(U, N);
+  }
+
+  if (auto* pIso = std::get_if<GeomAdaptor_IsoCurveModifier>(&myModifier))
+  {
+    return pIso->DN(U, N);
+  }
+
+  gp_Vec aResult;
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
-    case GeomAbs_BSplineCurve: {
-      Standard_Integer aStart = 0, aFinish = 0;
+    case GeomAbs_BSplineCurve:
+    {
+      int aStart = 0, aFinish = 0;
       if (IsBoundary(U, aStart, aFinish))
       {
-        return myBSplineCurve->LocalDN(U, aStart, aFinish, N);
+        aResult = myBSplineCurve->LocalDN(U, aStart, aFinish, N);
       }
       else
-        return myCurve->DN(U, N);
+        aResult = myCurve->DN(U, N);
+      break;
     }
 
     case GeomAbs_OffsetCurve:
-      return myNestedEvaluator->DN(U, N);
+      aResult = myNestedEvaluator->DN(U, N);
       break;
 
-    default: // to eliminate gcc warning
-      break;
+    default:
+      aResult = myCurve->DN(U, N);
   }
-  return myCurve->DN(U, N);
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    pTrsf->Transform(aResult);
+  }
+
+  return aResult;
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Real GeomAdaptor_Curve::Resolution(const Standard_Real R3D) const
+double GeomAdaptor_Curve::Resolution(double R3D) const
 {
   switch (myTypeCurve)
   {
     case GeomAbs_Line:
       return R3D;
-    case GeomAbs_Circle: {
-      Standard_Real R = Handle(Geom_Circle)::DownCast(myCurve)->Circ().Radius();
+    case GeomAbs_Circle:
+    {
+      double R = Handle(Geom_Circle)::DownCast(myCurve)->Circ().Radius();
       if (R > R3D / 2.)
         return 2 * std::asin(R3D / (2 * R));
       else
         return 2 * M_PI;
     }
-    case GeomAbs_Ellipse: {
+    case GeomAbs_Ellipse:
+    {
       return R3D / Handle(Geom_Ellipse)::DownCast(myCurve)->MajorRadius();
     }
-    case GeomAbs_BezierCurve: {
-      Standard_Real res;
+    case GeomAbs_BezierCurve:
+    {
+      double res;
       Handle(Geom_BezierCurve)::DownCast(myCurve)->Resolution(R3D, res);
       return res;
     }
-    case GeomAbs_BSplineCurve: {
-      Standard_Real res;
+    case GeomAbs_BSplineCurve:
+    {
+      double res;
       myBSplineCurve->Resolution(R3D, res);
       return res;
     }
@@ -773,54 +1127,99 @@ Standard_Real GeomAdaptor_Curve::Resolution(const Standard_Real R3D) const
 //    --     the corresponding type.
 //    --
 
-//=================================================================================================
+//==================================================================================================
 
 gp_Lin GeomAdaptor_Curve::Line() const
 {
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Line,
                                  "GeomAdaptor_Curve::Line() - curve is not a Line");
-  return Handle(Geom_Line)::DownCast(myCurve)->Lin();
+
+  gp_Lin aLine = Handle(Geom_Line)::DownCast(myCurve)->Lin();
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    return pTrsf->Transformed(aLine);
+  }
+
+  return aLine;
 }
 
-//=================================================================================================
+//==================================================================================================
 
 gp_Circ GeomAdaptor_Curve::Circle() const
 {
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Circle,
                                  "GeomAdaptor_Curve::Circle() - curve is not a Circle");
-  return Handle(Geom_Circle)::DownCast(myCurve)->Circ();
+
+  gp_Circ aCirc = Handle(Geom_Circle)::DownCast(myCurve)->Circ();
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    return pTrsf->Transformed(aCirc);
+  }
+
+  return aCirc;
 }
 
-//=================================================================================================
+//==================================================================================================
 
 gp_Elips GeomAdaptor_Curve::Ellipse() const
 {
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Ellipse,
                                  "GeomAdaptor_Curve::Ellipse() - curve is not an Ellipse");
-  return Handle(Geom_Ellipse)::DownCast(myCurve)->Elips();
+
+  gp_Elips anElips = Handle(Geom_Ellipse)::DownCast(myCurve)->Elips();
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    return pTrsf->Transformed(anElips);
+  }
+
+  return anElips;
 }
 
-//=================================================================================================
+//==================================================================================================
 
 gp_Hypr GeomAdaptor_Curve::Hyperbola() const
 {
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Hyperbola,
                                  "GeomAdaptor_Curve::Hyperbola() - curve is not a Hyperbola");
-  return Handle(Geom_Hyperbola)::DownCast(myCurve)->Hypr();
+
+  gp_Hypr aHypr = Handle(Geom_Hyperbola)::DownCast(myCurve)->Hypr();
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    return pTrsf->Transformed(aHypr);
+  }
+
+  return aHypr;
 }
 
-//=================================================================================================
+//==================================================================================================
 
 gp_Parab GeomAdaptor_Curve::Parabola() const
 {
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Parabola,
                                  "GeomAdaptor_Curve::Parabola() - curve is not a Parabola");
-  return Handle(Geom_Parabola)::DownCast(myCurve)->Parab();
+
+  gp_Parab aParab = Handle(Geom_Parabola)::DownCast(myCurve)->Parab();
+
+  // Apply transformation if present
+  if (auto* pTrsf = std::get_if<GeomAdaptor_TrsfModifier>(&myModifier))
+  {
+    return pTrsf->Transformed(aParab);
+  }
+
+  return aParab;
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Integer GeomAdaptor_Curve::Degree() const
+int GeomAdaptor_Curve::Degree() const
 {
   if (myTypeCurve == GeomAbs_BezierCurve)
     return Handle(Geom_BezierCurve)::DownCast(myCurve)->Degree();
@@ -830,9 +1229,9 @@ Standard_Integer GeomAdaptor_Curve::Degree() const
     throw Standard_NoSuchObject();
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Boolean GeomAdaptor_Curve::IsRational() const
+bool GeomAdaptor_Curve::IsRational() const
 {
   switch (myTypeCurve)
   {
@@ -841,13 +1240,13 @@ Standard_Boolean GeomAdaptor_Curve::IsRational() const
     case GeomAbs_BezierCurve:
       return Handle(Geom_BezierCurve)::DownCast(myCurve)->IsRational();
     default:
-      return Standard_False;
+      return false;
   }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Integer GeomAdaptor_Curve::NbPoles() const
+int GeomAdaptor_Curve::NbPoles() const
 {
   if (myTypeCurve == GeomAbs_BezierCurve)
     return Handle(Geom_BezierCurve)::DownCast(myCurve)->NbPoles();
@@ -857,16 +1256,16 @@ Standard_Integer GeomAdaptor_Curve::NbPoles() const
     throw Standard_NoSuchObject();
 }
 
-//=================================================================================================
+//==================================================================================================
 
-Standard_Integer GeomAdaptor_Curve::NbKnots() const
+int GeomAdaptor_Curve::NbKnots() const
 {
   if (myTypeCurve != GeomAbs_BSplineCurve)
     throw Standard_NoSuchObject("GeomAdaptor_Curve::NbKnots");
   return myBSplineCurve->NbKnots();
 }
 
-//=================================================================================================
+//==================================================================================================
 
 Handle(Geom_BezierCurve) GeomAdaptor_Curve::Bezier() const
 {
@@ -875,7 +1274,7 @@ Handle(Geom_BezierCurve) GeomAdaptor_Curve::Bezier() const
   return Handle(Geom_BezierCurve)::DownCast(myCurve);
 }
 
-//=================================================================================================
+//==================================================================================================
 
 Handle(Geom_BSplineCurve) GeomAdaptor_Curve::BSpline() const
 {
@@ -885,7 +1284,7 @@ Handle(Geom_BSplineCurve) GeomAdaptor_Curve::BSpline() const
   return myBSplineCurve;
 }
 
-//=================================================================================================
+//==================================================================================================
 
 Handle(Geom_OffsetCurve) GeomAdaptor_Curve::OffsetCurve() const
 {

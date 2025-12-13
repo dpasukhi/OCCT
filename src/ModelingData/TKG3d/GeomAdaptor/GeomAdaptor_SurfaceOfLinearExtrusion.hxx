@@ -17,8 +17,9 @@
 #ifndef _GeomAdaptor_SurfaceOfLinearExtrusion_HeaderFile
 #define _GeomAdaptor_SurfaceOfLinearExtrusion_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
-
+#include <memory>
 class gp_Pln;
 class gp_Cylinder;
 class gp_Cone;
@@ -42,18 +43,23 @@ class GeomAdaptor_SurfaceOfLinearExtrusion : public GeomAdaptor_Surface
 public:
   Standard_EXPORT GeomAdaptor_SurfaceOfLinearExtrusion();
 
-  //! The Curve is loaded.
-  Standard_EXPORT GeomAdaptor_SurfaceOfLinearExtrusion(const Handle(Adaptor3d_Curve)& C);
+  //! The Curve is loaded (takes ownership).
+  Standard_EXPORT GeomAdaptor_SurfaceOfLinearExtrusion(GeomAdaptor_Curve* C);
 
-  //! Thew Curve and the Direction are loaded.
+  //! The Curve and the Direction are loaded (takes ownership).
+  Standard_EXPORT GeomAdaptor_SurfaceOfLinearExtrusion(GeomAdaptor_Curve* C,
+                                                       const gp_Dir&      V);
+
+  //! Constructor from Handle(Adaptor3d_Curve) for backward compatibility.
+  //! Makes a copy of the curve if it's a GeomAdaptor_Curve.
   Standard_EXPORT GeomAdaptor_SurfaceOfLinearExtrusion(const Handle(Adaptor3d_Curve)& C,
                                                        const gp_Dir&                  V);
 
   //! Shallow copy of adaptor
   Standard_EXPORT virtual Handle(Adaptor3d_Surface) ShallowCopy() const Standard_OVERRIDE;
 
-  //! Changes the Curve
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Curve)& C);
+  //! Changes the Curve (takes ownership)
+  Standard_EXPORT void Load(GeomAdaptor_Curve* C);
 
   //! Changes the Direction
   Standard_EXPORT void Load(const gp_Dir& V);
@@ -160,10 +166,13 @@ public:
 
   Standard_EXPORT Handle(Adaptor3d_Curve) BasisCurve() const Standard_OVERRIDE;
 
+  //! Returns the basis curve adaptor (non-owning pointer).
+  const GeomAdaptor_Curve* BasisCurvePtr() const { return myBasisCurve.get(); }
+
 private:
-  Handle(Adaptor3d_Curve) myBasisCurve; ///< extruded curve
-  gp_Dir                  myDirection;  ///< direction of extrusion
-  Standard_Boolean        myHaveDir;    ///< whether the direction of extrusion is initialized
+  std::unique_ptr<GeomAdaptor_Curve> myBasisCurve; ///< extruded curve
+  gp_Dir                             myDirection;  ///< direction of extrusion
+  Standard_Boolean                   myHaveDir;    ///< whether the direction of extrusion is initialized
 };
 
 #endif // _GeomAdaptor_SurfaceOfLinearExtrusion_HeaderFile

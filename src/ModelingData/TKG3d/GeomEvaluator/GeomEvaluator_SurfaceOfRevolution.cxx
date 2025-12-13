@@ -14,7 +14,7 @@
 
 #include <GeomEvaluator_SurfaceOfRevolution.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Trsf.hxx>
 #include <Precision.hxx>
 
@@ -31,9 +31,9 @@ GeomEvaluator_SurfaceOfRevolution::GeomEvaluator_SurfaceOfRevolution(
 }
 
 GeomEvaluator_SurfaceOfRevolution::GeomEvaluator_SurfaceOfRevolution(
-  const Handle(Adaptor3d_Curve)& theBase,
-  const gp_Dir&                  theRevolDir,
-  const gp_Pnt&                  theRevolLoc)
+  GeomAdaptor_Curve*  theBase,
+  const gp_Dir&       theRevolDir,
+  const gp_Pnt&       theRevolLoc)
     : GeomEvaluator_Surface(),
       myBaseAdaptor(theBase),
       myRotAxis(theRevolLoc, theRevolDir)
@@ -44,7 +44,7 @@ void GeomEvaluator_SurfaceOfRevolution::D0(const Standard_Real theU,
                                            const Standard_Real theV,
                                            gp_Pnt&             theValue) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D0(theV, theValue);
   else
     myBaseCurve->D0(theV, theValue);
@@ -60,7 +60,7 @@ void GeomEvaluator_SurfaceOfRevolution::D1(const Standard_Real theU,
                                            gp_Vec&             theD1U,
                                            gp_Vec&             theD1V) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D1(theV, theValue, theD1V);
   else
     myBaseCurve->D1(theV, theValue, theD1V);
@@ -89,7 +89,7 @@ void GeomEvaluator_SurfaceOfRevolution::D2(const Standard_Real theU,
                                            gp_Vec&             theD2V,
                                            gp_Vec&             theD2UV) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D2(theV, theValue, theD1V, theD2V);
   else
     myBaseCurve->D2(theV, theValue, theD1V, theD2V);
@@ -128,7 +128,7 @@ void GeomEvaluator_SurfaceOfRevolution::D3(const Standard_Real theU,
                                            gp_Vec&             theD3UUV,
                                            gp_Vec&             theD3UVV) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D3(theV, theValue, theD1V, theD2V, theD3V);
   else
     myBaseCurve->D3(theV, theValue, theD1V, theD2V, theD3V);
@@ -179,7 +179,7 @@ gp_Vec GeomEvaluator_SurfaceOfRevolution::DN(const Standard_Real    theU,
   gp_Vec aResult;
   if (theDerU == 0)
   {
-    if (!myBaseAdaptor.IsNull())
+    if (myBaseAdaptor != nullptr)
       aResult = myBaseAdaptor->DN(theV, theDerV);
     else
       aResult = myBaseCurve->DN(theV, theDerV);
@@ -188,7 +188,7 @@ gp_Vec GeomEvaluator_SurfaceOfRevolution::DN(const Standard_Real    theU,
   {
     if (theDerV == 0)
     {
-      if (!myBaseAdaptor.IsNull())
+      if (myBaseAdaptor != nullptr)
         myBaseAdaptor->D0(theV, aP);
       else
         myBaseCurve->D0(theV, aP);
@@ -196,7 +196,7 @@ gp_Vec GeomEvaluator_SurfaceOfRevolution::DN(const Standard_Real    theU,
     }
     else
     {
-      if (!myBaseAdaptor.IsNull())
+      if (myBaseAdaptor != nullptr)
         aDV = myBaseAdaptor->DN(theV, theDerV);
       else
         aDV = myBaseCurve->DN(theV, theDerV);
@@ -220,9 +220,11 @@ gp_Vec GeomEvaluator_SurfaceOfRevolution::DN(const Standard_Real    theU,
 Handle(GeomEvaluator_Surface) GeomEvaluator_SurfaceOfRevolution::ShallowCopy() const
 {
   Handle(GeomEvaluator_SurfaceOfRevolution) aCopy;
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
   {
-    aCopy = new GeomEvaluator_SurfaceOfRevolution(myBaseAdaptor->ShallowCopy(),
+    // Create a copy of the adaptor on heap
+    GeomAdaptor_Curve* aCopiedAdaptor = new GeomAdaptor_Curve(myBaseAdaptor->Copy());
+    aCopy = new GeomEvaluator_SurfaceOfRevolution(aCopiedAdaptor,
                                                   myRotAxis.Direction(),
                                                   myRotAxis.Location());
   }

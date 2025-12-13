@@ -57,12 +57,27 @@ public:
   //! Creates an undefined surface with no face loaded.
   Standard_EXPORT BRepAdaptor_Surface();
 
+  //! Copy constructor.
+  Standard_EXPORT BRepAdaptor_Surface(const BRepAdaptor_Surface& theOther);
+
+  //! Move constructor.
+  Standard_EXPORT BRepAdaptor_Surface(BRepAdaptor_Surface&& theOther) noexcept;
+
   //! Creates a surface to access the geometry of <F>.
   //! If <Restriction> is true the parameter range is
   //! the parameter range in the UV space of the
   //! restriction.
   Standard_EXPORT BRepAdaptor_Surface(const TopoDS_Face&     F,
                                       const Standard_Boolean R = Standard_True);
+
+  //! Copy assignment operator.
+  Standard_EXPORT BRepAdaptor_Surface& operator=(const BRepAdaptor_Surface& theOther);
+
+  //! Move assignment operator.
+  Standard_EXPORT BRepAdaptor_Surface& operator=(BRepAdaptor_Surface&& theOther) noexcept;
+
+  //! Creates an explicit deep copy of the adaptor.
+  [[nodiscard]] Standard_EXPORT BRepAdaptor_Surface Copy() const;
 
   //! Shallow copy of adaptor.
   Standard_EXPORT virtual Handle(Adaptor3d_Surface) ShallowCopy() const Standard_OVERRIDE;
@@ -146,6 +161,24 @@ public:
   Standard_EXPORT Handle(Adaptor3d_Surface) VTrim(const Standard_Real First,
                                                   const Standard_Real Last,
                                                   const Standard_Real Tol) const Standard_OVERRIDE;
+
+  //! Returns a surface trimmed in the U direction by value.
+  //! @param theFirst the first U parameter
+  //! @param theLast the last U parameter
+  //! @param theTol tolerance (unused)
+  //! @return trimmed surface adaptor by value
+  [[nodiscard]] Standard_EXPORT BRepAdaptor_Surface UTrimByValue(double theFirst,
+                                                                 double theLast,
+                                                                 double theTol) const;
+
+  //! Returns a surface trimmed in the V direction by value.
+  //! @param theFirst the first V parameter
+  //! @param theLast the last V parameter
+  //! @param theTol tolerance (unused)
+  //! @return trimmed surface adaptor by value
+  [[nodiscard]] Standard_EXPORT BRepAdaptor_Surface VTrimByValue(double theFirst,
+                                                                 double theLast,
+                                                                 double theTol) const;
 
   virtual Standard_Boolean IsUClosed() const Standard_OVERRIDE { return mySurf.IsUClosed(); }
 

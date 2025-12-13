@@ -45,9 +45,64 @@ BRepAdaptor_Surface::BRepAdaptor_Surface() {}
 
 //=================================================================================================
 
+BRepAdaptor_Surface::BRepAdaptor_Surface(const BRepAdaptor_Surface& theOther)
+    : Adaptor3d_Surface(),
+      mySurf(theOther.mySurf),
+      myTrsf(theOther.myTrsf),
+      myFace(theOther.myFace)
+{
+}
+
+//=================================================================================================
+
+BRepAdaptor_Surface::BRepAdaptor_Surface(BRepAdaptor_Surface&& theOther) noexcept
+    : Adaptor3d_Surface(),
+      mySurf(std::move(theOther.mySurf)),
+      myTrsf(theOther.myTrsf),
+      myFace(std::move(theOther.myFace))
+{
+  theOther.myTrsf = gp_Trsf();
+}
+
+//=================================================================================================
+
 BRepAdaptor_Surface::BRepAdaptor_Surface(const TopoDS_Face& F, const Standard_Boolean R)
 {
   Initialize(F, R);
+}
+
+//=================================================================================================
+
+BRepAdaptor_Surface& BRepAdaptor_Surface::operator=(const BRepAdaptor_Surface& theOther)
+{
+  if (this != &theOther)
+  {
+    mySurf = theOther.mySurf;
+    myTrsf = theOther.myTrsf;
+    myFace = theOther.myFace;
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+BRepAdaptor_Surface& BRepAdaptor_Surface::operator=(BRepAdaptor_Surface&& theOther) noexcept
+{
+  if (this != &theOther)
+  {
+    mySurf         = std::move(theOther.mySurf);
+    myTrsf         = theOther.myTrsf;
+    myFace         = std::move(theOther.myFace);
+    theOther.myTrsf = gp_Trsf();
+  }
+  return *this;
+}
+
+//=================================================================================================
+
+BRepAdaptor_Surface BRepAdaptor_Surface::Copy() const
+{
+  return BRepAdaptor_Surface(*this);
 }
 
 //=================================================================================================
@@ -161,6 +216,30 @@ Handle(Adaptor3d_Surface) BRepAdaptor_Surface::VTrim(const Standard_Real First,
   Handle(GeomAdaptor_Surface) HS = new GeomAdaptor_Surface();
   HS->Load(Handle(Geom_Surface)::DownCast(mySurf.Surface()->Transformed(myTrsf)));
   return HS->VTrim(First, Last, Tol);
+}
+
+//=================================================================================================
+
+BRepAdaptor_Surface BRepAdaptor_Surface::UTrimByValue(double theFirst,
+                                                      double theLast,
+                                                      double theTol) const
+{
+  (void)theTol;
+  BRepAdaptor_Surface aResult = Copy();
+  aResult.mySurf              = mySurf.UTrimByValue(theFirst, theLast, theTol);
+  return aResult;
+}
+
+//=================================================================================================
+
+BRepAdaptor_Surface BRepAdaptor_Surface::VTrimByValue(double theFirst,
+                                                      double theLast,
+                                                      double theTol) const
+{
+  (void)theTol;
+  BRepAdaptor_Surface aResult = Copy();
+  aResult.mySurf              = mySurf.VTrimByValue(theFirst, theLast, theTol);
+  return aResult;
 }
 
 //=================================================================================================

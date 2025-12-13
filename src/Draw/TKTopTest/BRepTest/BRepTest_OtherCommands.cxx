@@ -356,7 +356,8 @@ Standard_Integer brepintcs(Draw_Interpretor& di, Standard_Integer n, const char*
       Handle(Geom_Curve) hl = DrawTrSurf::GetCurve(a[il]);
       if (!hl.IsNull())
       {
-        theAlg.Init(hl);
+        GeomAdaptor_Curve aCurveAdaptor(hl);
+        theAlg.Init(aCurveAdaptor);
         for (; theAlg.More(); theAlg.Next())
         {
           curp = theAlg.Pnt();

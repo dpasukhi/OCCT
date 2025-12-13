@@ -28,8 +28,8 @@ GeomEvaluator_SurfaceOfExtrusion::GeomEvaluator_SurfaceOfExtrusion(
 }
 
 GeomEvaluator_SurfaceOfExtrusion::GeomEvaluator_SurfaceOfExtrusion(
-  const Handle(Adaptor3d_Curve)& theBase,
-  const gp_Dir&                  theExtrusionDir)
+  GeomAdaptor_Curve*  theBase,
+  const gp_Dir&       theExtrusionDir)
     : GeomEvaluator_Surface(),
       myBaseAdaptor(theBase),
       myDirection(theExtrusionDir)
@@ -40,7 +40,7 @@ void GeomEvaluator_SurfaceOfExtrusion::D0(const Standard_Real theU,
                                           const Standard_Real theV,
                                           gp_Pnt&             theValue) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D0(theU, theValue);
   else
     myBaseCurve->D0(theU, theValue);
@@ -54,7 +54,7 @@ void GeomEvaluator_SurfaceOfExtrusion::D1(const Standard_Real theU,
                                           gp_Vec&             theD1U,
                                           gp_Vec&             theD1V) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D1(theU, theValue, theD1U);
   else
     myBaseCurve->D1(theU, theValue, theD1U);
@@ -72,7 +72,7 @@ void GeomEvaluator_SurfaceOfExtrusion::D2(const Standard_Real theU,
                                           gp_Vec&             theD2V,
                                           gp_Vec&             theD2UV) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D2(theU, theValue, theD1U, theD2U);
   else
     myBaseCurve->D2(theU, theValue, theD1U, theD2U);
@@ -97,7 +97,7 @@ void GeomEvaluator_SurfaceOfExtrusion::D3(const Standard_Real theU,
                                           gp_Vec&             theD3UUV,
                                           gp_Vec&             theD3UVV) const
 {
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
     myBaseAdaptor->D3(theU, theValue, theD1U, theD2U, theD3U);
   else
     myBaseCurve->D3(theU, theValue, theD1U, theD2U, theD3U);
@@ -125,7 +125,7 @@ gp_Vec GeomEvaluator_SurfaceOfExtrusion::DN(const Standard_Real theU,
   gp_Vec aResult(0.0, 0.0, 0.0);
   if (theDerV == 0)
   {
-    if (!myBaseAdaptor.IsNull())
+    if (myBaseAdaptor != nullptr)
       aResult = myBaseAdaptor->DN(theU, theDerU);
     else
       aResult = myBaseCurve->DN(theU, theDerU);
@@ -138,9 +138,11 @@ gp_Vec GeomEvaluator_SurfaceOfExtrusion::DN(const Standard_Real theU,
 Handle(GeomEvaluator_Surface) GeomEvaluator_SurfaceOfExtrusion::ShallowCopy() const
 {
   Handle(GeomEvaluator_SurfaceOfExtrusion) aCopy;
-  if (!myBaseAdaptor.IsNull())
+  if (myBaseAdaptor != nullptr)
   {
-    aCopy = new GeomEvaluator_SurfaceOfExtrusion(myBaseAdaptor->ShallowCopy(), myDirection);
+    // Create a copy of the adaptor on heap
+    GeomAdaptor_Curve* aCopiedAdaptor = new GeomAdaptor_Curve(myBaseAdaptor->Copy());
+    aCopy = new GeomEvaluator_SurfaceOfExtrusion(aCopiedAdaptor, myDirection);
   }
   else
   {

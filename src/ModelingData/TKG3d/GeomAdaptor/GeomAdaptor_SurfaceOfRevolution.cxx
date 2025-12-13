@@ -16,10 +16,11 @@
 
 #include <GeomAdaptor_SurfaceOfRevolution.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <GeomEvaluator_SurfaceOfRevolution.hxx>
 #include <Standard_NoSuchObject.hxx>
+#include <Standard_NotImplemented.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_SurfaceOfRevolution, GeomAdaptor_Surface)
 
@@ -32,10 +33,20 @@ GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution()
 
 //=================================================================================================
 
-GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(Adaptor3d_Curve)& C)
+GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(GeomAdaptor_Curve* C)
     : myHaveAxis(Standard_False)
 {
   Load(C);
+}
+
+//=================================================================================================
+
+GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(GeomAdaptor_Curve* C,
+                                                                 const gp_Ax1&      V)
+    : myHaveAxis(Standard_False)
+{
+  Load(C);
+  Load(V);
 }
 
 //=================================================================================================
@@ -44,7 +55,12 @@ GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(Ad
                                                                  const gp_Ax1&                  V)
     : myHaveAxis(Standard_False)
 {
-  Load(C);
+  // Try to downcast to GeomAdaptor_Curve and make a copy
+  Handle(GeomAdaptor_Curve) aGAC = Handle(GeomAdaptor_Curve)::DownCast(C);
+  if (!aGAC.IsNull())
+  {
+    Load(new GeomAdaptor_Curve(*aGAC));
+  }
   Load(V);
 }
 
@@ -54,9 +70,9 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::ShallowCopy() const
 {
   Handle(GeomAdaptor_SurfaceOfRevolution) aCopy = new GeomAdaptor_SurfaceOfRevolution();
 
-  if (!myBasisCurve.IsNull())
+  if (myBasisCurve != nullptr)
   {
-    aCopy->myBasisCurve = myBasisCurve->ShallowCopy();
+    aCopy->myBasisCurve = std::make_unique<GeomAdaptor_Curve>(myBasisCurve->Copy());
   }
   aCopy->myAxis     = myAxis;
   aCopy->myHaveAxis = myHaveAxis;
@@ -82,9 +98,9 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::ShallowCopy() const
 
 //=================================================================================================
 
-void GeomAdaptor_SurfaceOfRevolution::Load(const Handle(Adaptor3d_Curve)& C)
+void GeomAdaptor_SurfaceOfRevolution::Load(GeomAdaptor_Curve* C)
 {
-  myBasisCurve = C;
+  myBasisCurve.reset(C);
   if (myHaveAxis)
     Load(myAxis); // to evaluate the new myAxeRev.
 }
@@ -97,8 +113,10 @@ void GeomAdaptor_SurfaceOfRevolution::Load(const gp_Ax1& V)
   myAxis     = V;
 
   mySurfaceType = GeomAbs_SurfaceOfRevolution;
+  // Create copy of the adaptor for the evaluator (takes ownership)
+  GeomAdaptor_Curve* aEvalCurve = new GeomAdaptor_Curve(myBasisCurve->Copy());
   myNestedEvaluator =
-    new GeomEvaluator_SurfaceOfRevolution(myBasisCurve, myAxis.Direction(), myAxis.Location());
+    new GeomEvaluator_SurfaceOfRevolution(aEvalCurve, myAxis.Direction(), myAxis.Location());
 
   // Eval myAxeRev : axe of revolution ( Determination de Ox).
   gp_Pnt           P, Q;
@@ -271,8 +289,9 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::UTrim(const Standard_
   Standard_OutOfRange_Raise_if(std::abs(First) > Eps || std::abs(Last - 2. * M_PI) > Eps,
                                "GeomAdaptor_SurfaceOfRevolution : UTrim : Parameters out of range");
 
+  GeomAdaptor_Curve* aCopyPtr = new GeomAdaptor_Curve(myBasisCurve->Copy());
   Handle(GeomAdaptor_SurfaceOfRevolution) HR =
-    new GeomAdaptor_SurfaceOfRevolution(GeomAdaptor_SurfaceOfRevolution(myBasisCurve, myAxis));
+    new GeomAdaptor_SurfaceOfRevolution(aCopyPtr, myAxis);
   return HR;
 }
 
@@ -282,9 +301,10 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::VTrim(const Standard_
                                                                  const Standard_Real Last,
                                                                  const Standard_Real Tol) const
 {
-  Handle(Adaptor3d_Curve)                 HC = BasisCurve()->Trim(First, Last, Tol);
+  GeomAdaptor_Curve aTrimmed = myBasisCurve->TrimByValue(First, Last, Tol);
+  GeomAdaptor_Curve* aTrimmedPtr = new GeomAdaptor_Curve(std::move(aTrimmed));
   Handle(GeomAdaptor_SurfaceOfRevolution) HR =
-    new GeomAdaptor_SurfaceOfRevolution(GeomAdaptor_SurfaceOfRevolution(HC, myAxis));
+    new GeomAdaptor_SurfaceOfRevolution(aTrimmedPtr, myAxis);
   return HR;
 }
 
@@ -578,5 +598,6 @@ const gp_Ax3& GeomAdaptor_SurfaceOfRevolution::Axis() const
 
 Handle(Adaptor3d_Curve) GeomAdaptor_SurfaceOfRevolution::BasisCurve() const
 {
-  return myBasisCurve;
+  // TODO: This method will be changed when GeomAdaptor_Surface is fully rewritten
+  throw Standard_NotImplemented("GeomAdaptor_SurfaceOfRevolution::BasisCurve() - use BasisCurvePtr() instead");
 }

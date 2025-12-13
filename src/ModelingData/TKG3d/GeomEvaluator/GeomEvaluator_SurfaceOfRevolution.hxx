@@ -15,12 +15,14 @@
 #ifndef _GeomEvaluator_SurfaceOfRevolution_HeaderFile
 #define _GeomEvaluator_SurfaceOfRevolution_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
 #include <GeomEvaluator_Surface.hxx>
 #include <Geom_Curve.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Ax1.hxx>
+#include <memory>
+
+class GeomAdaptor_Curve;
 
 //! Allows to calculate values and derivatives for surfaces of revolution
 class GeomEvaluator_SurfaceOfRevolution : public GeomEvaluator_Surface
@@ -30,10 +32,10 @@ public:
   Standard_EXPORT GeomEvaluator_SurfaceOfRevolution(const Handle(Geom_Curve)& theBase,
                                                     const gp_Dir&             theRevolDir,
                                                     const gp_Pnt&             theRevolLoc);
-  //! Initialize evaluator by adaptor of the revolved curve, the axis of revolution and the location
-  Standard_EXPORT GeomEvaluator_SurfaceOfRevolution(const Handle(Adaptor3d_Curve)& theBase,
-                                                    const gp_Dir&                  theRevolDir,
-                                                    const gp_Pnt&                  theRevolLoc);
+  //! Initialize evaluator by adaptor of the revolved curve (takes ownership)
+  Standard_EXPORT GeomEvaluator_SurfaceOfRevolution(GeomAdaptor_Curve*  theBase,
+                                                    const gp_Dir&       theRevolDir,
+                                                    const gp_Pnt&       theRevolLoc);
 
   //! Change direction of the axis of revolution
   void SetDirection(const gp_Dir& theDirection) { myRotAxis.SetDirection(theDirection); }
@@ -89,9 +91,9 @@ public:
   DEFINE_STANDARD_RTTIEXT(GeomEvaluator_SurfaceOfRevolution, GeomEvaluator_Surface)
 
 private:
-  Handle(Geom_Curve)      myBaseCurve;
-  Handle(Adaptor3d_Curve) myBaseAdaptor;
-  gp_Ax1                  myRotAxis;
+  Handle(Geom_Curve)                    myBaseCurve;
+  std::unique_ptr<GeomAdaptor_Curve>    myBaseAdaptor;
+  gp_Ax1                                myRotAxis;
 };
 
 DEFINE_STANDARD_HANDLE(GeomEvaluator_SurfaceOfRevolution, GeomEvaluator_Surface)

@@ -50,6 +50,12 @@ public:
   {
   }
 
+  //! Copy constructor.
+  Standard_EXPORT GeomAdaptor_Surface(const GeomAdaptor_Surface& theOther);
+
+  //! Move constructor.
+  Standard_EXPORT GeomAdaptor_Surface(GeomAdaptor_Surface&& theOther) noexcept;
+
   GeomAdaptor_Surface(const Handle(Geom_Surface)& theSurf)
       : myTolU(0.),
         myTolV(0.)
@@ -68,6 +74,15 @@ public:
   {
     Load(theSurf, theUFirst, theULast, theVFirst, theVLast, theTolU, theTolV);
   }
+
+  //! Copy assignment operator.
+  Standard_EXPORT GeomAdaptor_Surface& operator=(const GeomAdaptor_Surface& theOther);
+
+  //! Move assignment operator.
+  Standard_EXPORT GeomAdaptor_Surface& operator=(GeomAdaptor_Surface&& theOther) noexcept;
+
+  //! Creates an explicit deep copy of the adaptor.
+  [[nodiscard]] Standard_EXPORT GeomAdaptor_Surface Copy() const;
 
   //! Shallow copy of adaptor
   Standard_EXPORT virtual Handle(Adaptor3d_Surface) ShallowCopy() const Standard_OVERRIDE;
@@ -153,6 +168,24 @@ public:
   Standard_EXPORT Handle(Adaptor3d_Surface) VTrim(const Standard_Real First,
                                                   const Standard_Real Last,
                                                   const Standard_Real Tol) const Standard_OVERRIDE;
+
+  //! Returns a surface trimmed in the U direction by value.
+  //! @param theFirst the first U parameter
+  //! @param theLast the last U parameter
+  //! @param theTol tolerance (unused)
+  //! @return trimmed surface adaptor by value
+  [[nodiscard]] Standard_EXPORT GeomAdaptor_Surface UTrimByValue(double theFirst,
+                                                                 double theLast,
+                                                                 double theTol) const;
+
+  //! Returns a surface trimmed in the V direction by value.
+  //! @param theFirst the first V parameter
+  //! @param theLast the last V parameter
+  //! @param theTol tolerance (unused)
+  //! @return trimmed surface adaptor by value
+  [[nodiscard]] Standard_EXPORT GeomAdaptor_Surface VTrimByValue(double theFirst,
+                                                                 double theLast,
+                                                                 double theTol) const;
 
   Standard_EXPORT Standard_Boolean IsUClosed() const Standard_OVERRIDE;
 

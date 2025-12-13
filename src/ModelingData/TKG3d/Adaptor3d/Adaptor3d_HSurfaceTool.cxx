@@ -17,6 +17,9 @@
 
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_SurfaceOfRevolution.hxx>
+#include <GeomAdaptor_SurfaceOfLinearExtrusion.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineCurve.hxx>
@@ -117,7 +120,8 @@ Standard_Boolean Adaptor3d_HSurfaceTool::IsSurfG1(const Handle(Adaptor3d_Surface
   aVl = theSurf->LastVParameter();
 
   Handle(Adaptor3d_Surface) aS = theSurf;
-  Handle(Adaptor3d_Curve)   aC;
+  const GeomAdaptor_Curve* aCurvePtr = nullptr;
+  std::unique_ptr<GeomAdaptor_Curve> aLocalCurve;
 
   Handle(Geom_BSplineSurface) aBS;
   Handle(Geom_BSplineCurve)   aBC;
@@ -127,25 +131,40 @@ Standard_Boolean Adaptor3d_HSurfaceTool::IsSurfG1(const Handle(Adaptor3d_Surface
     aS = aS->BasisSurface();
   }
 
-  if (aS->GetType() == GeomAbs_SurfaceOfRevolution || aS->GetType() == GeomAbs_SurfaceOfExtrusion)
+  if (aS->GetType() == GeomAbs_SurfaceOfRevolution)
   {
-    aC = aS->BasisCurve();
+    Handle(GeomAdaptor_SurfaceOfRevolution) aSRev =
+      Handle(GeomAdaptor_SurfaceOfRevolution)::DownCast(aS);
+    if (!aSRev.IsNull())
+    {
+      aCurvePtr = aSRev->BasisCurvePtr();
+    }
+  }
+  else if (aS->GetType() == GeomAbs_SurfaceOfExtrusion)
+  {
+    Handle(GeomAdaptor_SurfaceOfLinearExtrusion) aSExt =
+      Handle(GeomAdaptor_SurfaceOfLinearExtrusion)::DownCast(aS);
+    if (!aSExt.IsNull())
+    {
+      aCurvePtr = aSExt->BasisCurvePtr();
+    }
   }
 
-  if (!aC.IsNull())
+  if (aCurvePtr != nullptr)
   {
-    if (aC->GetType() == GeomAbs_OffsetCurve)
+    if (aCurvePtr->GetType() == GeomAbs_OffsetCurve)
     {
-      Handle(Geom_OffsetCurve) aOC = aC->OffsetCurve();
-      aC                           = new GeomAdaptor_Curve(aOC->BasisCurve());
+      Handle(Geom_OffsetCurve) aOC = aCurvePtr->OffsetCurve();
+      aLocalCurve = std::make_unique<GeomAdaptor_Curve>(aOC->BasisCurve());
+      aCurvePtr = aLocalCurve.get();
     }
 
-    if (aC->GetType() == GeomAbs_BSplineCurve)
+    if (aCurvePtr->GetType() == GeomAbs_BSplineCurve)
     {
       if ((theAlongU && aS->GetType() == GeomAbs_SurfaceOfExtrusion)
           || (!theAlongU && aS->GetType() == GeomAbs_SurfaceOfRevolution))
       {
-        aBC = aC->BSpline();
+        aBC = aCurvePtr->BSpline();
       }
     }
   }
