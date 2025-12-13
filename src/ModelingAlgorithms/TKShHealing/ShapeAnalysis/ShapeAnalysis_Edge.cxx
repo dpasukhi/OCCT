@@ -19,7 +19,6 @@
 //    abv 06.05.99: S4137: adding methods GetTangent2d()
 
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_GCurve.hxx>
 #include <BRepLib_ValidateEdge.hxx>
@@ -41,6 +40,7 @@
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Precision.hxx>
+#include <memory>
 #include <ShapeAnalysis_Edge.hxx>
 #include <ShapeExtend.hxx>
 #include <Standard_ErrorHandler.hxx>
@@ -739,11 +739,11 @@ Standard_Boolean ShapeAnalysis_Edge::CheckSameParameter(const TopoDS_Edge&     e
     Handle(Geom_Surface) aST =
       Handle(Geom_Surface)::DownCast(aS->Transformed(aLoc.Transformation()));
 
-    // Compute deviation between curves
-    Handle(Geom2dAdaptor_Curve) GHPC = new Geom2dAdaptor_Curve(aPC, f, l);
-    Handle(GeomAdaptor_Surface) GAHS = new GeomAdaptor_Surface(aST);
-
-    Handle(Adaptor3d_CurveOnSurface) ACS = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+    // Compute deviation between curves using GeomAdaptor_Curve with SetCurveOnSurface modifier
+    Handle(GeomAdaptor_Curve) ACS = new GeomAdaptor_Curve();
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aPC, f, l);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(aST);
+    ACS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
     BRepLib_ValidateEdge aValidateEdge(aGAC, ACS, SameParameter);
     aValidateEdge.SetControlPointsNumber(NbControl - 1);
@@ -763,13 +763,14 @@ Standard_Boolean ShapeAnalysis_Edge::CheckSameParameter(const TopoDS_Edge&     e
     Handle(Geom2d_Curve) aPC = BRep_Tool::CurveOnPlane(edge, aFaceSurf, aFaceLoc, f, l);
     if (!aPC.IsNull())
     {
-      Handle(Geom2dAdaptor_Curve) GHPC = new Geom2dAdaptor_Curve(aPC, aFirst, aLast);
-
       Handle(Geom_Surface) aST =
         Handle(Geom_Surface)::DownCast(aFaceSurf->Transformed(aFaceLoc.Transformation()));
-      Handle(GeomAdaptor_Surface) GAHS = new GeomAdaptor_Surface(aST);
 
-      Handle(Adaptor3d_CurveOnSurface) ACS = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+      // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+      Handle(GeomAdaptor_Curve) ACS = new GeomAdaptor_Curve();
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aPC, aFirst, aLast);
+      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aST);
+      ACS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
       BRepLib_ValidateEdge aValidateEdgeOnPlane(aGAC, ACS, SameParameter);
       aValidateEdgeOnPlane.SetControlPointsNumber(NbControl - 1);

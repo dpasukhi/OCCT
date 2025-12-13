@@ -67,9 +67,11 @@
 #include <Geom_SurfaceOfRevolution.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomAPI.hxx>
 #include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <GeomConvert_CompCurveToBSplineCurve.hxx>
+#include <memory>
 #include <IntRes2d_IntersectionPoint.hxx>
 #include <IntRes2d_SequenceOfIntersectionPoint.hxx>
 #include <Message_Msg.hxx>
@@ -2103,14 +2105,17 @@ static Standard_Boolean RemoveLoop(TopoDS_Edge&                      E,
   }
 
   //: q1
-  TopLoc_Location             L;
-  Handle(Geom_Surface)        S  = BRep_Tool::Surface(face, L);
-  Handle(Geom2dAdaptor_Curve) AC = new Geom2dAdaptor_Curve(c2d);
-  Handle(GeomAdaptor_Surface) AS = new GeomAdaptor_Surface(S);
+  TopLoc_Location      L;
+  Handle(Geom_Surface) S = BRep_Tool::Surface(face, L);
 
-  Adaptor3d_CurveOnSurface ACS(AC, AS);
-  gp_Pnt                   P1(ACS.Value(t1));
-  gp_Pnt                   P2(ACS.Value(t2));
+  // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+  GeomAdaptor_Curve ACS;
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(c2d);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(S);
+  ACS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
+  gp_Pnt P1(ACS.Value(t1));
+  gp_Pnt P2(ACS.Value(t2));
   gp_Pnt pcurPnt((P1.X() + P2.X()) / 2, (P1.Y() + P2.Y()) / 2, (P1.Z() + P2.Z()) / 2);
 
   ShapeAnalysis_TransferParametersProj SFTP(E, face);
@@ -2241,14 +2246,17 @@ static Standard_Boolean RemoveLoop(TopoDS_Edge&                      E,
   if (trim2.IsNull())
     return Standard_False;
 
-  TopLoc_Location             L;
-  Handle(Geom_Surface)        S  = BRep_Tool::Surface(face, L);
-  Handle(Geom2dAdaptor_Curve) AC = new Geom2dAdaptor_Curve(c2d);
-  Handle(GeomAdaptor_Surface) AS = new GeomAdaptor_Surface(S);
+  TopLoc_Location      L;
+  Handle(Geom_Surface) S = BRep_Tool::Surface(face, L);
 
-  Adaptor3d_CurveOnSurface ACS(AC, AS);
-  gp_Pnt                   P1(ACS.Value(t1));
-  gp_Pnt                   P2(ACS.Value(t2));
+  // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+  GeomAdaptor_Curve ACS;
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(c2d);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(S);
+  ACS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
+  gp_Pnt P1(ACS.Value(t1));
+  gp_Pnt P2(ACS.Value(t2));
   gp_Pnt pcurPnt((P1.X() + P2.X()) / 2, (P1.Y() + P2.Y()) / 2, (P1.Z() + P2.Z()) / 2);
 
   // transfer parameters from pcurve to 3d curve

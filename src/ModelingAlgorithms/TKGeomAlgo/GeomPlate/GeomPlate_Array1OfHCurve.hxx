@@ -17,9 +17,9 @@
 #ifndef GeomPlate_Array1OfHCurve_HeaderFile
 #define GeomPlate_Array1OfHCurve_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <NCollection_Array1.hxx>
 
-typedef NCollection_Array1<Handle(Adaptor3d_Curve)> GeomPlate_Array1OfHCurve;
+typedef NCollection_Array1<Handle(GeomAdaptor_Curve)> GeomPlate_Array1OfHCurve;
 
 #endif

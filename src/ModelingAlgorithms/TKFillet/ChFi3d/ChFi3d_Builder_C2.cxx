@@ -655,8 +655,10 @@ Standard_Boolean ChFi3d_Builder::PerformTwoCornerbyInter(const Standard_Integer 
     }
     Handle(Geom2dAdaptor_Curve) c2df =
       new Geom2dAdaptor_Curve(SmaFD->Interference(IFaArcSma).PCurveOnFace(), fsma, lsma);
-    Adaptor3d_CurveOnSurface         consf(c2df, HF);
-    Handle(Adaptor3d_CurveOnSurface) Hconsf = new Adaptor3d_CurveOnSurface(consf);
+    Handle(GeomAdaptor_Curve) Hconsf = new GeomAdaptor_Curve();
+    auto                      aPCrv  = std::make_unique<Geom2dAdaptor_Curve>(*c2df);
+    auto                      aSrf   = std::make_unique<GeomAdaptor_Surface>(HF->ChangeSurface().Surface());
+    Hconsf->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     if (!ChFi3d_IntCS(BigHS, Hconsf, UVi, wi))
     {
 #ifdef OCCT_DEBUG

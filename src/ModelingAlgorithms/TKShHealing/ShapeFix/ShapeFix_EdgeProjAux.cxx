@@ -16,7 +16,6 @@
 
 #include <ShapeFix_EdgeProjAux.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtPC.hxx>
@@ -26,8 +25,10 @@
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <Precision.hxx>
+#include <memory>
 #include <ShapeAnalysis.hxx>
 #include <ShapeAnalysis_Curve.hxx>
 #include <ShapeAnalysis_Edge.hxx>
@@ -157,12 +158,12 @@ Standard_Boolean ShapeFix_EdgeProjAux::IsIso(const Handle(Geom2d_Curve)& /*theCu
 // Purpose : Computes the trimming parameter of Pt1 on COnS
 // ----------------------------------------------------------------------------
 
-static Standard_Boolean FindParameterWithExt(const gp_Pnt&                   Pt1,
-                                             const Adaptor3d_CurveOnSurface& COnS,
-                                             const Standard_Real             Uinf,
-                                             const Standard_Real             Usup,
-                                             const Standard_Real             preci,
-                                             Standard_Real&                  w1)
+static Standard_Boolean FindParameterWithExt(const gp_Pnt&            Pt1,
+                                             const GeomAdaptor_Curve& COnS,
+                                             const Standard_Real      Uinf,
+                                             const Standard_Real      Usup,
+                                             const Standard_Real      preci,
+                                             Standard_Real&           w1)
 {
   try
   { // et allez donc !
@@ -399,10 +400,11 @@ void ShapeFix_EdgeProjAux::Init2d(const Standard_Real preci)
     }
   }
 
-  Geom2dAdaptor_Curve         CA     = Geom2dAdaptor_Curve(theCurve2d, cf, cl);
-  Handle(Geom2dAdaptor_Curve) myHCur = new Geom2dAdaptor_Curve(CA);
-
-  Adaptor3d_CurveOnSurface COnS = Adaptor3d_CurveOnSurface(myHCur, myHSur);
+  // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+  GeomAdaptor_Curve COnS;
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(theCurve2d, cf, cl);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(Surf);
+  COnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   // ----------------------------------------------
   // --- topological limit == geometric limit ? ---
@@ -533,13 +535,11 @@ void ShapeFix_EdgeProjAux::Init3d(const Standard_Real preci)
   gp_Pnt Pt1 = BRep_Tool::Pnt(V1);
   gp_Pnt Pt2 = BRep_Tool::Pnt(V2);
 
-  GeomAdaptor_Surface         SA     = GeomAdaptor_Surface(theSurface);
-  Handle(GeomAdaptor_Surface) myHSur = new GeomAdaptor_Surface(SA);
-
-  Geom2dAdaptor_Curve         CA     = Geom2dAdaptor_Curve(theCurve2d);
-  Handle(Geom2dAdaptor_Curve) myHCur = new Geom2dAdaptor_Curve(CA);
-
-  Adaptor3d_CurveOnSurface COnS = Adaptor3d_CurveOnSurface(myHCur, myHSur);
+  // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+  GeomAdaptor_Curve COnS;
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(theCurve2d);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(theSurface);
+  COnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   //: S4136  Standard_Real preci = BRepAPI::Precision();
   Standard_Real Uinf = theCurve2d->FirstParameter();

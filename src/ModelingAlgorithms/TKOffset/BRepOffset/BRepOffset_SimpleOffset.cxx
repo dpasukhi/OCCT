@@ -17,7 +17,6 @@
 // Include self.
 #include <BRepOffset_SimpleOffset.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepLib.hxx>
 #include <BRepLib_ValidateEdge.hxx>
@@ -34,6 +33,7 @@
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Vertex.hxx>
+#include <memory>
 
 //=================================================================================================
 
@@ -268,12 +268,11 @@ void BRepOffset_SimpleOffset::FillEdgeData(
       continue;
 
     // Create offset curve on surface.
-    const Handle(Geom2d_Curve)      aC2dNew = BRep_Tool::CurveOnSurface(theEdge, aCurFace, aF, aL);
-    const Handle(Adaptor2d_Curve2d) aHCurve2d = new Geom2dAdaptor_Curve(aC2dNew, aF, aL);
-    const Handle(Adaptor3d_Surface) aHSurface =
-      new GeomAdaptor_Surface(myFaceInfo.Find(aCurFace).myOffsetS);
-    const Handle(Adaptor3d_CurveOnSurface) aCurveOnSurf =
-      new Adaptor3d_CurveOnSurface(aHCurve2d, aHSurface);
+    const Handle(Geom2d_Curve) aC2dNew = BRep_Tool::CurveOnSurface(theEdge, aCurFace, aF, aL);
+    Handle(GeomAdaptor_Curve) aCurveOnSurf = new GeomAdaptor_Curve();
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2dNew, aF, aL);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(myFaceInfo.Find(aCurFace).myOffsetS);
+    aCurveOnSurf->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
     // Extract 3d-curve (it is not null).
     const Handle(Adaptor3d_Curve) aCurve3d = new GeomAdaptor_Curve(aNED.myOffsetC, aF, aL);

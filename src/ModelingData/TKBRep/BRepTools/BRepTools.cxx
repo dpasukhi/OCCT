@@ -16,7 +16,6 @@
 
 #include <BRepTools.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <BRep_GCurve.hxx>
@@ -53,6 +52,8 @@
 #include <errno.h>
 #include <BRepTools_Modifier.hxx>
 #include <TopTools_IndexedMapOfShape.hxx>
+
+#include <memory>
 
 //=================================================================================================
 
@@ -1238,14 +1239,13 @@ Standard_Real BRepTools::EvalAndUpdateTol(const TopoDS_Edge&          theE,
   }
   const Handle(Adaptor3d_Curve) aGeomAdaptorCurve = new GeomAdaptor_Curve(C3d, first, last);
 
-  Handle(Adaptor2d_Curve2d)   aGeom2dAdaptorCurve = new Geom2dAdaptor_Curve(C2d, first, last);
-  Handle(GeomAdaptor_Surface) aGeomAdaptorSurface = new GeomAdaptor_Surface(S);
-
-  Handle(Adaptor3d_CurveOnSurface) anAdaptor3dCurveOnSurface =
-    new Adaptor3d_CurveOnSurface(aGeom2dAdaptorCurve, aGeomAdaptorSurface);
+  GeomAdaptor_Curve anAdaptor3dCurveOnSurface;
+  auto              aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C2d, first, last);
+  auto              aSrf  = std::make_unique<GeomAdaptor_Surface>(S);
+  anAdaptor3dCurveOnSurface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   GeomLib_CheckCurveOnSurface CT(aGeomAdaptorCurve);
-  CT.Perform(anAdaptor3dCurveOnSurface);
+  CT.Perform(&anAdaptor3dCurveOnSurface);
   if (CT.IsDone())
   {
     newtol = CT.MaxDistance();

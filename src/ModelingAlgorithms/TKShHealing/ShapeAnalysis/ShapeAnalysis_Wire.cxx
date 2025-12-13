@@ -30,7 +30,6 @@
 //: s1 abv 22.04.99: PRO7226 #489490: ensure fixing of degenerated edge
 // #9 smh 14.12.99 BUC60615 Using tolerance of verteces during checking degenerated edge.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Bnd_Array1OfBox2d.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
@@ -47,8 +46,10 @@
 #include <Geom_Plane.hxx>
 #include <Geom_Surface.hxx>
 #include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt2d.hxx>
 #include <GProp_GProps.hxx>
+#include <memory>
 #include <IntRes2d_Domain.hxx>
 #include <IntRes2d_IntersectionPoint.hxx>
 #include <IntRes2d_IntersectionSegment.hxx>
@@ -1083,10 +1084,13 @@ Standard_Boolean ShapeAnalysis_Wire::CheckCurveGap(const Standard_Integer num)
     myStatus = ShapeExtend::EncodeStatus(ShapeExtend_FAIL1);
     return Standard_False;
   }
-  Handle(Geom2dAdaptor_Curve) AC = new Geom2dAdaptor_Curve(pc, pcuf, pcul);
-  Handle(GeomAdaptor_Surface) AS = new GeomAdaptor_Surface(mySurf->Surface());
-  Adaptor3d_CurveOnSurface    ACS(AC, AS);
-  gp_Pnt                      cpnt, pcpnt;
+  // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+  GeomAdaptor_Curve ACS;
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(pc, pcuf, pcul);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(mySurf->Surface());
+  ACS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
+  gp_Pnt cpnt, pcpnt;
   Standard_Integer            nbp = 45;
   Standard_Real               dist, maxdist = 0.;
   for (Standard_Integer i = 0; i < nbp; i++)
@@ -1635,12 +1639,12 @@ Standard_Boolean ShapeAnalysis_Wire::CheckOuterBound(const Standard_Boolean APIM
 
 //=================================================================================================
 
-static Standard_Real ProjectInside(const Adaptor3d_CurveOnSurface& AD,
-                                   const gp_Pnt&                   pnt,
-                                   const Standard_Real             preci,
-                                   gp_Pnt&                         proj,
-                                   Standard_Real&                  param,
-                                   const Standard_Boolean          adjustToEnds = Standard_True)
+static Standard_Real ProjectInside(const GeomAdaptor_Curve& AD,
+                                   const gp_Pnt&            pnt,
+                                   const Standard_Real      preci,
+                                   gp_Pnt&                  proj,
+                                   Standard_Real&           param,
+                                   const Standard_Boolean   adjustToEnds = Standard_True)
 {
   ShapeAnalysis_Curve sac;
   Standard_Real       dist   = sac.Project(AD, pnt, preci, proj, param, adjustToEnds);
@@ -1731,15 +1735,18 @@ Standard_Boolean ShapeAnalysis_Wire::CheckNotchedEdges(const Standard_Integer nu
   if (std::abs(v2.Angle(v1)) > 0.1 || p2d1.Distance(p2d2) > Tolerance)
     return Standard_False;
 
-  Handle(Geom2dAdaptor_Curve) AC2d1 = new Geom2dAdaptor_Curve(c2d1, a1, b1);
-  Handle(GeomAdaptor_Surface) AdS1  = new GeomAdaptor_Surface(new Geom_Plane(gp_Pln()));
-  Adaptor3d_CurveOnSurface    Ad1(AC2d1, AdS1);
+  // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+  GeomAdaptor_Curve Ad1;
+  auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(c2d1, a1, b1);
+  auto aSrf1 = std::make_unique<GeomAdaptor_Surface>(new Geom_Plane(gp_Pln()));
+  Ad1.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
 
-  Handle(Geom2dAdaptor_Curve) AC2d2 = new Geom2dAdaptor_Curve(c2d2, a2, b2);
-  Handle(GeomAdaptor_Surface) AdS2  = new GeomAdaptor_Surface(new Geom_Plane(gp_Pln()));
-  Adaptor3d_CurveOnSurface    Ad2(AC2d2, AdS2);
+  GeomAdaptor_Curve Ad2;
+  auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(c2d2, a2, b2);
+  auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(new Geom_Plane(gp_Pln()));
+  Ad2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
 
-  Adaptor3d_CurveOnSurface longAD, shortAD;
+  GeomAdaptor_Curve longAD, shortAD;
   Standard_Real            lenP, firstP;
 
   ShapeAnalysis_Curve sac;

@@ -17,8 +17,8 @@
 #ifndef _Approx_SameParameter_HeaderFile
 #define _Approx_SameParameter_HeaderFile
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 
 class Geom_Curve;
 class Geom2d_Curve;
@@ -75,7 +75,7 @@ public:
 
   //! Returns the 3D curve on surface that has the same parameter as
   //! the 3D curve up to the specified tolerance.
-  Handle(Adaptor3d_CurveOnSurface) CurveOnSurface() const { return myCurveOnSurface; }
+  Handle(GeomAdaptor_Curve) CurveOnSurface() const { return myCurveOnSurface; }
 
 private:
   //! Internal data structure to unify access to the most actively used data.
@@ -83,10 +83,10 @@ private:
   //! a lot of memory is used in intermediate computations.
   struct Approx_SameParameter_Data
   {
-    Adaptor3d_CurveOnSurface myCOnS;  // Curve on surface.
-    Standard_Integer         myNbPnt; // Number of points.
-    Standard_Real*           myPC3d;  // Parameters on 3d curve.
-    Standard_Real*           myPC2d;  // Parameters on 2d curve.
+    GeomAdaptor_Curve myCOnS;  // Curve on surface.
+    Standard_Integer  myNbPnt; // Number of points.
+    Standard_Real*    myPC3d;  // Parameters on 3d curve.
+    Standard_Real*    myPC2d;  // Parameters on 2d curve.
 
     // Second data arrays. Used in loop over poles.
     Standard_Real* myNewPC3d; // Parameters on 3d curve.
@@ -134,9 +134,9 @@ private:
 
   //! Computes tangents on boundary points.
   //@return true if tangents are not null and false otherwise.
-  Standard_Boolean ComputeTangents(const Adaptor3d_CurveOnSurface& theCOnS,
-                                   Standard_Real&                  theFirstTangent,
-                                   Standard_Real&                  theLastTangent) const;
+  Standard_Boolean ComputeTangents(const GeomAdaptor_Curve& theCOnS,
+                                   Standard_Real&           theFirstTangent,
+                                   Standard_Real&           theLastTangent) const;
 
   //! Method to check same parameter state
   //! and build dependency between 2d and 3d curves.
@@ -166,11 +166,11 @@ private:
   Standard_Boolean                 mySameParameter;
   Standard_Boolean                 myDone;
   Standard_Real                    myTolReached;
-  Handle(Geom2d_Curve)             myCurve2d;
-  Handle(Adaptor2d_Curve2d)        myHCurve2d;
-  Handle(Adaptor3d_Curve)          myC3d;
-  Handle(Adaptor3d_Surface)        mySurf;
-  Handle(Adaptor3d_CurveOnSurface) myCurveOnSurface;
+  Handle(Geom2d_Curve)      myCurve2d;
+  Handle(Adaptor2d_Curve2d) myHCurve2d;
+  Handle(Adaptor3d_Curve)   myC3d;
+  Handle(Adaptor3d_Surface) mySurf;
+  Handle(GeomAdaptor_Curve) myCurveOnSurface;
 };
 
 #endif // _Approx_SameParameter_HeaderFile

@@ -14,8 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Curve.hxx>
+#include <memory>
 #include <BRep_GCurve.hxx>
 #include <BRepLib_ValidateEdge.hxx>
 #include <BRep_PolygonOnTriangulation.hxx>
@@ -237,10 +237,11 @@ void BRepCheck_Edge::Minimum()
           }
           else
           {
-            Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
-            Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-            Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-            myHCurve = new Adaptor3d_CurveOnSurface(ACSref);
+            auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PCref, First, Last);
+            auto aSrf = std::make_unique<GeomAdaptor_Surface>(Sref);
+            Handle(GeomAdaptor_Curve) aCurve = new GeomAdaptor_Curve();
+            aCurve->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+            myHCurve = aCurve;
           }
         }
       }
@@ -390,10 +391,11 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
               Sb                      = Handle(Geom_Surface)::DownCast
                 //	      (Su->Transformed(L.Transformation()));
                 (Su->Transformed(/*L*/ (Floc * TFloc).Transformation()));
-              Handle(Geom2d_Curve)             PC   = cr->PCurve();
-              Handle(GeomAdaptor_Surface)      GAHS = new GeomAdaptor_Surface(Sb);
-              Handle(Geom2dAdaptor_Curve)      GHPC = new Geom2dAdaptor_Curve(PC, f, l);
-              Handle(Adaptor3d_CurveOnSurface) ACS  = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+              Handle(Geom2d_Curve) PC   = cr->PCurve();
+              auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PC, f, l);
+              auto aSrf = std::make_unique<GeomAdaptor_Surface>(Sb);
+              Handle(GeomAdaptor_Curve) ACS = new GeomAdaptor_Curve();
+              ACS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
               BRepLib_ValidateEdge aValidateEdge(myHCurve, ACS, SameParameter);
               aValidateEdge.SetExitIfToleranceExceeded(Tol);
@@ -419,10 +421,12 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
               }
               if (cr->IsCurveOnClosedSurface())
               {
-                GHPC->Load(cr->PCurve2(), f, l); // same bounds
-                ACS->Load(GHPC, GAHS);           // sans doute inutile
+                auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(cr->PCurve2(), f, l);
+                auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(Sb);
+                Handle(GeomAdaptor_Curve) ACS2 = new GeomAdaptor_Curve();
+                ACS2->SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
 
-                BRepLib_ValidateEdge aValidateEdgeOnClosedSurf(myHCurve, ACS, SameParameter);
+                BRepLib_ValidateEdge aValidateEdgeOnClosedSurf(myHCurve, ACS2, SameParameter);
                 aValidateEdgeOnClosedSurf.SetExitIfToleranceExceeded(Tol);
                 aValidateEdgeOnClosedSurf.SetExactMethod(myIsExactMethod);
                 aValidateEdgeOnClosedSurf.SetParallel(toRunParallel);
@@ -482,11 +486,11 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
               Handle(GeomAdaptor_Curve) aHCurve = new GeomAdaptor_Curve(ProjOnPlane);
 
               ProjLib_ProjectedCurve      proj(GAHS, aHCurve);
-              Handle(Geom2d_Curve)        PC = Geom2dAdaptor::MakeCurve(proj);
-              Handle(Geom2dAdaptor_Curve) GHPC =
-                new Geom2dAdaptor_Curve(PC, myHCurve->FirstParameter(), myHCurve->LastParameter());
-
-              Handle(Adaptor3d_CurveOnSurface) ACS = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+              Handle(Geom2d_Curve) PC = Geom2dAdaptor::MakeCurve(proj);
+              auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PC, myHCurve->FirstParameter(), myHCurve->LastParameter());
+              auto aSrf = std::make_unique<GeomAdaptor_Surface>(P);
+              Handle(GeomAdaptor_Curve) ACS = new GeomAdaptor_Curve();
+              ACS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
               BRepLib_ValidateEdge aValidateEdgeProj(myHCurve, ACS, SameParameter);
               aValidateEdgeProj.SetExitIfToleranceExceeded(Tol);
@@ -629,10 +633,11 @@ Standard_Real BRepCheck_Edge::Tolerance()
         Sref = Handle(Geom_Surface)::DownCast(Sref->Transformed(Loc.Transformation()));
         ///////////////////////////////////
         const Handle(Geom2d_Curve)& PCref   = cr->PCurve();
-        Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
-        Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-        Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-        theRep(iRep) = new Adaptor3d_CurveOnSurface(ACSref);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PCref, First, Last);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(Sref);
+        Handle(GeomAdaptor_Curve) aCurve = new GeomAdaptor_Curve();
+        aCurve->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        theRep(iRep) = aCurve;
         iRep++;
       }
       if (cr->IsCurveOnClosedSurface())
@@ -640,10 +645,11 @@ Standard_Real BRepCheck_Edge::Tolerance()
         Handle(Geom_Surface) Sref = cr->Surface();
         Sref = Handle(Geom_Surface)::DownCast(Sref->Transformed(cr->Location().Transformation()));
         const Handle(Geom2d_Curve)& PCref   = cr->PCurve2();
-        Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
-        Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-        Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-        theRep(iRep) = new Adaptor3d_CurveOnSurface(ACSref);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PCref, First, Last);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(Sref);
+        Handle(GeomAdaptor_Curve) aCurve = new GeomAdaptor_Curve();
+        aCurve->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        theRep(iRep) = aCurve;
         iRep++;
         nbRep++;
       }

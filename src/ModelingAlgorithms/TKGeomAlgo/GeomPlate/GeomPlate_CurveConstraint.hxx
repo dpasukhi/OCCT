@@ -43,31 +43,19 @@ public:
 
   //! Create a constraint from a GeomAdaptor_Curve.
   //! If the curve has a CurveOnSurface modifier, it will be used for surface constraint evaluation.
-  //! Order is the order of the constraint. The possible values for order are -1,0,1,2.
-  //! Order i means constraints Gi
-  //! Npt is the number of points associated with the constraint.
-  //! TolDist is the maximum error to satisfy for G0 constraints
-  //! TolAng is the maximum error to satisfy for G1 constraints
-  //! TolCurv is the maximum error to satisfy for G2 constraints
-  //! These errors can be replaced by laws of criterion.
-  //! Raises ConstructionError if Order is not -1 , 0, 1, 2
+  //! @param theBoundary curve adaptor (moved into the constraint)
+  //! @param theOrder order of the constraint (-1, 0, 1, 2 for G-1, G0, G1, G2)
+  //! @param theNPt number of points associated with the constraint
+  //! @param theTolDist maximum error for G0 constraints
+  //! @param theTolAng maximum error for G1 constraints
+  //! @param theTolCurv maximum error for G2 constraints
+  //! @throw Standard_Failure if theOrder is not -1, 0, 1, or 2
   Standard_EXPORT GeomPlate_CurveConstraint(GeomAdaptor_Curve&&    theBoundary,
                                             const Standard_Integer theOrder,
                                             const Standard_Integer theNPt     = 10,
                                             const Standard_Real    theTolDist = 0.0001,
                                             const Standard_Real    theTolAng  = 0.01,
                                             const Standard_Real    theTolCurv = 0.1);
-
-  //! Create a constraint from an Adaptor3d_Curve.
-  //! If the curve is an Adaptor3d_CurveOnSurface, its surface will be used for constraint evaluation.
-  //! Otherwise, it must be a GeomAdaptor_Curve or a derived class.
-  //! @deprecated Use the constructor taking GeomAdaptor_Curve&& instead.
-  Standard_EXPORT GeomPlate_CurveConstraint(const Handle(Adaptor3d_Curve)& theBoundary,
-                                            const Standard_Integer         theOrder,
-                                            const Standard_Integer         theNPt     = 10,
-                                            const Standard_Real            theTolDist = 0.0001,
-                                            const Standard_Real            theTolAng  = 0.01,
-                                            const Standard_Real            theTolCurv = 0.1);
 
   //! Allows you to set the order of continuity required for
   //! the constraints: G0, G1, and G2, controlled
@@ -142,9 +130,9 @@ public:
                           gp_Vec&             V4,
                           gp_Vec&             V5) const;
 
-  //! Returns the 3D curve of this constraint as a Handle.
-  //! @return handle to a shallow copy of the internal GeomAdaptor_Curve
-  Standard_EXPORT Handle(Adaptor3d_Curve) Curve3d() const;
+  //! Returns the 3D curve of this constraint.
+  //! @return reference to the internal GeomAdaptor_Curve
+  Standard_EXPORT const GeomAdaptor_Curve& Curve3d() const;
 
   //! loads a 2d curve associated the surface resulting of the constraints
   Standard_EXPORT void SetCurve2dOnSurf(const Handle(Geom2d_Curve)& Curve2d);

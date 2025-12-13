@@ -29,7 +29,9 @@
 #include <Geom_Curve.hxx>
 #include <Geom_Surface.hxx>
 #include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Precision.hxx>
+#include <memory>
 #include <ShapeAnalysis_Curve.hxx>
 #include <ShapeAnalysis_Edge.hxx>
 #include <ShapeAnalysis_Surface.hxx>
@@ -89,13 +91,12 @@ void ShapeAnalysis_TransferParametersProj::Init(const TopoDS_Edge& E, const Topo
   ShapeAnalysis_Edge sae;
   if (sae.PCurve(E, F, myCurve2d, f2d, l2d, Standard_False))
   {
+    Handle(Geom_Surface) aSurface = BRep_Tool::Surface(F, myLocation);
 
-    Handle(Geom2dAdaptor_Curve) AC2d     = new Geom2dAdaptor_Curve(myCurve2d, f2d, l2d);
-    Handle(Geom_Surface)        aSurface = BRep_Tool::Surface(F, myLocation);
-    Handle(GeomAdaptor_Surface) AdS      = new GeomAdaptor_Surface(aSurface);
-
-    Adaptor3d_CurveOnSurface Ad1(AC2d, AdS);
-    myAC3d   = Ad1; // new Adaptor3d_CurveOnSurface(AC2d,AdS);
+    // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(myCurve2d, f2d, l2d);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurface);
+    myAC3d.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     myInitOK = Standard_True;
   }
 }
@@ -176,10 +177,14 @@ Standard_Real ShapeAnalysis_TransferParametersProj::PreformSegment(const Standar
   Standard_Real       ppar;
   if (To2d)
   {
-    gp_Pnt                      p1   = myCurve->Value(Param).Transformed(myLocation.Inverted());
-    Handle(Adaptor3d_Surface)   AdS  = myAC3d.GetSurface();
-    Handle(Geom2dAdaptor_Curve) AC2d = new Geom2dAdaptor_Curve(myCurve2d, First, Last);
-    Adaptor3d_CurveOnSurface    Ad1(AC2d, AdS);
+    gp_Pnt p1 = myCurve->Value(Param).Transformed(myLocation.Inverted());
+
+    // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+    GeomAdaptor_Curve Ad1;
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(myCurve2d, First, Last);
+    auto aSrf = myAC3d.GetSurfacePtr()->ShallowCopy();
+    Ad1.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
     projDev = sac.Project(Ad1, p1, myPrecision, pproj, ppar); // pdn
     linDev  = p1.Distance(Ad1.Value(linPar));
   }
@@ -403,16 +408,20 @@ void ShapeAnalysis_TransferParametersProj::TransferRange(TopoDS_Edge&           
     else if (toGC->IsCurveOnSurface())
     { // continue;  ||
 
-      Standard_Boolean            localLinearFirst = useLinearFirst;
-      Standard_Boolean            localLinearLast  = useLinearLast;
-      Handle(Geom2d_Curve)        C2d              = toGC->PCurve();
-      Standard_Real               first            = toGC->First();
-      Standard_Real               last             = toGC->Last();
-      Standard_Real               len              = last - first;
-      Handle(Geom2dAdaptor_Curve) AC2d = new Geom2dAdaptor_Curve(toGC->PCurve(), first, last);
-      Handle(GeomAdaptor_Surface) AdS  = new GeomAdaptor_Surface(toGC->Surface());
-      Adaptor3d_CurveOnSurface    Ad1(AC2d, AdS);
-      ShapeAnalysis_Curve         sac1;
+      Standard_Boolean     localLinearFirst = useLinearFirst;
+      Standard_Boolean     localLinearLast  = useLinearLast;
+      Handle(Geom2d_Curve) C2d              = toGC->PCurve();
+      Standard_Real        first            = toGC->First();
+      Standard_Real        last             = toGC->Last();
+      Standard_Real        len              = last - first;
+
+      // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+      GeomAdaptor_Curve   Ad1;
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(toGC->PCurve(), first, last);
+      auto aSrf = std::make_unique<GeomAdaptor_Surface>(toGC->Surface());
+      Ad1.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
+      ShapeAnalysis_Curve sac1;
 
       // gp_Pnt p1 = Ad1.Value(prevPar);
       // gp_Pnt p2 = Ad1.Value(currPar);

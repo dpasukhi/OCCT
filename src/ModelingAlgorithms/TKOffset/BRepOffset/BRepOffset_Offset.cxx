@@ -16,7 +16,6 @@
 
 #include <BRepOffset_Offset.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_GCurve.hxx>
 #include <BRep_TEdge.hxx>
@@ -35,6 +34,7 @@
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_Circle.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Geom_ConicalSurface.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Line.hxx>
@@ -85,6 +85,7 @@ static Standard_Integer NbOFFSET = 0;
 #endif
 #include <stdio.h>
 #include <Geom_BSplineSurface.hxx>
+#include <memory>
 
 static gp_Pnt GetFarestCorner(const TopoDS_Wire& aWire)
 {
@@ -1054,10 +1055,11 @@ void BRepOffset_Offset::Init(const TopoDS_Edge&     Path,
     BRep_Tool::CurveOnSurface(Edge1, C12d, S1, Loc, f[1], l[1]);
     S1   = Handle(Geom_Surface)::DownCast(S1->Transformed(Loc.Transformation()));
     C12d = new Geom2d_TrimmedCurve(C12d, f[1], l[1]);
-    Handle(GeomAdaptor_Surface) HS1 = new GeomAdaptor_Surface(S1);
-    Handle(Geom2dAdaptor_Curve) HC1 = new Geom2dAdaptor_Curve(C12d);
-    Adaptor3d_CurveOnSurface    Cons(HC1, HS1);
-    HEdge1 = new Adaptor3d_CurveOnSurface(Cons);
+    Handle(GeomAdaptor_Curve) aGeomAdaptor = new GeomAdaptor_Curve();
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C12d);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(S1);
+    aGeomAdaptor->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    HEdge1 = aGeomAdaptor;
   }
   else
   {
@@ -1083,10 +1085,11 @@ void BRepOffset_Offset::Init(const TopoDS_Edge&     Path,
     BRep_Tool::CurveOnSurface(Edge2, C12d, S1, Loc, f[2], l[2]);
     S1   = Handle(Geom_Surface)::DownCast(S1->Transformed(Loc.Transformation()));
     C12d = new Geom2d_TrimmedCurve(C12d, f[2], l[2]);
-    Handle(GeomAdaptor_Surface) HS1 = new GeomAdaptor_Surface(S1);
-    Handle(Geom2dAdaptor_Curve) HC1 = new Geom2dAdaptor_Curve(C12d);
-    Adaptor3d_CurveOnSurface    Cons(HC1, HS1);
-    HEdge2 = new Adaptor3d_CurveOnSurface(Cons);
+    Handle(GeomAdaptor_Curve) aGeomAdaptor = new GeomAdaptor_Curve();
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C12d);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(S1);
+    aGeomAdaptor->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    HEdge2 = aGeomAdaptor;
   }
   else
   {

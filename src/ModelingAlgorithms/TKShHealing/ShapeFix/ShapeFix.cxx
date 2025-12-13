@@ -38,9 +38,10 @@
 #include <gp_Pnt.hxx>
 #include <Geom_Plane.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Geom_RectangularTrimmedSurface.hxx>
 #include <ShapeAnalysis_Surface.hxx>
+#include <memory>
 
 #include <ShapeFix_Edge.hxx>
 #include <ShapeFix_Shape.hxx>
@@ -203,8 +204,12 @@ Standard_Boolean ShapeFix::SameParameter(const TopoDS_Shape&                    
         Handle(Geom2d_Curve) c2d = BRep_Tool::CurveOnSurface(edge, face, f, l);
         if (c2d.IsNull())
           continue;
-        Handle(Geom2dAdaptor_Curve) GHPC = new Geom2dAdaptor_Curve(c2d, f, l);
-        Adaptor3d_CurveOnSurface    ACS(GHPC, AS);
+
+        // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+        GeomAdaptor_Curve ACS;
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(c2d, f, l);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(plane);
+        ACS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
         Standard_Real tol0               = BRep_Tool::Tolerance(edge);
         tol                              = tol0;

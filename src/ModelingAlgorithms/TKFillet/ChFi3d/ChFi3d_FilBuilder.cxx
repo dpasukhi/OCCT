@@ -16,6 +16,8 @@
 
 // Modified:    MPS :  (10-04-97) portage WNT pour GetFilletShape
 
+#include <memory>
+
 #include <Adaptor3d_TopolTool.hxx>
 #include <BRepBlend_ConstRad.hxx>
 #include <BRepBlend_ConstRadInv.hxx>
@@ -812,8 +814,12 @@ void ChFi3d_FilBuilder::SimulSurf(Handle(ChFiDS_SurfData)&           Data,
   {
     BRepBlend_SurfRstConstRad func(HS2, HS1, PC1, HGuide);
     func.Set(HSref1, PCref1);
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC1, HS1);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvConstRadInv  finvc(HS2, HC, HGuide);
     BRepBlend_SurfPointConstRadInv finvp(HS2, HGuide);
     BRepBlend_ConstRadInv          finv(HS2, HSref1, HGuide);
@@ -892,8 +898,12 @@ void ChFi3d_FilBuilder::SimulSurf(Handle(ChFiDS_SurfData)&           Data,
   else
   {
     BRepBlend_SurfRstEvolRad         func(HS2, HS1, PC1, HGuide, fsp->Law(HGuide));
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC1, HS1);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvEvolRadInv  finvc(HS2, HC, HGuide, fsp->Law(HGuide));
     BRepBlend_SurfPointEvolRadInv finvp(HS2, HGuide, fsp->Law(HGuide));
     BRepBlend_EvolRadInv          finv(HS2, HSref1, HGuide, fsp->Law(HGuide));
@@ -1032,8 +1042,12 @@ void ChFi3d_FilBuilder::SimulSurf(Handle(ChFiDS_SurfData)&           Data,
   {
     BRepBlend_SurfRstConstRad func(HS1, HS2, PC2, HGuide);
     func.Set(HSref2, PCref2);
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvConstRadInv  finvc(HS1, HC, HGuide);
     BRepBlend_SurfPointConstRadInv finvp(HS1, HGuide);
     BRepBlend_ConstRadInv          finv(HS1, HSref2, HGuide);
@@ -1110,8 +1124,12 @@ void ChFi3d_FilBuilder::SimulSurf(Handle(ChFiDS_SurfData)&           Data,
   else
   {
     BRepBlend_SurfRstEvolRad         func(HS1, HS2, PC2, HGuide, fsp->Law(HGuide));
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvEvolRadInv  finvc(HS1, HC, HGuide, fsp->Law(HGuide));
     BRepBlend_SurfPointEvolRadInv finvp(HS1, HGuide, fsp->Law(HGuide));
     BRepBlend_EvolRadInv          finv(HS1, HSref2, HGuide, fsp->Law(HGuide));
@@ -1258,10 +1276,18 @@ void ChFi3d_FilBuilder::SimulSurf(Handle(ChFiDS_SurfData)&           Data,
   {
     BRepBlend_RstRstConstRad func(HS1, PC1, HS2, PC2, HGuide);
     func.Set(HSref1, PCref1, HSref2, PCref2);
-    Handle(Adaptor3d_CurveOnSurface) HC1 = new Adaptor3d_CurveOnSurface();
-    HC1->Load(PC1, HS1);
-    Handle(Adaptor3d_CurveOnSurface) HC2 = new Adaptor3d_CurveOnSurface();
-    HC2->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC1 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv1 = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC1->SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+    }
+    Handle(GeomAdaptor_Curve) HC2 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv2 = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC2->SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+    }
     BRepBlend_SurfCurvConstRadInv finv1(HSref1, HC2, HGuide);
     BRepBlend_CurvPointRadInv     finvp1(HGuide, HC2);
     BRepBlend_SurfCurvConstRadInv finv2(HSref2, HC1, HGuide);
@@ -1337,10 +1363,18 @@ void ChFi3d_FilBuilder::SimulSurf(Handle(ChFiDS_SurfData)&           Data,
   {
     BRepBlend_RstRstEvolRad func(HS1, PC1, HS2, PC2, HGuide, fsp->Law(HGuide));
     func.Set(HSref1, PCref1, HSref2, PCref2);
-    Handle(Adaptor3d_CurveOnSurface) HC1 = new Adaptor3d_CurveOnSurface();
-    HC1->Load(PC1, HS1);
-    Handle(Adaptor3d_CurveOnSurface) HC2 = new Adaptor3d_CurveOnSurface();
-    HC2->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC1 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv1 = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC1->SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+    }
+    Handle(GeomAdaptor_Curve) HC2 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv2 = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC2->SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+    }
 
     BRepBlend_SurfCurvEvolRadInv finv1(HSref1, HC2, HGuide, fsp->Law(HGuide));
     BRepBlend_CurvPointRadInv    finvp1(HGuide, HC2);
@@ -1684,8 +1718,12 @@ void ChFi3d_FilBuilder::PerformSurf(ChFiDS_SequenceOfSurfData&         SeqData,
   {
     BRepBlend_SurfRstConstRad func(HS2, HS1, PC1, HGuide);
     func.Set(HSref1, PCref1);
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC1, HS1);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvConstRadInv  finvc(HS2, HC, HGuide);
     BRepBlend_SurfPointConstRadInv finvp(HS2, HGuide);
     BRepBlend_ConstRadInv          finv(HS2, HSref1, HGuide);
@@ -1744,8 +1782,12 @@ void ChFi3d_FilBuilder::PerformSurf(ChFiDS_SequenceOfSurfData&         SeqData,
   {
     BRepBlend_SurfRstEvolRad func(HS2, HS1, PC1, HGuide, fsp->Law(HGuide));
     func.Set(HSref1, PCref1);
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC1, HS1);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvEvolRadInv  finvc(HS2, HC, HGuide, fsp->Law(HGuide));
     BRepBlend_SurfPointEvolRadInv finvp(HS2, HGuide, fsp->Law(HGuide));
     BRepBlend_EvolRadInv          finv(HS2, HSref1, HGuide, fsp->Law(HGuide));
@@ -1841,8 +1883,12 @@ void ChFi3d_FilBuilder::PerformSurf(ChFiDS_SequenceOfSurfData&         SeqData,
   {
     BRepBlend_SurfRstConstRad func(HS1, HS2, PC2, HGuide);
     func.Set(HSref2, PCref2);
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvConstRadInv  finvc(HS1, HC, HGuide);
     BRepBlend_SurfPointConstRadInv finvp(HS1, HGuide);
     BRepBlend_ConstRadInv          finv(HS1, HSref2, HGuide);
@@ -1901,8 +1947,12 @@ void ChFi3d_FilBuilder::PerformSurf(ChFiDS_SequenceOfSurfData&         SeqData,
   {
     BRepBlend_SurfRstEvolRad func(HS1, HS2, PC2, HGuide, fsp->Law(HGuide));
     func.Set(HSref2, PCref2);
-    Handle(Adaptor3d_CurveOnSurface) HC = new Adaptor3d_CurveOnSurface();
-    HC->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     BRepBlend_SurfCurvEvolRadInv  finvc(HS1, HC, HGuide, fsp->Law(HGuide));
     BRepBlend_SurfPointEvolRadInv finvp(HS1, HGuide, fsp->Law(HGuide));
     BRepBlend_EvolRadInv          finv(HS1, HSref2, HGuide, fsp->Law(HGuide));
@@ -2005,10 +2055,18 @@ void ChFi3d_FilBuilder::PerformSurf(ChFiDS_SequenceOfSurfData&         SeqData,
   {
     BRepBlend_RstRstConstRad func(HS1, PC1, HS2, PC2, HGuide);
     func.Set(HSref1, PCref1, HSref2, PCref2);
-    Handle(Adaptor3d_CurveOnSurface) HC1 = new Adaptor3d_CurveOnSurface();
-    HC1->Load(PC1, HS1);
-    Handle(Adaptor3d_CurveOnSurface) HC2 = new Adaptor3d_CurveOnSurface();
-    HC2->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC1 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv1 = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC1->SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+    }
+    Handle(GeomAdaptor_Curve) HC2 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv2 = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC2->SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+    }
     BRepBlend_SurfCurvConstRadInv finv1(HSref1, HC2, HGuide);
     BRepBlend_CurvPointRadInv     finvp1(HGuide, HC2);
     BRepBlend_SurfCurvConstRadInv finv2(HSref2, HC1, HGuide);
@@ -2076,10 +2134,18 @@ void ChFi3d_FilBuilder::PerformSurf(ChFiDS_SequenceOfSurfData&         SeqData,
   {
     BRepBlend_RstRstEvolRad func(HS1, PC1, HS2, PC2, HGuide, fsp->Law(HGuide));
     func.Set(HSref1, PCref1, HSref2, PCref2);
-    Handle(Adaptor3d_CurveOnSurface) HC1 = new Adaptor3d_CurveOnSurface();
-    HC1->Load(PC1, HS1);
-    Handle(Adaptor3d_CurveOnSurface) HC2 = new Adaptor3d_CurveOnSurface();
-    HC2->Load(PC2, HS2);
+    Handle(GeomAdaptor_Curve) HC1 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv1 = std::make_unique<BRepAdaptor_Curve2d>(*PC1);
+      auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(HS1->ChangeSurface().Surface());
+      HC1->SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+    }
+    Handle(GeomAdaptor_Curve) HC2 = new GeomAdaptor_Curve();
+    {
+      auto aPCrv2 = std::make_unique<BRepAdaptor_Curve2d>(*PC2);
+      auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(HS2->ChangeSurface().Surface());
+      HC2->SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+    }
 
     BRepBlend_SurfCurvEvolRadInv finv1(HSref1, HC2, HGuide, fsp->Law(HGuide));
     BRepBlend_CurvPointRadInv    finvp1(HGuide, HC2);

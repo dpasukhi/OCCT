@@ -58,7 +58,6 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
 #include <TopTools_HSequenceOfShape.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <Geom_Plane.hxx>
@@ -69,7 +68,9 @@
 #include <Geom_Circle.hxx>
 #include <Geom_Ellipse.hxx>
 #include <ShapeAnalysis_CanonicalRecognition.hxx>
+#include <GeomAdaptor_Curve.hxx>
 
+#include <memory>
 #include <stdio.h>
 
 static Standard_Integer tolerance(Draw_Interpretor& di, Standard_Integer argc, const char** argv)
@@ -390,9 +391,10 @@ static Standard_Integer projpcurve(Draw_Interpretor& di, Standard_Integer argc, 
     IsStartPoint = Standard_True;
   }
 
-  Adaptor3d_CurveOnSurface aCOnS =
-    Adaptor3d_CurveOnSurface(new BRepAdaptor_Curve2d(BRepAdaptor_Curve2d(aEdge, aFace)),
-                             new BRepAdaptor_Surface(BRepAdaptor_Surface(aFace, Standard_False)));
+  GeomAdaptor_Curve aCOnS;
+  auto              aPCrv = std::make_unique<BRepAdaptor_Curve2d>(aEdge, aFace);
+  auto              aSrf  = std::make_unique<BRepAdaptor_Surface>(aFace, Standard_False);
+  aCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   gp_Pnt              aPnt;
   Standard_Real       aParam;

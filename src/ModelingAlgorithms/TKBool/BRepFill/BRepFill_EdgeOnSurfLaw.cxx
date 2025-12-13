@@ -16,13 +16,14 @@
 
 #include <BRepFill_EdgeOnSurfLaw.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepTools_WireExplorer.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomFill_CurveAndTrihedron.hxx>
 #include <GeomFill_Darboux.hxx>
 #include <GeomFill_HArray1OfLocationLaw.hxx>
@@ -34,6 +35,7 @@
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 #include <TopTools_HArray1OfShape.hxx>
+#include <memory>
 
 IMPLEMENT_STANDARD_RTTIEXT(BRepFill_EdgeOnSurfLaw, BRepFill_LocationLaw)
 
@@ -51,8 +53,6 @@ BRepFill_EdgeOnSurfLaw::BRepFill_EdgeOnSurfLaw(const TopoDS_Wire& Path, const To
   //  BRep_Tool B;
   TopoDS_Edge                        E;
   Handle(Geom2d_Curve)               C;
-  Handle(Geom2dAdaptor_Curve)        AC2d;
-  Handle(Adaptor3d_CurveOnSurface)   AC;
   Handle(BRepAdaptor_Surface)        AS;
   Standard_Real                      First = 0., Last = 0.;
   Handle(GeomFill_Darboux)           TLaw = new (GeomFill_Darboux)();
@@ -93,8 +93,13 @@ BRepFill_EdgeOnSurfLaw::BRepFill_EdgeOnSurfLaw(const TopoDS_Wire& Path, const To
         Last  = C->LastParameter();
       }
 
-      AC2d = new (Geom2dAdaptor_Curve)(C, First, Last);
-      AC   = new (Adaptor3d_CurveOnSurface)(Adaptor3d_CurveOnSurface(AC2d, AS));
+      GeomAdaptor_Curve aCurveOnSurface;
+      {
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C, First, Last);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(AS->Surface());
+        aCurveOnSurface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+      }
+      Handle(Adaptor3d_Curve) AC = new GeomAdaptor_Curve(aCurveOnSurface);
       myLaws->SetValue(ipath, Law->Copy());
       myLaws->ChangeValue(ipath)->SetCurve(AC);
     }

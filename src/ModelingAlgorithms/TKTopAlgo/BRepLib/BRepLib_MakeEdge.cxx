@@ -17,8 +17,8 @@
 // Modified:	Wed Oct 23 09:17:47 1996
 //		check ponctuallity (PRO4896)
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
+#include <memory>
 #include <BRep_Tool.hxx>
 #include <BRepLib.hxx>
 #include <BRepLib_MakeEdge.hxx>
@@ -126,9 +126,10 @@ static Standard_Boolean Project(const Handle(Geom2d_Curve)& C,
   Standard_Real Eps2 = BRep_Tool::Tolerance(V);
   Eps2 *= Eps2;
 
-  Handle(Geom2dAdaptor_Curve) HG2AHC = new Geom2dAdaptor_Curve(C);
-  Handle(GeomAdaptor_Surface) HGAHS  = new GeomAdaptor_Surface(S);
-  Adaptor3d_CurveOnSurface    ACOS(HG2AHC, HGAHS);
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(S);
+  GeomAdaptor_Curve ACOS;
+  ACOS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   Standard_Real D1, D2;
   gp_Pnt        P1, P2;

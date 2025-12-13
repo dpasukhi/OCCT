@@ -20,7 +20,6 @@
 
 #include <GeomPlate_CurveConstraint.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Approx_Curve2d.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
 #include <Geom2d_BSplineCurve.hxx>
@@ -33,6 +32,7 @@
 #include <gp_Vec.hxx>
 #include <Law_Function.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
+#include <Standard_NoSuchObject.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomPlate_CurveConstraint, Standard_Transient)
@@ -91,93 +91,6 @@ GeomPlate_CurveConstraint::GeomPlate_CurveConstraint(GeomAdaptor_Curve&&    theB
     if (!aSurf.IsNull())
     {
       myLProp.SetSurface(aSurf);
-    }
-  }
-}
-
-//==================================================================================================
-
-GeomPlate_CurveConstraint::GeomPlate_CurveConstraint(const Handle(Adaptor3d_Curve)& theBoundary,
-                                                     const Standard_Integer         theOrder,
-                                                     const Standard_Integer         theNPt,
-                                                     const Standard_Real            theTolDist,
-                                                     const Standard_Real            theTolAng,
-                                                     const Standard_Real            theTolCurv)
-    : myNbPoints(theNPt),
-      myOrder(theOrder),
-      myTang(0),
-      myConstG0(Standard_True),
-      myConstG1(Standard_True),
-      myConstG2(Standard_True),
-      myLProp(2, theTolDist),
-      myTolDist(theTolDist),
-      myTolAng(theTolAng),
-      myTolCurv(theTolCurv),
-      myTolU(0.0),
-      myTolV(0.0)
-{
-  if ((theOrder < -1) || (theOrder > 2))
-  {
-    throw Standard_Failure("GeomPlate : The continuity is not G0 G1 or G2");
-  }
-
-  // Handle CurveOnSurface case
-  Handle(Adaptor3d_CurveOnSurface) aCOS = Handle(Adaptor3d_CurveOnSurface)::DownCast(theBoundary);
-  if (!aCOS.IsNull())
-  {
-    // Extract PCurve and Surface from the CurveOnSurface
-    Handle(Adaptor2d_Curve2d) aPCurveHandle = aCOS->GetCurve();
-    Handle(Adaptor3d_Surface) aSurfHandle   = aCOS->GetSurface();
-
-    // Try to get GeomAdaptor_Surface
-    Handle(GeomAdaptor_Surface) aGeomSurf = Handle(GeomAdaptor_Surface)::DownCast(aSurfHandle);
-    if (aGeomSurf.IsNull())
-    {
-      throw Standard_Failure(
-        "GeomPlate_CurveConstraint : Surface must be GeomAdaptor_Surface");
-    }
-
-    // Create adaptors for the modifier
-    Handle(Geom2dAdaptor_Curve) aGeomPCurve = Handle(Geom2dAdaptor_Curve)::DownCast(aPCurveHandle);
-
-    // Create new GeomAdaptor_Curve with COS modifier
-    myCurve = std::make_unique<GeomAdaptor_Curve>();
-    if (!aGeomPCurve.IsNull())
-    {
-      auto aPCurve = std::make_unique<Geom2dAdaptor_Curve>(*aGeomPCurve);
-      auto aSurf   = std::make_unique<GeomAdaptor_Surface>(*aGeomSurf);
-      myCurve->SetCurveOnSurface(std::move(aPCurve), std::move(aSurf));
-    }
-
-    // Set up LProp with the surface
-    Handle(Geom_Surface) aSurf = aGeomSurf->Surface();
-    if (!aSurf.IsNull())
-    {
-      myLProp.SetSurface(aSurf);
-    }
-  }
-  else
-  {
-    // Try to downcast to GeomAdaptor_Curve
-    Handle(GeomAdaptor_Curve) aGeomCurve = Handle(GeomAdaptor_Curve)::DownCast(theBoundary);
-    if (!aGeomCurve.IsNull())
-    {
-      myCurve = std::make_unique<GeomAdaptor_Curve>(*aGeomCurve);
-    }
-    else
-    {
-      // Generic case - use ShallowCopy
-      Handle(Adaptor3d_Curve) aCopy = theBoundary->ShallowCopy();
-      aGeomCurve                    = Handle(GeomAdaptor_Curve)::DownCast(aCopy);
-      if (!aGeomCurve.IsNull())
-      {
-        myCurve = std::make_unique<GeomAdaptor_Curve>(*aGeomCurve);
-      }
-      else
-      {
-        throw Standard_Failure(
-          "GeomPlate_CurveConstraint : Curve must be GeomAdaptor_Curve or Adaptor3d_CurveOnSurface");
-      }
     }
   }
 }
@@ -405,13 +318,13 @@ void GeomPlate_CurveConstraint ::SetProjectedCurve(const Handle(Adaptor2d_Curve2
 
 //==================================================================================================
 
-Handle(Adaptor3d_Curve) GeomPlate_CurveConstraint::Curve3d() const
+const GeomAdaptor_Curve& GeomPlate_CurveConstraint::Curve3d() const
 {
   if (myCurve == nullptr)
   {
-    return Handle(Adaptor3d_Curve)();
+    throw Standard_NoSuchObject("GeomPlate_CurveConstraint::Curve3d - no curve loaded");
   }
-  return myCurve->ShallowCopy();
+  return *myCurve;
 }
 
 //==================================================================================================

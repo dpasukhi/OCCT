@@ -17,6 +17,8 @@
 //  Modified by skv - Mon Jun  7 18:38:57 2004 OCC5898
 //  Modified by skv - Thu Aug 21 11:55:58 2008 OCC20222
 
+#include <memory>
+
 #include <Adaptor2d_Curve2d.hxx>
 #include <Blend_FuncInv.hxx>
 #include <BRepAlgo_NormalProjection.hxx>
@@ -154,10 +156,20 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& fb,
                                Standard_Real&                   wop,
                                const Standard_Real              tol)
 {
-  Adaptor3d_CurveOnSurface    c1(pcfb, fb);
+  GeomAdaptor_Curve c1;
+  {
+    auto aPCrv1 = std::make_unique<BRepAdaptor_Curve2d>(*pcfb);
+    auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(fb->ChangeSurface().Surface());
+    c1.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+  }
   Handle(Geom2d_Curve)        pc  = fi.PCurveOnSurf();
   Handle(Geom2dAdaptor_Curve) hpc = new Geom2dAdaptor_Curve(pc);
-  Adaptor3d_CurveOnSurface    c2(hpc, surf);
+  GeomAdaptor_Curve           c2;
+  {
+    auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(*hpc);
+    auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(surf->Surface());
+    c2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+  }
   Extrema_LocateExtCC         ext(c1, c2, pared, wop);
   if (ext.IsDone())
   {
@@ -340,17 +352,27 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& face,
 {
   if (!cp.IsOnArc())
     return 0;
-  Adaptor3d_CurveOnSurface c1(edonface, face);
-  Standard_Real            pared  = cp.ParameterOnArc();
-  Standard_Real            parltg = fi.Parameter(isfirst);
-  Handle(Geom2d_Curve)     pc     = fi.PCurveOnSurf();
-  Standard_Real            f      = fi.FirstParameter();
-  Standard_Real            l      = fi.LastParameter();
-  Standard_Real            delta  = 0.1 * (l - f);
-  f                               = std::max(f - delta, pc->FirstParameter());
-  l                               = std::min(l + delta, pc->LastParameter());
-  Handle(Geom2dAdaptor_Curve) hpc = new Geom2dAdaptor_Curve(pc, f, l);
-  Adaptor3d_CurveOnSurface    c2(hpc, surf);
+  GeomAdaptor_Curve c1;
+  {
+    auto aEdgeOnFace = std::make_unique<BRepAdaptor_Curve2d>(*edonface);
+    auto aFaceSurf   = std::make_unique<GeomAdaptor_Surface>(face->ChangeSurface().Surface());
+    c1.SetCurveOnSurface(std::move(aEdgeOnFace), std::move(aFaceSurf));
+  }
+  Standard_Real                   pared  = cp.ParameterOnArc();
+  Standard_Real                   parltg = fi.Parameter(isfirst);
+  Handle(Geom2d_Curve)            pc     = fi.PCurveOnSurf();
+  Standard_Real                   f      = fi.FirstParameter();
+  Standard_Real                   l      = fi.LastParameter();
+  Standard_Real                   delta  = 0.1 * (l - f);
+  f                                      = std::max(f - delta, pc->FirstParameter());
+  l                                      = std::min(l + delta, pc->LastParameter());
+  Handle(Geom2dAdaptor_Curve)     hpc    = new Geom2dAdaptor_Curve(pc, f, l);
+  GeomAdaptor_Curve               c2;
+  {
+    auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(*hpc);
+    auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(surf->Surface());
+    c2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+  }
 
   Extrema_LocateExtCC ext(c1, c2, pared, parltg);
   if (ext.IsDone())

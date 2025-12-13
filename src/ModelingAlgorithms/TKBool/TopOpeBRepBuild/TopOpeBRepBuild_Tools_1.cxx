@@ -13,7 +13,6 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <BRep_GCurve.hxx>
 #include <BRep_TEdge.hxx>
@@ -28,6 +27,7 @@
 #include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomProjLib.hxx>
+#include <memory>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
@@ -196,11 +196,14 @@ void CorrectEdgeTolerance(const TopoDS_Edge&  myShape,
         Handle(Geom_Surface) Sref = myCref->Surface();
         Sref =
           Handle(Geom_Surface)::DownCast(Sref->Transformed(myCref->Location().Transformation()));
-        const Handle(Geom2d_Curve)& PCref   = myCref->PCurve();
-        Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
-        Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-        Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-        myHCurve = new Adaptor3d_CurveOnSurface(ACSref);
+        const Handle(Geom2d_Curve)& PCref = myCref->PCurve();
+        GeomAdaptor_Curve aCurveOnSurface;
+        {
+          auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PCref, First, Last);
+          auto aSrf = std::make_unique<GeomAdaptor_Surface>(Sref);
+          aCurveOnSurface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        }
+        myHCurve = new GeomAdaptor_Curve(aCurveOnSurface);
       }
     }
   }
@@ -242,11 +245,14 @@ void CorrectEdgeTolerance(const TopoDS_Edge&  myShape,
 
         Handle(Geom_Surface) Sb = cr->Surface();
         Sb = Handle(Geom_Surface)::DownCast(Su->Transformed(L.Transformation()));
-        Handle(Geom2d_Curve)        PC   = cr->PCurve();
-        Handle(GeomAdaptor_Surface) GAHS = new GeomAdaptor_Surface(Sb);
-        Handle(Geom2dAdaptor_Curve) GHPC = new Geom2dAdaptor_Curve(PC, f, l);
-        Adaptor3d_CurveOnSurface    ACS(GHPC, GAHS);
-        ok = Validate(*myHCurve, ACS, Tol, SameParameter, aNewTol);
+        Handle(Geom2d_Curve) PC = cr->PCurve();
+        GeomAdaptor_Curve aCurveOnSurface;
+        {
+          auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PC, f, l);
+          auto aSrf = std::make_unique<GeomAdaptor_Surface>(Sb);
+          aCurveOnSurface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        }
+        ok = Validate(*myHCurve, aCurveOnSurface, Tol, SameParameter, aNewTol);
         if (ok)
         {
           // printf("(Edge,1) Tolerance=%15.10lg\n", aNewTol);
@@ -256,9 +262,13 @@ void CorrectEdgeTolerance(const TopoDS_Edge&  myShape,
         if (cr->IsCurveOnClosedSurface())
         {
           // checkclosed = Standard_True;
-          GHPC->Load(cr->PCurve2(), f, l); // same bounds
-          ACS.Load(GHPC, GAHS);            // sans doute inutile
-          ok = Validate(*myHCurve, ACS, Tol, SameParameter, aNewTol);
+          GeomAdaptor_Curve aCurveOnSurface2;
+          {
+            auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(cr->PCurve2(), f, l);
+            auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(Sb);
+            aCurveOnSurface2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+          }
+          ok = Validate(*myHCurve, aCurveOnSurface2, Tol, SameParameter, aNewTol);
           if (ok)
           {
             if (aNewTol < aMaxTol)
@@ -303,14 +313,17 @@ void CorrectEdgeTolerance(const TopoDS_Edge&  myShape,
 
         Handle(GeomAdaptor_Curve) aHCurve = new GeomAdaptor_Curve(ProjOnPlane);
 
-        ProjLib_ProjectedCurve      proj(GAHS, aHCurve);
-        Handle(Geom2d_Curve)        PC = Geom2dAdaptor::MakeCurve(proj);
-        Handle(Geom2dAdaptor_Curve) GHPC =
-          new Geom2dAdaptor_Curve(PC, myHCurve->FirstParameter(), myHCurve->LastParameter());
+        ProjLib_ProjectedCurve proj(GAHS, aHCurve);
+        Handle(Geom2d_Curve)   PC = Geom2dAdaptor::MakeCurve(proj);
 
-        Adaptor3d_CurveOnSurface ACS(GHPC, GAHS);
+        GeomAdaptor_Curve aCurveOnSurface3;
+        {
+          auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PC, myHCurve->FirstParameter(), myHCurve->LastParameter());
+          auto aSrf = std::make_unique<GeomAdaptor_Surface>(P);
+          aCurveOnSurface3.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        }
 
-        ok = Validate(*myHCurve, ACS, Tol, Standard_True, aNewTol); // voir dub...
+        ok = Validate(*myHCurve, aCurveOnSurface3, Tol, Standard_True, aNewTol); // voir dub...
         if (ok)
         {
           if (aNewTol < aMaxTol)

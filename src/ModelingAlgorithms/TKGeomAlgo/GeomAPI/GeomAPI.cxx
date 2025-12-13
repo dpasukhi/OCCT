@@ -16,7 +16,6 @@
 
 #include <GeomAPI.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2dAdaptor.hxx>
@@ -30,6 +29,8 @@
 #include <gp_Pln.hxx>
 #include <ProjLib_ProjectedCurve.hxx>
 #include <TColgp_Array1OfPnt.hxx>
+
+#include <memory>
 
 //=================================================================================================
 
@@ -54,11 +55,9 @@ Handle(Geom2d_Curve) GeomAPI::To2d(const Handle(Geom_Curve)& C, const gp_Pln& P)
 
 Handle(Geom_Curve) GeomAPI::To3d(const Handle(Geom2d_Curve)& C, const gp_Pln& P)
 {
-  Handle(Geom2dAdaptor_Curve) AHC = new Geom2dAdaptor_Curve(C);
-
-  Handle(Geom_Plane)          ThePlane = new Geom_Plane(P);
-  Handle(GeomAdaptor_Surface) AHS      = new GeomAdaptor_Surface(ThePlane);
-
-  Adaptor3d_CurveOnSurface COS(AHC, AHS);
-  return GeomAdaptor::MakeCurve(COS);
+  GeomAdaptor_Curve aCOS;
+  auto              aPCrv  = std::make_unique<Geom2dAdaptor_Curve>(C);
+  auto              aSurf  = std::make_unique<GeomAdaptor_Surface>(new Geom_Plane(P));
+  aCOS.SetCurveOnSurface(std::move(aPCrv), std::move(aSurf));
+  return GeomAdaptor::MakeCurve(aCOS);
 }

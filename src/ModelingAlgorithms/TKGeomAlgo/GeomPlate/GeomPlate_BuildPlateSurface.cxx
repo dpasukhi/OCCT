@@ -18,8 +18,8 @@
 
 #include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Approx_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Extrema_ExtPS.hxx>
 #include <Extrema_POnSurf.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
@@ -140,8 +140,16 @@ GeomPlate_BuildPlateSurface::GeomPlate_BuildPlateSurface(
   // Filling fields passing from the old constructor to the new one
   for (i = 1; i <= NTCurve; i++)
   {
+    // Convert Handle(Adaptor3d_Curve) to GeomAdaptor_Curve
+    Handle(GeomAdaptor_Curve) aGeomCurve = Handle(GeomAdaptor_Curve)::DownCast(TabCurve->Value(i));
+    if (aGeomCurve.IsNull())
+    {
+      throw Standard_ConstructionError("GeomPlate_BuildPlateSurface: curve must be GeomAdaptor_Curve");
+    }
+    // Create a copy to move into the constraint
+    GeomAdaptor_Curve aCurveCopy(*aGeomCurve);
     Handle(GeomPlate_CurveConstraint) Cont =
-      new GeomPlate_CurveConstraint(TabCurve->Value(i), Tang->Value(i), NPoints->Value(i));
+      new GeomPlate_CurveConstraint(std::move(aCurveCopy), Tang->Value(i), NPoints->Value(i));
     myLinCont->Append(Cont);
   }
   mySurfInitIsGive = Standard_False;
@@ -249,19 +257,22 @@ static void TrierTab(Handle(TColStd_HArray1OfInteger)& Tab)
 //---------------------------------------------------------
 // Function : ProjectCurve
 //---------------------------------------------------------
-Handle(Geom2d_Curve) GeomPlate_BuildPlateSurface::ProjectCurve(const Handle(Adaptor3d_Curve)& Curv)
+Handle(Geom2d_Curve) GeomPlate_BuildPlateSurface::ProjectCurve(const GeomAdaptor_Curve& Curv)
 {
   // Project a curve on a plane
   Handle(Geom2d_Curve)        Curve2d;
   Handle(GeomAdaptor_Surface) hsur = new GeomAdaptor_Surface(mySurfInit);
   gp_Pnt2d                    P2d;
 
+  // Get a Handle for the projection library
+  Handle(Adaptor3d_Curve) HCurv = Curv.ShallowCopy();
+
   Handle(ProjLib_HCompProjectedCurve) HProjector =
-    new ProjLib_HCompProjectedCurve(hsur, Curv, myTol3d / 10, myTol3d / 10);
+    new ProjLib_HCompProjectedCurve(hsur, HCurv, myTol3d / 10, myTol3d / 10);
 
   Standard_Real UdebCheck, UfinCheck, ProjUdeb, ProjUfin;
-  UdebCheck = Curv->FirstParameter();
-  UfinCheck = Curv->LastParameter();
+  UdebCheck = Curv.FirstParameter();
+  UfinCheck = Curv.LastParameter();
   HProjector->Bounds(1, ProjUdeb, ProjUfin);
 
   if (HProjector->NbCurves() != 1 || std::abs(UdebCheck - ProjUdeb) > Precision::PConfusion()
@@ -309,14 +320,17 @@ Handle(Geom2d_Curve) GeomPlate_BuildPlateSurface::ProjectCurve(const Handle(Adap
 //---------------------------------------------------------
 // Function : ProjectedCurve
 //---------------------------------------------------------
-Handle(Adaptor2d_Curve2d) GeomPlate_BuildPlateSurface::ProjectedCurve(Handle(Adaptor3d_Curve)& Curv)
+Handle(Adaptor2d_Curve2d) GeomPlate_BuildPlateSurface::ProjectedCurve(const GeomAdaptor_Curve& Curv)
 {
   // Projection of a curve on the initial surface
 
   Handle(GeomAdaptor_Surface) hsur = new GeomAdaptor_Surface(mySurfInit);
 
+  // Get a Handle for the projection library
+  Handle(Adaptor3d_Curve) HCurv = Curv.ShallowCopy();
+
   Handle(ProjLib_HCompProjectedCurve) HProjector =
-    new ProjLib_HCompProjectedCurve(hsur, Curv, myTolU / 10, myTolV / 10);
+    new ProjLib_HCompProjectedCurve(hsur, HCurv, myTolU / 10, myTolV / 10);
   if (HProjector->NbCurves() != 1)
   {
     HProjector.Nullify(); // No continuous solution
@@ -327,8 +341,8 @@ Handle(Adaptor2d_Curve2d) GeomPlate_BuildPlateSurface::ProjectedCurve(Handle(Ada
   else
   {
     Standard_Real First1, Last1, First2, Last2;
-    First1 = Curv->FirstParameter();
-    Last1  = Curv->LastParameter();
+    First1 = Curv.FirstParameter();
+    Last1  = Curv.LastParameter();
     HProjector->Bounds(1, First2, Last2);
 
     if (std::abs(First1 - First2) <= std::max(myTolU, myTolV)
@@ -1635,18 +1649,25 @@ void GeomPlate_BuildPlateSurface::ComputeSurfInit(const Message_ProgressRange& t
       Standard_Real LastPar  = myLinCont->Value(i)->LastParameter();
       Standard_Real Uif      = (LastPar - FirstPar) / (NbPoint);
 
-      Handle(Adaptor3d_Curve)             Curve = myLinCont->Value(i)->Curve3d();
+      const GeomAdaptor_Curve&            CurveRef = myLinCont->Value(i)->Curve3d();
+      Handle(Adaptor3d_Curve)             Curve    = CurveRef.ShallowCopy();
       Handle(ProjLib_HCompProjectedCurve) ProjCurve =
         new ProjLib_HCompProjectedCurve(hsur, Curve, myTol3d, myTol3d);
-      Adaptor3d_CurveOnSurface AProj(ProjCurve, hsur);
 
       gp_Pnt P;
       gp_Vec DerC, DerCproj;
       for (Standard_Integer j = 1; j < NbPoint && myIsLinear; j++)
       {
         Standard_Real Inter = FirstPar + j * Uif;
-        Curve->D1(Inter, P, DerC);
-        AProj.D1(Inter, P, DerCproj);
+        CurveRef.D1(Inter, P, DerC);
+        // Evaluate curve-on-surface derivative manually using chain rule
+        gp_Pnt2d UV;
+        gp_Vec2d D2d;
+        ProjCurve->D1(Inter, UV, D2d);
+        gp_Pnt   Psurf;
+        gp_Vec   D1U, D1V;
+        hsur->D1(UV.X(), UV.Y(), Psurf, D1U, D1V);
+        DerCproj = D1U * D2d.X() + D1V * D2d.Y();
 
         Standard_Real A1 = DerC.Magnitude();
         Standard_Real A2 = DerCproj.Magnitude();
@@ -1907,14 +1928,14 @@ void GeomPlate_BuildPlateSurface::Intersect(Handle(GeomPlate_HArray1OfSequenceOf
               gp_Vec vec, vecU, vecV, N;
               if (myLinCont->Value(i)->Order() == 0)
               {
-                Handle(Adaptor3d_Curve) theCurve = myLinCont->Value(i)->Curve3d();
-                theCurve->D1(int2d.ParamOnFirst(), P1, vec);
+                const GeomAdaptor_Curve& theCurve = myLinCont->Value(i)->Curve3d();
+                theCurve.D1(int2d.ParamOnFirst(), P1, vec);
                 myLinCont->Value(j)->D1(int2d.ParamOnSecond(), P2, vecU, vecV);
               }
               else
               {
-                Handle(Adaptor3d_Curve) theCurve = myLinCont->Value(j)->Curve3d();
-                theCurve->D1(int2d.ParamOnSecond(), P2, vec);
+                const GeomAdaptor_Curve& theCurve = myLinCont->Value(j)->Curve3d();
+                theCurve.D1(int2d.ParamOnSecond(), P2, vec);
                 myLinCont->Value(i)->D1(int2d.ParamOnFirst(), P1, vecU, vecV);
               }
               N                   = vecU ^ vecV;

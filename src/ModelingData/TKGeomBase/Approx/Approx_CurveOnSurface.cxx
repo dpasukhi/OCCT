@@ -18,7 +18,6 @@
 
 #include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_HSurfaceTool.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
@@ -41,6 +40,7 @@
 #include <gp_Lin2d.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
+#include <memory>
 
 //=================================================================================================
 
@@ -391,7 +391,14 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
     }
   }
 
-  Handle(Adaptor3d_CurveOnSurface) HCOnS = new Adaptor3d_CurveOnSurface(TrimmedC2D, mySurf);
+  GeomAdaptor_Curve aCurveOnSurf;
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
+  aPCrv->Load(TrimmedC2D);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>();
+  aSrf->Load(mySurf);
+  aCurveOnSurf.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
+  Handle(GeomAdaptor_Curve) HCOnS = new GeomAdaptor_Curve(aCurveOnSurf);
 
   Standard_Integer              Num1DSS = 0, Num2DSS = 0, Num3DSS = 0;
   Handle(TColStd_HArray1OfReal) OneDTol;

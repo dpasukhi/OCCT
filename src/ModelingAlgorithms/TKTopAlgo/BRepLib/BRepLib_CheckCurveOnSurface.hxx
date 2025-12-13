@@ -69,12 +69,12 @@ protected:
   //! Computes the max distance for the 3d curve of <myCOnSurfGeom>
   //! and 2d curve <theCurveOnSurface>
   //! If isMultiThread == Standard_True then computation will be performed in parallel.
-  Standard_EXPORT void Compute(const Handle(Adaptor3d_CurveOnSurface)& theCurveOnSurface);
+  Standard_EXPORT void Compute(const Handle(GeomAdaptor_Curve)& theCurveOnSurface);
 
 private:
   GeomLib_CheckCurveOnSurface      myCOnSurfGeom;
-  Handle(Adaptor3d_CurveOnSurface) myAdaptorCurveOnSurface;
-  Handle(Adaptor3d_CurveOnSurface) myAdaptorCurveOnSurface2;
+  Handle(GeomAdaptor_Curve) myAdaptorCurveOnSurface;
+  Handle(GeomAdaptor_Curve) myAdaptorCurveOnSurface2;
   Standard_Boolean                 myIsParallel;
 };
 

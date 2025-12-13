@@ -14,9 +14,10 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <GeomAdaptor_SurfaceOfLinearExtrusion.hxx>
 #include <Approx_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <memory>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepExtrema_ExtCF.hxx>
@@ -2278,12 +2279,12 @@ static Standard_Real SmartParameter(Draft_EdgeInfo&             Einf,
     }
     NewC2d = BCurve;
   }
-  Einf.ChangeFirstPC()                     = NewC2d;
-  Handle(Geom2dAdaptor_Curve)         hcur = new Geom2dAdaptor_Curve(NewC2d);
-  Handle(GeomAdaptor_Surface)         hsur = new GeomAdaptor_Surface(S1);
-  Adaptor3d_CurveOnSurface            cons(hcur, hsur);
-  Handle(Adaptor3d_CurveOnSurface)    hcons = new Adaptor3d_CurveOnSurface(cons);
-  Handle(GeomAdaptor_Surface)         hsur2 = new GeomAdaptor_Surface(S2);
+  Einf.ChangeFirstPC() = NewC2d;
+  Handle(GeomAdaptor_Curve) hcons = new GeomAdaptor_Curve();
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(NewC2d);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(S1);
+  hcons->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+  Handle(GeomAdaptor_Surface) hsur2 = new GeomAdaptor_Surface(S2);
   Handle(ProjLib_HCompProjectedCurve) HProjector =
     new ProjLib_HCompProjectedCurve(hsur2, hcons, Tol, Tol);
   Standard_Real Udeb, Ufin;

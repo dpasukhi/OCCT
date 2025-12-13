@@ -34,6 +34,7 @@
 #include <TColGeom2d_HArray1OfCurve.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 class Geom_Surface;
+class GeomAdaptor_Curve;
 class GeomPlate_Surface;
 class GeomPlate_CurveConstraint;
 class GeomPlate_PointConstraint;
@@ -216,9 +217,9 @@ private:
 
   Standard_EXPORT gp_Pnt2d ProjectPoint(const gp_Pnt& P);
 
-  Standard_EXPORT Handle(Geom2d_Curve) ProjectCurve(const Handle(Adaptor3d_Curve)& Curv);
+  Standard_EXPORT Handle(Geom2d_Curve) ProjectCurve(const GeomAdaptor_Curve& Curv);
 
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) ProjectedCurve(Handle(Adaptor3d_Curve)& Curv);
+  Standard_EXPORT Handle(Adaptor2d_Curve2d) ProjectedCurve(const GeomAdaptor_Curve& Curv);
 
   Standard_EXPORT void ComputeSurfInit(const Message_ProgressRange& theProgress);
 

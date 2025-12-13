@@ -19,7 +19,7 @@
 
 #include <Standard.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_Boundary.hxx>
 #include <Standard_Real.hxx>
 class Law_Function;
@@ -72,9 +72,9 @@ public:
   //! Standard_Real TolAng = ... ;
   //! myBoundary = GeomFill_BoundWithSurf (
   //! CurveOnSurf, Tol, TolAng );
-  Standard_EXPORT GeomFill_BoundWithSurf(const Adaptor3d_CurveOnSurface& CurveOnSurf,
-                                         const Standard_Real             Tol3d,
-                                         const Standard_Real             Tolang);
+  Standard_EXPORT GeomFill_BoundWithSurf(const GeomAdaptor_Curve& CurveOnSurf,
+                                         const Standard_Real      Tol3d,
+                                         const Standard_Real      Tolang);
 
   Standard_EXPORT gp_Pnt Value(const Standard_Real U) const Standard_OVERRIDE;
 
@@ -104,8 +104,8 @@ public:
 
 protected:
 private:
-  Adaptor3d_CurveOnSurface myConS;
-  Handle(Law_Function)     myPar;
+  GeomAdaptor_Curve    myConS;
+  Handle(Law_Function) myPar;
 };
 
 #endif // _GeomFill_BoundWithSurf_HeaderFile

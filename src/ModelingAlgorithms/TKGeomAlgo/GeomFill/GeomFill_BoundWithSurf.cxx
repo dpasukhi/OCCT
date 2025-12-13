@@ -17,7 +17,6 @@
 #include <GeomFill_BoundWithSurf.hxx>
 
 #include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
@@ -32,9 +31,9 @@ IMPLEMENT_STANDARD_RTTIEXT(GeomFill_BoundWithSurf, GeomFill_Boundary)
 
 //=================================================================================================
 
-GeomFill_BoundWithSurf::GeomFill_BoundWithSurf(const Adaptor3d_CurveOnSurface& CurveOnSurf,
-                                               const Standard_Real             Tol3d,
-                                               const Standard_Real             Tolang)
+GeomFill_BoundWithSurf::GeomFill_BoundWithSurf(const GeomAdaptor_Curve& CurveOnSurf,
+                                               const Standard_Real      Tol3d,
+                                               const Standard_Real      Tolang)
     : GeomFill_Boundary(Tol3d, Tolang),
       myConS(CurveOnSurf)
 {

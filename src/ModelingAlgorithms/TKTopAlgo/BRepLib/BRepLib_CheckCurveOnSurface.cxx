@@ -12,8 +12,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
+#include <memory>
 #include <BRepAdaptor_Curve.hxx>
 #include <BRepLib_CheckCurveOnSurface.hxx>
 #include <GeomAdaptor_Surface.hxx>
@@ -62,20 +62,19 @@ void BRepLib_CheckCurveOnSurface::Init(const TopoDS_Edge& theEdge, const TopoDS_
   Handle(Geom_Surface) aGeomSurface = BRep_Tool::Surface(theFace);
 
   // 2D curves initialization
-  Handle(Adaptor2d_Curve2d) anAdaptorCurve =
-    new Geom2dAdaptor_Curve(aGeom2dCurve, aFirstParam, aLastParam);
-  Handle(GeomAdaptor_Surface) aGeomAdaptorSurface = new GeomAdaptor_Surface(aGeomSurface);
-
-  myAdaptorCurveOnSurface = new Adaptor3d_CurveOnSurface(anAdaptorCurve, aGeomAdaptorSurface);
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dCurve, aFirstParam, aLastParam);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>(aGeomSurface);
+  myAdaptorCurveOnSurface = new GeomAdaptor_Curve();
+  myAdaptorCurveOnSurface->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   if (BRep_Tool::IsClosed(theEdge, theFace))
   {
     Handle(Geom2d_Curve) aGeom2dReversedCurve =
       BRep_Tool::CurveOnSurface(TopoDS::Edge(theEdge.Reversed()), theFace, aFirstParam, aLastParam);
-    Handle(Adaptor2d_Curve2d) anAdaptorReversedCurve =
-      new Geom2dAdaptor_Curve(aGeom2dReversedCurve, aFirstParam, aLastParam);
-    myAdaptorCurveOnSurface2 =
-      new Adaptor3d_CurveOnSurface(anAdaptorReversedCurve, aGeomAdaptorSurface);
+    auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(aGeom2dReversedCurve, aFirstParam, aLastParam);
+    auto aSrf2 = std::make_unique<GeomAdaptor_Surface>(aGeomSurface);
+    myAdaptorCurveOnSurface2 = new GeomAdaptor_Curve();
+    myAdaptorCurveOnSurface2->SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
   }
 
   myCOnSurfGeom.Init(anAdaptor3dCurve);
@@ -106,7 +105,7 @@ void BRepLib_CheckCurveOnSurface::Perform()
 // function : Compute
 // purpose  : if isTheMTDisabled == TRUE parallelization is not used
 //=======================================================================
-void BRepLib_CheckCurveOnSurface::Compute(const Handle(Adaptor3d_CurveOnSurface)& theCurveOnSurface)
+void BRepLib_CheckCurveOnSurface::Compute(const Handle(GeomAdaptor_Curve)& theCurveOnSurface)
 {
   myCOnSurfGeom.SetParallel(myIsParallel);
   myCOnSurfGeom.Perform(theCurveOnSurface);

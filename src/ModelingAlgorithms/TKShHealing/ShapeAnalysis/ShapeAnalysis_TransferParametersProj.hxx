@@ -20,7 +20,7 @@
 #include <Standard.hxx>
 #include <Standard_Type.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <TopLoc_Location.hxx>
 #include <ShapeAnalysis_TransferParameters.hxx>
 #include <TColStd_HSequenceOfReal.hxx>
@@ -99,13 +99,13 @@ private:
                                                const Standard_Real    First,
                                                const Standard_Real    Last);
 
-  Handle(Geom_Curve)       myCurve;
-  Handle(Geom2d_Curve)     myCurve2d;
-  Adaptor3d_CurveOnSurface myAC3d;
-  Standard_Real            myPrecision;
-  TopLoc_Location          myLocation;
-  Standard_Boolean         myForceProj;
-  Standard_Boolean         myInitOK;
+  Handle(Geom_Curve)   myCurve;
+  Handle(Geom2d_Curve) myCurve2d;
+  GeomAdaptor_Curve    myAC3d;
+  Standard_Real        myPrecision;
+  TopLoc_Location      myLocation;
+  Standard_Boolean     myForceProj;
+  Standard_Boolean     myInitOK;
 };
 
 #endif // _ShapeAnalysis_TransferParametersProj_HeaderFile

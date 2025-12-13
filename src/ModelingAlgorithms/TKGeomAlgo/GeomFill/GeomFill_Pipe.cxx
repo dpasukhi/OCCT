@@ -24,11 +24,11 @@
 
 #include <GeomFill_Pipe.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Approx_SweepApproximation.hxx>
 #include <ElCLib.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
+#include <memory>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <Geom_Circle.hxx>
@@ -576,8 +576,11 @@ void GeomFill_Pipe::Init(const Handle(Geom2d_Curve)& Path,
 {
   Handle(Geom_Curve)            Sect;
   Handle(GeomFill_TrihedronLaw) TLaw = new (GeomFill_Darboux)();
-  myAdpPath                          = new Adaptor3d_CurveOnSurface(
-    Adaptor3d_CurveOnSurface(new Geom2dAdaptor_Curve(Path), new GeomAdaptor_Surface(Support)));
+  myAdpPath                          = new GeomAdaptor_Curve();
+  auto aPCrv                         = std::make_unique<Geom2dAdaptor_Curve>(Path);
+  auto aSrf                          = std::make_unique<GeomAdaptor_Surface>(Support);
+  static_cast<GeomAdaptor_Curve*>(myAdpPath.get())
+    ->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
   myLoc = new (GeomFill_CurveAndTrihedron)(TLaw);
   myLoc->SetCurve(myAdpPath);

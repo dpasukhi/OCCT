@@ -17,8 +17,8 @@
 #ifndef _BRepBlend_RstRstEvolRad_HeaderFile
 #define _BRepBlend_RstRstEvolRad_HeaderFile
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -244,8 +244,8 @@ private:
   Handle(Adaptor3d_Surface)    surf2;
   Handle(Adaptor2d_Curve2d)    rst1;
   Handle(Adaptor2d_Curve2d)    rst2;
-  Adaptor3d_CurveOnSurface     cons1;
-  Adaptor3d_CurveOnSurface     cons2;
+  GeomAdaptor_Curve            cons1;
+  GeomAdaptor_Curve            cons2;
   Handle(Adaptor3d_Curve)      guide;
   Handle(Adaptor3d_Curve)      tguide;
   gp_Pnt                       ptrst1;

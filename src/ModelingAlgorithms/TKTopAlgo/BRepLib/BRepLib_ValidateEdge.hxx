@@ -18,7 +18,6 @@
 #include <Standard_Handle.hxx>
 
 class Adaptor3d_Curve;
-class Adaptor3d_CurveOnSurface;
 
 //! Computes the max distance between 3D-curve and curve on surface.
 //! This class uses 2 methods: approximate using finite
@@ -27,9 +26,9 @@ class BRepLib_ValidateEdge
 {
 public:
   //! Initialization constructor
-  Standard_EXPORT BRepLib_ValidateEdge(const Handle(Adaptor3d_Curve)          theReferenceCurve,
-                                       const Handle(Adaptor3d_CurveOnSurface) theOtherCurve,
-                                       Standard_Boolean                       theSameParameter);
+  Standard_EXPORT BRepLib_ValidateEdge(const Handle(Adaptor3d_Curve) theReferenceCurve,
+                                       const Handle(Adaptor3d_Curve) theOtherCurve,
+                                       Standard_Boolean              theSameParameter);
 
   //! Sets method to calculate distance: Calculating in finite number of points (if theIsExact
   //! is false, faster, but possible not correct result) or exact calculating by using
@@ -89,7 +88,7 @@ private:
 
 private:
   Handle(Adaptor3d_Curve)          myReferenceCurve;
-  Handle(Adaptor3d_CurveOnSurface) myOtherCurve;
+  Handle(Adaptor3d_Curve) myOtherCurve;
   Standard_Boolean                 mySameParameter;
   Standard_Integer                 myControlPointsNumber;
   Standard_Real                    myToleranceForChecking;

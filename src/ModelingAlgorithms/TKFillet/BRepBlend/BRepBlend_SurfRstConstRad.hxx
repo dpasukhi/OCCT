@@ -18,7 +18,7 @@
 #define _BRepBlend_SurfRstConstRad_HeaderFile
 
 #include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -227,7 +227,7 @@ private:
   Handle(Adaptor3d_Surface)    surf;
   Handle(Adaptor3d_Surface)    surfrst;
   Handle(Adaptor2d_Curve2d)    rst;
-  Adaptor3d_CurveOnSurface     cons;
+  GeomAdaptor_Curve            cons;
   Handle(Adaptor3d_Curve)      guide;
   Handle(Adaptor3d_Curve)      tguide;
   gp_Pnt                       pts;

@@ -77,6 +77,7 @@
 #include <Standard_HashUtils.hxx>
 
 #include <algorithm>
+#include <memory>
 
 // TODO - not thread-safe static variables
 static Standard_Real      thePrecision = Precision::Confusion();
@@ -266,8 +267,8 @@ void BRepLib::SameRange(const TopoDS_Edge& AnEdge, const Standard_Real Tolerance
 // purpose  : return MaxSegment to pass in approximation, if MaxSegment==0 provided
 //=======================================================================
 
-static Standard_Integer evaluateMaxSegment(const Standard_Integer          aMaxSegment,
-                                           const Adaptor3d_CurveOnSurface& aCurveOnSurface)
+static Standard_Integer evaluateMaxSegment(const Standard_Integer       aMaxSegment,
+                                           const GeomAdaptor_Curve& aCurveOnSurface)
 {
   if (aMaxSegment != 0)
     return aMaxSegment;
@@ -396,13 +397,10 @@ Standard_Boolean BRepLib::BuildCurve3d(const TopoDS_Edge&     AnEdge,
       Curve2dPtr = Curve2dArray[0];
       SurfacePtr = SurfaceArray[0];
 
-      Geom2dAdaptor_Curve         AnAdaptor3dCurve2d(Curve2dPtr, f, l);
-      GeomAdaptor_Surface         AnAdaptor3dSurface(SurfacePtr);
-      Handle(Geom2dAdaptor_Curve) AnAdaptor3dCurve2dPtr =
-        new Geom2dAdaptor_Curve(AnAdaptor3dCurve2d);
-      Handle(GeomAdaptor_Surface) AnAdaptor3dSurfacePtr =
-        new GeomAdaptor_Surface(AnAdaptor3dSurface);
-      Adaptor3d_CurveOnSurface CurveOnSurface(AnAdaptor3dCurve2dPtr, AnAdaptor3dSurfacePtr);
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(Curve2dPtr, f, l);
+      auto aSrf = std::make_unique<GeomAdaptor_Surface>(SurfacePtr);
+      GeomAdaptor_Curve CurveOnSurface;
+      CurveOnSurface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
       Handle(Geom_Curve) NewCurvePtr;
 
@@ -506,7 +504,7 @@ Standard_Boolean BRepLib::UpdateEdgeTol(const TopoDS_Edge&  AnEdge,
   TopLoc_Location               local_location;
   GCPnts_QuasiUniformDeflection a_sampler;
   GeomAdaptor_Curve             geom_reference_curve;
-  Adaptor3d_CurveOnSurface      curve_on_surface_reference;
+  GeomAdaptor_Curve             curve_on_surface_reference;
   Handle(Geom_Curve) C   = BRep_Tool::Curve(AnEdge, local_location, current_first, current_last);
   curve_on_surface_index = -1;
   if (!C.IsNull())
@@ -553,11 +551,9 @@ Standard_Boolean BRepLib::UpdateEdgeTol(const TopoDS_Edge&  AnEdge,
       }
       curve_on_surface_index += 1;
     }
-    Geom2dAdaptor_Curve         AnAdaptor3dCurve2d(curve2d_ptr);
-    GeomAdaptor_Surface         AnAdaptor3dSurface(surface_ptr);
-    Handle(Geom2dAdaptor_Curve) AnAdaptor3dCurve2dPtr = new Geom2dAdaptor_Curve(AnAdaptor3dCurve2d);
-    Handle(GeomAdaptor_Surface) AnAdaptor3dSurfacePtr = new GeomAdaptor_Surface(AnAdaptor3dSurface);
-    curve_on_surface_reference.Load(AnAdaptor3dCurve2dPtr, AnAdaptor3dSurfacePtr);
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(curve2d_ptr);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(surface_ptr);
+    curve_on_surface_reference.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     a_sampler.Initialize(curve_on_surface_reference,
                          MinToleranceRequested * factor,
                          current_first,
@@ -620,13 +616,10 @@ Standard_Boolean BRepLib::UpdateEdgeTol(const TopoDS_Edge&  AnEdge,
         {
           surface_ptr = geometric_representation_ptr->Surface();
         }
-        Geom2dAdaptor_Curve         an_adaptor_curve2d(curve2d_ptr);
-        GeomAdaptor_Surface         an_adaptor_surface(surface_ptr);
-        Handle(Geom2dAdaptor_Curve) an_adaptor_curve2d_ptr =
-          new Geom2dAdaptor_Curve(an_adaptor_curve2d);
-        Handle(GeomAdaptor_Surface) an_adaptor_surface_ptr =
-          new GeomAdaptor_Surface(an_adaptor_surface);
-        Adaptor3d_CurveOnSurface a_curve_on_surface(an_adaptor_curve2d_ptr, an_adaptor_surface_ptr);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(curve2d_ptr);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(surface_ptr);
+        GeomAdaptor_Curve a_curve_on_surface;
+        a_curve_on_surface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
         if (BRep_Tool::SameParameter(AnEdge))
         {

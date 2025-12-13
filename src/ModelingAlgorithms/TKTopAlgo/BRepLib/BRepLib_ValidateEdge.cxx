@@ -13,16 +13,15 @@
 
 #include <BRepLib_ValidateEdge.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRepCheck.hxx>
 #include <Extrema_LocateExtPC.hxx>
 #include <GeomLib_CheckCurveOnSurface.hxx>
 
 //=================================================================================================
 
-BRepLib_ValidateEdge::BRepLib_ValidateEdge(Handle(Adaptor3d_Curve)          theReferenceCurve,
-                                           Handle(Adaptor3d_CurveOnSurface) theOtherCurve,
-                                           Standard_Boolean                 theSameParameter)
+BRepLib_ValidateEdge::BRepLib_ValidateEdge(Handle(Adaptor3d_Curve) theReferenceCurve,
+                                           Handle(Adaptor3d_Curve) theOtherCurve,
+                                           Standard_Boolean        theSameParameter)
     : myReferenceCurve(theReferenceCurve),
       myOtherCurve(theOtherCurve),
       mySameParameter(theSameParameter),
@@ -66,10 +65,20 @@ void BRepLib_ValidateEdge::UpdateTolerance(Standard_Real& theToleranceToUpdate)
 
 Standard_Real BRepLib_ValidateEdge::correctTolerance(Standard_Real theTolerance)
 {
-  const Handle(Adaptor3d_Surface)& aSurface          = myOtherCurve->GetSurface();
-  Standard_Real                    aCurvePrecision   = BRepCheck::PrecCurve(*myReferenceCurve);
-  Standard_Real                    aSurfacePrecision = BRepCheck::PrecSurface(aSurface);
-  Standard_Real                    aToleranceDelta =
+  Standard_Real aCurvePrecision   = BRepCheck::PrecCurve(*myReferenceCurve);
+  Standard_Real aSurfacePrecision = 0.0;
+
+  if (myOtherCurve->GetType() == GeomAbs_OtherCurve)
+  {
+    // This is a curve on surface, get surface precision
+    const Handle(Adaptor3d_Surface)& aSurface = myOtherCurve->GetSurface();
+    if (!aSurface.IsNull())
+    {
+      aSurfacePrecision = BRepCheck::PrecSurface(aSurface);
+    }
+  }
+
+  Standard_Real aToleranceDelta =
     (aCurvePrecision > aSurfacePrecision) ? aCurvePrecision : aSurfacePrecision;
   Standard_Real aCorrectedTolerance = theTolerance + aToleranceDelta;
   return aCorrectedTolerance;

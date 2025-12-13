@@ -14,7 +14,6 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Approx_CurveOnSurface.hxx>
 #include <Approx_SameParameter.hxx>
 #include <BOPTools_AlgoTools.hxx>
@@ -50,6 +49,7 @@
 #include <Geom_SurfaceOfRevolution.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
+#include <memory>
 #include <GeomFill_LocationLaw.hxx>
 #include <GeomFill_SectionLaw.hxx>
 #include <GeomFill_Sweep.hxx>
@@ -289,10 +289,10 @@ static Standard_Boolean CheckSameParameter(const Handle(Adaptor3d_Curve)&   C3d,
 // with exact calculation method of edge tolerance
 //=======================================================================
 static Standard_Boolean CheckSameParameterExact(
-  const Handle(Adaptor3d_Curve)&          C3d,
-  const Handle(Adaptor3d_CurveOnSurface)& curveOnSurface,
-  const Standard_Real                     tol3d,
-  Standard_Real&                          tolreached)
+  const Handle(Adaptor3d_Curve)& C3d,
+  const Handle(Adaptor3d_Curve)& curveOnSurface,
+  const Standard_Real            tol3d,
+  Standard_Real&                 tolreached)
 {
   GeomLib_CheckCurveOnSurface aCheckCurveOnSurface(C3d);
   aCheckCurveOnSurface.SetParallel(Standard_False);
@@ -368,8 +368,8 @@ static Standard_Boolean SameParameter(TopoDS_Edge&                E,
     return Standard_False;
   }
 
-  Handle(Adaptor3d_Curve)          curve3d        = sp.Curve3d();
-  Handle(Adaptor3d_CurveOnSurface) curveOnSurface = sp.CurveOnSurface();
+  Handle(Adaptor3d_Curve) curve3d        = sp.Curve3d();
+  Handle(Adaptor3d_Curve) curveOnSurface = sp.CurveOnSurface();
 
   if (!CheckSameParameterExact(curve3d, curveOnSurface, tol3d, ResTol) && ResTol > tolreached)
   {

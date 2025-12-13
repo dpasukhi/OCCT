@@ -58,6 +58,9 @@
 #include <TColgp_SequenceOfXYZ.hxx>
 
 #include <BRepAdaptor_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 #include <BRepOffsetAPI_MakeFilling.hxx>
 #include <TCollection_AsciiString.hxx>
@@ -65,6 +68,7 @@
 #include <BRepTest_Objects.hxx>
 
 #include <stdio.h>
+#include <memory>
 #include <gp_Pnt.hxx>
 
 // pour mes tests
@@ -127,15 +131,31 @@ static Standard_Integer plate(Draw_Interpretor& di, Standard_Integer n, const ch
     Standard_Integer T = Draw::Atoi(a[3 * i + 3]);
     Tang->SetValue(i, T);
     NbPtsCur->SetValue(i, Draw::Atoi(a[2]));
-    Handle(BRepAdaptor_Surface) S = new BRepAdaptor_Surface();
-    S->Initialize(F);
-    Handle(BRepAdaptor_Curve2d) C = new BRepAdaptor_Curve2d();
-    C->Initialize(E, F);
-    Adaptor3d_CurveOnSurface         ConS(C, S);
-    Handle(Adaptor3d_CurveOnSurface) HConS = new Adaptor3d_CurveOnSurface(ConS);
-    Fronts->SetValue(i, HConS);
-    Handle(GeomPlate_CurveConstraint) Cont =
-      new BRepFill_CurveConstraint(HConS, Tang->Value(i), NbPtsCur->Value(i));
+    BRepAdaptor_Surface aSurfAdaptor(F);
+    BRepAdaptor_Curve2d aPCurveAdaptor(E, F);
+
+    // Create GeomAdaptor_Curve with COS modifier for Fronts storage
+    Handle(GeomAdaptor_Curve) HCurveAdaptor = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
+        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
+      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      HCurveAdaptor->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
+    Fronts->SetValue(i, HCurveAdaptor);
+
+    // Create another curve for the constraint
+    GeomAdaptor_Curve aCurveForConstraint;
+    {
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
+        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
+      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
+    Handle(GeomPlate_CurveConstraint) Cont = new BRepFill_CurveConstraint(
+      std::move(aCurveForConstraint),
+      Tang->Value(i),
+      NbPtsCur->Value(i));
     Henri.Add(Cont);
   }
   Handle(Draw_ProgressIndicator) aProgress = new Draw_ProgressIndicator(di, 1);
@@ -229,26 +249,30 @@ static Standard_Integer gplate(Draw_Interpretor& di, Standard_Integer n, const c
     Conti = Draw::Atoi(a[Indice++]);
     if ((Conti == 0) || (Conti == -1))
     {
-      Handle(BRepAdaptor_Curve) C = new BRepAdaptor_Curve();
-      C->Initialize(E);
-      const Handle(Adaptor3d_Curve)&    aC   = C; // to avoid ambiguity
-      Handle(GeomPlate_CurveConstraint) Cont = new BRepFill_CurveConstraint(aC, Conti);
+      BRepAdaptor_Curve aBRepCurve(E);
+      GeomAdaptor_Curve aCurveForConstraint(aBRepCurve.Curve());
+      Handle(GeomPlate_CurveConstraint) Cont =
+        new BRepFill_CurveConstraint(std::move(aCurveForConstraint), Conti);
       Henri.Add(Cont);
     }
     else
     {
       aLocalFace    = DBRep::Get(a[Indice++], TopAbs_FACE);
       TopoDS_Face F = TopoDS::Face(aLocalFace);
-      //	TopoDS_Face F = TopoDS::Face(DBRep::Get(a[Indice++],TopAbs_FACE));
       if (F.IsNull())
         return 1;
-      Handle(BRepAdaptor_Surface) S = new BRepAdaptor_Surface();
-      S->Initialize(F);
-      Handle(BRepAdaptor_Curve2d) C = new BRepAdaptor_Curve2d();
-      C->Initialize(E, F);
-      Adaptor3d_CurveOnSurface          ConS(C, S);
-      Handle(Adaptor3d_CurveOnSurface)  HConS = new Adaptor3d_CurveOnSurface(ConS);
-      Handle(GeomPlate_CurveConstraint) Cont  = new BRepFill_CurveConstraint(HConS, Conti);
+      BRepAdaptor_Surface aSurfAdaptor(F);
+      BRepAdaptor_Curve2d aPCurveAdaptor(E, F);
+
+      GeomAdaptor_Curve aCurveForConstraint;
+      {
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
+          static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+        aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+      }
+      Handle(GeomPlate_CurveConstraint) Cont =
+        new BRepFill_CurveConstraint(std::move(aCurveForConstraint), Conti);
       Henri.Add(Cont);
     }
   }
@@ -354,15 +378,31 @@ static Standard_Integer approxplate(Draw_Interpretor& di, Standard_Integer n, co
     Standard_Integer T = Draw::Atoi(a[3 * i + 3]);
     Tang->SetValue(i, T);
     NbPtsCur->SetValue(i, NbMedium);
-    Handle(BRepAdaptor_Surface) S = new BRepAdaptor_Surface();
-    S->Initialize(F);
-    Handle(BRepAdaptor_Curve2d) C = new BRepAdaptor_Curve2d();
-    C->Initialize(E, F);
-    Adaptor3d_CurveOnSurface         ConS(C, S);
-    Handle(Adaptor3d_CurveOnSurface) HConS = new Adaptor3d_CurveOnSurface(ConS);
-    Fronts->SetValue(i, HConS);
-    Handle(GeomPlate_CurveConstraint) Cont =
-      new BRepFill_CurveConstraint(HConS, Tang->Value(i), NbPtsCur->Value(i));
+    BRepAdaptor_Surface aSurfAdaptor(F);
+    BRepAdaptor_Curve2d aPCurveAdaptor(E, F);
+
+    // Create GeomAdaptor_Curve with COS modifier for Fronts storage
+    Handle(GeomAdaptor_Curve) HCurveAdaptor = new GeomAdaptor_Curve();
+    {
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
+        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
+      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      HCurveAdaptor->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
+    Fronts->SetValue(i, HCurveAdaptor);
+
+    // Create another curve for the constraint
+    GeomAdaptor_Curve aCurveForConstraint;
+    {
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
+        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
+      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
+    Handle(GeomPlate_CurveConstraint) Cont = new BRepFill_CurveConstraint(
+      std::move(aCurveForConstraint),
+      Tang->Value(i),
+      NbPtsCur->Value(i));
     Henri.Add(Cont);
   }
 

@@ -18,7 +18,6 @@
 
 #include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Extrema_ExtPC.hxx>
 #include <Extrema_LocateExtPC.hxx>
@@ -31,6 +30,7 @@
 #include <GeomLib_MakeCurvefromApprox.hxx>
 #include <Precision.hxx>
 #include <TColStd_Array1OfReal.hxx>
+#include <memory>
 
 //=================================================================================================
 
@@ -148,9 +148,9 @@ static void ProjectPointOnCurve(const Standard_Real    InitValue,
 
 //=================================================================================================
 
-static Standard_Real ComputeTolReached(const Handle(Adaptor3d_Curve)&  c3d,
-                                       const Adaptor3d_CurveOnSurface& cons,
-                                       const Standard_Integer          nbp)
+static Standard_Real ComputeTolReached(const Handle(Adaptor3d_Curve)& c3d,
+                                       const GeomAdaptor_Curve&       cons,
+                                       const Standard_Integer         nbp)
 {
   Standard_Real       d2    = 0.0; // Square max discrete deviation.
   const Standard_Real first = c3d->FirstParameter();
@@ -187,14 +187,14 @@ static Standard_Real ComputeTolReached(const Handle(Adaptor3d_Curve)&  c3d,
 
 //=================================================================================================
 
-static Standard_Boolean Check(const TColStd_Array1OfReal&     FlatKnots,
-                              const TColStd_Array1OfReal&     Poles,
-                              const Standard_Integer          nbp,
-                              const Standard_Real*            pc3d,
-                              const Handle(Adaptor3d_Curve)&  c3d,
-                              const Adaptor3d_CurveOnSurface& cons,
-                              Standard_Real&                  tol,
-                              const Standard_Real             oldtol)
+static Standard_Boolean Check(const TColStd_Array1OfReal&    FlatKnots,
+                              const TColStd_Array1OfReal&    Poles,
+                              const Standard_Integer         nbp,
+                              const Standard_Real*           pc3d,
+                              const Handle(Adaptor3d_Curve)& c3d,
+                              const GeomAdaptor_Curve&       cons,
+                              Standard_Real&                 tol,
+                              const Standard_Real            oldtol)
 {
   const Standard_Integer aDegree        = 3;
   Standard_Integer       extrap_mode[2] = {aDegree, aDegree};
@@ -326,7 +326,12 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
 
   // Create and fill data structure.
   Approx_SameParameter_Data aData;
-  aData.myCOnS    = Adaptor3d_CurveOnSurface(myHCurve2d, mySurf);
+  auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
+  aPCrv->Load(myHCurve2d);
+  auto aSrf = std::make_unique<GeomAdaptor_Surface>();
+  aSrf->Load(mySurf);
+  aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
   aData.myC2dPF   = aData.myCOnS.FirstParameter();
   aData.myC2dPL   = aData.myCOnS.LastParameter();
   aData.myC3dPF   = myC3d->FirstParameter();
@@ -442,11 +447,15 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
 
       if (anApproximator.IsDone() || anApproximator.HasResult())
       {
-        Adaptor3d_CurveOnSurface    ACS = aData.myCOnS;
+        GeomAdaptor_Curve           ACS = aData.myCOnS;
         GeomLib_MakeCurvefromApprox aCurveBuilder(anApproximator);
         Handle(Geom2d_BSplineCurve) aC2d      = aCurveBuilder.Curve2dFromTwo1d(1, 2);
         Handle(Adaptor2d_Curve2d)   aHCurve2d = new Geom2dAdaptor_Curve(aC2d);
-        aData.myCOnS.Load(aHCurve2d);
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2d);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>();
+        aSrf->Load(mySurf);
+        aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
         myTolReached = ComputeTolReached(myC3d, aData.myCOnS, 2 * myNbSamples);
 
         const Standard_Real aMult = 250.0; // To be tolerant with discrete tolerance.
@@ -480,7 +489,12 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
     // deflection.
 
     // Original 2d curve.
-    aData.myCOnS.Load(myHCurve2d);
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
+    aPCrv->Load(myHCurve2d);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>();
+    aSrf->Load(mySurf);
+    aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
     myTolReached = ComputeTolReached(myC3d, aData.myCOnS, 2 * myNbSamples);
     myCurve2d    = Geom2dAdaptor::MakeCurve(*myHCurve2d);
 
@@ -521,7 +535,10 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
     GeomLib_MakeCurvefromApprox aCurveBuilder(anApproximator);
     Handle(Geom2d_BSplineCurve) aC2d      = aCurveBuilder.Curve2dFromTwo1d(1, 2);
     Handle(Adaptor2d_Curve2d)   aHCurve2d = new Geom2dAdaptor_Curve(aC2d);
-    aData.myCOnS.Load(aHCurve2d);
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aC2d);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>();
+    aSrf->Load(mySurf);
+    aData.myCOnS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
     Standard_Real anApproxTol = ComputeTolReached(myC3d, aData.myCOnS, 2 * myNbSamples);
     if (anApproxTol < myTolReached)
@@ -533,7 +550,7 @@ void Approx_SameParameter::Build(const Standard_Real Tolerance)
     myDone = Standard_True;
   }
 
-  myCurveOnSurface = Handle(Adaptor3d_CurveOnSurface)::DownCast(aData.myCOnS.ShallowCopy());
+  myCurveOnSurface = Handle(GeomAdaptor_Curve)::DownCast(aData.myCOnS.ShallowCopy());
 }
 
 //=================================================================================================
@@ -763,9 +780,9 @@ Standard_Boolean Approx_SameParameter::CheckSameParameter(Approx_SameParameter_D
 // purpose  : Sub-method in Build.
 //=================================================================================================
 
-Standard_Boolean Approx_SameParameter::ComputeTangents(const Adaptor3d_CurveOnSurface& theCOnS,
-                                                       Standard_Real& theFirstTangent,
-                                                       Standard_Real& theLastTangent) const
+Standard_Boolean Approx_SameParameter::ComputeTangents(const GeomAdaptor_Curve& theCOnS,
+                                                       Standard_Real&           theFirstTangent,
+                                                       Standard_Real&           theLastTangent) const
 {
   const Standard_Real aSmallMagnitude = 1.0e-12;
   // Check tangency on curve border.

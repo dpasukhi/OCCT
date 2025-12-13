@@ -20,6 +20,8 @@
 
 #include <ChFi3d_Builder_0.hxx>
 
+#include <memory>
+
 #include <AppParCurves_MultiBSpCurve.hxx>
 #include <Approx_SameParameter.hxx>
 #include <BRepLib.hxx>
@@ -1661,14 +1663,18 @@ Handle(GeomFill_Boundary) ChFi3d_mkbound(const Handle(Adaptor3d_Surface)& HS,
                                          const Standard_Real              ta,
                                          const Standard_Boolean           isfreeboundary)
 {
-  Handle(Geom2dAdaptor_Curve) HC = new Geom2dAdaptor_Curve(curv);
-  Adaptor3d_CurveOnSurface    COnS(HC, HS);
+  Handle(Geom2dAdaptor_Curve) HC    = new Geom2dAdaptor_Curve(curv);
+  Handle(GeomAdaptor_Curve)   HCOnS = new GeomAdaptor_Curve();
+  {
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(*HC);
+    auto aSrf  = std::make_unique<GeomAdaptor_Surface>(HS->Surface());
+    HCOnS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+  }
   if (isfreeboundary)
   {
-    Handle(Adaptor3d_CurveOnSurface) HCOnS = new Adaptor3d_CurveOnSurface(COnS);
     return new GeomFill_SimpleBound(HCOnS, t3d, ta);
   }
-  return new GeomFill_BoundWithSurf(COnS, t3d, ta);
+  return new GeomFill_BoundWithSurf(*HCOnS, t3d, ta);
 }
 
 //=================================================================================================
@@ -1968,7 +1974,12 @@ void ChFi3d_ComputeArete(const ChFiDS_CommonPoint&   P1,
     Handle(Geom2dAdaptor_Curve) AHC = new Geom2dAdaptor_Curve(AC);
     GeomAdaptor_Surface         AS(Surf);
     Handle(GeomAdaptor_Surface) AHS = new GeomAdaptor_Surface(AS);
-    Adaptor3d_CurveOnSurface    Cs(AHC, AHS);
+    GeomAdaptor_Curve           Cs;
+    {
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(*AHC);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(*AHS);
+      Cs.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+    }
     Pardeb = Cs.FirstParameter();
     Parfin = Cs.LastParameter();
     Standard_Real avtol;
@@ -4107,12 +4118,22 @@ void ChFi3d_ComputesIntPC(const ChFiDS_FaceInterference&     Fi1,
   Standard_Real delt1 = std::min(0.1, 0.05 * (Fi1.LastParameter() - Fi1.FirstParameter()));
   Handle(Geom2dAdaptor_Curve) hc2d1 =
     new Geom2dAdaptor_Curve(Fi1.PCurveOnSurf(), UInt1 - delt1, UInt1 + delt1);
-  Adaptor3d_CurveOnSurface cons1(hc2d1, HS1);
+  GeomAdaptor_Curve cons1;
+  {
+    auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>(*hc2d1);
+    auto aSrf1  = std::make_unique<GeomAdaptor_Surface>(HS1->Surface());
+    cons1.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+  }
   Standard_Real delt2 = std::min(0.1, 0.05 * (Fi2.LastParameter() - Fi2.FirstParameter()));
   Handle(Geom2dAdaptor_Curve) hc2d2 =
     new Geom2dAdaptor_Curve(Fi2.PCurveOnSurf(), UInt2 - delt2, UInt2 + delt2);
-  Adaptor3d_CurveOnSurface cons2(hc2d2, HS2);
-  Extrema_LocateExtCC      ext(cons1, cons2, UInt1, UInt2);
+  GeomAdaptor_Curve cons2;
+  {
+    auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>(*hc2d2);
+    auto aSrf2  = std::make_unique<GeomAdaptor_Surface>(HS2->Surface());
+    cons2.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+  }
+  Extrema_LocateExtCC ext(cons1, cons2, UInt1, UInt2);
   if (ext.IsDone())
   {
     Standard_Real dist2 = ext.SquareDistance();

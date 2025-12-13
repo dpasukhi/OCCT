@@ -13,7 +13,6 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Bnd_Box.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
@@ -28,6 +27,7 @@
 #include <GeomAbs_CurveType.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
+#include <memory>
 #include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
@@ -769,16 +769,17 @@ Standard_Boolean IntTools_Tools::ComputeTolerance(const Handle(Geom_Curve)&   th
   const Handle(Adaptor3d_Curve) aGeomAdaptorCurve =
     new GeomAdaptor_Curve(theCurve3D, theFirst, theLast);
 
-  Handle(Adaptor2d_Curve2d) aGeom2dAdaptorCurve =
-    new Geom2dAdaptor_Curve(theCurve2D, theFirst, theLast);
-  Handle(GeomAdaptor_Surface) aGeomAdaptorSurface = new GeomAdaptor_Surface(theSurf);
-
-  Handle(Adaptor3d_CurveOnSurface) anAdaptor3dCurveOnSurface =
-    new Adaptor3d_CurveOnSurface(aGeom2dAdaptorCurve, aGeomAdaptorSurface);
+  GeomAdaptor_Curve aCurveOnSurface;
+  {
+    auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(theCurve2D, theFirst, theLast);
+    auto aSrf = std::make_unique<GeomAdaptor_Surface>(theSurf);
+    aCurveOnSurface.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+  }
+  const Handle(Adaptor3d_Curve) anAdaptorCurveOnSurface = new GeomAdaptor_Curve(aCurveOnSurface);
 
   aCS.Init(aGeomAdaptorCurve, theTolRange);
   aCS.SetParallel(theToRunParallel);
-  aCS.Perform(anAdaptor3dCurveOnSurface);
+  aCS.Perform(anAdaptorCurveOnSurface);
   if (!aCS.IsDone())
   {
     return Standard_False;

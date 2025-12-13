@@ -71,8 +71,11 @@
 #include <Geom_BSplineSurface.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomInt_IntSS.hxx>
+
+#include <memory>
 #include <GeomLib.hxx>
 #include <GeomPlate_BuildPlateSurface.hxx>
 #include <GeomPlate_CurveConstraint.hxx>
@@ -2419,38 +2422,51 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
       Calcul_P2dOnSurf(CD.Value(ic), jfp, i.Value(ic, icmoins), p.Value(ic, icmoins), p2d1);
       Calcul_P2dOnSurf(CD.Value(ic), jf.Value(ic), i.Value(ic, icplus), p.Value(ic, icplus), p2d2);
       //      if (i[ic][icplus]!=  i[ic][icmoins]) std::cout<<"probleme surface"<<std::endl;
-      indice                            = SurfIndex(CD, ic, i.Value(ic, icplus), ChFiSURFACE);
-      Handle(GeomAdaptor_Surface) Asurf = new GeomAdaptor_Surface(DStr.Surface(indice).Surface());
+      indice                       = SurfIndex(CD, ic, i.Value(ic, icplus), ChFiSURFACE);
+      GeomAdaptor_Surface    Asurf(DStr.Surface(indice).Surface());
       // calculation of curve 2d
-      xdir                                = p2d2.X() - p2d1.X();
-      ydir                                = p2d2.Y() - p2d1.Y();
-      Standard_Real                    l0 = sqrt(xdir * xdir + ydir * ydir);
-      gp_Dir2d                         dir(xdir, ydir);
-      Handle(Geom2d_Line)              l      = new Geom2d_Line(p2d1, dir);
-      Handle(Geom2d_Curve)             pcurve = new Geom2d_TrimmedCurve(l, 0, l0);
-      Handle(Geom2dAdaptor_Curve)      Acurv  = new Geom2dAdaptor_Curve(pcurve);
-      Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-      Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
-      // Order.SetValue(ic,1);
+      xdir                         = p2d2.X() - p2d1.X();
+      ydir                         = p2d2.Y() - p2d1.Y();
+      Standard_Real       l0       = sqrt(xdir * xdir + ydir * ydir);
+      gp_Dir2d            dir(xdir, ydir);
+      Handle(Geom2d_Line) l        = new Geom2d_Line(p2d1, dir);
+      Handle(Geom2d_Curve) pcurve  = new Geom2d_TrimmedCurve(l, 0, l0);
+      Geom2dAdaptor_Curve Acurv(pcurve);
+
+      // Create constraint using GeomAdaptor_Curve with COS modifier
+      GeomAdaptor_Curve aCurveForConstraint;
+      {
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(Acurv);
+        auto aSrf  = std::make_unique<GeomAdaptor_Surface>(Asurf);
+        aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+      }
       Order.SetValue(ic, constr);
-      Handle(GeomPlate_CurveConstraint) Cont =
-        new GeomPlate_CurveConstraint(HCons, Order.Value(ic), nbcurvpnt, tolapp3d, angular, 0.1);
+      Handle(GeomPlate_CurveConstraint) Cont = new GeomPlate_CurveConstraint(
+        std::move(aCurveForConstraint),
+        Order.Value(ic),
+        nbcurvpnt,
+        tolapp3d,
+        angular,
+        0.1);
       PSurf.Add(Cont);
 
       // calculate indexes of points and of the curve for the DS
       isfirst = (sens.Value(ic) == 1);
       GeomLib::BuildCurve3d(tolapp,
-                            CurvOnS,
-                            CurvOnS.FirstParameter(),
-                            CurvOnS.LastParameter(),
+                            Acurv,
+                            Asurf,
+                            Acurv.FirstParameter(),
+                            Acurv.LastParameter(),
                             Curv3d,
                             maxapp,
                             avedev);
       TopOpeBRepDS_Curve tcurv3d(Curv3d, maxapp);
       indcurve3d.SetValue(n3d, DStr.AddCurve(tcurv3d));
-      gp_Pnt point1, point2;
-      point1 = CurvOnS.Value(CurvOnS.FirstParameter());
-      point2 = CurvOnS.Value(CurvOnS.LastParameter());
+      gp_Pnt   point1, point2;
+      gp_Pnt2d uv1 = Acurv.Value(Acurv.FirstParameter());
+      gp_Pnt2d uv2 = Acurv.Value(Acurv.LastParameter());
+      Asurf.D0(uv1.X(), uv1.Y(), point1);
+      Asurf.D0(uv2.X(), uv2.Y(), point2);
 
       TopOpeBRepDS_Point tpoint1(point1, maxapp);
       TopOpeBRepDS_Point tpoint2(point2, maxapp);
@@ -2786,9 +2802,15 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
           }
 
           // construction of borders for Plate
-          Handle(Geom2dAdaptor_Curve)      Acurv = new Geom2dAdaptor_Curve(pcurve);
-          Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-          Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
+          Geom2dAdaptor_Curve Acurv(pcurve);
+
+          // Create constraint using GeomAdaptor_Curve with COS modifier
+          GeomAdaptor_Curve aCurveForConstraint;
+          {
+            auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(Acurv);
+            auto aSrf  = std::make_unique<GeomAdaptor_Surface>(*Asurf);
+            aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+          }
 
           // constraints G1 are set if edges ic and icplus are not both alive
 
@@ -2803,22 +2825,28 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
             Order.SetValue(n3d, 1);
           if (isG1.Value(ic))
             Order.SetValue(n3d, 1);
-          Handle(GeomPlate_CurveConstraint) Cont =
-            new GeomPlate_CurveConstraint(HCons, Order.Value(n3d), 10, tolapp3d, angular, 0.1);
+          Handle(GeomPlate_CurveConstraint) Cont = new GeomPlate_CurveConstraint(
+            std::move(aCurveForConstraint),
+            Order.Value(n3d),
+            10,
+            tolapp3d,
+            angular,
+            0.1);
           PSurf.Add(Cont);
 
           // calculation of curve 3d if it is not a projection
           if (curveint.IsNull())
           {
             GeomLib::BuildCurve3d(tolapp,
-                                  CurvOnS,
-                                  CurvOnS.FirstParameter(),
-                                  CurvOnS.LastParameter(),
+                                  Acurv,
+                                  *Asurf,
+                                  Acurv.FirstParameter(),
+                                  Acurv.LastParameter(),
                                   Curv3d,
                                   maxapp1,
                                   avedev);
-            pardeb   = CurvOnS.FirstParameter();
-            parfin   = CurvOnS.LastParameter();
+            pardeb   = Acurv.FirstParameter();
+            parfin   = Acurv.LastParameter();
             curveint = new Geom_TrimmedCurve(Curv3d, pardeb, parfin);
           }
 
@@ -2956,14 +2984,24 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
             indpoint2 = DStr.AddPoint(tpoint2);
             ind       = indpoint2;
           }
-          Handle(GeomAdaptor_Surface) Asurf;
-          Asurf = new GeomAdaptor_Surface(BRep_Tool::Surface(TopoDS::Face(Fproj.Value(nb))));
-          Handle(Geom2dAdaptor_Curve)      Acurv = new Geom2dAdaptor_Curve(proj2d);
-          Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-          Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
+          GeomAdaptor_Surface  Asurf(BRep_Tool::Surface(TopoDS::Face(Fproj.Value(nb))));
+          Geom2dAdaptor_Curve  Acurv(proj2d);
+
+          // Create constraint using GeomAdaptor_Curve with COS modifier
+          GeomAdaptor_Curve aCurveForConstraint;
+          {
+            auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(Acurv);
+            auto aSrf  = std::make_unique<GeomAdaptor_Surface>(Asurf);
+            aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+          }
           Order.SetValue(n3d, 1);
-          Handle(GeomPlate_CurveConstraint) Cont =
-            new GeomPlate_CurveConstraint(HCons, Order.Value(n3d), 10, tolapp3d, angular, 0.1);
+          Handle(GeomPlate_CurveConstraint) Cont = new GeomPlate_CurveConstraint(
+            std::move(aCurveForConstraint),
+            Order.Value(n3d),
+            10,
+            tolapp3d,
+            angular,
+            0.1);
           PSurf.Add(Cont);
           TopOpeBRepDS_Curve tcurv3d(cproj, error);
           indcurve3d.SetValue(n3d, DStr.AddCurve(tcurv3d));
@@ -3086,14 +3124,24 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
         }
         ufirst = ctrim->FirstParameter();
         ulast  = ctrim->LastParameter();
-        Handle(GeomAdaptor_Surface) Asurf;
-        Asurf = new GeomAdaptor_Surface(BRep_Tool::Surface(TopoDS::Face(Fvive.Value(ic, icplus))));
-        Handle(Geom2dAdaptor_Curve)      Acurv = new Geom2dAdaptor_Curve(ctrim2d);
-        Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-        Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
+        GeomAdaptor_Surface Asurf(BRep_Tool::Surface(TopoDS::Face(Fvive.Value(ic, icplus))));
+        Geom2dAdaptor_Curve Acurv(ctrim2d);
+
+        // Create constraint using GeomAdaptor_Curve with COS modifier
+        GeomAdaptor_Curve aCurveForConstraint;
+        {
+          auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(Acurv);
+          auto aSrf  = std::make_unique<GeomAdaptor_Surface>(Asurf);
+          aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        }
         Order.SetValue(n3d, 0);
-        Handle(GeomPlate_CurveConstraint) Cont =
-          new GeomPlate_CurveConstraint(HCons, Order.Value(n3d), 10, tolapp3d, angular, 0.1);
+        Handle(GeomPlate_CurveConstraint) Cont = new GeomPlate_CurveConstraint(
+          std::move(aCurveForConstraint),
+          Order.Value(n3d),
+          10,
+          tolapp3d,
+          angular,
+          0.1);
         PSurf.Add(Cont);
         TopOpeBRepDS_Curve tcurv3d(ctrim, 1.e-4);
         indcurve3d.SetValue(n3d, DStr.AddCurve(tcurv3d));

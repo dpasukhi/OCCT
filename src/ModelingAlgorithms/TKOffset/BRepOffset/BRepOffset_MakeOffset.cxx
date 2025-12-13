@@ -18,7 +18,6 @@
 // Add methods for supporting history.
 //  Modified by skv - Mon Jan 12 11:50:02 2004 OCC4455
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_ListIteratorOfListOfPointRepresentation.hxx>
 #include <BRep_PointRepresentation.hxx>
@@ -58,6 +57,8 @@
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_Circle.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <memory>
 #include <Geom_ConicalSurface.hxx>
 #include <Geom_OffsetSurface.hxx>
 #include <Geom_Plane.hxx>
@@ -3476,16 +3477,15 @@ void BRepOffset_MakeOffset::MakeMissingWalls(const Message_ProgressRange& theRan
           gp_Pnt2d           fp2d   = EdgeLine2d->Value(fpar);
           gp_Pnt2d           fp2dOE = OELine2d->Value(fparOE);
           aLine2d2                  = GCE2d_MakeLine(fp2d, fp2dOE).Value();
-          Handle(Geom_Curve)          aCurve;
-          Standard_Real               FirstPar = 0., LastPar = fp2d.Distance(fp2dOE);
-          Geom2dAdaptor_Curve         AC2d(aLine2d2, FirstPar, LastPar);
-          GeomAdaptor_Surface         GAsurf(theSurf);
-          Handle(Geom2dAdaptor_Curve) HC2d  = new Geom2dAdaptor_Curve(AC2d);
-          Handle(GeomAdaptor_Surface) HSurf = new GeomAdaptor_Surface(GAsurf);
-          Adaptor3d_CurveOnSurface    ConS(HC2d, HSurf);
-          Standard_Real               max_deviation = 0., average_deviation;
+          Handle(Geom_Curve) aCurve;
+          Standard_Real      FirstPar = 0., LastPar = fp2d.Distance(fp2dOE);
+          Handle(GeomAdaptor_Curve) ConS = new GeomAdaptor_Curve();
+          auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aLine2d2, FirstPar, LastPar);
+          auto aSrf = std::make_unique<GeomAdaptor_Surface>(theSurf);
+          ConS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+          Standard_Real max_deviation = 0., average_deviation;
           GeomLib::BuildCurve3d(Precision::Confusion(),
-                                ConS,
+                                *ConS,
                                 FirstPar,
                                 LastPar,
                                 aCurve,
@@ -3501,16 +3501,15 @@ void BRepOffset_MakeOffset::MakeMissingWalls(const Message_ProgressRange& theRan
           gp_Pnt2d           lp2d   = EdgeLine2d->Value(lpar);
           gp_Pnt2d           lp2dOE = OELine2d->Value(lparOE);
           aLine2d                   = GCE2d_MakeLine(lp2d, lp2dOE).Value();
-          Handle(Geom_Curve)          aCurve;
-          Standard_Real               FirstPar = 0., LastPar = lp2d.Distance(lp2dOE);
-          Geom2dAdaptor_Curve         AC2d(aLine2d, FirstPar, LastPar);
-          GeomAdaptor_Surface         GAsurf(theSurf);
-          Handle(Geom2dAdaptor_Curve) HC2d  = new Geom2dAdaptor_Curve(AC2d);
-          Handle(GeomAdaptor_Surface) HSurf = new GeomAdaptor_Surface(GAsurf);
-          Adaptor3d_CurveOnSurface    ConS(HC2d, HSurf);
-          Standard_Real               max_deviation = 0., average_deviation;
+          Handle(Geom_Curve) aCurve;
+          Standard_Real      FirstPar = 0., LastPar = lp2d.Distance(lp2dOE);
+          Handle(GeomAdaptor_Curve) ConS = new GeomAdaptor_Curve();
+          auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aLine2d, FirstPar, LastPar);
+          auto aSrf = std::make_unique<GeomAdaptor_Surface>(theSurf);
+          ConS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+          Standard_Real max_deviation = 0., average_deviation;
           GeomLib::BuildCurve3d(Precision::Confusion(),
-                                ConS,
+                                *ConS,
                                 FirstPar,
                                 LastPar,
                                 aCurve,

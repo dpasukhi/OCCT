@@ -16,7 +16,6 @@
 
 #include <BRepFill_Filling.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_TEdge.hxx>
 #include <BRep_Tool.hxx>
@@ -37,6 +36,7 @@
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_BSplineSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <GeomAPI_ProjectPointOnSurf.hxx>
 #include <GeomPlate_CurveConstraint.hxx>
@@ -318,14 +318,44 @@ void BRepFill_Filling::AddConstraints(const BRepFill_SequenceOfEdgeFaceAndOrder&
     {
       if (CurOrder == GeomAbs_C0)
       {
-        Handle(BRepAdaptor_Curve) HCurve = new BRepAdaptor_Curve();
-        HCurve->Initialize(CurEdge);
-        const Handle(Adaptor3d_Curve)& aHCurve = HCurve; // to avoid ambiguity
-        Constr = new BRepFill_CurveConstraint(aHCurve, CurOrder, myNbPtsOnCur, myTol3d);
+        // G0 constraint: use 3D curve directly
+        TopLoc_Location aLoc;
+        double          aFirst, aLast;
+        Handle(Geom_Curve) aCurve3d = BRep_Tool::Curve(CurEdge, aLoc, aFirst, aLast);
+        if (aCurve3d.IsNull())
+        {
+          // No 3D curve, must compute from pcurve
+          Handle(Geom2d_Curve) C2d;
+          Handle(Geom_Surface) Surface;
+          BRep_Tool::CurveOnSurface(CurEdge, C2d, Surface, aLoc, aFirst, aLast);
+          if (Surface.IsNull())
+          {
+            throw Standard_Failure("BRepFill_Filling::AddConstraints - no curve on edge");
+          }
+          Surface = Handle(Geom_Surface)::DownCast(Surface->Copy());
+          Surface->Transform(aLoc.Transformation());
+
+          GeomAdaptor_Curve aCurveAdaptor;
+          auto              aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C2d, aFirst, aLast);
+          auto              aSrf  = std::make_unique<GeomAdaptor_Surface>(Surface);
+          aCurveAdaptor.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
+          Constr = new BRepFill_CurveConstraint(std::move(aCurveAdaptor), CurOrder, myNbPtsOnCur, myTol3d);
+        }
+        else
+        {
+          // Has 3D curve
+          if (!aLoc.IsIdentity())
+          {
+            aCurve3d = Handle(Geom_Curve)::DownCast(aCurve3d->Copy());
+            aCurve3d->Transform(aLoc.Transformation());
+          }
+          GeomAdaptor_Curve aCurveAdaptor(aCurve3d, aFirst, aLast);
+          Constr = new BRepFill_CurveConstraint(std::move(aCurveAdaptor), CurOrder, myNbPtsOnCur, myTol3d);
+        }
       }
       else
-      { // Pas de representation Topologique
-        // On prend une representation Geometrique : au pif !
+      { // G1/G2 constraint without face: use pcurve on any surface
         Handle(Geom_Surface) Surface;
         Handle(Geom2d_Curve) C2d;
         TopLoc_Location      loc;
@@ -334,17 +364,16 @@ void BRepFill_Filling::AddConstraints(const BRepFill_SequenceOfEdgeFaceAndOrder&
         if (Surface.IsNull())
         {
           throw Standard_Failure("Add");
-          return;
         }
         Surface = Handle(Geom_Surface)::DownCast(Surface->Copy());
         Surface->Transform(loc.Transformation());
-        Handle(GeomAdaptor_Surface) Surf    = new GeomAdaptor_Surface(Surface);
-        Handle(Geom2dAdaptor_Curve) Curve2d = new Geom2dAdaptor_Curve(C2d);
 
-        Adaptor3d_CurveOnSurface         CurvOnSurf(Curve2d, Surf);
-        Handle(Adaptor3d_CurveOnSurface) HCurvOnSurf = new Adaptor3d_CurveOnSurface(CurvOnSurf);
+        GeomAdaptor_Curve aCurveAdaptor;
+        auto              aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C2d, f, l);
+        auto              aSrf  = std::make_unique<GeomAdaptor_Surface>(Surface);
+        aCurveAdaptor.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
 
-        Constr = new GeomPlate_CurveConstraint(HCurvOnSurf,
+        Constr = new GeomPlate_CurveConstraint(std::move(aCurveAdaptor),
                                                CurOrder,
                                                myNbPtsOnCur,
                                                myTol3d,
@@ -354,17 +383,26 @@ void BRepFill_Filling::AddConstraints(const BRepFill_SequenceOfEdgeFaceAndOrder&
     }
     else
     {
-      Handle(BRepAdaptor_Surface) Surf = new BRepAdaptor_Surface();
-      Surf->Initialize(CurFace);
-      Handle(BRepAdaptor_Curve2d) Curve2d = new BRepAdaptor_Curve2d();
-      Curve2d->Initialize(CurEdge, CurFace);
-      // If CurEdge has no 2d representation on CurFace,
-      // there will be exception "Attempt to access to null object"
-      // in this initialization (null pcurve).
-      Adaptor3d_CurveOnSurface         CurvOnSurf(Curve2d, Surf);
-      Handle(Adaptor3d_CurveOnSurface) HCurvOnSurf = new Adaptor3d_CurveOnSurface(CurvOnSurf);
+      // With face: use pcurve on the specified face
+      Handle(Geom2d_Curve) C2d;
+      double               f, l;
+      C2d = BRep_Tool::CurveOnSurface(CurEdge, CurFace, f, l);
+      if (C2d.IsNull())
+      {
+        throw Standard_Failure("BRepFill_Filling::AddConstraints - no pcurve on face");
+      }
 
-      Constr = new BRepFill_CurveConstraint(HCurvOnSurf,
+      TopLoc_Location      aLoc;
+      Handle(Geom_Surface) Surface = BRep_Tool::Surface(CurFace, aLoc);
+      Surface = Handle(Geom_Surface)::DownCast(Surface->Copy());
+      Surface->Transform(aLoc.Transformation());
+
+      GeomAdaptor_Curve aCurveAdaptor;
+      auto              aPCrv = std::make_unique<Geom2dAdaptor_Curve>(C2d, f, l);
+      auto              aSrf  = std::make_unique<GeomAdaptor_Surface>(Surface);
+      aCurveAdaptor.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+
+      Constr = new BRepFill_CurveConstraint(std::move(aCurveAdaptor),
                                             CurOrder,
                                             myNbPtsOnCur,
                                             myTol3d,

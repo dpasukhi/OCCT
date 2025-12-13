@@ -41,10 +41,10 @@ DEFINE_STANDARD_HANDLE(Adaptor3d_Curve, Standard_Transient)
 //! An adapted curve is an interface between the
 //! services provided by a curve and those required of
 //! the curve by algorithms which use it.
-//! Two derived concrete classes are provided:
-//! - GeomAdaptor_Curve for a curve from the Geom package
-//! - Adaptor3d_CurveOnSurface for a curve lying on
-//! a surface from the Geom package.
+//! A derived concrete class is provided:
+//! - GeomAdaptor_Curve for a curve from the Geom package.
+//! GeomAdaptor_Curve can also represent a curve on surface when created
+//! using SetCurveOnSurface() modifier.
 //!
 //! Polynomial coefficients of BSpline curves used for their evaluation are
 //! cached for better performance. Therefore these evaluations are not

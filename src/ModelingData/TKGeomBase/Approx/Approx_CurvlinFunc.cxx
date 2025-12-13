@@ -18,7 +18,6 @@
 
 #include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
 #include <GeomLib.hxx>
@@ -26,6 +25,10 @@
 #include <Standard_OutOfRange.hxx>
 #include <Standard_Type.hxx>
 #include <TColStd_SequenceOfReal.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <memory>
 
 IMPLEMENT_STANDARD_RTTIEXT(Approx_CurvlinFunc, Standard_Transient)
 
@@ -166,7 +169,7 @@ Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D1,
 
 void Approx_CurvlinFunc::Init()
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
+  GeomAdaptor_Curve CurOnSur;
 
   switch (myCase)
   {
@@ -177,24 +180,38 @@ void Approx_CurvlinFunc::Init()
       myFirstU2 = myLastU2 = 0;
       break;
     case 2:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      Init(CurOnSur, mySi_1, myUi_1);
-      myFirstU1 = CurOnSur.FirstParameter();
-      myLastU1  = CurOnSur.LastParameter();
-      myFirstU2 = myLastU2 = 0;
-      break;
+      {
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>();
+        aPCrv->Load(myC2D1);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>();
+        aSrf->Load(mySurf1);
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
+        Init(CurOnSur, mySi_1, myUi_1);
+        myFirstU1 = CurOnSur.FirstParameter();
+        myLastU1  = CurOnSur.LastParameter();
+        myFirstU2 = myLastU2 = 0;
+        break;
+      }
     case 3:
-      CurOnSur.Load(myC2D1);
-      CurOnSur.Load(mySurf1);
-      Init(CurOnSur, mySi_1, myUi_1);
-      myFirstU1 = CurOnSur.FirstParameter();
-      myLastU1  = CurOnSur.LastParameter();
-      CurOnSur.Load(myC2D2);
-      CurOnSur.Load(mySurf2);
-      Init(CurOnSur, mySi_2, myUi_2);
-      myFirstU2 = CurOnSur.FirstParameter();
-      myLastU2  = CurOnSur.LastParameter();
+      {
+        auto aPCrv1 = std::make_unique<Geom2dAdaptor_Curve>();
+        aPCrv1->Load(myC2D1);
+        auto aSrf1 = std::make_unique<GeomAdaptor_Surface>();
+        aSrf1->Load(mySurf1);
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv1), std::move(aSrf1));
+        Init(CurOnSur, mySi_1, myUi_1);
+        myFirstU1 = CurOnSur.FirstParameter();
+        myLastU1  = CurOnSur.LastParameter();
+
+        auto aPCrv2 = std::make_unique<Geom2dAdaptor_Curve>();
+        aPCrv2->Load(myC2D2);
+        auto aSrf2 = std::make_unique<GeomAdaptor_Surface>();
+        aSrf2->Load(mySurf2);
+        CurOnSur.SetCurveOnSurface(std::move(aPCrv2), std::move(aSrf2));
+        Init(CurOnSur, mySi_2, myUi_2);
+        myFirstU2 = CurOnSur.FirstParameter();
+        myLastU2  = CurOnSur.LastParameter();
+      }
   }
 
   Length();

@@ -19,7 +19,6 @@
 //    abv 14.07.99 dealing with edges without 3d curve
 //    svv 10.01.00 porting on DEC
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepLib_MakeFace.hxx>
@@ -28,8 +27,10 @@
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt.hxx>
+#include <memory>
 #include <Precision.hxx>
 #include <ShapeAnalysis_Curve.hxx>
 #include <ShapeAnalysis_Edge.hxx>
@@ -431,19 +432,19 @@ void ShapeUpgrade_WireDivide::Perform()
 
       // collect NM vertices
 
-      Standard_Real            af = 0., al = 0.;
-      Handle(Geom_Curve)       c3d;
-      Adaptor3d_CurveOnSurface AdCS;
+      Standard_Real      af = 0., al = 0.;
+      Handle(Geom_Curve) c3d;
+      GeomAdaptor_Curve  AdCS;
       if (myEdgeDivide->HasCurve3d())
         sae.Curve3d(E, c3d, af, al, Standard_False);
       else if (myEdgeDivide->HasCurve2d() && !Surf.IsNull())
       {
         Handle(Geom2d_Curve) c2d;
         sae.PCurve(E, myFace, c2d, af, al, Standard_False);
-        Handle(Adaptor3d_Surface) AdS  = new GeomAdaptor_Surface(Surf);
-        Handle(Adaptor2d_Curve2d) AC2d = new Geom2dAdaptor_Curve(c2d, af, al);
-        AdCS.Load(AC2d);
-        AdCS.Load(AdS);
+        // Create curve on surface using GeomAdaptor_Curve with SetCurveOnSurface modifier
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(c2d, af, al);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(Surf);
+        AdCS.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
       }
       TopTools_SequenceOfShape aSeqNMVertices;
       TColStd_SequenceOfReal   aSeqParNM;

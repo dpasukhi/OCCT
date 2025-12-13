@@ -18,7 +18,6 @@
 
 #include <BRepOffset_Inter2d.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
 #include <BOPTools_AlgoTools.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_GCurve.hxx>
@@ -42,6 +41,8 @@
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dConvert_CompCurveToBSplineCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <memory>
 #include <Geom2dInt_GInter.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_BSplineSurface.hxx>
@@ -1023,7 +1024,7 @@ static void RefEdgeInter(const TopoDS_Face&                         F,
 // purpose  : return MaxSegment to pass in approximation
 //======================================================================
 
-static Standard_Integer evaluateMaxSegment(const Adaptor3d_CurveOnSurface& aCurveOnSurface)
+static Standard_Integer evaluateMaxSegment(const GeomAdaptor_Curve& aCurveOnSurface)
 {
   const Handle(Adaptor3d_Surface)& aSurf   = aCurveOnSurface.GetSurface();
   const Handle(Adaptor2d_Curve2d)& aCurv2d = aCurveOnSurface.GetCurve();
@@ -1409,17 +1410,16 @@ Standard_Boolean BRepOffset_Inter2d::ExtentEdge(const TopoDS_Edge&  E,
       }
       else
       {
-        Geom2dAdaptor_Curve              AC2d(MinPC, FirstParOnPC, LastParOnPC);
-        GeomAdaptor_Surface              GAsurf(MinSurf);
-        Handle(Geom2dAdaptor_Curve)      HC2d  = new Geom2dAdaptor_Curve(AC2d);
-        Handle(GeomAdaptor_Surface)      HSurf = new GeomAdaptor_Surface(GAsurf);
-        Adaptor3d_CurveOnSurface         ConS(HC2d, HSurf);
+        Handle(GeomAdaptor_Curve) ConS = new GeomAdaptor_Curve();
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(MinPC, FirstParOnPC, LastParOnPC);
+        auto aSrf = std::make_unique<GeomAdaptor_Surface>(MinSurf);
+        ConS->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
         Standard_Real /*max_deviation,*/ average_deviation;
-        GeomAbs_Shape                    Continuity = GeomAbs_C1;
-        Standard_Integer                 MaxDegree  = 14;
-        Standard_Integer                 MaxSegment = evaluateMaxSegment(ConS);
+        GeomAbs_Shape    Continuity = GeomAbs_C1;
+        Standard_Integer MaxDegree  = 14;
+        Standard_Integer MaxSegment = evaluateMaxSegment(*ConS);
         GeomLib::BuildCurve3d(Precision::Confusion(),
-                              ConS,
+                              *ConS,
                               FirstParOnPC,
                               LastParOnPC,
                               C3d,
