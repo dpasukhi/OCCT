@@ -89,6 +89,61 @@ Standard_EXPORT TOPKRO KRO_DSFILLER_INTFF("intersection face/face");
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dInt_TheProjPCurOfGInter.hxx>
 
+// Helper to extract edge from IntPatch_RLine's arc by searching the domain
+static TopoDS_Shape GetArcEdge(const Handle(IntPatch_Line)&       theLine,
+                               const Handle(Adaptor3d_TopolTool)& theDomain1,
+                               const Handle(Adaptor3d_TopolTool)& theDomain2)
+{
+  TopoDS_Shape anEdge;
+  if (theLine->ArcType() != IntPatch_Restriction)
+  {
+    return anEdge;
+  }
+
+  Handle(IntPatch_RLine) anRLine = Handle(IntPatch_RLine)::DownCast(theLine);
+  if (anRLine.IsNull())
+  {
+    return anEdge;
+  }
+
+  // Get the arc from the RLine
+  Handle(Geom2dAdaptor_Curve)        anArc;
+  Handle(Adaptor3d_TopolTool)        aDomain;
+  if (anRLine->IsArcOnS1())
+  {
+    anArc   = anRLine->ArcOnS1();
+    aDomain = theDomain1;
+  }
+  else if (anRLine->IsArcOnS2())
+  {
+    anArc   = anRLine->ArcOnS2();
+    aDomain = theDomain2;
+  }
+
+  if (anArc.IsNull() || aDomain.IsNull())
+  {
+    return anEdge;
+  }
+
+  // Search the domain for the matching arc and get the corresponding edge
+  for (aDomain->Init(); aDomain->More(); aDomain->Next())
+  {
+    Handle(Geom2dAdaptor_Curve) aDomainArc = aDomain->Value();
+    if (aDomainArc == anArc)
+    {
+      // Found the matching arc - get the edge
+      const TopoDS_Edge* pEdge = static_cast<const TopoDS_Edge*>(aDomain->Edge());
+      if (pEdge != nullptr)
+      {
+        anEdge = *pEdge;
+      }
+      break;
+    }
+  }
+
+  return anEdge;
+}
+
 static Standard_Boolean TestWLineAlongRestriction(const Handle(IntPatch_WLine)&      theWLine,
                                                   const Standard_Integer             theRank,
                                                   const Handle(Adaptor3d_Surface)&   theSurface,
@@ -454,6 +509,12 @@ void TopOpeBRep_FacesIntersector::PrepareLines()
         TopOpeBRep_LineInter&        LI = myHAL->ChangeValue(index);
         const Handle(IntPatch_Line)& L  = aSeqOfResultLines.Value(index);
         LI.SetLine(L, S1, S2);
+        // For restriction lines, extract and set the edge from the arc
+        TopoDS_Shape anArcEdge = GetArcEdge(L, myDomain1, myDomain2);
+        if (!anArcEdge.IsNull())
+        {
+          LI.SetArcEdge(anArcEdge);
+        }
         LI.Index(index);
       }
     }

@@ -55,6 +55,10 @@ public:
                                const BRepAdaptor_Surface&   S1,
                                const BRepAdaptor_Surface&   S2);
 
+  //! Sets the arc edge for a restriction line and propagates to VPoints.
+  //! @param theEdge the edge that corresponds to the restriction arc
+  Standard_EXPORT void SetArcEdge(const TopoDS_Shape& theEdge);
+
   void SetFaces(const TopoDS_Face& F1, const TopoDS_Face& F2);
 
   TopOpeBRep_TypeLineCurve TypeLineCurve() const;
@@ -178,6 +182,7 @@ private:
   TopOpeBRepDS_Transition                 myLineTonF1;
   TopOpeBRepDS_Transition                 myLineTonF2;
   TopoDS_Shape                            myNullShape;
+  TopoDS_Shape                            myArc;
   Standard_Integer                        myexF1;
   Standard_Integer                        myexF2;
 };

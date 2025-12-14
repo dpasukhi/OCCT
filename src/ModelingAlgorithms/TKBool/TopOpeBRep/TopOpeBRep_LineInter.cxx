@@ -15,8 +15,6 @@
 // commercial license or contractual agreement.
 
 #include <TopOpeBRep_LineInter.hxx>
-
-#include <Geom2dAdaptor_Curve.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Curve.hxx>
@@ -118,6 +116,7 @@ void TopOpeBRep_LineInter::SetLine(const Handle(IntPatch_Line)& L,
       break;
     case IntPatch_Restriction:
       myILR = Handle(IntPatch_RLine)::DownCast(L);
+      // Note: myArc should be set separately via SetArcEdge() by the caller
       break;
     case IntPatch_Walking:
       myILW = Handle(IntPatch_WLine)::DownCast(L);
@@ -524,16 +523,40 @@ Handle(Geom_Curve) TopOpeBRep_LineInter::Curve(const Standard_Real parmin,
 
 const TopoDS_Shape& TopOpeBRep_LineInter::Arc() const
 {
-  if (myTypeLineCurve == TopOpeBRep_RESTRICTION)
+  if (myTypeLineCurve == TopOpeBRep_RESTRICTION && !myArc.IsNull())
   {
-    // Note: The Handle(Geom2dAdaptor_Curve) from IntPatch no longer stores edge/face info.
-    // This functionality appears to rely on old implementation details that stored TopoDS_Edge.
-    // The restriction line should have this information available through other means.
-    // For now, return null shape as this code path needs investigation.
-    return myNullShape;
+    return myArc;
   }
-  else
-    return myNullShape;
+  return myNullShape;
+}
+
+//=================================================================================================
+
+void TopOpeBRep_LineInter::SetArcEdge(const TopoDS_Shape& theEdge)
+{
+  myArc = theEdge;
+
+  // Propagate the arc edge to all VPoints
+  if (myTypeLineCurve != TopOpeBRep_RESTRICTION || myILR.IsNull() || myHAVP.IsNull())
+  {
+    return;
+  }
+
+  const bool isOnS1 = myILR->IsArcOnS1();
+  const bool isOnS2 = myILR->IsArcOnS2();
+
+  for (int i = 1; i <= myNbVPoint; i++)
+  {
+    TopOpeBRep_VPointInter& aVP = myHAVP->ChangeValue(i);
+    if (isOnS1)
+    {
+      aVP.SetArcOnS1(theEdge);
+    }
+    if (isOnS2)
+    {
+      aVP.SetArcOnS2(theEdge);
+    }
+  }
 }
 
 //=================================================================================================

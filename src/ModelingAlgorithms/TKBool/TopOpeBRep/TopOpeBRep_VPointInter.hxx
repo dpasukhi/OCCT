@@ -68,6 +68,12 @@ public:
 
   Standard_EXPORT const TopoDS_Shape& ArcOnS2() const;
 
+  //! Sets the arc edge on surface 1.
+  void SetArcOnS1(const TopoDS_Shape& theEdge) { myArcOnS1 = theEdge; }
+
+  //! Sets the arc edge on surface 2.
+  void SetArcOnS2(const TopoDS_Shape& theEdge) { myArcOnS2 = theEdge; }
+
   Standard_Real ParameterOnLine() const;
 
   Standard_Real ParameterOnArc1() const;
@@ -191,6 +197,8 @@ private:
   Standard_Real                      myEdgeONPar2;
   Standard_Integer                   myIndex;
   TopoDS_Shape                       myNullShape;
+  TopoDS_Shape                       myArcOnS1;
+  TopoDS_Shape                       myArcOnS2;
   Standard_Integer                   myS1;
   Standard_Integer                   myS2;
 };
