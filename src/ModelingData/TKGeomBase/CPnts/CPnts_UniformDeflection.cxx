@@ -38,7 +38,7 @@
 //   each iteration calculates at maximum 3 points
 //-------------------------------------------------------------------------
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <CPnts_UniformDeflection.hxx>
 #include <gp_Pnt.hxx>
@@ -55,7 +55,7 @@ static inline void D03d(const Standard_Address C, const Standard_Real U, gp_Pnt&
 static void D02d(const Standard_Address C, const Standard_Real U, gp_Pnt& PP)
 {
   gp_Pnt2d P;
-  ((Adaptor2d_Curve2d*)C)->D0(U, P);
+  ((Geom2dAdaptor_Curve*)C)->D0(U, P);
   PP.SetCoord(P.X(), P.Y(), 0.);
 }
 
@@ -76,7 +76,7 @@ static void D22d(const Standard_Address C,
 {
   gp_Pnt2d P;
   gp_Vec2d V1, V2;
-  ((Adaptor2d_Curve2d*)C)->D2(U, P, V1, V2);
+  ((Geom2dAdaptor_Curve*)C)->D2(U, P, V1, V2);
   PP.SetCoord(P.X(), P.Y(), 0.);
   VV1.SetCoord(V1.X(), V1.Y(), 0.);
   VV2.SetCoord(V2.X(), V2.Y(), 0.);
@@ -288,7 +288,7 @@ CPnts_UniformDeflection::CPnts_UniformDeflection(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-CPnts_UniformDeflection::CPnts_UniformDeflection(const Adaptor2d_Curve2d& C,
+CPnts_UniformDeflection::CPnts_UniformDeflection(const Geom2dAdaptor_Curve& C,
                                                  const Standard_Real      Deflection,
                                                  const Standard_Real      Resolution,
                                                  const Standard_Boolean   WithControl)
@@ -308,7 +308,7 @@ void CPnts_UniformDeflection::Initialize(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-void CPnts_UniformDeflection::Initialize(const Adaptor2d_Curve2d& C,
+void CPnts_UniformDeflection::Initialize(const Geom2dAdaptor_Curve& C,
                                          const Standard_Real      Deflection,
                                          const Standard_Real      Resolution,
                                          const Standard_Boolean   WithControl)
@@ -330,7 +330,7 @@ CPnts_UniformDeflection ::CPnts_UniformDeflection(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-CPnts_UniformDeflection ::CPnts_UniformDeflection(const Adaptor2d_Curve2d& C,
+CPnts_UniformDeflection ::CPnts_UniformDeflection(const Geom2dAdaptor_Curve& C,
                                                   const Standard_Real      Deflection,
                                                   const Standard_Real      U1,
                                                   const Standard_Real      U2,
@@ -373,7 +373,7 @@ void CPnts_UniformDeflection::Initialize(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-void CPnts_UniformDeflection::Initialize(const Adaptor2d_Curve2d& C,
+void CPnts_UniformDeflection::Initialize(const Geom2dAdaptor_Curve& C,
                                          const Standard_Real      Deflection,
                                          const Standard_Real      U1,
                                          const Standard_Real      U2,

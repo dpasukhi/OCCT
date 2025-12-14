@@ -70,7 +70,7 @@ private:
                                        math_Vector&        Sol,
                                        const Standard_Real Bound);
 
-  Standard_EXPORT void Transition(const Handle(Adaptor2d_Curve2d)& A,
+  Standard_EXPORT void Transition(const Handle(Geom2dAdaptor_Curve)& A,
                                   const Standard_Real              Param,
                                   IntSurf_Transition&              TLine,
                                   IntSurf_Transition&              TArc);

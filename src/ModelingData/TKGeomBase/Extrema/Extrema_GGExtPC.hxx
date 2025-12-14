@@ -38,7 +38,7 @@
 //! handling different curve types (lines, circles, ellipses, parabolas,
 //! hyperbolas, Bezier, BSpline, and general curves) with optimized algorithms.
 //!
-//! @tparam TheCurve       The curve type (e.g., Adaptor3d_Curve, Adaptor2d_Curve2d)
+//! @tparam TheCurve       The curve type (e.g., Adaptor3d_Curve, Geom2dAdaptor_Curve)
 //! @tparam TheCurveTool   The curve tool providing static methods
 //! @tparam TheExtPElC     The elementary curve extremum class
 //! @tparam ThePoint       The point type (e.g., gp_Pnt, gp_Pnt2d)

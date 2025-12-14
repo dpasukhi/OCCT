@@ -17,7 +17,7 @@
 #ifndef _Contap_ArcFunction_HeaderFile
 #define _Contap_ArcFunction_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Contap_TFunction.hxx>
 #include <gp_Dir.hxx>
@@ -43,7 +43,7 @@ public:
 
   void Set(const gp_Pnt& Eye, const Standard_Real Angle);
 
-  void Set(const Handle(Adaptor2d_Curve2d)& A);
+  void Set(const Handle(Geom2dAdaptor_Curve)& A);
 
   Standard_EXPORT Standard_Boolean Value(const Standard_Real X, Standard_Real& F) Standard_OVERRIDE;
 
@@ -71,7 +71,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor2d_Curve2d) myArc;
+  Handle(Geom2dAdaptor_Curve) myArc;
   Handle(Adaptor3d_Surface) mySurf;
   Standard_Real             myMean;
   Contap_TFunction          myType;

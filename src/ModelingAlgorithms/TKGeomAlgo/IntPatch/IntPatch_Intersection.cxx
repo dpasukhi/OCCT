@@ -1913,8 +1913,8 @@ void IntPatch_Intersection::Perform(const Handle(Adaptor3d_Surface)&   S1,
 
 #ifdef DUMPOFIntPatch_Intersection
 
-void IntPatch_Intersection__MAJ_R(Handle(Adaptor2d_Curve2d)* R1,
-                                  Handle(Adaptor2d_Curve2d)*,
+void IntPatch_Intersection__MAJ_R(Handle(Geom2dAdaptor_Curve)* R1,
+                                  Handle(Geom2dAdaptor_Curve)*,
                                   int* NR1,
                                   int*,
                                   Standard_Integer nbR1,
@@ -1953,7 +1953,7 @@ void IntPatch_Intersection::Dump(const Standard_Integer /*Mode*/,
   //--  construction de la liste des restrictions & vertex
   //--
   int                       NR1[MAXR], NR2[MAXR];
-  Handle(Adaptor2d_Curve2d) R1[MAXR], R2[MAXR];
+  Handle(Geom2dAdaptor_Curve) R1[MAXR], R2[MAXR];
   Standard_Integer          nbR1 = 0, nbR2 = 0;
   for (D1->Init(); D1->More() && nbR1 < MAXR; D1->Next())
   {
@@ -2117,7 +2117,7 @@ Standard_Boolean IntPatch_Intersection::CheckSingularPoints(
   Standard_Boolean isU = Standard_True;
   for (; theD1->More(); theD1->Next())
   {
-    Handle(Adaptor2d_Curve2d) aBnd = theD1->Value();
+    Handle(Geom2dAdaptor_Curve) aBnd = theD1->Value();
     Standard_Real             pinf = aBnd->FirstParameter(), psup = aBnd->LastParameter();
     if (Precision::IsNegativeInfinite(pinf) || Precision::IsPositiveInfinite(psup))
     {

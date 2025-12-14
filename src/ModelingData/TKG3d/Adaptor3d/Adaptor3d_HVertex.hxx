@@ -17,7 +17,7 @@
 #ifndef _Adaptor3d_HVertex_HeaderFile
 #define _Adaptor3d_HVertex_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <TopAbs_Orientation.hxx>
 
@@ -36,10 +36,10 @@ public:
 
   Standard_EXPORT virtual gp_Pnt2d Value();
 
-  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Parametric resolution (2d).
-  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Geom2dAdaptor_Curve)& C);
 
   Standard_EXPORT virtual TopAbs_Orientation Orientation();
 

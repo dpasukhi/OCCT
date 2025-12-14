@@ -18,12 +18,12 @@
 #include <IntSurf_LineOn2S.hxx>
 #include <IntPatch_Point.hxx>
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_RLine::ArcOnS1() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_RLine::ArcOnS1() const
 {
   return theArcOnS1;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_RLine::ArcOnS2() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_RLine::ArcOnS2() const
 {
   return theArcOnS2;
 }

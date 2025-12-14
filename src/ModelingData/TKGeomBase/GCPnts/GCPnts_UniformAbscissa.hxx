@@ -21,7 +21,7 @@
 #include <TColStd_HArray1OfReal.hxx>
 
 class Adaptor3d_Curve;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 
 //! This class allows to compute a uniform distribution of points
 //! on a curve (i.e. the points will all be equally distant).
@@ -127,7 +127,7 @@ public:
   //! @param[in] theAbscissa  abscissa (distance between two consecutive points)
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                          const Standard_Real      theAbscissa,
                                          const Standard_Real      theToler = -1);
 
@@ -138,7 +138,7 @@ public:
   //! @param[in] theU2  last  parameter on curve
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                          const Standard_Real      theAbscissa,
                                          const Standard_Real      theU1,
                                          const Standard_Real      theU2,
@@ -149,7 +149,7 @@ public:
   //! @param[in] theNbPoints  defines the number of desired points
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                          const Standard_Integer   theNbPoints,
                                          const Standard_Real      theToler = -1);
 
@@ -160,7 +160,7 @@ public:
   //! @param[in] theU2  last  parameter on curve
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                          const Standard_Integer   theNbPoints,
                                          const Standard_Real      theU1,
                                          const Standard_Real      theU2,
@@ -171,7 +171,7 @@ public:
   //! @param[in] theAbscissa  abscissa (distance between two consecutive points)
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Real      theAbscissa,
                                   const Standard_Real      theToler = -1);
 
@@ -182,7 +182,7 @@ public:
   //! @param[in] theU2  last  parameter on curve
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Real      theAbscissa,
                                   const Standard_Real      theU1,
                                   const Standard_Real      theU2,
@@ -193,7 +193,7 @@ public:
   //! @param[in] theNbPoints  defines the number of desired points
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Integer   theNbPoints,
                                   const Standard_Real      theToler = -1);
 
@@ -204,7 +204,7 @@ public:
   //! @param[in] theU2  last  parameter on curve
   //! @param[in] theToler  used for more precise calculation of curve length
   //!                      (Precision::Confusion() by default)
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Integer   theNbPoints,
                                   const Standard_Real      theU1,
                                   const Standard_Real      theU2,

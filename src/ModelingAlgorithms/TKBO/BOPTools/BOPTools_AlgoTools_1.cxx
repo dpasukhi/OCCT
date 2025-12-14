@@ -971,7 +971,7 @@ void CorrectEdgeTolerance(const TopoDS_Edge&                myShape,
         Handle(GeomAdaptor_Curve) aHCurve = new GeomAdaptor_Curve(ProjOnPlane);
 
         ProjLib_ProjectedCurve proj(GAHS, aHCurve);
-        Handle(Geom2d_Curve)   PC = Geom2dAdaptor::MakeCurve(proj);
+        Handle(Geom2d_Curve)   PC = proj.GetCurve2d();
 
         GeomAdaptor_Curve aCurveOnSurface3;
         {

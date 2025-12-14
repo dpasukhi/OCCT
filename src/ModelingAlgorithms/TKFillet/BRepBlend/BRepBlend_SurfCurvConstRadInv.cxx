@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepBlend_SurfCurvConstRadInv.hxx>
 #include <math_Matrix.hxx>
 
@@ -245,7 +245,7 @@ Standard_Boolean BRepBlend_SurfCurvConstRadInv::Values(const math_Vector& X,
 
 //=================================================================================================
 
-void BRepBlend_SurfCurvConstRadInv::Set(const Handle(Adaptor2d_Curve2d)& Rst)
+void BRepBlend_SurfCurvConstRadInv::Set(const Handle(Geom2dAdaptor_Curve)& Rst)
 {
   rst = Rst;
 }

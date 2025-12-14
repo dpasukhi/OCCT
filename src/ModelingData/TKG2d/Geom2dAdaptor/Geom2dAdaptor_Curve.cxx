@@ -23,9 +23,9 @@
 
 #include <Geom2dAdaptor_Curve.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
 #include <BSplCLib.hxx>
 #include <BSplCLib_Cache.hxx>
+#include <ElCLib.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2d_Circle.hxx>
@@ -37,9 +37,12 @@
 #include <Geom2d_Parabola.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2d_UndefinedDerivative.hxx>
+#include <Geom2dEvaluator.hxx>
 #include <Geom2dEvaluator_OffsetCurve.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <gp_Ax22d.hxx>
 #include <gp_Circ2d.hxx>
+#include <gp_Dir2d.hxx>
 #include <gp_Elips2d.hxx>
 #include <gp_Hypr2d.hxx>
 #include <gp_Lin2d.hxx>
@@ -50,17 +53,17 @@
 #include <Standard_DomainError.hxx>
 #include <Standard_NoSuchObject.hxx>
 #include <Standard_NotImplemented.hxx>
+#include <Standard_TypeMismatch.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
-// #include <Geom2dConvert_BSplineCurveKnotSplitting.hxx>
 static const Standard_Real PosTol = Precision::PConfusion() / 2;
 
-IMPLEMENT_STANDARD_RTTIEXT(Geom2dAdaptor_Curve, Adaptor2d_Curve2d)
+IMPLEMENT_STANDARD_RTTIEXT(Geom2dAdaptor_Curve, Standard_Transient)
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) Geom2dAdaptor_Curve::ShallowCopy() const
+Handle(Geom2dAdaptor_Curve) Geom2dAdaptor_Curve::ShallowCopy() const
 {
   Handle(Geom2dAdaptor_Curve) aCopy = new Geom2dAdaptor_Curve();
 
@@ -69,6 +72,14 @@ Handle(Adaptor2d_Curve2d) Geom2dAdaptor_Curve::ShallowCopy() const
   aCopy->myFirst        = myFirst;
   aCopy->myLast         = myLast;
   aCopy->myBSplineCurve = myBSplineCurve;
+  aCopy->myIsLine2d     = myIsLine2d;
+  aCopy->myLineAxis     = myLineAxis;
+  aCopy->myHasOffset    = myHasOffset;
+  aCopy->myOffset       = myOffset;
+  if (!myBaseCurve.IsNull())
+  {
+    aCopy->myBaseCurve = myBaseCurve->ShallowCopy();
+  }
   if (!myNestedEvaluator.IsNull())
   {
     aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
@@ -169,24 +180,36 @@ GeomAbs_Shape Geom2dAdaptor_Curve::LocalContinuity(const Standard_Real U1,
 Geom2dAdaptor_Curve::Geom2dAdaptor_Curve()
     : myTypeCurve(GeomAbs_OtherCurve),
       myFirst(0.0),
-      myLast(0.0)
+      myLast(0.0),
+      myIsLine2d(false),
+      myHasOffset(false),
+      myOffset(0.0)
 {
 }
 
 //=================================================================================================
 
 Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(const Geom2dAdaptor_Curve& theOther)
-    : Adaptor2d_Curve2d(),
+    : Standard_Transient(),
       myCurve(theOther.myCurve),
       myTypeCurve(theOther.myTypeCurve),
       myFirst(theOther.myFirst),
       myLast(theOther.myLast),
-      myBSplineCurve(theOther.myBSplineCurve)
+      myBSplineCurve(theOther.myBSplineCurve),
+      myIsLine2d(theOther.myIsLine2d),
+      myLineAxis(theOther.myLineAxis),
+      myHasOffset(theOther.myHasOffset),
+      myOffset(theOther.myOffset)
 {
   // Deep copy the nested evaluator if present
   if (!theOther.myNestedEvaluator.IsNull())
   {
     myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
+  }
+  // Deep copy the base curve if present
+  if (!theOther.myBaseCurve.IsNull())
+  {
+    myBaseCurve = theOther.myBaseCurve->ShallowCopy();
   }
   // Note: myCurveCache is intentionally not copied - it will be rebuilt on demand
 }
@@ -194,18 +217,26 @@ Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(const Geom2dAdaptor_Curve& theOther)
 //=================================================================================================
 
 Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(Geom2dAdaptor_Curve&& theOther) noexcept
-    : Adaptor2d_Curve2d(),
+    : Standard_Transient(),
       myCurve(std::move(theOther.myCurve)),
       myTypeCurve(theOther.myTypeCurve),
       myFirst(theOther.myFirst),
       myLast(theOther.myLast),
       myBSplineCurve(std::move(theOther.myBSplineCurve)),
       myCurveCache(std::move(theOther.myCurveCache)),
-      myNestedEvaluator(std::move(theOther.myNestedEvaluator))
+      myNestedEvaluator(std::move(theOther.myNestedEvaluator)),
+      myIsLine2d(theOther.myIsLine2d),
+      myLineAxis(theOther.myLineAxis),
+      myHasOffset(theOther.myHasOffset),
+      myOffset(theOther.myOffset),
+      myBaseCurve(std::move(theOther.myBaseCurve))
 {
   theOther.myTypeCurve = GeomAbs_OtherCurve;
   theOther.myFirst     = 0.0;
   theOther.myLast      = 0.0;
+  theOther.myIsLine2d  = false;
+  theOther.myHasOffset = false;
+  theOther.myOffset    = 0.0;
 }
 
 //=================================================================================================
@@ -219,6 +250,10 @@ Geom2dAdaptor_Curve& Geom2dAdaptor_Curve::operator=(const Geom2dAdaptor_Curve& t
     myFirst        = theOther.myFirst;
     myLast         = theOther.myLast;
     myBSplineCurve = theOther.myBSplineCurve;
+    myIsLine2d     = theOther.myIsLine2d;
+    myLineAxis     = theOther.myLineAxis;
+    myHasOffset    = theOther.myHasOffset;
+    myOffset       = theOther.myOffset;
     myCurveCache.Nullify(); // Will be rebuilt on demand
     if (!theOther.myNestedEvaluator.IsNull())
     {
@@ -227,6 +262,14 @@ Geom2dAdaptor_Curve& Geom2dAdaptor_Curve::operator=(const Geom2dAdaptor_Curve& t
     else
     {
       myNestedEvaluator.Nullify();
+    }
+    if (!theOther.myBaseCurve.IsNull())
+    {
+      myBaseCurve = theOther.myBaseCurve->ShallowCopy();
+    }
+    else
+    {
+      myBaseCurve.Nullify();
     }
   }
   return *this;
@@ -245,10 +288,18 @@ Geom2dAdaptor_Curve& Geom2dAdaptor_Curve::operator=(Geom2dAdaptor_Curve&& theOth
     myBSplineCurve    = std::move(theOther.myBSplineCurve);
     myCurveCache      = std::move(theOther.myCurveCache);
     myNestedEvaluator = std::move(theOther.myNestedEvaluator);
+    myIsLine2d        = theOther.myIsLine2d;
+    myLineAxis        = theOther.myLineAxis;
+    myHasOffset       = theOther.myHasOffset;
+    myOffset          = theOther.myOffset;
+    myBaseCurve       = std::move(theOther.myBaseCurve);
 
     theOther.myTypeCurve = GeomAbs_OtherCurve;
     theOther.myFirst     = 0.0;
     theOther.myLast      = 0.0;
+    theOther.myIsLine2d  = false;
+    theOther.myHasOffset = false;
+    theOther.myOffset    = 0.0;
   }
   return *this;
 }
@@ -265,7 +316,10 @@ Geom2dAdaptor_Curve Geom2dAdaptor_Curve::Copy() const
 Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(const Handle(Geom2d_Curve)& theCrv)
     : myTypeCurve(GeomAbs_OtherCurve),
       myFirst(0.0),
-      myLast(0.0)
+      myLast(0.0),
+      myIsLine2d(false),
+      myHasOffset(false),
+      myOffset(0.0)
 {
   Load(theCrv);
 }
@@ -277,7 +331,10 @@ Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(const Handle(Geom2d_Curve)& theCrv,
                                          const Standard_Real         theULast)
     : myTypeCurve(GeomAbs_OtherCurve),
       myFirst(theUFirst),
-      myLast(theULast)
+      myLast(theULast),
+      myIsLine2d(false),
+      myHasOffset(false),
+      myOffset(0.0)
 {
   Load(theCrv, theUFirst, theULast);
 }
@@ -291,7 +348,170 @@ void Geom2dAdaptor_Curve::Reset()
   myCurveCache.Nullify();
   myNestedEvaluator.Nullify();
   myBSplineCurve.Nullify();
-  myFirst = myLast = 0.0;
+  myBaseCurve.Nullify();
+  myFirst     = myLast = 0.0;
+  myIsLine2d  = false;
+  myHasOffset = false;
+  myOffset    = 0.0;
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::SetLine(const gp_Pnt2d& theOrigin,
+                                  const gp_Dir2d& theDirection,
+                                  double          theFirst,
+                                  double          theLast)
+{
+  Reset();
+  myIsLine2d  = true;
+  myLineAxis  = gp_Ax2d(theOrigin, theDirection);
+  myFirst     = theFirst;
+  myLast      = theLast;
+  myTypeCurve = GeomAbs_Line;
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::SetLine(const gp_Lin2d& theLine, double theFirst, double theLast)
+{
+  SetLine(theLine.Location(), theLine.Direction(), theFirst, theLast);
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::SetOffset(const Handle(Geom2dAdaptor_Curve)& theBaseCurve,
+                                    double                             theOffset)
+{
+  if (theBaseCurve.IsNull())
+  {
+    throw Standard_NullObject("Geom2dAdaptor_Curve::SetOffset - null base curve");
+  }
+  SetOffset(theBaseCurve, theOffset, theBaseCurve->FirstParameter(), theBaseCurve->LastParameter());
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::SetOffset(const Handle(Geom2dAdaptor_Curve)& theBaseCurve,
+                                    double                             theOffset,
+                                    double                             theFirst,
+                                    double                             theLast)
+{
+  if (theBaseCurve.IsNull())
+  {
+    throw Standard_NullObject("Geom2dAdaptor_Curve::SetOffset - null base curve");
+  }
+  Reset();
+  myHasOffset = true;
+  myOffset    = theOffset;
+  myBaseCurve = theBaseCurve->ShallowCopy();
+  myFirst     = theFirst;
+  myLast      = theLast;
+  // Type will be determined dynamically by getOffsetType()
+}
+
+//=================================================================================================
+
+GeomAbs_CurveType Geom2dAdaptor_Curve::getOffsetType() const
+{
+  if (!myHasOffset || myOffset == 0.0)
+  {
+    return myBaseCurve.IsNull() ? myTypeCurve : myBaseCurve->GetType();
+  }
+  GeomAbs_CurveType aBaseType = myBaseCurve->GetType();
+  switch (aBaseType)
+  {
+    case GeomAbs_Line:
+      return GeomAbs_Line;
+    case GeomAbs_Circle:
+      return GeomAbs_Circle;
+    default:
+      return GeomAbs_OffsetCurve;
+  }
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::evaluateLine2d(double theU, gp_Pnt2d& theP) const
+{
+  theP = ElCLib::LineValue(theU, myLineAxis);
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::evaluateLine2dD1(double theU, gp_Pnt2d& theP, gp_Vec2d& theV) const
+{
+  ElCLib::LineD1(theU, myLineAxis, theP, theV);
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::evaluateOffset(double theU, gp_Pnt2d& theP) const
+{
+  if (myOffset == 0.0)
+  {
+    myBaseCurve->D0(theU, theP);
+  }
+  else
+  {
+    gp_Vec2d aV;
+    myBaseCurve->D1(theU, theP, aV);
+    Geom2dEvaluator::CalculateD0(theP, aV, myOffset);
+  }
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::evaluateOffsetD1(double theU, gp_Pnt2d& theP, gp_Vec2d& theV) const
+{
+  if (myOffset == 0.0)
+  {
+    myBaseCurve->D1(theU, theP, theV);
+  }
+  else
+  {
+    gp_Vec2d aV2;
+    myBaseCurve->D2(theU, theP, theV, aV2);
+    Geom2dEvaluator::CalculateD1(theP, theV, aV2, myOffset);
+  }
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::evaluateOffsetD2(double    theU,
+                                           gp_Pnt2d& theP,
+                                           gp_Vec2d& theV1,
+                                           gp_Vec2d& theV2) const
+{
+  if (myOffset == 0.0)
+  {
+    myBaseCurve->D2(theU, theP, theV1, theV2);
+  }
+  else
+  {
+    gp_Vec2d aV3;
+    myBaseCurve->D3(theU, theP, theV1, theV2, aV3);
+    Geom2dEvaluator::CalculateD2(theP, theV1, theV2, aV3, Standard_False, myOffset);
+  }
+}
+
+//=================================================================================================
+
+void Geom2dAdaptor_Curve::evaluateOffsetD3(double    theU,
+                                           gp_Pnt2d& theP,
+                                           gp_Vec2d& theV1,
+                                           gp_Vec2d& theV2,
+                                           gp_Vec2d& theV3) const
+{
+  if (myOffset == 0.0)
+  {
+    myBaseCurve->D3(theU, theP, theV1, theV2, theV3);
+  }
+  else
+  {
+    gp_Vec2d aV4 = myBaseCurve->DN(theU, 4);
+    myBaseCurve->D3(theU, theP, theV1, theV2, theV3);
+    Geom2dEvaluator::CalculateD3(theP, theV1, theV2, theV3, aV4, Standard_False, myOffset);
+  }
 }
 
 //=================================================================================================
@@ -303,6 +523,10 @@ void Geom2dAdaptor_Curve::load(const Handle(Geom2d_Curve)& C,
   myFirst = UFirst;
   myLast  = ULast;
   myCurveCache.Nullify();
+  myIsLine2d  = false;
+  myHasOffset = false;
+  myOffset    = 0.0;
+  myBaseCurve.Nullify();
 
   if (myCurve != C)
   {
@@ -368,6 +592,37 @@ void Geom2dAdaptor_Curve::load(const Handle(Geom2d_Curve)& C,
 
 GeomAbs_Shape Geom2dAdaptor_Curve::Continuity() const
 {
+  // Line2d is CN
+  if (myIsLine2d)
+  {
+    return GeomAbs_CN;
+  }
+
+  // Offset curve continuity
+  if (myHasOffset)
+  {
+    GeomAbs_Shape S = myBaseCurve->Continuity();
+    switch (S)
+    {
+      case GeomAbs_CN:
+        return GeomAbs_CN;
+      case GeomAbs_C3:
+        return GeomAbs_C2;
+      case GeomAbs_C2:
+        return GeomAbs_G2;
+      case GeomAbs_G2:
+        return GeomAbs_C1;
+      case GeomAbs_C1:
+        return GeomAbs_G1;
+      case GeomAbs_G1:
+        return GeomAbs_C0;
+      case GeomAbs_C0:
+        throw Standard_TypeMismatch("Geom2dAdaptor_Curve::Continuity - offset of C0 curve");
+        break;
+    }
+    return GeomAbs_C0;
+  }
+
   if (myTypeCurve == GeomAbs_BSplineCurve)
   {
     return LocalContinuity(myFirst, myLast);
@@ -409,6 +664,37 @@ GeomAbs_Shape Geom2dAdaptor_Curve::Continuity() const
 
 Standard_Integer Geom2dAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
 {
+  // Line2d has 1 interval
+  if (myIsLine2d)
+  {
+    return 1;
+  }
+
+  // Offset curve intervals
+  if (myHasOffset)
+  {
+    GeomAbs_Shape BaseS = GeomAbs_C0;
+    switch (S)
+    {
+      case GeomAbs_G1:
+      case GeomAbs_G2:
+        throw Standard_DomainError("Geom2dAdaptor_Curve::NbIntervals");
+        break;
+      case GeomAbs_C0:
+        BaseS = GeomAbs_C1;
+        break;
+      case GeomAbs_C1:
+        BaseS = GeomAbs_C2;
+        break;
+      case GeomAbs_C2:
+        BaseS = GeomAbs_C3;
+        break;
+      default:
+        BaseS = GeomAbs_CN;
+    }
+    return myBaseCurve->NbIntervals(BaseS);
+  }
+
   if (myTypeCurve == GeomAbs_BSplineCurve)
   {
     if ((!myBSplineCurve->IsPeriodic() && S <= Continuity()) || S == GeomAbs_C0)
@@ -489,6 +775,43 @@ Standard_Integer Geom2dAdaptor_Curve::NbIntervals(const GeomAbs_Shape S) const
 
 void Geom2dAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S) const
 {
+  // Line2d
+  if (myIsLine2d)
+  {
+    T(T.Lower())     = myFirst;
+    T(T.Lower() + 1) = myLast;
+    return;
+  }
+
+  // Offset curve intervals
+  if (myHasOffset)
+  {
+    GeomAbs_Shape BaseS = GeomAbs_C0;
+    switch (S)
+    {
+      case GeomAbs_G1:
+      case GeomAbs_G2:
+        throw Standard_DomainError("Geom2dAdaptor_Curve::Intervals");
+        break;
+      case GeomAbs_C0:
+        BaseS = GeomAbs_C1;
+        break;
+      case GeomAbs_C1:
+        BaseS = GeomAbs_C2;
+        break;
+      case GeomAbs_C2:
+        BaseS = GeomAbs_C3;
+        break;
+      default:
+        BaseS = GeomAbs_CN;
+    }
+    Standard_Integer myNbIntervals = myBaseCurve->NbIntervals(BaseS);
+    myBaseCurve->Intervals(T, BaseS);
+    T(T.Lower())                    = myFirst;
+    T(T.Lower() + myNbIntervals) = myLast;
+    return;
+  }
+
   if (myTypeCurve == GeomAbs_BSplineCurve)
   {
     if ((!myBSplineCurve->IsPeriodic() && S <= Continuity()) || S == GeomAbs_C0)
@@ -573,18 +896,16 @@ void Geom2dAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) Geom2dAdaptor_Curve::Trim(const Standard_Real First,
-                                                    const Standard_Real Last,
-                                                    const Standard_Real Tol) const
+Handle(Geom2dAdaptor_Curve) Geom2dAdaptor_Curve::Trim(const Standard_Real First,
+                                                      const Standard_Real Last,
+                                                      const Standard_Real Tol) const
 {
   return new Geom2dAdaptor_Curve(TrimByValue(First, Last, Tol));
 }
 
 //=================================================================================================
 
-Geom2dAdaptor_Curve Geom2dAdaptor_Curve::TrimByValue(double theFirst,
-                                                     double theLast,
-                                                     double) const
+Geom2dAdaptor_Curve Geom2dAdaptor_Curve::TrimByValue(double theFirst, double theLast, double) const
 {
   Geom2dAdaptor_Curve aResult = Copy();
   aResult.myFirst             = theFirst;
@@ -597,6 +918,36 @@ Geom2dAdaptor_Curve Geom2dAdaptor_Curve::TrimByValue(double theFirst,
 
 Standard_Boolean Geom2dAdaptor_Curve::IsClosed() const
 {
+  // Line2d is never closed
+  if (myIsLine2d)
+  {
+    return Standard_False;
+  }
+
+  // Offset curve closure
+  if (myHasOffset)
+  {
+    if (myOffset == 0.0)
+    {
+      return myBaseCurve->IsClosed();
+    }
+    if (myBaseCurve->Continuity() == GeomAbs_C0)
+    {
+      return Standard_False;
+    }
+    if (myBaseCurve->IsClosed())
+    {
+      gp_Vec2d Dummy[2];
+      gp_Pnt2d P;
+      myBaseCurve->D1(myBaseCurve->FirstParameter(), P, Dummy[0]);
+      myBaseCurve->D1(myBaseCurve->LastParameter(), P, Dummy[1]);
+      if (Dummy[0].IsParallel(Dummy[1], Precision::Angular())
+          && !(Dummy[0].IsOpposite(Dummy[1], Precision::Angular())))
+        return Standard_True;
+    }
+    return Standard_False;
+  }
+
   if (!Precision::IsPositiveInfinite(myLast) && !Precision::IsNegativeInfinite(myFirst))
   {
     gp_Pnt2d Pd = Value(myFirst);
@@ -611,6 +962,10 @@ Standard_Boolean Geom2dAdaptor_Curve::IsClosed() const
 
 Standard_Boolean Geom2dAdaptor_Curve::IsPeriodic() const
 {
+  if (myIsLine2d)
+    return Standard_False;
+  if (myHasOffset)
+    return myBaseCurve->IsPeriodic();
   return myCurve->IsPeriodic();
 }
 
@@ -618,6 +973,10 @@ Standard_Boolean Geom2dAdaptor_Curve::IsPeriodic() const
 
 Standard_Real Geom2dAdaptor_Curve::Period() const
 {
+  if (myIsLine2d)
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Period - line is not periodic");
+  if (myHasOffset)
+    return myBaseCurve->Period();
   return myCurve->LastParameter() - myCurve->FirstParameter();
 }
 
@@ -697,6 +1056,20 @@ gp_Pnt2d Geom2dAdaptor_Curve::Value(const Standard_Real U) const
 
 void Geom2dAdaptor_Curve::D0(const Standard_Real U, gp_Pnt2d& P) const
 {
+  // Line2d mode
+  if (myIsLine2d)
+  {
+    evaluateLine2d(U, P);
+    return;
+  }
+
+  // Offset mode
+  if (myHasOffset)
+  {
+    evaluateOffset(U, P);
+    return;
+  }
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
@@ -729,6 +1102,20 @@ void Geom2dAdaptor_Curve::D0(const Standard_Real U, gp_Pnt2d& P) const
 
 void Geom2dAdaptor_Curve::D1(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V) const
 {
+  // Line2d mode
+  if (myIsLine2d)
+  {
+    evaluateLine2dD1(U, P, V);
+    return;
+  }
+
+  // Offset mode
+  if (myHasOffset)
+  {
+    evaluateOffsetD1(U, P, V);
+    return;
+  }
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
@@ -761,6 +1148,21 @@ void Geom2dAdaptor_Curve::D1(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V) co
 
 void Geom2dAdaptor_Curve::D2(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V1, gp_Vec2d& V2) const
 {
+  // Line2d mode
+  if (myIsLine2d)
+  {
+    evaluateLine2dD1(U, P, V1);
+    V2.SetCoord(0., 0.);
+    return;
+  }
+
+  // Offset mode
+  if (myHasOffset)
+  {
+    evaluateOffsetD2(U, P, V1, V2);
+    return;
+  }
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
@@ -797,6 +1199,22 @@ void Geom2dAdaptor_Curve::D3(const Standard_Real U,
                              gp_Vec2d&           V2,
                              gp_Vec2d&           V3) const
 {
+  // Line2d mode
+  if (myIsLine2d)
+  {
+    evaluateLine2dD1(U, P, V1);
+    V2.SetCoord(0., 0.);
+    V3.SetCoord(0., 0.);
+    return;
+  }
+
+  // Offset mode
+  if (myHasOffset)
+  {
+    evaluateOffsetD3(U, P, V1, V2, V3);
+    return;
+  }
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
@@ -829,6 +1247,22 @@ void Geom2dAdaptor_Curve::D3(const Standard_Real U,
 
 gp_Vec2d Geom2dAdaptor_Curve::DN(const Standard_Real U, const Standard_Integer N) const
 {
+  // Line2d mode
+  if (myIsLine2d)
+  {
+    if (N <= 0)
+      throw Standard_OutOfRange();
+    if (N == 1)
+      return myLineAxis.Direction();
+    return gp_Vec2d(0., 0.);
+  }
+
+  // Offset mode
+  if (myHasOffset)
+  {
+    throw Standard_NotImplemented("Geom2dAdaptor_Curve::DN for offset");
+  }
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
@@ -857,6 +1291,18 @@ gp_Vec2d Geom2dAdaptor_Curve::DN(const Standard_Real U, const Standard_Integer N
 
 Standard_Real Geom2dAdaptor_Curve::Resolution(const Standard_Real Ruv) const
 {
+  // Line2d mode
+  if (myIsLine2d)
+  {
+    return Ruv;
+  }
+
+  // Offset mode
+  if (myHasOffset)
+  {
+    return Precision::PConfusion(Ruv);
+  }
+
   switch (myTypeCurve)
   {
     case GeomAbs_Line:
@@ -895,6 +1341,21 @@ Standard_Real Geom2dAdaptor_Curve::Resolution(const Standard_Real Ruv) const
 
 gp_Lin2d Geom2dAdaptor_Curve::Line() const
 {
+  // Line2d mode
+  if (myIsLine2d)
+  {
+    return gp_Lin2d(myLineAxis);
+  }
+
+  // Offset of line
+  if (myHasOffset && myBaseCurve->GetType() == GeomAbs_Line)
+  {
+    gp_Pnt2d P;
+    gp_Vec2d V;
+    D1(0, P, V);
+    return gp_Lin2d(P, V);
+  }
+
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Line,
                                  "Geom2dAdaptor_Curve::Line() - curve is not a Line");
   return Handle(Geom2d_Line)::DownCast(myCurve)->Lin2d();
@@ -904,6 +1365,34 @@ gp_Lin2d Geom2dAdaptor_Curve::Line() const
 
 gp_Circ2d Geom2dAdaptor_Curve::Circle() const
 {
+  // Offset of circle
+  if (myHasOffset && myBaseCurve->GetType() == GeomAbs_Circle)
+  {
+    gp_Circ2d     C1     = myBaseCurve->Circle();
+    Standard_Real radius = C1.Radius();
+    gp_Ax22d      axes(C1.Axis());
+    gp_Dir2d      Xd      = axes.XDirection();
+    gp_Dir2d      Yd      = axes.YDirection();
+    Standard_Real Crossed = Xd.X() * Yd.Y() - Xd.Y() * Yd.X();
+    Standard_Real Signe   = (Crossed > 0.) ? 1. : -1.;
+
+    radius += Signe * myOffset;
+    if (radius > 0.)
+    {
+      return gp_Circ2d(axes, radius);
+    }
+    else if (radius < 0.)
+    {
+      radius = -radius;
+      axes.SetXDirection((axes.XDirection()).Reversed());
+      return gp_Circ2d(axes, radius);
+    }
+    else
+    {
+      throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Circle - zero radius offset circle");
+    }
+  }
+
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Circle,
                                  "Geom2dAdaptor_Curve::Circle() - curve is not a Circle");
   return Handle(Geom2d_Circle)::DownCast(myCurve)->Circ2d();
@@ -913,6 +1402,12 @@ gp_Circ2d Geom2dAdaptor_Curve::Circle() const
 
 gp_Elips2d Geom2dAdaptor_Curve::Ellipse() const
 {
+  // Offset of ellipse not supported
+  if (myHasOffset)
+  {
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Ellipse - offset ellipse not supported");
+  }
+
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Ellipse,
                                  "Geom2dAdaptor_Curve::Ellipse() - curve is not an Ellipse");
   return Handle(Geom2d_Ellipse)::DownCast(myCurve)->Elips2d();
@@ -922,6 +1417,11 @@ gp_Elips2d Geom2dAdaptor_Curve::Ellipse() const
 
 gp_Hypr2d Geom2dAdaptor_Curve::Hyperbola() const
 {
+  if (myHasOffset)
+  {
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Hyperbola - offset hyperbola not supported");
+  }
+
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Hyperbola,
                                  "Geom2dAdaptor_Curve::Hyperbola() - curve is not a Hyperbola");
   return Handle(Geom2d_Hyperbola)::DownCast(myCurve)->Hypr2d();
@@ -931,6 +1431,11 @@ gp_Hypr2d Geom2dAdaptor_Curve::Hyperbola() const
 
 gp_Parab2d Geom2dAdaptor_Curve::Parabola() const
 {
+  if (myHasOffset)
+  {
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Parabola - offset parabola not supported");
+  }
+
   Standard_NoSuchObject_Raise_if(myTypeCurve != GeomAbs_Parabola,
                                  "Geom2dAdaptor_Curve::Parabola() - curve is not a Parabola");
   return Handle(Geom2d_Parabola)::DownCast(myCurve)->Parab2d();
@@ -940,6 +1445,16 @@ gp_Parab2d Geom2dAdaptor_Curve::Parabola() const
 
 Standard_Integer Geom2dAdaptor_Curve::Degree() const
 {
+  if (myIsLine2d)
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Degree - line has no degree");
+
+  if (myHasOffset)
+  {
+    if (myOffset == 0.0)
+      return myBaseCurve->Degree();
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Degree - offset curve");
+  }
+
   if (myTypeCurve == GeomAbs_BezierCurve)
     return Handle(Geom2d_BezierCurve)::DownCast(myCurve)->Degree();
   else if (myTypeCurve == GeomAbs_BSplineCurve)
@@ -952,6 +1467,16 @@ Standard_Integer Geom2dAdaptor_Curve::Degree() const
 
 Standard_Boolean Geom2dAdaptor_Curve::IsRational() const
 {
+  if (myIsLine2d)
+    return Standard_False;
+
+  if (myHasOffset)
+  {
+    if (myOffset == 0.0)
+      return myBaseCurve->IsRational();
+    return Standard_False;
+  }
+
   switch (myTypeCurve)
   {
     case GeomAbs_BSplineCurve:
@@ -967,6 +1492,16 @@ Standard_Boolean Geom2dAdaptor_Curve::IsRational() const
 
 Standard_Integer Geom2dAdaptor_Curve::NbPoles() const
 {
+  if (myIsLine2d)
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::NbPoles - line");
+
+  if (myHasOffset)
+  {
+    if (myOffset == 0.0)
+      return myBaseCurve->NbPoles();
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::NbPoles - offset curve");
+  }
+
   if (myTypeCurve == GeomAbs_BezierCurve)
     return Handle(Geom2d_BezierCurve)::DownCast(myCurve)->NbPoles();
   else if (myTypeCurve == GeomAbs_BSplineCurve)
@@ -979,6 +1514,16 @@ Standard_Integer Geom2dAdaptor_Curve::NbPoles() const
 
 Standard_Integer Geom2dAdaptor_Curve::NbKnots() const
 {
+  if (myIsLine2d)
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::NbKnots - line");
+
+  if (myHasOffset)
+  {
+    if (myOffset == 0.0)
+      return myBaseCurve->NbKnots();
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::NbKnots - offset curve");
+  }
+
   if (myTypeCurve != GeomAbs_BSplineCurve)
     throw Standard_NoSuchObject("Geom2dAdaptor_Curve::NbKnots");
   return myBSplineCurve->NbKnots();
@@ -988,6 +1533,8 @@ Standard_Integer Geom2dAdaptor_Curve::NbKnots() const
 
 Handle(Geom2d_BezierCurve) Geom2dAdaptor_Curve::Bezier() const
 {
+  if (myIsLine2d || myHasOffset)
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::Bezier");
   return Handle(Geom2d_BezierCurve)::DownCast(myCurve);
 }
 
@@ -995,6 +1542,8 @@ Handle(Geom2d_BezierCurve) Geom2dAdaptor_Curve::Bezier() const
 
 Handle(Geom2d_BSplineCurve) Geom2dAdaptor_Curve::BSpline() const
 {
+  if (myIsLine2d || myHasOffset)
+    throw Standard_NoSuchObject("Geom2dAdaptor_Curve::BSpline");
   return myBSplineCurve;
 }
 
@@ -1032,7 +1581,33 @@ static Standard_Integer nbPoints(const Handle(Geom2d_Curve)& theCurve)
   return nbs;
 }
 
+static Standard_Integer nbPointsAdaptor(const Handle(Geom2dAdaptor_Curve)& theCurve)
+{
+  Standard_Integer nbs = 20;
+
+  if (theCurve->GetType() == GeomAbs_Line)
+    nbs = 2;
+  else if (theCurve->GetType() == GeomAbs_BezierCurve)
+  {
+    nbs = std::max(nbs, 3 + theCurve->NbPoles());
+  }
+  else if (theCurve->GetType() == GeomAbs_BSplineCurve)
+  {
+    nbs = std::max(nbs, theCurve->NbKnots() * theCurve->Degree());
+  }
+
+  if (nbs > 300)
+    nbs = 300;
+  return nbs;
+}
+
 Standard_Integer Geom2dAdaptor_Curve::NbSamples() const
 {
+  if (myIsLine2d)
+    return 2;
+
+  if (myHasOffset)
+    return nbPointsAdaptor(myBaseCurve);
+
   return nbPoints(myCurve);
 }

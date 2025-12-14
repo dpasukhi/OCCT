@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_TopolTool.hxx>
 #include <Blend_CurvPointFuncInv.hxx>
 #include <Blend_RstRstFunction.hxx>
@@ -162,10 +162,10 @@ static void Drawsect(const Standard_Real param, Blend_RstRstFunction& Func)
 //=================================================================================================
 
 BRepBlend_RstRstLineBuilder::BRepBlend_RstRstLineBuilder(const Handle(Adaptor3d_Surface)&   Surf1,
-                                                         const Handle(Adaptor2d_Curve2d)&   Rst1,
+                                                         const Handle(Geom2dAdaptor_Curve)&   Rst1,
                                                          const Handle(Adaptor3d_TopolTool)& Domain1,
                                                          const Handle(Adaptor3d_Surface)&   Surf2,
-                                                         const Handle(Adaptor2d_Curve2d)&   Rst2,
+                                                         const Handle(Geom2dAdaptor_Curve)&   Rst2,
                                                          const Handle(Adaptor3d_TopolTool)& Domain2)
     : done(Standard_False),
       sol(1, 2),
@@ -339,7 +339,7 @@ Standard_Boolean BRepBlend_RstRstLineBuilder::PerformFirstSection(Blend_RstRstFu
   math_Vector               solinvp1(1, 2), solinvp2(1, 2), solinvrst1(1, 3), solinvrst2(1, 3);
   Handle(Adaptor3d_HVertex) Vtxp1, Vtxp2, Vtxrst1, Vtxrst2, Vtxc;
   Standard_Boolean          IsVtxp1 = 0, IsVtxp2 = 0, IsVtxrst1 = 0, IsVtxrst2 = 0;
-  Handle(Adaptor2d_Curve2d) Arc;
+  Handle(Geom2dAdaptor_Curve) Arc;
   wp1 = wp2 = wrst1 = wrst2 = Pmax;
   param                     = Pdep;
   Func.Set(param);
@@ -1457,7 +1457,7 @@ Standard_Boolean BRepBlend_RstRstLineBuilder::Recadre2(Blend_CurvPointFuncInv&  
 //=================================================================================================
 
 void BRepBlend_RstRstLineBuilder::Transition(const Standard_Boolean           OnFirst,
-                                             const Handle(Adaptor2d_Curve2d)& Arc,
+                                             const Handle(Geom2dAdaptor_Curve)& Arc,
                                              const Standard_Real              Param,
                                              IntSurf_Transition&              TLine,
                                              IntSurf_Transition&              TArc)
@@ -1517,7 +1517,7 @@ void BRepBlend_RstRstLineBuilder::Transition(const Standard_Boolean           On
 
 void BRepBlend_RstRstLineBuilder::MakeExtremity(BRepBlend_Extremity&             Extrem,
                                                 const Standard_Boolean           OnFirst,
-                                                const Handle(Adaptor2d_Curve2d)& Arc,
+                                                const Handle(Geom2dAdaptor_Curve)& Arc,
                                                 const Standard_Real              Param,
                                                 const Standard_Boolean           IsVtx,
                                                 const Handle(Adaptor3d_HVertex)& Vtx)
@@ -1551,7 +1551,7 @@ void BRepBlend_RstRstLineBuilder::MakeExtremity(BRepBlend_Extremity&            
     Extrem.SetVertex(Vtx);
     while (Iter->More())
     {
-      Handle(Adaptor2d_Curve2d) arc = Iter->Value();
+      Handle(Geom2dAdaptor_Curve) arc = Iter->Value();
       if (arc != Arc)
       {
         Iter->Initialize(arc);

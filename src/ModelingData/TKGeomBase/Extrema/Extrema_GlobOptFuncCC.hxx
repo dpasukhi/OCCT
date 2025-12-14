@@ -16,7 +16,7 @@
 #ifndef _Extrema_GlobOptFuncCC_HeaderFile
 #define _Extrema_GlobOptFuncCC_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <math_Matrix.hxx>
 #include <math_Vector.hxx>
@@ -29,7 +29,7 @@ class Extrema_GlobOptFuncCCC0 : public math_MultipleVarFunction
 public:
   Standard_EXPORT Extrema_GlobOptFuncCCC0(const Adaptor3d_Curve& C1, const Adaptor3d_Curve& C2);
 
-  Standard_EXPORT Extrema_GlobOptFuncCCC0(const Adaptor2d_Curve2d& C1, const Adaptor2d_Curve2d& C2);
+  Standard_EXPORT Extrema_GlobOptFuncCCC0(const Geom2dAdaptor_Curve& C1, const Geom2dAdaptor_Curve& C2);
 
   Standard_EXPORT virtual Standard_Integer NbVariables() const;
 
@@ -39,7 +39,7 @@ private:
   Extrema_GlobOptFuncCCC0& operator=(const Extrema_GlobOptFuncCCC0& theOther);
 
   const Adaptor3d_Curve *  myC1_3d, *myC2_3d;
-  const Adaptor2d_Curve2d *myC1_2d, *myC2_2d;
+  const Geom2dAdaptor_Curve *myC1_2d, *myC2_2d;
   Standard_Integer         myType;
 };
 
@@ -50,7 +50,7 @@ class Extrema_GlobOptFuncCCC1 : public math_MultipleVarFunctionWithGradient
 public:
   Standard_EXPORT Extrema_GlobOptFuncCCC1(const Adaptor3d_Curve& C1, const Adaptor3d_Curve& C2);
 
-  Standard_EXPORT Extrema_GlobOptFuncCCC1(const Adaptor2d_Curve2d& C1, const Adaptor2d_Curve2d& C2);
+  Standard_EXPORT Extrema_GlobOptFuncCCC1(const Geom2dAdaptor_Curve& C1, const Geom2dAdaptor_Curve& C2);
 
   Standard_EXPORT virtual Standard_Integer NbVariables() const;
 
@@ -66,7 +66,7 @@ private:
   Extrema_GlobOptFuncCCC1& operator=(const Extrema_GlobOptFuncCCC1& theOther);
 
   const Adaptor3d_Curve *  myC1_3d, *myC2_3d;
-  const Adaptor2d_Curve2d *myC1_2d, *myC2_2d;
+  const Geom2dAdaptor_Curve *myC1_2d, *myC2_2d;
   Standard_Integer         myType;
 };
 
@@ -77,7 +77,7 @@ class Extrema_GlobOptFuncCCC2 : public math_MultipleVarFunctionWithHessian
 public:
   Standard_EXPORT Extrema_GlobOptFuncCCC2(const Adaptor3d_Curve& C1, const Adaptor3d_Curve& C2);
 
-  Standard_EXPORT Extrema_GlobOptFuncCCC2(const Adaptor2d_Curve2d& C1, const Adaptor2d_Curve2d& C2);
+  Standard_EXPORT Extrema_GlobOptFuncCCC2(const Geom2dAdaptor_Curve& C1, const Geom2dAdaptor_Curve& C2);
 
   Standard_EXPORT virtual Standard_Integer NbVariables() const;
 
@@ -98,7 +98,7 @@ private:
   Extrema_GlobOptFuncCCC2& operator=(const Extrema_GlobOptFuncCCC2& theOther);
 
   const Adaptor3d_Curve *  myC1_3d, *myC2_3d;
-  const Adaptor2d_Curve2d *myC1_2d, *myC2_2d;
+  const Geom2dAdaptor_Curve *myC1_2d, *myC2_2d;
   Standard_Integer         myType;
 };
 

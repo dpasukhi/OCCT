@@ -17,7 +17,7 @@
 #ifndef _Contap_TheSegmentOfTheSearch_HeaderFile
 #define _Contap_TheSegmentOfTheSearch_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Contap_ThePathPointOfTheSearch.hxx>
 
 class Standard_DomainError;
@@ -33,7 +33,7 @@ public:
   Standard_EXPORT Contap_TheSegmentOfTheSearch();
 
   //! Defines the concerned arc.
-  void SetValue(const Handle(Adaptor2d_Curve2d)& A);
+  void SetValue(const Handle(Geom2dAdaptor_Curve)& A);
 
   //! Defines the first point or the last point,
   //! depending on the value of the boolean First.
@@ -42,7 +42,7 @@ public:
 
   //! Returns the geometric curve on the surface 's domain
   //! which is solution.
-  const Handle(Adaptor2d_Curve2d)& Curve() const;
+  const Handle(Geom2dAdaptor_Curve)& Curve() const;
 
   //! Returns True if there is a vertex (ThePathPoint) defining
   //! the lowest valid parameter on the arc.
@@ -60,7 +60,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor2d_Curve2d)      arc;
+  Handle(Geom2dAdaptor_Curve)      arc;
   Standard_Boolean               hasfp;
   Contap_ThePathPointOfTheSearch thefp;
   Standard_Boolean               haslp;
@@ -71,14 +71,14 @@ private:
 // Inline implementations
 //=================================================================================================
 
-inline void Contap_TheSegmentOfTheSearch::SetValue(const Handle(Adaptor2d_Curve2d)& A)
+inline void Contap_TheSegmentOfTheSearch::SetValue(const Handle(Geom2dAdaptor_Curve)& A)
 {
   hasfp = Standard_False;
   haslp = Standard_False;
   arc   = A;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& Contap_TheSegmentOfTheSearch::Curve() const
+inline const Handle(Geom2dAdaptor_Curve)& Contap_TheSegmentOfTheSearch::Curve() const
 {
   return arc;
 }

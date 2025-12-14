@@ -42,11 +42,11 @@ public:
 
   Standard_EXPORT virtual gp_Pnt2d Value() Standard_OVERRIDE;
 
-  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Adaptor2d_Curve2d)& C)
+  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Geom2dAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   //! Parametric resolution (2d).
-  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Adaptor2d_Curve2d)& C)
+  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Geom2dAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   Standard_EXPORT virtual TopAbs_Orientation Orientation() Standard_OVERRIDE;

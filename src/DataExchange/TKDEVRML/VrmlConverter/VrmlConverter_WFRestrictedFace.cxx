@@ -47,7 +47,7 @@ void VrmlConverter_WFRestrictedFace::Add(Standard_OStream&                   anO
 
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
-    const Adaptor2d_Curve2d& TheRCurve = ToolRst.Value();
+    const Geom2dAdaptor_Curve& TheRCurve = ToolRst.Value();
     BndLib_Add2dCurve::Add(TheRCurve, Precision::PConfusion(), B);
   }
 
@@ -101,7 +101,7 @@ void VrmlConverter_WFRestrictedFace::Add(Standard_OStream&                   anO
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
     TopAbs_Orientation       Orient    = ToolRst.Orientation();
-    const Adaptor2d_Curve2d* TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve* TheRCurve = &ToolRst.Value();
     U1                                 = TheRCurve->FirstParameter();
     U2                                 = TheRCurve->LastParameter();
     if (TheRCurve->GetType() != GeomAbs_Line)

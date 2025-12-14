@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Contap_Line.hxx>
 #include <Contap_Point.hxx>
 #include <gp_Circ.hxx>
@@ -86,7 +86,7 @@ void Contap_Line::SetValue(const gp_Circ& C)
   typL = Contap_Circle;
 }
 
-void Contap_Line::SetValue(const Handle(Adaptor2d_Curve2d)& A)
+void Contap_Line::SetValue(const Handle(Geom2dAdaptor_Curve)& A)
 {
   thearc = A;
   typL   = Contap_Restriction;
@@ -108,7 +108,7 @@ IntSurf_TypeTrans Contap_Line::TransitionOnS() const
   return (Trans);
 }
 
-const Handle(Adaptor2d_Curve2d)& Contap_Line::Arc() const
+const Handle(Geom2dAdaptor_Curve)& Contap_Line::Arc() const
 {
   if (typL != Contap_Restriction)
   {

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_TopolTool.hxx>
 #include <IntPatch_ALine.hxx>
 #include <IntPatch_GLine.hxx>
@@ -898,7 +898,7 @@ static Standard_Boolean TestWLineIsARLine(const IntPatch_SequenceOfLine& slinref
         Standard_Boolean onFirst = is == 0;
         if ((onFirst && rlin->IsArcOnS1()) || (!onFirst && rlin->IsArcOnS2()))
         {
-          Handle(Adaptor2d_Curve2d) arc;
+          Handle(Geom2dAdaptor_Curve) arc;
           Standard_Real             u, v, u1, v1;
           if (onFirst)
           {
@@ -917,7 +917,7 @@ static Standard_Boolean TestWLineIsARLine(const IntPatch_SequenceOfLine& slinref
             u = (u + u1) * 0.5;
             v = (v + v1) * 0.5;
           }
-          const Adaptor2d_Curve2d& C2d = *arc;
+          const Geom2dAdaptor_Curve& C2d = *arc;
           gp_Pnt2d                 PObt, P2d(u, v);
           Standard_Real par = Geom2dInt_TheProjPCurOfGInter::FindParameter(C2d, P2d, 1e-7);
           PObt              = C2d.Value(par);
@@ -994,7 +994,7 @@ static Standard_Boolean TestIfWLineIsRestriction(const IntPatch_SequenceOfLine& 
 
 static Standard_Boolean ProjectOnArc(const Standard_Real              u,
                                      const Standard_Real              v,
-                                     const Handle(Adaptor2d_Curve2d)& arc,
+                                     const Handle(Geom2dAdaptor_Curve)& arc,
                                      const Handle(Adaptor3d_Surface)& surf,
                                      const Standard_Real              TolArc,
                                      Standard_Real&                   par,
@@ -1004,7 +1004,7 @@ static Standard_Boolean ProjectOnArc(const Standard_Real              u,
   gp_Vec ad1u, ad1v;
   surf->D1(u, v, aPbid, ad1u, ad1v);
   Standard_Real            tol2d = ComputeParametricTolerance(TolArc, ad1u, ad1v);
-  const Adaptor2d_Curve2d& C2d   = *arc;
+  const Geom2dAdaptor_Curve& C2d   = *arc;
   gp_Pnt2d                 aP(u, v), aPprj;
   par   = Geom2dInt_TheProjPCurOfGInter::FindParameter(C2d, aP, 1e-7);
   aPprj = C2d.Value(par);
@@ -1050,7 +1050,7 @@ static void TestWLineToRLine(const IntPatch_SequenceOfLine&     slinref,
 
   typedef void (IntSurf_PntOn2S::*PiParOnS)(Standard_Real&, Standard_Real&) const;
   typedef Standard_Boolean (IntPatch_Point::*PQuery)() const;
-  typedef const Handle(Adaptor2d_Curve2d)& (IntPatch_Point::*PArcOnS)() const;
+  typedef const Handle(Geom2dAdaptor_Curve)& (IntPatch_Point::*PArcOnS)() const;
   typedef Standard_Real (IntPatch_Point::*PParOnArc)() const;
 
   // cycle for both surfaces
@@ -1089,7 +1089,7 @@ static void TestWLineToRLine(const IntPatch_SequenceOfLine&     slinref,
       Standard_Real             utst, vtst;
       TColStd_Array1OfReal      paramsResolved(1, nbvtx);
       TColStd_Array1OfTransient arcsResolved(1, nbvtx);
-      arcsResolved.Init(Handle(Adaptor2d_Curve2d)());
+      arcsResolved.Init(Handle(Geom2dAdaptor_Curve)());
       for (iv = 1; iv <= nbvtx; iv++)
       {
         if (!(WLine->Vertex(iv).*pIsOnDomS)())
@@ -1099,7 +1099,7 @@ static void TestWLineToRLine(const IntPatch_SequenceOfLine&     slinref,
           Standard_Real distmin = RealLast();
           for (aDomain->Init(); aDomain->More(); aDomain->Next())
           {
-            const Handle(Adaptor2d_Curve2d)& arc = aDomain->Value();
+            const Handle(Geom2dAdaptor_Curve)& arc = aDomain->Value();
             Standard_Real                    par, dist;
             if (ProjectOnArc(utst, vtst, arc, surf, TolArc, par, dist) && dist < distmin)
             {
@@ -1117,22 +1117,22 @@ static void TestWLineToRLine(const IntPatch_SequenceOfLine&     slinref,
       for (i = 1; i <= indicesV1.Length(); i++)
       {
         iv = indicesV1(i);
-        Handle(Adaptor2d_Curve2d) arc;
+        Handle(Geom2dAdaptor_Curve) arc;
         if ((WLine->Vertex(iv).*pIsOnDomS)())
           arc = (WLine->Vertex(iv).*pArcOnS)();
         else
-          arc = Handle(Adaptor2d_Curve2d)::DownCast(arcsResolved(iv));
+          arc = Handle(Geom2dAdaptor_Curve)::DownCast(arcsResolved(iv));
         if (!arc.IsNull())
           mapArcsV1.Add(arc);
       }
       for (i = 1; i <= indicesV2.Length(); i++)
       {
         iv = indicesV2(i);
-        Handle(Adaptor2d_Curve2d) arc;
+        Handle(Geom2dAdaptor_Curve) arc;
         if ((WLine->Vertex(iv).*pIsOnDomS)())
           arc = (WLine->Vertex(iv).*pArcOnS)();
         else
-          arc = Handle(Adaptor2d_Curve2d)::DownCast(arcsResolved(iv));
+          arc = Handle(Geom2dAdaptor_Curve)::DownCast(arcsResolved(iv));
         if (!arc.IsNull() && mapArcsV1.Contains(arc))
           mapArcs.Add(arc);
       }
@@ -1140,28 +1140,28 @@ static void TestWLineToRLine(const IntPatch_SequenceOfLine&     slinref,
       // for each common arc
       for (Standard_Integer ia = 1; ia <= mapArcs.Extent(); ia++)
       {
-        const Handle(Adaptor2d_Curve2d) arc(Handle(Adaptor2d_Curve2d)::DownCast(mapArcs(ia)));
+        const Handle(Geom2dAdaptor_Curve) arc(Handle(Geom2dAdaptor_Curve)::DownCast(mapArcs(ia)));
         // get end vertices of wline linked with this arc
         Standard_Integer iv1 = 0, iv2 = 0;
         for (i = 1; i <= indicesV1.Length() && iv1 == 0; i++)
         {
           iv = indicesV1(i);
-          Handle(Adaptor2d_Curve2d) arc1;
+          Handle(Geom2dAdaptor_Curve) arc1;
           if ((WLine->Vertex(iv).*pIsOnDomS)())
             arc1 = (WLine->Vertex(iv).*pArcOnS)();
           else
-            arc1 = Handle(Adaptor2d_Curve2d)::DownCast(arcsResolved(iv));
+            arc1 = Handle(Geom2dAdaptor_Curve)::DownCast(arcsResolved(iv));
           if (!arc1.IsNull() && arc1 == arc)
             iv1 = iv;
         }
         for (i = 1; i <= indicesV2.Length() && iv2 == 0; i++)
         {
           iv = indicesV2(i);
-          Handle(Adaptor2d_Curve2d) arc1;
+          Handle(Geom2dAdaptor_Curve) arc1;
           if ((WLine->Vertex(iv).*pIsOnDomS)())
             arc1 = (WLine->Vertex(iv).*pArcOnS)();
           else
-            arc1 = Handle(Adaptor2d_Curve2d)::DownCast(arcsResolved(iv));
+            arc1 = Handle(Geom2dAdaptor_Curve)::DownCast(arcsResolved(iv));
           if (!arc1.IsNull() && arc1 == arc)
             iv2 = iv;
         }

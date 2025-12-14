@@ -269,23 +269,13 @@ Handle(Geom2d_Curve) GeomPlate_CurveConstraint ::Curve2dOnSurf() const
 {
   if (my2dCurve.IsNull() && !myHCurve2d.IsNull())
   {
-    Handle(Geom2d_Curve) C2d;
-    GeomAbs_Shape        Continuity = GeomAbs_C1;
-    Standard_Integer     MaxDegree  = 10;
-    Standard_Integer     MaxSeg     = 20 + myHCurve2d->NbIntervals(GeomAbs_C3);
-    Approx_Curve2d       appr(myHCurve2d,
-                        myHCurve2d->FirstParameter(),
-                        myHCurve2d->LastParameter(),
-                        myTolU,
-                        myTolV,
-                        Continuity,
-                        MaxDegree,
-                        MaxSeg);
-    C2d = appr.Curve();
-    return C2d;
+    // Use the pre-computed 2D curve from the projection if available
+    if (myHCurve2d->NbCurves() > 0 && !myHCurve2d->ResultIsPoint(1))
+    {
+      return myHCurve2d->GetResult2dC(1);
+    }
   }
-  else
-    return my2dCurve;
+  return my2dCurve;
 }
 
 //---------------------------------------------------------
@@ -299,7 +289,7 @@ void GeomPlate_CurveConstraint ::SetCurve2dOnSurf(const Handle(Geom2d_Curve)& Cu
 //---------------------------------------------------------
 // Fonction : ProjectedCurve
 //---------------------------------------------------------
-Handle(Adaptor2d_Curve2d) GeomPlate_CurveConstraint ::ProjectedCurve() const
+Handle(ProjLib_CompProjectedCurve) GeomPlate_CurveConstraint ::ProjectedCurve() const
 {
   return myHCurve2d;
 }
@@ -307,9 +297,9 @@ Handle(Adaptor2d_Curve2d) GeomPlate_CurveConstraint ::ProjectedCurve() const
 //---------------------------------------------------------
 // Fonction : SetProjectedCurve
 //---------------------------------------------------------
-void GeomPlate_CurveConstraint ::SetProjectedCurve(const Handle(Adaptor2d_Curve2d)& Curve,
-                                                   const Standard_Real              TolU,
-                                                   const Standard_Real              TolV)
+void GeomPlate_CurveConstraint ::SetProjectedCurve(const Handle(ProjLib_CompProjectedCurve)& Curve,
+                                                   const Standard_Real                       TolU,
+                                                   const Standard_Real                       TolV)
 {
   myHCurve2d = Curve;
   myTolU     = TolU;

@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_IsoCurve.hxx>
 #include <Bnd_Box.hxx>
 #include <Bnd_Box2d.hxx>
@@ -145,7 +145,7 @@ void VrmlConverter_WFDeflectionRestrictedFace::Add(Standard_OStream&            
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
     TopAbs_Orientation       Orient    = ToolRst.Orientation();
-    const Adaptor2d_Curve2d* TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve* TheRCurve = &ToolRst.Value();
     if (TheRCurve->GetType() != GeomAbs_Line)
     {
       GCPnts_QuasiUniformDeflection UDP(*TheRCurve, Deflection);

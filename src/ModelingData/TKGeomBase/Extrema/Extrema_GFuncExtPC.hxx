@@ -38,7 +38,7 @@
 //! F(u) = (C(u)-P).D1c(u) / ||D1c||
 //! DF(u) = ||D1c|| + (C(u)-P).D2c(u)/||D1c|| - F(u)*D2c.D1c/||D1c||^2
 //!
-//! @tparam TheCurve    Curve type (e.g., Adaptor3d_Curve, Adaptor2d_Curve2d)
+//! @tparam TheCurve    Curve type (e.g., Adaptor3d_Curve, Geom2dAdaptor_Curve)
 //! @tparam TheCurveTool Tool for curve operations
 //! @tparam ThePOnC     Point on curve type
 //! @tparam ThePoint    Point type (e.g., gp_Pnt, gp_Pnt2d)

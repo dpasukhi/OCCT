@@ -24,7 +24,7 @@
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <Standard_Boolean.hxx>
 #include <math_Vector.hxx>
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 class Geom2dInt_Geom2dCurveTool;
 class math_Matrix;
 
@@ -35,8 +35,8 @@ public:
   DEFINE_STANDARD_ALLOC
 
   Standard_EXPORT Geom2dInt_TheDistBetweenPCurvesOfTheIntPCurvePCurveOfGInter(
-    const Adaptor2d_Curve2d& curve1,
-    const Adaptor2d_Curve2d& curve2);
+    const Geom2dAdaptor_Curve& curve1,
+    const Geom2dAdaptor_Curve& curve2);
 
   //! returns 2.
   Standard_EXPORT Standard_Integer NbVariables() const;

@@ -17,7 +17,7 @@
 #include <IntPatch_ThePathPointOfTheSOnBounds.hxx>
 
 #include <Adaptor3d_HVertex.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard_DomainError.hxx>
 #include <gp_Pnt.hxx>
 
@@ -32,7 +32,7 @@ IntPatch_ThePathPointOfTheSOnBounds::IntPatch_ThePathPointOfTheSOnBounds(
   const gp_Pnt&                    P,
   const Standard_Real              Tol,
   const Handle(Adaptor3d_HVertex)& V,
-  const Handle(Adaptor2d_Curve2d)& A,
+  const Handle(Geom2dAdaptor_Curve)& A,
   const Standard_Real              Parameter)
     : point(P),
       tol(Tol),
@@ -46,7 +46,7 @@ IntPatch_ThePathPointOfTheSOnBounds::IntPatch_ThePathPointOfTheSOnBounds(
 IntPatch_ThePathPointOfTheSOnBounds::IntPatch_ThePathPointOfTheSOnBounds(
   const gp_Pnt&                    P,
   const Standard_Real              Tol,
-  const Handle(Adaptor2d_Curve2d)& A,
+  const Handle(Geom2dAdaptor_Curve)& A,
   const Standard_Real              Parameter)
     : point(P),
       tol(Tol),

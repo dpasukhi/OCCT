@@ -17,7 +17,7 @@
 #ifndef _IntPatch_ThePathPointOfTheSOnBounds_HeaderFile
 #define _IntPatch_ThePathPointOfTheSOnBounds_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 
 class Adaptor3d_HVertex;
@@ -34,23 +34,23 @@ public:
   Standard_EXPORT IntPatch_ThePathPointOfTheSOnBounds(const gp_Pnt&                    P,
                                                       const Standard_Real              Tol,
                                                       const Handle(Adaptor3d_HVertex)& V,
-                                                      const Handle(Adaptor2d_Curve2d)& A,
+                                                      const Handle(Geom2dAdaptor_Curve)& A,
                                                       const Standard_Real              Parameter);
 
   Standard_EXPORT IntPatch_ThePathPointOfTheSOnBounds(const gp_Pnt&                    P,
                                                       const Standard_Real              Tol,
-                                                      const Handle(Adaptor2d_Curve2d)& A,
+                                                      const Handle(Geom2dAdaptor_Curve)& A,
                                                       const Standard_Real              Parameter);
 
   void SetValue(const gp_Pnt&                    P,
                 const Standard_Real              Tol,
                 const Handle(Adaptor3d_HVertex)& V,
-                const Handle(Adaptor2d_Curve2d)& A,
+                const Handle(Geom2dAdaptor_Curve)& A,
                 const Standard_Real              Parameter);
 
   void SetValue(const gp_Pnt&                    P,
                 const Standard_Real              Tol,
-                const Handle(Adaptor2d_Curve2d)& A,
+                const Handle(Geom2dAdaptor_Curve)& A,
                 const Standard_Real              Parameter);
 
   const gp_Pnt& Value() const;
@@ -61,7 +61,7 @@ public:
 
   const Handle(Adaptor3d_HVertex)& Vertex() const;
 
-  const Handle(Adaptor2d_Curve2d)& Arc() const;
+  const Handle(Geom2dAdaptor_Curve)& Arc() const;
 
   Standard_Real Parameter() const;
 
@@ -71,7 +71,7 @@ private:
   Standard_Real             tol;
   Standard_Boolean          isnew;
   Handle(Adaptor3d_HVertex) vtx;
-  Handle(Adaptor2d_Curve2d) arc;
+  Handle(Geom2dAdaptor_Curve) arc;
   Standard_Real             param;
 };
 
@@ -82,7 +82,7 @@ private:
 inline void IntPatch_ThePathPointOfTheSOnBounds::SetValue(const gp_Pnt&                    P,
                                                           const Standard_Real              Tol,
                                                           const Handle(Adaptor3d_HVertex)& V,
-                                                          const Handle(Adaptor2d_Curve2d)& A,
+                                                          const Handle(Geom2dAdaptor_Curve)& A,
                                                           const Standard_Real Parameter)
 {
   isnew = Standard_False;
@@ -95,7 +95,7 @@ inline void IntPatch_ThePathPointOfTheSOnBounds::SetValue(const gp_Pnt&         
 
 inline void IntPatch_ThePathPointOfTheSOnBounds::SetValue(const gp_Pnt&                    P,
                                                           const Standard_Real              Tol,
-                                                          const Handle(Adaptor2d_Curve2d)& A,
+                                                          const Handle(Geom2dAdaptor_Curve)& A,
                                                           const Standard_Real Parameter)
 {
   isnew = Standard_True;
@@ -129,7 +129,7 @@ inline const Handle(Adaptor3d_HVertex)& IntPatch_ThePathPointOfTheSOnBounds::Ver
   return vtx;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_ThePathPointOfTheSOnBounds::Arc() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_ThePathPointOfTheSOnBounds::Arc() const
 {
   return arc;
 }

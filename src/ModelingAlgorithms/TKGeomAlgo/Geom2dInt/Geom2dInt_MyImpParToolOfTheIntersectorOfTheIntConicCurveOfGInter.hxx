@@ -25,7 +25,7 @@
 #include <math_FunctionWithDerivative.hxx>
 #include <Standard_Boolean.hxx>
 class IntCurve_IConicTool;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 class Geom2dInt_Geom2dCurveTool;
 
 class Geom2dInt_MyImpParToolOfTheIntersectorOfTheIntConicCurveOfGInter
@@ -37,7 +37,7 @@ public:
   //! Constructor of the class.
   Standard_EXPORT Geom2dInt_MyImpParToolOfTheIntersectorOfTheIntConicCurveOfGInter(
     const IntCurve_IConicTool& IT,
-    const Adaptor2d_Curve2d&   PC);
+    const Geom2dAdaptor_Curve&   PC);
 
   //! Computes the value of the signed distance between
   //! the implicit curve and the point at parameter Param

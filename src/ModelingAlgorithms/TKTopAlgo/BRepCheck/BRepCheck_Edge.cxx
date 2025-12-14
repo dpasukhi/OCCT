@@ -486,7 +486,7 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
               Handle(GeomAdaptor_Curve) aHCurve = new GeomAdaptor_Curve(ProjOnPlane);
 
               ProjLib_ProjectedCurve      proj(GAHS, aHCurve);
-              Handle(Geom2d_Curve) PC = Geom2dAdaptor::MakeCurve(proj);
+              Handle(Geom2d_Curve) PC = proj.GetCurve2d();
               auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(PC, myHCurve->FirstParameter(), myHCurve->LastParameter());
               auto aSrf = std::make_unique<GeomAdaptor_Surface>(P);
               Handle(GeomAdaptor_Curve) ACS = new GeomAdaptor_Curve();

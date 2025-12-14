@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
 #include <AdvApprox_PrefAndRec.hxx>
 #include <Approx_Curve2d.hxx>
@@ -27,7 +27,7 @@
 class Approx_Curve2d_Eval : public AdvApprox_EvaluatorFunction
 {
 public:
-  Approx_Curve2d_Eval(const Handle(Adaptor2d_Curve2d)& theFunc,
+  Approx_Curve2d_Eval(const Handle(Geom2dAdaptor_Curve)& theFunc,
                       Standard_Real                    First,
                       Standard_Real                    Last)
       : fonct(theFunc)
@@ -44,7 +44,7 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Handle(Adaptor2d_Curve2d) fonct;
+  Handle(Geom2dAdaptor_Curve) fonct;
   Standard_Real             StartEndSav[2];
 };
 
@@ -101,7 +101,7 @@ void Approx_Curve2d_Eval::Evaluate(Standard_Integer* Dimension,
   }
 }
 
-Approx_Curve2d::Approx_Curve2d(const Handle(Adaptor2d_Curve2d)& C2D,
+Approx_Curve2d::Approx_Curve2d(const Handle(Geom2dAdaptor_Curve)& C2D,
                                const Standard_Real              First,
                                const Standard_Real              Last,
                                const Standard_Real              TolU,

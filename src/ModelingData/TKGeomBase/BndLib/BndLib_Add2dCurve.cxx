@@ -12,7 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <Geom2d_BezierCurve.hxx>
@@ -1183,7 +1183,7 @@ Standard_Real BndLib_Box2dCurve::AdjustToPeriod(const Standard_Real aT, const St
 
 //=================================================================================================
 
-void BndLib_Add2dCurve::Add(const Adaptor2d_Curve2d& aC,
+void BndLib_Add2dCurve::Add(const Geom2dAdaptor_Curve& aC,
                             const Standard_Real      aTol,
                             Bnd_Box2d&               aBox2D)
 {
@@ -1192,7 +1192,7 @@ void BndLib_Add2dCurve::Add(const Adaptor2d_Curve2d& aC,
 
 //=================================================================================================
 
-void BndLib_Add2dCurve::Add(const Adaptor2d_Curve2d& aC,
+void BndLib_Add2dCurve::Add(const Geom2dAdaptor_Curve& aC,
                             const Standard_Real      aU1,
                             const Standard_Real      aU2,
                             const Standard_Real      aTol,

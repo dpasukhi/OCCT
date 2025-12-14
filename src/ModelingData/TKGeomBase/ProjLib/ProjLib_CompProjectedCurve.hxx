@@ -17,10 +17,11 @@
 #ifndef _ProjLib_CompProjectedCurve_HeaderFile
 #define _ProjLib_CompProjectedCurve_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <Adaptor3d_Curve.hxx>
 #include <ProjLib_HSequenceOfHSequenceOfPnt.hxx>
 #include <ProjLib_Projector.hxx>
+#include <Standard_Transient.hxx>
 #include <TColGeom_HArray1OfCurve.hxx>
 #include <TColGeom2d_HArray1OfCurve.hxx>
 #include <TColgp_HArray1OfPnt.hxx>
@@ -35,10 +36,13 @@
 
 class gp_Pnt2d;
 class gp_Vec2d;
+class Geom2dAdaptor_Curve;
 
-class ProjLib_CompProjectedCurve : public Adaptor2d_Curve2d
+DEFINE_STANDARD_HANDLE(ProjLib_CompProjectedCurve, Standard_Transient)
+
+class ProjLib_CompProjectedCurve : public Standard_Transient
 {
-  DEFINE_STANDARD_RTTIEXT(ProjLib_CompProjectedCurve, Adaptor2d_Curve2d)
+  DEFINE_STANDARD_RTTIEXT(ProjLib_CompProjectedCurve, Standard_Transient)
 public:
   Standard_EXPORT ProjLib_CompProjectedCurve();
 
@@ -68,8 +72,8 @@ public:
                                              const Handle(Adaptor3d_Curve)&   C,
                                              const Standard_Real              MaxDist = -1.0);
 
-  //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
+  //! Shallow copy of projector
+  Standard_EXPORT Handle(ProjLib_CompProjectedCurve) ShallowCopy() const;
 
   //! computes a set of projected point and determine the
   //! continuous parts of the projected curves. The points
@@ -139,16 +143,16 @@ public:
   Standard_EXPORT Standard_Boolean IsVIso(const Standard_Integer Index, Standard_Real& V) const;
 
   //! Computes the point of parameter U on the curve.
-  Standard_EXPORT gp_Pnt2d Value(const Standard_Real U) const Standard_OVERRIDE;
+  Standard_EXPORT gp_Pnt2d Value(const Standard_Real U) const;
 
   //! Computes the point of parameter U on the curve.
-  Standard_EXPORT void D0(const Standard_Real U, gp_Pnt2d& P) const Standard_OVERRIDE;
+  Standard_EXPORT void D0(const Standard_Real U, gp_Pnt2d& P) const;
 
   //! Computes the point of parameter U on the curve with its
   //! first derivative.
   //! Raised if the continuity of the current interval
   //! is not C1.
-  Standard_EXPORT void D1(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V) const Standard_OVERRIDE;
+  Standard_EXPORT void D1(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V) const;
 
   //! Returns the point P of parameter U, the first and second
   //! derivatives V1 and V2.
@@ -157,37 +161,37 @@ public:
   Standard_EXPORT void D2(const Standard_Real U,
                           gp_Pnt2d&           P,
                           gp_Vec2d&           V1,
-                          gp_Vec2d&           V2) const Standard_OVERRIDE;
+                          gp_Vec2d&           V2) const;
 
   //! The returned vector gives the value of the derivative for the
   //! order of derivation N.
   //! Raised if N < 1.
   //! Raised if N > 2.
   Standard_EXPORT gp_Vec2d DN(const Standard_Real    U,
-                              const Standard_Integer N) const Standard_OVERRIDE;
+                              const Standard_Integer N) const;
 
   //! Returns the first parameter of the curve C
   //! which has a projection on S.
-  Standard_EXPORT Standard_Real FirstParameter() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Real FirstParameter() const;
 
   //! Returns the last parameter of the curve C
   //! which has a projection on S.
-  Standard_EXPORT Standard_Real LastParameter() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Real LastParameter() const;
 
   //! Returns the Continuity used in the approximation.
-  Standard_EXPORT GeomAbs_Shape Continuity() const Standard_OVERRIDE;
+  Standard_EXPORT GeomAbs_Shape Continuity() const;
 
   //! Returns the number of intervals which define
   //! an S continuous part of the projected curve
-  Standard_EXPORT Standard_Integer NbIntervals(const GeomAbs_Shape S) const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Integer NbIntervals(const GeomAbs_Shape S) const;
 
   //! Returns a curve equivalent of <me> between
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 2d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) Trim(const Standard_Real FirstParam,
-                                                 const Standard_Real LastParam,
-                                                 const Standard_Real Tol) const Standard_OVERRIDE;
+  Standard_EXPORT Handle(ProjLib_CompProjectedCurve) Trim(const Standard_Real FirstParam,
+                                                          const Standard_Real LastParam,
+                                                          const Standard_Real Tol) const;
 
   //! Returns the parameters corresponding to
   //! S discontinuities.
@@ -195,7 +199,7 @@ public:
   //! The array must provide enough room to accommodate
   //! for the parameters. i.e. T.Length() > NbIntervals()
   Standard_EXPORT void Intervals(TColStd_Array1OfReal& T,
-                                 const GeomAbs_Shape   S) const Standard_OVERRIDE;
+                                 const GeomAbs_Shape   S) const;
 
   //! returns the maximum distance between
   //! curve to project and surface
@@ -206,7 +210,7 @@ public:
   //! Returns the type of the curve in the current
   //! interval: Line, Circle, Ellipse, Hyperbola,
   //! Parabola, BezierCurve, BSplineCurve, OtherCurve.
-  Standard_EXPORT GeomAbs_CurveType GetType() const Standard_OVERRIDE;
+  Standard_EXPORT GeomAbs_CurveType GetType() const;
 
   //! Returns true if result of projecting of the curve interval
   //! with number Index is point.
@@ -282,7 +286,5 @@ private:
   Handle(TColGeom_HArray1OfCurve)   myResult3dCurve;
   Handle(TColGeom2d_HArray1OfCurve) myResult2dCurve;
 };
-
-DEFINE_STANDARD_HANDLE(ProjLib_CompProjectedCurve, Adaptor2d_Curve2d)
 
 #endif // _ProjLib_CompProjectedCurve_HeaderFile

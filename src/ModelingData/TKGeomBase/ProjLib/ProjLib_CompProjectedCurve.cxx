@@ -50,7 +50,7 @@
 
 #define FuncTol 1.e-10
 
-IMPLEMENT_STANDARD_RTTIEXT(ProjLib_CompProjectedCurve, Adaptor2d_Curve2d)
+IMPLEMENT_STANDARD_RTTIEXT(ProjLib_CompProjectedCurve, Standard_Transient)
 
 #ifdef OCCT_DEBUG_CHRONO
   #include <OSD_Timer.hxx>
@@ -664,7 +664,7 @@ ProjLib_CompProjectedCurve::ProjLib_CompProjectedCurve(const Standard_Real      
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) ProjLib_CompProjectedCurve::ShallowCopy() const
+Handle(ProjLib_CompProjectedCurve) ProjLib_CompProjectedCurve::ShallowCopy() const
 {
   Handle(ProjLib_CompProjectedCurve) aCopy = new ProjLib_CompProjectedCurve();
 
@@ -1230,7 +1230,8 @@ void ProjLib_CompProjectedCurve::Perform()
   Standard_Real             Udeb, Ufin, UIso, VIso;
   gp_Pnt2d                  P2d, Pdeb, Pfin;
   gp_Pnt                    P;
-  Handle(Adaptor2d_Curve2d) HPCur;
+  Handle(Geom2dAdaptor_Curve)      HPCur;     // For isoparametric projection
+  Handle(ProjLib_CompProjectedCurve) HProjCur; // For projected curve
   Handle(Adaptor3d_Surface) HS = mySurface->ShallowCopy(); // For expand bounds of surface
   Handle(Geom2d_Curve)      PCur2d;                        // Only for isoparametric projection
   Handle(Geom_Curve)        PCur3d;
@@ -1345,10 +1346,8 @@ void ProjLib_CompProjectedCurve::Perform()
           HS = HS->VTrim(V1, V2, 0.0);
         }
 
-        Handle(ProjLib_CompProjectedCurve) HP =
-          Handle(ProjLib_CompProjectedCurve)::DownCast(this->ShallowCopy());
-        HP->Load(HS);
-        HPCur = HP;
+        HProjCur = Handle(ProjLib_CompProjectedCurve)::DownCast(this->ShallowCopy());
+        HProjCur->Load(HS);
       }
 
       if (approx2d || approx3d)
@@ -1365,7 +1364,17 @@ void ProjLib_CompProjectedCurve::Perform()
           only3d = approx3d;
         }
 
-        Approx_CurveOnSurface appr(HPCur, HS, Udeb, Ufin, myTol3d);
+        // Use appropriate curve type for approximation
+        std::unique_ptr<Approx_CurveOnSurface> pAppr;
+        if (!HProjCur.IsNull())
+        {
+          pAppr = std::make_unique<Approx_CurveOnSurface>(HProjCur, HS, Udeb, Ufin, myTol3d);
+        }
+        else
+        {
+          pAppr = std::make_unique<Approx_CurveOnSurface>(HPCur, HS, Udeb, Ufin, myTol3d);
+        }
+        Approx_CurveOnSurface& appr = *pAppr;
         appr.Perform(myMaxSeg, myMaxDegree, myContinuity, only3d, only2d);
 
         if (approx2d)
@@ -2022,14 +2031,13 @@ void ProjLib_CompProjectedCurve::BuildIntervals(const GeomAbs_Shape S) const
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) ProjLib_CompProjectedCurve::Trim(const Standard_Real First,
-                                                           const Standard_Real Last,
-                                                           const Standard_Real Tol) const
+Handle(ProjLib_CompProjectedCurve) ProjLib_CompProjectedCurve::Trim(const Standard_Real First,
+                                                                    const Standard_Real Last,
+                                                                    const Standard_Real Tol) const
 {
-  Handle(ProjLib_HCompProjectedCurve) HCS = new ProjLib_HCompProjectedCurve(*this);
-  HCS->Load(mySurface);
-  HCS->Load(myCurve->Trim(First, Last, Tol));
-  return HCS;
+  Handle(ProjLib_CompProjectedCurve) aCopy = ShallowCopy();
+  aCopy->Load(myCurve->Trim(First, Last, Tol));
+  return aCopy;
 }
 
 //=================================================================================================

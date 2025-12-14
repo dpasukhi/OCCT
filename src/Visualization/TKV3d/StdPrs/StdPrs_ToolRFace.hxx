@@ -60,7 +60,7 @@ public:
   }
 
   //! Return current curve.
-  const Adaptor2d_Curve2d& Value() const { return myCurve; }
+  const Geom2dAdaptor_Curve& Value() const { return myCurve; }
 
   //! Return current edge.
   Standard_EXPORT const TopoDS_Edge& Edge() const;

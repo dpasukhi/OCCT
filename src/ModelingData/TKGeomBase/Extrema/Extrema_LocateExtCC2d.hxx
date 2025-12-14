@@ -23,7 +23,7 @@
 
 #include <Standard_Boolean.hxx>
 #include <Extrema_POnCurv2d.hxx>
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 
 //! It calculates the distance between two curves with
 //! a close point; these distances can be maximum or
@@ -39,8 +39,8 @@ public:
   //! The function F(u,v)=distance(C1(u),C2(v)) has an
   //! extremun when gradient(f)=0. The algorithm searches
   //! the zero near the close point.
-  Standard_EXPORT Extrema_LocateExtCC2d(const Adaptor2d_Curve2d& C1,
-                                        const Adaptor2d_Curve2d& C2,
+  Standard_EXPORT Extrema_LocateExtCC2d(const Geom2dAdaptor_Curve& C1,
+                                        const Geom2dAdaptor_Curve& C2,
                                         const Standard_Real      U0,
                                         const Standard_Real      V0);
 

@@ -17,7 +17,7 @@
 #ifndef _Extrema_Curve2dTool_HeaderFile
 #define _Extrema_Curve2dTool_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <GeomAbs_CurveType.hxx>
@@ -40,21 +40,21 @@ class Extrema_Curve2dTool
 public:
   DEFINE_STANDARD_ALLOC
 
-  static double FirstParameter(const Adaptor2d_Curve2d& theC) { return theC.FirstParameter(); }
+  static double FirstParameter(const Geom2dAdaptor_Curve& theC) { return theC.FirstParameter(); }
 
-  static double LastParameter(const Adaptor2d_Curve2d& theC) { return theC.LastParameter(); }
+  static double LastParameter(const Geom2dAdaptor_Curve& theC) { return theC.LastParameter(); }
 
-  static GeomAbs_Shape Continuity(const Adaptor2d_Curve2d& theC) { return theC.Continuity(); }
+  static GeomAbs_Shape Continuity(const Geom2dAdaptor_Curve& theC) { return theC.Continuity(); }
 
   //! If necessary, breaks the curve in intervals of continuity <S>.
   //! And returns the number of intervals.
-  static int NbIntervals(const Adaptor2d_Curve2d& theC, const GeomAbs_Shape theS)
+  static int NbIntervals(const Geom2dAdaptor_Curve& theC, const GeomAbs_Shape theS)
   {
     return theC.NbIntervals(theS);
   }
 
   //! Stores in <T> the parameters bounding the intervals of continuity <S>.
-  static void Intervals(const Adaptor2d_Curve2d& theC,
+  static void Intervals(const Geom2dAdaptor_Curve& theC,
                         TColStd_Array1OfReal&    theT,
                         const GeomAbs_Shape      theS)
   {
@@ -64,34 +64,34 @@ public:
   //! Returns the parameters bounding the intervals of subdivision of curve
   //! according to Curvature deflection. Value of deflection is defined in method.
   Standard_EXPORT static Handle(TColStd_HArray1OfReal) DeflCurvIntervals(
-    const Adaptor2d_Curve2d& theC);
+    const Geom2dAdaptor_Curve& theC);
 
-  static bool IsClosed(const Adaptor2d_Curve2d& theC) { return theC.IsClosed(); }
+  static bool IsClosed(const Geom2dAdaptor_Curve& theC) { return theC.IsClosed(); }
 
-  static bool IsPeriodic(const Adaptor2d_Curve2d& theC) { return theC.IsPeriodic(); }
+  static bool IsPeriodic(const Geom2dAdaptor_Curve& theC) { return theC.IsPeriodic(); }
 
-  static double Period(const Adaptor2d_Curve2d& theC) { return theC.Period(); }
+  static double Period(const Geom2dAdaptor_Curve& theC) { return theC.Period(); }
 
   //! Computes the point of parameter U on the curve.
-  static gp_Pnt2d Value(const Adaptor2d_Curve2d& theC, const double theU)
+  static gp_Pnt2d Value(const Geom2dAdaptor_Curve& theC, const double theU)
   {
     return theC.Value(theU);
   }
 
   //! Computes the point of parameter U on the curve.
-  static void D0(const Adaptor2d_Curve2d& theC, const double theU, gp_Pnt2d& theP)
+  static void D0(const Geom2dAdaptor_Curve& theC, const double theU, gp_Pnt2d& theP)
   {
     theC.D0(theU, theP);
   }
 
   //! Computes the point of parameter U on the curve with its first derivative.
-  static void D1(const Adaptor2d_Curve2d& theC, const double theU, gp_Pnt2d& theP, gp_Vec2d& theV)
+  static void D1(const Geom2dAdaptor_Curve& theC, const double theU, gp_Pnt2d& theP, gp_Vec2d& theV)
   {
     theC.D1(theU, theP, theV);
   }
 
   //! Returns the point P of parameter U, the first and second derivatives V1 and V2.
-  static void D2(const Adaptor2d_Curve2d& theC,
+  static void D2(const Geom2dAdaptor_Curve& theC,
                  const double             theU,
                  gp_Pnt2d&                theP,
                  gp_Vec2d&                theV1,
@@ -101,7 +101,7 @@ public:
   }
 
   //! Returns the point P of parameter U, the first, the second and the third derivative.
-  static void D3(const Adaptor2d_Curve2d& theC,
+  static void D3(const Geom2dAdaptor_Curve& theC,
                  const double             theU,
                  gp_Pnt2d&                theP,
                  gp_Vec2d&                theV1,
@@ -112,42 +112,42 @@ public:
   }
 
   //! The returned vector gives the value of the derivative for the order of derivation N.
-  static gp_Vec2d DN(const Adaptor2d_Curve2d& theC, const double theU, const int theN)
+  static gp_Vec2d DN(const Geom2dAdaptor_Curve& theC, const double theU, const int theN)
   {
     return theC.DN(theU, theN);
   }
 
   //! Returns the parametric resolution corresponding to the real space resolution <R3d>.
-  static double Resolution(const Adaptor2d_Curve2d& theC, const double theR3d)
+  static double Resolution(const Geom2dAdaptor_Curve& theC, const double theR3d)
   {
     return theC.Resolution(theR3d);
   }
 
   //! Returns the type of the curve in the current interval:
   //! Line, Circle, Ellipse, Hyperbola, Parabola, BezierCurve, BSplineCurve, OtherCurve.
-  static GeomAbs_CurveType GetType(const Adaptor2d_Curve2d& theC) { return theC.GetType(); }
+  static GeomAbs_CurveType GetType(const Geom2dAdaptor_Curve& theC) { return theC.GetType(); }
 
-  static gp_Lin2d Line(const Adaptor2d_Curve2d& theC) { return theC.Line(); }
+  static gp_Lin2d Line(const Geom2dAdaptor_Curve& theC) { return theC.Line(); }
 
-  static gp_Circ2d Circle(const Adaptor2d_Curve2d& theC) { return theC.Circle(); }
+  static gp_Circ2d Circle(const Geom2dAdaptor_Curve& theC) { return theC.Circle(); }
 
-  static gp_Elips2d Ellipse(const Adaptor2d_Curve2d& theC) { return theC.Ellipse(); }
+  static gp_Elips2d Ellipse(const Geom2dAdaptor_Curve& theC) { return theC.Ellipse(); }
 
-  static gp_Hypr2d Hyperbola(const Adaptor2d_Curve2d& theC) { return theC.Hyperbola(); }
+  static gp_Hypr2d Hyperbola(const Geom2dAdaptor_Curve& theC) { return theC.Hyperbola(); }
 
-  static gp_Parab2d Parabola(const Adaptor2d_Curve2d& theC) { return theC.Parabola(); }
+  static gp_Parab2d Parabola(const Geom2dAdaptor_Curve& theC) { return theC.Parabola(); }
 
-  static int Degree(const Adaptor2d_Curve2d& theC) { return theC.Degree(); }
+  static int Degree(const Geom2dAdaptor_Curve& theC) { return theC.Degree(); }
 
-  static bool IsRational(const Adaptor2d_Curve2d& theC) { return theC.IsRational(); }
+  static bool IsRational(const Geom2dAdaptor_Curve& theC) { return theC.IsRational(); }
 
-  static int NbPoles(const Adaptor2d_Curve2d& theC) { return theC.NbPoles(); }
+  static int NbPoles(const Geom2dAdaptor_Curve& theC) { return theC.NbPoles(); }
 
-  static int NbKnots(const Adaptor2d_Curve2d& theC) { return theC.NbKnots(); }
+  static int NbKnots(const Geom2dAdaptor_Curve& theC) { return theC.NbKnots(); }
 
-  static Handle(Geom2d_BezierCurve) Bezier(const Adaptor2d_Curve2d& theC) { return theC.Bezier(); }
+  static Handle(Geom2d_BezierCurve) Bezier(const Geom2dAdaptor_Curve& theC) { return theC.Bezier(); }
 
-  static Handle(Geom2d_BSplineCurve) BSpline(const Adaptor2d_Curve2d& theC)
+  static Handle(Geom2d_BSplineCurve) BSpline(const Geom2dAdaptor_Curve& theC)
   {
     return theC.BSpline();
   }

@@ -852,7 +852,7 @@ Handle(Geom2d_Curve) ShapeConstruct_ProjectCurveOnSurface::projectAnalytic(
     Handle(GeomAdaptor_Curve) aHC = new GeomAdaptor_Curve(aProjOnPlane);
     ProjLib_ProjectedCurve    aProj(mySurf->Adaptor3d(), aHC);
 
-    aResult = Geom2dAdaptor::MakeCurve(aProj);
+    aResult = aProj.GetCurve2d();
     if (aResult.IsNull())
       return aResult;
 

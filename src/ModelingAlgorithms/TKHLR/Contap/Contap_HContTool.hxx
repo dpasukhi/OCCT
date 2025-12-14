@@ -17,7 +17,7 @@
 #ifndef _Contap_HContTool_HeaderFile
 #define _Contap_HContTool_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 
 class gp_Pnt2d;
@@ -51,18 +51,18 @@ public:
   //! The intersection point are given as vertices.
   //! The intersection edges are given as intervals between
   //! two vertices.
-  Standard_EXPORT static Standard_Boolean HasBeenSeen(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT static Standard_Boolean HasBeenSeen(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! returns the number of points which is used to make
   //! a sample on the arc. this number is a function of
   //! the Surface and the CurveOnSurface complexity.
-  Standard_EXPORT static Standard_Integer NbSamplesOnArc(const Handle(Adaptor2d_Curve2d)& A);
+  Standard_EXPORT static Standard_Integer NbSamplesOnArc(const Handle(Geom2dAdaptor_Curve)& A);
 
   //! Returns the parametric limits on the arc C.
   //! These limits must be finite : they are either
   //! the real limits of the arc, for a finite arc,
   //! or a bounding box for an infinite arc.
-  Standard_EXPORT static void Bounds(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static void Bounds(const Handle(Geom2dAdaptor_Curve)& C,
                                      Standard_Real&                   Ufirst,
                                      Standard_Real&                   Ulast);
 
@@ -72,7 +72,7 @@ public:
   //! of the projected point, Ptproj is the projected Point.
   //! If the method returns Standard_False, Param proj and Ptproj
   //! are not significant.
-  Standard_EXPORT static Standard_Boolean Project(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static Standard_Boolean Project(const Handle(Geom2dAdaptor_Curve)& C,
                                                   const gp_Pnt2d&                  P,
                                                   Standard_Real&                   Paramproj,
                                                   gp_Pnt2d&                        Ptproj);
@@ -82,19 +82,19 @@ public:
   //! if std::abs(parameter(Vertex) - parameter(OtherPnt))<=
   //! Tolerance, the points are "merged".
   Standard_EXPORT static Standard_Real Tolerance(const Handle(Adaptor3d_HVertex)& V,
-                                                 const Handle(Adaptor2d_Curve2d)& C);
+                                                 const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Returns the parameter of the vertex V on the arc A.
   Standard_EXPORT static Standard_Real Parameter(const Handle(Adaptor3d_HVertex)& V,
-                                                 const Handle(Adaptor2d_Curve2d)& C);
+                                                 const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Returns the number of intersection points on the arc A.
-  Standard_EXPORT static Standard_Integer NbPoints(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT static Standard_Integer NbPoints(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Returns the value (Pt), the tolerance (Tol), and
   //! the parameter (U) on the arc A , of the intersection
   //! point of range Index.
-  Standard_EXPORT static void Value(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static void Value(const Handle(Geom2dAdaptor_Curve)& C,
                                     const Standard_Integer           Index,
                                     gp_Pnt&                          Pt,
                                     Standard_Real&                   Tol,
@@ -102,18 +102,18 @@ public:
 
   //! Returns True if the intersection point of range Index
   //! corresponds with a vertex on the arc A.
-  Standard_EXPORT static Standard_Boolean IsVertex(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static Standard_Boolean IsVertex(const Handle(Geom2dAdaptor_Curve)& C,
                                                    const Standard_Integer           Index);
 
   //! When IsVertex returns True, this method returns the
   //! vertex on the arc A.
-  Standard_EXPORT static void Vertex(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static void Vertex(const Handle(Geom2dAdaptor_Curve)& C,
                                      const Standard_Integer           Index,
                                      Handle(Adaptor3d_HVertex)&       V);
 
   //! returns the number of part of A solution of the
   //! of intersection problem.
-  Standard_EXPORT static Standard_Integer NbSegments(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT static Standard_Integer NbSegments(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Returns True when the segment of range Index is not
   //! open at the left side. In that case, IndFirst is the
@@ -121,7 +121,7 @@ public:
   //! of the one which defines the left bound of the segment.
   //! Otherwise, the method has to return False, and IndFirst
   //! has no meaning.
-  Standard_EXPORT static Standard_Boolean HasFirstPoint(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static Standard_Boolean HasFirstPoint(const Handle(Geom2dAdaptor_Curve)& C,
                                                         const Standard_Integer           Index,
                                                         Standard_Integer&                IndFirst);
 
@@ -131,13 +131,13 @@ public:
   //! of the one which defines the right bound of the segment.
   //! Otherwise, the method has to return False, and IndLast
   //! has no meaning.
-  Standard_EXPORT static Standard_Boolean HasLastPoint(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static Standard_Boolean HasLastPoint(const Handle(Geom2dAdaptor_Curve)& C,
                                                        const Standard_Integer           Index,
                                                        Standard_Integer&                IndLast);
 
   //! Returns True when the whole restriction is solution
   //! of the intersection problem.
-  Standard_EXPORT static Standard_Boolean IsAllSolution(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT static Standard_Boolean IsAllSolution(const Handle(Geom2dAdaptor_Curve)& C);
 
 protected:
 private:

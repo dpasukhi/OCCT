@@ -40,7 +40,7 @@ inline void Contap_ArcFunction::Set(const gp_Pnt& Eye)
   myEye  = Eye;
 }
 
-inline void Contap_ArcFunction::Set(const Handle(Adaptor2d_Curve2d)& A)
+inline void Contap_ArcFunction::Set(const Handle(Geom2dAdaptor_Curve)& A)
 {
   myArc = A;
   seqpt.Clear();

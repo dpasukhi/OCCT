@@ -35,7 +35,7 @@ public:
                                        const Handle(Law_Function)&      Law);
 
   Standard_EXPORT void Set(const Standard_Boolean           OnFirst,
-                           const Handle(Adaptor2d_Curve2d)& COnSurf);
+                           const Handle(Geom2dAdaptor_Curve)& COnSurf);
 
   Standard_EXPORT void GetTolerance(math_Vector& Tolerance, const Standard_Real Tol) const;
 
@@ -71,7 +71,7 @@ private:
   Handle(Adaptor3d_Surface) surf1;
   Handle(Adaptor3d_Surface) surf2;
   Handle(Adaptor3d_Curve)   curv;
-  Handle(Adaptor2d_Curve2d) csurf;
+  Handle(Geom2dAdaptor_Curve) csurf;
   Handle(Law_Function)      fevol;
   Standard_Real             sg1;
   Standard_Real             sg2;

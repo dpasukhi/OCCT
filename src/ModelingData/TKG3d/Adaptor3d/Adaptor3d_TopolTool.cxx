@@ -13,10 +13,11 @@
 
 #include <Adaptor3d_TopolTool.hxx>
 
-#include <Adaptor2d_Line2d.hxx>
-#include <Adaptor3d_Surface.hxx>
 #include <Adaptor3d_HVertex.hxx>
+#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAdaptor_Surface.hxx>
+#include <gp_Dir2d.hxx>
 #include <gp_Cone.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
@@ -91,10 +92,8 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(0.,Vinf),gp_Dir2d(gp_Dir2d::D::X),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(0., Vinf), gp_Dir2d(gp_Dir2d::D::X), pinf, psup));
+    myRestr[nbRestr] = new Geom2dAdaptor_Curve();
+    myRestr[nbRestr]->SetLine(gp_Pnt2d(0., Vinf), gp_Dir2d(gp_Dir2d::D::X), pinf, psup);
     nbRestr++;
   }
 
@@ -117,10 +116,8 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(Usup,0.),gp_Dir2d(gp_Dir2d::D::Y),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(Usup, 0.), gp_Dir2d(gp_Dir2d::D::Y), pinf, psup));
+    myRestr[nbRestr] = new Geom2dAdaptor_Curve();
+    myRestr[nbRestr]->SetLine(gp_Pnt2d(Usup, 0.), gp_Dir2d(gp_Dir2d::D::Y), pinf, psup);
     nbRestr++;
   }
 
@@ -143,10 +140,8 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(0.,Vsup),gp_Dir2d(gp_Dir2d::D::NX),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(0., Vsup), gp_Dir2d(gp_Dir2d::D::NX), pinf, psup));
+    myRestr[nbRestr] = new Geom2dAdaptor_Curve();
+    myRestr[nbRestr]->SetLine(gp_Pnt2d(0., Vsup), gp_Dir2d(gp_Dir2d::D::NX), pinf, psup);
     nbRestr++;
   }
 
@@ -169,10 +164,8 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(Uinf,0.),gp_Dir2d(gp_Dir2d::D::NY),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(Uinf, 0.), gp_Dir2d(gp_Dir2d::D::NY), pinf, psup));
+    myRestr[nbRestr] = new Geom2dAdaptor_Curve();
+    myRestr[nbRestr]->SetLine(gp_Pnt2d(Uinf, 0.), gp_Dir2d(gp_Dir2d::D::NY), pinf, psup);
     nbRestr++;
   }
 
@@ -200,10 +193,8 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(U,V),gp_Dir2d(gp_Dir2d::D::X),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] =
-      new Adaptor2d_Line2d(Adaptor2d_Line2d(gp_Pnt2d(U, V), gp_Dir2d(gp_Dir2d::D::X), pinf, psup));
+    myRestr[nbRestr] = new Geom2dAdaptor_Curve();
+    myRestr[nbRestr]->SetLine(gp_Pnt2d(U, V), gp_Dir2d(gp_Dir2d::D::X), pinf, psup);
     nbRestr++;
   }
 }
@@ -218,7 +209,7 @@ Standard_Boolean Adaptor3d_TopolTool::More()
   return (idRestr < nbRestr);
 }
 
-Handle(Adaptor2d_Curve2d) Adaptor3d_TopolTool::Value()
+Handle(Geom2dAdaptor_Curve) Adaptor3d_TopolTool::Value()
 {
   if (idRestr >= nbRestr)
   {
@@ -232,7 +223,7 @@ void Adaptor3d_TopolTool::Next()
   idRestr++;
 }
 
-void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor2d_Curve2d)& C)
+void Adaptor3d_TopolTool::Initialize(const Handle(Geom2dAdaptor_Curve)& C)
 {
   nbVtx = 0;
   idVtx = 0;
@@ -607,7 +598,7 @@ Standard_Boolean Adaptor3d_TopolTool::IsThePointOn(const gp_Pnt2d&     P,
   }
 }
 
-TopAbs_Orientation Adaptor3d_TopolTool::Orientation(const Handle(Adaptor2d_Curve2d)&)
+TopAbs_Orientation Adaptor3d_TopolTool::Orientation(const Handle(Geom2dAdaptor_Curve)&)
 {
   return TopAbs_FORWARD;
 }
@@ -984,7 +975,7 @@ Standard_Boolean Adaptor3d_TopolTool::Has3d() const
 
 //=================================================================================================
 
-Standard_Real Adaptor3d_TopolTool::Tol3d(const Handle(Adaptor2d_Curve2d)&) const
+Standard_Real Adaptor3d_TopolTool::Tol3d(const Handle(Geom2dAdaptor_Curve)&) const
 {
   throw Standard_DomainError("Adaptor3d_TopolTool: has no 3d representation");
 }

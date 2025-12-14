@@ -67,7 +67,7 @@ public:
   Standard_EXPORT Standard_Boolean Values(const math_Vector& X, math_Vector& F, math_Matrix& D);
 
   //! Set the restriction on which a solution has to be found.
-  Standard_EXPORT void Set(const Handle(Adaptor2d_Curve2d)& Rst);
+  Standard_EXPORT void Set(const Handle(Geom2dAdaptor_Curve)& Rst);
 
   //! Returns in the vector Tolerance the parametric tolerance
   //! for each of the 3 variables;
@@ -89,7 +89,7 @@ private:
   Handle(Adaptor3d_Surface) surf;
   Handle(Adaptor3d_Curve)   curv;
   Handle(Adaptor3d_Curve)   guide;
-  Handle(Adaptor2d_Curve2d) rst;
+  Handle(Geom2dAdaptor_Curve) rst;
   Standard_Real             ray;
   Standard_Integer          choix;
 };

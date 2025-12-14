@@ -18,11 +18,11 @@
 #define ChFiKPart_RstMap_HeaderFile
 
 #include <Standard_Integer.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <NCollection_DataMap.hxx>
 
-typedef NCollection_DataMap<Standard_Integer, Handle(Adaptor2d_Curve2d)> ChFiKPart_RstMap;
-typedef NCollection_DataMap<Standard_Integer, Handle(Adaptor2d_Curve2d)>::Iterator
+typedef NCollection_DataMap<Standard_Integer, Handle(Geom2dAdaptor_Curve)> ChFiKPart_RstMap;
+typedef NCollection_DataMap<Standard_Integer, Handle(Geom2dAdaptor_Curve)>::Iterator
   ChFiKPart_DataMapIteratorOfRstMap;
 
 #endif

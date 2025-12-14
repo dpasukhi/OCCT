@@ -17,13 +17,12 @@
 #ifndef _ProjLib_ProjectedCurve_HeaderFile
 #define _ProjLib_ProjectedCurve_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <Adaptor3d_Curve.hxx>
 #include <AppParCurves_Constraint.hxx>
 #include <GeomAbs_CurveType.hxx>
-#include <GeomAbs_Shape.hxx>
 #include <ProjLib_Projector.hxx>
-#include <TColStd_Array1OfReal.hxx>
+#include <Standard_Transient.hxx>
 
 class gp_Pnt2d;
 class gp_Vec2d;
@@ -34,8 +33,9 @@ class gp_Hypr2d;
 class gp_Parab2d;
 class Geom2d_BezierCurve;
 class Geom2d_BSplineCurve;
+class Geom2d_Curve;
 
-DEFINE_STANDARD_HANDLE(ProjLib_ProjectedCurve, Adaptor2d_Curve2d)
+DEFINE_STANDARD_HANDLE(ProjLib_ProjectedCurve, Standard_Transient)
 
 //! Compute the 2d-curve. Try to solve the particular
 //! case if possible. Otherwise, an approximation is
@@ -46,9 +46,9 @@ DEFINE_STANDARD_HANDLE(ProjLib_ProjectedCurve, Adaptor2d_Curve2d)
 //! computed from 3d tolerance with help of U,V resolutions of surface. 3d and 2d tolerances have
 //! sense only for curves on surface, it defines precision of projecting and approximation and have
 //! nothing to do with distance between the projected curve and the surface.
-class ProjLib_ProjectedCurve : public Adaptor2d_Curve2d
+class ProjLib_ProjectedCurve : public Standard_Transient
 {
-  DEFINE_STANDARD_RTTIEXT(ProjLib_ProjectedCurve, Adaptor2d_Curve2d)
+  DEFINE_STANDARD_RTTIEXT(ProjLib_ProjectedCurve, Standard_Transient)
 public:
   //! Empty constructor, it only sets some initial values for class fields.
   Standard_EXPORT ProjLib_ProjectedCurve();
@@ -68,8 +68,8 @@ public:
                                          const Handle(Adaptor3d_Curve)&   C,
                                          const Standard_Real              Tol);
 
-  //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
+  //! Shallow copy of projector
+  Standard_EXPORT Handle(ProjLib_ProjectedCurve) ShallowCopy() const;
 
   //! Changes the tolerance used to project
   //! the curve on the surface
@@ -87,8 +87,7 @@ public:
   //! Set min and max possible degree of result BSpline curve2d, which is got by approximation.
   //! If theDegMin/Max < 0, algorithm uses values that are chosen depending of types curve 3d
   //! and surface.
-  Standard_EXPORT void SetDegree(const Standard_Integer theDegMin,
-                                 const Standard_Integer theDegMax);
+  Standard_EXPORT void SetDegree(const Standard_Integer theDegMin, const Standard_Integer theDegMax);
 
   //! Set the parameter, which defines maximal value of parametric intervals the projected
   //! curve can be cut for approximation. If theMaxSegments < 0, algorithm uses default
@@ -114,114 +113,54 @@ public:
   //! is Done.
   Standard_EXPORT Standard_Real GetTolerance() const;
 
-  Standard_EXPORT Standard_Real FirstParameter() const Standard_OVERRIDE;
+  //! Returns true if the projection was successful.
+  Standard_Boolean IsDone() const { return myResult.IsDone(); }
 
-  Standard_EXPORT Standard_Real LastParameter() const Standard_OVERRIDE;
+  //! Returns the first parameter of the curve.
+  Standard_EXPORT Standard_Real FirstParameter() const;
 
-  Standard_EXPORT GeomAbs_Shape Continuity() const Standard_OVERRIDE;
+  //! Returns the last parameter of the curve.
+  Standard_EXPORT Standard_Real LastParameter() const;
 
-  //! If necessary, breaks the curve in intervals of
-  //! continuity <S>. And returns the number of
-  //! intervals.
-  Standard_EXPORT Standard_Integer NbIntervals(const GeomAbs_Shape S) const Standard_OVERRIDE;
-
-  //! Stores in <T> the parameters bounding the intervals
-  //! of continuity <S>.
-  //!
-  //! The array must provide enough room to accommodate
-  //! for the parameters. i.e. T.Length() > NbIntervals()
-  Standard_EXPORT void Intervals(TColStd_Array1OfReal& T,
-                                 const GeomAbs_Shape   S) const Standard_OVERRIDE;
-
-  //! Returns a curve equivalent of <me> between
-  //! parameters <First> and <Last>. <Tol> is used to
-  //! test for 3d points confusion.
-  //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) Trim(const Standard_Real First,
-                                                 const Standard_Real Last,
-                                                 const Standard_Real Tol) const Standard_OVERRIDE;
-
-  Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
-
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
-
-  Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
-
-  //! Computes the point of parameter U on the curve.
-  Standard_EXPORT gp_Pnt2d Value(const Standard_Real U) const Standard_OVERRIDE;
-
-  //! Computes the point of parameter U on the curve.
-  Standard_EXPORT void D0(const Standard_Real U, gp_Pnt2d& P) const Standard_OVERRIDE;
-
-  //! Computes the point of parameter U on the curve with its
-  //! first derivative.
-  //! Raised if the continuity of the current interval
-  //! is not C1.
-  Standard_EXPORT void D1(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V) const Standard_OVERRIDE;
-
-  //! Returns the point P of parameter U, the first and second
-  //! derivatives V1 and V2.
-  //! Raised if the continuity of the current interval
-  //! is not C2.
-  Standard_EXPORT void D2(const Standard_Real U,
-                          gp_Pnt2d&           P,
-                          gp_Vec2d&           V1,
-                          gp_Vec2d&           V2) const Standard_OVERRIDE;
-
-  //! Returns the point P of parameter U, the first, the second
-  //! and the third derivative.
-  //! Raised if the continuity of the current interval
-  //! is not C3.
-  Standard_EXPORT void D3(const Standard_Real U,
-                          gp_Pnt2d&           P,
-                          gp_Vec2d&           V1,
-                          gp_Vec2d&           V2,
-                          gp_Vec2d&           V3) const Standard_OVERRIDE;
-
-  //! The returned vector gives the value of the derivative for the
-  //! order of derivation N.
-  //! Raised if the continuity of the current interval
-  //! is not CN.
-  //! Raised if N < 1.
-  Standard_EXPORT gp_Vec2d DN(const Standard_Real    U,
-                              const Standard_Integer N) const Standard_OVERRIDE;
-
-  //! Returns the parametric resolution corresponding
-  //! to the real space resolution <R3d>.
-  Standard_EXPORT Standard_Real Resolution(const Standard_Real R3d) const Standard_OVERRIDE;
+  //! Returns true if the result is periodic.
+  Standard_EXPORT Standard_Boolean IsPeriodic() const;
 
   //! Returns the type of the curve in the current
   //! interval: Line, Circle, Ellipse, Hyperbola,
   //! Parabola, BezierCurve, BSplineCurve, OtherCurve.
-  Standard_EXPORT GeomAbs_CurveType GetType() const Standard_OVERRIDE;
+  Standard_EXPORT GeomAbs_CurveType GetType() const;
 
-  Standard_EXPORT gp_Lin2d Line() const Standard_OVERRIDE;
+  Standard_EXPORT gp_Lin2d Line() const;
 
-  Standard_EXPORT gp_Circ2d Circle() const Standard_OVERRIDE;
+  Standard_EXPORT gp_Circ2d Circle() const;
 
-  Standard_EXPORT gp_Elips2d Ellipse() const Standard_OVERRIDE;
+  Standard_EXPORT gp_Elips2d Ellipse() const;
 
-  Standard_EXPORT gp_Hypr2d Hyperbola() const Standard_OVERRIDE;
+  Standard_EXPORT gp_Hypr2d Hyperbola() const;
 
-  Standard_EXPORT gp_Parab2d Parabola() const Standard_OVERRIDE;
+  Standard_EXPORT gp_Parab2d Parabola() const;
 
-  Standard_EXPORT Standard_Integer Degree() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Integer Degree() const;
 
-  Standard_EXPORT Standard_Boolean IsRational() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Boolean IsRational() const;
 
-  Standard_EXPORT Standard_Integer NbPoles() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Integer NbPoles() const;
 
-  Standard_EXPORT Standard_Integer NbKnots() const Standard_OVERRIDE;
+  Standard_EXPORT Standard_Integer NbKnots() const;
 
   //! Warning! This will NOT make a copy of the Bezier Curve
   //! If you want to modify the Curve please make a copy
   //! yourself. Also it will NOT trim the surface to myFirst/Last.
-  Standard_EXPORT Handle(Geom2d_BezierCurve) Bezier() const Standard_OVERRIDE;
+  Standard_EXPORT Handle(Geom2d_BezierCurve) Bezier() const;
 
   //! Warning! This will NOT make a copy of the BSpline Curve
   //! If you want to modify the Curve please make a copy
   //! yourself. Also it will NOT trim the surface to myFirst/Last.
-  Standard_EXPORT Handle(Geom2d_BSplineCurve) BSpline() const Standard_OVERRIDE;
+  Standard_EXPORT Handle(Geom2d_BSplineCurve) BSpline() const;
+
+  //! Returns the result 2D curve as Geom2d_Curve.
+  //! Returns null if projection was not done or failed.
+  Standard_EXPORT Handle(Geom2d_Curve) GetCurve2d() const;
 
 private:
   Standard_Real             myTolerance;

@@ -17,7 +17,7 @@
 #ifndef _ProjLib_ComputeApproxOnPolarSurface_HeaderFile
 #define _ProjLib_ComputeApproxOnPolarSurface_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <AppParCurves_Constraint.hxx>
 
@@ -51,7 +51,7 @@ public:
 
   //! Constructor, which performs projecting, using initial curve 2d InitCurve2d, which is any rough
   //! approximation of result curve. Parameter Tol is 3d tolerance of approximation.
-  Standard_EXPORT ProjLib_ComputeApproxOnPolarSurface(const Handle(Adaptor2d_Curve2d)& InitCurve2d,
+  Standard_EXPORT ProjLib_ComputeApproxOnPolarSurface(const Handle(Geom2dAdaptor_Curve)& InitCurve2d,
                                                       const Handle(Adaptor3d_Curve)&   C,
                                                       const Handle(Adaptor3d_Surface)& S,
                                                       const Standard_Real              Tol);
@@ -60,8 +60,8 @@ public:
   //! InitCurve2dBis that are any rough approximations of result curves. This constructor is used to
   //! get two pcurves for seem edge. Parameter Tol is 3d tolerance of approximation.
   Standard_EXPORT ProjLib_ComputeApproxOnPolarSurface(
-    const Handle(Adaptor2d_Curve2d)& InitCurve2d,
-    const Handle(Adaptor2d_Curve2d)& InitCurve2dBis,
+    const Handle(Geom2dAdaptor_Curve)& InitCurve2d,
+    const Handle(Geom2dAdaptor_Curve)& InitCurve2dBis,
     const Handle(Adaptor3d_Curve)&   C,
     const Handle(Adaptor3d_Surface)& S,
     const Standard_Real              Tol);
@@ -100,13 +100,13 @@ public:
   //! Method, which performs projecting, using default values of parameters or
   //! they must be set by corresponding methods before using.
   //! Parameter InitCurve2d is any rough estimation of 2d result curve.
-  Standard_EXPORT Handle(Geom2d_BSplineCurve) Perform(const Handle(Adaptor2d_Curve2d)& InitCurve2d,
+  Standard_EXPORT Handle(Geom2d_BSplineCurve) Perform(const Handle(Geom2dAdaptor_Curve)& InitCurve2d,
                                                       const Handle(Adaptor3d_Curve)&   C,
                                                       const Handle(Adaptor3d_Surface)& S);
 
   //! Builds initial 2d curve as BSpline with degree = 1 using Extrema algorithm.
   //! Method is used in method Perform(...).
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) BuildInitialCurve2d(
+  Standard_EXPORT Handle(Geom2dAdaptor_Curve) BuildInitialCurve2d(
     const Handle(Adaptor3d_Curve)&   Curve,
     const Handle(Adaptor3d_Surface)& S);
 
@@ -115,7 +115,7 @@ public:
   Standard_EXPORT Handle(Geom2d_BSplineCurve) ProjectUsingInitialCurve2d(
     const Handle(Adaptor3d_Curve)&   Curve,
     const Handle(Adaptor3d_Surface)& S,
-    const Handle(Adaptor2d_Curve2d)& InitCurve2d);
+    const Handle(Geom2dAdaptor_Curve)& InitCurve2d);
 
   //! Returns result curve 2d.
   Standard_EXPORT Handle(Geom2d_BSplineCurve) BSpline() const;

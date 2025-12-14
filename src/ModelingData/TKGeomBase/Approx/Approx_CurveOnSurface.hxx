@@ -17,9 +17,10 @@
 #ifndef _Approx_CurveOnSurface_HeaderFile
 #define _Approx_CurveOnSurface_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <ProjLib_CompProjectedCurve.hxx>
 
 class Geom_BSplineCurve;
 class Geom2d_BSplineCurve;
@@ -33,7 +34,7 @@ public:
   //! This constructor calls perform method. This constructor is deprecated.
   Standard_DEPRECATED(
     "This constructor is deprecated. Use other constructor and perform method instead.")
-  Standard_EXPORT Approx_CurveOnSurface(const Handle(Adaptor2d_Curve2d)& C2D,
+  Standard_EXPORT Approx_CurveOnSurface(const Handle(Geom2dAdaptor_Curve)& C2D,
                                         const Handle(Adaptor3d_Surface)& Surf,
                                         const Standard_Real              First,
                                         const Standard_Real              Last,
@@ -50,11 +51,24 @@ public:
   //! @param theFirst First parameter of resulting curve.
   //! @param theFirst Last parameter of resulting curve.
   //! @param theTol   Computation tolerance.
-  Standard_EXPORT Approx_CurveOnSurface(const Handle(Adaptor2d_Curve2d)& theC2D,
+  Standard_EXPORT Approx_CurveOnSurface(const Handle(Geom2dAdaptor_Curve)& theC2D,
                                         const Handle(Adaptor3d_Surface)& theSurf,
                                         const Standard_Real              theFirst,
                                         const Standard_Real              theLast,
                                         const Standard_Real              theTol);
+
+  //! Constructor with ProjLib_CompProjectedCurve as 2D evaluator.
+  //! This constructor does not call perform method.
+  //! @param theProjC2D Projected curve providing 2D evaluation.
+  //! @param theSurf    Surface where 2D curve is located.
+  //! @param theFirst   First parameter of resulting curve.
+  //! @param theLast    Last parameter of resulting curve.
+  //! @param theTol     Computation tolerance.
+  Standard_EXPORT Approx_CurveOnSurface(const Handle(ProjLib_CompProjectedCurve)& theProjC2D,
+                                        const Handle(Adaptor3d_Surface)&          theSurf,
+                                        const Standard_Real                       theFirst,
+                                        const Standard_Real                       theLast,
+                                        const Standard_Real                       theTol);
 
   Standard_EXPORT Standard_Boolean IsDone() const;
 
@@ -93,7 +107,7 @@ protected:
   //! @param theParam     Line parameter.
   //! @param theIsForward Flag indicating forward parameterization on a isoline.
   //! @return Standard_True when 2d curve is a line and Standard_False otherwise.
-  Standard_Boolean isIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
+  Standard_Boolean isIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
                              Standard_Boolean&                theIsU,
                              Standard_Real&                   theParam,
                              Standard_Boolean&                theIsForward) const;
@@ -105,7 +119,7 @@ protected:
   //! @param theParam Line parameter.
   //! @param theIsForward Flag indicating forward parameterization on a isoline.
   //! @return Standard_True when 3d curve is built and Standard_False otherwise.
-  Standard_Boolean buildC3dOnIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
+  Standard_Boolean buildC3dOnIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
                                      const Standard_Boolean           theIsU,
                                      const Standard_Real              theParam,
                                      const Standard_Boolean           theIsForward);
@@ -114,17 +128,20 @@ private:
   Approx_CurveOnSurface& operator=(const Approx_CurveOnSurface&);
 
 private:
-  //! Input curve.
-  const Handle(Adaptor2d_Curve2d) myC2D;
+  //! Input curve (2D adaptor).
+  Handle(Geom2dAdaptor_Curve) myC2D;
+
+  //! Input curve (projected curve evaluator).
+  Handle(ProjLib_CompProjectedCurve) myProjC2D;
 
   //! Input surface.
-  const Handle(Adaptor3d_Surface) mySurf;
+  Handle(Adaptor3d_Surface) mySurf;
 
   //! First parameter of the result.
-  const Standard_Real myFirst;
+  Standard_Real myFirst;
 
   //! Last parameter of the result.
-  const Standard_Real myLast;
+  Standard_Real myLast;
 
   //! Tolerance.
   Standard_Real myTol;

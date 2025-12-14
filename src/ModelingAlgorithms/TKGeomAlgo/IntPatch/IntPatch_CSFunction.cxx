@@ -28,10 +28,10 @@
 
 #define SURFACE1 (*((Handle(Adaptor3d_Surface)*)(surface1)))
 #define SURFACE2 (*((Handle(Adaptor3d_Surface)*)(surface2)))
-#define CURVE (*((Handle(Adaptor2d_Curve2d)*)(curve)))
+#define CURVE (*((Handle(Geom2dAdaptor_Curve)*)(curve)))
 
 IntPatch_CSFunction::IntPatch_CSFunction(const Handle(Adaptor3d_Surface)& S1,
-                                         const Handle(Adaptor2d_Curve2d)& C,
+                                         const Handle(Geom2dAdaptor_Curve)& C,
                                          const Handle(Adaptor3d_Surface)& S2)
 {
   surface1 = (Standard_Address)(&S1);
@@ -136,7 +136,7 @@ const Handle(Adaptor3d_Surface)& IntPatch_CSFunction::AuxillarSurface() const
   return SURFACE1;
 }
 
-const Handle(Adaptor2d_Curve2d)& IntPatch_CSFunction::AuxillarCurve() const
+const Handle(Geom2dAdaptor_Curve)& IntPatch_CSFunction::AuxillarCurve() const
 {
   return CURVE;
 }

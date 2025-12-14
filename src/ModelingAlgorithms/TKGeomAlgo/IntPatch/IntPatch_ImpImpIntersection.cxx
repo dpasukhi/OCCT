@@ -12,7 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_HVertex.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Adaptor3d_TopolTool.hxx>
@@ -99,7 +99,7 @@ static Standard_Boolean FindLine(gp_Pnt&                          Psurf,
                                  gp_Vec&                          Vtgtint,
                                  Standard_Integer&                theLineIdx,
                                  Standard_Integer                 OnlyThisLine,
-                                 const Handle(Adaptor2d_Curve2d)& thearc,
+                                 const Handle(Geom2dAdaptor_Curve)& thearc,
                                  Standard_Real&                   theparameteronarc,
                                  gp_Pnt&                          thepointonarc,
                                  const IntSurf_Quadric&           QuadSurf1,
@@ -123,7 +123,7 @@ static void ProcessRLine(IntPatch_SequenceOfLine&,
 Standard_Boolean IntersectionWithAnArc(gp_Pnt&                          PSurf,
                                        const Handle(IntPatch_ALine)&    alin,
                                        Standard_Real&                   para,
-                                       const Handle(Adaptor2d_Curve2d)& thearc,
+                                       const Handle(Geom2dAdaptor_Curve)& thearc,
                                        Standard_Real&                   _theparameteronarc,
                                        gp_Pnt&                          thepointonarc,
                                        const IntSurf_Quadric&           QuadSurf,
@@ -459,7 +459,7 @@ void PutPointsOnLine(const Handle(Adaptor3d_Surface)&                  S1,
 
   IntSurf_Transition Transline, Transarc;
 
-  Handle(Adaptor2d_Curve2d) currentarc;
+  Handle(Geom2dAdaptor_Curve) currentarc;
   Handle(Adaptor3d_HVertex) vtx, vtxbis;
 
   IntPatch_Point                      solpnt;
@@ -727,7 +727,7 @@ Standard_Boolean MultiplePoint(const IntPatch_SequenceOfPathPointOfTheSOnBounds&
   IntSurf_Transition Transline, Transarc;
 
   IntPatch_Point            intpt;
-  Handle(Adaptor2d_Curve2d) currentarc;
+  Handle(Geom2dAdaptor_Curve) currentarc;
   Handle(Adaptor3d_HVertex) vtx, vtxbis;
 
   Standard_Integer                    nbpnt             = listpnt.Length();
@@ -918,7 +918,7 @@ Standard_Boolean PointOnSecondDom(const IntPatch_SequenceOfPathPointOfTheSOnBoun
 
   IntSurf_Transition        Transline, Transarc;
   IntPatch_Point            intpt;
-  Handle(Adaptor2d_Curve2d) currentarc;
+  Handle(Geom2dAdaptor_Curve) currentarc;
   Handle(Adaptor3d_HVertex) vtx, vtxbis;
   gp_Pnt                    ptbid;
   gp_Vec                    Vtgrst;
@@ -1069,7 +1069,7 @@ Standard_Boolean FindLine(gp_Pnt&                          Psurf,
                           gp_Vec&                          Vtgtint,
                           Standard_Integer&                theLineIdx,
                           Standard_Integer                 OnlyThisLine,
-                          const Handle(Adaptor2d_Curve2d)& thearc,
+                          const Handle(Geom2dAdaptor_Curve)& thearc,
                           Standard_Real&                   theparameteronarc,
                           gp_Pnt&                          thepointonarc,
                           const IntSurf_Quadric&           QuadSurf1,
@@ -1486,7 +1486,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
   Standard_Integer nbedg = listedg.Length();
   Standard_Integer Nblines, Nbpts;
 
-  Handle(Adaptor2d_Curve2d) arcRef;
+  Handle(Geom2dAdaptor_Curve) arcRef;
   IntPatch_Point            ptvtx, newptvtx;
 
   Handle(IntPatch_RLine) rline; //-- On fait rline = new ... par la suite
@@ -1697,7 +1697,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               tgline.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
               if (ptvtx.IsOnDomS1())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS1();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS1();
                 thearc->D1(ptvtx.ParameterOnArc1(), p2d, d2d);
                 Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1715,7 +1715,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               }
               if (ptvtx.IsOnDomS2())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS2();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS2();
                 thearc->D1(ptvtx.ParameterOnArc2(), p2d, d2d);
                 Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1775,7 +1775,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               tgline.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
               if (ptvtx.IsOnDomS1())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS1();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS1();
                 thearc->D1(ptvtx.ParameterOnArc1(), p2d, d2d);
                 Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1793,7 +1793,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               }
               if (ptvtx.IsOnDomS2())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS2();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS2();
                 thearc->D1(ptvtx.ParameterOnArc2(), p2d, d2d);
                 Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1981,14 +1981,14 @@ static Standard_Boolean IsRLineGood(const IntSurf_Quadric&       Quad1,
     gp_Pnt aPMid;
     if (theRLine->IsArcOnS1())
     {
-      const Handle(Adaptor2d_Curve2d)& anAC2d = theRLine->ArcOnS1();
+      const Handle(Geom2dAdaptor_Curve)& anAC2d = theRLine->ArcOnS1();
       const Standard_Real aParF = anAC2d->FirstParameter(), aParL = anAC2d->LastParameter();
       gp_Pnt2d            aP2d(anAC2d->Value(0.5 * (aParF + aParL)));
       aPMid = Quad1.Value(aP2d.X(), aP2d.Y());
     }
     else
     {
-      const Handle(Adaptor2d_Curve2d)& anAC2d = theRLine->ArcOnS2();
+      const Handle(Geom2dAdaptor_Curve)& anAC2d = theRLine->ArcOnS2();
       const Standard_Real aParF = anAC2d->FirstParameter(), aParL = anAC2d->LastParameter();
       gp_Pnt2d            aP2d(anAC2d->Value(0.5 * (aParF + aParL)));
       aPMid = Quad2.Value(aP2d.X(), aP2d.Y());
@@ -2032,7 +2032,7 @@ void ProcessRLine(IntPatch_SequenceOfLine& slin,
 
   Standard_Boolean OnFirst = Standard_False, project = Standard_False, keeppoint = Standard_False;
 
-  Handle(Adaptor2d_Curve2d) arcref;
+  Handle(Geom2dAdaptor_Curve) arcref;
   Standard_Real             paramproj, paramf, paraml;
 
   TColgp_SequenceOfPnt   seq_Pnt3d;
@@ -2251,7 +2251,7 @@ void ProcessRLine(IntPatch_SequenceOfLine& slin,
                     Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgrest.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
 
-                    const Handle(Adaptor2d_Curve2d)& thearc = Ptvtx.ArcOnS2();
+                    const Handle(Geom2dAdaptor_Curve)& thearc = Ptvtx.ArcOnS2();
                     thearc->D1(Ptvtx.ParameterOnArc2(), p2d, d2d);
                     Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -2272,7 +2272,7 @@ void ProcessRLine(IntPatch_SequenceOfLine& slin,
                     Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgrest.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
 
-                    const Handle(Adaptor2d_Curve2d)& thearc = Ptvtx.ArcOnS1();
+                    const Handle(Geom2dAdaptor_Curve)& thearc = Ptvtx.ArcOnS1();
                     thearc->D1(Ptvtx.ParameterOnArc1(), p2d, d2d);
                     Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);

@@ -54,7 +54,7 @@ void TopOpeBRep_VPointInter::SetPoint(const IntPatch_Point& P)
 
 const TopoDS_Shape& TopOpeBRep_VPointInter::ArcOnS1() const
 {
-  const Handle(Adaptor2d_Curve2d)& HAHC2  = myPPOI->ArcOnS1();
+  const Handle(Geom2dAdaptor_Curve)& HAHC2  = myPPOI->ArcOnS1();
   const BRepAdaptor_Curve2d&       BRAC2P = *((BRepAdaptor_Curve2d*)HAHC2.get());
   return BRAC2P.Edge();
 }
@@ -63,7 +63,7 @@ const TopoDS_Shape& TopOpeBRep_VPointInter::ArcOnS1() const
 
 const TopoDS_Shape& TopOpeBRep_VPointInter::ArcOnS2() const
 {
-  const Handle(Adaptor2d_Curve2d)& HAHC2  = myPPOI->ArcOnS2();
+  const Handle(Geom2dAdaptor_Curve)& HAHC2  = myPPOI->ArcOnS2();
   const BRepAdaptor_Curve2d&       BRAC2P = *((BRepAdaptor_Curve2d*)HAHC2.get());
   return BRAC2P.Edge();
 }

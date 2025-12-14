@@ -526,7 +526,7 @@ static void KeepInsidePoints(const Contap_TheSearchInside&    solins,
     toproj = gp_Pnt2d(U, V);
     for (inda = 1; inda <= Nba; inda++)
     {
-      const Handle(Adaptor2d_Curve2d)& thearc = solrst.Segment(inda).Curve();
+      const Handle(Geom2dAdaptor_Curve)& thearc = solrst.Segment(inda).Curve();
       projok = Contap_HContTool::Project(thearc, toproj, paramproj, Ptproj);
       if (projok)
       {
@@ -580,7 +580,7 @@ static void ComputeTangency(const Contap_TheSearch&            solrst,
     {
 
       const Contap_ThePathPointOfTheSearch& PStart = solrst.Point(i);
-      const Handle(Adaptor2d_Curve2d)&      thearc = PStart.Arc();
+      const Handle(Geom2dAdaptor_Curve)&      thearc = PStart.Arc();
       theparam                                     = PStart.Parameter();
       gp_Pnt2d Ptoproj                             = Contap_HCurve2dTool::Value(thearc, theparam);
       //-- lbr le 15 mai 97
@@ -590,7 +590,7 @@ static void ComputeTangency(const Contap_TheSearch&            solrst,
            SurUneRestrictionSolution == Standard_False && restriction <= solrst.NbSegments();
            restriction++)
       {
-        const Handle(Adaptor2d_Curve2d)& thearcsol = solrst.Segment(restriction).Curve();
+        const Handle(Geom2dAdaptor_Curve)& thearcsol = solrst.Segment(restriction).Curve();
         Standard_Real                    paramproj;
         gp_Pnt2d                         pproj;
         Standard_Boolean projok = Contap_HContTool::Project(thearcsol, Ptoproj, paramproj, pproj);
@@ -634,7 +634,7 @@ static void ComputeTangency(const Contap_TheSearch&            solrst,
                   const Handle(Adaptor3d_HVertex)& vtx2 = PStart2.Vertex();
                   if (Domain->Identical(vtx, vtx2))
                   {
-                    const Handle(Adaptor2d_Curve2d)& thearc2 = PStart2.Arc();
+                    const Handle(Geom2dAdaptor_Curve)& thearc2 = PStart2.Arc();
                     theparam                                 = PStart2.Parameter();
                     arcorien                                 = Domain->Orientation(thearc2);
                     ispassing =
@@ -748,7 +748,7 @@ static void ComputeTangency(const Contap_TheSearch&            solrst,
                     const Handle(Adaptor3d_HVertex)& vtx2 = PStart2.Vertex();
                     if (Domain->Identical(PStart.Vertex(), vtx2))
                     {
-                      const Handle(Adaptor2d_Curve2d)& thearc2 = PStart2.Arc();
+                      const Handle(Geom2dAdaptor_Curve)& thearc2 = PStart2.Arc();
                       theparam                                 = PStart2.Parameter();
                       arcorien                                 = Domain->Orientation(thearc2);
 
@@ -834,7 +834,7 @@ static void ComputeTangency(const Contap_TheSearch&            solrst,
                   if (Destination(k) == seqlength + 1)
                   {
                     theparam                                 = solrst.Point(k).Parameter();
-                    const Handle(Adaptor2d_Curve2d)& thearc2 = solrst.Point(k).Arc();
+                    const Handle(Geom2dAdaptor_Curve)& thearc2 = solrst.Point(k).Arc();
                     arcorien                                 = Domain->Orientation(thearc2);
 
                     if (arcorien == TopAbs_FORWARD || arcorien == TopAbs_REVERSED)
@@ -959,7 +959,7 @@ void ProcessSegments(const Contap_TheSearch&            solrst,
   Standard_Integer nbedg = solrst.NbSegments();
   Standard_Integer Nblines, Nbpts;
 
-  Handle(Adaptor2d_Curve2d) arcRef;
+  Handle(Geom2dAdaptor_Curve) arcRef;
   Contap_Point              ptvtx;
 
   Contap_ThePathPointOfTheSearch PStartf, PStartl;
@@ -1133,7 +1133,7 @@ void ComputeInternalPointsOnRstr(Contap_Line&         Line,
     return;
   }
 
-  const Handle(Adaptor2d_Curve2d)& thearc = Line.Arc();
+  const Handle(Geom2dAdaptor_Curve)& thearc = Line.Arc();
 
   const Handle(Adaptor3d_Surface)& Surf = SFunc.Surface();
   Contap_TFunction                 TypeFunc(SFunc.FunctionType());
@@ -1724,7 +1724,7 @@ void Contap_Contour::Perform(const Handle(Adaptor3d_TopolTool)& Domain)
             ptdeb.SetParameter(1.0);
 
             const Contap_ThePathPointOfTheSearch& PStart     = solrst.Point(i);
-            const Handle(Adaptor2d_Curve2d)&      currentarc = PStart.Arc();
+            const Handle(Geom2dAdaptor_Curve)&      currentarc = PStart.Arc();
             currentparam                                     = PStart.Parameter();
             if (!iwline->IsTangentAtBegining())
             {
@@ -1775,7 +1775,7 @@ void Contap_Contour::Perform(const Handle(Adaptor3d_TopolTool)& Domain)
             ptfin.SetValue(PPoint.Value(), U, V);
             ptfin.SetParameter((Standard_Real)(Nbpts));
             const Contap_ThePathPointOfTheSearch& PStart     = solrst.Point(i);
-            const Handle(Adaptor2d_Curve2d)&      currentarc = PStart.Arc();
+            const Handle(Geom2dAdaptor_Curve)&      currentarc = PStart.Arc();
             currentparam                                     = PStart.Parameter();
 
             if (!iwline->IsTangentAtEnd())
@@ -1888,7 +1888,7 @@ void Contap_Contour::Perform(const Handle(Adaptor3d_TopolTool)& Domain)
             {
               if (slin(k).TypeContour() == Contap_Restriction)
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = slin(k).Arc();
+                const Handle(Geom2dAdaptor_Curve)& thearc = slin(k).Arc();
                 Standard_Real                    paramproj;
                 gp_Pnt2d                         Ptproj;
                 projok = Contap_HContTool::Project(thearc, toproj, paramproj, Ptproj);
@@ -2032,7 +2032,7 @@ static void PutPointsOnLine(const Contap_TheSearch&          solrst,
     {
 
       const Contap_ThePathPointOfTheSearch& PStart = solrst.Point(i);
-      const Handle(Adaptor2d_Curve2d)&      thearc = PStart.Arc();
+      const Handle(Geom2dAdaptor_Curve)&      thearc = PStart.Arc();
       theparam                                     = PStart.Parameter();
 
       Contap_HCurve2dTool::D1(thearc, theparam, pt2d, d2d);

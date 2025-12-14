@@ -20,7 +20,7 @@
 #include <CPnts_AbscissaPoint.hxx>
 
 class Adaptor3d_Curve;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 
 //! Provides an algorithm to compute a point on a curve
 //! situated at a given distance from another point on the curve,
@@ -39,14 +39,14 @@ public:
   Standard_EXPORT static Standard_Real Length(const Adaptor3d_Curve& theC);
 
   //! Computes the length of the 2D Curve.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& theC);
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& theC);
 
   //! Computes the length of the 3D Curve with the given tolerance.
   Standard_EXPORT static Standard_Real Length(const Adaptor3d_Curve& theC,
                                               const Standard_Real    theTol);
 
   //! Computes the length of the 2D Curve with the given tolerance.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& theC,
                                               const Standard_Real      theTol);
 
   //! Computes the length of the 3D Curve.
@@ -55,7 +55,7 @@ public:
                                               const Standard_Real    theU2);
 
   //! Computes the length of the 2D Curve.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& theC,
                                               const Standard_Real      theU1,
                                               const Standard_Real      theU2);
 
@@ -66,7 +66,7 @@ public:
                                               const Standard_Real    theTol);
 
   //! Computes the length of the Curve with the given tolerance.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& theC,
                                               const Standard_Real      theU1,
                                               const Standard_Real      theU2,
                                               const Standard_Real      theTol);
@@ -93,13 +93,13 @@ public:
   //! the distance theAbscissa from the point of parameter
   //! theU0 with the given tolerance.
   Standard_EXPORT GCPnts_AbscissaPoint(const Standard_Real      theTol,
-                                       const Adaptor2d_Curve2d& theC,
+                                       const Geom2dAdaptor_Curve& theC,
                                        const Standard_Real      theAbscissa,
                                        const Standard_Real      theU0);
 
   //! The algorithm computes a point on a curve at the
   //! distance theAbscissa from the point of parameter theU0.
-  Standard_EXPORT GCPnts_AbscissaPoint(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_AbscissaPoint(const Geom2dAdaptor_Curve& theC,
                                        const Standard_Real      theAbscissa,
                                        const Standard_Real      theU0);
 
@@ -116,7 +116,7 @@ public:
   //! distance theAbscissa from the point of parameter theU0.
   //! theUi is the starting value used in the iterative process
   //! which find the solution, it must be closed to the final solution
-  Standard_EXPORT GCPnts_AbscissaPoint(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_AbscissaPoint(const Geom2dAdaptor_Curve& theC,
                                        const Standard_Real      theAbscissa,
                                        const Standard_Real      theU0,
                                        const Standard_Real      theUi);
@@ -135,7 +135,7 @@ public:
   //! distance theAbscissa from the point of parameter theU0.
   //! theUi is the starting value used in the iterative process
   //! which find the solution, it must be close to the final solution
-  Standard_EXPORT GCPnts_AbscissaPoint(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_AbscissaPoint(const Geom2dAdaptor_Curve& theC,
                                        const Standard_Real      theAbscissa,
                                        const Standard_Real      theU0,
                                        const Standard_Real      theUi,

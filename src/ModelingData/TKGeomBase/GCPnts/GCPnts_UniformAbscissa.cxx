@@ -242,7 +242,7 @@ GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                                const Standard_Real      theAbscissa,
                                                const Standard_Real      theTol)
     : myDone(Standard_False),
@@ -268,7 +268,7 @@ GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                                const Standard_Real      theAbscissa,
                                                const Standard_Real      theU1,
                                                const Standard_Real      theU2,
@@ -294,7 +294,7 @@ GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                                const Standard_Integer   theNbPoints,
                                                const Standard_Real      theTol)
     : myDone(Standard_False),
@@ -320,7 +320,7 @@ GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Adaptor2d_Curve2d& theC,
+GCPnts_UniformAbscissa::GCPnts_UniformAbscissa(const Geom2dAdaptor_Curve& theC,
                                                const Standard_Integer   theNbPoints,
                                                const Standard_Real      theU1,
                                                const Standard_Real      theU2,
@@ -343,7 +343,7 @@ void GCPnts_UniformAbscissa::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_UniformAbscissa::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_UniformAbscissa::Initialize(const Geom2dAdaptor_Curve& theC,
                                         const Standard_Real      theAbscissa,
                                         const Standard_Real      theTol)
 {
@@ -363,7 +363,7 @@ void GCPnts_UniformAbscissa::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_UniformAbscissa::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_UniformAbscissa::Initialize(const Geom2dAdaptor_Curve& theC,
                                         const Standard_Real      theAbscissa,
                                         const Standard_Real      theU1,
                                         const Standard_Real      theU2,
@@ -455,7 +455,7 @@ void GCPnts_UniformAbscissa::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_UniformAbscissa::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_UniformAbscissa::Initialize(const Geom2dAdaptor_Curve& theC,
                                         const Standard_Integer   theNbPoints,
                                         const Standard_Real      theTol)
 {
@@ -475,7 +475,7 @@ void GCPnts_UniformAbscissa::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_UniformAbscissa::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_UniformAbscissa::Initialize(const Geom2dAdaptor_Curve& theC,
                                         const Standard_Integer   theNbPoints,
                                         const Standard_Real      theU1,
                                         const Standard_Real      theU2,

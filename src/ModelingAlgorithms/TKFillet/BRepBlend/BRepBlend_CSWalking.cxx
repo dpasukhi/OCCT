@@ -14,7 +14,7 @@
 
 #include <BRepBlend_CSWalking.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_HSurfaceTool.hxx>
 #include <Adaptor3d_HVertex.hxx>
@@ -656,8 +656,8 @@ Standard_Boolean BRepBlend_CSWalking::Recadre(Blend_FuncInv& FuncInv,
     Iter->Next();
   }
 
-  Handle(Adaptor2d_Curve2d) thearc = Iter->Value();
-  Handle(Adaptor2d_Curve2d) thecur;
+  Handle(Geom2dAdaptor_Curve) thearc = Iter->Value();
+  Handle(Geom2dAdaptor_Curve) thecur;
   if (OnFirst) {
     thecur = BRepBlend_BlendTool::CurveOnSurf(thearc,surf1);
   }
@@ -749,7 +749,7 @@ Standard_Boolean BRepBlend_CSWalking::Recadre(Blend_FuncInv& FuncInv,
 
 */
 
-void BRepBlend_CSWalking::Transition(const Handle(Adaptor2d_Curve2d)& A,
+void BRepBlend_CSWalking::Transition(const Handle(Geom2dAdaptor_Curve)& A,
                                      const Standard_Real              Param,
                                      IntSurf_Transition&              TLine,
                                      IntSurf_Transition&              TArc)
@@ -804,7 +804,7 @@ void BRepBlend_CSWalking::MakeExtremity(BRepBlend_Extremity&             Extrem,
     Extrem.SetVertex(Vtx);
     while (Iter->More())
     {
-      Handle(Adaptor2d_Curve2d) arc = Iter->Value();
+      Handle(Geom2dAdaptor_Curve) arc = Iter->Value();
       if (nbarc != Index)
       {
         Iter->Initialize(arc);

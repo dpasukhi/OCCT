@@ -19,7 +19,7 @@
 //  modified by Edward AGAPOV (eap) Fri Feb  8 2002 (bug occ67 == BUC61052)
 //  ComputeData(), case where BRepBlend_Walking::Continu() can't get up to Target
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_CurvPointFuncInv.hxx>
 #include <Blend_RstRstFunction.hxx>
 #include <Blend_SurfCurvFuncInv.hxx>
@@ -1014,7 +1014,7 @@ Standard_Boolean ChFi3d_Builder::ComputeData(Handle(ChFiDS_SurfData)&           
                                              const Handle(Adaptor3d_Surface)&   S1,
                                              const Handle(Adaptor3d_TopolTool)& I1,
                                              const Handle(Adaptor3d_Surface)&   S2,
-                                             const Handle(Adaptor2d_Curve2d)&   PC2,
+                                             const Handle(Geom2dAdaptor_Curve)&   PC2,
                                              const Handle(Adaptor3d_TopolTool)& I2,
                                              Standard_Boolean&                  Decroch,
                                              Blend_SurfRstFunction&             Func,
@@ -1177,11 +1177,11 @@ Standard_Boolean ChFi3d_Builder::ComputeData(Handle(ChFiDS_SurfData)&           
                                              const Handle(ChFiDS_ElSpine)&      HGuide,
                                              Handle(BRepBlend_Line)&            Lin,
                                              const Handle(Adaptor3d_Surface)&   S1,
-                                             const Handle(Adaptor2d_Curve2d)&   PC1,
+                                             const Handle(Geom2dAdaptor_Curve)&   PC1,
                                              const Handle(Adaptor3d_TopolTool)& I1,
                                              Standard_Boolean&                  Decroch1,
                                              const Handle(Adaptor3d_Surface)&   S2,
-                                             const Handle(Adaptor2d_Curve2d)&   PC2,
+                                             const Handle(Geom2dAdaptor_Curve)&   PC2,
                                              const Handle(Adaptor3d_TopolTool)& I2,
                                              Standard_Boolean&                  Decroch2,
                                              Blend_RstRstFunction&              Func,
@@ -1353,7 +1353,7 @@ Standard_Boolean ChFi3d_Builder::SimulData(Handle(ChFiDS_SurfData)& /*Data*/,
                                            const Handle(Adaptor3d_Surface)&   S1,
                                            const Handle(Adaptor3d_TopolTool)& I1,
                                            const Handle(Adaptor3d_Surface)&   S2,
-                                           const Handle(Adaptor2d_Curve2d)&   PC2,
+                                           const Handle(Geom2dAdaptor_Curve)&   PC2,
                                            const Handle(Adaptor3d_TopolTool)& I2,
                                            Standard_Boolean&                  Decroch,
                                            Blend_SurfRstFunction&             Func,
@@ -1510,11 +1510,11 @@ Standard_Boolean ChFi3d_Builder::SimulData(Handle(ChFiDS_SurfData)& /*Data*/,
                                            const Handle(ChFiDS_ElSpine)&      HGuide,
                                            Handle(BRepBlend_Line)&            Lin,
                                            const Handle(Adaptor3d_Surface)&   S1,
-                                           const Handle(Adaptor2d_Curve2d)&   PC1,
+                                           const Handle(Geom2dAdaptor_Curve)&   PC1,
                                            const Handle(Adaptor3d_TopolTool)& I1,
                                            Standard_Boolean&                  Decroch1,
                                            const Handle(Adaptor3d_Surface)&   S2,
-                                           const Handle(Adaptor2d_Curve2d)&   PC2,
+                                           const Handle(Geom2dAdaptor_Curve)&   PC2,
                                            const Handle(Adaptor3d_TopolTool)& I2,
                                            Standard_Boolean&                  Decroch2,
                                            Blend_RstRstFunction&              Func,

@@ -1710,7 +1710,7 @@ static Standard_Integer approxcurve(Draw_Interpretor& di, Standard_Integer n, co
   }
   else if (Case == 4)
   {
-    Handle(Adaptor2d_Curve2d)   HACur2d = new Geom2dAdaptor_Curve(curve2d);
+    Handle(Geom2dAdaptor_Curve)   HACur2d = new Geom2dAdaptor_Curve(curve2d);
     Handle(Adaptor3d_Surface)   HASur   = new GeomAdaptor_Surface(surface);
     Approx_CurvilinearParameter appr(HACur2d, HASur, Tol, Continuity, MaxDeg, MaxSeg);
     if (appr.HasResult())
@@ -1726,9 +1726,9 @@ static Standard_Integer approxcurve(Draw_Interpretor& di, Standard_Integer n, co
 
   else if (Case == 5)
   {
-    Handle(Adaptor2d_Curve2d) HACur2d  = new Geom2dAdaptor_Curve(curve2d);
+    Handle(Geom2dAdaptor_Curve) HACur2d  = new Geom2dAdaptor_Curve(curve2d);
     Handle(Adaptor3d_Surface) HASur    = new GeomAdaptor_Surface(surface);
-    Handle(Adaptor2d_Curve2d) HACur2d2 = new Geom2dAdaptor_Curve(curve2d2);
+    Handle(Geom2dAdaptor_Curve) HACur2d2 = new Geom2dAdaptor_Curve(curve2d2);
     Handle(Adaptor3d_Surface) HASur2   = new GeomAdaptor_Surface(surface2);
     Approx_CurvilinearParameter
       appr(HACur2d, HASur, HACur2d2, HASur2, Tol, Continuity, MaxDeg, MaxSeg);

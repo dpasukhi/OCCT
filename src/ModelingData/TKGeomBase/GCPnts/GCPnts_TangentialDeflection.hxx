@@ -23,7 +23,7 @@
 #include <math_Function.hxx>
 #include <math_MultipleVarFunction.hxx>
 #include <Adaptor3d_Curve.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 
 //! Computes a set of points on a curve from package
 //! Adaptor3d such as between two successive points
@@ -107,7 +107,7 @@ public:
   //! @param[in] theMinimumOfPoints  minimum number of points
   //! @param[in] theUTol    tolerance in curve parametric scope
   //! @param[in] theMinLen  minimal length
-  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_TangentialDeflection(const Geom2dAdaptor_Curve& theC,
                                               const Standard_Real      theAngularDeflection,
                                               const Standard_Real      theCurvatureDeflection,
                                               const Standard_Integer   theMinimumOfPoints = 2,
@@ -123,7 +123,7 @@ public:
   //! @param[in] theMinimumOfPoints  minimum number of points
   //! @param[in] theUTol    tolerance in curve parametric scope
   //! @param[in] theMinLen  minimal length
-  Standard_EXPORT GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_TangentialDeflection(const Geom2dAdaptor_Curve& theC,
                                               const Standard_Real      theFirstParameter,
                                               const Standard_Real      theLastParameter,
                                               const Standard_Real      theAngularDeflection,
@@ -171,7 +171,7 @@ public:
   //! @param[in] theMinimumOfPoints  minimum number of points
   //! @param[in] theUTol    tolerance in curve parametric scope
   //! @param[in] theMinLen  minimal length
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Real      theAngularDeflection,
                                   const Standard_Real      theCurvatureDeflection,
                                   const Standard_Integer   theMinimumOfPoints = 2,
@@ -187,7 +187,7 @@ public:
   //! @param[in] theMinimumOfPoints  minimum number of points
   //! @param[in] theUTol    tolerance in curve parametric scope
   //! @param[in] theMinLen  minimal length
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Real      theFirstParameter,
                                   const Standard_Real      theLastParameter,
                                   const Standard_Real      theAngularDeflection,

@@ -17,7 +17,7 @@
 #ifndef _Blend_FuncInv_HeaderFile
 #define _Blend_FuncInv_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -75,7 +75,7 @@ public:
   //! the curve will be on the first surface, otherwise the
   //! curve is on the second one.
   Standard_EXPORT virtual void Set(const Standard_Boolean           OnFirst,
-                                   const Handle(Adaptor2d_Curve2d)& COnSurf) = 0;
+                                   const Handle(Geom2dAdaptor_Curve)& COnSurf) = 0;
 
   //! Returns in the vector Tolerance the parametric tolerance
   //! for each of the 4 variables;

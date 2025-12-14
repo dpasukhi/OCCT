@@ -217,7 +217,7 @@ void Contap_HContTool::SamplePoint(const Handle(Adaptor3d_Surface)& S,
   }
 }
 
-Standard_Integer Contap_HContTool::NbSamplesOnArc(const Handle(Adaptor2d_Curve2d)& A)
+Standard_Integer Contap_HContTool::NbSamplesOnArc(const Handle(Geom2dAdaptor_Curve)& A)
 {
 
   GeomAbs_CurveType CurveType = A->GetType();
@@ -248,7 +248,7 @@ Standard_Integer Contap_HContTool::NbSamplesOnArc(const Handle(Adaptor2d_Curve2d
   return (Standard_Integer)(nbsOnC);
 }
 
-void Contap_HContTool::Bounds(const Handle(Adaptor2d_Curve2d)& A,
+void Contap_HContTool::Bounds(const Handle(Geom2dAdaptor_Curve)& A,
                               Standard_Real&                   Ufirst,
                               Standard_Real&                   Ulast)
 {
@@ -256,7 +256,7 @@ void Contap_HContTool::Bounds(const Handle(Adaptor2d_Curve2d)& A,
   Ulast  = A->LastParameter();
 }
 
-Standard_Boolean Contap_HContTool::Project(const Handle(Adaptor2d_Curve2d)& C,
+Standard_Boolean Contap_HContTool::Project(const Handle(Geom2dAdaptor_Curve)& C,
                                            const gp_Pnt2d&                  P,
                                            Standard_Real&                   Paramproj,
                                            gp_Pnt2d&                        Ptproj)
@@ -294,30 +294,30 @@ Standard_Boolean Contap_HContTool::Project(const Handle(Adaptor2d_Curve2d)& C,
 }
 
 Standard_Real Contap_HContTool::Tolerance(const Handle(Adaptor3d_HVertex)& V,
-                                          const Handle(Adaptor2d_Curve2d)& C)
+                                          const Handle(Geom2dAdaptor_Curve)& C)
 {
-  //  return BRepAdaptor2d_Curve2dTool::Resolution(C,BRep_Tool::Tolerance(V));
+  //  return BRepGeom2dAdaptor_CurveTool::Resolution(C,BRep_Tool::Tolerance(V));
   return V->Resolution(C);
 }
 
 Standard_Real Contap_HContTool::Parameter(const Handle(Adaptor3d_HVertex)& V,
-                                          const Handle(Adaptor2d_Curve2d)& C)
+                                          const Handle(Geom2dAdaptor_Curve)& C)
 {
   //  return BRep_Tool::Parameter(V,C.Edge());
   return V->Parameter(C);
 }
 
-Standard_Boolean Contap_HContTool::HasBeenSeen(const Handle(Adaptor2d_Curve2d)&)
+Standard_Boolean Contap_HContTool::HasBeenSeen(const Handle(Geom2dAdaptor_Curve)&)
 {
   return Standard_False;
 }
 
-Standard_Integer Contap_HContTool::NbPoints(const Handle(Adaptor2d_Curve2d)&)
+Standard_Integer Contap_HContTool::NbPoints(const Handle(Geom2dAdaptor_Curve)&)
 {
   return 0;
 }
 
-void Contap_HContTool::Value(const Handle(Adaptor2d_Curve2d)&,
+void Contap_HContTool::Value(const Handle(Geom2dAdaptor_Curve)&,
                              const Standard_Integer,
                              gp_Pnt&,
                              Standard_Real&,
@@ -326,39 +326,39 @@ void Contap_HContTool::Value(const Handle(Adaptor2d_Curve2d)&,
   throw Standard_OutOfRange();
 }
 
-Standard_Boolean Contap_HContTool::IsVertex(const Handle(Adaptor2d_Curve2d)&,
+Standard_Boolean Contap_HContTool::IsVertex(const Handle(Geom2dAdaptor_Curve)&,
                                             const Standard_Integer)
 {
   return Standard_False;
 }
 
-void Contap_HContTool::Vertex(const Handle(Adaptor2d_Curve2d)&,
+void Contap_HContTool::Vertex(const Handle(Geom2dAdaptor_Curve)&,
                               const Standard_Integer,
                               Handle(Adaptor3d_HVertex)&)
 {
   throw Standard_OutOfRange();
 }
 
-Standard_Integer Contap_HContTool::NbSegments(const Handle(Adaptor2d_Curve2d)&)
+Standard_Integer Contap_HContTool::NbSegments(const Handle(Geom2dAdaptor_Curve)&)
 {
   return 0;
 }
 
-Standard_Boolean Contap_HContTool::HasFirstPoint(const Handle(Adaptor2d_Curve2d)&,
+Standard_Boolean Contap_HContTool::HasFirstPoint(const Handle(Geom2dAdaptor_Curve)&,
                                                  const Standard_Integer,
                                                  Standard_Integer&)
 {
   throw Standard_OutOfRange();
 }
 
-Standard_Boolean Contap_HContTool::HasLastPoint(const Handle(Adaptor2d_Curve2d)&,
+Standard_Boolean Contap_HContTool::HasLastPoint(const Handle(Geom2dAdaptor_Curve)&,
                                                 const Standard_Integer,
                                                 Standard_Integer&)
 {
   throw Standard_OutOfRange();
 }
 
-Standard_Boolean Contap_HContTool::IsAllSolution(const Handle(Adaptor2d_Curve2d)&)
+Standard_Boolean Contap_HContTool::IsAllSolution(const Handle(Geom2dAdaptor_Curve)&)
 
 {
   return Standard_False;

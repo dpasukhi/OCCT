@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_IsoCurve.hxx>
 #include <Draw_Display.hxx>
 #include <DrawTrSurf_Drawable.hxx>
@@ -47,7 +47,7 @@ DrawTrSurf_Drawable::DrawTrSurf_Drawable(
 
 //=================================================================================================
 
-void DrawTrSurf_Drawable::DrawCurve2dOn(Adaptor2d_Curve2d& C, Draw_Display& aDisplay) const
+void DrawTrSurf_Drawable::DrawCurve2dOn(Geom2dAdaptor_Curve& C, Draw_Display& aDisplay) const
 {
   gp_Pnt P;
 

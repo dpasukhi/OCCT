@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_ChAsymInv.hxx>
 #include <math_Matrix.hxx>
@@ -59,7 +59,7 @@ Standard_Integer BlendFunc_ChAsymInv::NbEquations() const
 
 //=================================================================================================
 
-void BlendFunc_ChAsymInv::Set(const Standard_Boolean OnFirst, const Handle(Adaptor2d_Curve2d)& C)
+void BlendFunc_ChAsymInv::Set(const Standard_Boolean OnFirst, const Handle(Geom2dAdaptor_Curve)& C)
 {
   first = OnFirst;
   csurf = C;

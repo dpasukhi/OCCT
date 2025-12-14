@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_FuncInv.hxx>
 #include <BRepAlgo_NormalProjection.hxx>
 #include <BRepBlend_Line.hxx>
@@ -146,7 +146,7 @@ static Standard_Real recadre(const Standard_Real    p,
 //=======================================================================
 
 static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& fb,
-                               const Handle(Adaptor2d_Curve2d)& pcfb,
+                               const Handle(Geom2dAdaptor_Curve)& pcfb,
                                const Handle(Adaptor3d_Surface)& surf,
                                ChFiDS_FaceInterference&         fi,
                                ChFiDS_CommonPoint&              cp,
@@ -351,7 +351,7 @@ static Standard_Boolean IntersUpdateOnSame(Handle(GeomAdaptor_Surface)& HGs,
 //=======================================================================
 
 static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& face,
-                               const Handle(Adaptor2d_Curve2d)& edonface,
+                               const Handle(Geom2dAdaptor_Curve)& edonface,
                                const Handle(Adaptor3d_Surface)& surf,
                                ChFiDS_FaceInterference&         fi,
                                ChFiDS_CommonPoint&              cp,

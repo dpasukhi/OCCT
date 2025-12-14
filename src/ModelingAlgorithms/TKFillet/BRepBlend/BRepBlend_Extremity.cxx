@@ -14,7 +14,7 @@
 
 #include <BRepBlend_Extremity.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_HVertex.hxx>
 #include <BRepBlend_PointOnRst.hxx>
 #include <gp_Pnt.hxx>
@@ -133,7 +133,7 @@ void BRepBlend_Extremity::SetVertex(const Handle(Adaptor3d_HVertex)& V)
   vtx   = V;
 }
 
-void BRepBlend_Extremity::AddArc(const Handle(Adaptor2d_Curve2d)& A,
+void BRepBlend_Extremity::AddArc(const Handle(Geom2dAdaptor_Curve)& A,
                                  const Standard_Real              Param,
                                  const IntSurf_Transition&        TLine,
                                  const IntSurf_Transition&        TArc)

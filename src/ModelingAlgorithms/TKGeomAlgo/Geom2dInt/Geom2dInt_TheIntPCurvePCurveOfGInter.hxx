@@ -23,7 +23,7 @@
 #include <IntRes2d_Domain.hxx>
 #include <IntRes2d_Intersection.hxx>
 #include <Standard_Integer.hxx>
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 class Geom2dInt_Geom2dCurveTool;
 class Geom2dInt_TheProjPCurOfGInter;
 class Geom2dInt_ThePolygon2dOfTheIntPCurvePCurveOfGInter;
@@ -38,14 +38,14 @@ public:
 
   Standard_EXPORT Geom2dInt_TheIntPCurvePCurveOfGInter();
 
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& Curve1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& Curve1,
                                const IntRes2d_Domain&   Domain1,
-                               const Adaptor2d_Curve2d& Curve2,
+                               const Geom2dAdaptor_Curve& Curve2,
                                const IntRes2d_Domain&   Domain2,
                                const Standard_Real      TolConf,
                                const Standard_Real      Tol);
 
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& Curve1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& Curve1,
                                const IntRes2d_Domain&   Domain1,
                                const Standard_Real      TolConf,
                                const Standard_Real      Tol);
@@ -55,9 +55,9 @@ public:
   Standard_EXPORT Standard_Integer GetMinNbSamples() const;
 
 protected:
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& Curve1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& Curve1,
                                const IntRes2d_Domain&   Domain1,
-                               const Adaptor2d_Curve2d& Curve2,
+                               const Geom2dAdaptor_Curve& Curve2,
                                const IntRes2d_Domain&   Domain2,
                                const Standard_Real      TolConf,
                                const Standard_Real      Tol,
@@ -65,7 +65,7 @@ protected:
                                const Standard_Real      DeltaU,
                                const Standard_Real      DeltaV);
 
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& Curve1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& Curve1,
                                const IntRes2d_Domain&   Domain1,
                                const Standard_Real      TolConf,
                                const Standard_Real      Tol,
@@ -80,9 +80,9 @@ private:
   //! : for case when point of intersection was found
   //! : during prelimanary search for line (case of bad parameterization of Bspline for example).
   Standard_EXPORT Standard_Boolean
-    findIntersect(const Adaptor2d_Curve2d&                                  Curve1,
+    findIntersect(const Geom2dAdaptor_Curve&                                  Curve1,
                   const IntRes2d_Domain&                                    Domain1,
-                  const Adaptor2d_Curve2d&                                  Curve2,
+                  const Geom2dAdaptor_Curve&                                  Curve2,
                   const IntRes2d_Domain&                                    Domain2,
                   const Standard_Real                                       TolConf,
                   const Standard_Real                                       Tol,

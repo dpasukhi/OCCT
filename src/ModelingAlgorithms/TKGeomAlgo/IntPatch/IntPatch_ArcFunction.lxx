@@ -19,7 +19,7 @@ inline const gp_Pnt& IntPatch_ArcFunction::Valpoint(const Standard_Integer Index
   return seqpt(Index);
 }
 
-inline void IntPatch_ArcFunction::Set(const Handle(Adaptor2d_Curve2d)& A)
+inline void IntPatch_ArcFunction::Set(const Handle(Geom2dAdaptor_Curve)& A)
 {
   myArc = A;
   seqpt.Clear();
@@ -42,7 +42,7 @@ inline const IntSurf_Quadric& IntPatch_ArcFunction::Quadric() const
   return (myQuad);
 }
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_ArcFunction::Arc() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_ArcFunction::Arc() const
 {
   return (myArc);
 }

@@ -17,7 +17,7 @@
 #ifndef _Approx_CurvlinFunc_HeaderFile
 #define _Approx_CurvlinFunc_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -33,12 +33,12 @@ class Approx_CurvlinFunc : public Standard_Transient
 public:
   Standard_EXPORT Approx_CurvlinFunc(const Handle(Adaptor3d_Curve)& C, const Standard_Real Tol);
 
-  Standard_EXPORT Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D,
+  Standard_EXPORT Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D,
                                      const Handle(Adaptor3d_Surface)& S,
                                      const Standard_Real              Tol);
 
-  Standard_EXPORT Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D1,
-                                     const Handle(Adaptor2d_Curve2d)& C2D2,
+  Standard_EXPORT Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D1,
+                                     const Handle(Geom2dAdaptor_Curve)& C2D2,
                                      const Handle(Adaptor3d_Surface)& S1,
                                      const Handle(Adaptor3d_Surface)& S2,
                                      const Standard_Real              Tol);
@@ -122,8 +122,8 @@ private:
                                                 const Standard_Integer NumberOfCurve) const;
 
   Handle(Adaptor3d_Curve)       myC3D;
-  Handle(Adaptor2d_Curve2d)     myC2D1;
-  Handle(Adaptor2d_Curve2d)     myC2D2;
+  Handle(Geom2dAdaptor_Curve)     myC2D1;
+  Handle(Geom2dAdaptor_Curve)     myC2D2;
   Handle(Adaptor3d_Surface)     mySurf1;
   Handle(Adaptor3d_Surface)     mySurf2;
   Standard_Integer              myCase;

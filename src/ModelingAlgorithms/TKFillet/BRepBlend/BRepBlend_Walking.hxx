@@ -159,7 +159,7 @@ private:
                                            const Standard_Real        Extrap = 0.0);
 
   Standard_EXPORT void Transition(const Standard_Boolean           OnFirst,
-                                  const Handle(Adaptor2d_Curve2d)& A,
+                                  const Handle(Geom2dAdaptor_Curve)& A,
                                   const Standard_Real              Param,
                                   IntSurf_Transition&              TLine,
                                   IntSurf_Transition&              TArc);

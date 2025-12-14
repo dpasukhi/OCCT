@@ -407,7 +407,7 @@ Handle(Geom2d_Curve) BRep_Tool::CurveOnPlane(const TopoDS_Edge&          E,
   Handle(GeomAdaptor_Curve)   HC = new GeomAdaptor_Curve(ProjOnPlane);
 
   ProjLib_ProjectedCurve Proj(HS, HC);
-  Handle(Geom2d_Curve)   pc = Geom2dAdaptor::MakeCurve(Proj);
+  Handle(Geom2d_Curve)   pc = Proj.GetCurve2d();
 
   if (pc->DynamicType() == STANDARD_TYPE(Geom2d_TrimmedCurve))
   {

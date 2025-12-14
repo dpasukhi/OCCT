@@ -25,7 +25,7 @@
 //--      - Pour rester coherent avec cette facon de faire,
 //--      Chercher(Nbvtx++).
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_TopolTool.hxx>
 #include <gp_Pnt2d.hxx>
 #include <IntPatch_CurvIntSurf.hxx>
@@ -117,7 +117,7 @@ inline Standard_Real Tol3d(const Handle(Adaptor3d_HVertex)&   vtx,
   return (Domain->Has3d() ? Domain->Tol3d(vtx) : tolDef < Confusion ? Confusion : tolDef);
 }
 
-inline Standard_Real Tol3d(const Handle(Adaptor2d_Curve2d)&   arc,
+inline Standard_Real Tol3d(const Handle(Geom2dAdaptor_Curve)&   arc,
                            const Handle(Adaptor3d_TopolTool)& Domain,
                            const Standard_Real                tolDef = 0.)
 {
@@ -125,7 +125,7 @@ inline Standard_Real Tol3d(const Handle(Adaptor2d_Curve2d)&   arc,
 }
 
 static Standard_Boolean CoincideOnArc(const gp_Pnt&                      Ptsommet,
-                                      const Handle(Adaptor2d_Curve2d)&   A,
+                                      const Handle(Geom2dAdaptor_Curve)&   A,
                                       const Handle(Adaptor3d_Surface)&   Surf,
                                       const Standard_Real                Toler,
                                       const Handle(Adaptor3d_TopolTool)& Domain,
@@ -447,7 +447,7 @@ void IntPatch_RstInt::PutVertexOnLine(const Handle(IntPatch_Line)&       L,
 
   IntPatch_Point            Sommet, ptline;
   Handle(Adaptor3d_HVertex) vtxarc, vtxline;
-  Handle(Adaptor2d_Curve2d) arc;
+  Handle(Geom2dAdaptor_Curve) arc;
   Standard_Boolean          VtxOnArc, duplicate, found;
   IntSurf_Transition        transarc, transline;
 

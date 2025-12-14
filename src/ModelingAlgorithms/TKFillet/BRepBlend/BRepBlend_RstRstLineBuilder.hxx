@@ -68,10 +68,10 @@ public:
   DEFINE_STANDARD_ALLOC
 
   Standard_EXPORT BRepBlend_RstRstLineBuilder(const Handle(Adaptor3d_Surface)&   Surf1,
-                                              const Handle(Adaptor2d_Curve2d)&   Rst1,
+                                              const Handle(Geom2dAdaptor_Curve)&   Rst1,
                                               const Handle(Adaptor3d_TopolTool)& Domain1,
                                               const Handle(Adaptor3d_Surface)&   Surf2,
-                                              const Handle(Adaptor2d_Curve2d)&   Rst2,
+                                              const Handle(Geom2dAdaptor_Curve)&   Rst2,
                                               const Handle(Adaptor3d_TopolTool)& Domain2);
 
   Standard_EXPORT void Perform(Blend_RstRstFunction&   Func,
@@ -156,14 +156,14 @@ private:
                                             Handle(Adaptor3d_HVertex)& Vtx);
 
   Standard_EXPORT void Transition(const Standard_Boolean           OnFirst,
-                                  const Handle(Adaptor2d_Curve2d)& Arc,
+                                  const Handle(Geom2dAdaptor_Curve)& Arc,
                                   const Standard_Real              Param,
                                   IntSurf_Transition&              TLine,
                                   IntSurf_Transition&              TArc);
 
   Standard_EXPORT void MakeExtremity(BRepBlend_Extremity&             Extrem,
                                      const Standard_Boolean           OnFirst,
-                                     const Handle(Adaptor2d_Curve2d)& Arc,
+                                     const Handle(Geom2dAdaptor_Curve)& Arc,
                                      const Standard_Real              Param,
                                      const Standard_Boolean           IsVtx,
                                      const Handle(Adaptor3d_HVertex)& Vtx);
@@ -188,8 +188,8 @@ private:
   Handle(Adaptor3d_TopolTool) domain1;
   Handle(Adaptor3d_Surface)   surf2;
   Handle(Adaptor3d_TopolTool) domain2;
-  Handle(Adaptor2d_Curve2d)   rst1;
-  Handle(Adaptor2d_Curve2d)   rst2;
+  Handle(Geom2dAdaptor_Curve)   rst1;
+  Handle(Geom2dAdaptor_Curve)   rst2;
   Standard_Real               tolpoint3d;
   Standard_Real               tolgui;
   Standard_Real               pasmax;

@@ -16,7 +16,7 @@
 
 #include <Approx_CurvlinFunc.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
@@ -133,7 +133,7 @@ Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor3d_Curve)& C, const S
   Init();
 }
 
-Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D,
+Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D,
                                        const Handle(Adaptor3d_Surface)& S,
                                        const Standard_Real              Tol)
     : myC2D1(C2D),
@@ -148,8 +148,8 @@ Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D,
   Init();
 }
 
-Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D1,
-                                       const Handle(Adaptor2d_Curve2d)& C2D2,
+Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D1,
+                                       const Handle(Geom2dAdaptor_Curve)& C2D2,
                                        const Handle(Adaptor3d_Surface)& S1,
                                        const Handle(Adaptor3d_Surface)& S2,
                                        const Standard_Real              Tol)
@@ -793,7 +793,7 @@ Standard_Boolean Approx_CurvlinFunc::EvalCurOnSur(const Standard_Real    S,
                                                   TColStd_Array1OfReal&  Result,
                                                   const Standard_Integer NumberOfCurve) const
 {
-  Handle(Adaptor2d_Curve2d) Cur2D;
+  Handle(Geom2dAdaptor_Curve) Cur2D;
   Handle(Adaptor3d_Surface) Surf;
   Standard_Real             U = 0, Length = 0;
   GeomAdaptor_Curve         CurOnSur;

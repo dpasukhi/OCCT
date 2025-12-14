@@ -17,7 +17,7 @@
 #ifndef _BRepTopAdaptor_TopolTool_HeaderFile
 #define _BRepTopAdaptor_TopolTool_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <BRepAdaptor_Curve2d.hxx>
 #include <TopExp_Explorer.hxx>
@@ -46,13 +46,13 @@ public:
 
   Standard_EXPORT virtual void Initialize(const Handle(Adaptor3d_Surface)& S) Standard_OVERRIDE;
 
-  Standard_EXPORT virtual void Initialize(const Handle(Adaptor2d_Curve2d)& Curve) Standard_OVERRIDE;
+  Standard_EXPORT virtual void Initialize(const Handle(Geom2dAdaptor_Curve)& Curve) Standard_OVERRIDE;
 
   Standard_EXPORT virtual void Init() Standard_OVERRIDE;
 
   Standard_EXPORT virtual Standard_Boolean More() Standard_OVERRIDE;
 
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) Value() Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) Value() Standard_OVERRIDE;
 
   Standard_EXPORT virtual void Next() Standard_OVERRIDE;
 
@@ -82,7 +82,7 @@ public:
   //! a "real" limit of the surface.
   //! If the orientation is INTERNAL or EXTERNAL, the arc is
   //! considered as an arc on the surface.
-  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(Adaptor2d_Curve2d)& C)
+  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(Geom2dAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   //! If the function returns the orientation of the arc.
@@ -102,7 +102,7 @@ public:
   Standard_EXPORT virtual Standard_Boolean Has3d() const Standard_OVERRIDE;
 
   //! returns 3d tolerance of the arc C
-  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Adaptor2d_Curve2d)& C) const
+  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Geom2dAdaptor_Curve)& C) const
     Standard_OVERRIDE;
 
   //! returns 3d tolerance of the vertex V

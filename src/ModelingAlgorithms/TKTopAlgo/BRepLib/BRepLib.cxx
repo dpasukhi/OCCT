@@ -732,7 +732,7 @@ static void GetEdgeTol(const TopoDS_Edge& theEdge,
   GAS.Load(GP);
 
   ProjLib_ProjectedCurve Proj(HS, HC);
-  Handle(Geom2d_Curve)   pc = Geom2dAdaptor::MakeCurve(Proj);
+  Handle(Geom2d_Curve)   pc = Proj.GetCurve2d();
 
   gp_Pln           pln     = GAS.Plane();
   Standard_Real    d2      = 0.;
@@ -997,7 +997,7 @@ static Standard_Boolean EvalTol(const Handle(Geom2d_Curve)& pc,
 //=================================================================================================
 
 static Standard_Real ComputeTol(const Handle(Adaptor3d_Curve)&   c3d,
-                                const Handle(Adaptor2d_Curve2d)& c2d,
+                                const Handle(Geom2dAdaptor_Curve)& c2d,
                                 const Handle(Adaptor3d_Surface)& surf,
                                 const Standard_Integer           nbp)
 

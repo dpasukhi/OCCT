@@ -86,7 +86,7 @@ Standard_EXPORT TOPKRO KRO_DSFILLER_INTFF("intersection face/face");
 #include <Adaptor3d_Surface.hxx>
 #include <Adaptor3d_TopolTool.hxx>
 #include <Adaptor3d_HVertex.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dInt_TheProjPCurOfGInter.hxx>
 
 static Standard_Boolean TestWLineAlongRestriction(const Handle(IntPatch_WLine)&      theWLine,
@@ -96,7 +96,7 @@ static Standard_Boolean TestWLineAlongRestriction(const Handle(IntPatch_WLine)& 
                                                   const Standard_Real                theTolArc);
 
 static Handle(IntPatch_RLine) BuildRLineBasedOnWLine(const Handle(IntPatch_WLine)&    theWLine,
-                                                     const Handle(Adaptor2d_Curve2d)& theArc,
+                                                     const Handle(Geom2dAdaptor_Curve)& theArc,
                                                      const Standard_Integer           theRank);
 
 static Handle(IntPatch_RLine) BuildRLine(const IntPatch_SequenceOfLine&     theSeqOfWLine,
@@ -683,7 +683,7 @@ static Standard_Boolean TestWLineAlongRestriction(const Handle(IntPatch_WLine)& 
 // purpose:
 // ================================================================================================
 static Handle(IntPatch_RLine) BuildRLineBasedOnWLine(const Handle(IntPatch_WLine)&    theWLine,
-                                                     const Handle(Adaptor2d_Curve2d)& theArc,
+                                                     const Handle(Geom2dAdaptor_Curve)& theArc,
                                                      const Standard_Integer           theRank)
 {
   Handle(IntPatch_RLine) anRLine;
@@ -1332,7 +1332,7 @@ static Standard_Integer GetArc(IntPatch_SequenceOfLine&           theSlin,
   // 2. load parameters of founded edge and its arc.
   CurArc = 0;
   TColgp_SequenceOfPnt      PointsFromArc;
-  Handle(Adaptor2d_Curve2d) arc = NULL;
+  Handle(Geom2dAdaptor_Curve) arc = NULL;
   Standard_Real             tol = 1.e-7;
   TColStd_SequenceOfReal    WLVertexParameters;
   Standard_Boolean          classifyOK = Standard_True;

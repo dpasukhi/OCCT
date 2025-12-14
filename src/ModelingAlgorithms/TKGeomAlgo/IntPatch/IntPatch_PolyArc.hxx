@@ -36,7 +36,7 @@ public:
   //! Creates the polygon of the arc A on the surface S.
   //! The arc is limited by the parameters Pfirst and Plast.
   //! None of these parameters can be infinite.
-  Standard_EXPORT IntPatch_PolyArc(const Handle(Adaptor2d_Curve2d)& A,
+  Standard_EXPORT IntPatch_PolyArc(const Handle(Geom2dAdaptor_Curve)& A,
                                    const Standard_Integer           NbSample,
                                    const Standard_Real              Pfirst,
                                    const Standard_Real              Plast,

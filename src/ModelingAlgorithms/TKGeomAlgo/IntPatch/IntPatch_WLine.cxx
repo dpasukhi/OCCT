@@ -1200,13 +1200,13 @@ Standard_Boolean IntPatch_WLine::HasArcOnS1() const
   return (hasArcOnS1);
 }
 
-void IntPatch_WLine::SetArcOnS1(const Handle(Adaptor2d_Curve2d)& A)
+void IntPatch_WLine::SetArcOnS1(const Handle(Geom2dAdaptor_Curve)& A)
 {
   hasArcOnS1 = Standard_True;
   theArcOnS1 = A;
 }
 
-const Handle(Adaptor2d_Curve2d)& IntPatch_WLine::GetArcOnS1() const
+const Handle(Geom2dAdaptor_Curve)& IntPatch_WLine::GetArcOnS1() const
 {
   return (theArcOnS1);
 }
@@ -1216,13 +1216,13 @@ Standard_Boolean IntPatch_WLine::HasArcOnS2() const
   return (hasArcOnS2);
 }
 
-void IntPatch_WLine::SetArcOnS2(const Handle(Adaptor2d_Curve2d)& A)
+void IntPatch_WLine::SetArcOnS2(const Handle(Geom2dAdaptor_Curve)& A)
 {
   hasArcOnS2 = Standard_True;
   theArcOnS2 = A;
 }
 
-const Handle(Adaptor2d_Curve2d)& IntPatch_WLine::GetArcOnS2() const
+const Handle(Geom2dAdaptor_Curve)& IntPatch_WLine::GetArcOnS2() const
 {
   return (theArcOnS2);
 }

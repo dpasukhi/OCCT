@@ -19,7 +19,7 @@
 
 #include <math_FunctionWithDerivative.hxx>
 
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 
 //! Used to find the points U(t) = U0 or V(t) = V0 in
 //! order to determine the Cn discontinuities of an
@@ -33,7 +33,7 @@ public:
 
   //! build the function U(t)=FixVal if Fix =1 or
   //! V(t)=FixVal if Fix=2
-  Standard_EXPORT Adaptor3d_InterFunc(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT Adaptor3d_InterFunc(const Handle(Geom2dAdaptor_Curve)& C,
                                       const Standard_Real              FixVal,
                                       const Standard_Integer           Fix);
 
@@ -57,7 +57,7 @@ public:
                                           Standard_Real&      D);
 
 private:
-  Handle(Adaptor2d_Curve2d) myCurve2d;
+  Handle(Geom2dAdaptor_Curve) myCurve2d;
   Standard_Real             myFixVal;
   Standard_Integer          myFix;
 };

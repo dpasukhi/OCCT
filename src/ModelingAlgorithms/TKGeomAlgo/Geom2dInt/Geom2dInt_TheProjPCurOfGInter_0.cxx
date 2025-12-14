@@ -16,7 +16,7 @@
 
 #include <Geom2dInt_TheProjPCurOfGInter.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dInt_Geom2dCurveTool.hxx>
 #include <Geom2dInt_TheCurveLocatorOfTheProjPCurOfGInter.hxx>
 #include <Geom2dInt_TheLocateExtPCOfTheProjPCurOfGInter.hxx>
@@ -24,7 +24,7 @@
 #include <gp_Pnt2d.hxx>
 #include <Extrema_POnCurv2d.hxx>
 
-Standard_Real Geom2dInt_TheProjPCurOfGInter::FindParameter(const Adaptor2d_Curve2d& C,
+Standard_Real Geom2dInt_TheProjPCurOfGInter::FindParameter(const Geom2dAdaptor_Curve& C,
                                                            const gp_Pnt2d&          P,
                                                            const Standard_Real      LowParameter,
                                                            const Standard_Real      HighParameter,
@@ -64,7 +64,7 @@ Standard_Real Geom2dInt_TheProjPCurOfGInter::FindParameter(const Adaptor2d_Curve
   return theparam;
 }
 
-Standard_Real Geom2dInt_TheProjPCurOfGInter::FindParameter(const Adaptor2d_Curve2d& C,
+Standard_Real Geom2dInt_TheProjPCurOfGInter::FindParameter(const Geom2dAdaptor_Curve& C,
                                                            const gp_Pnt2d&          P,
                                                            const Standard_Real      Tol)
 {

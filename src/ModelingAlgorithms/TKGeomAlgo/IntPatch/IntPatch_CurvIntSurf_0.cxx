@@ -20,7 +20,7 @@
 #include <Standard_DomainError.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <Adaptor3d_HSurfaceTool.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <IntPatch_HCurve2dTool.hxx>
 #include <IntPatch_CSFunction.hxx>
 #include <math_FunctionSetRoot.hxx>
@@ -30,8 +30,8 @@
 #define ThePSurface_hxx <Adaptor3d_Surface.hxx>
 #define ThePSurfaceTool Adaptor3d_HSurfaceTool
 #define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
-#define TheCurve Handle(Adaptor2d_Curve2d)
-#define TheCurve_hxx <Adaptor2d_Curve2d.hxx>
+#define TheCurve Handle(Geom2dAdaptor_Curve)
+#define TheCurve_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheCurveTool IntPatch_HCurve2dTool
 #define TheCurveTool_hxx <IntPatch_HCurve2dTool.hxx>
 #define TheFunction IntPatch_CSFunction

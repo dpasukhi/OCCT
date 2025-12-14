@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
@@ -30,7 +30,7 @@
 
 //=================================================================================================
 
-Handle(Geom2d_Curve) Geom2dAdaptor::MakeCurve(const Adaptor2d_Curve2d& HC)
+Handle(Geom2d_Curve) Geom2dAdaptor::MakeCurve(const Geom2dAdaptor_Curve& HC)
 {
   Handle(Geom2d_Curve) C2D;
   switch (HC.GetType())

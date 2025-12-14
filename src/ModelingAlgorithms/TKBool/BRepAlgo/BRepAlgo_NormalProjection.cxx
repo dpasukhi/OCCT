@@ -14,6 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <memory>
+
 #include <Adaptor3d_Curve.hxx>
 #include <Approx_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
@@ -244,8 +246,9 @@ void BRepAlgo_NormalProjection::Build()
       gp_Pnt           P;
       Standard_Real    UIso, VIso;
 
-      Handle(Adaptor2d_Curve2d) HPCur;
-      Handle(Geom2d_Curve)      PCur2d; // Only for isoparametric projection
+      Handle(Geom2dAdaptor_Curve) HPCur;           // For isoparametric cases
+      Handle(Geom2d_Curve)        PCur2d;         // Only for isoparametric projection
+      Standard_Boolean            UseIsoApproach; // Flag for isoparametric vs projected approach
 
       for (k = 1; k <= HProjector->NbCurves(); k++)
       {
@@ -285,6 +288,7 @@ void BRepAlgo_NormalProjection::Build()
             PCur2d                           = new Geom2d_TrimmedCurve(BS2d, Udeb, Ufin);
             HPCur                            = new Geom2dAdaptor_Curve(PCur2d);
             Only3d                           = Standard_True;
+            UseIsoApproach                   = Standard_True;
           }
           else if (HProjector->IsVIso(k, VIso))
           {
@@ -302,9 +306,10 @@ void BRepAlgo_NormalProjection::Build()
             PCur2d                           = new Geom2d_TrimmedCurve(BS2d, Udeb, Ufin);
             HPCur                            = new Geom2dAdaptor_Curve(PCur2d);
             Only3d                           = Standard_True;
+            UseIsoApproach                   = Standard_True;
           }
           else
-            HPCur = HProjector;
+            UseIsoApproach = Standard_False;
 
           if ((myWith3d == Standard_False || Elementary) && (HProjector->MaxDistance(k) <= myTol3d))
             Only2d = Standard_True;
@@ -322,7 +327,13 @@ void BRepAlgo_NormalProjection::Build()
 #ifdef OCCT_DEBUG_CHRONO
             InitChron(chr_approx);
 #endif
-            Approx_CurveOnSurface appr(HPCur, hsur, Udeb, Ufin, myTol3d);
+            // Use appropriate constructor based on curve type
+            std::unique_ptr<Approx_CurveOnSurface> apprPtr;
+            if (UseIsoApproach)
+              apprPtr.reset(new Approx_CurveOnSurface(HPCur, hsur, Udeb, Ufin, myTol3d));
+            else
+              apprPtr.reset(new Approx_CurveOnSurface(HProjector, hsur, Udeb, Ufin, myTol3d));
+            Approx_CurveOnSurface& appr = *apprPtr;
             appr.Perform(myMaxSeg, myMaxDegree, myContinuity, Only3d, Only2d);
 
             if (appr.MaxError3d() > 1.e3 * myTol3d)

@@ -17,7 +17,7 @@
 #ifndef _IntPatch_ArcFunction_HeaderFile
 #define _IntPatch_ArcFunction_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <IntSurf_Quadric.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
@@ -32,7 +32,7 @@ public:
 
   void SetQuadric(const IntSurf_Quadric& Q);
 
-  void Set(const Handle(Adaptor2d_Curve2d)& A);
+  void Set(const Handle(Geom2dAdaptor_Curve)& A);
 
   void Set(const Handle(Adaptor3d_Surface)& S);
 
@@ -53,7 +53,7 @@ public:
 
   const IntSurf_Quadric& Quadric() const;
 
-  const Handle(Adaptor2d_Curve2d)& Arc() const;
+  const Handle(Geom2dAdaptor_Curve)& Arc() const;
 
   const Handle(Adaptor3d_Surface)& Surface() const;
 
@@ -63,7 +63,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor2d_Curve2d) myArc;
+  Handle(Geom2dAdaptor_Curve) myArc;
   Handle(Adaptor3d_Surface) mySurf;
   IntSurf_Quadric           myQuad;
   gp_Pnt                    ptsol;

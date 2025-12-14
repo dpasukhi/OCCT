@@ -33,6 +33,12 @@
 #include <ProjLib_Torus.hxx>
 #include <Precision.hxx>
 #include <Geom2d_BezierCurve.hxx>
+#include <Geom2d_BSplineCurve.hxx>
+#include <Geom2d_Circle.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2d_Ellipse.hxx>
+#include <Geom2d_Hyperbola.hxx>
+#include <Geom2d_Parabola.hxx>
 #include <gp_Vec2d.hxx>
 #include <StdFail_NotDone.hxx>
 #include <Geom2dConvert_CompCurveToBSplineCurve.hxx>
@@ -47,7 +53,7 @@
 #include <ElSLib.hxx>
 #include <ElCLib.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(ProjLib_ProjectedCurve, Adaptor2d_Curve2d)
+IMPLEMENT_STANDARD_RTTIEXT(ProjLib_ProjectedCurve, Standard_Transient)
 
 //=================================================================================================
 
@@ -325,7 +331,7 @@ ProjLib_ProjectedCurve::ProjLib_ProjectedCurve(const Handle(Adaptor3d_Surface)& 
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) ProjLib_ProjectedCurve::ShallowCopy() const
+Handle(ProjLib_ProjectedCurve) ProjLib_ProjectedCurve::ShallowCopy() const
 {
   Handle(ProjLib_ProjectedCurve) aCopy = new ProjLib_ProjectedCurve();
 
@@ -934,99 +940,9 @@ Standard_Real ProjLib_ProjectedCurve::LastParameter() const
 
 //=================================================================================================
 
-GeomAbs_Shape ProjLib_ProjectedCurve::Continuity() const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::Continuity() - method is not implemented");
-}
-
-//=================================================================================================
-
-Standard_Integer ProjLib_ProjectedCurve::NbIntervals(const GeomAbs_Shape) const
-{
-  throw Standard_NotImplemented(
-    "ProjLib_ProjectedCurve::NbIntervals() - method is not implemented");
-}
-
-//=================================================================================================
-
-// void ProjLib_ProjectedCurve::Intervals(TColStd_Array1OfReal&  T,
-void ProjLib_ProjectedCurve::Intervals(TColStd_Array1OfReal&, const GeomAbs_Shape) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::Intervals() - method is not implemented");
-}
-
-//=================================================================================================
-
-Standard_Boolean ProjLib_ProjectedCurve::IsClosed() const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::IsClosed() - method is not implemented");
-}
-
-//=================================================================================================
-
 Standard_Boolean ProjLib_ProjectedCurve::IsPeriodic() const
 {
   return myResult.IsPeriodic();
-}
-
-//=================================================================================================
-
-Standard_Real ProjLib_ProjectedCurve::Period() const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::Period() - method is not implemented");
-}
-
-//=================================================================================================
-
-gp_Pnt2d ProjLib_ProjectedCurve::Value(const Standard_Real) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::Value() - method is not implemented");
-}
-
-//=================================================================================================
-
-void ProjLib_ProjectedCurve::D0(const Standard_Real, gp_Pnt2d&) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::D0() - method is not implemented");
-}
-
-//=================================================================================================
-
-void ProjLib_ProjectedCurve::D1(const Standard_Real, gp_Pnt2d&, gp_Vec2d&) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::D1() - method is not implemented");
-}
-
-//=================================================================================================
-
-void ProjLib_ProjectedCurve::D2(const Standard_Real, gp_Pnt2d&, gp_Vec2d&, gp_Vec2d&) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::D2() - method is not implemented");
-}
-
-//=================================================================================================
-
-void ProjLib_ProjectedCurve::D3(const Standard_Real,
-                                gp_Pnt2d&,
-                                gp_Vec2d&,
-                                gp_Vec2d&,
-                                gp_Vec2d&) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::D3() - method is not implemented");
-}
-
-//=================================================================================================
-
-gp_Vec2d ProjLib_ProjectedCurve::DN(const Standard_Real, const Standard_Integer) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::DN() - method is not implemented");
-}
-
-//=================================================================================================
-
-Standard_Real ProjLib_ProjectedCurve::Resolution(const Standard_Real) const
-{
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::Resolution() - method is not implemented");
 }
 
 //=================================================================================================
@@ -1155,11 +1071,30 @@ Handle(Geom2d_BSplineCurve) ProjLib_ProjectedCurve::BSpline() const
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) ProjLib_ProjectedCurve::Trim
-  //(const Standard_Real First,
-  // const Standard_Real Last,
-  // const Standard_Real Tolerance) const
-  (const Standard_Real, const Standard_Real, const Standard_Real) const
+Handle(Geom2d_Curve) ProjLib_ProjectedCurve::GetCurve2d() const
 {
-  throw Standard_NotImplemented("ProjLib_ProjectedCurve::Trim() - method is not implemented");
+  if (!myResult.IsDone())
+  {
+    return Handle(Geom2d_Curve)();
+  }
+
+  switch (myResult.GetType())
+  {
+    case GeomAbs_Line:
+      return new Geom2d_Line(myResult.Line());
+    case GeomAbs_Circle:
+      return new Geom2d_Circle(myResult.Circle());
+    case GeomAbs_Ellipse:
+      return new Geom2d_Ellipse(myResult.Ellipse());
+    case GeomAbs_Hyperbola:
+      return new Geom2d_Hyperbola(myResult.Hyperbola());
+    case GeomAbs_Parabola:
+      return new Geom2d_Parabola(myResult.Parabola());
+    case GeomAbs_BezierCurve:
+      return myResult.Bezier();
+    case GeomAbs_BSplineCurve:
+      return myResult.BSpline();
+    default:
+      return Handle(Geom2d_Curve)();
+  }
 }

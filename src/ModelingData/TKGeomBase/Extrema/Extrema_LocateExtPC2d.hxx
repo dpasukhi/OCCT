@@ -17,7 +17,7 @@
 #ifndef _Extrema_LocateExtPC2d_HeaderFile
 #define _Extrema_LocateExtPC2d_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Extrema_Curve2dTool.hxx>
 #include <Extrema_ELPCOfLocateExtPC2d.hxx>
 #include <Extrema_GLocateExtPC.hxx>
@@ -27,7 +27,7 @@
 #include <gp_Vec2d.hxx>
 
 //! Type alias for 2D curve extremum locator.
-using Extrema_LocateExtPC2d = Extrema_GLocateExtPC<Adaptor2d_Curve2d,
+using Extrema_LocateExtPC2d = Extrema_GLocateExtPC<Geom2dAdaptor_Curve,
                                                    Extrema_Curve2dTool,
                                                    gp_Pnt2d,
                                                    gp_Vec2d,

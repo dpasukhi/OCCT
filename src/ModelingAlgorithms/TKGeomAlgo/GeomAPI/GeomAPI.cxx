@@ -45,7 +45,7 @@ Handle(Geom2d_Curve) GeomAPI::To2d(const Handle(Geom_Curve)& C, const gp_Pln& P)
 
   if (Proj.GetType() != GeomAbs_OffsetCurve && Proj.GetType() != GeomAbs_OtherCurve)
   {
-    result = Geom2dAdaptor::MakeCurve(Proj);
+    result = Proj.GetCurve2d();
   }
 
   return result;

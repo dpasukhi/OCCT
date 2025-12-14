@@ -17,9 +17,9 @@
 #ifndef _Adaptor3d_TopolTool_HeaderFile
 #define _Adaptor3d_TopolTool_HeaderFile
 
-#include <Adaptor2d_Line2d.hxx>
 #include <Adaptor3d_HVertex.hxx>
 #include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TopAbs_State.hxx>
@@ -45,13 +45,13 @@ public:
 
   Standard_EXPORT virtual void Initialize(const Handle(Adaptor3d_Surface)& S);
 
-  Standard_EXPORT virtual void Initialize(const Handle(Adaptor2d_Curve2d)& Curve);
+  Standard_EXPORT virtual void Initialize(const Handle(Geom2dAdaptor_Curve)& Curve);
 
   Standard_EXPORT virtual void Init();
 
   Standard_EXPORT virtual Standard_Boolean More();
 
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) Value();
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) Value();
 
   Standard_EXPORT virtual void Next();
 
@@ -78,7 +78,7 @@ public:
   //! a "real" limit of the surface.
   //! If the orientation is INTERNAL or EXTERNAL, the arc is
   //! considered as an arc on the surface.
-  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Returns the orientation of the vertex V.
   //! The vertex has been found with an exploration on
@@ -97,7 +97,7 @@ public:
   Standard_EXPORT virtual Standard_Boolean Has3d() const;
 
   //! returns 3d tolerance of the arc C
-  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Adaptor2d_Curve2d)& C) const;
+  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Geom2dAdaptor_Curve)& C) const;
 
   //! returns 3d tolerance of the vertex V
   Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Adaptor3d_HVertex)& V) const;
@@ -172,16 +172,16 @@ protected:
   Handle(TColStd_HArray1OfReal) myVPars;
 
 private:
-  Standard_Integer          nbRestr;
-  Standard_Integer          idRestr;
-  Standard_Real             Uinf;
-  Standard_Real             Usup;
-  Standard_Real             Vinf;
-  Standard_Real             Vsup;
-  Handle(Adaptor2d_Line2d)  myRestr[4];
-  Standard_Integer          nbVtx;
-  Standard_Integer          idVtx;
-  Handle(Adaptor3d_HVertex) myVtx[2];
+  Standard_Integer            nbRestr;
+  Standard_Integer            idRestr;
+  Standard_Real               Uinf;
+  Standard_Real               Usup;
+  Standard_Real               Vinf;
+  Standard_Real               Vsup;
+  Handle(Geom2dAdaptor_Curve) myRestr[4];
+  Standard_Integer            nbVtx;
+  Standard_Integer            idVtx;
+  Handle(Adaptor3d_HVertex)   myVtx[2];
 };
 
 #endif // _Adaptor3d_TopolTool_HeaderFile

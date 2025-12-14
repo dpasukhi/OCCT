@@ -21,7 +21,7 @@
 //                  de rayon donne : Radius.                             +
 //========================================================================
 
-#include <Adaptor2d_OffsetCurve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <GccEnt_BadQualifier.hxx>
 #include <GccEnt_QualifiedCirc.hxx>
@@ -130,9 +130,8 @@ Geom2dGcc_Circ2dTanOnRadGeo::Geom2dGcc_Circ2dTanOnRadGeo(const Geom2dGcc_QCurve&
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     for (Standard_Integer jcote1 = 1; jcote1 <= nbrcote1; jcote1++)
     {
-      Handle(Geom2dAdaptor_Curve) HCu1 = new Geom2dAdaptor_Curve(Cu1);
-      // Adaptor2d_OffsetCurve C2(HCu1,Coef(jcote1));
-      Adaptor2d_OffsetCurve C2(HCu1, -Coef(jcote1));
+      Geom2dAdaptor_Curve C2;
+      C2.SetOffset(new Geom2dAdaptor_Curve(Cu1), -Coef(jcote1));
       firstparam = std::max(C2.FirstParameter(), thefirst);
       lastparam  = std::min(C2.LastParameter(), thelast);
       IntRes2d_Domain D2(C2.Value(firstparam),
@@ -261,9 +260,8 @@ Geom2dGcc_Circ2dTanOnRadGeo::Geom2dGcc_Circ2dTanOnRadGeo(const Geom2dGcc_QCurve&
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     for (Standard_Integer jcote1 = 1; jcote1 <= nbrcote1; jcote1++)
     {
-      Handle(Geom2dAdaptor_Curve) HCu1 = new Geom2dAdaptor_Curve(Cu1);
-      // Adaptor2d_OffsetCurve C2(HCu1,cote1(jcote1));
-      Adaptor2d_OffsetCurve C2(HCu1, -cote1(jcote1));
+      Geom2dAdaptor_Curve C2;
+      C2.SetOffset(new Geom2dAdaptor_Curve(Cu1), -cote1(jcote1));
       firstparam = std::max(C2.FirstParameter(), thefirst);
       lastparam  = std::min(C2.LastParameter(), thelast);
       IntRes2d_Domain D2(C2.Value(firstparam),
@@ -670,9 +668,8 @@ Geom2dGcc_Circ2dTanOnRadGeo::Geom2dGcc_Circ2dTanOnRadGeo(const Geom2dGcc_QCurve&
     Geom2dInt_GInter Intp;
     for (Standard_Integer jcote1 = 1; jcote1 <= nbrcote1; jcote1++)
     {
-      Handle(Geom2dAdaptor_Curve) HCu1 = new Geom2dAdaptor_Curve(Cu1);
-      // Adaptor2d_OffsetCurve C1(HCu1,cote1(jcote1));
-      Adaptor2d_OffsetCurve C1(HCu1, -cote1(jcote1));
+      Geom2dAdaptor_Curve C1;
+      C1.SetOffset(new Geom2dAdaptor_Curve(Cu1), -cote1(jcote1));
       firstparam = std::max(C1.FirstParameter(), thefirst);
       lastparam  = std::min(C1.LastParameter(), thelast);
       IntRes2d_Domain             D1(C1.Value(firstparam),
@@ -681,8 +678,7 @@ Geom2dGcc_Circ2dTanOnRadGeo::Geom2dGcc_Circ2dTanOnRadGeo(const Geom2dGcc_QCurve&
                          C1.Value(lastparam),
                          lastparam,
                          Tol);
-      Handle(Geom2dAdaptor_Curve) HOnCurv = new Geom2dAdaptor_Curve(OnCurv);
-      Adaptor2d_OffsetCurve       C2(HOnCurv);
+      Geom2dAdaptor_Curve C2(OnCurv);
       firstparam = std::max(C2.FirstParameter(), thefirst);
       lastparam  = std::min(C2.LastParameter(), thelast);
       IntRes2d_Domain D2(C2.Value(firstparam),

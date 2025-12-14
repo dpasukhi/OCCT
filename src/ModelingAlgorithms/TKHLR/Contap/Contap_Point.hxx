@@ -17,7 +17,7 @@
 #ifndef _Contap_Point_HeaderFile
 #define _Contap_Point_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -57,7 +57,7 @@ public:
 
   //! Sets the value of the arc and of the parameter on
   //! this arc of the point.
-  void SetArc(const Handle(Adaptor2d_Curve2d)& A,
+  void SetArc(const Handle(Geom2dAdaptor_Curve)& A,
               const Standard_Real              Param,
               const IntSurf_Transition&        TLine,
               const IntSurf_Transition&        TArc);
@@ -84,7 +84,7 @@ public:
 
   //! Returns the arc of restriction containing the
   //! vertex.
-  const Handle(Adaptor2d_Curve2d)& Arc() const;
+  const Handle(Geom2dAdaptor_Curve)& Arc() const;
 
   //! Returns the parameter of the point on the
   //! arc returned by the method Arc().
@@ -122,7 +122,7 @@ private:
   Standard_Real             vparam;
   Standard_Real             paraline;
   Standard_Boolean          onarc;
-  Handle(Adaptor2d_Curve2d) arc;
+  Handle(Geom2dAdaptor_Curve) arc;
   IntSurf_Transition        traline;
   IntSurf_Transition        traarc;
   Standard_Real             prmarc;

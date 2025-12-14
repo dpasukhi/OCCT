@@ -19,12 +19,12 @@
 
 #include <GeomAdaptor_Curve.hxx>
 #include <GeomLProp_SLProps.hxx>
+#include <ProjLib_CompProjectedCurve.hxx>
 
 #include <memory>
 
-class Adaptor2d_Curve2d;
-class Geom2d_Curve;
 class Geom2dAdaptor_Curve;
+class Geom2d_Curve;
 class GeomAdaptor_Surface;
 class Law_Function;
 class gp_Pnt;
@@ -142,13 +142,13 @@ public:
 
   //! loads a 2d curve resulting from the normal projection of
   //! the curve on the initial surface
-  Standard_EXPORT void SetProjectedCurve(const Handle(Adaptor2d_Curve2d)& Curve2d,
-                                         const Standard_Real              TolU,
-                                         const Standard_Real              TolV);
+  Standard_EXPORT void SetProjectedCurve(const Handle(ProjLib_CompProjectedCurve)& Curve2d,
+                                         const Standard_Real                       TolU,
+                                         const Standard_Real                       TolV);
 
   //! Returns the projected curve resulting from the normal projection of the
   //! curve on the initial surface
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) ProjectedCurve() const;
+  Standard_EXPORT Handle(ProjLib_CompProjectedCurve) ProjectedCurve() const;
 
   DEFINE_STANDARD_RTTIEXT(GeomPlate_CurveConstraint, Standard_Transient)
 
@@ -173,7 +173,7 @@ protected:
   Standard_Integer                   myOrder;
   Standard_Integer                   myTang;
   Handle(Geom2d_Curve)               my2dCurve;
-  Handle(Adaptor2d_Curve2d)          myHCurve2d;
+  Handle(ProjLib_CompProjectedCurve) myHCurve2d;
   Handle(Law_Function)               myG0Crit;
   Handle(Law_Function)               myG1Crit;
   Handle(Law_Function)               myG2Crit;

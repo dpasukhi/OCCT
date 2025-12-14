@@ -22,7 +22,7 @@
 
 #include <CPnts_MyRootFunction.hxx>
 class Adaptor3d_Curve;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 
 //! the algorithm computes a point on a curve at a given
 //! distance from another point on the curve
@@ -41,13 +41,13 @@ public:
   Standard_EXPORT static Standard_Real Length(const Adaptor3d_Curve& C);
 
   //! Computes the length of the Curve <C>.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& C);
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& C);
 
   //! Computes the length of the Curve <C> with the given tolerance.
   Standard_EXPORT static Standard_Real Length(const Adaptor3d_Curve& C, const Standard_Real Tol);
 
   //! Computes the length of the Curve <C> with the given tolerance.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& C, const Standard_Real Tol);
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& C, const Standard_Real Tol);
 
   //! Computes the length of the Curve <C> between <U1> and <U2>.
   Standard_EXPORT static Standard_Real Length(const Adaptor3d_Curve& C,
@@ -55,7 +55,7 @@ public:
                                               const Standard_Real    U2);
 
   //! Computes the length of the Curve <C> between <U1> and <U2>.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& C,
                                               const Standard_Real      U1,
                                               const Standard_Real      U2);
 
@@ -67,7 +67,7 @@ public:
 
   //! Computes the length of the Curve <C> between <U1> and <U2> with the given tolerance.
   //! creation of a indefinite AbscissaPoint.
-  Standard_EXPORT static Standard_Real Length(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT static Standard_Real Length(const Geom2dAdaptor_Curve& C,
                                               const Standard_Real      U1,
                                               const Standard_Real      U2,
                                               const Standard_Real      Tol);
@@ -87,7 +87,7 @@ public:
   //! distance <Abscissa> from the point of parameter <U0>.
   //! <Resolution> is the error allowed in the computation.
   //! The computed point can be outside of the curve 's bounds.
-  Standard_EXPORT CPnts_AbscissaPoint(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT CPnts_AbscissaPoint(const Geom2dAdaptor_Curve& C,
                                       const Standard_Real      Abscissa,
                                       const Standard_Real      U0,
                                       const Standard_Real      Resolution);
@@ -112,7 +112,7 @@ public:
   //! solution
   //! <Resolution> is the error allowed in the computation.
   //! The computed point can be outside of the curve 's bounds.
-  Standard_EXPORT CPnts_AbscissaPoint(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT CPnts_AbscissaPoint(const Geom2dAdaptor_Curve& C,
                                       const Standard_Real      Abscissa,
                                       const Standard_Real      U0,
                                       const Standard_Real      Ui,
@@ -122,13 +122,13 @@ public:
   Standard_EXPORT void Init(const Adaptor3d_Curve& C);
 
   //! Initializes the resolution function with <C>.
-  Standard_EXPORT void Init(const Adaptor2d_Curve2d& C);
+  Standard_EXPORT void Init(const Geom2dAdaptor_Curve& C);
 
   //! Initializes the resolution function with <C>.
   Standard_EXPORT void Init(const Adaptor3d_Curve& C, const Standard_Real Tol);
 
   //! Initializes the resolution function with <C>.
-  Standard_EXPORT void Init(const Adaptor2d_Curve2d& C, const Standard_Real Tol);
+  Standard_EXPORT void Init(const Geom2dAdaptor_Curve& C, const Standard_Real Tol);
 
   //! Initializes the resolution function with <C>
   //! between U1 and U2.
@@ -138,7 +138,7 @@ public:
 
   //! Initializes the resolution function with <C>
   //! between U1 and U2.
-  Standard_EXPORT void Init(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT void Init(const Geom2dAdaptor_Curve& C,
                             const Standard_Real      U1,
                             const Standard_Real      U2);
 
@@ -151,7 +151,7 @@ public:
 
   //! Initializes the resolution function with <C>
   //! between U1 and U2.
-  Standard_EXPORT void Init(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT void Init(const Geom2dAdaptor_Curve& C,
                             const Standard_Real      U1,
                             const Standard_Real      U2,
                             const Standard_Real      Tol);

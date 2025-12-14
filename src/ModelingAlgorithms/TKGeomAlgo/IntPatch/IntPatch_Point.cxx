@@ -53,7 +53,7 @@ void IntPatch_Point::SetVertex(const Standard_Boolean OnFirst, const Handle(Adap
 }
 
 void IntPatch_Point::SetArc(const Standard_Boolean           OnFirst,
-                            const Handle(Adaptor2d_Curve2d)& A,
+                            const Handle(Geom2dAdaptor_Curve)& A,
                             const Standard_Real              Param,
                             const IntSurf_Transition&        TLine,
                             const IntSurf_Transition&        TArc)

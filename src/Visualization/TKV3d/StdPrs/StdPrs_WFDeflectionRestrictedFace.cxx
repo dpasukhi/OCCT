@@ -132,7 +132,7 @@ void StdPrs_WFDeflectionRestrictedFace::Add(const Handle(Prs3d_Presentation)&  a
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
     const TopAbs_Orientation anOrient  = ToolRst.Orientation();
-    const Adaptor2d_Curve2d* TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve* TheRCurve = &ToolRst.Value();
     if (TheRCurve->GetType() != GeomAbs_Line)
     {
       GCPnts_QuasiUniformDeflection UDP(*TheRCurve, ddefle);
@@ -412,7 +412,7 @@ Standard_Boolean StdPrs_WFDeflectionRestrictedFace::Match(const Standard_Real X,
 
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
-    const Adaptor2d_Curve2d* TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve* TheRCurve = &ToolRst.Value();
     u                                  = TheRCurve->FirstParameter();
     v                                  = TheRCurve->LastParameter();
     step                               = (v - u) / nbPoints;
@@ -479,7 +479,7 @@ Standard_Boolean StdPrs_WFDeflectionRestrictedFace::Match(const Standard_Real X,
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
     TopAbs_Orientation            Orient    = ToolRst.Orientation();
-    const Adaptor2d_Curve2d*      TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve*      TheRCurve = &ToolRst.Value();
     GCPnts_QuasiUniformDeflection UDP(*TheRCurve, Deflection);
     if (UDP.IsDone())
     {

@@ -16,12 +16,12 @@
 
 #include <Adaptor3d_InterFunc.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Standard_ConstructionError.hxx>
 
-Adaptor3d_InterFunc::Adaptor3d_InterFunc(const Handle(Adaptor2d_Curve2d)& C,
+Adaptor3d_InterFunc::Adaptor3d_InterFunc(const Handle(Geom2dAdaptor_Curve)& C,
                                          const Standard_Real              FixVal,
                                          const Standard_Integer           Fix)
     : myCurve2d(C),

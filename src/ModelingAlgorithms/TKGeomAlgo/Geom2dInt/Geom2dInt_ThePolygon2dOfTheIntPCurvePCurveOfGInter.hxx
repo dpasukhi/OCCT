@@ -27,7 +27,7 @@
 #include <Standard_Boolean.hxx>
 #include <Intf_Polygon2d.hxx>
 class Standard_OutOfRange;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 class Geom2dInt_Geom2dCurveTool;
 class IntRes2d_Domain;
 class Bnd_Box2d;
@@ -39,7 +39,7 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! Compute a polygon on the domain of the curve.
-  Standard_EXPORT Geom2dInt_ThePolygon2dOfTheIntPCurvePCurveOfGInter(const Adaptor2d_Curve2d& Curve,
+  Standard_EXPORT Geom2dInt_ThePolygon2dOfTheIntPCurvePCurveOfGInter(const Geom2dAdaptor_Curve& Curve,
                                                                      const Standard_Integer   NbPnt,
                                                                      const IntRes2d_Domain& Domain,
                                                                      const Standard_Real    Tol);
@@ -49,7 +49,7 @@ public:
   //! outside the box <OtherBox>. In this
   //! situation, bounds are computed to build
   //! a polygon inside or near the OtherBox.
-  Standard_EXPORT void ComputeWithBox(const Adaptor2d_Curve2d& Curve, const Bnd_Box2d& OtherBox);
+  Standard_EXPORT void ComputeWithBox(const Geom2dAdaptor_Curve& Curve, const Bnd_Box2d& OtherBox);
 
   virtual Standard_Real DeflectionOverEstimation() const Standard_OVERRIDE;
 
@@ -105,8 +105,8 @@ private:
   Standard_Real           Bsup;
 };
 
-#define TheCurve Adaptor2d_Curve2d
-#define TheCurve_hxx <Adaptor2d_Curve2d.hxx>
+#define TheCurve Geom2dAdaptor_Curve
+#define TheCurve_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheCurveTool Geom2dInt_Geom2dCurveTool
 #define TheCurveTool_hxx <Geom2dInt_Geom2dCurveTool.hxx>
 #define IntCurve_Polygon2dGen Geom2dInt_ThePolygon2dOfTheIntPCurvePCurveOfGInter

@@ -28,7 +28,7 @@
 //! Searches for a pair of parameter values (U,V) such that dist(C1(u),C2(v))
 //! passes through an extremum, and (U,V) is the solution closest to (U0,V0).
 //!
-//! @tparam TheCurve   Curve type (e.g., Adaptor3d_Curve, Adaptor2d_Curve2d)
+//! @tparam TheCurve   Curve type (e.g., Adaptor3d_Curve, Geom2dAdaptor_Curve)
 //! @tparam TheTool    Tool for curve operations
 //! @tparam ThePOnC    Point on curve type
 //! @tparam TheCCLocF  Function type for curve-curve local extremum

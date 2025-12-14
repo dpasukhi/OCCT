@@ -16,7 +16,7 @@
 
 #include <Geom2dConvert_ApproxArcsSegments.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <GCE2d_MakeArcOfCircle.hxx>
 #include <GCE2d_MakeSegment.hxx>
@@ -41,20 +41,20 @@ static Standard_Boolean checkContinuity(const Handle(Geom2d_Curve)& theCurve1,
 static Geom2dConvert_PPoint getParameter(const gp_XY&             theXY1,
                                          const Standard_Real      theFirstPar,
                                          const Standard_Real      theLastPar,
-                                         const Adaptor2d_Curve2d& theCurve);
+                                         const Geom2dAdaptor_Curve& theCurve);
 
 static Standard_Boolean isInflectionPoint(const Standard_Real      theParam,
-                                          const Adaptor2d_Curve2d& theCurve);
+                                          const Geom2dAdaptor_Curve& theCurve);
 
 static Standard_Boolean isInflectionPoint(const Standard_Real         theParam,
                                           const Geom2dConvert_PPoint& theFirstInf,
-                                          const Adaptor2d_Curve2d&    theCurve,
+                                          const Geom2dAdaptor_Curve&    theCurve,
                                           const Standard_Real         theAnglTol);
 
 //=================================================================================================
 
 Geom2dConvert_ApproxArcsSegments::Geom2dConvert_ApproxArcsSegments(
-  const Adaptor2d_Curve2d& theCurve,
+  const Geom2dAdaptor_Curve& theCurve,
   const Standard_Real      theTolerance,
   const Standard_Real      theAngleTol)
     : myCurve(theCurve),
@@ -387,7 +387,7 @@ void Geom2dConvert_ApproxArcsSegments::getLinearParts(Geom2dConvert_SequenceOfPP
   Standard_Integer i;
   // Fill the sequences with values along the curve
   mySeqParams.Clear();
-  Adaptor2d_Curve2d&            myCurveMut = const_cast<Adaptor2d_Curve2d&>(myCurve);
+  Geom2dAdaptor_Curve&            myCurveMut = const_cast<Geom2dAdaptor_Curve&>(myCurve);
   GCPnts_QuasiUniformDeflection aQUDefAlgo(myCurveMut, myTolerance * 0.5);
   Standard_Boolean              isUniformDone = aQUDefAlgo.IsDone();
 
@@ -824,7 +824,7 @@ Standard_Boolean checkContinuity(const Handle(Geom2d_Curve)& theCurve1,
 Geom2dConvert_PPoint getParameter(const gp_XY&             theXY1,
                                   const Standard_Real      theFirstParam,
                                   const Standard_Real      theLastParam,
-                                  const Adaptor2d_Curve2d& theCurve)
+                                  const Geom2dAdaptor_Curve& theCurve)
 {
   Geom2dConvert_PPoint aResult;
   Standard_Real        prevParam = theFirstParam;
@@ -878,7 +878,7 @@ Geom2dConvert_PPoint getParameter(const gp_XY&             theXY1,
 //           is inflection point
 //=======================================================================
 
-Standard_Boolean isInflectionPoint(const Standard_Real theParam, const Adaptor2d_Curve2d& theCurve)
+Standard_Boolean isInflectionPoint(const Standard_Real theParam, const Geom2dAdaptor_Curve& theCurve)
 {
   gp_Pnt2d aP1;
   gp_Vec2d aD1, aD2;
@@ -896,7 +896,7 @@ Standard_Boolean isInflectionPoint(const Standard_Real theParam, const Adaptor2d
 
 Standard_Boolean isInflectionPoint(const Standard_Real         theParam,
                                    const Geom2dConvert_PPoint& theFirstInfl,
-                                   const Adaptor2d_Curve2d&    theCurve,
+                                   const Geom2dAdaptor_Curve&    theCurve,
                                    const Standard_Real         theAngleTol)
 {
   gp_Pnt2d aP1;

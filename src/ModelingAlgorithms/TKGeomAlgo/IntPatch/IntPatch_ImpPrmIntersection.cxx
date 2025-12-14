@@ -70,7 +70,7 @@ static void             Recadre(const Standard_Boolean,
 
 static Standard_Boolean IsCoincide(IntPatch_TheSurfFunction&         theFunc,
                                    const Handle(IntPatch_PointLine)& theLine,
-                                   const Handle(Adaptor2d_Curve2d)&  theArc,
+                                   const Handle(Geom2dAdaptor_Curve)&  theArc,
                                    const Standard_Boolean            isTheSurface1Using,
                                    const Standard_Real               theToler3D,
                                    const Standard_Real               theToler2D,
@@ -217,7 +217,7 @@ void ComputeTangency(const IntPatch_TheSOnBounds&       solrst,
   Standard_Real             theparam, test;
   Standard_Boolean          fairpt, ispassing;
   TopAbs_Orientation        arcorien, vtxorien;
-  Handle(Adaptor2d_Curve2d) thearc;
+  Handle(Geom2dAdaptor_Curve) thearc;
   Handle(Adaptor3d_HVertex) vtx, vtxbis;
   // Standard_Boolean ispassing;
   IntPatch_ThePathPointOfTheSOnBounds PStart;
@@ -619,7 +619,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
   gp_Pnt2d p2d;
   gp_Vec2d d2d;
 
-  Handle(Adaptor2d_Curve2d) currentarc;
+  Handle(Geom2dAdaptor_Curve) currentarc;
   GeomAbs_SurfaceType       typeS1, typeS2;
   IntSurf_Quadric           Quad;
   IntPatch_TheSurfFunction  Func;
@@ -1557,7 +1557,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
         gp_Pnt                           ptpoly;
         IntSurf_PntOn2S                  p2s;
         Handle(IntSurf_LineOn2S)         Thelin   = new IntSurf_LineOn2S();
-        const Handle(Adaptor2d_Curve2d)& arcsegm  = thesegm.Curve();
+        const Handle(Geom2dAdaptor_Curve)& arcsegm  = thesegm.Curve();
         Standard_Integer                 nbsample = 100;
 
         if (!reversed)
@@ -1731,7 +1731,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
       break;
     }
 
-    const Handle(Adaptor2d_Curve2d)& anArc = aRL1->IsArcOnS1() ? aRL1->ArcOnS1() : aRL1->ArcOnS2();
+    const Handle(Geom2dAdaptor_Curve)& anArc = aRL1->IsArcOnS1() ? aRL1->ArcOnS1() : aRL1->ArcOnS2();
     if (anArc->GetType() != GeomAbs_Line)
     {
       // Restriction line must be isoline.
@@ -1753,7 +1753,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
       if (!aRL2.IsNull())
       {
-        const Handle(Adaptor2d_Curve2d)& anArc2 =
+        const Handle(Geom2dAdaptor_Curve)& anArc2 =
           aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
         if (anArc2->GetType() != GeomAbs_Line)
         {
@@ -1791,7 +1791,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
         }
         else
         { // Restriction-Restriction
-          const Handle(Adaptor2d_Curve2d)& anArc2 =
+          const Handle(Geom2dAdaptor_Curve)& anArc2 =
             aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
 
           const Standard_Real aRange2 = anArc2->LastParameter() - anArc2->FirstParameter();
@@ -2671,7 +2671,7 @@ static void PutIntVertices(const Handle(IntPatch_PointLine)& Line,
           // In fact, aRLine is always on the parametric surface.
           // If (theIsReversed == TRUE) then (U1, V1) - point on
           // parametric surface, otherwise - point on quadric.
-          const Handle(Adaptor2d_Curve2d)& anArc =
+          const Handle(Geom2dAdaptor_Curve)& anArc =
             aRLine->IsArcOnS1() ? aRLine->ArcOnS1() : aRLine->ArcOnS2();
 
           const gp_Lin2d aLin(anArc->Line());
@@ -2925,7 +2925,7 @@ static Standard_Boolean DecomposeResult(const Handle(IntPatch_PointLine)&  theLi
     const Handle(IntPatch_RLine)& aRL = Handle(IntPatch_RLine)::DownCast(theLine);
     if (!aRL.IsNull())
     {
-      const Handle(Adaptor2d_Curve2d)& anArc = aRL->IsArcOnS1() ? aRL->ArcOnS1() : aRL->ArcOnS2();
+      const Handle(Geom2dAdaptor_Curve)& anArc = aRL->IsArcOnS1() ? aRL->ArcOnS1() : aRL->ArcOnS2();
       if (anArc->GetType() != GeomAbs_Line)
       {
         // Restriction line must be isoline.
@@ -3417,7 +3417,7 @@ static Standard_Boolean DecomposeResult(const Handle(IntPatch_PointLine)&  theLi
         PutIntVertices(aRLine, sline, IsReversed, aVLine, theArcTol);
       }
 
-      const Handle(Adaptor2d_Curve2d)& anArc =
+      const Handle(Geom2dAdaptor_Curve)& anArc =
         aRLine->IsArcOnS1() ? aRLine->ArcOnS1() : aRLine->ArcOnS2();
 
       Standard_Real aFPar = anArc->FirstParameter(), aLPar = anArc->LastParameter();
@@ -3524,7 +3524,7 @@ static Standard_Boolean CheckSegmSegm(const Standard_Real theRefParF,
 Standard_Boolean IsCoincide(
   IntPatch_TheSurfFunction&         theFunc,
   const Handle(IntPatch_PointLine)& theLine,
-  const Handle(Adaptor2d_Curve2d)&  theArc,
+  const Handle(Geom2dAdaptor_Curve)&  theArc,
   const Standard_Boolean            isTheSurface1Using, // Surf1 is parametric?
   const Standard_Real               theToler3D,
   const Standard_Real               theToler2D,
@@ -3541,7 +3541,7 @@ Standard_Boolean IsCoincide(
   if (theLine->ArcType() == IntPatch_Restriction)
   { // Restriction-restriction processing
     const Handle(IntPatch_RLine)&    aRL2  = Handle(IntPatch_RLine)::DownCast(theLine);
-    const Handle(Adaptor2d_Curve2d)& anArc = aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
+    const Handle(Geom2dAdaptor_Curve)& anArc = aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
 
     if (anArc->GetType() != GeomAbs_Line)
     {

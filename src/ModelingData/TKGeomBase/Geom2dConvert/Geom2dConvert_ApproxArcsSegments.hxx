@@ -36,7 +36,7 @@ public:
   };
 
   //! Constructor.
-  Standard_EXPORT Geom2dConvert_ApproxArcsSegments(const Adaptor2d_Curve2d& theCurve,
+  Standard_EXPORT Geom2dConvert_ApproxArcsSegments(const Geom2dAdaptor_Curve& theCurve,
                                                    const Standard_Real      theTolerance,
                                                    const Standard_Real      theAngleTol);
 
@@ -91,7 +91,7 @@ private:
 private:
   // ---------- PRIVATE FIELDS ----------
 
-  const Adaptor2d_Curve2d& myCurve;
+  const Geom2dAdaptor_Curve& myCurve;
   Geom2dConvert_PPoint     myExt[2];
 
   Handle(NCollection_BaseAllocator) myAlloc;

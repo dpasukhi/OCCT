@@ -35,7 +35,7 @@
 //                              consecutives
 // Traitement des coins
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <AppBlend_Approx.hxx>
 #include <Blend_FuncInv.hxx>
 #include <Bnd_Box2d.hxx>

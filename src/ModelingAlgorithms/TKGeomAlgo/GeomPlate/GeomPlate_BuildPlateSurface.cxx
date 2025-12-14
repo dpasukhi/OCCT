@@ -16,7 +16,7 @@
 
 #include <GeomPlate_BuildPlateSurface.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Approx_CurveOnSurface.hxx>
 #include <GeomAdaptor_Curve.hxx>
@@ -320,7 +320,7 @@ Handle(Geom2d_Curve) GeomPlate_BuildPlateSurface::ProjectCurve(const GeomAdaptor
 //---------------------------------------------------------
 // Function : ProjectedCurve
 //---------------------------------------------------------
-Handle(Adaptor2d_Curve2d) GeomPlate_BuildPlateSurface::ProjectedCurve(const GeomAdaptor_Curve& Curv)
+Handle(ProjLib_CompProjectedCurve) GeomPlate_BuildPlateSurface::ProjectedCurve(const GeomAdaptor_Curve& Curv)
 {
   // Projection of a curve on the initial surface
 

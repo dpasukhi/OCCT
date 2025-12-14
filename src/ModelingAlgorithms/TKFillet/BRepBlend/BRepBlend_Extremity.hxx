@@ -105,7 +105,7 @@ public:
 
   //! Sets the values of a point which is on the arc
   //! A, at parameter Param.
-  Standard_EXPORT void AddArc(const Handle(Adaptor2d_Curve2d)& A,
+  Standard_EXPORT void AddArc(const Handle(Geom2dAdaptor_Curve)& A,
                               const Standard_Real              Param,
                               const IntSurf_Transition&        TLine,
                               const IntSurf_Transition&        TArc);

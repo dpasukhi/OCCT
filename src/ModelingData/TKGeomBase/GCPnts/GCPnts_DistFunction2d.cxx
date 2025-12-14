@@ -16,7 +16,7 @@
 
 //=================================================================================================
 
-GCPnts_DistFunction2d::GCPnts_DistFunction2d(const Adaptor2d_Curve2d& theCurve,
+GCPnts_DistFunction2d::GCPnts_DistFunction2d(const Geom2dAdaptor_Curve& theCurve,
                                              const Standard_Real      U1,
                                              const Standard_Real      U2)
     : myCurve(theCurve),

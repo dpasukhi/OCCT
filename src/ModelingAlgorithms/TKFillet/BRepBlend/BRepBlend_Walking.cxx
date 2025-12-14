@@ -14,7 +14,7 @@
 
 #include <BRepBlend_Walking.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_HSurfaceTool.hxx>
 #include <Adaptor3d_HVertex.hxx>
@@ -1205,7 +1205,7 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
 
   math_Vector toler(1, 4), infb(1, 4), supb(1, 4), valsol(1, 4);
 
-  Handle(Adaptor2d_Curve2d)   thecur;
+  Handle(Geom2dAdaptor_Curve)   thecur;
   Handle(Adaptor3d_TopolTool) Iter;
 
   if (OnFirst)
@@ -1228,7 +1228,7 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
     Iter->Next();
   }
 
-  Handle(Adaptor2d_Curve2d) thearc = Iter->Value();
+  Handle(Geom2dAdaptor_Curve) thearc = Iter->Value();
 
   if (OnFirst)
   {
@@ -1535,7 +1535,7 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
 }
 
 void BRepBlend_Walking::Transition(const Standard_Boolean           OnFirst,
-                                   const Handle(Adaptor2d_Curve2d)& A,
+                                   const Handle(Geom2dAdaptor_Curve)& A,
                                    const Standard_Real              Param,
                                    IntSurf_Transition&              TLine,
                                    IntSurf_Transition&              TArc)
@@ -1699,7 +1699,7 @@ void BRepBlend_Walking::MakeSingularExtremity(BRepBlend_Extremity&             E
   Extrem.SetVertex(Vtx);
   while (Iter->More())
   {
-    Handle(Adaptor2d_Curve2d) arc = Iter->Value();
+    Handle(Geom2dAdaptor_Curve) arc = Iter->Value();
     Iter->Initialize(arc);
     Iter->InitVertexIterator();
     while (Iter->MoreVertex())

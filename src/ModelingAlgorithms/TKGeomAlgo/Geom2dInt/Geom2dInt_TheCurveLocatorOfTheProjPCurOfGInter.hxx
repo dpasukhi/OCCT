@@ -17,7 +17,7 @@
 #ifndef _Geom2dInt_TheCurveLocatorOfTheProjPCurOfGInter_HeaderFile
 #define _Geom2dInt_TheCurveLocatorOfTheProjPCurOfGInter_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Extrema_GCurveLocator.hxx>
 #include <Extrema_POnCurv2d.hxx>
 #include <Geom2dInt_Geom2dCurveTool.hxx>
@@ -25,6 +25,6 @@
 
 //! Type alias for 2D curve locator using Geom2dInt_Geom2dCurveTool.
 using Geom2dInt_TheCurveLocatorOfTheProjPCurOfGInter =
-  Extrema_GCurveLocator<Adaptor2d_Curve2d, Geom2dInt_Geom2dCurveTool, Extrema_POnCurv2d, gp_Pnt2d>;
+  Extrema_GCurveLocator<Geom2dAdaptor_Curve, Geom2dInt_Geom2dCurveTool, Extrema_POnCurv2d, gp_Pnt2d>;
 
 #endif // _Geom2dInt_TheCurveLocatorOfTheProjPCurOfGInter_HeaderFile

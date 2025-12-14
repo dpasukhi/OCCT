@@ -12,7 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepTopAdaptor_FClass2d.hxx>
@@ -98,7 +98,7 @@ void BRepTopAdaptor_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
 
 //=================================================================================================
 
-void BRepTopAdaptor_TopolTool::Initialize(const Handle(Adaptor2d_Curve2d)& C)
+void BRepTopAdaptor_TopolTool::Initialize(const Handle(Geom2dAdaptor_Curve)& C)
 {
   myCurve = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   if (myCurve.IsNull())
@@ -130,9 +130,9 @@ void BRepTopAdaptor_TopolTool::Next()
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) BRepTopAdaptor_TopolTool::Value()
+Handle(Geom2dAdaptor_Curve) BRepTopAdaptor_TopolTool::Value()
 {
-  return Handle(Adaptor2d_Curve2d)::DownCast(myCIterator.Value());
+  return Handle(Geom2dAdaptor_Curve)::DownCast(myCIterator.Value());
 }
 
 // modified by NIZNHY-PKV Tue Mar 27 14:23:40 2001 f
@@ -213,7 +213,7 @@ void BRepTopAdaptor_TopolTool::Destroy()
 
 //=================================================================================================
 
-TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(Adaptor2d_Curve2d)& C)
+TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(Geom2dAdaptor_Curve)& C)
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   return brhc->Edge().Orientation();
@@ -577,7 +577,7 @@ Standard_Boolean BRepTopAdaptor_TopolTool::Has3d() const
 
 //=================================================================================================
 
-Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Adaptor2d_Curve2d)& C) const
+Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Geom2dAdaptor_Curve)& C) const
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   if (brhc.IsNull())

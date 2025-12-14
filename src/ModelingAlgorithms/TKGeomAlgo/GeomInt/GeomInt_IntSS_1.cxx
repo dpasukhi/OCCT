@@ -230,7 +230,7 @@ static void IntersectCurveAndBoundary(const Handle(Geom2d_Curve)&       theC2d,
 // purpose  : Check if theAHC2d corresponds to a degenerated edge.
 //=======================================================================
 static Standard_Boolean isDegenerated(const Handle(GeomAdaptor_Surface)& theGAHS,
-                                      const Handle(Adaptor2d_Curve2d)&   theAHC2d,
+                                      const Handle(Geom2dAdaptor_Curve)&   theAHC2d,
                                       const Standard_Real                theFirstPar,
                                       const Standard_Real                theLastPar)
 {
@@ -1075,7 +1075,7 @@ void GeomInt_IntSS::TreatRLine(const Handle(IntPatch_RLine)&      theRL,
                                Standard_Real&                     theTolReached)
 {
   Handle(GeomAdaptor_Surface) aGAHS;
-  Handle(Adaptor2d_Curve2d)   anAHC2d;
+  Handle(Geom2dAdaptor_Curve)   anAHC2d;
   Standard_Real               tf, tl;
   // It is assumed that 2d curve is 2d line (rectangular surface domain)
   if (theRL->IsArcOnS1())

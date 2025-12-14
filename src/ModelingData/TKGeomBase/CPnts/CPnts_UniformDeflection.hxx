@@ -23,7 +23,7 @@
 #include <Standard_Integer.hxx>
 #include <gp_Pnt.hxx>
 class Adaptor3d_Curve;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 
 //! This class defines an algorithm to create a set of points
 //! (with a given chordal deviation) at the
@@ -77,7 +77,7 @@ public:
                                           const Standard_Boolean WithControl);
 
   //! As above with 2d curve
-  Standard_EXPORT CPnts_UniformDeflection(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT CPnts_UniformDeflection(const Geom2dAdaptor_Curve& C,
                                           const Standard_Real      Deflection,
                                           const Standard_Real      Resolution,
                                           const Standard_Boolean   WithControl);
@@ -94,7 +94,7 @@ public:
                                           const Standard_Boolean WithControl);
 
   //! As above with 2d curve
-  Standard_EXPORT CPnts_UniformDeflection(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT CPnts_UniformDeflection(const Geom2dAdaptor_Curve& C,
                                           const Standard_Real      Deflection,
                                           const Standard_Real      U1,
                                           const Standard_Real      U2,
@@ -110,7 +110,7 @@ public:
 
   //! Initialize the algorithms with <C>, <Deflection>, <UStep>,
   //! <Resolution> and <WithControl>
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& C,
                                   const Standard_Real      Deflection,
                                   const Standard_Real      Resolution,
                                   const Standard_Boolean   WithControl);
@@ -126,7 +126,7 @@ public:
 
   //! Initialize the algorithms with <C>, <Deflection>, <UStep>,
   //! <U1>, <U2> and <WithControl>
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& C,
                                   const Standard_Real      Deflection,
                                   const Standard_Real      U1,
                                   const Standard_Real      U2,

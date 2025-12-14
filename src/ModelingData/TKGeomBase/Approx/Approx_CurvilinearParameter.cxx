@@ -16,7 +16,7 @@
 
 #include <Approx_CurvilinearParameter.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
@@ -280,7 +280,7 @@ void Approx_CurvilinearParameter_EvalCurvOnSurf::Evaluate(Standard_Integer* Dime
     Result[i] = Res(i);
 }
 
-Approx_CurvilinearParameter::Approx_CurvilinearParameter(const Handle(Adaptor2d_Curve2d)& C2D,
+Approx_CurvilinearParameter::Approx_CurvilinearParameter(const Handle(Geom2dAdaptor_Curve)& C2D,
                                                          const Handle(Adaptor3d_Surface)& Surf,
                                                          const Standard_Real              Tol,
                                                          const GeomAbs_Shape              Order,
@@ -455,9 +455,9 @@ void Approx_CurvilinearParameter_EvalCurvOn2Surf::Evaluate(Standard_Integer* Dim
     Result[i] = Res(i);
 }
 
-Approx_CurvilinearParameter::Approx_CurvilinearParameter(const Handle(Adaptor2d_Curve2d)& C2D1,
+Approx_CurvilinearParameter::Approx_CurvilinearParameter(const Handle(Geom2dAdaptor_Curve)& C2D1,
                                                          const Handle(Adaptor3d_Surface)& Surf1,
-                                                         const Handle(Adaptor2d_Curve2d)& C2D2,
+                                                         const Handle(Geom2dAdaptor_Curve)& C2D2,
                                                          const Handle(Adaptor3d_Surface)& Surf2,
                                                          const Standard_Real              Tol,
                                                          const GeomAbs_Shape              Order,
@@ -658,7 +658,7 @@ void Approx_CurvilinearParameter::Dump(Standard_OStream& o) const
 
 //=================================================================================================
 
-void Approx_CurvilinearParameter::ToleranceComputation(const Handle(Adaptor2d_Curve2d)& C2D,
+void Approx_CurvilinearParameter::ToleranceComputation(const Handle(Geom2dAdaptor_Curve)& C2D,
                                                        const Handle(Adaptor3d_Surface)& S,
                                                        const Standard_Integer           MaxNumber,
                                                        const Standard_Real              Tol,

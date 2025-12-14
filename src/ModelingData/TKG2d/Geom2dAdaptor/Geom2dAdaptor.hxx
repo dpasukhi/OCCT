@@ -22,7 +22,7 @@
 #include <Standard_Handle.hxx>
 
 class Geom2d_Curve;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 
 //! this package contains the geometric definition of
 //! 2d curves compatible with the Adaptor package
@@ -36,7 +36,7 @@ public:
   //! handled by reference.
   //! Creates a 2d curve from a HCurve2d. This
   //! cannot process the OtherCurves.
-  Standard_EXPORT static Handle(Geom2d_Curve) MakeCurve(const Adaptor2d_Curve2d& HC);
+  Standard_EXPORT static Handle(Geom2d_Curve) MakeCurve(const Geom2dAdaptor_Curve& HC);
 };
 
 #endif // _Geom2dAdaptor_HeaderFile

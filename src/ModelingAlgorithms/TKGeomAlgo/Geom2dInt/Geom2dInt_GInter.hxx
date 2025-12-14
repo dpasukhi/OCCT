@@ -28,7 +28,7 @@
 #include <Standard_Integer.hxx>
 #include <TColStd_Array1OfReal.hxx>
 class Standard_ConstructionError;
-class Adaptor2d_Curve2d;
+class Geom2dAdaptor_Curve;
 class Geom2dInt_Geom2dCurveTool;
 class Geom2dInt_TheProjPCurOfGInter;
 class Geom2dInt_TheIntConicCurveOfGInter;
@@ -49,85 +49,85 @@ public:
   Geom2dInt_GInter();
 
   //! Self Intersection of a curve
-  Geom2dInt_GInter(const Adaptor2d_Curve2d& C,
+  Geom2dInt_GInter(const Geom2dAdaptor_Curve& C,
                    const Standard_Real      TolConf,
                    const Standard_Real      Tol);
 
   //! Self Intersection of a curve with a domain.
-  Geom2dInt_GInter(const Adaptor2d_Curve2d& C,
+  Geom2dInt_GInter(const Geom2dAdaptor_Curve& C,
                    const IntRes2d_Domain&   D,
                    const Standard_Real      TolConf,
                    const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  Geom2dInt_GInter(const Adaptor2d_Curve2d& C1,
-                   const Adaptor2d_Curve2d& C2,
+  Geom2dInt_GInter(const Geom2dAdaptor_Curve& C1,
+                   const Geom2dAdaptor_Curve& C2,
                    const Standard_Real      TolConf,
                    const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  Geom2dInt_GInter(const Adaptor2d_Curve2d& C1,
+  Geom2dInt_GInter(const Geom2dAdaptor_Curve& C1,
                    const IntRes2d_Domain&   D1,
-                   const Adaptor2d_Curve2d& C2,
+                   const Geom2dAdaptor_Curve& C2,
                    const Standard_Real      TolConf,
                    const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  Geom2dInt_GInter(const Adaptor2d_Curve2d& C1,
-                   const Adaptor2d_Curve2d& C2,
+  Geom2dInt_GInter(const Geom2dAdaptor_Curve& C1,
+                   const Geom2dAdaptor_Curve& C2,
                    const IntRes2d_Domain&   D2,
                    const Standard_Real      TolConf,
                    const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  Geom2dInt_GInter(const Adaptor2d_Curve2d& C1,
+  Geom2dInt_GInter(const Geom2dAdaptor_Curve& C1,
                    const IntRes2d_Domain&   D1,
-                   const Adaptor2d_Curve2d& C2,
+                   const Geom2dAdaptor_Curve& C2,
                    const IntRes2d_Domain&   D2,
                    const Standard_Real      TolConf,
                    const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& C1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& C1,
                                const IntRes2d_Domain&   D1,
-                               const Adaptor2d_Curve2d& C2,
+                               const Geom2dAdaptor_Curve& C2,
                                const IntRes2d_Domain&   D2,
                                const Standard_Real      TolConf,
                                const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  void Perform(const Adaptor2d_Curve2d& C1,
-               const Adaptor2d_Curve2d& C2,
+  void Perform(const Geom2dAdaptor_Curve& C1,
+               const Geom2dAdaptor_Curve& C2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& C1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& C1,
                                const IntRes2d_Domain&   D1,
                                const Standard_Real      TolConf,
                                const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& C1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& C1,
                                const Standard_Real      TolConf,
                                const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  void Perform(const Adaptor2d_Curve2d& C1,
+  void Perform(const Geom2dAdaptor_Curve& C1,
                const IntRes2d_Domain&   D1,
-               const Adaptor2d_Curve2d& C2,
+               const Geom2dAdaptor_Curve& C2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
 
   //! Intersection between 2 curves.
-  void Perform(const Adaptor2d_Curve2d& C1,
-               const Adaptor2d_Curve2d& C2,
+  void Perform(const Geom2dAdaptor_Curve& C1,
+               const Geom2dAdaptor_Curve& C2,
                const IntRes2d_Domain&   D2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
 
   //! Create a domain from a curve
-  Standard_EXPORT IntRes2d_Domain ComputeDomain(const Adaptor2d_Curve2d& C1,
+  Standard_EXPORT IntRes2d_Domain ComputeDomain(const Geom2dAdaptor_Curve& C1,
                                                 const Standard_Real      TolDomain) const;
 
   //! Set / get minimum number of points in polygon intersection.
@@ -137,9 +137,9 @@ public:
 protected:
 private:
   //! Intersection between 2 curves.
-  Standard_EXPORT void InternalPerform(const Adaptor2d_Curve2d& C1,
+  Standard_EXPORT void InternalPerform(const Geom2dAdaptor_Curve& C1,
                                        const IntRes2d_Domain&   D1,
-                                       const Adaptor2d_Curve2d& C2,
+                                       const Geom2dAdaptor_Curve& C2,
                                        const IntRes2d_Domain&   D2,
                                        const Standard_Real      TolConf,
                                        const Standard_Real      Tol,
@@ -147,12 +147,12 @@ private:
 
   //! Part of InternalCompositePerform function
   Standard_EXPORT void InternalCompositePerform_noRecurs(const Standard_Integer      NbInterC1,
-                                                         const Adaptor2d_Curve2d&    C1,
+                                                         const Geom2dAdaptor_Curve&    C1,
                                                          const Standard_Integer      NumInterC1,
                                                          const TColStd_Array1OfReal& Tab1,
                                                          const IntRes2d_Domain&      D1,
                                                          const Standard_Integer      NbInterC2,
-                                                         const Adaptor2d_Curve2d&    C2,
+                                                         const Geom2dAdaptor_Curve&    C2,
                                                          const Standard_Integer      NumInterC2,
                                                          const TColStd_Array1OfReal& Tab2,
                                                          const IntRes2d_Domain&      D2,
@@ -160,12 +160,12 @@ private:
                                                          const Standard_Real         Tol);
 
   //! Intersection between 2 curves.
-  Standard_EXPORT void InternalCompositePerform(const Adaptor2d_Curve2d&    C1,
+  Standard_EXPORT void InternalCompositePerform(const Geom2dAdaptor_Curve&    C1,
                                                 const IntRes2d_Domain&      D1,
                                                 const Standard_Integer      N1,
                                                 const Standard_Integer      NB1,
                                                 const TColStd_Array1OfReal& Tab1,
-                                                const Adaptor2d_Curve2d&    C2,
+                                                const Geom2dAdaptor_Curve&    C2,
                                                 const IntRes2d_Domain&      D2,
                                                 const Standard_Integer      N2,
                                                 const Standard_Integer      NB2,
@@ -183,8 +183,8 @@ private:
   Geom2dInt_TheIntPCurvePCurveOfGInter intcurvcurv;
 };
 
-#define TheCurve Adaptor2d_Curve2d
-#define TheCurve_hxx <Adaptor2d_Curve2d.hxx>
+#define TheCurve Geom2dAdaptor_Curve
+#define TheCurve_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheCurveTool Geom2dInt_Geom2dCurveTool
 #define TheCurveTool_hxx <Geom2dInt_Geom2dCurveTool.hxx>
 #define IntCurve_TheProjPCur Geom2dInt_TheProjPCurOfGInter

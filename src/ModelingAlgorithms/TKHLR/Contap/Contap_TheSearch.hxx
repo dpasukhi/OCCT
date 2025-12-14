@@ -96,8 +96,8 @@ private:
 
 #define TheVertex Handle(Adaptor3d_HVertex)
 #define TheVertex_hxx <Adaptor3d_HVertex.hxx>
-#define TheArc Handle(Adaptor2d_Curve2d)
-#define TheArc_hxx <Adaptor2d_Curve2d.hxx>
+#define TheArc Handle(Geom2dAdaptor_Curve)
+#define TheArc_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheArcTool Contap_HCurve2dTool
 #define TheArcTool_hxx <Contap_HCurve2dTool.hxx>
 #define TheSOBTool Contap_HContTool

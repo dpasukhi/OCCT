@@ -16,7 +16,7 @@
 
 #include <BRepBlend_BlendTool.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepBlend_HCurve2dTool.hxx>
@@ -37,7 +37,7 @@
 //=======================================================================
 Standard_Boolean BRepBlend_BlendTool::Project(const gp_Pnt2d& P,
                                               const Handle(Adaptor3d_Surface)&,
-                                              const Handle(Adaptor2d_Curve2d)& C,
+                                              const Handle(Geom2dAdaptor_Curve)& C,
                                               Standard_Real&                   Paramproj,
                                               Standard_Real&                   Dist)
 {
@@ -83,7 +83,7 @@ Standard_Boolean BRepBlend_BlendTool::Project(const gp_Pnt2d& P,
 Standard_Boolean BRepBlend_BlendTool::Inters(const gp_Pnt2d& P1,
                                              const gp_Pnt2d& P2,
                                              const Handle(Adaptor3d_Surface)&,
-                                             const Handle(Adaptor2d_Curve2d)& C,
+                                             const Handle(Geom2dAdaptor_Curve)& C,
                                              Standard_Real&                   Param,
                                              Standard_Real&                   Dist)
 {
@@ -125,7 +125,7 @@ Standard_Integer BRepBlend_BlendTool::NbSamplesU(const Handle(Adaptor3d_Surface)
   return 10;
 }
 
-void BRepBlend_BlendTool::Bounds(const Handle(Adaptor2d_Curve2d)& A,
+void BRepBlend_BlendTool::Bounds(const Handle(Geom2dAdaptor_Curve)& A,
                                  Standard_Real&                   Ufirst,
                                  Standard_Real&                   Ulast)
 {

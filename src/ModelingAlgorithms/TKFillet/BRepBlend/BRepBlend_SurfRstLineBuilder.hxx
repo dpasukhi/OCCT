@@ -70,7 +70,7 @@ public:
   Standard_EXPORT BRepBlend_SurfRstLineBuilder(const Handle(Adaptor3d_Surface)&   Surf1,
                                                const Handle(Adaptor3d_TopolTool)& Domain1,
                                                const Handle(Adaptor3d_Surface)&   Surf2,
-                                               const Handle(Adaptor2d_Curve2d)&   Rst,
+                                               const Handle(Geom2dAdaptor_Curve)&   Rst,
                                                const Handle(Adaptor3d_TopolTool)& Domain2);
 
   Standard_EXPORT void Perform(Blend_SurfRstFunction&  Func,
@@ -133,7 +133,7 @@ private:
 
   Standard_EXPORT Standard_Boolean Recadre(Blend_SurfCurvFuncInv&     FinvC,
                                            math_Vector&               Solinv,
-                                           Handle(Adaptor2d_Curve2d)& Arc,
+                                           Handle(Geom2dAdaptor_Curve)& Arc,
                                            Standard_Boolean&          IsVtx,
                                            Handle(Adaptor3d_HVertex)& Vtx);
 
@@ -149,14 +149,14 @@ private:
                                            Handle(Adaptor3d_HVertex)& Vtx);
 
   Standard_EXPORT void Transition(const Standard_Boolean           OnFirst,
-                                  const Handle(Adaptor2d_Curve2d)& Arc,
+                                  const Handle(Geom2dAdaptor_Curve)& Arc,
                                   const Standard_Real              Param,
                                   IntSurf_Transition&              TLine,
                                   IntSurf_Transition&              TArc);
 
   Standard_EXPORT void MakeExtremity(BRepBlend_Extremity&             Extrem,
                                      const Standard_Boolean           OnFirst,
-                                     const Handle(Adaptor2d_Curve2d)& Arc,
+                                     const Handle(Geom2dAdaptor_Curve)& Arc,
                                      const Standard_Real              Param,
                                      const Standard_Boolean           IsVtx,
                                      const Handle(Adaptor3d_HVertex)& Vtx);
@@ -180,7 +180,7 @@ private:
   Handle(Adaptor3d_Surface)   surf1;
   Handle(Adaptor3d_TopolTool) domain1;
   Handle(Adaptor3d_Surface)   surf2;
-  Handle(Adaptor2d_Curve2d)   rst;
+  Handle(Geom2dAdaptor_Curve)   rst;
   Handle(Adaptor3d_TopolTool) domain2;
   Standard_Real               tolpoint3d;
   Standard_Real               tolpoint2d;

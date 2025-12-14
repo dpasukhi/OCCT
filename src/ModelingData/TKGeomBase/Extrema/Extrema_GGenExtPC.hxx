@@ -29,7 +29,7 @@
 //! This template class searches for all parameter values u where the distance
 //! function F(u) = distance(P, C(u)) has an extremum, i.e., where dF/du = 0.
 //!
-//! @tparam TheCurve   The curve type (e.g., Adaptor3d_Curve, Adaptor2d_Curve2d)
+//! @tparam TheCurve   The curve type (e.g., Adaptor3d_Curve, Geom2dAdaptor_Curve)
 //! @tparam TheTool    The curve tool providing static methods (FirstParameter, LastParameter)
 //! @tparam ThePOnC    The point-on-curve type (e.g., Extrema_POnCurv, Extrema_POnCurv2d)
 //! @tparam ThePoint   The point type (e.g., gp_Pnt, gp_Pnt2d)

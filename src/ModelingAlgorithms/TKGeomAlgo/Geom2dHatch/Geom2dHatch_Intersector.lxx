@@ -68,7 +68,6 @@ inline void Geom2dHatch_Intersector::SetTangencyTolerance(const Standard_Real Ta
 // Function : Intersect
 // Purpose  : Intersects the curves C1 and C2.
 //=======================================================================
-#include <Adaptor2d_Curve2d.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
 
 inline void Geom2dHatch_Intersector::Intersect(const Geom2dAdaptor_Curve& C1,

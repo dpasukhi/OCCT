@@ -46,8 +46,8 @@ static Standard_Boolean _Value(const Adaptor3d_Curve& C1,
 }
 
 // 2d _Value
-static Standard_Boolean _Value(const Adaptor2d_Curve2d& C1,
-                               const Adaptor2d_Curve2d& C2,
+static Standard_Boolean _Value(const Geom2dAdaptor_Curve& C1,
+                               const Geom2dAdaptor_Curve& C2,
                                const math_Vector&       X,
                                Standard_Real&           F)
 {
@@ -93,8 +93,8 @@ static Standard_Boolean _Gradient(const Adaptor3d_Curve& C1,
 }
 
 // 2d _Graient
-static Standard_Boolean _Gradient(const Adaptor2d_Curve2d& C1,
-                                  const Adaptor2d_Curve2d& C2,
+static Standard_Boolean _Gradient(const Geom2dAdaptor_Curve& C1,
+                                  const Geom2dAdaptor_Curve& C2,
                                   const math_Vector&       X,
                                   math_Vector&             G)
 {
@@ -153,8 +153,8 @@ static Standard_Boolean _Hessian(const Adaptor3d_Curve& C1,
 }
 
 // 2d _Hessian
-static Standard_Boolean _Hessian(const Adaptor2d_Curve2d& C1,
-                                 const Adaptor2d_Curve2d& C2,
+static Standard_Boolean _Hessian(const Geom2dAdaptor_Curve& C1,
+                                 const Geom2dAdaptor_Curve& C2,
                                  const math_Vector&       X,
                                  math_Matrix&             H)
 {
@@ -200,8 +200,8 @@ Extrema_GlobOptFuncCCC0::Extrema_GlobOptFuncCCC0(const Adaptor3d_Curve& C1,
 
 //=================================================================================================
 
-Extrema_GlobOptFuncCCC0::Extrema_GlobOptFuncCCC0(const Adaptor2d_Curve2d& C1,
-                                                 const Adaptor2d_Curve2d& C2)
+Extrema_GlobOptFuncCCC0::Extrema_GlobOptFuncCCC0(const Geom2dAdaptor_Curve& C1,
+                                                 const Geom2dAdaptor_Curve& C2)
     : myC1_3d(NULL),
       myC2_3d(NULL),
       myC1_2d(&C1),
@@ -243,8 +243,8 @@ Extrema_GlobOptFuncCCC1::Extrema_GlobOptFuncCCC1(const Adaptor3d_Curve& C1,
 
 //=================================================================================================
 
-Extrema_GlobOptFuncCCC1::Extrema_GlobOptFuncCCC1(const Adaptor2d_Curve2d& C1,
-                                                 const Adaptor2d_Curve2d& C2)
+Extrema_GlobOptFuncCCC1::Extrema_GlobOptFuncCCC1(const Geom2dAdaptor_Curve& C1,
+                                                 const Geom2dAdaptor_Curve& C2)
     : myC1_3d(NULL),
       myC2_3d(NULL),
       myC1_2d(&C1),
@@ -305,8 +305,8 @@ Extrema_GlobOptFuncCCC2::Extrema_GlobOptFuncCCC2(const Adaptor3d_Curve& C1,
 
 //=================================================================================================
 
-Extrema_GlobOptFuncCCC2::Extrema_GlobOptFuncCCC2(const Adaptor2d_Curve2d& C1,
-                                                 const Adaptor2d_Curve2d& C2)
+Extrema_GlobOptFuncCCC2::Extrema_GlobOptFuncCCC2(const Geom2dAdaptor_Curve& C1,
+                                                 const Geom2dAdaptor_Curve& C2)
     : myC1_3d(NULL),
       myC2_3d(NULL),
       myC1_2d(&C1),

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <IntPatch_PolyArc.hxx>
 #include <Standard_ConstructionError.hxx>
@@ -36,7 +36,7 @@ inline void MinMax(const Standard_Real a1,
   }
 }
 
-IntPatch_PolyArc::IntPatch_PolyArc(const Handle(Adaptor2d_Curve2d)& Line,
+IntPatch_PolyArc::IntPatch_PolyArc(const Handle(Geom2dAdaptor_Curve)& Line,
                                    const Standard_Integer           NbSample,
                                    const Standard_Real              aPdeb,
                                    const Standard_Real              aPfin,

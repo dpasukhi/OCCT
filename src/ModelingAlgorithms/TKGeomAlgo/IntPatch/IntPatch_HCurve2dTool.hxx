@@ -17,7 +17,7 @@
 #ifndef _IntPatch_HCurve2dTool_HeaderFile
 #define _IntPatch_HCurve2dTool_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -36,42 +36,42 @@ class IntPatch_HCurve2dTool
 public:
   DEFINE_STANDARD_ALLOC
 
-  static Standard_Real FirstParameter(const Handle(Adaptor2d_Curve2d)& C);
+  static Standard_Real FirstParameter(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static Standard_Real LastParameter(const Handle(Adaptor2d_Curve2d)& C);
+  static Standard_Real LastParameter(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static GeomAbs_Shape Continuity(const Handle(Adaptor2d_Curve2d)& C);
+  static GeomAbs_Shape Continuity(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Returns the number of intervals for continuity
   //! <S>. May be one if Continuity(myclass) >= <S>
-  static Standard_Integer NbIntervals(const Handle(Adaptor2d_Curve2d)& C, const GeomAbs_Shape S);
+  static Standard_Integer NbIntervals(const Handle(Geom2dAdaptor_Curve)& C, const GeomAbs_Shape S);
 
   //! Stores in <T> the parameters bounding the intervals
   //! of continuity <S>.
   //!
   //! The array must provide enough room to accommodate
   //! for the parameters. i.e. T.Length() > NbIntervals()
-  static void Intervals(const Handle(Adaptor2d_Curve2d)& C,
+  static void Intervals(const Handle(Geom2dAdaptor_Curve)& C,
                         TColStd_Array1OfReal&            T,
                         const GeomAbs_Shape              S);
 
-  static Standard_Boolean IsClosed(const Handle(Adaptor2d_Curve2d)& C);
+  static Standard_Boolean IsClosed(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static Standard_Boolean IsPeriodic(const Handle(Adaptor2d_Curve2d)& C);
+  static Standard_Boolean IsPeriodic(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static Standard_Real Period(const Handle(Adaptor2d_Curve2d)& C);
-
-  //! Computes the point of parameter U on the curve.
-  static gp_Pnt2d Value(const Handle(Adaptor2d_Curve2d)& C, const Standard_Real U);
+  static Standard_Real Period(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Computes the point of parameter U on the curve.
-  static void D0(const Handle(Adaptor2d_Curve2d)& C, const Standard_Real U, gp_Pnt2d& P);
+  static gp_Pnt2d Value(const Handle(Geom2dAdaptor_Curve)& C, const Standard_Real U);
+
+  //! Computes the point of parameter U on the curve.
+  static void D0(const Handle(Geom2dAdaptor_Curve)& C, const Standard_Real U, gp_Pnt2d& P);
 
   //! Computes the point of parameter U on the curve with its
   //! first derivative.
   //! Raised if the continuity of the current interval
   //! is not C1.
-  static void D1(const Handle(Adaptor2d_Curve2d)& C,
+  static void D1(const Handle(Geom2dAdaptor_Curve)& C,
                  const Standard_Real              U,
                  gp_Pnt2d&                        P,
                  gp_Vec2d&                        V);
@@ -80,7 +80,7 @@ public:
   //! derivatives V1 and V2.
   //! Raised if the continuity of the current interval
   //! is not C2.
-  static void D2(const Handle(Adaptor2d_Curve2d)& C,
+  static void D2(const Handle(Geom2dAdaptor_Curve)& C,
                  const Standard_Real              U,
                  gp_Pnt2d&                        P,
                  gp_Vec2d&                        V1,
@@ -90,7 +90,7 @@ public:
   //! and the third derivative.
   //! Raised if the continuity of the current interval
   //! is not C3.
-  static void D3(const Handle(Adaptor2d_Curve2d)& C,
+  static void D3(const Handle(Geom2dAdaptor_Curve)& C,
                  const Standard_Real              U,
                  gp_Pnt2d&                        P,
                  gp_Vec2d&                        V1,
@@ -102,34 +102,34 @@ public:
   //! Raised if the continuity of the current interval
   //! is not CN.
   //! Raised if N < 1.
-  static gp_Vec2d DN(const Handle(Adaptor2d_Curve2d)& C,
+  static gp_Vec2d DN(const Handle(Geom2dAdaptor_Curve)& C,
                      const Standard_Real              U,
                      const Standard_Integer           N);
 
   //! Returns the parametric resolution corresponding
   //! to the real space resolution <R3d>.
-  static Standard_Real Resolution(const Handle(Adaptor2d_Curve2d)& C, const Standard_Real R3d);
+  static Standard_Real Resolution(const Handle(Geom2dAdaptor_Curve)& C, const Standard_Real R3d);
 
   //! Returns the type of the curve in the current
   //! interval: Line, Circle, Ellipse, Hyperbola,
   //! Parabola, BezierCurve, BSplineCurve, OtherCurve.
-  static GeomAbs_CurveType GetType(const Handle(Adaptor2d_Curve2d)& C);
+  static GeomAbs_CurveType GetType(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static gp_Lin2d Line(const Handle(Adaptor2d_Curve2d)& C);
+  static gp_Lin2d Line(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static gp_Circ2d Circle(const Handle(Adaptor2d_Curve2d)& C);
+  static gp_Circ2d Circle(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static gp_Elips2d Ellipse(const Handle(Adaptor2d_Curve2d)& C);
+  static gp_Elips2d Ellipse(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static gp_Hypr2d Hyperbola(const Handle(Adaptor2d_Curve2d)& C);
+  static gp_Hypr2d Hyperbola(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static gp_Parab2d Parabola(const Handle(Adaptor2d_Curve2d)& C);
+  static gp_Parab2d Parabola(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static Handle(Geom2d_BezierCurve) Bezier(const Handle(Adaptor2d_Curve2d)& C);
+  static Handle(Geom2d_BezierCurve) Bezier(const Handle(Geom2dAdaptor_Curve)& C);
 
-  static Handle(Geom2d_BSplineCurve) BSpline(const Handle(Adaptor2d_Curve2d)& C);
+  static Handle(Geom2d_BSplineCurve) BSpline(const Handle(Geom2dAdaptor_Curve)& C);
 
-  Standard_EXPORT static Standard_Integer NbSamples(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static Standard_Integer NbSamples(const Handle(Geom2dAdaptor_Curve)& C,
                                                     const Standard_Real              U0,
                                                     const Standard_Real              U1);
 

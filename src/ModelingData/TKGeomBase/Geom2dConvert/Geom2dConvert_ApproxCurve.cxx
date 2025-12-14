@@ -16,7 +16,7 @@
 
 #include <Geom2dConvert_ApproxCurve.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
 #include <AdvApprox_PrefAndRec.hxx>
 #include <Geom2d_BSplineCurve.hxx>
@@ -35,7 +35,7 @@
 class Geom2dConvert_ApproxCurve_Eval : public AdvApprox_EvaluatorFunction
 {
 public:
-  Geom2dConvert_ApproxCurve_Eval(const Handle(Adaptor2d_Curve2d)& theFunc,
+  Geom2dConvert_ApproxCurve_Eval(const Handle(Geom2dAdaptor_Curve)& theFunc,
                                  Standard_Real                    First,
                                  Standard_Real                    Last)
       : fonct(theFunc)
@@ -52,7 +52,7 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Handle(Adaptor2d_Curve2d) fonct;
+  Handle(Geom2dAdaptor_Curve) fonct;
   Standard_Real             StartEndSav[2];
 };
 
@@ -120,7 +120,7 @@ Geom2dConvert_ApproxCurve::Geom2dConvert_ApproxCurve(const Handle(Geom2d_Curve)&
   Approximate(HCurve, Tol2d, Order, MaxSegments, MaxDegree);
 }
 
-Geom2dConvert_ApproxCurve::Geom2dConvert_ApproxCurve(const Handle(Adaptor2d_Curve2d)& Curve,
+Geom2dConvert_ApproxCurve::Geom2dConvert_ApproxCurve(const Handle(Geom2dAdaptor_Curve)& Curve,
                                                      const Standard_Real              Tol2d,
                                                      const GeomAbs_Shape              Order,
                                                      const Standard_Integer           MaxSegments,
@@ -129,7 +129,7 @@ Geom2dConvert_ApproxCurve::Geom2dConvert_ApproxCurve(const Handle(Adaptor2d_Curv
   Approximate(Curve, Tol2d, Order, MaxSegments, MaxDegree);
 }
 
-void Geom2dConvert_ApproxCurve::Approximate(const Handle(Adaptor2d_Curve2d)& theCurve,
+void Geom2dConvert_ApproxCurve::Approximate(const Handle(Geom2dAdaptor_Curve)& theCurve,
                                             const Standard_Real              theTol2d,
                                             const GeomAbs_Shape              theOrder,
                                             const Standard_Integer           theMaxSegments,

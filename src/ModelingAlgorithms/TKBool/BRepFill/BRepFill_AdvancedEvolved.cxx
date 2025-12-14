@@ -1118,7 +1118,7 @@ public:
 
   gp_Pnt GetPoint(const Standard_Real theX)
   {
-    const Handle(Adaptor2d_Curve2d) &aC = myCOnS.GetCurve();
+    const Handle(Geom2dAdaptor_Curve) &aC = myCOnS.GetCurve();
     const Handle(Adaptor3d_Surface) &aS = myCOnS.GetSurface();
     const gp_Pnt2d aP2d(aC->Value(theX));
     return aS->Value(aP2d.X(), aP2d.Y());
@@ -1143,7 +1143,7 @@ private:
 //=======================================================================
 Standard_Boolean NormalFunc::Value(const math_Vector& theX, Standard_Real& theF)
 {
-  const Handle(Adaptor2d_Curve2d) &aC = myCOnS.GetCurve();
+  const Handle(Geom2dAdaptor_Curve) &aC = myCOnS.GetCurve();
   const Handle(Adaptor3d_Surface) &aS = myCOnS.GetSurface();
 
   const gp_Pnt2d aP2d(aC->Value(theX(1)));
@@ -1182,7 +1182,7 @@ Standard_Boolean NormalFunc::Value(const math_Vector& theX, Standard_Real& theF)
 //=======================================================================
 Standard_Boolean NormalFunc::Gradient(const math_Vector& theX, math_Vector& theG)
 {
-  const Handle(Adaptor2d_Curve2d) &aC = myCOnS.GetCurve();
+  const Handle(Geom2dAdaptor_Curve) &aC = myCOnS.GetCurve();
   const Handle(Adaptor3d_Surface) &aS = myCOnS.GetSurface();
 
   gp_Pnt2d aP2d;

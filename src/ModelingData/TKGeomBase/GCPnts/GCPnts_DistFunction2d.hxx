@@ -16,7 +16,7 @@
 
 #include <math_Function.hxx>
 #include <math_MultipleVarFunction.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 
 //! Class to define function, which calculates square distance between point on curve
 //! C(u), U1 <= u <= U2 and line passing through points C(U1) and C(U2)
@@ -25,7 +25,7 @@
 class GCPnts_DistFunction2d : public math_Function
 {
 public:
-  Standard_EXPORT GCPnts_DistFunction2d(const Adaptor2d_Curve2d& theCurve,
+  Standard_EXPORT GCPnts_DistFunction2d(const Geom2dAdaptor_Curve& theCurve,
                                         const Standard_Real      U1,
                                         const Standard_Real      U2);
   //
@@ -36,7 +36,7 @@ public:
 private:
   GCPnts_DistFunction2d& operator=(const GCPnts_DistFunction2d& theOther);
 
-  const Adaptor2d_Curve2d& myCurve;
+  const Geom2dAdaptor_Curve& myCurve;
   gp_Lin2d                 myLin;
   Standard_Real            myU1;
   Standard_Real            myU2;

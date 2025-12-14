@@ -13,7 +13,7 @@
 
 #include <Adaptor3d_HVertex.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <gp_Pnt2d.hxx>
 #include <Precision.hxx>
@@ -40,12 +40,12 @@ gp_Pnt2d Adaptor3d_HVertex::Value()
   return myPnt;
 }
 
-Standard_Real Adaptor3d_HVertex::Parameter(const Handle(Adaptor2d_Curve2d)& C)
+Standard_Real Adaptor3d_HVertex::Parameter(const Handle(Geom2dAdaptor_Curve)& C)
 {
   return ElCLib::Parameter(C->Line(), myPnt);
 }
 
-Standard_Real Adaptor3d_HVertex::Resolution(const Handle(Adaptor2d_Curve2d)&)
+Standard_Real Adaptor3d_HVertex::Resolution(const Handle(Geom2dAdaptor_Curve)&)
 {
   return myTol;
 }

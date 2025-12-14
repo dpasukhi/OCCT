@@ -38,13 +38,13 @@ gp_Pnt2d BRepTopAdaptor_HVertex::Value()
   return gp_Pnt2d(RealFirst(), RealFirst()); // do nothing
 }
 
-Standard_Real BRepTopAdaptor_HVertex::Parameter(const Handle(Adaptor2d_Curve2d)& C)
+Standard_Real BRepTopAdaptor_HVertex::Parameter(const Handle(Geom2dAdaptor_Curve)& C)
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   return BRep_Tool::Parameter(myVtx, brhc->Edge(), brhc->Face());
 }
 
-Standard_Real BRepTopAdaptor_HVertex::Resolution(const Handle(Adaptor2d_Curve2d)& C)
+Standard_Real BRepTopAdaptor_HVertex::Resolution(const Handle(Geom2dAdaptor_Curve)& C)
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   const TopoDS_Face&          F    = brhc->Face();
