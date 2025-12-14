@@ -23,7 +23,6 @@
 #include <GeomAbs_Shape.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Standard_Integer.hxx>
-#include <Geom2dEvaluator_OffsetCurve.hxx>
 
 class gp_Pnt2d;
 class gp_Vec2d;
@@ -293,12 +292,48 @@ public:
 
   DEFINE_STANDARD_RTTIEXT(Geom2d_OffsetCurve, Geom2d_Curve)
 
-protected:
 private:
-  Handle(Geom2d_Curve)                basisCurve;
-  Standard_Real                       offsetValue;
-  GeomAbs_Shape                       myBasisCurveContinuity;
-  Handle(Geom2dEvaluator_OffsetCurve) myEvaluator;
+  //! Calculate value of offset point from base point and derivative
+  static void calculateD0(gp_Pnt2d&       theValue,
+                          const gp_Vec2d& theD1,
+                          double          theOffset);
+
+  //! Calculate D0 and D1 of offset curve from base curve D1 and D2
+  static void calculateD1(gp_Pnt2d&       theValue,
+                          gp_Vec2d&       theD1,
+                          const gp_Vec2d& theD2,
+                          double          theOffset);
+
+  //! Calculate D0, D1, D2 of offset curve from base curve D1, D2, D3
+  static void calculateD2(gp_Pnt2d&       theValue,
+                          gp_Vec2d&       theD1,
+                          gp_Vec2d&       theD2,
+                          const gp_Vec2d& theD3,
+                          bool            theIsDirChange,
+                          double          theOffset);
+
+  //! Calculate D0, D1, D2, D3 of offset curve from base curve D1, D2, D3, D4
+  static void calculateD3(gp_Pnt2d&       theValue,
+                          gp_Vec2d&       theD1,
+                          gp_Vec2d&       theD2,
+                          gp_Vec2d&       theD3,
+                          const gp_Vec2d& theD4,
+                          bool            theIsDirChange,
+                          double          theOffset);
+
+  //! Recalculate derivatives in singular point
+  //! Returns true if the direction of derivatives is changed
+  bool adjustDerivative(int       theMaxDerivative,
+                        double    theU,
+                        gp_Vec2d& theD1,
+                        gp_Vec2d& theD2,
+                        gp_Vec2d& theD3,
+                        gp_Vec2d& theD4) const;
+
+private:
+  Handle(Geom2d_Curve) basisCurve;
+  Standard_Real        offsetValue;
+  GeomAbs_Shape        myBasisCurveContinuity;
 };
 
 #endif // _Geom2d_OffsetCurve_HeaderFile

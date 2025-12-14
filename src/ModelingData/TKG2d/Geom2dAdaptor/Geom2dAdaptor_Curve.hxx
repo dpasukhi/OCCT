@@ -19,7 +19,6 @@
 
 #include <BSplCLib_Cache.hxx>
 #include <Geom2d_Curve.hxx>
-#include <Geom2dEvaluator_Curve.hxx>
 #include <GeomAbs_CurveType.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <gp_Ax2d.hxx>
@@ -325,9 +324,8 @@ protected:
   Standard_Real        myFirst;
   Standard_Real        myLast;
 
-  Handle(Geom2d_BSplineCurve)    myBSplineCurve;    ///< B-spline representation to prevent castings
-  mutable Handle(BSplCLib_Cache) myCurveCache;      ///< Cached data for B-spline or Bezier curve
-  Handle(Geom2dEvaluator_Curve)  myNestedEvaluator; ///< Calculates value of offset curve
+  Handle(Geom2d_BSplineCurve)    myBSplineCurve; ///< B-spline representation to prevent castings
+  mutable Handle(BSplCLib_Cache) myCurveCache;   ///< Cached data for B-spline or Bezier curve
 
   // Line2d support (for UV domain boundaries without Geom2d_Line)
   bool     myIsLine2d; ///< True if adaptor represents a direct Line2d

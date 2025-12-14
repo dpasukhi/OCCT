@@ -37,8 +37,6 @@
 #include <Geom2d_Parabola.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2d_UndefinedDerivative.hxx>
-#include <Geom2dEvaluator.hxx>
-#include <Geom2dEvaluator_OffsetCurve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <gp_Ax22d.hxx>
 #include <gp_Circ2d.hxx>
@@ -49,10 +47,12 @@
 #include <gp_Parab2d.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
+#include <gp_XY.hxx>
 #include <Precision.hxx>
 #include <Standard_DomainError.hxx>
 #include <Standard_NoSuchObject.hxx>
 #include <Standard_NotImplemented.hxx>
+#include <Standard_NullValue.hxx>
 #include <Standard_TypeMismatch.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -74,15 +74,11 @@ Handle(Geom2dAdaptor_Curve) Geom2dAdaptor_Curve::ShallowCopy() const
   aCopy->myBSplineCurve = myBSplineCurve;
   aCopy->myIsLine2d     = myIsLine2d;
   aCopy->myLineAxis     = myLineAxis;
-  aCopy->myHasOffset    = myHasOffset;
-  aCopy->myOffset       = myOffset;
+  aCopy->myHasOffset = myHasOffset;
+  aCopy->myOffset    = myOffset;
   if (!myBaseCurve.IsNull())
   {
     aCopy->myBaseCurve = myBaseCurve->ShallowCopy();
-  }
-  if (!myNestedEvaluator.IsNull())
-  {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
   }
 
   return aCopy;
@@ -201,11 +197,6 @@ Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(const Geom2dAdaptor_Curve& theOther)
       myHasOffset(theOther.myHasOffset),
       myOffset(theOther.myOffset)
 {
-  // Deep copy the nested evaluator if present
-  if (!theOther.myNestedEvaluator.IsNull())
-  {
-    myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
-  }
   // Deep copy the base curve if present
   if (!theOther.myBaseCurve.IsNull())
   {
@@ -224,7 +215,6 @@ Geom2dAdaptor_Curve::Geom2dAdaptor_Curve(Geom2dAdaptor_Curve&& theOther) noexcep
       myLast(theOther.myLast),
       myBSplineCurve(std::move(theOther.myBSplineCurve)),
       myCurveCache(std::move(theOther.myCurveCache)),
-      myNestedEvaluator(std::move(theOther.myNestedEvaluator)),
       myIsLine2d(theOther.myIsLine2d),
       myLineAxis(theOther.myLineAxis),
       myHasOffset(theOther.myHasOffset),
@@ -255,14 +245,6 @@ Geom2dAdaptor_Curve& Geom2dAdaptor_Curve::operator=(const Geom2dAdaptor_Curve& t
     myHasOffset    = theOther.myHasOffset;
     myOffset       = theOther.myOffset;
     myCurveCache.Nullify(); // Will be rebuilt on demand
-    if (!theOther.myNestedEvaluator.IsNull())
-    {
-      myNestedEvaluator = theOther.myNestedEvaluator->ShallowCopy();
-    }
-    else
-    {
-      myNestedEvaluator.Nullify();
-    }
     if (!theOther.myBaseCurve.IsNull())
     {
       myBaseCurve = theOther.myBaseCurve->ShallowCopy();
@@ -281,18 +263,17 @@ Geom2dAdaptor_Curve& Geom2dAdaptor_Curve::operator=(Geom2dAdaptor_Curve&& theOth
 {
   if (this != &theOther)
   {
-    myCurve           = std::move(theOther.myCurve);
-    myTypeCurve       = theOther.myTypeCurve;
-    myFirst           = theOther.myFirst;
-    myLast            = theOther.myLast;
-    myBSplineCurve    = std::move(theOther.myBSplineCurve);
-    myCurveCache      = std::move(theOther.myCurveCache);
-    myNestedEvaluator = std::move(theOther.myNestedEvaluator);
-    myIsLine2d        = theOther.myIsLine2d;
-    myLineAxis        = theOther.myLineAxis;
-    myHasOffset       = theOther.myHasOffset;
-    myOffset          = theOther.myOffset;
-    myBaseCurve       = std::move(theOther.myBaseCurve);
+    myCurve        = std::move(theOther.myCurve);
+    myTypeCurve    = theOther.myTypeCurve;
+    myFirst        = theOther.myFirst;
+    myLast         = theOther.myLast;
+    myBSplineCurve = std::move(theOther.myBSplineCurve);
+    myCurveCache   = std::move(theOther.myCurveCache);
+    myIsLine2d     = theOther.myIsLine2d;
+    myLineAxis     = theOther.myLineAxis;
+    myHasOffset    = theOther.myHasOffset;
+    myOffset       = theOther.myOffset;
+    myBaseCurve    = std::move(theOther.myBaseCurve);
 
     theOther.myTypeCurve = GeomAbs_OtherCurve;
     theOther.myFirst     = 0.0;
@@ -346,7 +327,6 @@ void Geom2dAdaptor_Curve::Reset()
   myTypeCurve = GeomAbs_OtherCurve;
   myCurve.Nullify();
   myCurveCache.Nullify();
-  myNestedEvaluator.Nullify();
   myBSplineCurve.Nullify();
   myBaseCurve.Nullify();
   myFirst     = myLast = 0.0;
@@ -453,9 +433,15 @@ void Geom2dAdaptor_Curve::evaluateOffset(double theU, gp_Pnt2d& theP) const
   }
   else
   {
-    gp_Vec2d aV;
-    myBaseCurve->D1(theU, theP, aV);
-    Geom2dEvaluator::CalculateD0(theP, aV, myOffset);
+    gp_Vec2d aD1;
+    myBaseCurve->D1(theU, theP, aD1);
+
+    if (aD1.SquareMagnitude() <= gp::Resolution())
+      throw Standard_NullValue("Geom2dAdaptor_Curve: Undefined normal vector "
+                               "because tangent vector has zero-magnitude!");
+
+    gp_Dir2d aNormal(aD1.Y(), -aD1.X());
+    theP.ChangeCoord().Add(aNormal.XY() * myOffset);
   }
 }
 
@@ -469,9 +455,34 @@ void Geom2dAdaptor_Curve::evaluateOffsetD1(double theU, gp_Pnt2d& theP, gp_Vec2d
   }
   else
   {
-    gp_Vec2d aV2;
-    myBaseCurve->D2(theU, theP, theV, aV2);
-    Geom2dEvaluator::CalculateD1(theP, theV, aV2, myOffset);
+    gp_Vec2d aD2;
+    myBaseCurve->D2(theU, theP, theV, aD2);
+
+    // P(u) = p(u) + Offset * Ndir / R  with R = || p' ^ Z|| and Ndir = P' ^ Z
+    // P'(u) = p'(u) + (Offset / R**2) * (DNdir/DU * R -  Ndir * (DR/R))
+    gp_XY         Ndir(theV.Y(), -theV.X());
+    gp_XY         DNdir(aD2.Y(), -aD2.X());
+    Standard_Real R2 = Ndir.SquareModulus();
+    Standard_Real R  = std::sqrt(R2);
+    Standard_Real R3 = R * R2;
+    Standard_Real Dr = Ndir.Dot(DNdir);
+    if (R3 <= gp::Resolution())
+    {
+      if (R2 <= gp::Resolution())
+        throw Standard_NullValue("Geom2dAdaptor_Curve: Null derivative");
+      DNdir.Multiply(R);
+      DNdir.Subtract(Ndir.Multiplied(Dr / R));
+      DNdir.Multiply(myOffset / R2);
+    }
+    else
+    {
+      DNdir.Multiply(myOffset / R);
+      DNdir.Subtract(Ndir.Multiplied(myOffset * Dr / R3));
+    }
+
+    Ndir.Multiply(myOffset / R);
+    theP.ChangeCoord().Add(Ndir);
+    theV.Add(gp_Vec2d(DNdir));
   }
 }
 
@@ -490,7 +501,55 @@ void Geom2dAdaptor_Curve::evaluateOffsetD2(double    theU,
   {
     gp_Vec2d aV3;
     myBaseCurve->D3(theU, theP, theV1, theV2, aV3);
-    Geom2dEvaluator::CalculateD2(theP, theV1, theV2, aV3, Standard_False, myOffset);
+
+    // Inline offset D2 calculation (from Geom2dEvaluator::CalculateD2)
+    // P(u) = p(u) + Offset * Ndir / R
+    // P'(u) = p'(u) + (Offset / R**2) * (DNdir/DU * R - Ndir * (DR/R))
+    // P"(u) = p"(u) + (Offset / R) * (D2Ndir/DU - DNdir * (2.0 * Dr/ R**2) +
+    //         Ndir * ( (3.0 * Dr**2 / R**4) - (D2r / R**2)))
+    gp_XY  Ndir(theV1.Y(), -theV1.X());
+    gp_XY  DNdir(theV2.Y(), -theV2.X());
+    gp_XY  D2Ndir(aV3.Y(), -aV3.X());
+    double R2  = Ndir.SquareModulus();
+    double R   = std::sqrt(R2);
+    double R3  = R2 * R;
+    double R4  = R2 * R2;
+    double R5  = R3 * R2;
+    double Dr  = Ndir.Dot(DNdir);
+    double D2r = Ndir.Dot(D2Ndir) + DNdir.Dot(DNdir);
+
+    if (R5 <= gp::Resolution())
+    {
+      if (R4 <= gp::Resolution())
+        throw Standard_NullValue("Geom2dAdaptor_Curve: Null derivative");
+      // V2 = P" (U) :
+      D2Ndir.Subtract(DNdir.Multiplied(2.0 * Dr / R2));
+      D2Ndir.Add(Ndir.Multiplied(((3.0 * Dr * Dr) / R4) - (D2r / R2)));
+      D2Ndir.Multiply(myOffset / R);
+      // V1 = P' (U) :
+      DNdir.Multiply(R);
+      DNdir.Subtract(Ndir.Multiplied(Dr / R));
+      DNdir.Multiply(myOffset / R2);
+    }
+    else
+    {
+      // Same computation as IICURV in EUCLID-IS for better stability
+      // V2 = P" (U) :
+      D2Ndir.Multiply(myOffset / R);
+      D2Ndir.Subtract(DNdir.Multiplied(2.0 * myOffset * Dr / R3));
+      D2Ndir.Add(Ndir.Multiplied(myOffset * (((3.0 * Dr * Dr) / R5) - (D2r / R3))));
+      // V1 = P' (U)
+      DNdir.Multiply(myOffset / R);
+      DNdir.Subtract(Ndir.Multiplied(myOffset * Dr / R3));
+    }
+
+    Ndir.Multiply(myOffset / R);
+    // P(u)
+    theP.ChangeCoord().Add(Ndir);
+    // P'(u)
+    theV1.Add(gp_Vec2d(DNdir));
+    // P"(u)
+    theV2.Add(gp_Vec2d(D2Ndir));
   }
 }
 
@@ -510,7 +569,78 @@ void Geom2dAdaptor_Curve::evaluateOffsetD3(double    theU,
   {
     gp_Vec2d aV4 = myBaseCurve->DN(theU, 4);
     myBaseCurve->D3(theU, theP, theV1, theV2, theV3);
-    Geom2dEvaluator::CalculateD3(theP, theV1, theV2, theV3, aV4, Standard_False, myOffset);
+
+    // Inline offset D3 calculation (from Geom2dEvaluator::CalculateD3)
+    // P(u) = p(u) + Offset * Ndir / R
+    // P'(u)  = p'(u) + (Offset / R**2) * (DNdir/DU * R - Ndir * (DR/R))
+    // P"(u)  = p"(u) + (Offset / R) * (D2Ndir/DU - DNdir * (2.0 * Dr/ R**2) +
+    //          Ndir * ( (3.0 * Dr**2 / R**4) - (D2r / R**2)))
+    // P"'(u) = p"'(u) + (Offset / R) * (D3Ndir - (3.0 * Dr/R**2 ) * D2Ndir -
+    //          (3.0 * D2r / R2) * DNdir) + (3.0 * Dr * Dr / R4) * DNdir -
+    //          (D3r/R2) * Ndir + (6.0 * Dr * Dr / R4) * Ndir +
+    //          (6.0 * Dr * D2r / R4) * Ndir - (15.0 * Dr* Dr* Dr /R6) * Ndir
+    gp_XY  Ndir(theV1.Y(), -theV1.X());
+    gp_XY  DNdir(theV2.Y(), -theV2.X());
+    gp_XY  D2Ndir(theV3.Y(), -theV3.X());
+    gp_XY  D3Ndir(aV4.Y(), -aV4.X());
+    double R2  = Ndir.SquareModulus();
+    double R   = std::sqrt(R2);
+    double R3  = R2 * R;
+    double R4  = R2 * R2;
+    double R5  = R3 * R2;
+    double R6  = R3 * R3;
+    double R7  = R5 * R2;
+    double Dr  = Ndir.Dot(DNdir);
+    double D2r = Ndir.Dot(D2Ndir) + DNdir.Dot(DNdir);
+    double D3r = Ndir.Dot(D3Ndir) + 3.0 * DNdir.Dot(D2Ndir);
+
+    if (R7 <= gp::Resolution())
+    {
+      if (R6 <= gp::Resolution())
+        throw Standard_NullValue("Geom2dAdaptor_Curve: Null derivative");
+      // V3 = P"' (U) :
+      D3Ndir.Subtract(D2Ndir.Multiplied(3.0 * myOffset * Dr / R2));
+      D3Ndir.Subtract((DNdir.Multiplied((3.0 * myOffset) * ((D2r / R2) + (Dr * Dr) / R4))));
+      D3Ndir.Add(Ndir.Multiplied(
+        (myOffset * (6.0 * Dr * Dr / R4 + 6.0 * Dr * D2r / R4 - 15.0 * Dr * Dr * Dr / R6 - D3r))));
+      D3Ndir.Multiply(myOffset / R);
+      // V2 = P" (U) :
+      R4 = R2 * R2;
+      D2Ndir.Subtract(DNdir.Multiplied(2.0 * Dr / R2));
+      D2Ndir.Subtract(Ndir.Multiplied(((3.0 * Dr * Dr) / R4) - (D2r / R2)));
+      D2Ndir.Multiply(myOffset / R);
+      // V1 = P' (U) :
+      DNdir.Multiply(R);
+      DNdir.Subtract(Ndir.Multiplied(Dr / R));
+      DNdir.Multiply(myOffset / R2);
+    }
+    else
+    {
+      // Same computation as IICURV in EUCLID-IS for better stability
+      // V3 = P"' (U) :
+      D3Ndir.Multiply(myOffset / R);
+      D3Ndir.Subtract(D2Ndir.Multiplied(3.0 * myOffset * Dr / R3));
+      D3Ndir.Subtract(DNdir.Multiplied(((3.0 * myOffset) * ((D2r / R3) + (Dr * Dr) / R5))));
+      D3Ndir.Add(Ndir.Multiplied(
+        (myOffset * (6.0 * Dr * Dr / R5 + 6.0 * Dr * D2r / R5 - 15.0 * Dr * Dr * Dr / R7 - D3r))));
+      // V2 = P" (U) :
+      D2Ndir.Multiply(myOffset / R);
+      D2Ndir.Subtract(DNdir.Multiplied(2.0 * myOffset * Dr / R3));
+      D2Ndir.Subtract(Ndir.Multiplied(myOffset * (((3.0 * Dr * Dr) / R5) - (D2r / R3))));
+      // V1 = P' (U) :
+      DNdir.Multiply(myOffset / R);
+      DNdir.Subtract(Ndir.Multiplied(myOffset * Dr / R3));
+    }
+
+    Ndir.Multiply(myOffset / R);
+    // P(u)
+    theP.ChangeCoord().Add(Ndir);
+    // P'(u)
+    theV1.Add(gp_Vec2d(DNdir));
+    // P"(u)
+    theV2.Add(gp_Vec2d(D2Ndir));
+    // P"'(u)
+    theV3.Add(gp_Vec2d(D3Ndir));
   }
 }
 
@@ -531,7 +661,6 @@ void Geom2dAdaptor_Curve::load(const Handle(Geom2d_Curve)& C,
   if (myCurve != C)
   {
     myCurve = C;
-    myNestedEvaluator.Nullify();
     myBSplineCurve.Nullify();
 
     Handle(Standard_Type) TheType = C->DynamicType();
@@ -570,12 +699,9 @@ void Geom2dAdaptor_Curve::load(const Handle(Geom2d_Curve)& C,
     }
     else if (TheType == STANDARD_TYPE(Geom2d_OffsetCurve))
     {
-      myTypeCurve                              = GeomAbs_OffsetCurve;
-      Handle(Geom2d_OffsetCurve) anOffsetCurve = Handle(Geom2d_OffsetCurve)::DownCast(myCurve);
-      // Create nested adaptor for base curve
-      Handle(Geom2d_Curve)        aBaseCurve   = anOffsetCurve->BasisCurve();
-      Handle(Geom2dAdaptor_Curve) aBaseAdaptor = new Geom2dAdaptor_Curve(aBaseCurve);
-      myNestedEvaluator = new Geom2dEvaluator_OffsetCurve(aBaseAdaptor, anOffsetCurve->Offset());
+      // Geom2d_OffsetCurve now has its own D0/D1/D2/D3/DN implementations
+      // that compute offset directly. No nested evaluator needed.
+      myTypeCurve = GeomAbs_OffsetCurve;
     }
     else
     {
@@ -1090,7 +1216,8 @@ void Geom2dAdaptor_Curve::D0(const Standard_Real U, gp_Pnt2d& P) const
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D0(U, P);
+      // Geom2d_OffsetCurve now has its own D0 implementation
+      myCurve->D0(U, P);
       break;
 
     default:
@@ -1136,7 +1263,8 @@ void Geom2dAdaptor_Curve::D1(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V) co
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D1(U, P, V);
+      // Geom2d_OffsetCurve now has its own D1 implementation
+      myCurve->D1(U, P, V);
       break;
 
     default:
@@ -1183,7 +1311,8 @@ void Geom2dAdaptor_Curve::D2(const Standard_Real U, gp_Pnt2d& P, gp_Vec2d& V1, g
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D2(U, P, V1, V2);
+      // Geom2d_OffsetCurve now has its own D2 implementation
+      myCurve->D2(U, P, V1, V2);
       break;
 
     default:
@@ -1235,7 +1364,8 @@ void Geom2dAdaptor_Curve::D3(const Standard_Real U,
     }
 
     case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D3(U, P, V1, V2, V3);
+      // Geom2d_OffsetCurve now has its own D3 implementation
+      myCurve->D3(U, P, V1, V2, V3);
       break;
 
     default:
@@ -1278,7 +1408,8 @@ gp_Vec2d Geom2dAdaptor_Curve::DN(const Standard_Real U, const Standard_Integer N
     }
 
     case GeomAbs_OffsetCurve:
-      return myNestedEvaluator->DN(U, N);
+      // Geom2d_OffsetCurve now has its own DN implementation
+      return myCurve->DN(U, N);
       break;
 
     default: // to eliminate gcc warning

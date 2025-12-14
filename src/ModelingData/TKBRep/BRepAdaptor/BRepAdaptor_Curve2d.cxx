@@ -43,10 +43,16 @@ Handle(Geom2dAdaptor_Curve) BRepAdaptor_Curve2d::ShallowCopy() const
   aCopy->myFirst        = myFirst;
   aCopy->myLast         = myLast;
   aCopy->myBSplineCurve = myBSplineCurve;
-  if (!myNestedEvaluator.IsNull())
+  aCopy->myIsLine2d     = myIsLine2d;
+  aCopy->myLineAxis     = myLineAxis;
+  aCopy->myHasOffset    = myHasOffset;
+  aCopy->myOffset       = myOffset;
+  if (!myBaseCurve.IsNull())
   {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
+    aCopy->myBaseCurve = myBaseCurve->ShallowCopy();
   }
+  aCopy->myEdge = myEdge;
+  aCopy->myFace = myFace;
 
   return aCopy;
 }
