@@ -20,7 +20,7 @@
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
 #include <BRepAdaptor_Curve.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepAlgo.hxx>
 #include <BRepLib.hxx>
 #include <BRepLib_MakeEdge.hxx>
@@ -92,7 +92,11 @@ TopoDS_Wire BRepAlgo::ConvertWire(const TopoDS_Wire&  theWire,
   for (; anExpE.More(); anExpE.Next())
   {
     const TopoDS_Edge&  anEdge = anExpE.Current();
-    BRepAdaptor_Curve2d aCurve(anEdge, theFace);
+    Standard_Real aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(anEdge, theFace, aFirst, aLast);
+    if (aPCurve.IsNull())
+      continue;
+    Geom2dAdaptor_Curve aCurve(aPCurve, aFirst, aLast);
     Standard_Real       aTol = BRep_Tool::Tolerance(anEdge);
     if (aTol < MINIMAL_TOLERANCE)
       aTol = MINIMAL_TOLERANCE;

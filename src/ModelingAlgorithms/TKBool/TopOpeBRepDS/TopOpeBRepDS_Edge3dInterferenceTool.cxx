@@ -15,6 +15,8 @@
 // commercial license or contractual agreement.
 
 #include <BRep_Tool.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Vec.hxx>
 #include <Standard_ProgramError.hxx>
 #include <TopoDS.hxx>
@@ -275,7 +277,9 @@ void TopOpeBRepDS_Edge3dInterferenceTool::Add(const TopoDS_Shape&               
     return;
   gp_Pnt2d uv;
   {
-    BRepAdaptor_Curve2d BC2d(EE, FF);
+    Standard_Real        aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(EE, FF, aFirst, aLast);
+    Geom2dAdaptor_Curve  BC2d(aPCurve, aFirst, aLast);
     uv = BC2d.Value(pOO);
   }
 

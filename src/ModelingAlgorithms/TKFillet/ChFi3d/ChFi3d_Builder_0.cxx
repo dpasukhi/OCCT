@@ -24,11 +24,12 @@
 
 #include <AppParCurves_MultiBSpCurve.hxx>
 #include <Approx_SameParameter.hxx>
+#include <BRep_Builder.hxx>
+#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepLib.hxx>
 #include <BRepTools.hxx>
 #include <BRepTopAdaptor_HVertex.hxx>
 #include <BRepTopAdaptor_TopolTool.hxx>
-#include <BRep_Builder.hxx>
 #include <ChFi3d.hxx>
 #include <ChFiDS_FilSpine.hxx>
 #include <ElCLib.hxx>

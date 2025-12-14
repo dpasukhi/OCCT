@@ -44,7 +44,6 @@
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepBndLib.hxx>
 #include <BRepAdaptor_HArray1OfCurve.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 
 

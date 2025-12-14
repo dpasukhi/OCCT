@@ -80,8 +80,8 @@
 #include <TopTools_SequenceOfShape.hxx>
 #include <gp_Circ.hxx>
 #include <BRepAdaptor_Curve.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Vec2d.hxx>
 #include <Extrema_ExtPS.hxx>
 #include <BRepTools.hxx>
@@ -112,10 +112,12 @@ static Standard_Boolean IsOnSingularity(const TopTools_ListOfShape& theEdgeList)
 //=======================================================================
 static Standard_Boolean IsUiso(const TopoDS_Edge& theEdge, const TopoDS_Face& theFace)
 {
-  BRepAdaptor_Curve2d aBAcurve2d(theEdge, theFace);
-  gp_Pnt2d            aP2d;
-  gp_Vec2d            aVec;
-  aBAcurve2d.D1(aBAcurve2d.FirstParameter(), aP2d, aVec);
+  Standard_Real aFirst, aLast;
+  Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(theEdge, theFace, aFirst, aLast);
+  Handle(Geom2dAdaptor_Curve) aBAcurve2d = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+  gp_Pnt2d aP2d;
+  gp_Vec2d aVec;
+  aBAcurve2d->D1(aBAcurve2d->FirstParameter(), aP2d, aVec);
   return (std::abs(aVec.Y()) > std::abs(aVec.X()));
 }
 
@@ -331,19 +333,21 @@ static Standard_Real ComputeMinEdgeSize(const TopTools_SequenceOfShape& theEdges
     theEdgesMap.Add(anEdge);
     TopoDS_Vertex V1, V2;
     TopExp::Vertices(anEdge, V1, V2);
-    BRepAdaptor_Curve2d BAcurve2d(anEdge, theRefFace);
-    if (BAcurve2d.Curve().IsNull())
+    Standard_Real aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(anEdge, theRefFace, aFirst, aLast);
+    Handle(Geom2dAdaptor_Curve) BAcurve2d = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+    if (BAcurve2d->Curve().IsNull())
     {
       continue;
     }
 
-    const gp_Pnt2d FirstP2d = BAcurve2d.Value(BAcurve2d.FirstParameter());
-    const gp_Pnt2d LastP2d  = BAcurve2d.Value(BAcurve2d.LastParameter());
+    const gp_Pnt2d FirstP2d = BAcurve2d->Value(BAcurve2d->FirstParameter());
+    const gp_Pnt2d LastP2d  = BAcurve2d->Value(BAcurve2d->LastParameter());
     Standard_Real  aSqDist;
     if (V1.IsSame(V2) && !BRep_Tool::Degenerated(anEdge))
     {
       gp_Pnt2d MidP2d =
-        BAcurve2d.Value((BAcurve2d.FirstParameter() + BAcurve2d.LastParameter()) / 2);
+        BAcurve2d->Value((BAcurve2d->FirstParameter() + BAcurve2d->LastParameter()) / 2);
       aSqDist = FirstP2d.SquareDistance(MidP2d);
     }
     else
@@ -484,16 +488,18 @@ static Standard_Boolean FindCoordBounds(const TopTools_SequenceOfShape&         
 static std::pair<gp_Pnt2d, gp_Pnt2d> getCurveParams(const TopoDS_Edge& theEdge,
                                                     const TopoDS_Face& theRefFace)
 {
-  BRepAdaptor_Curve2d aCurveAdaptor(theEdge, theRefFace);
-  Standard_Real       aFirstParam = aCurveAdaptor.FirstParameter();
-  Standard_Real       aLastParam  = aCurveAdaptor.LastParameter();
+  Standard_Real aFirst, aLast;
+  Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(theEdge, theRefFace, aFirst, aLast);
+  Handle(Geom2dAdaptor_Curve) aCurveAdaptor = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+  Standard_Real aFirstParam = aCurveAdaptor->FirstParameter();
+  Standard_Real aLastParam  = aCurveAdaptor->LastParameter();
   if (theEdge.Orientation() != TopAbs_FORWARD)
   {
     std::swap(aFirstParam, aLastParam);
   }
 
-  const gp_Pnt2d aFirstPoint = aCurveAdaptor.Value(aFirstParam);
-  const gp_Pnt2d aLastPoint  = aCurveAdaptor.Value(aLastParam);
+  const gp_Pnt2d aFirstPoint = aCurveAdaptor->Value(aFirstParam);
+  const gp_Pnt2d aLastPoint  = aCurveAdaptor->Value(aLastParam);
   return {aFirstPoint, aLastPoint};
 }
 
@@ -665,12 +671,14 @@ static void InsertWiresIntoFaces(const TopTools_SequenceOfShape& theWires,
   BRep_Builder BB;
   for (Standard_Integer ii = 1; ii <= theWires.Length(); ii++)
   {
-    const TopoDS_Wire&  aWire = TopoDS::Wire(theWires(ii));
-    TopoDS_Iterator     iter(aWire);
-    const TopoDS_Edge&  anEdge = TopoDS::Edge(iter.Value());
-    BRepAdaptor_Curve2d BAcurve2d(anEdge, theRefFace);
-    gp_Pnt2d            aPnt2d =
-      BAcurve2d.Value((BAcurve2d.FirstParameter() + BAcurve2d.LastParameter()) / 2.);
+    const TopoDS_Wire& aWire = TopoDS::Wire(theWires(ii));
+    TopoDS_Iterator iter(aWire);
+    const TopoDS_Edge& anEdge = TopoDS::Edge(iter.Value());
+    Standard_Real aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(anEdge, theRefFace, aFirst, aLast);
+    Handle(Geom2dAdaptor_Curve) BAcurve2d = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+    gp_Pnt2d aPnt2d =
+      BAcurve2d->Value((BAcurve2d->FirstParameter() + BAcurve2d->LastParameter()) / 2.);
     TopoDS_Shape RequiredFace;
     for (Standard_Integer jj = 1; jj <= theFaces.Length(); jj++)
     {
@@ -3576,15 +3584,17 @@ void ShapeUpgrade_UnifySameDomain::IntUnifyFaces(
       Standard_Real FaceVmin = RealLast();
       for (Standard_Integer ii = 1; ii <= edges.Length(); ii++)
       {
-        const TopoDS_Edge&  anEdge = TopoDS::Edge(edges(ii));
-        BRepAdaptor_Curve2d aBAcurve(anEdge, F_RefFace);
-        if (aBAcurve.Curve().IsNull())
+        const TopoDS_Edge& anEdge = TopoDS::Edge(edges(ii));
+        Standard_Real aFirst, aLast;
+        Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(anEdge, F_RefFace, aFirst, aLast);
+        Handle(Geom2dAdaptor_Curve) aBAcurve = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+        if (aBAcurve->Curve().IsNull())
         {
           continue;
         }
 
-        gp_Pnt2d aFirstPoint = aBAcurve.Value(aBAcurve.FirstParameter());
-        gp_Pnt2d aLastPoint  = aBAcurve.Value(aBAcurve.LastParameter());
+        gp_Pnt2d aFirstPoint = aBAcurve->Value(aBAcurve->FirstParameter());
+        gp_Pnt2d aLastPoint  = aBAcurve->Value(aBAcurve->LastParameter());
 
         if (aFirstPoint.X() < FaceUmin)
           FaceUmin = aFirstPoint.X();

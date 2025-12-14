@@ -37,7 +37,8 @@
 #include <TopOpeBRepTool_EXPORT.hxx>
 #include <TopOpeBRepTool_SC.hxx>
 
-// #include <BRepAdaptor_Curve2d.hxx>
+#include <BRepAdaptor_Curve2d.hxx>
+
 Standard_EXPORT Standard_Boolean FUN_projPonL(const gp_Pnt&                 P,
                                               const TopOpeBRep_LineInter&   L,
                                               const TopOpeBRep_FacesFiller& FF,
@@ -55,12 +56,14 @@ Standard_EXPORT Standard_Boolean FUN_projPonL(const gp_Pnt&                 P,
   }
   else
   {
-    BRepAdaptor_Curve2d BAC2D;
-    if (Esi == 1)
-      BAC2D.Initialize(E, FF.Face(1));
-    else if (Esi == 2)
-      BAC2D.Initialize(E, FF.Face(2));
-    paramLdef = FUN_tool_projPonC2D(P, BAC2D, paramL, dist);
+    const TopoDS_Face&  aFace = (Esi == 1) ? FF.Face(1) : FF.Face(2);
+    BRepAdaptor_Curve2d aCurve(E, aFace);
+    paramLdef = FUN_tool_projPonC2D(P,
+                                    aCurve,
+                                    aCurve.FirstParameter(),
+                                    aCurve.LastParameter(),
+                                    paramL,
+                                    dist);
   }
   return paramLdef;
 }
@@ -437,13 +440,15 @@ void TopOpeBRep_FacesFiller::VP_PositionOnR(TopOpeBRep_LineInter& L)
     isline = FUN_tool_line(earc);
   else
   {
-    BRepAdaptor_Curve2d BAC2D;
-    if (Esi == 1)
-      BAC2D.Initialize(earc, myF1);
-    else if (Esi == 2)
-      BAC2D.Initialize(earc, myF2);
-    GeomAbs_CurveType t = BAC2D.GetType();
-    isline              = (t == GeomAbs_Line);
+    const TopoDS_Face& aFace = (Esi == 1) ? myF1 : myF2;
+    Standard_Real aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(earc, aFace, aFirst, aLast);
+    if (!aPCurve.IsNull())
+    {
+      Geom2dAdaptor_Curve aCurve(aPCurve, aFirst, aLast);
+      GeomAbs_CurveType t = aCurve.GetType();
+      isline              = (t == GeomAbs_Line);
+    }
   }
 
   for (; VPI.More(); VPI.Next())

@@ -23,6 +23,7 @@
 #include <ElCLib.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom2d_Line.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dAPI_ProjectPointOnCurve.hxx>
 #include <GeomLProp_SLProps.hxx>
 #include <gp_Circ.hxx>
@@ -493,9 +494,10 @@ Standard_Boolean TopOpeBRepTool_TOOL::ParE2d(const gp_Pnt2d&    p2d,
                                              Standard_Real&     dist)
 {
   // Avoid projections if possible :
-  BRepAdaptor_Curve2d         BC2d(E, F);
-  GeomAbs_CurveType           CT  = BC2d.GetType();
-  const Handle(Geom2d_Curve)& C2d = BC2d.Curve();
+  Standard_Real              aFirst, aLast;
+  Handle(Geom2d_Curve)       C2d = BRep_Tool::CurveOnSurface(E, F, aFirst, aLast);
+  Geom2dAdaptor_Curve        BC2d(C2d, aFirst, aLast);
+  GeomAbs_CurveType          CT = BC2d.GetType();
   if (CT == GeomAbs_Line)
   {
     Standard_Boolean isoU, isoV;
@@ -1704,7 +1706,9 @@ Standard_Real TopOpeBRepTool_TOOL::TolUV(const TopoDS_Face& F, const Standard_Re
 
 Standard_Real TopOpeBRepTool_TOOL::TolP(const TopoDS_Edge& E, const TopoDS_Face& F)
 {
-  BRepAdaptor_Curve2d BC2d(E, F);
+  Standard_Real        aFirst, aLast;
+  Handle(Geom2d_Curve) aCurve = BRep_Tool::CurveOnSurface(E, F, aFirst, aLast);
+  Geom2dAdaptor_Curve  BC2d(aCurve, aFirst, aLast);
   return (BC2d.Resolution(BRep_Tool::Tolerance(E)));
 }
 

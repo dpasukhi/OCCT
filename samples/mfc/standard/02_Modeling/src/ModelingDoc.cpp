@@ -4657,12 +4657,13 @@ void CModelingDoc::OnStopStop()
 			TopoDS_Edge E = TopoDS::Edge(myAISContext->SelectedShape());
 			TopoDS_Face F = TopoDS::Face(M.FindFromKey(E).First());
 
-			BRepAdaptor_Surface S(F);
-			GeomAdaptor_Surface aGAS = S.Surface();
-			Handle(GeomAdaptor_Surface) aHGAS = new GeomAdaptor_Surface(aGAS);
+			BRepAdaptor_Surface          S(F);
+			GeomAdaptor_Surface          aGAS = S.Surface();
+			Handle(GeomAdaptor_Surface)  aHGAS = new GeomAdaptor_Surface(aGAS);
 
-			Handle(BRepAdaptor_Curve2d) C = new BRepAdaptor_Curve2d();
-			C->Initialize(E,F);
+			Standard_Real                aFirst, aLast;
+			Handle(Geom2d_Curve)         aPCurve = BRep_Tool::CurveOnSurface(E, F, aFirst, aLast);
+			Handle(Geom2dAdaptor_Curve)  C = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
 
 			Adaptor3d_CurveOnSurface ConS(C,aHGAS);
 
@@ -4878,9 +4879,13 @@ void CModelingDoc::InputEvent(const Standard_Integer /*x*/,
 			gp_Pnt P, PP;
 
 			//get the pcurve, curve and surface
-			BRepAdaptor_Curve   Curve3d1(THE_E1), Curve3d2(THE_E2);
-			BRepAdaptor_Curve2d Curve2d1(THE_E1,THE_F1), Curve2d2(THE_E2,THE_F2);
-			BRepAdaptor_Surface Surf1(THE_F1), Surf2(THE_F2);
+			BRepAdaptor_Curve    Curve3d1(THE_E1), Curve3d2(THE_E2);
+			Standard_Real        aFirst1, aLast1, aFirst2, aLast2;
+			Handle(Geom2d_Curve) aPCurve1 = BRep_Tool::CurveOnSurface(THE_E1, THE_F1, aFirst1, aLast1);
+			Handle(Geom2d_Curve) aPCurve2 = BRep_Tool::CurveOnSurface(THE_E2, THE_F2, aFirst2, aLast2);
+			Geom2dAdaptor_Curve  Curve2d1(aPCurve1, aFirst1, aLast1);
+			Geom2dAdaptor_Curve  Curve2d2(aPCurve2, aFirst2, aLast2);
+			BRepAdaptor_Surface  Surf1(THE_F1), Surf2(THE_F2);
 
 			//compute the average plane : initial surface
 			Handle(TColgp_HArray1OfPnt) theTanPoints = new

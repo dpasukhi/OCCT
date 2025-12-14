@@ -17,8 +17,8 @@
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepClass_Edge.hxx>
 #include <BRepClass_Intersector.hxx>
 #include <ElCLib.hxx>

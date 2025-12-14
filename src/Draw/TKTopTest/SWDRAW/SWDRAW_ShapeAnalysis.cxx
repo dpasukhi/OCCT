@@ -58,8 +58,8 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
 #include <TopTools_HSequenceOfShape.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_Plane.hxx>
 #include <Geom_CylindricalSurface.hxx>
 #include <Geom_ConicalSurface.hxx>

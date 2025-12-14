@@ -18,9 +18,9 @@
 
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dInt_GInter.hxx>
 #include <Geom_Curve.hxx>
 #include <gp_Pnt2d.hxx>
@@ -139,10 +139,12 @@ Standard_Boolean LocOpe::TgtFaces(const TopoDS_Edge& E,
   Handle(BRepAdaptor_Surface) HS1 = new BRepAdaptor_Surface(F1);
   Handle(BRepAdaptor_Surface) HS2 = new BRepAdaptor_Surface(F2);
   e.Orientation(TopAbs_FORWARD);
-  Handle(BRepAdaptor_Curve2d) HC2d  = new BRepAdaptor_Curve2d();
-  Handle(BRepAdaptor_Curve2d) HC2d2 = new BRepAdaptor_Curve2d();
-  HC2d->Initialize(e, F1);
-  HC2d2->Initialize(e, F2);
+  Standard_Real aFirst1, aLast1;
+  Handle(Geom2d_Curve) aPCurve1 = BRep_Tool::CurveOnSurface(e, F1, aFirst1, aLast1);
+  Handle(Geom2dAdaptor_Curve) HC2d = new Geom2dAdaptor_Curve(aPCurve1, aFirst1, aLast1);
+  Standard_Real aFirst2, aLast2;
+  Handle(Geom2d_Curve) aPCurve2 = BRep_Tool::CurveOnSurface(e, F2, aFirst2, aLast2);
+  Handle(Geom2dAdaptor_Curve) HC2d2 = new Geom2dAdaptor_Curve(aPCurve2, aFirst2, aLast2);
 
   Standard_Boolean rev1 = (F1.Orientation() == TopAbs_REVERSED);
   Standard_Boolean rev2 = (F2.Orientation() == TopAbs_REVERSED);

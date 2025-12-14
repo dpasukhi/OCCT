@@ -19,7 +19,9 @@
 #include <BRepClass_Intersector.hxx>
 #include <BRepTools.hxx>
 #include <ElCLib.hxx>
+#include <Geom2d_Curve.hxx>
 #include <Geom2d_Line.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom_Surface.hxx>
 #include <GeomAPI_ProjectPointOnSurf.hxx>
 #include <gp_Dir2d.hxx>
@@ -1375,9 +1377,11 @@ void TopOpeBRepBuild_Builder::AddONPatchesSFS(const TopOpeBRepBuild_GTopo&  G1,
       if (aChkEdge.IsNull())
         continue;
       // find a point and a normal
-      BRepAdaptor_Curve2d aBAC1(aChkEdge, aFace1);
-      gp_Pnt2d            aP2d;
-      const Standard_Real PAR_T = 0.456321;
+      Standard_Real        aFirst, aLast;
+      Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(aChkEdge, aFace1, aFirst, aLast);
+      Geom2dAdaptor_Curve  aBAC1(aPCurve, aFirst, aLast);
+      gp_Pnt2d             aP2d;
+      const Standard_Real  PAR_T = 0.456321;
       Standard_Real par = aBAC1.FirstParameter() * (1. - PAR_T) + aBAC1.LastParameter() * PAR_T;
       aBAC1.D0(par, aP2d);
       BRepAdaptor_Surface aBAS1(aFace1);
@@ -1415,7 +1419,9 @@ void TopOpeBRepBuild_Builder::AddONPatchesSFS(const TopOpeBRepBuild_GTopo&  G1,
 
           // check if it is needed to have a patch here;
           // for that the normals should be oriented in the same sense.
-          BRepAdaptor_Curve2d aBAC2(aChkEdge, aFace2);
+          Standard_Real        aFirst2, aLast2;
+          Handle(Geom2d_Curve) aPCurve2 = BRep_Tool::CurveOnSurface(aChkEdge, aFace2, aFirst2, aLast2);
+          Geom2dAdaptor_Curve  aBAC2(aPCurve2, aFirst2, aLast2);
           aBAC2.D0(par, aP2d);
           BRepAdaptor_Surface aBAS2(aFace2);
           gp_Vec              aN2;

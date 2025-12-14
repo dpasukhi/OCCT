@@ -17,7 +17,10 @@
 #include <Geom_TrimmedCurve.hxx>
 #include <BRepBndLib.hxx>
 #include <BndLib_Add2dCurve.hxx>
+#include <BRep_Tool.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Dir.hxx>
@@ -711,7 +714,9 @@ Standard_EXPORT void FUN_tool_mkBnd2d(const TopoDS_Shape& W, const TopoDS_Shape&
       BRep_Builder  BB;
       BB.UpdateEdge(E, pc, F, newtol);
     }
-    BRepAdaptor_Curve2d BC2d(E, F);
+    Standard_Real        aPFirst, aPLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(E, F, aPFirst, aPLast);
+    Geom2dAdaptor_Curve  BC2d(aPCurve, aPFirst, aPLast);
     BndLib_Add2dCurve::Add(BC2d, tol, newB2d);
   } // ex(W,EDGE)
 

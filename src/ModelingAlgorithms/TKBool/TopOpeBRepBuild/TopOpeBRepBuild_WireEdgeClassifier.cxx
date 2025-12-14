@@ -28,6 +28,8 @@
 #include <gp_Vec2d.hxx>
 #include <TopOpeBRepTool_2d.hxx>
 #include <TopExp.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 
 #include <TopOpeBRepTool_EXPORT.hxx>
 #include <TopOpeBRepTool_SC.hxx>
@@ -318,8 +320,10 @@ TopAbs_State TopOpeBRepBuild_WireEdgeClassifier::CompareShapes(const TopoDS_Shap
       //      TopoDS_Face F2 = TopoDS::Face(ftmp.EmptyCopied());
       BB.Add(F2, TopoDS::Wire(B2));
 
-      BRepAdaptor_Curve2d BC2d(E2, F2);
-      Standard_Real       f, l;
+      Standard_Real        aFirst, aLast;
+      Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(E2, F2, aFirst, aLast);
+      Geom2dAdaptor_Curve  BC2d(aPCurve, aFirst, aLast);
+      Standard_Real        f, l;
       FUN_tool_bounds(E2, f, l);
       Standard_Real x   = 0.45678;
       Standard_Real p2  = (1 - x) * l + x * f;

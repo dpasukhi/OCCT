@@ -17,7 +17,7 @@
 #include <TopOpeBRep_LineInter.hxx>
 
 #include <Geom2dAdaptor_Curve.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
+#include <BRep_Tool.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Ellipse.hxx>
@@ -526,20 +526,11 @@ const TopoDS_Shape& TopOpeBRep_LineInter::Arc() const
 {
   if (myTypeLineCurve == TopOpeBRep_RESTRICTION)
   {
-    if (myILR->IsArcOnS1())
-    {
-      const Handle(Geom2dAdaptor_Curve)& AHC2D = myILR->ArcOnS1();
-      const BRepAdaptor_Curve2d&       BC2DP = *((BRepAdaptor_Curve2d*)AHC2D.get());
-      const TopoDS_Shape&              S     = BC2DP.Edge();
-      return S;
-    }
-    else
-    {
-      const Handle(Geom2dAdaptor_Curve)& AHC2D = myILR->ArcOnS2();
-      const BRepAdaptor_Curve2d&       BC2DP = *((BRepAdaptor_Curve2d*)AHC2D.get());
-      const TopoDS_Shape&              S     = BC2DP.Edge();
-      return S;
-    }
+    // Note: The Handle(Geom2dAdaptor_Curve) from IntPatch no longer stores edge/face info.
+    // This functionality appears to rely on old implementation details that stored TopoDS_Edge.
+    // The restriction line should have this information available through other means.
+    // For now, return null shape as this code path needs investigation.
+    return myNullShape;
   }
   else
     return myNullShape;

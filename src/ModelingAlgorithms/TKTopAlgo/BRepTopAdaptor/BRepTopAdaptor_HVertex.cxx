@@ -13,9 +13,9 @@
 // commercial license or contractual agreement.
 
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepTopAdaptor_HVertex.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -26,9 +26,13 @@
 IMPLEMENT_STANDARD_RTTIEXT(BRepTopAdaptor_HVertex, Adaptor3d_HVertex)
 
 BRepTopAdaptor_HVertex::BRepTopAdaptor_HVertex(const TopoDS_Vertex&               V,
-                                               const Handle(BRepAdaptor_Curve2d)& C)
+                                               const Handle(Geom2dAdaptor_Curve)& C,
+                                               const TopoDS_Edge&                 E,
+                                               const TopoDS_Face&                 F)
     : myVtx(V),
-      myCurve(C)
+      myCurve(C),
+      myEdge(E),
+      myFace(F)
 {
 }
 
@@ -40,17 +44,14 @@ gp_Pnt2d BRepTopAdaptor_HVertex::Value()
 
 Standard_Real BRepTopAdaptor_HVertex::Parameter(const Handle(Geom2dAdaptor_Curve)& C)
 {
-  Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
-  return BRep_Tool::Parameter(myVtx, brhc->Edge(), brhc->Face());
+  return BRep_Tool::Parameter(myVtx, myEdge, myFace);
 }
 
 Standard_Real BRepTopAdaptor_HVertex::Resolution(const Handle(Geom2dAdaptor_Curve)& C)
 {
-  Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
-  const TopoDS_Face&          F    = brhc->Face();
-  BRepAdaptor_Surface         S(F, 0);
-  Standard_Real               tv = BRep_Tool::Tolerance(myVtx);
-  Standard_Real               pp, p = BRep_Tool::Parameter(myVtx, brhc->Edge(), brhc->Face());
+  BRepAdaptor_Surface S(myFace, 0);
+  Standard_Real       tv = BRep_Tool::Tolerance(myVtx);
+  Standard_Real       pp, p = BRep_Tool::Parameter(myVtx, myEdge, myFace);
   TopAbs_Orientation          Or = Orientation();
   gp_Pnt2d                    p2d;
   gp_Vec2d                    v2d;

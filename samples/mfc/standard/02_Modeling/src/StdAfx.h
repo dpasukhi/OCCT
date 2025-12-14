@@ -116,7 +116,7 @@
 #include <TColStd_HArray1OfInteger.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <GeomAdaptor_Surface.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomPlate_BuildPlateSurface.hxx>
 #include <GeomPlate_MakeApprox.hxx>
 #include <TopTools_Array1OfShape.hxx>

@@ -20,6 +20,7 @@
 #include <BRep_Builder.hxx>
 #include <BRep_TEdge.hxx>
 #include <BRep_Tool.hxx>
+#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepApprox_Approx.hxx>
 #include <BRepApprox_ApproxLine.hxx>
 #include <BRepExtrema_ExtPC.hxx>

@@ -53,8 +53,6 @@
 
 IMPLEMENT_STANDARD_RTTIEXT(BRepCheck_Face, BRepCheck_Result)
 
-// #include <BRepAdaptor_Curve2d.hxx>
-// #include <Geom2dInt_GInter.hxx>
 typedef NCollection_DataMap<TopoDS_Shape, Bnd_Box2d> DataMapOfShapeBox2d;
 
 static Standard_Boolean Intersect(const TopoDS_Wire&,
@@ -603,7 +601,6 @@ static Standard_Boolean Intersect(const TopoDS_Wire&         wir1,
 {
   Standard_Real   Inter2dTol = 1.e-10;
   TopExp_Explorer exp1, exp2;
-  //  BRepAdaptor_Curve2d cur1,cur2;
 
   // Find common vertices of two wires - non-manifold case
   TopTools_MapOfShape      MapW1;

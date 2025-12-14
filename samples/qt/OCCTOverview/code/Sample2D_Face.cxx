@@ -22,8 +22,8 @@
 #include "Sample2D_Face.h"
 
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <GCPnts_QuasiUniformDeflection.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomLib.hxx>
 #include <Select3D_SensitiveGroup.hxx>
 #include <Select3D_SensitiveCurve.hxx>
@@ -101,8 +101,10 @@ void Sample2D_Face::FillData(Standard_Boolean isSizesRecompute)
     myshape.Orientation(TopAbs_FORWARD);
     for (TopExp_Explorer anEdgeIter (myshape, TopAbs_EDGE); anEdgeIter.More(); anEdgeIter.Next())
     {
-      const TopoDS_Edge& anEdge = TopoDS::Edge (anEdgeIter.Current());
-      BRepAdaptor_Curve2d aCurveOnEdge (anEdge, aFace);
+      const TopoDS_Edge&   anEdge = TopoDS::Edge(anEdgeIter.Current());
+      Standard_Real        aFirst, aLast;
+      Handle(Geom2d_Curve) aPCurve       = BRep_Tool::CurveOnSurface(anEdge, aFace, aFirst, aLast);
+      Geom2dAdaptor_Curve  aCurveOnEdge(aPCurve, aFirst, aLast);
       GCPnts_QuasiUniformDeflection anEdgeDistrib(aCurveOnEdge, 1.e-2);
       if (!anEdgeDistrib.IsDone())
       {
@@ -147,14 +149,16 @@ void Sample2D_Face::FillData(Standard_Boolean isSizesRecompute)
   // fill primitive arrays
   for (TopExp_Explorer anEdgeIter (myshape, TopAbs_EDGE); anEdgeIter.More(); anEdgeIter.Next())
   {
-    const TopoDS_Edge& anEdge = TopoDS::Edge (anEdgeIter.Current());
-    const Handle(Geom2d_Curve) aCurve = BRep_Tool::CurveOnSurface (anEdge, aFace, f, l);
+    const TopoDS_Edge&          anEdge = TopoDS::Edge(anEdgeIter.Current());
+    const Handle(Geom2d_Curve) aCurve = BRep_Tool::CurveOnSurface(anEdge, aFace, f, l);
     Handle(Geom2d_TrimmedCurve) aTrimmedCurve = new Geom2d_TrimmedCurve(aCurve, f, l);
     if (!aTrimmedCurve.IsNull())
     {
-      Handle(Geom_Curve) aCurve3d = GeomLib::To3d(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), aTrimmedCurve);
-      BRepAdaptor_Curve2d aCurveOnEdge (anEdge, aFace);
-      GCPnts_QuasiUniformDeflection anEdgeDistrib (aCurveOnEdge, 1.e-2);
+      Handle(Geom_Curve)   aCurve3d = GeomLib::To3d(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), aTrimmedCurve);
+      Standard_Real        aFirst, aLast;
+      Handle(Geom2d_Curve) aPCurve       = BRep_Tool::CurveOnSurface(anEdge, aFace, aFirst, aLast);
+      Geom2dAdaptor_Curve  aCurveOnEdge(aPCurve, aFirst, aLast);
+      GCPnts_QuasiUniformDeflection anEdgeDistrib(aCurveOnEdge, 1.e-2);
       if (!anEdgeDistrib.IsDone())
       {
         continue;
@@ -246,14 +250,16 @@ void Sample2D_Face::Compute (const Handle(PrsMgr_PresentationManager)& ,
   // estimating number of vertices in primitive arrays
   for (TopExp_Explorer anEdgeIter (myshape, TopAbs_EDGE); anEdgeIter.More(); anEdgeIter.Next())
   {
-    const TopoDS_Edge& anEdge = TopoDS::Edge(anEdgeIter.Current());
-    const Handle(Geom2d_Curve) aCurve = BRep_Tool::CurveOnSurface (anEdge, aFace, f, l);
+    const TopoDS_Edge&          anEdge = TopoDS::Edge(anEdgeIter.Current());
+    const Handle(Geom2d_Curve) aCurve = BRep_Tool::CurveOnSurface(anEdge, aFace, f, l);
 
     Handle(Geom2d_TrimmedCurve) aTrimmedCurve = new Geom2d_TrimmedCurve(aCurve, f, l);
     // make a 3D curve from 2D trimmed curve to display it
     Handle(Geom_Curve) aCurve3d = GeomLib::To3d(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), aTrimmedCurve);
     // make distribution of points
-    BRepAdaptor_Curve2d aCurveOnEdge (anEdge, aFace);
+    Standard_Real        aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve       = BRep_Tool::CurveOnSurface(anEdge, aFace, aFirst, aLast);
+    Geom2dAdaptor_Curve  aCurveOnEdge(aPCurve, aFirst, aLast);
     GCPnts_QuasiUniformDeflection anEdgeDistrib(aCurveOnEdge, 1.e-2);
     if (anEdgeDistrib.IsDone())
     {

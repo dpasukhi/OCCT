@@ -15,8 +15,8 @@
 // commercial license or contractual agreement.
 
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepExtrema_ExtPF.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepLib_MakeVertex.hxx>
 #include <gp.hxx>
 #include <gp_Dir.hxx>
@@ -92,10 +92,14 @@ Standard_Boolean HLRBRep_EdgeFaceTool::UVPoint(const Standard_Real    Par,
   }
   else
   {
-    BRepAdaptor_Curve2d PC(((HLRBRep_Curve*)E)->Curve().Edge(),
-                           ((HLRBRep_Surface*)F)->Surface().Face());
-    gp_Pnt2d            P2d;
-    PC.D0(Par, P2d);
+    Standard_Real aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(
+      ((HLRBRep_Curve*)E)->Curve().Edge(),
+      ((HLRBRep_Surface*)F)->Surface().Face(),
+      aFirst, aLast);
+    Handle(Geom2dAdaptor_Curve) PC = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+    gp_Pnt2d P2d;
+    PC->D0(Par, P2d);
     U = P2d.X();
     V = P2d.Y();
   }

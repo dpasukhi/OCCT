@@ -18,6 +18,8 @@
 
 #include <BRep_Tool.hxx>
 #include <ChFi3d_Builder_0.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -333,10 +335,13 @@ Standard_Integer ChFi3d::ConcaveSide(const BRepAdaptor_Surface& S1,
       return 0;
     }
   }
-  BRepAdaptor_Curve2d pc1(E1, F1);
-  BRepAdaptor_Curve2d pc2(E2, F2);
-  gp_Pnt2d            p2d1, p2d2;
-  gp_Vec              DU1, DV1, DU2, DV2;
+  Standard_Real        aFirst1, aLast1, aFirst2, aLast2;
+  Handle(Geom2d_Curve) aPCurve1 = BRep_Tool::CurveOnSurface(E1, F1, aFirst1, aLast1);
+  Handle(Geom2d_Curve) aPCurve2 = BRep_Tool::CurveOnSurface(E2, F2, aFirst2, aLast2);
+  Geom2dAdaptor_Curve  pc1(aPCurve1, aFirst1, aLast1);
+  Geom2dAdaptor_Curve  pc2(aPCurve2, aFirst2, aLast2);
+  gp_Pnt2d             p2d1, p2d2;
+  gp_Vec               DU1, DV1, DU2, DV2;
   p2d1 = pc1.Value(par);
   p2d2 = pc2.Value(par);
   S1.D1(p2d1.X(), p2d1.Y(), pt1, DU1, DV1);

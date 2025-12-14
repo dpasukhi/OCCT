@@ -917,7 +917,9 @@ void HLRBRep_PolyAlgo::InitBiPointsWithConnexity(
       const Handle(HLRAlgo_PolyInternalData)& pid1 = thePID.Value(i1);
       if (!aHPol[0].IsNull())
       {
-        myPC.Initialize(theEdge, aF1);
+        Standard_Real aFirst, aLast;
+        Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(theEdge, aF1, aFirst, aLast);
+        myPC = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
         const Handle(TColStd_HArray1OfReal)&    par            = aHPol[0]->Parameters();
         const TColStd_Array1OfInteger&          aPol1          = aHPol[0]->Nodes();
         const Standard_Integer                  aNbPol         = aPol1.Upper();
@@ -973,9 +975,9 @@ void HLRBRep_PolyAlgo::InitBiPointsWithConnexity(
 #endif
         aNode12Indices->Flag |= NMsk_Edge;
         TIMultiply(XTI2, YTI2, ZTI2);
-        if (aPol1(1) == aPol1(aNbPol) && myPC.IsPeriodic())
+        if (aPol1(1) == aPol1(aNbPol) && myPC->IsPeriodic())
         {
-          U2 = U2 - myPC.Period();
+          U2 = U2 - myPC->Period();
         }
 
         if (aNbPol == 2 && BRep_Tool::Degenerated(theEdge))
@@ -1096,7 +1098,9 @@ void HLRBRep_PolyAlgo::InitBiPointsWithConnexity(
       const Handle(HLRAlgo_PolyInternalData)& pid2 = thePID.Value(i2);
       if (!aHPol[0].IsNull() && !aHPol[1].IsNull())
       {
-        myPC.Initialize(theEdge, aF1);
+        Standard_Real aFirst, aLast;
+        Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(theEdge, aF1, aFirst, aLast);
+        myPC = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
         const TColStd_Array1OfInteger&          aPol1          = aHPol[0]->Nodes();
         const TColStd_Array1OfInteger&          aPol2          = aHPol[1]->Nodes();
         const Handle(TColStd_HArray1OfReal)&    par            = aHPol[0]->Parameters();
@@ -1182,9 +1186,9 @@ void HLRBRep_PolyAlgo::InitBiPointsWithConnexity(
         aNode12Indices->Flag |= NMsk_Edge;
         aNod22Indices->Flag |= NMsk_Edge;
         TIMultiply(XTI2, YTI2, ZTI2);
-        if (aPol1(1) == aPol1(aNbPol1) && myPC.IsPeriodic())
+        if (aPol1(1) == aPol1(aNbPol1) && myPC->IsPeriodic())
         {
-          U2 = U2 - myPC.Period();
+          U2 = U2 - myPC->Period();
         }
 
         if (aNbPol1 == 2 && BRep_Tool::Degenerated(theEdge))

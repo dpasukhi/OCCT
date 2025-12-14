@@ -19,7 +19,7 @@
 
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepAdaptor_Curve.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <HLRAlgo_Array1OfTData.hxx>
 #include <HLRAlgo_Array1OfPISeg.hxx>
@@ -619,10 +619,10 @@ private:
   Standard_Real              myTolSta;
   Standard_Real              myTolEnd;
   Standard_Real              myTolAngular;
-  Handle(Geom_Surface)       myGSurf;
-  BRepAdaptor_Surface        myBSurf;
-  BRepAdaptor_Curve          myBCurv;
-  BRepAdaptor_Curve2d        myPC;
+  Handle(Geom_Surface)         myGSurf;
+  BRepAdaptor_Surface          myBSurf;
+  BRepAdaptor_Curve            myBCurv;
+  Handle(Geom2dAdaptor_Curve)  myPC;
 };
 
 #endif // _HLRBRep_PolyAlgo_HeaderFile

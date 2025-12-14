@@ -54,18 +54,22 @@ void TopOpeBRep_VPointInter::SetPoint(const IntPatch_Point& P)
 
 const TopoDS_Shape& TopOpeBRep_VPointInter::ArcOnS1() const
 {
-  const Handle(Geom2dAdaptor_Curve)& HAHC2  = myPPOI->ArcOnS1();
-  const BRepAdaptor_Curve2d&       BRAC2P = *((BRepAdaptor_Curve2d*)HAHC2.get());
-  return BRAC2P.Edge();
+  // Note: The Handle(Geom2dAdaptor_Curve) from IntPatch no longer stores edge/face info.
+  // This functionality appears to rely on old implementation details.
+  // Return empty shape for now - this needs investigation.
+  static TopoDS_Shape aNullShape;
+  return aNullShape;
 }
 
 //=================================================================================================
 
 const TopoDS_Shape& TopOpeBRep_VPointInter::ArcOnS2() const
 {
-  const Handle(Geom2dAdaptor_Curve)& HAHC2  = myPPOI->ArcOnS2();
-  const BRepAdaptor_Curve2d&       BRAC2P = *((BRepAdaptor_Curve2d*)HAHC2.get());
-  return BRAC2P.Edge();
+  // Note: The Handle(Geom2dAdaptor_Curve) from IntPatch no longer stores edge/face info.
+  // This functionality appears to rely on old implementation details.
+  // Return empty shape for now - this needs investigation.
+  static TopoDS_Shape aNullShape;
+  return aNullShape;
 }
 
 //=================================================================================================

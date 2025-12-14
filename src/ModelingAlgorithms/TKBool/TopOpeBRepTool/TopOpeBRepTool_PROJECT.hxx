@@ -50,23 +50,23 @@ Standard_EXPORT Standard_Boolean FUN_tool_projPonC(const gp_Pnt&            P,
                                                    const BRepAdaptor_Curve& BAC,
                                                    Standard_Real&           param,
                                                    Standard_Real&           dist);
-Standard_EXPORT Standard_Boolean FUN_tool_projPonC2D(const gp_Pnt&              P,
-                                                     const Standard_Real        tole,
-                                                     const BRepAdaptor_Curve2d& BAC2D,
-                                                     const Standard_Real        pmin,
-                                                     const Standard_Real        pmax,
-                                                     Standard_Real&             param,
-                                                     Standard_Real&             dist);
-Standard_EXPORT Standard_Boolean FUN_tool_projPonC2D(const gp_Pnt&              P,
-                                                     const BRepAdaptor_Curve2d& BAC2D,
-                                                     const Standard_Real        pmin,
-                                                     const Standard_Real        pmax,
-                                                     Standard_Real&             param,
-                                                     Standard_Real&             dist);
-Standard_EXPORT Standard_Boolean FUN_tool_projPonC2D(const gp_Pnt&              P,
-                                                     const BRepAdaptor_Curve2d& BAC2D,
-                                                     Standard_Real&             param,
-                                                     Standard_Real&             dist);
+Standard_EXPORT Standard_Boolean FUN_tool_projPonC2D(const gp_Pnt&                P,
+                                                     const Standard_Real          tole,
+                                                     const BRepAdaptor_Curve2d&   AC2D,
+                                                     const Standard_Real          pmin,
+                                                     const Standard_Real          pmax,
+                                                     Standard_Real&               param,
+                                                     Standard_Real&               dist);
+Standard_EXPORT Standard_Boolean FUN_tool_projPonC2D(const gp_Pnt&                P,
+                                                     const BRepAdaptor_Curve2d&   AC2D,
+                                                     const Standard_Real          pmin,
+                                                     const Standard_Real          pmax,
+                                                     Standard_Real&               param,
+                                                     Standard_Real&               dist);
+Standard_EXPORT Standard_Boolean FUN_tool_projPonC2D(const gp_Pnt&                P,
+                                                     const BRepAdaptor_Curve2d&   AC2D,
+                                                     Standard_Real&               param,
+                                                     Standard_Real&               dist);
 Standard_EXPORT Standard_Boolean
   FUN_tool_projPonS(const gp_Pnt&               P,
                     const Handle(Geom_Surface)& S,

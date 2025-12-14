@@ -19,10 +19,12 @@
 
 #include <Geom2dAdaptor_Curve.hxx>
 #include <Adaptor3d_Surface.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopoDS_Face.hxx>
+#include <TopoDS_Edge.hxx>
 #include <TColStd_ListIteratorOfListOfTransient.hxx>
+#include <TopTools_ListOfShape.hxx>
+#include <TopTools_ListIteratorOfListOfShape.hxx>
 #include <Adaptor3d_TopolTool.hxx>
 #include <TopAbs_State.hxx>
 #include <TopAbs_Orientation.hxx>
@@ -136,9 +138,12 @@ private:
   TopExp_Explorer                       myVIterator;
   TopoDS_Face                           myFace;
   Standard_Address                      myFClass2d;
-  Handle(BRepAdaptor_Curve2d)           myCurve;
+  Handle(Geom2dAdaptor_Curve)           myCurve;
+  TopoDS_Edge                           myEdge;
   TColStd_ListOfTransient               myCurves;
+  TopTools_ListOfShape                  myEdges;
   TColStd_ListIteratorOfListOfTransient myCIterator;
+  TopTools_ListIteratorOfListOfShape    myEIterator;
   Standard_Real                         myU0;
   Standard_Real                         myV0;
   Standard_Real                         myDU;

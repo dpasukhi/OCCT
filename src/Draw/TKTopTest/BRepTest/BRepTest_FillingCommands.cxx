@@ -30,7 +30,6 @@
 #include <Draw_ProgressIndicator.hxx>
 #include <DrawTrSurf.hxx>
 #include <BRepAdaptor_Surface.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepTest.hxx>
 #include <DBRep.hxx>
 #include <TColStd_HArray1OfInteger.hxx>
@@ -131,15 +130,15 @@ static Standard_Integer plate(Draw_Interpretor& di, Standard_Integer n, const ch
     Standard_Integer T = Draw::Atoi(a[3 * i + 3]);
     Tang->SetValue(i, T);
     NbPtsCur->SetValue(i, Draw::Atoi(a[2]));
-    BRepAdaptor_Surface aSurfAdaptor(F);
-    BRepAdaptor_Curve2d aPCurveAdaptor(E, F);
+    BRepAdaptor_Surface  aSurfAdaptor(F);
+    Standard_Real        aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(E, F, aFirst, aLast);
 
     // Create GeomAdaptor_Curve with COS modifier for Fronts storage
     Handle(GeomAdaptor_Curve) HCurveAdaptor = new GeomAdaptor_Curve();
     {
-      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
-        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
-      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aPCurve, aFirst, aLast);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
       HCurveAdaptor->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     }
     Fronts->SetValue(i, HCurveAdaptor);
@@ -147,9 +146,8 @@ static Standard_Integer plate(Draw_Interpretor& di, Standard_Integer n, const ch
     // Create another curve for the constraint
     GeomAdaptor_Curve aCurveForConstraint;
     {
-      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
-        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
-      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aPCurve, aFirst, aLast);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
       aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     }
     Handle(GeomPlate_CurveConstraint) Cont = new BRepFill_CurveConstraint(
@@ -261,14 +259,14 @@ static Standard_Integer gplate(Draw_Interpretor& di, Standard_Integer n, const c
       TopoDS_Face F = TopoDS::Face(aLocalFace);
       if (F.IsNull())
         return 1;
-      BRepAdaptor_Surface aSurfAdaptor(F);
-      BRepAdaptor_Curve2d aPCurveAdaptor(E, F);
+      BRepAdaptor_Surface  aSurfAdaptor(F);
+      Standard_Real        aFirst, aLast;
+      Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(E, F, aFirst, aLast);
 
       GeomAdaptor_Curve aCurveForConstraint;
       {
-        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
-          static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
-        auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+        auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aPCurve, aFirst, aLast);
+        auto aSrf  = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
         aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
       }
       Handle(GeomPlate_CurveConstraint) Cont =
@@ -378,15 +376,15 @@ static Standard_Integer approxplate(Draw_Interpretor& di, Standard_Integer n, co
     Standard_Integer T = Draw::Atoi(a[3 * i + 3]);
     Tang->SetValue(i, T);
     NbPtsCur->SetValue(i, NbMedium);
-    BRepAdaptor_Surface aSurfAdaptor(F);
-    BRepAdaptor_Curve2d aPCurveAdaptor(E, F);
+    BRepAdaptor_Surface  aSurfAdaptor(F);
+    Standard_Real        aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(E, F, aFirst, aLast);
 
     // Create GeomAdaptor_Curve with COS modifier for Fronts storage
     Handle(GeomAdaptor_Curve) HCurveAdaptor = new GeomAdaptor_Curve();
     {
-      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
-        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
-      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aPCurve, aFirst, aLast);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
       HCurveAdaptor->SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     }
     Fronts->SetValue(i, HCurveAdaptor);
@@ -394,9 +392,8 @@ static Standard_Integer approxplate(Draw_Interpretor& di, Standard_Integer n, co
     // Create another curve for the constraint
     GeomAdaptor_Curve aCurveForConstraint;
     {
-      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(
-        static_cast<const Geom2dAdaptor_Curve&>(aPCurveAdaptor));
-      auto aSrf = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
+      auto aPCrv = std::make_unique<Geom2dAdaptor_Curve>(aPCurve, aFirst, aLast);
+      auto aSrf  = std::make_unique<GeomAdaptor_Surface>(aSurfAdaptor.Surface());
       aCurveForConstraint.SetCurveOnSurface(std::move(aPCrv), std::move(aSrf));
     }
     Handle(GeomPlate_CurveConstraint) Cont = new BRepFill_CurveConstraint(

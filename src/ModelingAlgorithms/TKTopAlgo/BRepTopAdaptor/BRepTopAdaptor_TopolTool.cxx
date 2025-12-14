@@ -86,25 +86,34 @@ void BRepTopAdaptor_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
   myNbSamplesU = -1;
   myS          = S;
   myCurves.Clear();
+  myEdges.Clear();
   TopExp_Explorer ex(myFace, TopAbs_EDGE);
   for (; ex.More(); ex.Next())
   {
-    Handle(BRepAdaptor_Curve2d) aCurve =
-      new BRepAdaptor_Curve2d(BRepAdaptor_Curve2d(TopoDS::Edge(ex.Current()), myFace));
-    myCurves.Append(aCurve);
+    const TopoDS_Edge& anEdge = TopoDS::Edge(ex.Current());
+    Standard_Real      aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(anEdge, myFace, aFirst, aLast);
+    if (!aPCurve.IsNull())
+    {
+      Handle(Geom2dAdaptor_Curve) aCurve = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+      myCurves.Append(aCurve);
+      myEdges.Append(anEdge);
+    }
   }
   myCIterator = TColStd_ListIteratorOfListOfTransient();
+  myEIterator = TopTools_ListIteratorOfListOfShape();
 }
 
 //=================================================================================================
 
 void BRepTopAdaptor_TopolTool::Initialize(const Handle(Geom2dAdaptor_Curve)& C)
 {
-  myCurve = Handle(BRepAdaptor_Curve2d)::DownCast(C);
+  myCurve = C;
   if (myCurve.IsNull())
   {
     throw Standard_ConstructionError();
   }
+  myEdge.Nullify();
 }
 
 //=================================================================================================
@@ -112,6 +121,7 @@ void BRepTopAdaptor_TopolTool::Initialize(const Handle(Geom2dAdaptor_Curve)& C)
 void BRepTopAdaptor_TopolTool::Init()
 {
   myCIterator.Initialize(myCurves);
+  myEIterator.Initialize(myEdges);
 }
 
 //=================================================================================================
@@ -126,13 +136,16 @@ Standard_Boolean BRepTopAdaptor_TopolTool::More()
 void BRepTopAdaptor_TopolTool::Next()
 {
   myCIterator.Next();
+  myEIterator.Next();
 }
 
 //=================================================================================================
 
 Handle(Geom2dAdaptor_Curve) BRepTopAdaptor_TopolTool::Value()
 {
-  return Handle(Geom2dAdaptor_Curve)::DownCast(myCIterator.Value());
+  myCurve = Handle(Geom2dAdaptor_Curve)::DownCast(myCIterator.Value());
+  myEdge  = TopoDS::Edge(myEIterator.Value());
+  return myCurve;
 }
 
 // modified by NIZNHY-PKV Tue Mar 27 14:23:40 2001 f
@@ -140,8 +153,9 @@ Handle(Geom2dAdaptor_Curve) BRepTopAdaptor_TopolTool::Value()
 
 Standard_Address BRepTopAdaptor_TopolTool::Edge() const
 {
-  Handle(BRepAdaptor_Curve2d) aHCurve = Handle(BRepAdaptor_Curve2d)::DownCast(myCIterator.Value());
-  return Standard_Address(&aHCurve->Edge());
+  // Edge information is no longer stored in curve adaptor
+  // Return address of stored edge member if available
+  return Standard_Address(&myEdge);
 }
 
 // modified by NIZNHY-PKV Tue Mar 27 14:23:43 2001 t
@@ -149,7 +163,7 @@ Standard_Address BRepTopAdaptor_TopolTool::Edge() const
 
 void BRepTopAdaptor_TopolTool::InitVertexIterator()
 {
-  myVIterator.Init(myCurve->Edge(), TopAbs_VERTEX);
+  myVIterator.Init(myEdge, TopAbs_VERTEX);
 }
 
 //=================================================================================================
@@ -168,7 +182,7 @@ void BRepTopAdaptor_TopolTool::NextVertex()
 
 Handle(Adaptor3d_HVertex) BRepTopAdaptor_TopolTool::Vertex()
 {
-  return new BRepTopAdaptor_HVertex(TopoDS::Vertex(myVIterator.Current()), myCurve);
+  return new BRepTopAdaptor_HVertex(TopoDS::Vertex(myVIterator.Current()), myCurve, myEdge, myFace);
 }
 
 //=================================================================================================
@@ -215,8 +229,9 @@ void BRepTopAdaptor_TopolTool::Destroy()
 
 TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(Geom2dAdaptor_Curve)& C)
 {
-  Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
-  return brhc->Edge().Orientation();
+  // Edge orientation is no longer stored in curve adaptor
+  // Return orientation of stored edge member
+  return myEdge.Orientation();
 }
 
 //=================================================================================================
@@ -579,16 +594,9 @@ Standard_Boolean BRepTopAdaptor_TopolTool::Has3d() const
 
 Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Geom2dAdaptor_Curve)& C) const
 {
-  Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
-  if (brhc.IsNull())
-  {
+  if (myEdge.IsNull())
     throw Standard_DomainError("BRepTopAdaptor_TopolTool: arc has no 3d representation");
-  }
-
-  const TopoDS_Edge& edge = brhc->Edge();
-  if (edge.IsNull())
-    throw Standard_DomainError("BRepTopAdaptor_TopolTool: arc has no 3d representation");
-  return BRep_Tool::Tolerance(edge);
+  return BRep_Tool::Tolerance(myEdge);
 }
 
 //=================================================================================================

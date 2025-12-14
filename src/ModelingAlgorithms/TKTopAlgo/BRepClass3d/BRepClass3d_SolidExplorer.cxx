@@ -25,8 +25,9 @@
 //-- To printf on NT
 
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepBndLib.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepClass3d_SolidExplorer.hxx>
 #include <BRepClass_FaceClassifier.hxx>
 #include <BRepClass_FacePassiveClassifier.hxx>
@@ -92,15 +93,20 @@ Standard_Boolean BRepClass3d_SolidExplorer::FindAPointInTheFace(const TopoDS_Fac
   TopoDS_Face face = _face;
   face.Orientation(TopAbs_FORWARD);
 
-  TopExp_Explorer     faceexplorer;
-  BRepAdaptor_Curve2d c;
-  gp_Vec2d            T;
-  gp_Pnt2d            P;
+  TopExp_Explorer faceexplorer;
+  gp_Vec2d        T;
+  gp_Pnt2d        P;
 
   for (faceexplorer.Init(face, TopAbs_EDGE); faceexplorer.More(); faceexplorer.Next())
   {
     TopoDS_Edge Edge = TopoDS::Edge(faceexplorer.Current());
-    c.Initialize(Edge, face);
+
+    Standard_Real        aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(Edge, face, aFirst, aLast);
+    if (aPCurve.IsNull())
+      continue;
+
+    Geom2dAdaptor_Curve c(aPCurve, aFirst, aLast);
     c.D1((c.LastParameter() - c.FirstParameter()) * param_ + c.FirstParameter(), P, T);
 
     Standard_Real x = T.X();

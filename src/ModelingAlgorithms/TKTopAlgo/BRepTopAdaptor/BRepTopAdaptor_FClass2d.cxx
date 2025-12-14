@@ -18,8 +18,9 @@
 
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Curve.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepClass_FaceClassifier.hxx>
 #include <BRepTools_WireExplorer.hxx>
 #include <BRepTopAdaptor_FClass2d.hxx>
@@ -160,8 +161,13 @@ BRepTopAdaptor_FClass2d::BRepTopAdaptor_FClass2d(const TopoDS_Face&  aFace,
           degenerated = Standard_True;
         }
 
-        const BRepAdaptor_Curve2d aCurveAdaptor2D(edge, Face);
-        const BRepAdaptor_Curve   aCurveAdaptor3D(edge, Face);
+        Standard_Real            aFirst2d, aLast2d;
+        Handle(Geom2d_Curve)     aPCurve = BRep_Tool::CurveOnSurface(edge, Face, aFirst2d, aLast2d);
+        if (aPCurve.IsNull())
+          return;
+
+        Geom2dAdaptor_Curve      aCurveAdaptor2D(aPCurve, aFirst2d, aLast2d);
+        const BRepAdaptor_Curve  aCurveAdaptor3D(edge, Face);
 
         //-- Check cases when it was forgotten to code degenerated :  PRO17410 (janv 99)
         if (degenerated == Standard_False)
@@ -333,7 +339,13 @@ BRepTopAdaptor_FClass2d::BRepTopAdaptor_FClass2d(const TopoDS_Face&  aFace,
               BRep_Tool::Range(edge, Face, pfbid, plbid);
               if (std::abs(plbid - pfbid) < 1.e-9)
                 continue;
-              BRepAdaptor_Curve2d           C(edge, Face);
+
+              Standard_Real        aPFirst, aPLast;
+              Handle(Geom2d_Curve) aPC = BRep_Tool::CurveOnSurface(edge, Face, aPFirst, aPLast);
+              if (aPC.IsNull())
+                continue;
+
+              Geom2dAdaptor_Curve           C(aPC, aPFirst, aPLast);
               GCPnts_QuasiUniformDeflection aDiscr(C, aDiscrDefl);
               if (!aDiscr.IsDone())
                 break;

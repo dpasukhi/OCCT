@@ -23,8 +23,8 @@
 #include <BOPTools_ListOfCoupleOfShape.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepClass3d_SolidClassifier.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepLib.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom2dInt_Geom2dCurveTool.hxx>
@@ -1503,7 +1503,7 @@ Standard_Boolean BOPTools_AlgoTools::IsHole(const TopoDS_Shape& aW, const TopoDS
       break; // xx
     }
     //
-    BRepAdaptor_Curve2d aBAC2D(aE, aFF);
+    Geom2dAdaptor_Curve aBAC2D(aC2D, aT1, aT2);
     aNbS = Geom2dInt_Geom2dCurveTool::NbSamples(aBAC2D);
     if (aNbS > 2)
     {

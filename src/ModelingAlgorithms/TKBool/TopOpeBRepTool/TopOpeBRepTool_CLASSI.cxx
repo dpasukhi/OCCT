@@ -30,6 +30,8 @@
 #include <TopOpeBRepTool_EXPORT.hxx>
 #include <TopOpeBRepTool_face.hxx>
 #include <TopOpeBRepTool_TOOL.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 
 #define SAME (-1)
 #define DIFF (-2)
@@ -79,8 +81,10 @@ Standard_Boolean TopOpeBRepTool_CLASSI::Add2d(const TopoDS_Shape& S)
     Standard_Boolean haspc = FC2D_HasCurveOnSurface(E, myFref);
     if (!haspc)
       return Standard_False;
-    BRepAdaptor_Curve2d BC2d(E, myFref);
-    Standard_Real       tol2d = BC2d.Resolution(tolE);
+    Standard_Real        aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(E, myFref, aFirst, aLast);
+    Geom2dAdaptor_Curve  BC2d(aPCurve, aFirst, aLast);
+    Standard_Real        tol2d = BC2d.Resolution(tolE);
     BndLib_Add2dCurve::Add(BC2d, tol2d, B2d);
   }
   mymapsbox2d.Add(S, B2d);

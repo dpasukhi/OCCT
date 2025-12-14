@@ -18,12 +18,12 @@
 #include <BndLib_Add2dCurve.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepLib.hxx>
 #include <BRepLib_MakeVertex.hxx>
 #include <BRepTools.hxx>
 #include <Extrema_ExtCC.hxx>
 #include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dAPI_ProjectPointOnCurve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Plane.hxx>
@@ -275,12 +275,14 @@ void LocOpe_WiresOnShape::BindAll()
         continue;
       }
 
-      Standard_Real       vtx_param = BRep_Tool::Parameter(vtx, edg);
-      BRepAdaptor_Curve2d BAcurve2d(edg, fac);
+      Standard_Real vtx_param = BRep_Tool::Parameter(vtx, edg);
+      Standard_Real aFirst, aLast;
+      Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(edg, fac, aFirst, aLast);
+      Handle(Geom2dAdaptor_Curve) BAcurve2d = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
 
       gp_Pnt2d p2d =
-        (!BAcurve2d.Curve().IsNull() ? BAcurve2d.Value(vtx_param)
-                                     : gp_Pnt2d(Precision::Infinite(), Precision::Infinite()));
+        (!BAcurve2d->Curve().IsNull() ? BAcurve2d->Value(vtx_param)
+                                      : gp_Pnt2d(Precision::Infinite(), Precision::Infinite()));
 
       TopoDS_Edge      Epro;
       Standard_Real    prm         = Precision::Infinite();
@@ -452,10 +454,12 @@ Standard_Boolean LocOpe_WiresOnShape::OnEdge(const TopoDS_Vertex& V,
   if (aC.IsNull() && aShape.ShapeType() == TopAbs_FACE)
   {
 
-    TopoDS_Face         aFace     = TopoDS::Face(aShape);
-    Standard_Real       vtx_param = BRep_Tool::Parameter(V, EdgeFrom);
-    BRepAdaptor_Curve2d BAcurve2d(EdgeFrom, aFace);
-    gp_Pnt2d            p2d = BAcurve2d.Value(vtx_param);
+    TopoDS_Face aFace = TopoDS::Face(aShape);
+    Standard_Real vtx_param = BRep_Tool::Parameter(V, EdgeFrom);
+    Standard_Real aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(EdgeFrom, aFace, aFirst, aLast);
+    Handle(Geom2dAdaptor_Curve) BAcurve2d = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+    gp_Pnt2d p2d = BAcurve2d->Value(vtx_param);
 
     prm = Project(V, p2d, Ed, aFace);
   }
@@ -1117,10 +1121,12 @@ void PutPCurves(const TopoDS_Edge& Efrom, const TopoDS_Edge& Eto, const TopoDS_S
 
     C->D1(f, pt, d1f);
 
-    TopoDS_Vertex       FirstVertex = TopExp::FirstVertex(Efrom);
-    Standard_Real       vtx_param   = BRep_Tool::Parameter(FirstVertex, Efrom);
-    BRepAdaptor_Curve2d BAcurve2d(Efrom, Fac);
-    gp_Pnt2d            p2d = BAcurve2d.Value(vtx_param);
+    TopoDS_Vertex FirstVertex = TopExp::FirstVertex(Efrom);
+    Standard_Real vtx_param = BRep_Tool::Parameter(FirstVertex, Efrom);
+    Standard_Real aFirst, aLast;
+    Handle(Geom2d_Curve) aPCurve = BRep_Tool::CurveOnSurface(Efrom, Fac, aFirst, aLast);
+    Handle(Geom2dAdaptor_Curve) BAcurve2d = new Geom2dAdaptor_Curve(aPCurve, aFirst, aLast);
+    gp_Pnt2d p2d = BAcurve2d->Value(vtx_param);
 
     Standard_Real prmproj = Project(TopExp::FirstVertex(Efrom), p2d, Eto, Fac);
 
@@ -1279,9 +1285,11 @@ void FindInternalIntersections(const TopoDS_Edge&                         theEdg
   // clang-format on
   Standard_Real aTolVExt[2] = {ext * aTolV[0] * aTolV[0], ext * aTolV[1] * aTolV[1]};
 
-  BRepAdaptor_Curve2d thePCurve(theEdge, theFace);
-  Bnd_Box2d           theBox;
-  BndLib_Add2dCurve::Add(thePCurve, BRep_Tool::Tolerance(theEdge), theBox);
+  Standard_Real aFirst, aLast;
+  Handle(Geom2d_Curve) aPCurveGeom = BRep_Tool::CurveOnSurface(theEdge, theFace, aFirst, aLast);
+  Handle(Geom2dAdaptor_Curve) thePCurve = new Geom2dAdaptor_Curve(aPCurveGeom, aFirst, aLast);
+  Bnd_Box2d theBox;
+  BndLib_Add2dCurve::Add(*thePCurve, BRep_Tool::Tolerance(theEdge), theBox);
 
   Standard_Real             thePar[2];
   Standard_Real             aFpar, aLpar;
@@ -1294,10 +1302,12 @@ void FindInternalIntersections(const TopoDS_Edge&                         theEdg
   TopExp_Explorer Explo(theFace, TopAbs_EDGE);
   for (; Explo.More(); Explo.Next())
   {
-    const TopoDS_Edge&  anEdge = TopoDS::Edge(Explo.Current());
-    BRepAdaptor_Curve2d aPCurve(anEdge, theFace);
-    Bnd_Box2d           aBox;
-    BndLib_Add2dCurve::Add(aPCurve, BRep_Tool::Tolerance(anEdge), aBox);
+    const TopoDS_Edge& anEdge = TopoDS::Edge(Explo.Current());
+    Standard_Real aFirstE, aLastE;
+    Handle(Geom2d_Curve) aPCurveGeomE = BRep_Tool::CurveOnSurface(anEdge, theFace, aFirstE, aLastE);
+    Handle(Geom2dAdaptor_Curve) aPCurve = new Geom2dAdaptor_Curve(aPCurveGeomE, aFirstE, aLastE);
+    Bnd_Box2d aBox;
+    BndLib_Add2dCurve::Add(*aPCurve, BRep_Tool::Tolerance(anEdge), aBox);
     if (theBox.IsOut(aBox))
       continue;
 

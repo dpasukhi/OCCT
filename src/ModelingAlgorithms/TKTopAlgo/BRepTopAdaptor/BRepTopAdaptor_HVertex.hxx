@@ -18,10 +18,12 @@
 #define _BRepTopAdaptor_HVertex_HeaderFile
 
 #include <Adaptor3d_HVertex.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_Type.hxx>
 #include <TopAbs_Orientation.hxx>
+#include <TopoDS_Edge.hxx>
+#include <TopoDS_Face.hxx>
 #include <TopoDS_Vertex.hxx>
 
 class gp_Pnt2d;
@@ -34,7 +36,9 @@ class BRepTopAdaptor_HVertex : public Adaptor3d_HVertex
 
 public:
   Standard_EXPORT BRepTopAdaptor_HVertex(const TopoDS_Vertex&               Vtx,
-                                         const Handle(BRepAdaptor_Curve2d)& Curve);
+                                         const Handle(Geom2dAdaptor_Curve)& Curve,
+                                         const TopoDS_Edge&                 Edge,
+                                         const TopoDS_Face&                 Face);
 
   const TopoDS_Vertex& Vertex() const;
 
@@ -59,7 +63,9 @@ public:
 protected:
 private:
   TopoDS_Vertex               myVtx;
-  Handle(BRepAdaptor_Curve2d) myCurve;
+  Handle(Geom2dAdaptor_Curve) myCurve;
+  TopoDS_Edge                 myEdge;
+  TopoDS_Face                 myFace;
 };
 
 #include <BRepTopAdaptor_HVertex.lxx>

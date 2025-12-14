@@ -16,8 +16,9 @@
 
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Curve.hxx>
-#include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepClass_FaceClassifier.hxx>
 #include <BRepTools_WireExplorer.hxx>
 #include <CSLib_Class2d.hxx>
@@ -159,7 +160,7 @@ void IntTools_FClass2d::Init(const TopoDS_Face& aFace, const Standard_Real TolUV
         return;
       }
       //
-      BRepAdaptor_Curve2d C(edge, Face);
+      Geom2dAdaptor_Curve C(aC2D, pfbid, plbid);
       BRepAdaptor_Curve   C3d;
       //------------------------------------------
       degenerated = Standard_False;
@@ -455,7 +456,13 @@ void IntTools_FClass2d::Init(const TopoDS_Face& aFace, const Standard_Real TolUV
               BRep_Tool::Range(edge, Face, pfbid, plbid);
               if (std::abs(plbid - pfbid) < 1.e-9)
                 continue;
-              BRepAdaptor_Curve2d           C(edge, Face);
+
+              Standard_Real        aPFirst, aPLast;
+              Handle(Geom2d_Curve) aPC = BRep_Tool::CurveOnSurface(edge, Face, aPFirst, aPLast);
+              if (aPC.IsNull())
+                continue;
+
+              Geom2dAdaptor_Curve           C(aPC, aPFirst, aPLast);
               GCPnts_QuasiUniformDeflection aDiscr(C, aDiscrDefl);
               if (!aDiscr.IsDone())
                 break;
