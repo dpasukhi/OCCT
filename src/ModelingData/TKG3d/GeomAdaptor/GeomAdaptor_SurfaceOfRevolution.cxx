@@ -17,8 +17,8 @@
 #include <GeomAdaptor_SurfaceOfRevolution.hxx>
 
 #include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
-#include <GeomEvaluator_SurfaceOfRevolution.hxx>
 #include <Standard_NoSuchObject.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_SurfaceOfRevolution, GeomAdaptor_Surface)
@@ -56,25 +56,33 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::ShallowCopy() const
 
   if (!myBasisCurve.IsNull())
   {
-    aCopy->myBasisCurve = myBasisCurve->ShallowCopy();
+    aCopy->myBasisCurve = Handle(GeomAdaptor_Curve)::DownCast(myBasisCurve->ShallowCopy());
   }
   aCopy->myAxis     = myAxis;
   aCopy->myHaveAxis = myHaveAxis;
   aCopy->myAxeRev   = myAxeRev;
 
-  aCopy->mySurface        = mySurface;
-  aCopy->myUFirst         = myUFirst;
-  aCopy->myULast          = myULast;
-  aCopy->myVFirst         = myVFirst;
-  aCopy->myVLast          = myVLast;
-  aCopy->myTolU           = myTolU;
-  aCopy->myTolV           = myTolV;
-  aCopy->myBSplineSurface = myBSplineSurface;
-
+  aCopy->mySurface     = mySurface;
+  aCopy->myUFirst      = myUFirst;
+  aCopy->myULast       = myULast;
+  aCopy->myVFirst      = myVFirst;
+  aCopy->myVLast       = myVLast;
+  aCopy->myTolU        = myTolU;
+  aCopy->myTolV        = myTolV;
   aCopy->mySurfaceType = mySurfaceType;
-  if (!myNestedEvaluator.IsNull())
+
+  // Copy surface data variant - for revolution, shallow copy of basis curve is sufficient
+  if (const auto* aRevData = std::get_if<GeomAdaptor_Surface::RevolutionData>(&mySurfaceData))
   {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
+    GeomAdaptor_Surface::RevolutionData aNewData;
+    if (!aRevData->BasisCurve.IsNull())
+    {
+      aNewData.BasisCurve =
+        Handle(GeomAdaptor_Curve)::DownCast(aRevData->BasisCurve->ShallowCopy());
+    }
+    aNewData.AxisLoc     = aRevData->AxisLoc;
+    aNewData.AxisDir     = aRevData->AxisDir;
+    aCopy->mySurfaceData = std::move(aNewData);
   }
 
   return aCopy;
@@ -84,7 +92,7 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::ShallowCopy() const
 
 void GeomAdaptor_SurfaceOfRevolution::Load(const Handle(Adaptor3d_Curve)& C)
 {
-  myBasisCurve = C;
+  myBasisCurve = Handle(GeomAdaptor_Curve)::DownCast(C);
   if (myHaveAxis)
     Load(myAxis); // to evaluate the new myAxeRev.
 }
@@ -97,8 +105,13 @@ void GeomAdaptor_SurfaceOfRevolution::Load(const gp_Ax1& V)
   myAxis     = V;
 
   mySurfaceType = GeomAbs_SurfaceOfRevolution;
-  myNestedEvaluator =
-    new GeomEvaluator_SurfaceOfRevolution(myBasisCurve, myAxis.Direction(), myAxis.Location());
+
+  // Populate the surface data variant for revolution evaluation
+  GeomAdaptor_Surface::RevolutionData aRevData;
+  aRevData.BasisCurve = myBasisCurve;
+  aRevData.AxisLoc    = myAxis.Location().XYZ();
+  aRevData.AxisDir    = myAxis.Direction().XYZ();
+  mySurfaceData       = std::move(aRevData);
 
   // Eval myAxeRev : axe of revolution ( Determination de Ox).
   gp_Pnt           P, Q;
@@ -282,7 +295,8 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::VTrim(const Standard_
                                                                  const Standard_Real Last,
                                                                  const Standard_Real Tol) const
 {
-  Handle(Adaptor3d_Curve)                 HC = BasisCurve()->Trim(First, Last, Tol);
+  Handle(GeomAdaptor_Curve) HC =
+    Handle(GeomAdaptor_Curve)::DownCast(BasisCurve()->Trim(First, Last, Tol));
   Handle(GeomAdaptor_SurfaceOfRevolution) HR =
     new GeomAdaptor_SurfaceOfRevolution(GeomAdaptor_SurfaceOfRevolution(HC, myAxis));
   return HR;

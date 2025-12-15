@@ -17,8 +17,8 @@
 #include <GeomAdaptor_SurfaceOfLinearExtrusion.hxx>
 
 #include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Ax3.hxx>
-#include <GeomEvaluator_SurfaceOfExtrusion.hxx>
 #include <Standard_NoSuchObject.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_SurfaceOfLinearExtrusion, GeomAdaptor_Surface)
@@ -58,24 +58,31 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::ShallowCopy() co
 
   if (!myBasisCurve.IsNull())
   {
-    aCopy->myBasisCurve = myBasisCurve->ShallowCopy();
+    aCopy->myBasisCurve = Handle(GeomAdaptor_Curve)::DownCast(myBasisCurve->ShallowCopy());
   }
   aCopy->myDirection = myDirection;
   aCopy->myHaveDir   = myHaveDir;
 
-  aCopy->mySurface        = mySurface;
-  aCopy->myUFirst         = myUFirst;
-  aCopy->myULast          = myULast;
-  aCopy->myVFirst         = myVFirst;
-  aCopy->myVLast          = myVLast;
-  aCopy->myTolU           = myTolU;
-  aCopy->myTolV           = myTolV;
-  aCopy->myBSplineSurface = myBSplineSurface;
-
+  aCopy->mySurface     = mySurface;
+  aCopy->myUFirst      = myUFirst;
+  aCopy->myULast       = myULast;
+  aCopy->myVFirst      = myVFirst;
+  aCopy->myVLast       = myVLast;
+  aCopy->myTolU        = myTolU;
+  aCopy->myTolV        = myTolV;
   aCopy->mySurfaceType = mySurfaceType;
-  if (!myNestedEvaluator.IsNull())
+
+  // Copy surface data variant - for extrusion, shallow copy of basis curve is sufficient
+  if (const auto* anExtData = std::get_if<GeomAdaptor_Surface::ExtrusionData>(&mySurfaceData))
   {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
+    GeomAdaptor_Surface::ExtrusionData aNewData;
+    if (!anExtData->BasisCurve.IsNull())
+    {
+      aNewData.BasisCurve =
+        Handle(GeomAdaptor_Curve)::DownCast(anExtData->BasisCurve->ShallowCopy());
+    }
+    aNewData.Direction   = anExtData->Direction;
+    aCopy->mySurfaceData = std::move(aNewData);
   }
 
   return aCopy;
@@ -85,7 +92,7 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::ShallowCopy() co
 
 void GeomAdaptor_SurfaceOfLinearExtrusion::Load(const Handle(Adaptor3d_Curve)& C)
 {
-  myBasisCurve = C;
+  myBasisCurve = Handle(GeomAdaptor_Curve)::DownCast(C);
   if (myHaveDir)
     Load(myDirection);
 }
@@ -97,8 +104,13 @@ void GeomAdaptor_SurfaceOfLinearExtrusion::Load(const gp_Dir& V)
   myHaveDir   = Standard_True;
   myDirection = V;
 
-  mySurfaceType     = GeomAbs_SurfaceOfExtrusion;
-  myNestedEvaluator = new GeomEvaluator_SurfaceOfExtrusion(myBasisCurve, myDirection);
+  mySurfaceType = GeomAbs_SurfaceOfExtrusion;
+
+  // Populate the surface data variant for extrusion evaluation
+  GeomAdaptor_Surface::ExtrusionData anExtData;
+  anExtData.BasisCurve = myBasisCurve;
+  anExtData.Direction  = myDirection.XYZ();
+  mySurfaceData        = std::move(anExtData);
 }
 
 //=================================================================================================
@@ -180,7 +192,8 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::VTrim(const Stan
                                                                       const Standard_Real Last,
                                                                       const Standard_Real Tol) const
 {
-  Handle(Adaptor3d_Curve)                      HC = BasisCurve()->Trim(First, Last, Tol);
+  Handle(GeomAdaptor_Curve) HC =
+    Handle(GeomAdaptor_Curve)::DownCast(BasisCurve()->Trim(First, Last, Tol));
   Handle(GeomAdaptor_SurfaceOfLinearExtrusion) HR =
     new GeomAdaptor_SurfaceOfLinearExtrusion(GeomAdaptor_SurfaceOfLinearExtrusion(HC, myDirection));
   return HR;

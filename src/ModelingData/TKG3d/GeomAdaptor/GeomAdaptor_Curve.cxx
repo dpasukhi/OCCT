@@ -37,7 +37,6 @@
 #include <Geom_Parabola.hxx>
 #include <Geom_TrimmedCurve.hxx>
 #include <GeomAbs_Shape.hxx>
-#include <GeomEvaluator_OffsetCurve.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Elips.hxx>
 #include <gp_Hypr.hxx>
@@ -52,6 +51,8 @@
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColStd_Array1OfReal.hxx>
+
+#include "../Geom/Geom_OffsetCurveUtils.pxx"
 
 // #include <GeomConvert_BSplineCurveKnotSplitting.hxx>
 static const Standard_Real PosTol = Precision::PConfusion() / 2;
@@ -69,9 +70,16 @@ Handle(Adaptor3d_Curve) GeomAdaptor_Curve::ShallowCopy() const
   aCopy->myFirst        = myFirst;
   aCopy->myLast         = myLast;
   aCopy->myBSplineCurve = myBSplineCurve;
-  if (!myNestedEvaluator.IsNull())
+
+  // Handle offset curve data - create shallow copy of basis adaptor
+  if (const auto* anOffsetData = std::get_if<GeomAdaptor_OffsetCurveData>(&myCurveData))
   {
-    aCopy->myNestedEvaluator = myNestedEvaluator->ShallowCopy();
+    GeomAdaptor_OffsetCurveData aCopyData;
+    aCopyData.BasisAdaptor =
+      Handle(GeomAdaptor_Curve)::DownCast(anOffsetData->BasisAdaptor->ShallowCopy());
+    aCopyData.Offset    = anOffsetData->Offset;
+    aCopyData.Direction = anOffsetData->Direction;
+    aCopy->myCurveData  = aCopyData;
   }
 
   return aCopy;
@@ -168,9 +176,9 @@ void GeomAdaptor_Curve::Reset()
 {
   myTypeCurve = GeomAbs_OtherCurve;
   myCurve.Nullify();
-  myNestedEvaluator.Nullify();
   myBSplineCurve.Nullify();
   myCurveCache.Nullify();
+  myCurveData = std::monostate{};
   myFirst = myLast = 0.0;
 }
 
@@ -187,8 +195,8 @@ void GeomAdaptor_Curve::load(const Handle(Geom_Curve)& C,
   if (myCurve != C)
   {
     myCurve = C;
-    myNestedEvaluator.Nullify();
     myBSplineCurve.Nullify();
+    myCurveData = std::monostate{};
 
     const Handle(Standard_Type)& TheType = C->DynamicType();
     if (TheType == STANDARD_TYPE(Geom_TrimmedCurve))
@@ -226,14 +234,13 @@ void GeomAdaptor_Curve::load(const Handle(Geom_Curve)& C,
     }
     else if (TheType == STANDARD_TYPE(Geom_OffsetCurve))
     {
-      myTypeCurve                            = GeomAbs_OffsetCurve;
-      Handle(Geom_OffsetCurve) anOffsetCurve = Handle(Geom_OffsetCurve)::DownCast(myCurve);
-      // Create nested adaptor for base curve
-      Handle(Geom_Curve)        aBaseCurve   = anOffsetCurve->BasisCurve();
-      Handle(GeomAdaptor_Curve) aBaseAdaptor = new GeomAdaptor_Curve(aBaseCurve);
-      myNestedEvaluator                      = new GeomEvaluator_OffsetCurve(aBaseAdaptor,
-                                                        anOffsetCurve->Offset(),
-                                                        anOffsetCurve->Direction());
+      myTypeCurve                               = GeomAbs_OffsetCurve;
+      Handle(Geom_OffsetCurve)    anOffsetCurve = Handle(Geom_OffsetCurve)::DownCast(C);
+      GeomAdaptor_OffsetCurveData anOffsetData;
+      anOffsetData.BasisAdaptor = new GeomAdaptor_Curve(anOffsetCurve->BasisCurve());
+      anOffsetData.Offset       = anOffsetCurve->Offset();
+      anOffsetData.Direction    = anOffsetCurve->Direction();
+      myCurveData               = anOffsetData;
     }
     else
     {
@@ -599,9 +606,18 @@ void GeomAdaptor_Curve::D0(const Standard_Real U, gp_Pnt& P) const
       break;
     }
 
-    case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D0(U, P);
+    case GeomAbs_OffsetCurve: {
+      const auto& anOffsetData = std::get<GeomAdaptor_OffsetCurveData>(myCurveData);
+      if (!Geom_OffsetCurveUtils::EvaluateD0(U,
+                                             anOffsetData.BasisAdaptor.get(),
+                                             anOffsetData.Direction,
+                                             anOffsetData.Offset,
+                                             P))
+      {
+        throw Standard_NullValue("GeomAdaptor_Curve::D0: Unable to calculate offset point");
+      }
       break;
+    }
 
     default:
       myCurve->D0(U, P);
@@ -631,9 +647,19 @@ void GeomAdaptor_Curve::D1(const Standard_Real U, gp_Pnt& P, gp_Vec& V) const
       break;
     }
 
-    case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D1(U, P, V);
+    case GeomAbs_OffsetCurve: {
+      const auto& anOffsetData = std::get<GeomAdaptor_OffsetCurveData>(myCurveData);
+      if (!Geom_OffsetCurveUtils::EvaluateD1(U,
+                                             anOffsetData.BasisAdaptor.get(),
+                                             anOffsetData.Direction,
+                                             anOffsetData.Offset,
+                                             P,
+                                             V))
+      {
+        throw Standard_NullValue("GeomAdaptor_Curve::D1: Unable to calculate offset D1");
+      }
       break;
+    }
 
     default:
       myCurve->D1(U, P, V);
@@ -663,9 +689,20 @@ void GeomAdaptor_Curve::D2(const Standard_Real U, gp_Pnt& P, gp_Vec& V1, gp_Vec&
       break;
     }
 
-    case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D2(U, P, V1, V2);
+    case GeomAbs_OffsetCurve: {
+      const auto& anOffsetData = std::get<GeomAdaptor_OffsetCurveData>(myCurveData);
+      if (!Geom_OffsetCurveUtils::EvaluateD2(U,
+                                             anOffsetData.BasisAdaptor.get(),
+                                             anOffsetData.Direction,
+                                             anOffsetData.Offset,
+                                             P,
+                                             V1,
+                                             V2))
+      {
+        throw Standard_NullValue("GeomAdaptor_Curve::D2: Unable to calculate offset D2");
+      }
       break;
+    }
 
     default:
       myCurve->D2(U, P, V1, V2);
@@ -699,9 +736,21 @@ void GeomAdaptor_Curve::D3(const Standard_Real U,
       break;
     }
 
-    case GeomAbs_OffsetCurve:
-      myNestedEvaluator->D3(U, P, V1, V2, V3);
+    case GeomAbs_OffsetCurve: {
+      const auto& anOffsetData = std::get<GeomAdaptor_OffsetCurveData>(myCurveData);
+      if (!Geom_OffsetCurveUtils::EvaluateD3(U,
+                                             anOffsetData.BasisAdaptor.get(),
+                                             anOffsetData.Direction,
+                                             anOffsetData.Offset,
+                                             P,
+                                             V1,
+                                             V2,
+                                             V3))
+      {
+        throw Standard_NullValue("GeomAdaptor_Curve::D3: Unable to calculate offset D3");
+      }
       break;
+    }
 
     default:
       myCurve->D3(U, P, V1, V2, V3);
@@ -725,9 +774,25 @@ gp_Vec GeomAdaptor_Curve::DN(const Standard_Real U, const Standard_Integer N) co
         return myCurve->DN(U, N);
     }
 
-    case GeomAbs_OffsetCurve:
-      return myNestedEvaluator->DN(U, N);
-      break;
+    case GeomAbs_OffsetCurve: {
+      const auto& anOffsetData = std::get<GeomAdaptor_OffsetCurveData>(myCurveData);
+      gp_Vec      aDN;
+      if (!Geom_OffsetCurveUtils::EvaluateDN(U,
+                                             anOffsetData.BasisAdaptor.get(),
+                                             anOffsetData.Direction,
+                                             anOffsetData.Offset,
+                                             N,
+                                             aDN))
+      {
+        if (N > 3)
+        {
+          throw Standard_NotImplemented(
+            "GeomAdaptor_Curve::DN: Derivative order > 3 not supported");
+        }
+        throw Standard_NullValue("GeomAdaptor_Curve::DN: Unable to calculate offset DN");
+      }
+      return aDN;
+    }
 
     default: // to eliminate gcc warning
       break;
