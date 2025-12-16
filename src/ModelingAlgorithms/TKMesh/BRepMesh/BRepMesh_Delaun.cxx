@@ -1550,7 +1550,7 @@ Standard_Boolean BRepMesh_Delaun::isVertexInsidePolygon(
     aPrevVertexDir = aCurVertexDir;
   }
 
-  if (std::abs(Angle2PI - aTotalAng) > Precision::Angular())
+  if (std::abs(std::abs(aTotalAng) - Angle2PI) > Precision::Angular())
     return Standard_False;
 
   return Standard_True;
@@ -2379,7 +2379,6 @@ Standard_Boolean BRepMesh_Delaun::UseEdge(const Standard_Integer /*theIndex*/)
 Handle(IMeshData::MapOfInteger) BRepMesh_Delaun::getEdgesByType(
   const BRepMesh_DegreeOfFreedom theEdgeType) const
 {
-  Handle(NCollection_IncAllocator)  anAlloc = new NCollection_IncAllocator;
   Handle(IMeshData::MapOfInteger)   aResult = new IMeshData::MapOfInteger;
   IMeshData::IteratorOfMapOfInteger anEdgeIt(myMeshData->LinksOfDomain());
 
