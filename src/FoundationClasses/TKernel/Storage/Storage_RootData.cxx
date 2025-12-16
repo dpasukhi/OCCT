@@ -13,11 +13,9 @@
 // commercial license or contractual agreement.
 
 #include <Standard_Persistent.hxx>
-#include <Standard_ErrorHandler.hxx>
 #include <Storage_RootData.hxx>
 #include <Storage_Root.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
 #include <Storage_DataMapIteratorOfMapOfPers.hxx>
 #include <TCollection_AsciiString.hxx>
 
@@ -52,14 +50,11 @@ Standard_Boolean Storage_RootData::Read(const Handle(Storage_BaseDriver)& theDri
   Standard_Integer len = theDriver->RootSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
+    theDriver->ReadRoot(aRootName, aRef, aTypeName);
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      OCC_CATCH_SIGNALS
-      theDriver->ReadRoot(aRootName, aRef, aTypeName);
-    }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
+      myErrorStatus    = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadRoot";
       return Standard_False;
     }

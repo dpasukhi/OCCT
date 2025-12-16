@@ -12,11 +12,9 @@
 // commercial license or contractual agreement.
 
 #include <StdObjMgt_Persistent.hxx>
-#include <Standard_ErrorHandler.hxx>
 #include <StdStorage_RootData.hxx>
 #include <StdStorage_Root.hxx>
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamTypeMismatchError.hxx>
 #include <TCollection_AsciiString.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(StdStorage_RootData, Standard_Transient)
@@ -50,14 +48,11 @@ Standard_Boolean StdStorage_RootData::Read(const Handle(Storage_BaseDriver)& the
   Standard_Integer len = theDriver->RootSectionSize();
   for (Standard_Integer i = 1; i <= len; i++)
   {
-    try
+    theDriver->ReadRoot(aRootName, aRef, aTypeName);
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      OCC_CATCH_SIGNALS
-      theDriver->ReadRoot(aRootName, aRef, aTypeName);
-    }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
+      myErrorStatus    = theDriver->ErrorStatus();
       myErrorStatusExt = "ReadRoot";
       return Standard_False;
     }
@@ -98,15 +93,12 @@ Standard_Boolean StdStorage_RootData::Write(const Handle(Storage_BaseDriver)& th
   for (StdStorage_MapOfRoots::Iterator anIt(myObjects); anIt.More(); anIt.Next())
   {
     const Handle(StdStorage_Root)& aRoot = anIt.Value();
-    try
+    theDriver->WriteRoot(aRoot->Name(), aRoot->Reference(), aRoot->Type());
+
+    if (theDriver->ErrorStatus() != Storage_VSOk)
     {
-      OCC_CATCH_SIGNALS
-      theDriver->WriteRoot(aRoot->Name(), aRoot->Reference(), aRoot->Type());
-    }
-    catch (Storage_StreamTypeMismatchError const&)
-    {
-      myErrorStatus    = Storage_VSTypeMismatch;
-      myErrorStatusExt = "ReadRoot";
+      myErrorStatus    = theDriver->ErrorStatus();
+      myErrorStatusExt = "WriteRoot";
       return Standard_False;
     }
   }

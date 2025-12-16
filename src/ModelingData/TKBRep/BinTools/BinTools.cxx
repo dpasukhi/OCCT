@@ -82,12 +82,10 @@ Standard_OStream& BinTools::PutExtChar(Standard_OStream& OS, const Standard_ExtC
 
 Standard_IStream& BinTools::GetReal(Standard_IStream& theIS, Standard_Real& theValue)
 {
-  if (!theIS.read((char*)&theValue, sizeof(Standard_Real)))
-  {
-    throw Storage_StreamTypeMismatchError();
-  }
+  theIS.read((char*)&theValue, sizeof(Standard_Real));
 #ifdef DO_INVERSE
-  theValue = InverseReal(theValue);
+  if (theIS.good())
+    theValue = InverseReal(theValue);
 #endif
   return theIS;
 }
@@ -96,12 +94,10 @@ Standard_IStream& BinTools::GetReal(Standard_IStream& theIS, Standard_Real& theV
 
 Standard_IStream& BinTools::GetShortReal(Standard_IStream& theIS, Standard_ShortReal& theValue)
 {
-  if (!theIS.read((char*)&theValue, sizeof(Standard_ShortReal)))
-  {
-    throw Storage_StreamTypeMismatchError();
-  }
+  theIS.read((char*)&theValue, sizeof(Standard_ShortReal));
 #ifdef DO_INVERSE
-  theValue = InverseShortReal(theValue);
+  if (theIS.good())
+    theValue = InverseShortReal(theValue);
 #endif
   return theIS;
 }
@@ -110,10 +106,10 @@ Standard_IStream& BinTools::GetShortReal(Standard_IStream& theIS, Standard_Short
 
 Standard_IStream& BinTools::GetInteger(Standard_IStream& IS, Standard_Integer& aValue)
 {
-  if (!IS.read((char*)&aValue, sizeof(Standard_Integer)))
-    throw Storage_StreamTypeMismatchError();
+  IS.read((char*)&aValue, sizeof(Standard_Integer));
 #ifdef DO_INVERSE
-  aValue = InverseInt(aValue);
+  if (IS.good())
+    aValue = InverseInt(aValue);
 #endif
   return IS;
 }
@@ -122,10 +118,10 @@ Standard_IStream& BinTools::GetInteger(Standard_IStream& IS, Standard_Integer& a
 
 Standard_IStream& BinTools::GetExtChar(Standard_IStream& IS, Standard_ExtCharacter& theValue)
 {
-  if (!IS.read((char*)&theValue, sizeof(Standard_ExtCharacter)))
-    throw Storage_StreamTypeMismatchError();
+  IS.read((char*)&theValue, sizeof(Standard_ExtCharacter));
 #ifdef DO_INVERSE
-  theValue = InverseExtChar(theValue);
+  if (IS.good())
+    theValue = InverseExtChar(theValue);
 #endif
   return IS;
 }

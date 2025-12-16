@@ -13,14 +13,14 @@
 // commercial license or contractual agreement.
 
 #include <Storage_BaseDriver.hxx>
-#include <Storage_StreamExtCharParityError.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(Storage_BaseDriver, Standard_Transient)
 
 Storage_BaseDriver::Storage_BaseDriver()
-    : myOpenMode(Storage_VSNone)
+    : myOpenMode(Storage_VSNone),
+      myErrorStatus(Storage_VSOk)
 {
 }
 
