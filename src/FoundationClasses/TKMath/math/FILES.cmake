@@ -125,4 +125,30 @@ set(OCCT_math_FILES
   math_VectorBase.hxx
   math_VectorBase.lxx
   math_Vector.hxx
+  # New modern math solver API (C++17 template-based)
+  # Types and configuration
+  math_Types.hxx
+  math_Config.hxx
+  # Internal utilities
+  math_InternalCore.hxx
+  math_InternalConvergence.hxx
+  math_InternalPoly.hxx
+  math_InternalBracket.hxx
+  math_InternalGauss.hxx
+  # Polynomial root solvers
+  math_Poly.hxx
+  math_Poly_Quadratic.hxx
+  math_Poly_Cubic.hxx
+  math_Poly_Quartic.hxx
+  # Root finding algorithms
+  math_Roots.hxx
+  math_Roots_Newton.hxx
+  math_Roots_Brent.hxx
+  math_Roots_Bisection.hxx
+  # Minimization algorithms
+  math_Min.hxx
+  math_Min_Brent.hxx
+  # Integration algorithms
+  math_Integ.hxx
+  math_Integ_Gauss.hxx
 )

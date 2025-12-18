@@ -1,0 +1,166 @@
+// Copyright (c) 2024 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+//
+// This library is free software; you can redistribute it and/or modify it under
+// the terms of the GNU Lesser General Public License version 2.1 as published
+// by the Free Software Foundation, with special exception defined in the file
+// OCCT_LGPL_EXCEPTION.txt. Consult the file LICENSE_LGPL_21.txt included in OCCT
+// distribution for complete text of the license and disclaimer of any warranty.
+//
+// Alternatively, this file may be used under the terms of Open CASCADE
+// commercial license or contractual agreement.
+
+#ifndef _math_Types_HeaderFile
+#define _math_Types_HeaderFile
+
+#include <math_Vector.hxx>
+#include <math_Matrix.hxx>
+
+#include <array>
+#include <optional>
+
+//! Modern math solver types and result structures.
+namespace math
+{
+
+//! Computation status for all math solvers.
+//! Provides detailed information about solver outcome.
+enum class Status
+{
+  OK,                  //!< Computation successful, solution found
+  NotConverged,        //!< Did not converge within tolerance
+  MaxIterations,       //!< Maximum iterations reached without convergence
+  NumericalError,      //!< Numerical issue (overflow, NaN, division by zero, etc.)
+  InvalidInput,        //!< Invalid input parameters
+  InfiniteSolutions,   //!< Infinite number of solutions (degenerate case)
+  NoSolution,          //!< No solution exists
+  NotPositiveDefinite, //!< Matrix not positive definite (for Cholesky, Newton, etc.)
+  Singular             //!< Matrix is singular or nearly singular
+};
+
+//! Result for scalar (1D) root finding and minimization.
+//! Contains the found root/minimum location and diagnostic information.
+struct ScalarResult
+{
+  Status Status       = Status::NotConverged; //!< Computation status
+  int    NbIterations = 0;                    //!< Number of iterations performed
+  double Root         = 0.0;                  //!< Found root or minimum location
+  double Value        = 0.0;                  //!< Function value at root/minimum
+  double Derivative   = 0.0;                  //!< Derivative at root (if available)
+
+  //! Returns true if computation succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  //! Example: if (aResult) { use aResult.Root; }
+  explicit operator bool() const { return IsDone(); }
+};
+
+//! Result for polynomial root finding.
+//! Supports up to 4 real roots (for quartic equations).
+struct PolyResult
+{
+  Status                Status  = Status::NotConverged;      //!< Computation status
+  int                   NbRoots = 0;                         //!< Number of real roots found
+  std::array<double, 4> Roots   = {0.0, 0.0, 0.0, 0.0};      //!< Array of real roots (sorted)
+
+  //! Returns true if computation succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  explicit operator bool() const { return IsDone(); }
+
+  //! Access root by index (0-based).
+  //! @param theIndex root index (0 to NbRoots-1)
+  //! @return root value
+  double operator[](int theIndex) const { return Roots[theIndex]; }
+};
+
+//! Result for N-dimensional optimization and system solving.
+//! Contains the solution vector and optional gradient/Jacobian information.
+struct VectorResult
+{
+  Status                     Status       = Status::NotConverged; //!< Computation status
+  int                        NbIterations = 0;                    //!< Number of iterations performed
+  math_Vector                Solution;                            //!< Solution vector
+  double                     Value = 0.0;                         //!< Function value at solution
+  std::optional<math_Vector> Gradient;                            //!< Gradient at solution (if available)
+  std::optional<math_Matrix> Jacobian;                            //!< Jacobian at solution (if available)
+
+  //! Returns true if computation succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  explicit operator bool() const { return IsDone(); }
+};
+
+//! Result for linear system solving (Ax = b).
+//! Contains the solution vector and matrix determinant if computed.
+struct LinearResult
+{
+  Status      Status      = Status::NotConverged; //!< Computation status
+  math_Vector Solution;                           //!< Solution vector X in AX = B
+  double      Determinant = 0.0;                  //!< Determinant of matrix (if computed)
+
+  //! Returns true if computation succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  explicit operator bool() const { return IsDone(); }
+};
+
+//! Result for eigenvalue/eigenvector computation.
+//! Contains eigenvalues and optionally eigenvectors.
+struct EigenResult
+{
+  Status      Status       = Status::NotConverged; //!< Computation status
+  int         NbIterations = 0;                    //!< Number of iterations performed
+  math_Vector EigenValues;                         //!< Computed eigenvalues
+  math_Matrix EigenVectors;                        //!< Computed eigenvectors (as columns)
+
+  //! Returns true if computation succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  explicit operator bool() const { return IsDone(); }
+};
+
+//! Result for matrix decomposition (LU, SVD, QR).
+//! Structure depends on decomposition type.
+struct DecompResult
+{
+  Status      Status      = Status::NotConverged; //!< Computation status
+  math_Matrix L;                                  //!< Lower triangular (LU) or left singular vectors (SVD)
+  math_Matrix U;                                  //!< Upper triangular (LU) or right singular vectors (SVD)
+  math_Vector D;                                  //!< Diagonal elements or singular values
+  double      Determinant = 0.0;                  //!< Matrix determinant (if computed)
+
+  //! Returns true if decomposition succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  explicit operator bool() const { return IsDone(); }
+};
+
+//! Result for numerical integration.
+//! Contains integral value and error estimates.
+struct IntegResult
+{
+  Status Status        = Status::NotConverged; //!< Computation status
+  int    NbIterations  = 0;                    //!< Number of adaptive iterations
+  int    NbPoints      = 0;                    //!< Total number of quadrature points used
+  double Value         = 0.0;                  //!< Computed integral value
+  double AbsoluteError = 0.0;                  //!< Estimated absolute error
+  double RelativeError = 0.0;                  //!< Estimated relative error
+
+  //! Returns true if integration succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  explicit operator bool() const { return IsDone(); }
+};
+
+} // namespace math
+
+#endif // _math_Types_HeaderFile
