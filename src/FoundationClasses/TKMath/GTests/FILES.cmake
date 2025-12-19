@@ -70,6 +70,8 @@ set(OCCT_TKMath_GTests_FILES
   math_Min_Comparison_Test.cxx
   math_Min_NDim_Comparison_Test.cxx
   math_Integ_Comparison_Test.cxx
+  math_Lin_Comparison_Test.cxx
+  math_Sys_Comparison_Test.cxx
   PLib_Test.cxx
   PLib_JacobiPolynomial_Test.cxx
   PLib_HermitJacobi_Test.cxx

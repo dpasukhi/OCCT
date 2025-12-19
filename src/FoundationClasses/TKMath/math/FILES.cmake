@@ -155,4 +155,10 @@ set(OCCT_math_FILES
   # Integration algorithms
   math_Integ.hxx
   math_Integ_Gauss.hxx
+  # Linear algebra algorithms
+  math_Lin.hxx
+  math_Lin_Gauss.hxx
+  # Nonlinear systems solvers
+  math_Sys.hxx
+  math_Sys_Newton.hxx
 )
