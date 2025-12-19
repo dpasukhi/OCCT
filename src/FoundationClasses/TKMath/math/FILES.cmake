@@ -150,6 +150,7 @@ set(OCCT_math_FILES
   math_Roots_Brent.hxx
   math_Roots_Bisection.hxx
   math_Roots_Secant.hxx
+  math_Roots_Multiple.hxx
   # Minimization algorithms (1D and N-D)
   math_Min.hxx
   math_Min_Brent.hxx

@@ -91,8 +91,8 @@ src/FoundationClasses/TKMath/math/
 
 ### Test Status
 
-- **Total GTests**: 2633 - All Pass (100%)
-- **Math-specific Tests**: 828 - All Pass (100%)
+- **Total GTests**: 2649 - All Pass (100%)
+- **Math-specific Tests**: 844 - All Pass (100%)
 
 ---
 
@@ -105,7 +105,7 @@ Old classes that need modern API wrappers:
 | Old Class | New Location | Priority | Status |
 |-----------|--------------|----------|--------|
 | `math_BissecNewton` | Already in `math_Roots_Bisection.hxx` | - | ✅ Done |
-| `math_FunctionRoots` | `math_Roots_Multiple.hxx` | Medium | ⏳ Pending |
+| `math_FunctionRoots` | `math_Roots_Multiple.hxx` | Medium | ✅ Done |
 | `math_FunctionAllRoots` | `math_Roots_All.hxx` | Medium | ⏳ Pending |
 | `math_TrigonometricFunctionRoots` | `math_Roots_Trig.hxx` | Low | ⏳ Pending |
 | `math_GaussMultipleIntegration` | `math_Integ_Multiple.hxx` | Medium | ⏳ Pending |

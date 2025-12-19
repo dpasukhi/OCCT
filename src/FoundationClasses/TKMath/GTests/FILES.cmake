@@ -82,6 +82,8 @@ set(OCCT_TKMath_GTests_FILES
   math_Sys_Comparison_Test.cxx
   # Functor tests
   math_Functor_Test.cxx
+  # Multiple roots tests
+  math_Roots_Multiple_Test.cxx
   PLib_Test.cxx
   PLib_JacobiPolynomial_Test.cxx
   PLib_HermitJacobi_Test.cxx
