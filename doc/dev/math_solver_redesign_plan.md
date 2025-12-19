@@ -2134,22 +2134,27 @@ set(OCCT_math_FILES
 | `math_Sys.hxx` | ✅ Done | Umbrella header for nonlinear systems |
 | `math_Sys_Newton.hxx` | ✅ Done | `math::Sys::Newton()`, `NewtonBounded()` |
 
-### Pending (Phase 6-7)
+### Completed (Phase 6-7)
+
+| File | Status | Description |
+|------|--------|-------------|
+| `math_Min_FRPR.hxx` | ✅ Done | Fletcher-Reeves-Polak-Ribiere conjugate gradient |
+| `math_Min_Newton.hxx` | ✅ Done | N-D Newton with Hessian |
+| `math_Min_PSO.hxx` | ✅ Done | Particle Swarm Optimization |
+| `math_Min_GlobOpt.hxx` | ✅ Done | Global optimization wrapper (PSO, DE, MultiStart) |
+| `math_Sys_LevenbergMarquardt.hxx` | ✅ Done | Levenberg-Marquardt nonlinear least squares |
+| `math_Lin_SVD.hxx` | ✅ Done | Singular Value Decomposition wrapper |
+| `math_Lin_Householder.hxx` | ✅ Done | Householder QR decomposition |
+| `math_Lin_Jacobi.hxx` | ✅ Done | Jacobi eigenvalue algorithm |
+| `math_Lin_LeastSquares.hxx` | ✅ Done | General least squares solver (Normal, QR, SVD methods) |
+| `math_Integ_Kronrod.hxx` | ✅ Done | Gauss-Kronrod adaptive integration |
+| `math_Integ_DoubleExp.hxx` | ✅ Done | Double exponential (tanh-sinh) integration |
+
+### Pending
 
 | File | Status | Priority | Description |
 |------|--------|----------|-------------|
-| `math_Min_FRPR.hxx` | ⏳ Pending | Medium | Fletcher-Reeves-Polak-Ribiere conjugate gradient |
-| `math_Min_Newton.hxx` | ⏳ Pending | Medium | N-D Newton with Hessian |
-| `math_Min_PSO.hxx` | ⏳ Pending | Low | Particle Swarm Optimization |
-| `math_Min_GlobOpt.hxx` | ⏳ Pending | Low | Global optimization wrapper |
-| `math_Sys_LevenbergMarquardt.hxx` | ⏳ Pending | High | Levenberg-Marquardt least squares |
-| `math_Lin_LU.hxx` | ⏳ Pending | Medium | LU decomposition (standalone) |
-| `math_Lin_SVD.hxx` | ⏳ Pending | Medium | Singular Value Decomposition |
-| `math_Lin_Householder.hxx` | ⏳ Pending | Medium | Householder QR decomposition |
-| `math_Lin_Jacobi.hxx` | ⏳ Pending | Medium | Jacobi eigenvalue algorithm |
-| `math_Lin_LeastSquares.hxx` | ⏳ Pending | Medium | General least squares solver |
-| `math_Integ_Kronrod.hxx` | ⏳ Pending | Medium | Gauss-Kronrod adaptive integration |
-| `math_Integ_DoubleExp.hxx` | ⏳ Pending | Low | Double exponential (tanh-sinh) integration |
+| `math_Lin_LU.hxx` | ⏳ Pending | Low | LU decomposition (standalone) - currently in math_Lin_Gauss.hxx |
 
 ---
 

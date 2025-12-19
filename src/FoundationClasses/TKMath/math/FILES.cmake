@@ -152,13 +152,24 @@ set(OCCT_math_FILES
   math_Min_Brent.hxx
   math_Min_Powell.hxx
   math_Min_BFGS.hxx
+  math_Min_FRPR.hxx
+  math_Min_Newton.hxx
+  math_Min_PSO.hxx
+  math_Min_GlobOpt.hxx
   # Integration algorithms
   math_Integ.hxx
   math_Integ_Gauss.hxx
+  math_Integ_Kronrod.hxx
+  math_Integ_DoubleExp.hxx
   # Linear algebra algorithms
   math_Lin.hxx
   math_Lin_Gauss.hxx
+  math_Lin_SVD.hxx
+  math_Lin_Householder.hxx
+  math_Lin_Jacobi.hxx
+  math_Lin_LeastSquares.hxx
   # Nonlinear systems solvers
   math_Sys.hxx
   math_Sys_Newton.hxx
+  math_Sys_LevenbergMarquardt.hxx
 )
