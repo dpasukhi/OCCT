@@ -165,13 +165,9 @@ IntegResult TanhSinh(Function&              theFunc,
     }
 
     // Negative t direction (skip t=0 which was already counted)
-    for (int k = aStart; k == 0 ? false : true; k += aStep)
+    int aNegStart = (aLevel == 0) ? 1 : aStart;  // Start at 1 for level 0, aStart otherwise
+    for (int k = aNegStart;; k += aStep)
     {
-      if (k == 0)
-      {
-        k = aStep;
-      }
-
       double aT = -k * aH;
 
       double aSinhT = std::sinh(aT);
@@ -226,7 +222,8 @@ IntegResult TanhSinh(Function&              theFunc,
     aTotalPoints += static_cast<size_t>(aNbPoints);
 
     // For level > 0, add to previous sum (trapezoidal refinement)
-    double aNewSum = (aLevel == 0) ? aLevelSum : 0.5 * aPrevSum + 0.5 * aLevelSum;
+    // S_new = S_old/2 + h_new * new_points_sum
+    double aNewSum = (aLevel == 0) ? aLevelSum : 0.5 * aPrevSum + aLevelSum;
 
     // Check for convergence
     if (aLevel > 0)
@@ -353,7 +350,8 @@ IntegResult ExpSinh(Function&              theFunc,
     double aLevelSum = aH * aSum;
     aTotalPoints += static_cast<size_t>(aNbPoints);
 
-    double aNewSum = (aLevel == 0) ? aLevelSum : 0.5 * aPrevSum + 0.5 * aLevelSum;
+    // Trapezoidal refinement: S_new = S_old/2 + h_new * new_points_sum
+    double aNewSum = (aLevel == 0) ? aLevelSum : 0.5 * aPrevSum + aLevelSum;
 
     if (aLevel > 0)
     {
@@ -471,7 +469,8 @@ IntegResult SinhSinh(Function&              theFunc,
     double aLevelSum = aH * aSum;
     aTotalPoints += static_cast<size_t>(aNbPoints);
 
-    double aNewSum = (aLevel == 0) ? aLevelSum : 0.5 * aPrevSum + 0.5 * aLevelSum;
+    // Trapezoidal refinement: S_new = S_old/2 + h_new * new_points_sum
+    double aNewSum = (aLevel == 0) ? aLevelSum : 0.5 * aPrevSum + aLevelSum;
 
     if (aLevel > 0)
     {

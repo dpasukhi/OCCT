@@ -2158,6 +2158,84 @@ set(OCCT_math_FILES
 
 ---
 
+## Testing Status
+
+### Test Files Created
+
+| Test File | Tests | Status | Notes |
+|-----------|-------|--------|-------|
+| `math_Min_FRPR_New_Test.cxx` | 11 | ✅ All Pass | Fletcher-Reeves, Polak-Ribiere, comparison with old API |
+| `math_Min_Newton_New_Test.cxx` | 12 | ✅ All Pass | Standard, Modified, Numerical Hessian variants |
+| `math_Min_PSO_New_Test.cxx` | 9 | ⚠️ 7 Pass, 2 Fail | PSO works, MultiStart needs local refinement |
+| `math_Min_GlobOpt_New_Test.cxx` | 7 | ⚠️ 3 Pass, 4 Fail | DE works, MultiStart incomplete |
+| `math_Lin_New_Test.cxx` | 22 | ✅ All Pass | SVD, Householder, Jacobi, LeastSquares |
+| `math_Integ_New_Test.cxx` | 7 | ⚠️ 6 Pass, 1 Fail | Kronrod works, TanhSinh needs fixes |
+| `math_Sys_LM_New_Test.cxx` | 19 | ✅ All Pass | Bounded/unbounded, comparison with old API |
+
+### Test Summary
+
+- **Total Tests**: 139
+- **Passed**: 121 (87%)
+- **Failed**: 18 (13%)
+
+### Known Issues Requiring Fixes
+
+1. **MultiStart Optimization** (`math_Min_GlobOpt.hxx`)
+   - Current implementation only does random sampling
+   - Needs actual local optimization from each starting point
+   - Requires integration with BFGS or other local optimizer
+
+2. **TanhSinh/DoubleExp Integration** (`math_Integ_DoubleExp.hxx`)
+   - Incorrect results for polynomial integration
+   - Weight computation may have issues
+   - Semi-infinite and infinite interval transformations need review
+
+3. **Kronrod Infinite Intervals** (`math_Integ_Kronrod.hxx`)
+   - Semi-infinite interval transformation issues
+   - Infinite interval Jacobian computation needs review
+
+### Wrapper for Namespace/Class Conflict
+
+Created `math_GaussKronrodWeights.hxx/.cxx` to isolate old `class math` from new `namespace math`:
+
+```cpp
+// math_GaussKronrodWeights.hxx - Header only declares functions
+Standard_EXPORT bool GetKronrodPointsAndWeights(int theNbKronrod,
+                                                math_Vector& thePoints,
+                                                math_Vector& theWeights);
+
+// math_GaussKronrodWeights.cxx - Implementation includes math.hxx
+#include <math.hxx>
+bool GetKronrodPointsAndWeights(...) {
+  return math::KronrodPointsAndWeights(...);
+}
+```
+
+This pattern can be reused for other cases where old `class math` methods are needed.
+
+---
+
+## Next Steps
+
+### Phase 8: Bug Fixes
+
+| Task | Priority | Description |
+|------|----------|-------------|
+| Fix MultiStart | High | Add local optimization (BFGS) after random sampling |
+| Fix TanhSinh integration | Medium | Review weight computation and transformation |
+| Fix Kronrod infinite intervals | Medium | Review Jacobian for semi-infinite/infinite intervals |
+| Remove unused variables | Low | Clean up warnings in SVD, Householder, Jacobi headers |
+
+### Phase 9: Documentation & Cleanup
+
+| Task | Priority | Description |
+|------|----------|-------------|
+| Add Doxygen comments | Medium | Document all public APIs |
+| Create usage examples | Medium | Add examples to header comments |
+| Update CLAUDE.md | Low | Add math namespace usage guidance |
+
+---
+
 ## Detailed Algorithm Specifications (Pending)
 
 ### N-Dimensional Minimization

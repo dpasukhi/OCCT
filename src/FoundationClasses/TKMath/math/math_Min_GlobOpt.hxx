@@ -18,6 +18,7 @@
 #include <math_Config.hxx>
 #include <math_Min_PSO.hxx>
 #include <math_Min_BFGS.hxx>
+#include <math_Min_Powell.hxx>
 #include <math_InternalCore.hxx>
 #include <math_BullardGenerator.hxx>
 
@@ -207,7 +208,8 @@ VectorResult DifferentialEvolution(Function&           theFunc,
 //! Multi-start local optimization.
 //!
 //! Runs multiple local optimizations from random starting points
-//! and returns the best result found.
+//! and returns the best result found. Uses Powell's method for
+//! local optimization (gradient-free).
 //!
 //! @tparam Function type with Value(const math_Vector&, double&) method
 //! @param theFunc function to minimize
@@ -239,28 +241,58 @@ VectorResult MultiStart(Function&           theFunc,
   double      aBestValue = std::numeric_limits<double>::max();
   bool        aFound     = false;
 
+  // Configure Powell optimization for local refinement
+  Config aPowellConfig;
+  aPowellConfig.Tolerance     = theConfig.Tolerance;
+  aPowellConfig.XTolerance    = theConfig.Tolerance;
+  aPowellConfig.FTolerance    = theConfig.Tolerance;
+  aPowellConfig.MaxIterations = theConfig.MaxIterations / theConfig.NbStarts;
+  if (aPowellConfig.MaxIterations < 10)
+  {
+    aPowellConfig.MaxIterations = 10;
+  }
+
   for (int s = 0; s < theConfig.NbStarts; ++s)
   {
-    // Random starting point
+    // Random starting point within bounds
     math_Vector aStart(aLower, aUpper);
     for (int i = aLower; i <= aUpper; ++i)
     {
-      double r   = aRNG.NextReal();
-      aStart(i)  = theLowerBounds(i) + r * (theUpperBounds(i) - theLowerBounds(i));
+      double r  = aRNG.NextReal();
+      aStart(i) = theLowerBounds(i) + r * (theUpperBounds(i) - theLowerBounds(i));
     }
 
-    // Evaluate at starting point
-    double aValue;
-    if (!theFunc.Value(aStart, aValue))
-    {
-      continue;
-    }
+    // Run local optimization from this starting point
+    VectorResult aLocalResult = Powell(theFunc, aStart, aPowellConfig);
 
-    if (aValue < aBestValue)
+    if (aLocalResult.IsDone() && aLocalResult.Value)
     {
-      aBestValue    = aValue;
-      aBestSolution = aStart;
-      aFound        = true;
+      // Clamp solution to bounds
+      math_Vector aSol = *aLocalResult.Solution;
+      for (int i = aLower; i <= aUpper; ++i)
+      {
+        aSol(i) = Internal::Clamp(aSol(i), theLowerBounds(i), theUpperBounds(i));
+      }
+
+      // Re-evaluate at clamped point
+      double aValue;
+      if (theFunc.Value(aSol, aValue) && aValue < aBestValue)
+      {
+        aBestValue    = aValue;
+        aBestSolution = aSol;
+        aFound        = true;
+      }
+    }
+    else
+    {
+      // Powell failed, just evaluate at starting point
+      double aValue;
+      if (theFunc.Value(aStart, aValue) && aValue < aBestValue)
+      {
+        aBestValue    = aValue;
+        aBestSolution = aStart;
+        aFound        = true;
+      }
     }
   }
 
@@ -310,7 +342,7 @@ VectorResult GlobalMinimum(Function&           theFunc,
 
     case GlobalStrategy::PSOHybrid:
     {
-      // Run PSO first
+      // Run PSO first for global exploration
       PSOConfig aPSOConfig;
       aPSOConfig.NbParticles   = theConfig.NbPopulation;
       aPSOConfig.MaxIterations = theConfig.MaxIterations / 2;
@@ -318,7 +350,44 @@ VectorResult GlobalMinimum(Function&           theFunc,
       aPSOConfig.Seed          = theConfig.Seed;
 
       VectorResult aPSOResult = PSO(theFunc, theLowerBounds, theUpperBounds, aPSOConfig);
-      return aPSOResult; // Local refinement would require gradient
+
+      if (!aPSOResult.IsDone() || !aPSOResult.Solution)
+      {
+        return aPSOResult;
+      }
+
+      // Local refinement using Powell (gradient-free)
+      Config aPowellConfig;
+      aPowellConfig.Tolerance     = theConfig.Tolerance;
+      aPowellConfig.XTolerance    = theConfig.Tolerance;
+      aPowellConfig.FTolerance    = theConfig.Tolerance;
+      aPowellConfig.MaxIterations = theConfig.MaxIterations / 2;
+
+      VectorResult aLocalResult = Powell(theFunc, *aPSOResult.Solution, aPowellConfig);
+
+      if (aLocalResult.IsDone() && aLocalResult.Value && aPSOResult.Value
+          && *aLocalResult.Value < *aPSOResult.Value)
+      {
+        // Clamp to bounds
+        const int aLower = theLowerBounds.Lower();
+        const int aUpper = theLowerBounds.Upper();
+        math_Vector aSol = *aLocalResult.Solution;
+        for (int i = aLower; i <= aUpper; ++i)
+        {
+          aSol(i) = Internal::Clamp(aSol(i), theLowerBounds(i), theUpperBounds(i));
+        }
+        aLocalResult.Solution = aSol;
+
+        // Re-evaluate at clamped point
+        double aValue;
+        if (theFunc.Value(aSol, aValue))
+        {
+          aLocalResult.Value = aValue;
+        }
+        return aLocalResult;
+      }
+
+      return aPSOResult;
     }
 
     case GlobalStrategy::DifferentialEvolution:
