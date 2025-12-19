@@ -175,4 +175,8 @@ set(OCCT_math_FILES
   math_Sys.hxx
   math_Sys_Newton.hxx
   math_Sys_LevenbergMarquardt.hxx
+  # Non-virtual functors
+  math_Functor.hxx
+  math_Functor_Scalar.hxx
+  math_Functor_Vector.hxx
 )
