@@ -185,10 +185,10 @@ TEST(math_Min_ComparisonTest, Brent_Parabola)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(anOldSolver.Minimum(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, 3.0, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Minimum(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, Brent_ParabolaNegativeMinimum)
@@ -205,10 +205,10 @@ TEST(math_Min_ComparisonTest, Brent_ParabolaNegativeMinimum)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(anOldSolver.Minimum(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, 2.0, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Minimum(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, Brent_Cosine)
@@ -225,10 +225,10 @@ TEST(math_Min_ComparisonTest, Brent_Cosine)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(anOldSolver.Minimum(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, THE_PI, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Minimum(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, Brent_QuarticRight)
@@ -245,10 +245,10 @@ TEST(math_Min_ComparisonTest, Brent_QuarticRight)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(anOldSolver.Minimum(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, 1.0, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Minimum(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, Brent_QuarticLeft)
@@ -265,10 +265,10 @@ TEST(math_Min_ComparisonTest, Brent_QuarticLeft)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(anOldSolver.Minimum(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, -1.0, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Minimum(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, Brent_CoshLike)
@@ -285,10 +285,10 @@ TEST(math_Min_ComparisonTest, Brent_CoshLike)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(anOldSolver.Minimum(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, 0.0, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Minimum(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 2.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, Brent_Square)
@@ -305,10 +305,10 @@ TEST(math_Min_ComparisonTest, Brent_Square)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(anOldSolver.Minimum(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, 0.0, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Minimum(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 0.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -329,8 +329,8 @@ TEST(math_Min_ComparisonTest, IterationCount_BrentVsGolden)
   ASSERT_TRUE(aGoldenResult.IsDone());
 
   // Both should find the same minimum
-  EXPECT_NEAR(aBrentResult.Root, aGoldenResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aBrentResult.Value, aGoldenResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrentResult.Root, *aGoldenResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrentResult.Value, *aGoldenResult.Value, THE_TOLERANCE);
 
   // Brent typically converges faster due to parabolic interpolation
   EXPECT_LE(aBrentResult.NbIterations, aGoldenResult.NbIterations);
@@ -361,7 +361,7 @@ TEST(math_Min_ComparisonTest, Accuracy_BrentVsOld)
 
   // Both should achieve good accuracy
   EXPECT_NEAR(anOldSolver.Location(), 3.0, 1.0e-8);
-  EXPECT_NEAR(aNewResult.Root, 3.0, 1.0e-8);
+  EXPECT_NEAR(*aNewResult.Root, 3.0, 1.0e-8);
 }
 
 // ============================================================================
@@ -382,8 +382,8 @@ TEST(math_Min_ComparisonTest, WideInterval_Parabola)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 3.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -404,8 +404,8 @@ TEST(math_Min_ComparisonTest, NarrowInterval_Parabola)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Location(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Location(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 3.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -423,9 +423,9 @@ TEST(math_Min_ComparisonTest, Golden_Parabola)
   ASSERT_TRUE(aBrentResult.IsDone());
   ASSERT_TRUE(aGoldenResult.IsDone());
 
-  EXPECT_NEAR(aBrentResult.Root, aGoldenResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aBrentResult.Value, aGoldenResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aGoldenResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrentResult.Root, *aGoldenResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrentResult.Value, *aGoldenResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aGoldenResult.Root, 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, Golden_CoshLike)
@@ -438,8 +438,8 @@ TEST(math_Min_ComparisonTest, Golden_CoshLike)
   ASSERT_TRUE(aBrentResult.IsDone());
   ASSERT_TRUE(aGoldenResult.IsDone());
 
-  EXPECT_NEAR(aBrentResult.Root, aGoldenResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aBrentResult.Value, aGoldenResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aGoldenResult.Root, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrentResult.Root, *aGoldenResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrentResult.Value, *aGoldenResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aGoldenResult.Root, 0.0, THE_TOLERANCE);
 }
 

@@ -55,7 +55,7 @@ namespace
     std::vector<double> aRoots;
     if (theResult.IsDone())
     {
-      for (int i = 0; i < theResult.NbRoots; ++i)
+      for (size_t i = 0; i < theResult.NbRoots; ++i)
       {
         aRoots.push_back(theResult.Roots[i]);
       }

@@ -146,8 +146,8 @@ TEST(math_Roots_NewtonTest, SqrtTwo)
   SqrtTwoFunc aFunc;
   math::ScalarResult aResult = math::Roots::Newton(aFunc, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 0.0, THE_TOLERANCE);
 }
 
 TEST(math_Roots_NewtonTest, CosMinusX)
@@ -156,7 +156,7 @@ TEST(math_Roots_NewtonTest, CosMinusX)
   math::ScalarResult aResult = math::Roots::Newton(aFunc, 0.5);
   ASSERT_TRUE(aResult.IsDone());
   // Verify root satisfies equation
-  double aFx = std::cos(aResult.Root) - aResult.Root;
+  double aFx = std::cos(*aResult.Root) - *aResult.Root;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 
@@ -166,7 +166,7 @@ TEST(math_Roots_NewtonTest, CubicEquation)
   math::ScalarResult aResult = math::Roots::Newton(aFunc, 1.5);
   ASSERT_TRUE(aResult.IsDone());
   // Verify root
-  double aFx = aResult.Root * aResult.Root * aResult.Root - aResult.Root - 2.0;
+  double aFx = *aResult.Root * *aResult.Root * *aResult.Root - *aResult.Root - 2.0;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 
@@ -175,7 +175,7 @@ TEST(math_Roots_NewtonTest, LinearFunction)
   LinearFunc aFunc;
   math::ScalarResult aResult = math::Roots::Newton(aFunc, 0.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 2.0, THE_TOLERANCE);
 }
 
 TEST(math_Roots_NewtonTest, ExpFunction)
@@ -183,7 +183,7 @@ TEST(math_Roots_NewtonTest, ExpFunction)
   ExpMinusThreeFunc aFunc;
   math::ScalarResult aResult = math::Roots::Newton(aFunc, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::log(3.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::log(3.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_NewtonTest, CustomTolerance)
@@ -196,7 +196,7 @@ TEST(math_Roots_NewtonTest, CustomTolerance)
 
   math::ScalarResult aResult = math::Roots::Newton(aFunc, 1.0, aConfig);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), 1.0e-14);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), 1.0e-14);
 }
 
 // ============================================================================
@@ -208,7 +208,7 @@ TEST(math_Roots_NewtonBoundedTest, SqrtTwoWithBounds)
   SqrtTwoFunc aFunc;
   math::ScalarResult aResult = math::Roots::NewtonBounded(aFunc, 1.5, 1.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_NewtonBoundedTest, SinWithBounds)
@@ -216,7 +216,7 @@ TEST(math_Roots_NewtonBoundedTest, SinWithBounds)
   SinFunc aFunc;
   math::ScalarResult aResult = math::Roots::NewtonBounded(aFunc, 3.0, 2.0, 4.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, THE_PI, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -228,7 +228,7 @@ TEST(math_Roots_SecantTest, SqrtTwo)
   SqrtTwoFunc aFunc;
   math::ScalarResult aResult = math::Roots::Secant(aFunc, 1.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_SecantTest, CosMinusX)
@@ -236,7 +236,7 @@ TEST(math_Roots_SecantTest, CosMinusX)
   CosMinusXFunc aFunc;
   math::ScalarResult aResult = math::Roots::Secant(aFunc, 0.0, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  double aFx = std::cos(aResult.Root) - aResult.Root;
+  double aFx = std::cos(*aResult.Root) - *aResult.Root;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 
@@ -245,7 +245,7 @@ TEST(math_Roots_SecantTest, ExpFunction)
   ExpMinusThreeFunc aFunc;
   math::ScalarResult aResult = math::Roots::Secant(aFunc, 0.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::log(3.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::log(3.0), THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -257,7 +257,7 @@ TEST(math_Roots_BrentTest, SqrtTwo)
   SqrtTwoFunc aFunc;
   math::ScalarResult aResult = math::Roots::Brent(aFunc, 1.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_BrentTest, CosMinusX)
@@ -265,7 +265,7 @@ TEST(math_Roots_BrentTest, CosMinusX)
   CosMinusXFunc aFunc;
   math::ScalarResult aResult = math::Roots::Brent(aFunc, 0.0, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  double aFx = std::cos(aResult.Root) - aResult.Root;
+  double aFx = std::cos(*aResult.Root) - *aResult.Root;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 
@@ -274,7 +274,7 @@ TEST(math_Roots_BrentTest, CubicEquation)
   CubicFunc aFunc;
   math::ScalarResult aResult = math::Roots::Brent(aFunc, 1.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  double aFx = aResult.Root * aResult.Root * aResult.Root - aResult.Root - 2.0;
+  double aFx = *aResult.Root * *aResult.Root * *aResult.Root - *aResult.Root - 2.0;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 
@@ -283,7 +283,7 @@ TEST(math_Roots_BrentTest, SinPi)
   SinFunc aFunc;
   math::ScalarResult aResult = math::Roots::Brent(aFunc, 2.0, 4.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, THE_PI, THE_TOLERANCE);
 }
 
 TEST(math_Roots_BrentTest, ExpFunction)
@@ -291,7 +291,7 @@ TEST(math_Roots_BrentTest, ExpFunction)
   ExpMinusThreeFunc aFunc;
   math::ScalarResult aResult = math::Roots::Brent(aFunc, 0.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::log(3.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::log(3.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_BrentTest, InvalidBracket)
@@ -308,7 +308,7 @@ TEST(math_Roots_BrentTest, ReversedBracket)
   // Reversed bracket (upper < lower)
   math::ScalarResult aResult = math::Roots::Brent(aFunc, 2.0, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -320,7 +320,7 @@ TEST(math_Roots_BisectionTest, SqrtTwo)
   SqrtTwoFunc aFunc;
   math::ScalarResult aResult = math::Roots::Bisection(aFunc, 1.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_BisectionTest, CosMinusX)
@@ -328,7 +328,7 @@ TEST(math_Roots_BisectionTest, CosMinusX)
   CosMinusXFunc aFunc;
   math::ScalarResult aResult = math::Roots::Bisection(aFunc, 0.0, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  double aFx = std::cos(aResult.Root) - aResult.Root;
+  double aFx = std::cos(*aResult.Root) - *aResult.Root;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 
@@ -337,7 +337,7 @@ TEST(math_Roots_BisectionTest, SinPi)
   SinFunc aFunc;
   math::ScalarResult aResult = math::Roots::Bisection(aFunc, 2.0, 4.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, THE_PI, THE_TOLERANCE);
 }
 
 TEST(math_Roots_BisectionTest, InvalidBracket)
@@ -357,7 +357,7 @@ TEST(math_Roots_BisectionNewtonTest, SqrtTwo)
   SqrtTwoFunc aFunc;
   math::ScalarResult aResult = math::Roots::BisectionNewton(aFunc, 1.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_BisectionNewtonTest, CosMinusX)
@@ -365,7 +365,7 @@ TEST(math_Roots_BisectionNewtonTest, CosMinusX)
   CosMinusXFunc aFunc;
   math::ScalarResult aResult = math::Roots::BisectionNewton(aFunc, 0.0, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  double aFx = std::cos(aResult.Root) - aResult.Root;
+  double aFx = std::cos(*aResult.Root) - *aResult.Root;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 

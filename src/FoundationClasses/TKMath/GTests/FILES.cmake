@@ -63,6 +63,7 @@ set(OCCT_TKMath_GTests_FILES
   math_Roots_Test.cxx
   math_Min_Test.cxx
   math_Integ_Test.cxx
+  math_Min_NDim_Test.cxx
   # Comparison tests between new and old APIs
   math_Poly_Comparison_Test.cxx
   math_Roots_Comparison_Test.cxx

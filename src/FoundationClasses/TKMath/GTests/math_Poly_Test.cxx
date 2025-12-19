@@ -193,7 +193,7 @@ TEST(math_Poly_CubicTest, OneSimpleOneDouble)
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_GE(aResult.NbRoots, 2);
   // Verify roots satisfy the equation
-  for (int i = 0; i < aResult.NbRoots; ++i)
+  for (size_t i = 0; i < aResult.NbRoots; ++i)
   {
     double aValue = EvalCubic(1.0, -5.0, 8.0, -4.0, aResult.Roots[i]);
     EXPECT_NEAR(aValue, 0.0, THE_TOLERANCE);
@@ -236,7 +236,7 @@ TEST(math_Poly_CubicTest, RootsAreSorted)
 {
   math::PolyResult aResult = math::Poly::Cubic(1.0, -6.0, 11.0, -6.0);
   ASSERT_TRUE(aResult.IsDone());
-  for (int i = 1; i < aResult.NbRoots; ++i)
+  for (size_t i = 1; i < aResult.NbRoots; ++i)
   {
     EXPECT_LE(aResult.Roots[i - 1], aResult.Roots[i]);
   }
@@ -284,7 +284,7 @@ TEST(math_Poly_QuarticTest, Biquadratic)
   math::PolyResult aResult = math::Poly::Quartic(1.0, 0.0, -5.0, 0.0, 4.0);
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_EQ(aResult.NbRoots, 4);
-  for (int i = 0; i < aResult.NbRoots; ++i)
+  for (size_t i = 0; i < aResult.NbRoots; ++i)
   {
     double aValue = EvalQuartic(1.0, 0.0, -5.0, 0.0, 4.0, aResult.Roots[i]);
     EXPECT_NEAR(aValue, 0.0, THE_TOLERANCE);
@@ -318,7 +318,7 @@ TEST(math_Poly_QuarticTest, TwoDoubleRoots)
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_GE(aResult.NbRoots, 2);
   // Verify roots satisfy equation
-  for (int i = 0; i < aResult.NbRoots; ++i)
+  for (size_t i = 0; i < aResult.NbRoots; ++i)
   {
     double aValue = EvalQuartic(1.0, -8.0, 22.0, -24.0, 9.0, aResult.Roots[i]);
     EXPECT_NEAR(aValue, 0.0, THE_TOLERANCE);
@@ -329,7 +329,7 @@ TEST(math_Poly_QuarticTest, RootsAreSorted)
 {
   math::PolyResult aResult = math::Poly::Quartic(1.0, -10.0, 35.0, -50.0, 24.0);
   ASSERT_TRUE(aResult.IsDone());
-  for (int i = 1; i < aResult.NbRoots; ++i)
+  for (size_t i = 1; i < aResult.NbRoots; ++i)
   {
     EXPECT_LE(aResult.Roots[i - 1], aResult.Roots[i]);
   }
@@ -340,7 +340,7 @@ TEST(math_Poly_QuarticTest, VerifyRootsSatisfyEquation)
   // General quartic with all roots
   math::PolyResult aResult = math::Poly::Quartic(1.0, -10.0, 35.0, -50.0, 24.0);
   ASSERT_TRUE(aResult.IsDone());
-  for (int i = 0; i < aResult.NbRoots; ++i)
+  for (size_t i = 0; i < aResult.NbRoots; ++i)
   {
     double aValue = EvalQuartic(1.0, -10.0, 35.0, -50.0, 24.0, aResult.Roots[i]);
     EXPECT_NEAR(aValue, 0.0, THE_TOLERANCE);

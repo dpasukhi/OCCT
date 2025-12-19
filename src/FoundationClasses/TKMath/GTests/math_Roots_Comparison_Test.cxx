@@ -263,7 +263,7 @@ TEST(math_Roots_ComparisonTest, BisectionNewton_SqrtTwo)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
   EXPECT_NEAR(anOldSolver.Root(), std::sqrt(2.0), THE_TOLERANCE);
 }
 
@@ -283,10 +283,10 @@ TEST(math_Roots_ComparisonTest, BisectionNewton_CosMinusX)
   ASSERT_TRUE(aNewResult.IsDone());
 
   // Verify both find the same root
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
 
   // Verify the root is correct
-  double aFx = std::cos(aNewResult.Root) - aNewResult.Root;
+  double aFx = std::cos(*aNewResult.Root) - *aNewResult.Root;
   EXPECT_NEAR(aFx, 0.0, THE_TOLERANCE);
 }
 
@@ -305,8 +305,8 @@ TEST(math_Roots_ComparisonTest, BisectionNewton_SinPi)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, THE_PI, THE_TOLERANCE);
 }
 
 TEST(math_Roots_ComparisonTest, BisectionNewton_Cubic)
@@ -324,7 +324,7 @@ TEST(math_Roots_ComparisonTest, BisectionNewton_Cubic)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -348,8 +348,8 @@ TEST(math_Roots_ComparisonTest, Newton_SqrtTwo)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_ComparisonTest, Newton_ExpMinusThree)
@@ -369,8 +369,8 @@ TEST(math_Roots_ComparisonTest, Newton_ExpMinusThree)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, std::log(3.0), THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, std::log(3.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_ComparisonTest, Newton_CosMinusX)
@@ -390,7 +390,7 @@ TEST(math_Roots_ComparisonTest, Newton_CosMinusX)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -413,8 +413,8 @@ TEST(math_Roots_ComparisonTest, Brent_SqrtTwo)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_ComparisonTest, Brent_CosMinusX)
@@ -433,7 +433,7 @@ TEST(math_Roots_ComparisonTest, Brent_CosMinusX)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
 }
 
 TEST(math_Roots_ComparisonTest, Brent_SinPi)
@@ -452,8 +452,8 @@ TEST(math_Roots_ComparisonTest, Brent_SinPi)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, THE_PI, THE_TOLERANCE);
 }
 
 TEST(math_Roots_ComparisonTest, Brent_ExpMinusThree)
@@ -472,8 +472,8 @@ TEST(math_Roots_ComparisonTest, Brent_ExpMinusThree)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, std::log(3.0), THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, std::log(3.0), THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -496,8 +496,8 @@ TEST(math_Roots_ComparisonTest, FunctionRoot_SqrtTwo)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, std::sqrt(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, std::sqrt(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Roots_ComparisonTest, FunctionRoot_SinPi)
@@ -516,8 +516,8 @@ TEST(math_Roots_ComparisonTest, FunctionRoot_SinPi)
   ASSERT_TRUE(anOldSolver.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, THE_PI, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -541,7 +541,7 @@ TEST(math_Roots_ComparisonTest, IterationCount_NewtonVsBrent)
   EXPECT_LE(aNewtonResult.NbIterations, aBrentResult.NbIterations);
 
   // Both should find the same root
-  EXPECT_NEAR(aNewtonResult.Root, aBrentResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewtonResult.Root, *aBrentResult.Root, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -603,7 +603,7 @@ TEST(math_Roots_ComparisonTest, ChallengingCase_CloseToZeroDerivative)
 
   // Root should be at 0.1 (cube root of 0.001)
   EXPECT_NEAR(anOldSolver.Root(), 0.1, 1.0e-6);
-  EXPECT_NEAR(aNewResult.Root, 0.1, 1.0e-6);
-  EXPECT_NEAR(anOldSolver.Root(), aNewResult.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Root, 0.1, 1.0e-6);
+  EXPECT_NEAR(anOldSolver.Root(), *aNewResult.Root, THE_TOLERANCE);
 }
 

@@ -118,14 +118,14 @@ IntegResult GaussAdaptive(Function&               theFunc,
     return aFine;
   }
 
-  const double aError = std::abs(aFine.Value - aCoarse.Value);
-  const double aScale = std::max(std::abs(aFine.Value), 1.0e-15);
+  const double aError = std::abs(*aFine.Value - *aCoarse.Value);
+  const double aScale = std::max(std::abs(*aFine.Value), 1.0e-15);
 
   // Check if converged
   if (aError < theConfig.Tolerance * aScale)
   {
     aResult.Status = Status::OK;
-    aResult.Value = aFine.Value;
+    aResult.Value = *aFine.Value;
     aResult.AbsoluteError = aError;
     aResult.RelativeError = aError / aScale;
     aResult.NbPoints = 15;
@@ -137,7 +137,7 @@ IntegResult GaussAdaptive(Function&               theFunc,
   if (theConfig.MaxIterations <= 1)
   {
     aResult.Status = Status::MaxIterations;
-    aResult.Value = aFine.Value;
+    aResult.Value = *aFine.Value;
     aResult.AbsoluteError = aError;
     aResult.RelativeError = aError / aScale;
     aResult.NbPoints = 15;
@@ -163,14 +163,14 @@ IntegResult GaussAdaptive(Function&               theFunc,
   if (!aRight.IsDone())
   {
     aResult.Status = aRight.Status;
-    aResult.Value = aLeft.Value + aRight.Value;
+    aResult.Value = *aLeft.Value + (aRight.Value ? *aRight.Value : 0.0);
     return aResult;
   }
 
   aResult.Status = Status::OK;
-  aResult.Value = aLeft.Value + aRight.Value;
-  aResult.AbsoluteError = aLeft.AbsoluteError + aRight.AbsoluteError;
-  aResult.RelativeError = aResult.AbsoluteError / std::max(std::abs(aResult.Value), 1.0e-15);
+  aResult.Value = *aLeft.Value + *aRight.Value;
+  aResult.AbsoluteError = *aLeft.AbsoluteError + *aRight.AbsoluteError;
+  aResult.RelativeError = *aResult.AbsoluteError / std::max(std::abs(*aResult.Value), 1.0e-15);
   aResult.NbPoints = aLeft.NbPoints + aRight.NbPoints;
   aResult.NbIterations = std::max(aLeft.NbIterations, aRight.NbIterations) + 1;
   return aResult;
@@ -220,7 +220,7 @@ IntegResult GaussComposite(Function& theFunc,
       return aResult;
     }
 
-    aSum += aSubResult.Value;
+    aSum += *aSubResult.Value;
     aTotalPoints += aSubResult.NbPoints;
   }
 

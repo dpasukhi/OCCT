@@ -139,8 +139,8 @@ ScalarResult Bisection(Function&          theFunc,
   // Maximum iterations reached
   aResult.Status = Status::MaxIterations;
   aResult.Root = 0.5 * (aA + aB);
-  // Evaluate at final point
-  theFunc.Value(aResult.Root, aResult.Value);
+  aResult.Value = 0.0;
+  theFunc.Value(*aResult.Root, *aResult.Value);
   return aResult;
 }
 
@@ -266,7 +266,9 @@ ScalarResult BisectionNewton(Function&          theFunc,
   // Maximum iterations reached
   aResult.Status = Status::MaxIterations;
   aResult.Root = aX;
-  theFunc.Values(aX, aResult.Value, aResult.Derivative);
+  aResult.Value = 0.0;
+  aResult.Derivative = 0.0;
+  theFunc.Values(*aResult.Root, *aResult.Value, *aResult.Derivative);
   return aResult;
 }
 

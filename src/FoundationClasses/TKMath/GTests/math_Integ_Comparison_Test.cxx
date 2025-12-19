@@ -224,8 +224,8 @@ TEST(math_Integ_ComparisonTest, Gauss_SinPi)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 2.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Gauss_Quadratic)
@@ -244,8 +244,8 @@ TEST(math_Integ_ComparisonTest, Gauss_Quadratic)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 1.0 / 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 1.0 / 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Gauss_Exponential)
@@ -264,8 +264,8 @@ TEST(math_Integ_ComparisonTest, Gauss_Exponential)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, std::exp(1.0) - 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, std::exp(1.0) - 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Gauss_Cosine)
@@ -284,8 +284,8 @@ TEST(math_Integ_ComparisonTest, Gauss_Cosine)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Gauss_LogIntegrand)
@@ -304,8 +304,8 @@ TEST(math_Integ_ComparisonTest, Gauss_LogIntegrand)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, std::log(2.0), THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, std::log(2.0), THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Gauss_Linear)
@@ -324,8 +324,8 @@ TEST(math_Integ_ComparisonTest, Gauss_Linear)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 0.5, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 0.5, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Gauss_Cubic)
@@ -344,8 +344,8 @@ TEST(math_Integ_ComparisonTest, Gauss_Cubic)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 0.25, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 0.25, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Gauss_Constant)
@@ -364,8 +364,8 @@ TEST(math_Integ_ComparisonTest, Gauss_Constant)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 5.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 5.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -383,7 +383,7 @@ TEST(math_Integ_ComparisonTest, Order3_Comparison)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Order5_Comparison)
@@ -397,7 +397,7 @@ TEST(math_Integ_ComparisonTest, Order5_Comparison)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Order7_Comparison)
@@ -411,7 +411,7 @@ TEST(math_Integ_ComparisonTest, Order7_Comparison)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Order15_Comparison)
@@ -425,7 +425,7 @@ TEST(math_Integ_ComparisonTest, Order15_Comparison)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, Order21_Comparison)
@@ -439,7 +439,7 @@ TEST(math_Integ_ComparisonTest, Order21_Comparison)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -460,9 +460,9 @@ TEST(math_Integ_ComparisonTest, HigherOrderMoreAccurate)
   ASSERT_TRUE(aResult7.IsDone());
   ASSERT_TRUE(aResult15.IsDone());
 
-  const double aError3  = std::abs(aResult3.Value - aExact);
-  const double aError7  = std::abs(aResult7.Value - aExact);
-  const double aError15 = std::abs(aResult15.Value - aExact);
+  const double aError3  = std::abs(*aResult3.Value - aExact);
+  const double aError7  = std::abs(*aResult7.Value - aExact);
+  const double aError15 = std::abs(*aResult15.Value - aExact);
 
   // Higher order should be more accurate (or equally accurate at machine precision)
   EXPECT_LE(aError7, aError3 + 1.0e-15);
@@ -489,8 +489,8 @@ TEST(math_Integ_ComparisonTest, NegativeBounds)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
-  EXPECT_NEAR(aNewResult.Value, 2.0 / 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aNewResult.Value, 2.0 / 3.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -511,7 +511,7 @@ TEST(math_Integ_ComparisonTest, ReversedBounds)
   ASSERT_TRUE(aResultReversed.IsDone());
 
   // Reversed bounds should give negative of normal result
-  EXPECT_NEAR(aResultNormal.Value, -aResultReversed.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aResultNormal.Value, -*aResultReversed.Value, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -539,7 +539,7 @@ TEST(math_Integ_ComparisonTest, PolynomialExactness_Order3)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 1.0, 3);
 
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 1.0 / 6.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0 / 6.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_ComparisonTest, PolynomialExactness_Order7)
@@ -563,7 +563,7 @@ TEST(math_Integ_ComparisonTest, PolynomialExactness_Order7)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 1.0, 7);
 
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 1.0 / 8.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0 / 8.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -586,8 +586,8 @@ TEST(math_Integ_ComparisonTest, LargeInterval)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, 1.0e-6);
-  EXPECT_NEAR(aNewResult.Value, std::exp(10.0) - 1.0, 1.0e-6);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, 1.0e-6);
+  EXPECT_NEAR(*aNewResult.Value, std::exp(10.0) - 1.0, 1.0e-6);
 }
 
 // ============================================================================
@@ -610,8 +610,8 @@ TEST(math_Integ_ComparisonTest, SmallInterval)
   ASSERT_TRUE(anOldInteg.IsDone());
   ASSERT_TRUE(aNewResult.IsDone());
 
-  EXPECT_NEAR(anOldInteg.Value(), aNewResult.Value, THE_TOLERANCE);
+  EXPECT_NEAR(anOldInteg.Value(), *aNewResult.Value, THE_TOLERANCE);
   // sin(x) ≈ x for small x, so integral ≈ x^2/2
-  EXPECT_NEAR(aNewResult.Value, 0.0000005, 1.0e-12);
+  EXPECT_NEAR(*aNewResult.Value, 0.0000005, 1.0e-12);
 }
 

@@ -131,8 +131,8 @@ TEST(math_Min_BrentTest, SimpleParabola)
   ParabolaFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 10.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 3.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, ParabolaWithNegativeMinimum)
@@ -140,8 +140,8 @@ TEST(math_Min_BrentTest, ParabolaWithNegativeMinimum)
   ParabolaFunc2 aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 5.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 2.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, CosineMinimum)
@@ -149,8 +149,8 @@ TEST(math_Min_BrentTest, CosineMinimum)
   CosFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 2.0, 4.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, THE_PI, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, QuarticMinimumRight)
@@ -159,8 +159,8 @@ TEST(math_Min_BrentTest, QuarticMinimumRight)
   // Search for right minimum at x = 1
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 1.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, QuarticMinimumLeft)
@@ -169,8 +169,8 @@ TEST(math_Min_BrentTest, QuarticMinimumLeft)
   // Search for left minimum at x = -1
   math::ScalarResult aResult = math::Min::Brent(aFunc, -2.0, 0.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, -1.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, CoshLikeMinimum)
@@ -178,8 +178,8 @@ TEST(math_Min_BrentTest, CoshLikeMinimum)
   CoshLikeFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, -5.0, 5.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 0.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 2.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, NarrowInterval)
@@ -187,7 +187,7 @@ TEST(math_Min_BrentTest, NarrowInterval)
   ParabolaFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 2.9, 3.1);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, WideInterval)
@@ -195,7 +195,7 @@ TEST(math_Min_BrentTest, WideInterval)
   ParabolaFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, -100.0, 100.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentTest, CustomTolerance)
@@ -207,7 +207,7 @@ TEST(math_Min_BrentTest, CustomTolerance)
 
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 10.0, aConfig);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 3.0, 1.0e-9);
+  EXPECT_NEAR(*aResult.Root, 3.0, 1.0e-9);
 }
 
 TEST(math_Min_BrentTest, NonSmoothFunction)
@@ -215,8 +215,8 @@ TEST(math_Min_BrentTest, NonSmoothFunction)
   AbsShiftedFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 5.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 2.0, 1.0e-6); // Lower tolerance for non-smooth
-  EXPECT_NEAR(aResult.Value, 1.0, 1.0e-6);
+  EXPECT_NEAR(*aResult.Root, 2.0, 1.0e-6); // Lower tolerance for non-smooth
+  EXPECT_NEAR(*aResult.Value, 1.0, 1.0e-6);
 }
 
 // ============================================================================
@@ -228,8 +228,8 @@ TEST(math_Min_GoldenTest, SimpleParabola)
   ParabolaFunc aFunc;
   math::ScalarResult aResult = math::Min::Golden(aFunc, 0.0, 10.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 3.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_GoldenTest, CosineMinimum)
@@ -237,8 +237,8 @@ TEST(math_Min_GoldenTest, CosineMinimum)
   CosFunc aFunc;
   math::ScalarResult aResult = math::Min::Golden(aFunc, 2.0, 4.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, THE_PI, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, THE_PI, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_GoldenTest, QuarticMinimum)
@@ -246,8 +246,8 @@ TEST(math_Min_GoldenTest, QuarticMinimum)
   QuarticFunc aFunc;
   math::ScalarResult aResult = math::Min::Golden(aFunc, 0.0, 2.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 1.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, -1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, -1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_GoldenTest, CoshLikeMinimum)
@@ -255,8 +255,8 @@ TEST(math_Min_GoldenTest, CoshLikeMinimum)
   CoshLikeFunc aFunc;
   math::ScalarResult aResult = math::Min::Golden(aFunc, -5.0, 5.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 0.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 2.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -268,8 +268,8 @@ TEST(math_Min_BrentWithBracketTest, SimpleParabola)
   ParabolaFunc aFunc;
   math::ScalarResult aResult = math::Min::BrentWithBracket(aFunc, 0.0, 1.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 3.0, THE_TOLERANCE);
-  EXPECT_NEAR(aResult.Value, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentWithBracketTest, StartNearMinimum)
@@ -277,7 +277,7 @@ TEST(math_Min_BrentWithBracketTest, StartNearMinimum)
   ParabolaFunc aFunc;
   math::ScalarResult aResult = math::Min::BrentWithBracket(aFunc, 2.5, 0.5);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_BrentWithBracketTest, CoshLike)
@@ -287,7 +287,7 @@ TEST(math_Min_BrentWithBracketTest, CoshLike)
   // The algorithm expands to find a bracket containing the minimum
   math::ScalarResult aResult = math::Min::BrentWithBracket(aFunc, 0.1, 0.2);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 0.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -304,8 +304,8 @@ TEST(math_Min_ComparisonTest, BrentVsGoldenSameResult)
   ASSERT_TRUE(aBrent.IsDone());
   ASSERT_TRUE(aGolden.IsDone());
 
-  EXPECT_NEAR(aBrent.Root, aGolden.Root, THE_TOLERANCE);
-  EXPECT_NEAR(aBrent.Value, aGolden.Value, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrent.Root, *aGolden.Root, THE_TOLERANCE);
+  EXPECT_NEAR(*aBrent.Value, *aGolden.Value, THE_TOLERANCE);
 }
 
 TEST(math_Min_ComparisonTest, BrentFasterThanGolden)
@@ -344,7 +344,7 @@ TEST(math_Min_RobustnessTest, MinimumAtLeftBoundary)
   SquareFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 10.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 0.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_RobustnessTest, MinimumAtRightBoundary)
@@ -363,7 +363,7 @@ TEST(math_Min_RobustnessTest, MinimumAtRightBoundary)
   ShiftedSquareFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 10.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 10.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Root, 10.0, THE_TOLERANCE);
 }
 
 TEST(math_Min_RobustnessTest, VeryFlatFunction)
@@ -383,7 +383,7 @@ TEST(math_Min_RobustnessTest, VeryFlatFunction)
   FlatQuarticFunc aFunc;
   math::ScalarResult aResult = math::Min::Brent(aFunc, 0.0, 10.0);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Root, 5.0, 1.0e-5); // Lower tolerance for flat function
+  EXPECT_NEAR(*aResult.Root, 5.0, 1.0e-5); // Lower tolerance for flat function
 }
 
 // ============================================================================

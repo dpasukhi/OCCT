@@ -98,7 +98,7 @@ inline PolyResult Quartic(double theA, double theB, double theC, double theD, do
     aResult.Status = Status::OK;
     aResult.NbRoots = 0;
 
-    for (int i = 0; i < aQuadResult.NbRoots; ++i)
+    for (size_t i = 0; i < aQuadResult.NbRoots; ++i)
     {
       const double u = aQuadResult.Roots[i];
       if (u >= -Internal::THE_ZERO_TOL)
@@ -119,7 +119,7 @@ inline PolyResult Quartic(double theA, double theB, double theC, double theD, do
     }
 
     // Refine and sort roots
-    for (int i = 0; i < aResult.NbRoots; ++i)
+    for (size_t i = 0; i < aResult.NbRoots; ++i)
     {
       aResult.Roots[i] = Internal::RefinePolyRoot(aCoeffs, 4, aResult.Roots[i]);
     }
@@ -157,7 +157,7 @@ inline PolyResult Quartic(double theA, double theB, double theC, double theD, do
   if (z < -Internal::THE_ZERO_TOL)
   {
     // Try other roots
-    for (int i = 0; i < aCubicResult.NbRoots; ++i)
+    for (size_t i = 0; i < aCubicResult.NbRoots; ++i)
     {
       if (aCubicResult.Roots[i] >= -Internal::THE_ZERO_TOL)
       {
@@ -235,7 +235,7 @@ inline PolyResult Quartic(double theA, double theB, double theC, double theD, do
 
     if (aQuad1.IsDone())
     {
-      for (int i = 0; i < aQuad1.NbRoots; ++i)
+      for (size_t i = 0; i < aQuad1.NbRoots; ++i)
       {
         aResult.Roots[aResult.NbRoots++] = aQuad1.Roots[i] - aShift;
       }
@@ -243,7 +243,7 @@ inline PolyResult Quartic(double theA, double theB, double theC, double theD, do
 
     if (aQuad2.IsDone())
     {
-      for (int i = 0; i < aQuad2.NbRoots; ++i)
+      for (size_t i = 0; i < aQuad2.NbRoots; ++i)
       {
         aResult.Roots[aResult.NbRoots++] = aQuad2.Roots[i] - aShift;
       }
@@ -251,7 +251,7 @@ inline PolyResult Quartic(double theA, double theB, double theC, double theD, do
   }
 
   // Refine all roots using Newton-Raphson
-  for (int i = 0; i < aResult.NbRoots; ++i)
+  for (size_t i = 0; i < aResult.NbRoots; ++i)
   {
     aResult.Roots[i] = Internal::RefinePolyRoot(aCoeffs, 4, aResult.Roots[i]);
   }

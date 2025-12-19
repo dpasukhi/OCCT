@@ -167,7 +167,7 @@ TEST(math_Integ_GaussTest, ConstantFunction)
   // Integral of 5 from 0 to 2 = 10
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 2.0, 3);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 10.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 10.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, LinearFunction)
@@ -176,7 +176,7 @@ TEST(math_Integ_GaussTest, LinearFunction)
   // Integral of (2x+1) from 0 to 3 = [x^2 + x]_0^3 = 9 + 3 = 12
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 3.0, 3);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 12.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 12.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, QuadraticFunction)
@@ -185,7 +185,7 @@ TEST(math_Integ_GaussTest, QuadraticFunction)
   // Integral of x^2 from 0 to 1 = 1/3
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 1.0, 3);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, SineFunction)
@@ -194,7 +194,7 @@ TEST(math_Integ_GaussTest, SineFunction)
   // Integral of sin(x) from 0 to PI = 2
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, THE_PI, 15);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 2.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, CosineFunction)
@@ -203,7 +203,7 @@ TEST(math_Integ_GaussTest, CosineFunction)
   // Integral of cos(x) from 0 to PI/2 = 1
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, THE_PI / 2.0, 15);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, ExponentialFunction)
@@ -212,7 +212,7 @@ TEST(math_Integ_GaussTest, ExponentialFunction)
   // Integral of e^x from 0 to 1 = e - 1
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 1.0, 15);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, std::exp(1.0) - 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, std::exp(1.0) - 1.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, ReciprocalFunction)
@@ -221,7 +221,7 @@ TEST(math_Integ_GaussTest, ReciprocalFunction)
   // Integral of 1/x from 1 to e = ln(e) - ln(1) = 1
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 1.0, std::exp(1.0), 15);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 1.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -234,7 +234,7 @@ TEST(math_Integ_GaussTest, Order3)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 1.0, 3);
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_EQ(aResult.NbPoints, 3);
-  EXPECT_NEAR(aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, Order5)
@@ -243,7 +243,7 @@ TEST(math_Integ_GaussTest, Order5)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 1.0, 5);
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_EQ(aResult.NbPoints, 5);
-  EXPECT_NEAR(aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, Order7)
@@ -252,7 +252,7 @@ TEST(math_Integ_GaussTest, Order7)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 1.0, 7);
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_EQ(aResult.NbPoints, 7);
-  EXPECT_NEAR(aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 1.0 / 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, Order15)
@@ -261,7 +261,7 @@ TEST(math_Integ_GaussTest, Order15)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, THE_PI, 15);
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_EQ(aResult.NbPoints, 15);
-  EXPECT_NEAR(aResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 2.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, Order21)
@@ -270,7 +270,7 @@ TEST(math_Integ_GaussTest, Order21)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, THE_PI, 21);
   ASSERT_TRUE(aResult.IsDone());
   EXPECT_EQ(aResult.NbPoints, 21);
-  EXPECT_NEAR(aResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 2.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, InvalidOrder)
@@ -292,7 +292,7 @@ TEST(math_Integ_GaussTest, PolynomialExactness_Order3)
   // Integral of (x^5 - 3x^3 + 2x) from -1 to 1 = 0 (odd function)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, -1.0, 1.0, 3);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 0.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_GaussTest, PolynomialExactness_Order7)
@@ -301,7 +301,7 @@ TEST(math_Integ_GaussTest, PolynomialExactness_Order7)
   PolynomialFunc aFunc;
   math::IntegResult aResult = math::Integ::Gauss(aFunc, -1.0, 1.0, 7);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 0.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 0.0, THE_TOLERANCE);
 }
 
 // ============================================================================
@@ -316,7 +316,7 @@ TEST(math_Integ_GaussAdaptiveTest, SineFunction)
 
   math::IntegResult aResult = math::Integ::GaussAdaptive(aFunc, 0.0, THE_PI, aConfig);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 2.0, 1.0e-11);
+  EXPECT_NEAR(*aResult.Value, 2.0, 1.0e-11);
 }
 
 TEST(math_Integ_GaussAdaptiveTest, ExponentialFunction)
@@ -327,7 +327,7 @@ TEST(math_Integ_GaussAdaptiveTest, ExponentialFunction)
 
   math::IntegResult aResult = math::Integ::GaussAdaptive(aFunc, 0.0, 1.0, aConfig);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, std::exp(1.0) - 1.0, 1.0e-11);
+  EXPECT_NEAR(*aResult.Value, std::exp(1.0) - 1.0, 1.0e-11);
 }
 
 TEST(math_Integ_GaussAdaptiveTest, OscillatoryFunction)
@@ -340,7 +340,7 @@ TEST(math_Integ_GaussAdaptiveTest, OscillatoryFunction)
   // Integral of sin(10x) from 0 to PI = (1 - cos(10*PI))/10 = 0
   math::IntegResult aResult = math::Integ::GaussAdaptive(aFunc, 0.0, THE_PI, aConfig);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 0.0, 1.0e-6);
+  EXPECT_NEAR(*aResult.Value, 0.0, 1.0e-6);
 }
 
 TEST(math_Integ_GaussAdaptiveTest, ProvidesErrorEstimate)
@@ -365,7 +365,7 @@ TEST(math_Integ_GaussCompositeTest, SineFunction)
   // 10 subintervals with 7-point Gauss each
   math::IntegResult aResult = math::Integ::GaussComposite(aFunc, 0.0, THE_PI, 10, 7);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 2.0, THE_TOLERANCE);
   EXPECT_EQ(aResult.NbPoints, 70); // 10 * 7
 }
 
@@ -375,7 +375,7 @@ TEST(math_Integ_GaussCompositeTest, OscillatoryFunction)
   // More subintervals for oscillatory function
   math::IntegResult aResult = math::Integ::GaussComposite(aFunc, 0.0, THE_PI, 50, 7);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 0.0, 1.0e-8);
+  EXPECT_NEAR(*aResult.Value, 0.0, 1.0e-8);
 }
 
 TEST(math_Integ_GaussCompositeTest, GaussianFunction)
@@ -385,7 +385,7 @@ TEST(math_Integ_GaussCompositeTest, GaussianFunction)
   math::IntegResult aResult = math::Integ::GaussComposite(aFunc, -3.0, 3.0, 50, 15);
   ASSERT_TRUE(aResult.IsDone());
   // Should be close to sqrt(PI) ≈ 1.7724538509
-  EXPECT_NEAR(aResult.Value, std::sqrt(THE_PI), 1.0e-4);
+  EXPECT_NEAR(*aResult.Value, std::sqrt(THE_PI), 1.0e-4);
 }
 
 TEST(math_Integ_GaussCompositeTest, InvalidSubintervals)
@@ -405,7 +405,7 @@ TEST(math_Integ_BoundsTest, ReversedBounds)
   // Integral from PI to 0 should be -2
   math::IntegResult aResult = math::Integ::Gauss(aFunc, THE_PI, 0.0, 15);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, -2.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, -2.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_BoundsTest, NegativeBounds)
@@ -414,7 +414,7 @@ TEST(math_Integ_BoundsTest, NegativeBounds)
   // Integral of x^2 from -1 to 1 = 2/3
   math::IntegResult aResult = math::Integ::Gauss(aFunc, -1.0, 1.0, 7);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, 2.0 / 3.0, THE_TOLERANCE);
+  EXPECT_NEAR(*aResult.Value, 2.0 / 3.0, THE_TOLERANCE);
 }
 
 TEST(math_Integ_BoundsTest, SmallInterval)
@@ -424,7 +424,7 @@ TEST(math_Integ_BoundsTest, SmallInterval)
   math::IntegResult aResult = math::Integ::Gauss(aFunc, 0.0, 0.001, 15);
   ASSERT_TRUE(aResult.IsDone());
   // sin(x) ≈ x for small x, so integral ≈ x^2/2 = 0.0000005
-  EXPECT_NEAR(aResult.Value, 0.0000005, 1.0e-10);
+  EXPECT_NEAR(*aResult.Value, 0.0000005, 1.0e-10);
 }
 
 TEST(math_Integ_BoundsTest, LargeInterval)
@@ -444,7 +444,7 @@ TEST(math_Integ_BoundsTest, LargeInterval)
   // Approximate with large but finite bounds
   math::IntegResult aResult = math::Integ::GaussComposite(aFunc, -100.0, 100.0, 200, 15);
   ASSERT_TRUE(aResult.IsDone());
-  EXPECT_NEAR(aResult.Value, THE_PI, 0.05); // Wide tolerance for infinite integral approximation
+  EXPECT_NEAR(*aResult.Value, THE_PI, 0.05); // Wide tolerance for infinite integral approximation
 }
 
 // ============================================================================
@@ -461,7 +461,7 @@ TEST(math_Integ_SpecialTest, SqrtFunction)
   ASSERT_TRUE(aResult.IsDone());
   // Integral from 0.001 to 1 is slightly less than 2/3
   const double aExpected = (2.0 / 3.0) * (1.0 - std::pow(0.001, 1.5));
-  EXPECT_NEAR(aResult.Value, aExpected, 1.0e-6);
+  EXPECT_NEAR(*aResult.Value, aExpected, 1.0e-6);
 }
 
 // ============================================================================
@@ -499,9 +499,9 @@ TEST(math_Integ_AccuracyTest, HigherOrderMoreAccurate)
   ASSERT_TRUE(aResult7.IsDone());
   ASSERT_TRUE(aResult15.IsDone());
 
-  double aError3 = std::abs(aResult3.Value - aExact);
-  double aError7 = std::abs(aResult7.Value - aExact);
-  double aError15 = std::abs(aResult15.Value - aExact);
+  double aError3 = std::abs(*aResult3.Value - aExact);
+  double aError7 = std::abs(*aResult7.Value - aExact);
+  double aError15 = std::abs(*aResult15.Value - aExact);
 
   EXPECT_GT(aError3, aError7);
   EXPECT_GT(aError7, aError15);

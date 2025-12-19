@@ -135,6 +135,8 @@ set(OCCT_math_FILES
   math_InternalPoly.hxx
   math_InternalBracket.hxx
   math_InternalGauss.hxx
+  math_InternalDeriv.hxx
+  math_InternalLineSearch.hxx
   # Polynomial root solvers
   math_Poly.hxx
   math_Poly_Quadratic.hxx
@@ -145,9 +147,11 @@ set(OCCT_math_FILES
   math_Roots_Newton.hxx
   math_Roots_Brent.hxx
   math_Roots_Bisection.hxx
-  # Minimization algorithms
+  # Minimization algorithms (1D and N-D)
   math_Min.hxx
   math_Min_Brent.hxx
+  math_Min_Powell.hxx
+  math_Min_BFGS.hxx
   # Integration algorithms
   math_Integ.hxx
   math_Integ_Gauss.hxx

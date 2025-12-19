@@ -139,18 +139,18 @@ inline double RefinePolyRootDesc(const double* theCoeffs,
 //! Sort roots in ascending order (simple insertion sort for small arrays).
 //! @param theRoots array of roots
 //! @param theCount number of roots
-inline void SortRoots(double* theRoots, int theCount)
+inline void SortRoots(double* theRoots, size_t theCount)
 {
-  for (int i = 1; i < theCount; ++i)
+  for (size_t i = 1; i < theCount; ++i)
   {
     const double aKey = theRoots[i];
-    int j = i - 1;
-    while (j >= 0 && theRoots[j] > aKey)
+    size_t j = i;
+    while (j > 0 && theRoots[j - 1] > aKey)
     {
-      theRoots[j + 1] = theRoots[j];
+      theRoots[j] = theRoots[j - 1];
       --j;
     }
-    theRoots[j + 1] = aKey;
+    theRoots[j] = aKey;
   }
 }
 
@@ -159,15 +159,15 @@ inline void SortRoots(double* theRoots, int theCount)
 //! @param theCount current number of roots
 //! @param theTolerance tolerance for duplicate detection
 //! @return new count after removing duplicates
-inline int RemoveDuplicateRoots(double* theRoots, int theCount, double theTolerance = 1.0e-10)
+inline size_t RemoveDuplicateRoots(double* theRoots, size_t theCount, double theTolerance = 1.0e-10)
 {
   if (theCount <= 1)
   {
     return theCount;
   }
 
-  int aNewCount = 1;
-  for (int i = 1; i < theCount; ++i)
+  size_t aNewCount = 1;
+  for (size_t i = 1; i < theCount; ++i)
   {
     if (std::abs(theRoots[i] - theRoots[aNewCount - 1]) > theTolerance)
     {

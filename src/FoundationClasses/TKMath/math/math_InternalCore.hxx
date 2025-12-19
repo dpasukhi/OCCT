@@ -14,6 +14,8 @@
 #ifndef _math_InternalCore_HeaderFile
 #define _math_InternalCore_HeaderFile
 
+#include <math_Vector.hxx>
+
 #include <cmath>
 #include <algorithm>
 #include <limits>
@@ -164,6 +166,48 @@ inline double ComputeScaleFactor(const double* theCoeffs, int theCount)
   }
 
   return 1.0;
+}
+
+//! Compute dot product of two vectors.
+//! @param theA first vector
+//! @param theB second vector
+//! @return dot product sum(A[i] * B[i])
+inline double DotProduct(const math_Vector& theA, const math_Vector& theB)
+{
+  double aSum = 0.0;
+  const int aLower = theA.Lower();
+  const int aUpper = theA.Upper();
+  for (int i = aLower; i <= aUpper; ++i)
+  {
+    aSum += theA(i) * theB(i);
+  }
+  return aSum;
+}
+
+//! Compute Euclidean norm of a vector.
+//! @param theVec input vector
+//! @return sqrt(sum(V[i]^2))
+inline double VectorNorm(const math_Vector& theVec)
+{
+  double aSum = 0.0;
+  for (int i = theVec.Lower(); i <= theVec.Upper(); ++i)
+  {
+    aSum += theVec(i) * theVec(i);
+  }
+  return std::sqrt(aSum);
+}
+
+//! Compute infinity norm (maximum absolute value) of a vector.
+//! @param theVec input vector
+//! @return max(|V[i]|)
+inline double VectorInfNorm(const math_Vector& theVec)
+{
+  double aMax = 0.0;
+  for (int i = theVec.Lower(); i <= theVec.Upper(); ++i)
+  {
+    aMax = std::max(aMax, std::abs(theVec(i)));
+  }
+  return aMax;
 }
 
 } // namespace Internal
