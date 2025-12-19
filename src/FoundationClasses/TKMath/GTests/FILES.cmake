@@ -64,6 +64,14 @@ set(OCCT_TKMath_GTests_FILES
   math_Min_Test.cxx
   math_Integ_Test.cxx
   math_Min_NDim_Test.cxx
+  # New component tests
+  math_Min_FRPR_New_Test.cxx
+  math_Min_Newton_New_Test.cxx
+  math_Min_PSO_New_Test.cxx
+  math_Min_GlobOpt_New_Test.cxx
+  math_Lin_New_Test.cxx
+  math_Integ_New_Test.cxx
+  math_Sys_LM_New_Test.cxx
   # Comparison tests between new and old APIs
   math_Poly_Comparison_Test.cxx
   math_Roots_Comparison_Test.cxx

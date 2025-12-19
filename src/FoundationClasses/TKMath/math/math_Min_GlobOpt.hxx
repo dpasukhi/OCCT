@@ -99,13 +99,14 @@ VectorResult DifferentialEvolution(Function&           theFunc,
   math_BullardGenerator aRNG(theConfig.Seed);
 
   // Population: vector of candidate solutions
-  std::vector<math_Vector> aPopulation(aNP);
-  std::vector<double>      aFitness(aNP);
+  std::vector<math_Vector> aPopulation;
+  aPopulation.reserve(aNP);
+  std::vector<double> aFitness(aNP);
 
   // Initialize population
   for (int i = 0; i < aNP; ++i)
   {
-    aPopulation[i] = math_Vector(aLower, aUpper);
+    aPopulation.emplace_back(aLower, aUpper);
     for (int j = aLower; j <= aUpper; ++j)
     {
       double r = aRNG.NextReal();

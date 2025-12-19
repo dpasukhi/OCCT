@@ -137,6 +137,8 @@ set(OCCT_math_FILES
   math_InternalGauss.hxx
   math_InternalDeriv.hxx
   math_InternalLineSearch.hxx
+  math_GaussKronrodWeights.hxx
+  math_GaussKronrodWeights.cxx
   # Polynomial root solvers
   math_Poly.hxx
   math_Poly_Quadratic.hxx

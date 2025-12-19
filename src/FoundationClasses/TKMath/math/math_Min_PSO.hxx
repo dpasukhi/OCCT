@@ -117,9 +117,23 @@ VectorResult PSO(Function&          theFunc,
     math_Vector BestPosition;
     double      BestValue;
     double      CurrentValue;
+
+    Particle(int theLower, int theUpper)
+        : Position(theLower, theUpper),
+          Velocity(theLower, theUpper),
+          BestPosition(theLower, theUpper),
+          BestValue(std::numeric_limits<double>::max()),
+          CurrentValue(std::numeric_limits<double>::max())
+    {
+    }
   };
 
-  std::vector<Particle> aSwarm(aNbParticles);
+  std::vector<Particle> aSwarm;
+  aSwarm.reserve(aNbParticles);
+  for (int p = 0; p < aNbParticles; ++p)
+  {
+    aSwarm.emplace_back(aLower, aUpper);
+  }
 
   // Random number generator
   math_BullardGenerator aRNG(theConfig.Seed);
@@ -137,10 +151,7 @@ VectorResult PSO(Function&          theFunc,
 
   for (int p = 0; p < aNbParticles; ++p)
   {
-    aSwarm[p].Position     = math_Vector(aLower, aUpper);
-    aSwarm[p].Velocity     = math_Vector(aLower, aUpper);
-    aSwarm[p].BestPosition = math_Vector(aLower, aUpper);
-
+    // Vectors already initialized by Particle constructor
     // Random position in bounds
     for (int i = aLower; i <= aUpper; ++i)
     {

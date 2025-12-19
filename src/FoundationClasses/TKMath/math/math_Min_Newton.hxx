@@ -76,7 +76,6 @@ VectorResult Newton(Function&           theFunc,
 
   const int aLower = theStartingPoint.Lower();
   const int aUpper = theStartingPoint.Upper();
-  const int aN     = aUpper - aLower + 1;
 
   // Current point
   math_Vector aX(aLower, aUpper);
@@ -358,7 +357,7 @@ VectorResult NewtonNumericalHessian(Function&           theFunc,
     bool Hessian(const math_Vector& theX, math_Matrix& theHess)
     {
       math_Vector aXMod = theX;
-      return Internal::NumericalHessianAdaptive(myFunc, aXMod, theHess, myStep);
+      return Internal::NumericalHessian(myFunc, aXMod, theHess, myStep);
     }
 
   private:

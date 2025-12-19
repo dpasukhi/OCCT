@@ -161,6 +161,20 @@ struct IntegResult
   explicit operator bool() const { return IsDone(); }
 };
 
+//! Result for matrix inverse computation.
+//! Contains the inverse matrix if computation succeeded.
+struct InverseResult
+{
+  Status                     Status = Status::NotConverged; //!< Computation status
+  std::optional<math_Matrix> Inverse;                       //!< Computed inverse matrix
+
+  //! Returns true if inversion succeeded.
+  bool IsDone() const { return Status == Status::OK; }
+
+  //! Conversion to bool for convenient checking.
+  explicit operator bool() const { return IsDone(); }
+};
+
 } // namespace math
 
 #endif // _math_Types_HeaderFile
