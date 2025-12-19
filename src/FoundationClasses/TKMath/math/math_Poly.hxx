@@ -19,7 +19,7 @@
 //!
 //! This header includes all polynomial solvers for convenience.
 //! For faster compile times, include individual headers:
-//! - math_Poly_Quadratic.hxx for quadratic equations
+//! - math_Poly_Quadratic.hxx for linear and quadratic equations
 //! - math_Poly_Cubic.hxx for cubic equations
 //! - math_Poly_Quartic.hxx for quartic equations
 //!

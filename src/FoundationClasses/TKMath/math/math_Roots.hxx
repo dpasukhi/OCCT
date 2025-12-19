@@ -72,5 +72,6 @@
 #include <math_Roots_Newton.hxx>
 #include <math_Roots_Brent.hxx>
 #include <math_Roots_Bisection.hxx>
+#include <math_Roots_Secant.hxx>
 
 #endif // _math_Roots_HeaderFile
