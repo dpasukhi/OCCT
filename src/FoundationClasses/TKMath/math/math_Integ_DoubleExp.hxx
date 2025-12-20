@@ -46,10 +46,10 @@ struct DoubleExpConfig : IntegConfig
 //! Tanh-Sinh (Double Exponential) quadrature for finite interval [a,b].
 //!
 //! The double exponential transformation maps [a,b] to (-inf, +inf):
-//!   x = (b+a)/2 + (b-a)/2 * tanh(π/2 * sinh(t))
+//!   x = (b+a)/2 + (b-a)/2 * tanh(pi/2 * sinh(t))
 //!
 //! The integrand is multiplied by the Jacobian:
-//!   dx/dt = (b-a)/2 * (π/2) * cosh(t) / cosh²(π/2 * sinh(t))
+//!   dx/dt = (b-a)/2 * (pi/2) * cosh(t) / cosh^2(pi/2 * sinh(t))
 //!
 //! Properties:
 //! - Excellent for functions with endpoint singularities
@@ -94,8 +94,8 @@ IntegResult TanhSinh(Function&              theFunc,
     double aSum = 0.0;
     int    aNbPoints = 0;
 
-    // For level 0, evaluate at t = 0, ±h, ±2h, ...
-    // For level > 0, evaluate only at new points: ±h/2, ±3h/2, ...
+    // For level 0, evaluate at t = 0, +/-h, +/-2h, ...
+    // For level > 0, evaluate only at new points: +/-h/2, +/-3h/2, ...
     int aStart = (aLevel == 0) ? 0 : 1;
     int aStep  = (aLevel == 0) ? 1 : 2;
 
@@ -108,16 +108,16 @@ IntegResult TanhSinh(Function&              theFunc,
       double aSinhT = std::sinh(aT);
       double aCoshT = std::cosh(aT);
 
-      // u = π/2 * sinh(t)
+      // u = pi/2 * sinh(t)
       double aU = aHalfPi * aSinhT;
 
       // Check for overflow in exp
       if (std::abs(aU) > 700.0)
       {
-        break; // tanh(u) ≈ ±1, contribution is negligible
+        break; // tanh(u) ~= +/-1, contribution is negligible
       }
 
-      // tanh(u) and sech²(u) = 1/cosh²(u)
+      // tanh(u) and sech^2(u) = 1/cosh^2(u)
       double aTanhU = std::tanh(aU);
       double aCoshU = std::cosh(aU);
       double aSech2U = 1.0 / (aCoshU * aCoshU);
@@ -131,7 +131,7 @@ IntegResult TanhSinh(Function&              theFunc,
         break;
       }
 
-      // Weight: h * (b-a)/2 * π/2 * cosh(t) * sech²(u)
+      // Weight: h * (b-a)/2 * pi/2 * cosh(t) * sech^2(u)
       double aWeight = aHalf * aHalfPi * aCoshT * aSech2U;
 
       // Check if weight is negligible
@@ -255,10 +255,10 @@ IntegResult TanhSinh(Function&              theFunc,
   return aResult;
 }
 
-//! Exp-Sinh quadrature for semi-infinite interval [a, +∞).
+//! Exp-Sinh quadrature for semi-infinite interval [a, +infinity).
 //!
-//! The transformation maps [0, +∞) to (-∞, +∞):
-//!   x = a + exp(π/2 * sinh(t))
+//! The transformation maps [0, +infinity) to (-infinity, +infinity):
+//!   x = a + exp(pi/2 * sinh(t))
 //!
 //! @tparam Function type with Value(double theX, double& theF) method
 //! @param theFunc function to integrate
@@ -312,7 +312,7 @@ IntegResult ExpSinh(Function&              theFunc,
         // x = a + exp(u)
         double aX = theLower + aExpU;
 
-        // Weight: h * π/2 * cosh(t) * exp(u)
+        // Weight: h * pi/2 * cosh(t) * exp(u)
         double aWeight = aHalfPi * aCoshT * aExpU;
 
         if (aWeight < Internal::THE_ZERO_TOL || !std::isfinite(aWeight))
@@ -381,10 +381,10 @@ IntegResult ExpSinh(Function&              theFunc,
   return aResult;
 }
 
-//! Sinh-Sinh quadrature for infinite interval (-∞, +∞).
+//! Sinh-Sinh quadrature for infinite interval (-infinity, +infinity).
 //!
-//! The transformation maps (-∞, +∞) to (-∞, +∞):
-//!   x = sinh(π/2 * sinh(t))
+//! The transformation maps (-infinity, +infinity) to (-infinity, +infinity):
+//!   x = sinh(pi/2 * sinh(t))
 //!
 //! @tparam Function type with Value(double theX, double& theF) method
 //! @param theFunc function to integrate
@@ -437,7 +437,7 @@ IntegResult SinhSinh(Function&              theFunc,
         // x = sinh(u)
         double aX = aSinhU;
 
-        // Weight: h * π/2 * cosh(t) * cosh(u)
+        // Weight: h * pi/2 * cosh(t) * cosh(u)
         double aWeight = aHalfPi * aCoshT * aCoshU;
 
         if (aWeight < Internal::THE_ZERO_TOL || !std::isfinite(aWeight))
@@ -504,13 +504,13 @@ IntegResult SinhSinh(Function&              theFunc,
 //!
 //! Selects the appropriate DE quadrature based on the interval:
 //! - Finite [a,b]: TanhSinh
-//! - Semi-infinite [a, +∞): ExpSinh
-//! - Infinite (-∞, +∞): SinhSinh
+//! - Semi-infinite [a, +infinity): ExpSinh
+//! - Infinite (-infinity, +infinity): SinhSinh
 //!
 //! @tparam Function type with Value(double theX, double& theF) method
 //! @param theFunc function to integrate
-//! @param theLower lower bound (use -HUGE_VAL for -∞)
-//! @param theUpper upper bound (use HUGE_VAL for +∞)
+//! @param theLower lower bound (use -HUGE_VAL for -infinity)
+//! @param theUpper upper bound (use HUGE_VAL for +infinity)
 //! @param theConfig integration configuration
 //! @return integration result
 template <typename Function>
@@ -526,17 +526,17 @@ IntegResult DoubleExponential(Function&              theFunc,
 
   if (aIsLowerInf && aIsUpperInf)
   {
-    // (-∞, +∞)
+    // (-infinity, +infinity)
     return SinhSinh(theFunc, theConfig);
   }
   else if (aIsUpperInf)
   {
-    // [a, +∞)
+    // [a, +infinity)
     return ExpSinh(theFunc, theLower, theConfig);
   }
   else if (aIsLowerInf)
   {
-    // (-∞, b] - transform to [b, +∞) with x -> -x
+    // (-infinity, b] - transform to [b, +infinity) with x -> -x
     class NegatedFunc
     {
     public:

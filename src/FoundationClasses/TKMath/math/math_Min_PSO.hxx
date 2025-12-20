@@ -62,7 +62,7 @@ struct PSOConfig : NDimConfig
 //! 2. Evaluate fitness (function value) for each particle
 //! 3. Update each particle's personal best if current position is better
 //! 4. Update global best across all particles
-//! 5. Update velocities: v = ω*v + c1*r1*(pbest-x) + c2*r2*(gbest-x)
+//! 5. Update velocities: v = omega*v + c1*r1*(pbest-x) + c2*r2*(gbest-x)
 //! 6. Update positions: x = x + v
 //! 7. Repeat until convergence or max iterations
 //!

@@ -110,7 +110,7 @@ inline PolyResult Quartic(double theA, double theB, double theC, double theD, do
         }
         else
         {
-          // u > 0 -> t = ±sqrt(u)
+          // u > 0 -> t = +/-sqrt(u)
           const double aSqrtU = std::sqrt(u);
           aResult.Roots[aResult.NbRoots++] = aSqrtU - aShift;
           aResult.Roots[aResult.NbRoots++] = -aSqrtU - aShift;

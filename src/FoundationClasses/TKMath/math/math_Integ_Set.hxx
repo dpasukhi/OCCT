@@ -40,7 +40,7 @@ struct SetResult
 
 //! Gauss-Legendre integration of a vector-valued function.
 //!
-//! Integrates F: R → R^N over interval [Lower, Upper]:
+//! Integrates F: R -> R^N over interval [Lower, Upper]:
 //! Result[i] = integral_{Lower}^{Upper} F_i(x) dx
 //!
 //! Uses Gauss-Legendre quadrature applied to each component.

@@ -29,8 +29,8 @@ namespace Internal
 {
 
 //! Central difference derivative approximation for scalar functions.
-//! f'(x) ≈ (f(x+h) - f(x-h)) / (2h)
-//! Accuracy: O(h²)
+//! f'(x) ~= (f(x+h) - f(x-h)) / (2h)
+//! Accuracy: O(h^2)
 //!
 //! @tparam Function type with Value(double theX, double& theF) method
 //! @param theFunc function to differentiate
@@ -58,7 +58,7 @@ bool CentralDifference(Function& theFunc, double theX, double& theDeriv, double 
 }
 
 //! Forward difference derivative (one-sided).
-//! f'(x) ≈ (f(x+h) - f(x)) / h
+//! f'(x) ~= (f(x+h) - f(x)) / h
 //! Accuracy: O(h)
 //! Useful when central difference is not possible (e.g., at boundaries).
 //!
@@ -88,7 +88,7 @@ bool ForwardDifference(Function& theFunc,
 }
 
 //! Numerical gradient using central differences for N-D functions.
-//! ∂f/∂xᵢ ≈ (f(x + hᵢeᵢ) - f(x - hᵢeᵢ)) / (2hᵢ)
+//! df/dx[i] ~= (f(x + h[i]*e[i]) - f(x - h[i]*e[i])) / (2*h[i])
 //!
 //! @tparam Function type with Value(const math_Vector&, double&) method
 //! @param theFunc function to differentiate
@@ -138,7 +138,7 @@ bool NumericalGradient(Function&    theFunc,
 }
 
 //! Numerical gradient with adaptive step size.
-//! Uses step proportional to |xᵢ| for better conditioning.
+//! Uses step proportional to |x[i]| for better conditioning.
 //!
 //! @tparam Function type with Value(const math_Vector&, double&) method
 //! @param theFunc function to differentiate
@@ -186,12 +186,12 @@ bool NumericalGradientAdaptive(Function&    theFunc,
 }
 
 //! Numerical Jacobian matrix for vector-valued functions.
-//! Jᵢⱼ = ∂Fᵢ/∂xⱼ ≈ (Fᵢ(x + hⱼeⱼ) - Fᵢ(x - hⱼeⱼ)) / (2hⱼ)
+//! J[i,j] = dF[i]/dx[j] ~= (F[i](x + h[j]*e[j]) - F[i](x - h[j]*e[j])) / (2*h[j])
 //!
 //! @tparam Function type with Value(const math_Vector& x, math_Vector& F) method
-//! @param theFunc vector-valued function F: Rⁿ → Rᵐ
+//! @param theFunc vector-valued function F: R^n -> R^m
 //! @param theX point at which to evaluate Jacobian (n-dimensional)
-//! @param theJac output Jacobian matrix (m × n)
+//! @param theJac output Jacobian matrix (m x n)
 //! @param theStep step size (default 1e-8)
 //! @return true if successful
 template <typename Function>
@@ -241,13 +241,13 @@ bool NumericalJacobian(Function&    theFunc,
 }
 
 //! Numerical Hessian matrix using finite differences.
-//! Hᵢⱼ = ∂²f/∂xᵢ∂xⱼ
+//! H[i,j] = d^2f/dx[i]dx[j]
 //! Uses central differences on gradient.
 //!
 //! @tparam Function type with Value(const math_Vector&, double&) method
-//! @param theFunc scalar function f: Rⁿ → R
+//! @param theFunc scalar function f: R^n -> R
 //! @param theX point at which to evaluate Hessian (n-dimensional)
-//! @param theHess output Hessian matrix (n × n, symmetric)
+//! @param theHess output Hessian matrix (n x n, symmetric)
 //! @param theStep step size (default 1e-5, larger than gradient step)
 //! @return true if successful
 template <typename Function>
@@ -265,7 +265,7 @@ bool NumericalHessian(Function&    theFunc,
     return false;
   }
 
-  // Diagonal elements: ∂²f/∂xᵢ² ≈ (f(x+hᵢeᵢ) - 2f(x) + f(x-hᵢeᵢ)) / h²
+  // Diagonal elements: d^2f/dx[i]^2 ~= (f(x+h[i]*e[i]) - 2f(x) + f(x-h[i]*e[i])) / h^2
   for (int i = aLower; i <= aUpper; ++i)
   {
     const double aXi = theX(i);
@@ -292,8 +292,8 @@ bool NumericalHessian(Function&    theFunc,
     theHess(aMatIdx, aMatIdx) = (aFPlus - 2.0 * aFx + aFMinus) / (theStep * theStep);
   }
 
-  // Off-diagonal elements: ∂²f/∂xᵢ∂xⱼ
-  // ≈ (f(x+hᵢeᵢ+hⱼeⱼ) - f(x+hᵢeᵢ-hⱼeⱼ) - f(x-hᵢeᵢ+hⱼeⱼ) + f(x-hᵢeᵢ-hⱼeⱼ)) / (4h²)
+  // Off-diagonal elements: d^2f/dx[i]dx[j]
+  // ~= (f(x+h[i]*e[i]+h[j]*e[j]) - f(x+h[i]*e[i]-h[j]*e[j]) - f(x-h[i]*e[i]+h[j]*e[j]) + f(x-h[i]*e[i]-h[j]*e[j])) / (4h^2)
   for (int i = aLower; i <= aUpper; ++i)
   {
     for (int j = i + 1; j <= aUpper; ++j)
@@ -302,7 +302,7 @@ bool NumericalHessian(Function&    theFunc,
       const double aXj = theX(j);
       double       aFpp = 0.0, aFpm = 0.0, aFmp = 0.0, aFmm = 0.0;
 
-      // f(x + hᵢeᵢ + hⱼeⱼ)
+      // f(x + h[i]*e[i] + h[j]*e[j])
       theX(i) = aXi + theStep;
       theX(j) = aXj + theStep;
       if (!theFunc.Value(theX, aFpp))
@@ -312,7 +312,7 @@ bool NumericalHessian(Function&    theFunc,
         return false;
       }
 
-      // f(x + hᵢeᵢ - hⱼeⱼ)
+      // f(x + h[i]*e[i] - h[j]*e[j])
       theX(j) = aXj - theStep;
       if (!theFunc.Value(theX, aFpm))
       {
@@ -321,7 +321,7 @@ bool NumericalHessian(Function&    theFunc,
         return false;
       }
 
-      // f(x - hᵢeᵢ - hⱼeⱼ)
+      // f(x - h[i]*e[i] - h[j]*e[j])
       theX(i) = aXi - theStep;
       if (!theFunc.Value(theX, aFmm))
       {
@@ -330,7 +330,7 @@ bool NumericalHessian(Function&    theFunc,
         return false;
       }
 
-      // f(x - hᵢeᵢ + hⱼeⱼ)
+      // f(x - h[i]*e[i] + h[j]*e[j])
       theX(j) = aXj + theStep;
       if (!theFunc.Value(theX, aFmp))
       {
@@ -357,7 +357,7 @@ bool NumericalHessian(Function&    theFunc,
 }
 
 //! Second derivative using central difference.
-//! f''(x) ≈ (f(x+h) - 2f(x) + f(x-h)) / h²
+//! f''(x) ~= (f(x+h) - 2f(x) + f(x-h)) / h^2
 //!
 //! @tparam Function type with Value(double theX, double& theF) method
 //! @param theFunc function to differentiate

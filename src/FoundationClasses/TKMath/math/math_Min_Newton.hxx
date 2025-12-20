@@ -53,10 +53,10 @@ struct NewtonConfig : Config
 //!
 //! Algorithm:
 //! 1. Compute gradient g and Hessian H at current point
-//! 2. If H is not positive definite, regularize: H = H + λI
+//! 2. If H is not positive definite, regularize: H = H + lambda*I
 //! 3. Solve H * p = -g for search direction p
 //! 4. Perform line search along p
-//! 5. Update x = x + α * p
+//! 5. Update x = x + alpha * p
 //! 6. Repeat until convergence
 //!
 //! @tparam Function type with:

@@ -31,10 +31,10 @@ namespace Min
 //! Conjugate gradient formula selection.
 enum class ConjugateGradientFormula
 {
-  FletcherReeves,  //!< β = g_new^T g_new / g^T g (original, guaranteed descent)
-  PolakRibiere,    //!< β = g_new^T (g_new - g) / g^T g (often faster, may need restarts)
-  HestenesStiefel, //!< β = g_new^T (g_new - g) / d^T (g_new - g)
-  DaiYuan          //!< β = g_new^T g_new / d^T (g_new - g)
+  FletcherReeves,  //!< beta = g_new^T g_new / g^T g (original, guaranteed descent)
+  PolakRibiere,    //!< beta = g_new^T (g_new - g) / g^T g (often faster, may need restarts)
+  HestenesStiefel, //!< beta = g_new^T (g_new - g) / d^T (g_new - g)
+  DaiYuan          //!< beta = g_new^T g_new / d^T (g_new - g)
 };
 
 //! Configuration for FRPR conjugate gradient method.
@@ -56,17 +56,17 @@ struct FRPRConfig : Config
 //! Fletcher-Reeves-Polak-Ribiere conjugate gradient method.
 //!
 //! Memory-efficient alternative to BFGS for large-scale optimization.
-//! Uses only O(n) storage compared to O(n²) for BFGS.
+//! Uses only O(n) storage compared to O(n^2) for BFGS.
 //!
 //! Algorithm:
 //! 1. Compute gradient g at current point
 //! 2. First iteration: search direction p = -g
 //! 3. Perform line search along p
 //! 4. Compute new gradient g_new
-//! 5. Update: β = (g_new · g_new) / (g · g) [Fletcher-Reeves]
-//!         or β = (g_new · (g_new - g)) / (g · g) [Polak-Ribiere]
-//! 6. New direction: p = -g_new + β * p
-//! 7. Restart with steepest descent if β < 0 or periodically
+//! 5. Update: beta = (g_new . g_new) / (g . g) [Fletcher-Reeves]
+//!         or beta = (g_new . (g_new - g)) / (g . g) [Polak-Ribiere]
+//! 6. New direction: p = -g_new + beta * p
+//! 7. Restart with steepest descent if beta < 0 or periodically
 //! 8. Repeat until convergence
 //!
 //! @tparam Function type with:
@@ -235,7 +235,7 @@ VectorResult FRPR(Function&          theFunc,
       switch (theConfig.Formula)
       {
         case ConjugateGradientFormula::FletcherReeves:
-          // β = g_new^T g_new / g^T g
+          // beta = g_new^T g_new / g^T g
           if (aGradNormSq > Internal::THE_ZERO_TOL)
           {
             aBeta = aGradNewNormSq / aGradNormSq;
@@ -244,7 +244,7 @@ VectorResult FRPR(Function&          theFunc,
 
         case ConjugateGradientFormula::PolakRibiere:
         {
-          // β = g_new^T (g_new - g) / g^T g
+          // beta = g_new^T (g_new - g) / g^T g
           double aDot = 0.0;
           for (int i = aLower; i <= aUpper; ++i)
           {
@@ -254,7 +254,7 @@ VectorResult FRPR(Function&          theFunc,
           {
             aBeta = aDot / aGradNormSq;
           }
-          // Restart if β < 0 (PR+ variant)
+          // Restart if beta < 0 (PR+ variant)
           if (aBeta < 0.0)
           {
             aBeta         = 0.0;
@@ -265,7 +265,7 @@ VectorResult FRPR(Function&          theFunc,
 
         case ConjugateGradientFormula::HestenesStiefel:
         {
-          // β = g_new^T (g_new - g) / d^T (g_new - g)
+          // beta = g_new^T (g_new - g) / d^T (g_new - g)
           double aNum = 0.0;
           double aDen = 0.0;
           for (int i = aLower; i <= aUpper; ++i)
@@ -287,7 +287,7 @@ VectorResult FRPR(Function&          theFunc,
 
         case ConjugateGradientFormula::DaiYuan:
         {
-          // β = g_new^T g_new / d^T (g_new - g)
+          // beta = g_new^T g_new / d^T (g_new - g)
           double aDen = 0.0;
           for (int i = aLower; i <= aUpper; ++i)
           {
@@ -302,7 +302,7 @@ VectorResult FRPR(Function&          theFunc,
       }
     }
 
-    // Update search direction: p = -g_new + β * p
+    // Update search direction: p = -g_new + beta * p
     for (int i = aLower; i <= aUpper; ++i)
     {
       aDir(i) = -aGradNew(i) + aBeta * aDir(i);

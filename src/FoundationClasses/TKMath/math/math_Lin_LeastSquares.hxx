@@ -241,10 +241,10 @@ inline LeastSquaresResult WeightedLeastSquares(const math_Matrix&   theA,
 }
 
 //! Solve regularized least squares (Tikhonov/Ridge regression):
-//! minimize ||Ax - b||_2^2 + λ||x||_2^2
+//! minimize ||Ax - b||_2^2 + lambda*||x||_2^2
 //!
 //! Adds regularization to stabilize ill-conditioned problems.
-//! The solution is: x = (A^T*A + λI)^{-1} * A^T * b
+//! The solution is: x = (A^T*A + lambda*I)^{-1} * A^T * b
 //!
 //! @param theA coefficient matrix (m x n)
 //! @param theB right-hand side vector (length m)
@@ -278,11 +278,11 @@ inline LeastSquaresResult RegularizedLeastSquares(const math_Matrix& theA,
     return aResult;
   }
 
-  // Form regularized normal equations: (A^T*A + λI) * x = A^T * b
+  // Form regularized normal equations: (A^T*A + lambda*I) * x = A^T * b
   math_Matrix aAtA(aColLower, aColUpper, aColLower, aColUpper, 0.0);
   math_Vector aAtb(aColLower, aColUpper, 0.0);
 
-  // Compute A^T * A + λI
+  // Compute A^T * A + lambda*I
   for (int i = aColLower; i <= aColUpper; ++i)
   {
     for (int j = aColLower; j <= aColUpper; ++j)

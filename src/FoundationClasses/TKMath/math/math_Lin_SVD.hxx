@@ -223,13 +223,13 @@ inline LinearResult SolveSVD(const math_Matrix& theA,
 }
 
 //! Compute pseudo-inverse (Moore-Penrose inverse) of matrix A.
-//! A⁺ = V * diag(1/w) * U^T where singular values below threshold are set to 0.
+//! A^+ = V * diag(1/w) * U^T where singular values below threshold are set to 0.
 //!
 //! Properties:
-//! - A * A⁺ * A = A
-//! - A⁺ * A * A⁺ = A⁺
-//! - (A * A⁺)^T = A * A⁺
-//! - (A⁺ * A)^T = A⁺ * A
+//! - A * A^+ * A = A
+//! - A^+ * A * A^+ = A^+
+//! - (A * A^+)^T = A * A^+
+//! - (A^+ * A)^T = A^+ * A
 //!
 //! @param theA input matrix (m x n)
 //! @param theTolerance for singular value threshold
@@ -265,7 +265,7 @@ inline InverseResult PseudoInverse(const math_Matrix& theA, double theTolerance 
   }
   double aWMin = theTolerance * aMaxSV;
 
-  // Compute A⁺ = V * diag(1/w) * U^T
+  // Compute A^+ = V * diag(1/w) * U^T
   // Result is n x m
   aResult.Inverse = math_Matrix(aColLower, aColUpper, aRowLower, aRowUpper, 0.0);
 
@@ -290,7 +290,7 @@ inline InverseResult PseudoInverse(const math_Matrix& theA, double theTolerance 
 }
 
 //! Compute condition number of matrix using SVD.
-//! Condition number = σ_max / σ_min (ratio of largest to smallest singular value).
+//! Condition number = sigma_max / sigma_min (ratio of largest to smallest singular value).
 //!
 //! High condition number (> 1e10) indicates ill-conditioned matrix.
 //!

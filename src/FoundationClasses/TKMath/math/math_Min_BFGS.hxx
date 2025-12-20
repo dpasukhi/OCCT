@@ -36,8 +36,8 @@ namespace Min
 //! Algorithm:
 //! 1. Start with initial Hessian approximation H (usually identity)
 //! 2. Compute search direction p = -H * gradient
-//! 3. Perform line search to find step size α satisfying Wolfe conditions
-//! 4. Update x = x + α * p
+//! 3. Perform line search to find step size alpha satisfying Wolfe conditions
+//! 4. Update x = x + alpha * p
 //! 5. Update Hessian approximation using BFGS formula
 //! 6. Repeat until convergence
 //!
@@ -232,8 +232,8 @@ VectorResult BFGS(Function& theFunc, const math_Vector& theStartingPoint, const 
     // Skip update if curvature condition is not satisfied
     if (aSY > Internal::THE_ZERO_TOL)
     {
-      // BFGS update: H_new = (I - ρsy^T) H (I - ρys^T) + ρss^T
-      // where ρ = 1 / (s^T y)
+      // BFGS update: H_new = (I - rho*sy^T) H (I - rho*ys^T) + rho*ss^T
+      // where rho = 1 / (s^T y)
       const double aRho = 1.0 / aSY;
 
       // Compute H * y
@@ -325,7 +325,7 @@ VectorResult BFGSNumerical(Function&          theFunc,
 
 //! L-BFGS (Limited-memory BFGS) for large-scale optimization.
 //! Uses only the m most recent {s, y} pairs instead of full Hessian.
-//! Memory: O(m*n) instead of O(n²).
+//! Memory: O(m*n) instead of O(n^2).
 //!
 //! @tparam Function type with Value and Gradient methods
 //! @param theFunc function object
@@ -419,7 +419,7 @@ VectorResult LBFGS(Function&          theFunc,
       }
     }
 
-    // Initial Hessian: H0 = γI where γ = s^T y / y^T y
+    // Initial Hessian: H0 = gamma*I where gamma = s^T y / y^T y
     double aGamma = 1.0;
     if (aCount > 0)
     {
@@ -431,7 +431,7 @@ VectorResult LBFGS(Function&          theFunc,
       }
     }
 
-    // r = H0 * q = γ * q
+    // r = H0 * q = gamma * q
     math_Vector aR(1, aN);
     for (int i = 1; i <= aN; ++i)
     {

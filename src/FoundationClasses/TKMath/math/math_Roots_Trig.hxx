@@ -39,16 +39,16 @@ struct TrigResult
   explicit operator bool() const { return IsDone(); }
 };
 
-//! Solve trigonometric equation: a*cos²(x) + 2*b*cos(x)*sin(x) + c*cos(x) + d*sin(x) + e = 0.
+//! Solve trigonometric equation: a*cos^2(x) + 2*b*cos(x)*sin(x) + c*cos(x) + d*sin(x) + e = 0.
 //!
 //! Uses half-angle substitution t = tan(x/2) to convert to polynomial:
-//! - cos(x) = (1-t²)/(1+t²)
-//! - sin(x) = 2t/(1+t²)
+//! - cos(x) = (1-t^2)/(1+t^2)
+//! - sin(x) = 2t/(1+t^2)
 //!
 //! Resulting polynomial is of degree 4, 3, or 2 depending on coefficients.
 //! Roots are filtered to lie within [theInfBound, theSupBound].
 //!
-//! @param theA coefficient of cos²(x)
+//! @param theA coefficient of cos^2(x)
 //! @param theB coefficient of cos(x)*sin(x) (equation uses 2*b)
 //! @param theC coefficient of cos(x)
 //! @param theD coefficient of sin(x)
@@ -188,7 +188,7 @@ inline TrigResult Trigonometric(double theA,
     else
     {
       // c*cos(x) + d*sin(x) + e = 0
-      // Using t = tan(x/2): (e-c) + 2dt + (e+c)t² = 0
+      // Using t = tan(x/2): (e-c) + 2dt + (e+c)t^2 = 0
       double aAA = theE - theC;
       double aBB = 2.0 * theD;
       double aCC = theE + theC;

@@ -329,9 +329,9 @@ IntegResult KronrodAuto(Function& theFunc,
   return Kronrod(theFunc, theLower, theUpper, aConfig);
 }
 
-//! Gauss-Kronrod integration over semi-infinite interval [a, +∞).
+//! Gauss-Kronrod integration over semi-infinite interval [a, +infinity).
 //!
-//! Uses the substitution x = a + t / (1 - t) to map [a, +∞) to [0, 1).
+//! Uses the substitution x = a + t / (1 - t) to map [a, +infinity) to [0, 1).
 //!
 //! @tparam Function type with Value(double theX, double& theF) method
 //! @param theFunc function to integrate
@@ -382,9 +382,9 @@ IntegResult KronrodSemiInfinite(Function&            theFunc,
   return Kronrod(aTransformed, 0.0, 1.0, theConfig);
 }
 
-//! Gauss-Kronrod integration over infinite interval (-∞, +∞).
+//! Gauss-Kronrod integration over infinite interval (-infinity, +infinity).
 //!
-//! Uses the substitution x = t / (1 - t²) to map (-∞, +∞) to (-1, 1).
+//! Uses the substitution x = t / (1 - t^2) to map (-infinity, +infinity) to (-1, 1).
 //! The function must decay sufficiently fast at infinity.
 //!
 //! @tparam Function type with Value(double theX, double& theF) method

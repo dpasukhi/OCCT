@@ -37,13 +37,13 @@ struct LineSearchResult
 };
 
 //! Backtracking line search with Armijo condition.
-//! Finds α such that f(x + α*d) ≤ f(x) + c₁*α*∇f·d
+//! Finds alpha such that f(x + alpha*d) <= f(x) + c1*alpha*grad(f).d
 //! (sufficient decrease condition)
 //!
 //! Algorithm:
-//! 1. Start with α = αᵢₙᵢₜ
-//! 2. If Armijo condition satisfied, return α
-//! 3. Otherwise α = ρ * α and repeat
+//! 1. Start with alpha = alpha_init
+//! 2. If Armijo condition satisfied, return alpha
+//! 3. Otherwise alpha = rho * alpha and repeat
 //!
 //! @tparam Function type with Value(const math_Vector&, double&) method
 //! @param theFunc objective function
@@ -74,7 +74,7 @@ LineSearchResult ArmijoBacktrack(Function&          theFunc,
   const int aLower = theX.Lower();
   const int aUpper = theX.Upper();
 
-  // Compute directional derivative: ∇f · d
+  // Compute directional derivative: grad(f) . d
   double aDirDeriv = 0.0;
   for (int i = aLower; i <= aUpper; ++i)
   {
@@ -94,7 +94,7 @@ LineSearchResult ArmijoBacktrack(Function&          theFunc,
 
   for (int k = 0; k < theMaxIter; ++k)
   {
-    // Compute new point: x + α*d
+    // Compute new point: x + alpha*d
     for (int i = aLower; i <= aUpper; ++i)
     {
       aXNew(i) = theX(i) + aResult.Alpha * theDir(i);
@@ -111,7 +111,7 @@ LineSearchResult ArmijoBacktrack(Function&          theFunc,
     }
     ++aResult.NbEvals;
 
-    // Check Armijo condition: f(x + αd) ≤ f(x) + c₁αφ'(0)
+    // Check Armijo condition: f(x + alpha*d) <= f(x) + c1*alpha*phi'(0)
     if (aFNew <= theFx + theC1 * aResult.Alpha * aDirDeriv)
     {
       aResult.IsValid = true;
@@ -135,9 +135,9 @@ LineSearchResult ArmijoBacktrack(Function&          theFunc,
 }
 
 //! Strong Wolfe line search.
-//! Finds α satisfying both:
-//! 1. Armijo: f(x + αd) ≤ f(x) + c₁α∇f·d
-//! 2. Curvature: |∇f(x + αd)·d| ≤ c₂|∇f·d|
+//! Finds alpha satisfying both:
+//! 1. Armijo: f(x + alpha*d) <= f(x) + c1*alpha*grad(f).d
+//! 2. Curvature: |grad(f)(x + alpha*d).d| <= c2*|grad(f).d|
 //!
 //! Uses bracketing and zoom procedure for guaranteed convergence.
 //!
@@ -216,7 +216,7 @@ LineSearchResult WolfeSearch(Function&          theFunc,
     // Check Armijo
     if (aPhi > theFx + theC1 * aAlpha * aPhi0Prime || (k > 0 && aPhi >= aPhiLo))
     {
-      // Found bracket [αₗₒ, α]
+      // Found bracket [alpha_lo, alpha]
       aAlphaHi = aAlpha;
       break;
     }
@@ -245,7 +245,7 @@ LineSearchResult WolfeSearch(Function&          theFunc,
 
     if (aPhiPrime >= 0.0)
     {
-      // Found bracket [α, αₗₒ]
+      // Found bracket [alpha, alpha_lo]
       aAlphaHi = aAlphaLo;
       aAlphaLo = aAlpha;
       aPhiLo = aPhi;
@@ -327,7 +327,7 @@ LineSearchResult WolfeSearch(Function&          theFunc,
 }
 
 //! Exact line search using Brent's method.
-//! Minimizes f(x + α*d) over α ∈ [-αₘₐₓ, αₘₐₓ].
+//! Minimizes f(x + alpha*d) over alpha in [-alpha_max, alpha_max].
 //! First brackets the minimum by exploring both directions.
 //! More expensive than inexact line search but can be more robust.
 //!
@@ -355,7 +355,7 @@ LineSearchResult ExactLineSearch(Function&          theFunc,
 
   math_Vector aXNew(aLower, aUpper);
 
-  // Lambda to evaluate φ(α) = f(x + αd)
+  // Lambda to evaluate phi(alpha) = f(x + alpha*d)
   auto aEvalPhi = [&](double theAlpha, double& thePhi) -> bool
   {
     for (int i = aLower; i <= aUpper; ++i)
@@ -513,7 +513,7 @@ LineSearchResult ExactLineSearch(Function&          theFunc,
 }
 
 //! Quadratic interpolation step for line search.
-//! Given φ(0), φ'(0), and φ(α₁), finds minimum of quadratic fit.
+//! Given phi(0), phi'(0), and phi(alpha1), finds minimum of quadratic fit.
 //!
 //! @param thePhi0 function value at 0
 //! @param thePhi0Prime directional derivative at 0
@@ -525,9 +525,9 @@ inline double QuadraticInterpolation(double thePhi0,
                                      double theAlpha1,
                                      double thePhi1)
 {
-  // Quadratic: φ(α) = φ(0) + φ'(0)α + cα²
-  // where c = (φ(α₁) - φ(0) - φ'(0)α₁) / α₁²
-  // Minimum at α* = -φ'(0) / (2c)
+  // Quadratic: phi(alpha) = phi(0) + phi'(0)*alpha + c*alpha^2
+  // where c = (phi(alpha1) - phi(0) - phi'(0)*alpha1) / alpha1^2
+  // Minimum at alpha* = -phi'(0) / (2c)
   const double aNum = thePhi0Prime * theAlpha1 * theAlpha1;
   const double aDenom = 2.0 * (thePhi1 - thePhi0 - thePhi0Prime * theAlpha1);
 
