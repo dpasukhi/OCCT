@@ -51,5 +51,11 @@
 //! @endcode
 
 #include <math_Lin_Gauss.hxx>
+#include <math_Lin_SVD.hxx>
+#include <math_Lin_Householder.hxx>
+#include <math_Lin_Jacobi.hxx>
+#include <math_Lin_LeastSquares.hxx>
+#include <math_Lin_Crout.hxx>
+#include <math_Lin_EigenSearch.hxx>
 
 #endif // _math_Lin_HeaderFile

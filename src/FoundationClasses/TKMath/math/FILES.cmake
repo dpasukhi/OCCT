@@ -151,6 +151,8 @@ set(OCCT_math_FILES
   math_Roots_Bisection.hxx
   math_Roots_Secant.hxx
   math_Roots_Multiple.hxx
+  math_Roots_Trig.hxx
+  math_Roots_All.hxx
   # Minimization algorithms (1D and N-D)
   math_Min.hxx
   math_Min_Brent.hxx
@@ -165,6 +167,8 @@ set(OCCT_math_FILES
   math_Integ_Gauss.hxx
   math_Integ_Kronrod.hxx
   math_Integ_DoubleExp.hxx
+  math_Integ_Multiple.hxx
+  math_Integ_Set.hxx
   # Linear algebra algorithms
   math_Lin.hxx
   math_Lin_Gauss.hxx
@@ -172,6 +176,8 @@ set(OCCT_math_FILES
   math_Lin_Householder.hxx
   math_Lin_Jacobi.hxx
   math_Lin_LeastSquares.hxx
+  math_Lin_Crout.hxx
+  math_Lin_EigenSearch.hxx
   # Nonlinear systems solvers
   math_Sys.hxx
   math_Sys_Newton.hxx
@@ -180,4 +186,7 @@ set(OCCT_math_FILES
   math_Functor.hxx
   math_Functor_Scalar.hxx
   math_Functor_Vector.hxx
+  # Optimization algorithms
+  math_Opt.hxx
+  math_Opt_Uzawa.hxx
 )

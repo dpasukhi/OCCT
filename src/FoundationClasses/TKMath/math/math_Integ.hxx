@@ -60,5 +60,9 @@
 //! @endcode
 
 #include <math_Integ_Gauss.hxx>
+#include <math_Integ_Kronrod.hxx>
+#include <math_Integ_DoubleExp.hxx>
+#include <math_Integ_Multiple.hxx>
+#include <math_Integ_Set.hxx>
 
 #endif // _math_Integ_HeaderFile

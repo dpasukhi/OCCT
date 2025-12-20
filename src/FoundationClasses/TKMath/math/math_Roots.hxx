@@ -74,5 +74,7 @@
 #include <math_Roots_Bisection.hxx>
 #include <math_Roots_Secant.hxx>
 #include <math_Roots_Multiple.hxx>
+#include <math_Roots_Trig.hxx>
+#include <math_Roots_All.hxx>
 
 #endif // _math_Roots_HeaderFile

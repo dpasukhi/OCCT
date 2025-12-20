@@ -102,17 +102,54 @@ src/FoundationClasses/TKMath/math/
 
 Old classes that need modern API wrappers:
 
-| Old Class | New Location | Priority | Status |
-|-----------|--------------|----------|--------|
-| `math_BissecNewton` | Already in `math_Roots_Bisection.hxx` | - | ✅ Done |
-| `math_FunctionRoots` | `math_Roots_Multiple.hxx` | Medium | ✅ Done |
-| `math_FunctionAllRoots` | `math_Roots_All.hxx` | Medium | ⏳ Pending |
-| `math_TrigonometricFunctionRoots` | `math_Roots_Trig.hxx` | Low | ⏳ Pending |
-| `math_GaussMultipleIntegration` | `math_Integ_Multiple.hxx` | Medium | ⏳ Pending |
-| `math_GaussSetIntegration` | `math_Integ_Set.hxx` | Low | ⏳ Pending |
-| `math_Crout` | `math_Lin_Crout.hxx` | Low | ⏳ Pending |
-| `math_EigenValuesSearcher` | `math_Lin_EigenSearch.hxx` | Low | ⏳ Pending |
-| `math_Uzawa` | `math_Opt_Uzawa.hxx` | Low | ⏳ Pending |
+| Old Class | New Location | Description | Status |
+|-----------|--------------|-------------|--------|
+| `math_BissecNewton` | `math_Roots_Bisection.hxx` | Hybrid bisection-Newton | ✅ Done |
+| `math_FunctionRoots` | `math_Roots_Multiple.hxx` | Multiple roots finder | ✅ Done |
+| `math_FunctionAllRoots` | `math_Roots_All.hxx` | All roots with intervals | ⏳ In Progress |
+| `math_TrigonometricFunctionRoots` | `math_Roots_Trig.hxx` | Trigonometric equations | ⏳ In Progress |
+| `math_GaussMultipleIntegration` | `math_Integ_Multiple.hxx` | N-D Gauss integration | ⏳ In Progress |
+| `math_GaussSetIntegration` | `math_Integ_Set.hxx` | Vector function integration | ⏳ In Progress |
+| `math_Crout` | `math_Lin_Crout.hxx` | Symmetric matrix LDL^T | ⏳ In Progress |
+| `math_EigenValuesSearcher` | `math_Lin_EigenSearch.hxx` | Tridiagonal eigenvalues | ⏳ In Progress |
+| `math_Uzawa` | `math_Opt_Uzawa.hxx` | Constrained optimization | ⏳ In Progress |
+
+#### Algorithm Details
+
+**math_Roots_All.hxx** - Sample-based root finding:
+- Uses function sampling to find null intervals
+- Refines interval bounds with root finding
+- Returns both isolated roots and null intervals
+
+**math_Roots_Trig.hxx** - Trigonometric equation solver:
+- Solves: a·cos²(x) + 2b·cos(x)·sin(x) + c·cos(x) + d·sin(x) + e = 0
+- Supports degree 2, 3, 4 equations
+- Returns roots in specified interval [InfBound, SupBound]
+
+**math_Integ_Multiple.hxx** - Multi-dimensional Gauss integration:
+- N-dimensional tensor product quadrature
+- Configurable order per dimension
+- Maximum 61 points per dimension
+
+**math_Integ_Set.hxx** - Vector function integration:
+- Integrates vector-valued functions F: R → R^n
+- Returns vector of integrals
+- Note: M>1 input dimensions not implemented in legacy
+
+**math_Lin_Crout.hxx** - Symmetric matrix decomposition:
+- A = L·D·L^T where L is lower triangular, D is diagonal
+- Faster than Gauss for symmetric matrices
+- Only lower triangle needed as input
+
+**math_Lin_EigenSearch.hxx** - Tridiagonal eigenvalue solver:
+- QR algorithm with implicit shifts
+- Input: diagonal and subdiagonal elements
+- Output: eigenvalues and orthonormal eigenvectors
+
+**math_Opt_Uzawa.hxx** - Constrained least squares:
+- Solves C·X = S with min ||X - X₀||
+- Supports equality and inequality constraints
+- Uses dual variables for constraint handling
 
 ---
 
