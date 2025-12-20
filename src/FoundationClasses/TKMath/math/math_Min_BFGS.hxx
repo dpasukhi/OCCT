@@ -20,7 +20,7 @@
 #include <math_InternalLineSearch.hxx>
 #include <math_InternalDeriv.hxx>
 
-#include <NCollection_Array1.hxx>
+#include <NCollection_Vector.hxx>
 
 #include <cmath>
 
@@ -364,22 +364,22 @@ VectorResult LBFGS(Function&          theFunc,
   }
 
   // Storage for {s, y} pairs (circular buffer)
-  NCollection_Array1<math_Vector> aSVec(0, aM - 1);
-  NCollection_Array1<math_Vector> aYVec(0, aM - 1);
-  NCollection_Array1<double>      aRhoVec(0, aM - 1, 0.0);
+  NCollection_Vector<math_Vector> aSVec;
+  NCollection_Vector<math_Vector> aYVec;
+  math_Vector                     aRhoVec(0, aM - 1, 0.0);
   for (int i = 0; i < aM; ++i)
   {
-    aSVec.ChangeValue(i) = math_Vector(1, aN);
-    aYVec.ChangeValue(i) = math_Vector(1, aN);
+    aSVec.Append(math_Vector(1, aN));
+    aYVec.Append(math_Vector(1, aN));
   }
   int aHead  = 0; // Index of oldest entry
   int aCount = 0; // Number of stored pairs
 
-  math_Vector                aDir(aLower, aUpper);
-  math_Vector                aXNew(aLower, aUpper);
-  math_Vector                aGradNew(aLower, aUpper);
-  math_Vector                aQ(1, aN);
-  NCollection_Array1<double> aAlphaVec(0, aM - 1);
+  math_Vector aDir(aLower, aUpper);
+  math_Vector aXNew(aLower, aUpper);
+  math_Vector aGradNew(aLower, aUpper);
+  math_Vector aQ(1, aN);
+  math_Vector aAlphaVec(0, aM - 1);
 
   for (int anIter = 0; anIter < theConfig.MaxIterations; ++anIter)
   {
@@ -411,11 +411,11 @@ VectorResult LBFGS(Function&          theFunc,
     for (int k = aCount - 1; k >= 0; --k)
     {
       const int aIdx = (aHead + k) % aM;
-      aAlphaVec.ChangeValue(aIdx) =
-        aRhoVec.Value(aIdx) * Internal::DotProduct(aSVec.Value(aIdx), aQ);
+      aAlphaVec(aIdx) =
+        aRhoVec(aIdx) * Internal::DotProduct(aSVec.Value(aIdx), aQ);
       for (int i = 1; i <= aN; ++i)
       {
-        aQ(i) -= aAlphaVec.Value(aIdx) * aYVec.Value(aIdx)(i);
+        aQ(i) -= aAlphaVec(aIdx) * aYVec.Value(aIdx)(i);
       }
     }
 
@@ -427,7 +427,7 @@ VectorResult LBFGS(Function&          theFunc,
       double aYY = Internal::DotProduct(aYVec.Value(aLastIdx), aYVec.Value(aLastIdx));
       if (aYY > Internal::THE_ZERO_TOL)
       {
-        aGamma = 1.0 / (aRhoVec.Value(aLastIdx) * aYY);
+        aGamma = 1.0 / (aRhoVec(aLastIdx) * aYY);
       }
     }
 
@@ -442,10 +442,10 @@ VectorResult LBFGS(Function&          theFunc,
     for (int k = 0; k < aCount; ++k)
     {
       const int    aIdx  = (aHead + k) % aM;
-      const double aBeta = aRhoVec.Value(aIdx) * Internal::DotProduct(aYVec.Value(aIdx), aR);
+      const double aBeta = aRhoVec(aIdx) * Internal::DotProduct(aYVec.Value(aIdx), aR);
       for (int i = 1; i <= aN; ++i)
       {
-        aR(i) += (aAlphaVec.Value(aIdx) - aBeta) * aSVec.Value(aIdx)(i);
+        aR(i) += (aAlphaVec(aIdx) - aBeta) * aSVec.Value(aIdx)(i);
       }
     }
 
@@ -524,7 +524,7 @@ VectorResult LBFGS(Function&          theFunc,
     double aSY = Internal::DotProduct(aSVec.Value(aNewIdx), aYVec.Value(aNewIdx));
     if (aSY > Internal::THE_ZERO_TOL)
     {
-      aRhoVec.ChangeValue(aNewIdx) = 1.0 / aSY;
+      aRhoVec(aNewIdx) = 1.0 / aSY;
       if (aCount < aM)
       {
         ++aCount;

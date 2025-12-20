@@ -19,9 +19,9 @@
 #include <math_InternalCore.hxx>
 #include <math_BullardGenerator.hxx>
 
+#include <NCollection_Vector.hxx>
+
 #include <cmath>
-#include <vector>
-#include <algorithm>
 
 namespace math
 {
@@ -128,11 +128,10 @@ VectorResult PSO(Function&          theFunc,
     }
   };
 
-  std::vector<Particle> aSwarm;
-  aSwarm.reserve(aNbParticles);
+  NCollection_Vector<Particle> aSwarm;
   for (int p = 0; p < aNbParticles; ++p)
   {
-    aSwarm.emplace_back(aLower, aUpper);
+    aSwarm.Append(Particle(aLower, aUpper));
   }
 
   // Random number generator
@@ -151,34 +150,35 @@ VectorResult PSO(Function&          theFunc,
 
   for (int p = 0; p < aNbParticles; ++p)
   {
+    Particle& aParticle = aSwarm.ChangeValue(p);
     // Vectors already initialized by Particle constructor
     // Random position in bounds
     for (int i = aLower; i <= aUpper; ++i)
     {
       double aRand = aRNG.NextReal();
-      aSwarm[p].Position(i) =
+      aParticle.Position(i) =
           theLowerBounds(i) + aRand * (theUpperBounds(i) - theLowerBounds(i));
 
       // Random velocity
       aRand = 2.0 * aRNG.NextReal() - 1.0;
-      aSwarm[p].Velocity(i) = aRand * aVelMax(i);
+      aParticle.Velocity(i) = aRand * aVelMax(i);
     }
 
     // Evaluate initial fitness
-    if (!theFunc.Value(aSwarm[p].Position, aSwarm[p].CurrentValue))
+    if (!theFunc.Value(aParticle.Position, aParticle.CurrentValue))
     {
-      aSwarm[p].CurrentValue = std::numeric_limits<double>::max();
+      aParticle.CurrentValue = std::numeric_limits<double>::max();
     }
 
     // Initialize personal best
-    aSwarm[p].BestPosition = aSwarm[p].Position;
-    aSwarm[p].BestValue    = aSwarm[p].CurrentValue;
+    aParticle.BestPosition = aParticle.Position;
+    aParticle.BestValue    = aParticle.CurrentValue;
 
     // Update global best
-    if (aSwarm[p].BestValue < aGlobalBestValue)
+    if (aParticle.BestValue < aGlobalBestValue)
     {
-      aGlobalBestValue = aSwarm[p].BestValue;
-      aGlobalBest      = aSwarm[p].BestPosition;
+      aGlobalBestValue = aParticle.BestValue;
+      aGlobalBest      = aParticle.BestPosition;
     }
   }
 
@@ -193,7 +193,7 @@ VectorResult PSO(Function&          theFunc,
     // Update each particle
     for (int p = 0; p < aNbParticles; ++p)
     {
-      Particle& aParticle = aSwarm[p];
+      Particle& aParticle = aSwarm.ChangeValue(p);
 
       // Update velocity
       for (int i = aLower; i <= aUpper; ++i)

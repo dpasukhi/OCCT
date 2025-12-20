@@ -14,10 +14,11 @@
 #ifndef _math_Functor_Scalar_HeaderFile
 #define _math_Functor_Scalar_HeaderFile
 
+#include <NCollection_Array1.hxx>
+
 #include <cmath>
 #include <initializer_list>
 #include <utility>
-#include <vector>
 
 //! @file math_Functor_Scalar.hxx
 //! @brief Non-virtual functor classes for scalar (1D) functions.
@@ -148,21 +149,19 @@ public:
   //! Constructor from initializer list.
   //! @param theCoeffs coefficients in ascending power order
   Polynomial(std::initializer_list<double> theCoeffs)
-    : myCoeffs(theCoeffs)
+    : myCoeffs(0, static_cast<int>(theCoeffs.size()) - 1)
   {
+    int anIdx = 0;
+    for (double aCoeff : theCoeffs)
+    {
+      myCoeffs.SetValue(anIdx++, aCoeff);
+    }
   }
 
-  //! Constructor from vector.
+  //! Constructor from NCollection_Array1.
   //! @param theCoeffs coefficients in ascending power order
-  explicit Polynomial(const std::vector<double>& theCoeffs)
+  explicit Polynomial(const NCollection_Array1<double>& theCoeffs)
     : myCoeffs(theCoeffs)
-  {
-  }
-
-  //! Constructor from vector (move).
-  //! @param theCoeffs coefficients in ascending power order
-  explicit Polynomial(std::vector<double>&& theCoeffs)
-    : myCoeffs(std::move(theCoeffs))
   {
   }
 
@@ -172,17 +171,18 @@ public:
   //! @return true (always succeeds for polynomials)
   bool Value(double theX, double& theY) const
   {
-    if (myCoeffs.empty())
+    if (myCoeffs.IsEmpty())
     {
       theY = 0.0;
       return true;
     }
 
     // Horner's method: p(x) = a[0] + x*(a[1] + x*(a[2] + ...))
-    theY = myCoeffs.back();
-    for (size_t i = myCoeffs.size() - 1; i > 0; --i)
+    const int aLast = myCoeffs.Upper();
+    theY = myCoeffs.Value(aLast);
+    for (int i = aLast - 1; i >= myCoeffs.Lower(); --i)
     {
-      theY = theY * theX + myCoeffs[i - 1];
+      theY = theY * theX + myCoeffs.Value(i);
     }
     return true;
   }
@@ -194,46 +194,50 @@ public:
   //! @return true (always succeeds for polynomials)
   bool Values(double theX, double& theY, double& theDY) const
   {
-    if (myCoeffs.empty())
+    if (myCoeffs.IsEmpty())
     {
       theY  = 0.0;
       theDY = 0.0;
       return true;
     }
 
-    const size_t n = myCoeffs.size();
+    const int n = myCoeffs.Length();
     if (n == 1)
     {
-      theY  = myCoeffs[0];
+      theY  = myCoeffs.Value(myCoeffs.Lower());
       theDY = 0.0;
       return true;
     }
 
     // Horner's method for value and derivative simultaneously
-    theY  = myCoeffs[n - 1];
+    const int aLower = myCoeffs.Lower();
+    const int aLast  = myCoeffs.Upper();
+    theY  = myCoeffs.Value(aLast);
     theDY = 0.0;
-    for (size_t i = n - 1; i > 0; --i)
+    for (int i = aLast - 1; i >= aLower; --i)
     {
       theDY = theDY * theX + theY;
-      theY  = theY * theX + myCoeffs[i - 1];
+      theY  = theY * theX + myCoeffs.Value(i);
     }
     return true;
   }
 
   //! Returns the degree of the polynomial.
   //! @return polynomial degree (number of coefficients - 1)
-  size_t Degree() const { return myCoeffs.empty() ? 0 : myCoeffs.size() - 1; }
+  int Degree() const { return myCoeffs.IsEmpty() ? 0 : myCoeffs.Length() - 1; }
 
   //! Returns coefficient by index.
   //! @param theIndex coefficient index (0 = constant term)
   //! @return coefficient value
-  double Coefficient(size_t theIndex) const
+  double Coefficient(int theIndex) const
   {
-    return theIndex < myCoeffs.size() ? myCoeffs[theIndex] : 0.0;
+    const int aIdx = myCoeffs.Lower() + theIndex;
+    return (aIdx >= myCoeffs.Lower() && aIdx <= myCoeffs.Upper())
+           ? myCoeffs.Value(aIdx) : 0.0;
   }
 
 private:
-  std::vector<double> myCoeffs;
+  NCollection_Array1<double> myCoeffs;
 };
 
 //! Rational function functor: f(x) = P(x) / Q(x).
@@ -247,10 +251,11 @@ private:
 class Rational
 {
 public:
-  //! Constructor from coefficient vectors.
+  //! Constructor from NCollection_Array1.
   //! @param theNum numerator coefficients (ascending power order)
   //! @param theDenom denominator coefficients (ascending power order)
-  Rational(const std::vector<double>& theNum, const std::vector<double>& theDenom)
+  Rational(const NCollection_Array1<double>& theNum,
+           const NCollection_Array1<double>& theDenom)
     : myNum(theNum)
     , myDenom(theDenom)
   {
@@ -260,9 +265,19 @@ public:
   //! @param theNum numerator coefficients
   //! @param theDenom denominator coefficients
   Rational(std::initializer_list<double> theNum, std::initializer_list<double> theDenom)
-    : myNum(theNum)
-    , myDenom(theDenom)
+    : myNum(0, static_cast<int>(theNum.size()) - 1)
+    , myDenom(0, static_cast<int>(theDenom.size()) - 1)
   {
+    int anIdx = 0;
+    for (double aCoeff : theNum)
+    {
+      myNum.SetValue(anIdx++, aCoeff);
+    }
+    anIdx = 0;
+    for (double aCoeff : theDenom)
+    {
+      myDenom.SetValue(anIdx++, aCoeff);
+    }
   }
 
   //! Evaluates rational function at theX.
@@ -274,23 +289,25 @@ public:
     double aNum = 0.0;
     double aDenom = 0.0;
 
-    // Evaluate numerator
-    if (!myNum.empty())
+    // Evaluate numerator using Horner's method
+    if (!myNum.IsEmpty())
     {
-      aNum = myNum.back();
-      for (size_t i = myNum.size() - 1; i > 0; --i)
+      const int aLast = myNum.Upper();
+      aNum = myNum.Value(aLast);
+      for (int i = aLast - 1; i >= myNum.Lower(); --i)
       {
-        aNum = aNum * theX + myNum[i - 1];
+        aNum = aNum * theX + myNum.Value(i);
       }
     }
 
-    // Evaluate denominator
-    if (!myDenom.empty())
+    // Evaluate denominator using Horner's method
+    if (!myDenom.IsEmpty())
     {
-      aDenom = myDenom.back();
-      for (size_t i = myDenom.size() - 1; i > 0; --i)
+      const int aLast = myDenom.Upper();
+      aDenom = myDenom.Value(aLast);
+      for (int i = aLast - 1; i >= myDenom.Lower(); --i)
       {
-        aDenom = aDenom * theX + myDenom[i - 1];
+        aDenom = aDenom * theX + myDenom.Value(i);
       }
     }
 
@@ -305,8 +322,8 @@ public:
   }
 
 private:
-  std::vector<double> myNum;
-  std::vector<double> myDenom;
+  NCollection_Array1<double> myNum;
+  NCollection_Array1<double> myDenom;
 };
 
 //! Composite functor: f(g(x)).

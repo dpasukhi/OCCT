@@ -22,9 +22,9 @@
 #include <math_InternalCore.hxx>
 #include <math_BullardGenerator.hxx>
 
+#include <NCollection_Vector.hxx>
+
 #include <cmath>
-#include <vector>
-#include <algorithm>
 
 namespace math
 {
@@ -100,34 +100,35 @@ VectorResult DifferentialEvolution(Function&           theFunc,
   math_BullardGenerator aRNG(theConfig.Seed);
 
   // Population: vector of candidate solutions
-  std::vector<math_Vector> aPopulation;
-  aPopulation.reserve(aNP);
-  std::vector<double> aFitness(aNP);
+  NCollection_Vector<math_Vector> aPopulation;
+  math_Vector                     aFitness(0, aNP - 1);
 
   // Initialize population
   for (int i = 0; i < aNP; ++i)
   {
-    aPopulation.emplace_back(aLower, aUpper);
+    aPopulation.Append(math_Vector(aLower, aUpper));
     for (int j = aLower; j <= aUpper; ++j)
     {
       double r = aRNG.NextReal();
-      aPopulation[i](j) = theLowerBounds(j) + r * (theUpperBounds(j) - theLowerBounds(j));
+      aPopulation.ChangeValue(i)(j) = theLowerBounds(j) + r * (theUpperBounds(j) - theLowerBounds(j));
     }
 
-    if (!theFunc.Value(aPopulation[i], aFitness[i]))
+    double aFit;
+    if (!theFunc.Value(aPopulation.Value(i), aFit))
     {
-      aFitness[i] = std::numeric_limits<double>::max();
+      aFit = std::numeric_limits<double>::max();
     }
+    aFitness(i) = aFit;
   }
 
   // Find best
   int    aBestIdx   = 0;
-  double aBestValue = aFitness[0];
+  double aBestValue = aFitness(0);
   for (int i = 1; i < aNP; ++i)
   {
-    if (aFitness[i] < aBestValue)
+    if (aFitness(i) < aBestValue)
     {
-      aBestValue = aFitness[i];
+      aBestValue = aFitness(i);
       aBestIdx   = i;
     }
   }
@@ -156,13 +157,13 @@ VectorResult DifferentialEvolution(Function&           theFunc,
         if (aRNG.NextReal() < aCR || j == jRand)
         {
           // Mutation: DE/rand/1
-          double aVal = aPopulation[a](j) + aF * (aPopulation[b](j) - aPopulation[c](j));
+          double aVal = aPopulation.Value(a)(j) + aF * (aPopulation.Value(b)(j) - aPopulation.Value(c)(j));
           // Clamp to bounds
           aTrial(j) = Internal::Clamp(aVal, theLowerBounds(j), theUpperBounds(j));
         }
         else
         {
-          aTrial(j) = aPopulation[i](j);
+          aTrial(j) = aPopulation.Value(i)(j);
         }
       }
 
@@ -173,10 +174,10 @@ VectorResult DifferentialEvolution(Function&           theFunc,
         aTrialFitness = std::numeric_limits<double>::max();
       }
 
-      if (aTrialFitness <= aFitness[i])
+      if (aTrialFitness <= aFitness(i))
       {
-        aPopulation[i] = aTrial;
-        aFitness[i]    = aTrialFitness;
+        aPopulation.ChangeValue(i) = aTrial;
+        aFitness(i)                = aTrialFitness;
 
         if (aTrialFitness < aBestValue)
         {
@@ -190,7 +191,7 @@ VectorResult DifferentialEvolution(Function&           theFunc,
     double aMaxDiff = 0.0;
     for (int i = 0; i < aNP; ++i)
     {
-      aMaxDiff = std::max(aMaxDiff, std::abs(aFitness[i] - aBestValue));
+      aMaxDiff = std::max(aMaxDiff, std::abs(aFitness(i) - aBestValue));
     }
 
     if (aMaxDiff < theConfig.Tolerance)
@@ -200,7 +201,7 @@ VectorResult DifferentialEvolution(Function&           theFunc,
   }
 
   aResult.Status   = Status::OK;
-  aResult.Solution = aPopulation[aBestIdx];
+  aResult.Solution = aPopulation.Value(aBestIdx);
   aResult.Value    = aBestValue;
   return aResult;
 }
