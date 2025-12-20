@@ -167,6 +167,7 @@ struct InverseResult
 {
   Status                     Status = Status::NotConverged; //!< Computation status
   std::optional<math_Matrix> Inverse;                       //!< Computed inverse matrix
+  std::optional<double>      Determinant;                   //!< Determinant of matrix (if computed)
 
   //! Returns true if inversion succeeded.
   bool IsDone() const { return Status == Status::OK; }

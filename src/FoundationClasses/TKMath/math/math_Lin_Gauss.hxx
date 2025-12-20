@@ -42,17 +42,6 @@ struct LUResult
   explicit operator bool() const { return IsDone(); }
 };
 
-//! Result for matrix inversion.
-struct InverseResult
-{
-  Status                     Status = Status::NotConverged;
-  std::optional<math_Matrix> Inverse;
-  std::optional<double>      Determinant;
-
-  bool IsDone() const { return Status == Status::OK; }
-  explicit operator bool() const { return IsDone(); }
-};
-
 //! Perform LU decomposition of matrix A with partial pivoting.
 //! Decomposes A into L*U where L is lower triangular with unit diagonal
 //! and U is upper triangular. The result stores L and U in a combined matrix.

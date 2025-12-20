@@ -391,7 +391,6 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
       {
         // Find the minimum using bisection on derivative
         double aXL = aX0, aXR = aX1;
-        double aDFL = aDFValues[i], aDFR = aDFValues[i + 1];
 
         for (int anIter = 0; anIter < 20; ++anIter)
         {
@@ -403,12 +402,10 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
           if (aDFM < 0.0)
           {
             aXL = aXM;
-            aDFL = aDFM;
           }
           else
           {
             aXR = aXM;
-            aDFR = aDFM;
           }
 
           // Check if minimum is close enough to zero
