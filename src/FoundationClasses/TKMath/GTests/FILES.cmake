@@ -58,32 +58,34 @@ set(OCCT_TKMath_GTests_FILES
   math_TrigonometricFunctionRoots_Test.cxx
   math_Uzawa_Test.cxx
   math_Vector_Test.cxx
-  # New modern math solver API tests
-  math_Poly_Test.cxx
-  math_Roots_Test.cxx
-  math_Min_Test.cxx
-  math_Integ_Test.cxx
-  math_Min_NDim_Test.cxx
-  # New component tests
-  math_Min_FRPR_New_Test.cxx
-  math_Min_Newton_New_Test.cxx
-  math_Min_PSO_New_Test.cxx
-  math_Min_GlobOpt_New_Test.cxx
-  math_Lin_New_Test.cxx
-  math_Integ_New_Test.cxx
-  math_Sys_LM_New_Test.cxx
-  # Comparison tests between new and old APIs
-  math_Poly_Comparison_Test.cxx
-  math_Roots_Comparison_Test.cxx
-  math_Min_Comparison_Test.cxx
-  math_Min_NDim_Comparison_Test.cxx
-  math_Integ_Comparison_Test.cxx
-  math_Lin_Comparison_Test.cxx
-  math_Sys_Comparison_Test.cxx
-  # Functor tests
-  math_Functor_Test.cxx
-  # Multiple roots tests
-  math_Roots_Multiple_Test.cxx
+  # MathUtils tests
+  MathUtils_Functor_Test.cxx
+  # MathPoly tests
+  MathPoly_Test.cxx
+  MathPoly_Comparison_Test.cxx
+  # MathLin tests
+  MathLin_Test.cxx
+  MathLin_Comparison_Test.cxx
+  # MathOpt tests
+  MathOpt_1D_Test.cxx
+  MathOpt_NDim_Test.cxx
+  MathOpt_FRPR_Test.cxx
+  MathOpt_Newton_Test.cxx
+  MathOpt_PSO_Test.cxx
+  MathOpt_GlobOpt_Test.cxx
+  MathOpt_1D_Comparison_Test.cxx
+  MathOpt_NDim_Comparison_Test.cxx
+  # MathRoot tests
+  MathRoot_Test.cxx
+  MathRoot_Multiple_Test.cxx
+  MathRoot_Comparison_Test.cxx
+  # MathInteg tests
+  MathInteg_Test.cxx
+  MathInteg_New_Test.cxx
+  MathInteg_Comparison_Test.cxx
+  # MathSys tests
+  MathSys_LM_Test.cxx
+  MathSys_Comparison_Test.cxx
   PLib_Test.cxx
   PLib_JacobiPolynomial_Test.cxx
   PLib_HermitJacobi_Test.cxx
