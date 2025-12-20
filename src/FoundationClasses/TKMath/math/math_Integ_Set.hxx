@@ -19,8 +19,6 @@
 #include <math_Vector.hxx>
 #include <math_GaussKronrodWeights.hxx>
 
-#include <NCollection_Array1.hxx>
-
 #include <cmath>
 
 namespace math
@@ -85,12 +83,12 @@ SetResult GaussSet(Func&  theFunc,
   math_Vector aGW(1, aOrder);
   GetOrderedGaussPointsAndWeights(aOrder, aGP, aGW);
 
-  NCollection_Array1<double> aPoints(0, aOrder - 1);
-  NCollection_Array1<double> aWeights(0, aOrder - 1);
+  math_Vector aPoints(0, aOrder - 1);
+  math_Vector aWeights(0, aOrder - 1);
   for (int i = 0; i < aOrder; ++i)
   {
-    aPoints.SetValue(i, aGP(i + 1));
-    aWeights.SetValue(i, aGW(i + 1));
+    aPoints(i)  = aGP(i + 1);
+    aWeights(i) = aGW(i + 1);
   }
 
   // Coordinate transformation
@@ -117,21 +115,21 @@ SetResult GaussSet(Func&  theFunc,
     }
     for (int j = 1; j <= aNbEqua; ++j)
     {
-      aVal(j) *= aWeights.Value(aInd1 - 1);
+      aVal(j) *= aWeights(aInd1 - 1);
     }
   }
 
   // Symmetric Gauss quadrature
   for (int i = 0; i < aInd; ++i)
   {
-    aTval(1) = aXm + aXr * aPoints.Value(i);
+    aTval(1) = aXm + aXr * aPoints(i);
     if (!theFunc.Value(aTval, aFVal1))
     {
       aResult.Status = Status::NotConverged;
       return aResult;
     }
 
-    aTval(1) = aXm - aXr * aPoints.Value(i);
+    aTval(1) = aXm - aXr * aPoints(i);
     if (!theFunc.Value(aTval, aFVal2))
     {
       aResult.Status = Status::NotConverged;
@@ -140,7 +138,7 @@ SetResult GaussSet(Func&  theFunc,
 
     for (int j = 1; j <= aNbEqua; ++j)
     {
-      aVal(j) += (aFVal1(j) + aFVal2(j)) * aWeights.Value(i);
+      aVal(j) += (aFVal1(j) + aFVal2(j)) * aWeights(i);
     }
   }
 

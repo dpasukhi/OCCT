@@ -18,11 +18,11 @@
 #include <math_Config.hxx>
 #include <math_InternalCore.hxx>
 #include <math_Roots_Brent.hxx>
+#include <math_Vector.hxx>
+#include <math_IntegerVector.hxx>
 
-#include <NCollection_Array1.hxx>
 #include <NCollection_Vector.hxx>
 
-#include <algorithm>
 #include <cmath>
 
 //! @file math_Roots_Multiple.hxx
@@ -108,15 +108,15 @@ MultipleResult FindAllRoots(Function&             theFunc,
   const double aEpsX = std::max(theConfig.XTolerance, aMinEpsX);
 
   // Sample function values
-  NCollection_Array1<double> aSamples(0, aNbSamples);
-  NCollection_Array1<double> aXValues(0, aNbSamples);
+  math_Vector aSamples(0, aNbSamples);
+  math_Vector aXValues(0, aNbSamples);
 
   bool aAllValid = true;
   for (int i = 0; i <= aNbSamples; ++i)
   {
     double aX = aLower + i * aDx;
     if (aX > aUpper) aX = aUpper;
-    aXValues.SetValue(i, aX);
+    aXValues(i) = aX;
 
     double aF = 0.0;
     if (!theFunc.Value(aX, aF))
@@ -124,7 +124,7 @@ MultipleResult FindAllRoots(Function&             theFunc,
       aAllValid = false;
       break;
     }
-    aSamples.SetValue(i, aF - theConfig.Offset);
+    aSamples(i) = aF - theConfig.Offset;
   }
 
   if (!aAllValid)
@@ -137,7 +137,7 @@ MultipleResult FindAllRoots(Function&             theFunc,
   aResult.IsAllNull = true;
   for (int i = 0; i <= aNbSamples; ++i)
   {
-    if (std::abs(aSamples.Value(i)) > theConfig.NullTolerance)
+    if (std::abs(aSamples(i)) > theConfig.NullTolerance)
     {
       aResult.IsAllNull = false;
       break;
@@ -187,10 +187,10 @@ MultipleResult FindAllRoots(Function&             theFunc,
   // Find sign changes
   for (int i = 0; i < aNbSamples; ++i)
   {
-    const double aF0 = aSamples.Value(i);
-    const double aF1 = aSamples.Value(i + 1);
-    const double aX0 = aXValues.Value(i);
-    const double aX1 = aXValues.Value(i + 1);
+    const double aF0 = aSamples(i);
+    const double aF1 = aSamples(i + 1);
+    const double aX0 = aXValues(i);
+    const double aX1 = aXValues(i + 1);
 
     // Exact zero at sample point
     if (std::abs(aF0) < theConfig.FTolerance)
@@ -220,39 +220,39 @@ MultipleResult FindAllRoots(Function&             theFunc,
   }
 
   // Check last sample point
-  if (std::abs(aSamples.Value(aNbSamples)) < theConfig.FTolerance)
+  if (std::abs(aSamples(aNbSamples)) < theConfig.FTolerance)
   {
-    addRoot(aXValues.Value(aNbSamples), aSamples.Value(aNbSamples) + theConfig.Offset);
+    addRoot(aXValues(aNbSamples), aSamples(aNbSamples) + theConfig.Offset);
   }
 
   // Sort roots using indices
   const int aNbRoots = aResult.Roots.Length();
   if (aNbRoots > 1)
   {
-    NCollection_Array1<int> aIndices(0, aNbRoots - 1);
+    math_IntegerVector aIndices(0, aNbRoots - 1);
     for (int i = 0; i < aNbRoots; ++i)
     {
-      aIndices.SetValue(i, i);
+      aIndices(i) = i;
     }
 
     // Simple insertion sort for small arrays
     for (int i = 1; i < aNbRoots; ++i)
     {
-      int aKey = aIndices.Value(i);
+      int aKey = aIndices(i);
       int j    = i - 1;
-      while (j >= 0 && aResult.Roots.Value(aIndices.Value(j)) > aResult.Roots.Value(aKey))
+      while (j >= 0 && aResult.Roots.Value(aIndices(j)) > aResult.Roots.Value(aKey))
       {
-        aIndices.SetValue(j + 1, aIndices.Value(j));
+        aIndices(j + 1) = aIndices(j);
         --j;
       }
-      aIndices.SetValue(j + 1, aKey);
+      aIndices(j + 1) = aKey;
     }
 
     NCollection_Vector<double> aSortedRoots, aSortedValues;
     for (int i = 0; i < aNbRoots; ++i)
     {
-      aSortedRoots.Append(aResult.Roots.Value(aIndices.Value(i)));
-      aSortedValues.Append(aResult.Values.Value(aIndices.Value(i)));
+      aSortedRoots.Append(aResult.Roots.Value(aIndices(i)));
+      aSortedValues.Append(aResult.Values.Value(aIndices(i)));
     }
     aResult.Roots  = aSortedRoots;
     aResult.Values = aSortedValues;
@@ -291,16 +291,16 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
   const double aEpsX = std::max(theConfig.XTolerance, aMinEpsX);
 
   // Sample function values and derivatives
-  NCollection_Array1<double> aFValues(0, aNbSamples);
-  NCollection_Array1<double> aDFValues(0, aNbSamples);
-  NCollection_Array1<double> aXValues(0, aNbSamples);
+  math_Vector aFValues(0, aNbSamples);
+  math_Vector aDFValues(0, aNbSamples);
+  math_Vector aXValues(0, aNbSamples);
 
   bool aAllValid = true;
   for (int i = 0; i <= aNbSamples; ++i)
   {
     double aX = aLower + i * aDx;
     if (aX > aUpper) aX = aUpper;
-    aXValues.SetValue(i, aX);
+    aXValues(i) = aX;
 
     double aF = 0.0, aDF = 0.0;
     if (!theFunc.Values(aX, aF, aDF))
@@ -308,8 +308,8 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
       aAllValid = false;
       break;
     }
-    aFValues.SetValue(i, aF - theConfig.Offset);
-    aDFValues.SetValue(i, aDF);
+    aFValues(i)  = aF - theConfig.Offset;
+    aDFValues(i) = aDF;
   }
 
   if (!aAllValid)
@@ -322,7 +322,7 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
   aResult.IsAllNull = true;
   for (int i = 0; i <= aNbSamples; ++i)
   {
-    if (std::abs(aFValues.Value(i)) > theConfig.NullTolerance)
+    if (std::abs(aFValues(i)) > theConfig.NullTolerance)
     {
       aResult.IsAllNull = false;
       break;
@@ -372,10 +372,10 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
   // Find sign changes
   for (int i = 0; i < aNbSamples; ++i)
   {
-    const double aF0 = aFValues.Value(i);
-    const double aF1 = aFValues.Value(i + 1);
-    const double aX0 = aXValues.Value(i);
-    const double aX1 = aXValues.Value(i + 1);
+    const double aF0 = aFValues(i);
+    const double aF1 = aFValues(i + 1);
+    const double aX0 = aXValues(i);
+    const double aX1 = aXValues(i + 1);
 
     // Exact zero at sample point
     if (std::abs(aF0) < theConfig.FTolerance)
@@ -406,7 +406,7 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
     else if (aF0 > 0.0 && aF1 > 0.0)
     {
       // Potential minimum - check if derivative changes sign
-      if (aDFValues.Value(i) < 0.0 && aDFValues.Value(i + 1) > 0.0)
+      if (aDFValues(i) < 0.0 && aDFValues(i + 1) > 0.0)
       {
         // Find the minimum using bisection on derivative
         double aXL = aX0, aXR = aX1;
@@ -439,7 +439,7 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
     else if (aF0 < 0.0 && aF1 < 0.0)
     {
       // Potential maximum - check if derivative changes sign
-      if (aDFValues.Value(i) > 0.0 && aDFValues.Value(i + 1) < 0.0)
+      if (aDFValues(i) > 0.0 && aDFValues(i + 1) < 0.0)
       {
         double aXL = aX0, aXR = aX1;
 
@@ -470,39 +470,39 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
   }
 
   // Check last sample point
-  if (std::abs(aFValues.Value(aNbSamples)) < theConfig.FTolerance)
+  if (std::abs(aFValues(aNbSamples)) < theConfig.FTolerance)
   {
-    addRoot(aXValues.Value(aNbSamples), aFValues.Value(aNbSamples) + theConfig.Offset);
+    addRoot(aXValues(aNbSamples), aFValues(aNbSamples) + theConfig.Offset);
   }
 
   // Sort roots using indices
   const int aNbRoots = aResult.Roots.Length();
   if (aNbRoots > 1)
   {
-    NCollection_Array1<int> aIndices(0, aNbRoots - 1);
+    math_IntegerVector aIndices(0, aNbRoots - 1);
     for (int i = 0; i < aNbRoots; ++i)
     {
-      aIndices.SetValue(i, i);
+      aIndices(i) = i;
     }
 
     // Simple insertion sort for small arrays
     for (int i = 1; i < aNbRoots; ++i)
     {
-      int aKey = aIndices.Value(i);
+      int aKey = aIndices(i);
       int j    = i - 1;
-      while (j >= 0 && aResult.Roots.Value(aIndices.Value(j)) > aResult.Roots.Value(aKey))
+      while (j >= 0 && aResult.Roots.Value(aIndices(j)) > aResult.Roots.Value(aKey))
       {
-        aIndices.SetValue(j + 1, aIndices.Value(j));
+        aIndices(j + 1) = aIndices(j);
         --j;
       }
-      aIndices.SetValue(j + 1, aKey);
+      aIndices(j + 1) = aKey;
     }
 
     NCollection_Vector<double> aSortedRoots, aSortedValues;
     for (int i = 0; i < aNbRoots; ++i)
     {
-      aSortedRoots.Append(aResult.Roots.Value(aIndices.Value(i)));
-      aSortedValues.Append(aResult.Values.Value(aIndices.Value(i)));
+      aSortedRoots.Append(aResult.Roots.Value(aIndices(i)));
+      aSortedValues.Append(aResult.Values.Value(aIndices(i)));
     }
     aResult.Roots  = aSortedRoots;
     aResult.Values = aSortedValues;

@@ -14,7 +14,7 @@
 #ifndef _math_Functor_Scalar_HeaderFile
 #define _math_Functor_Scalar_HeaderFile
 
-#include <NCollection_Array1.hxx>
+#include <math_Vector.hxx>
 
 #include <cmath>
 #include <initializer_list>
@@ -154,13 +154,13 @@ public:
     int anIdx = 0;
     for (double aCoeff : theCoeffs)
     {
-      myCoeffs.SetValue(anIdx++, aCoeff);
+      myCoeffs(anIdx++) = aCoeff;
     }
   }
 
-  //! Constructor from NCollection_Array1.
+  //! Constructor from math_Vector.
   //! @param theCoeffs coefficients in ascending power order
-  explicit Polynomial(const NCollection_Array1<double>& theCoeffs)
+  explicit Polynomial(const math_Vector& theCoeffs)
     : myCoeffs(theCoeffs)
   {
   }
@@ -171,7 +171,7 @@ public:
   //! @return true (always succeeds for polynomials)
   bool Value(double theX, double& theY) const
   {
-    if (myCoeffs.IsEmpty())
+    if (myCoeffs.Length() <= 0)
     {
       theY = 0.0;
       return true;
@@ -179,10 +179,10 @@ public:
 
     // Horner's method: p(x) = a[0] + x*(a[1] + x*(a[2] + ...))
     const int aLast = myCoeffs.Upper();
-    theY = myCoeffs.Value(aLast);
+    theY = myCoeffs(aLast);
     for (int i = aLast - 1; i >= myCoeffs.Lower(); --i)
     {
-      theY = theY * theX + myCoeffs.Value(i);
+      theY = theY * theX + myCoeffs(i);
     }
     return true;
   }
@@ -194,7 +194,7 @@ public:
   //! @return true (always succeeds for polynomials)
   bool Values(double theX, double& theY, double& theDY) const
   {
-    if (myCoeffs.IsEmpty())
+    if (myCoeffs.Length() <= 0)
     {
       theY  = 0.0;
       theDY = 0.0;
@@ -204,7 +204,7 @@ public:
     const int n = myCoeffs.Length();
     if (n == 1)
     {
-      theY  = myCoeffs.Value(myCoeffs.Lower());
+      theY  = myCoeffs(myCoeffs.Lower());
       theDY = 0.0;
       return true;
     }
@@ -212,19 +212,19 @@ public:
     // Horner's method for value and derivative simultaneously
     const int aLower = myCoeffs.Lower();
     const int aLast  = myCoeffs.Upper();
-    theY  = myCoeffs.Value(aLast);
+    theY  = myCoeffs(aLast);
     theDY = 0.0;
     for (int i = aLast - 1; i >= aLower; --i)
     {
       theDY = theDY * theX + theY;
-      theY  = theY * theX + myCoeffs.Value(i);
+      theY  = theY * theX + myCoeffs(i);
     }
     return true;
   }
 
   //! Returns the degree of the polynomial.
   //! @return polynomial degree (number of coefficients - 1)
-  int Degree() const { return myCoeffs.IsEmpty() ? 0 : myCoeffs.Length() - 1; }
+  int Degree() const { return myCoeffs.Length() <= 0 ? 0 : myCoeffs.Length() - 1; }
 
   //! Returns coefficient by index.
   //! @param theIndex coefficient index (0 = constant term)
@@ -233,11 +233,11 @@ public:
   {
     const int aIdx = myCoeffs.Lower() + theIndex;
     return (aIdx >= myCoeffs.Lower() && aIdx <= myCoeffs.Upper())
-           ? myCoeffs.Value(aIdx) : 0.0;
+           ? myCoeffs(aIdx) : 0.0;
   }
 
 private:
-  NCollection_Array1<double> myCoeffs;
+  math_Vector myCoeffs;
 };
 
 //! Rational function functor: f(x) = P(x) / Q(x).
@@ -251,11 +251,11 @@ private:
 class Rational
 {
 public:
-  //! Constructor from NCollection_Array1.
+  //! Constructor from math_Vector.
   //! @param theNum numerator coefficients (ascending power order)
   //! @param theDenom denominator coefficients (ascending power order)
-  Rational(const NCollection_Array1<double>& theNum,
-           const NCollection_Array1<double>& theDenom)
+  Rational(const math_Vector& theNum,
+           const math_Vector& theDenom)
     : myNum(theNum)
     , myDenom(theDenom)
   {
@@ -271,12 +271,12 @@ public:
     int anIdx = 0;
     for (double aCoeff : theNum)
     {
-      myNum.SetValue(anIdx++, aCoeff);
+      myNum(anIdx++) = aCoeff;
     }
     anIdx = 0;
     for (double aCoeff : theDenom)
     {
-      myDenom.SetValue(anIdx++, aCoeff);
+      myDenom(anIdx++) = aCoeff;
     }
   }
 
@@ -290,24 +290,24 @@ public:
     double aDenom = 0.0;
 
     // Evaluate numerator using Horner's method
-    if (!myNum.IsEmpty())
+    if (myNum.Length() > 0)
     {
       const int aLast = myNum.Upper();
-      aNum = myNum.Value(aLast);
+      aNum = myNum(aLast);
       for (int i = aLast - 1; i >= myNum.Lower(); --i)
       {
-        aNum = aNum * theX + myNum.Value(i);
+        aNum = aNum * theX + myNum(i);
       }
     }
 
     // Evaluate denominator using Horner's method
-    if (!myDenom.IsEmpty())
+    if (myDenom.Length() > 0)
     {
       const int aLast = myDenom.Upper();
-      aDenom = myDenom.Value(aLast);
+      aDenom = myDenom(aLast);
       for (int i = aLast - 1; i >= myDenom.Lower(); --i)
       {
-        aDenom = aDenom * theX + myDenom.Value(i);
+        aDenom = aDenom * theX + myDenom(i);
       }
     }
 
@@ -322,8 +322,8 @@ public:
   }
 
 private:
-  NCollection_Array1<double> myNum;
-  NCollection_Array1<double> myDenom;
+  math_Vector myNum;
+  math_Vector myDenom;
 };
 
 //! Composite functor: f(g(x)).

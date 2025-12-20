@@ -21,7 +21,6 @@
 #include <math_Config.hxx>
 #include <math_InternalCore.hxx>
 
-#include <NCollection_Array1.hxx>
 #include <NCollection_Vector.hxx>
 
 #include <cmath>
@@ -95,8 +94,8 @@ IntegResult KronrodRule(Function& theFunc,
   double aKronrodVal = 0.0;
 
   // Function values at symmetric points
-  NCollection_Array1<double> aF1(0, aNPnt2 - 1);
-  NCollection_Array1<double> aF2(0, aNPnt2 - 1);
+  math_Vector aF1(0, aNPnt2 - 1);
+  math_Vector aF2(0, aNPnt2 - 1);
 
   // Even indices (Gauss points embedded in Kronrod)
   for (int i = 2; i < aNPnt2; i += 2)
@@ -110,8 +109,8 @@ IntegResult KronrodRule(Function& theFunc,
       return aResult;
     }
 
-    aF1[i] = aVal1;
-    aF2[i] = aVal2;
+    aF1(i) = aVal1;
+    aF2(i) = aVal2;
     aGaussVal += (aVal1 + aVal2) * aGaussW(i / 2);
     aKronrodVal += (aVal1 + aVal2) * aKronrodW(i);
   }
@@ -144,8 +143,8 @@ IntegResult KronrodRule(Function& theFunc,
       return aResult;
     }
 
-    aF1[i] = aVal1;
-    aF2[i] = aVal2;
+    aF1(i) = aVal1;
+    aF2(i) = aVal2;
     aKronrodVal += (aVal1 + aVal2) * aKronrodW(i);
   }
 
