@@ -20,9 +20,9 @@
 #include <math_Matrix.hxx>
 #include <math_GaussKronrodWeights.hxx>
 
+#include <NCollection_Array1.hxx>
+
 #include <cmath>
-#include <vector>
-#include <array>
 #include <functional>
 
 namespace math
@@ -54,74 +54,77 @@ struct MultipleConfig
 //! @param theConfig optional configuration
 //! @return IntegResult containing the integral value
 template <typename Func>
-IntegResult GaussMultiple(Func&                    theFunc,
-                          int                      theNVars,
-                          const math_Vector&       theLower,
-                          const math_Vector&       theUpper,
-                          const std::vector<int>&  theOrder,
-                          const MultipleConfig&    theConfig = MultipleConfig())
+IntegResult GaussMultiple(Func&                         theFunc,
+                          int                           theNVars,
+                          const math_Vector&            theLower,
+                          const math_Vector&            theUpper,
+                          const NCollection_Array1<int>& theOrder,
+                          const MultipleConfig&         theConfig = MultipleConfig())
 {
   IntegResult aResult;
 
   // Validate inputs
   if (theNVars <= 0 || theLower.Length() != theNVars || theUpper.Length() != theNVars ||
-      static_cast<int>(theOrder.size()) != theNVars)
+      theOrder.Length() != theNVars)
   {
     aResult.Status = Status::InvalidInput;
     return aResult;
   }
 
-  const int aLowerL = theLower.Lower();
-  const int aLowerU = theUpper.Lower();
+  const int aLowerL  = theLower.Lower();
+  const int aLowerU  = theUpper.Lower();
+  const int aLowerOr = theOrder.Lower();
 
   // Find maximum order and clamp orders
-  std::vector<int> aOrd(theNVars);
-  int              aMaxOrder = 0;
+  NCollection_Array1<int> aOrd(0, theNVars - 1);
+  int                     aMaxOrder = 0;
   for (int i = 0; i < theNVars; ++i)
   {
-    aOrd[i] = std::min(theOrder[i], theConfig.MaxOrder);
-    aOrd[i] = std::max(aOrd[i], 1);
-    if (aOrd[i] > aMaxOrder)
+    aOrd.SetValue(i, std::min(theOrder.Value(i + aLowerOr), theConfig.MaxOrder));
+    aOrd.ChangeValue(i) = std::max(aOrd.Value(i), 1);
+    if (aOrd.Value(i) > aMaxOrder)
     {
-      aMaxOrder = aOrd[i];
+      aMaxOrder = aOrd.Value(i);
     }
   }
 
   // Compute midpoints and half-widths for coordinate transformation
-  std::vector<double> aXm(theNVars), aXr(theNVars);
+  NCollection_Array1<double> aXm(0, theNVars - 1);
+  NCollection_Array1<double> aXr(0, theNVars - 1);
   for (int i = 0; i < theNVars; ++i)
   {
-    aXm[i] = 0.5 * (theLower(i + aLowerL) + theUpper(i + aLowerU));
-    aXr[i] = 0.5 * (theUpper(i + aLowerU) - theLower(i + aLowerL));
+    aXm.SetValue(i, 0.5 * (theLower(i + aLowerL) + theUpper(i + aLowerU)));
+    aXr.SetValue(i, 0.5 * (theUpper(i + aLowerU) - theLower(i + aLowerL)));
   }
 
   // Get Gauss points and weights for each variable
-  std::vector<std::vector<double>> aGaussPoints(theNVars);
-  std::vector<std::vector<double>> aGaussWeights(theNVars);
+  // Use math_Vector arrays since sizes vary per dimension
+  NCollection_Array1<math_Vector> aGaussPoints(0, theNVars - 1);
+  NCollection_Array1<math_Vector> aGaussWeights(0, theNVars - 1);
 
   for (int i = 0; i < theNVars; ++i)
   {
-    aGaussPoints[i].resize(aOrd[i]);
-    aGaussWeights[i].resize(aOrd[i]);
+    aGaussPoints.ChangeValue(i)  = math_Vector(0, aOrd.Value(i) - 1);
+    aGaussWeights.ChangeValue(i) = math_Vector(0, aOrd.Value(i) - 1);
 
-    math_Vector aGP(1, aOrd[i]);
-    math_Vector aGW(1, aOrd[i]);
-    GetOrderedGaussPointsAndWeights(aOrd[i], aGP, aGW);
+    math_Vector aGP(1, aOrd.Value(i));
+    math_Vector aGW(1, aOrd.Value(i));
+    GetOrderedGaussPointsAndWeights(aOrd.Value(i), aGP, aGW);
 
-    for (int k = 0; k < aOrd[i]; ++k)
+    for (int k = 0; k < aOrd.Value(i); ++k)
     {
-      aGaussPoints[i][k]  = aGP(k + 1);
-      aGaussWeights[i][k] = aGW(k + 1);
+      aGaussPoints.ChangeValue(i)(k)  = aGP(k + 1);
+      aGaussWeights.ChangeValue(i)(k) = aGW(k + 1);
     }
   }
 
   // Recursive integration using lambda
-  double      aVal       = 0.0;
+  double      aVal = 0.0;
   math_Vector aX(1, theNVars);
   math_Vector aDx(1, theNVars);
 
   // Index array for iteration
-  std::vector<int> aInc(theNVars, 0);
+  NCollection_Array1<int> aInc(0, theNVars - 1, 0);
 
   // Iterative approach using index array
   std::function<bool(int)> aRecurse = [&](int theN) -> bool {
@@ -130,8 +133,8 @@ IntegResult GaussMultiple(Func&                    theFunc,
       // Compute function value at current Gauss point
       for (int j = 0; j < theNVars; ++j)
       {
-        aDx(j + 1) = aXr[j] * aGaussPoints[j][aInc[j]];
-        aX(j + 1)  = aXm[j] + aDx(j + 1);
+        aDx(j + 1) = aXr.Value(j) * aGaussPoints.Value(j)(aInc.Value(j));
+        aX(j + 1)  = aXm.Value(j) + aDx(j + 1);
       }
 
       double aF1;
@@ -144,7 +147,7 @@ IntegResult GaussMultiple(Func&                    theFunc,
       double aWeight = 1.0;
       for (int j = 0; j < theNVars; ++j)
       {
-        aWeight *= aGaussWeights[j][aInc[j]];
+        aWeight *= aGaussWeights.Value(j)(aInc.Value(j));
       }
 
       aVal += aWeight * aF1;
@@ -152,7 +155,7 @@ IntegResult GaussMultiple(Func&                    theFunc,
     }
 
     // Iterate over Gauss points for variable theN
-    for (aInc[theN] = 0; aInc[theN] < aOrd[theN]; ++aInc[theN])
+    for (aInc.ChangeValue(theN) = 0; aInc.Value(theN) < aOrd.Value(theN); ++aInc.ChangeValue(theN))
     {
       if (!aRecurse(theN + 1))
       {
@@ -171,7 +174,7 @@ IntegResult GaussMultiple(Func&                    theFunc,
   // Scale by half-widths
   for (int i = 0; i < theNVars; ++i)
   {
-    aVal *= aXr[i];
+    aVal *= aXr.Value(i);
   }
 
   aResult.Value  = aVal;
@@ -195,7 +198,7 @@ IntegResult GaussMultipleUniform(Func&              theFunc,
                                  const math_Vector& theUpper,
                                  int                theOrder)
 {
-  std::vector<int> aOrders(theNVars, theOrder);
+  NCollection_Array1<int> aOrders(0, theNVars - 1, theOrder);
   return GaussMultiple(theFunc, theNVars, theLower, theUpper, aOrders);
 }
 

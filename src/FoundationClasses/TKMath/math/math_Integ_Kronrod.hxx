@@ -21,8 +21,10 @@
 #include <math_Config.hxx>
 #include <math_InternalCore.hxx>
 
+#include <NCollection_Array1.hxx>
+#include <NCollection_Vector.hxx>
+
 #include <cmath>
-#include <vector>
 
 namespace math
 {
@@ -93,8 +95,8 @@ IntegResult KronrodRule(Function& theFunc,
   double aKronrodVal = 0.0;
 
   // Function values at symmetric points
-  std::vector<double> aF1(aNPnt2);
-  std::vector<double> aF2(aNPnt2);
+  NCollection_Array1<double> aF1(0, aNPnt2 - 1);
+  NCollection_Array1<double> aF2(0, aNPnt2 - 1);
 
   // Even indices (Gauss points embedded in Kronrod)
   for (int i = 2; i < aNPnt2; i += 2)
@@ -205,8 +207,8 @@ IntegResult Kronrod(Function&            theFunc,
     return anInitResult;
   }
 
-  std::vector<Interval> aHeap;
-  aHeap.push_back({theLower, theUpper, *anInitResult.Value, *anInitResult.AbsoluteError});
+  NCollection_Vector<Interval> aHeap;
+  aHeap.Append({theLower, theUpper, *anInitResult.Value, *anInitResult.AbsoluteError});
 
   double aTotalValue  = *anInitResult.Value;
   double aTotalError  = *anInitResult.AbsoluteError;
@@ -223,13 +225,13 @@ IntegResult Kronrod(Function&            theFunc,
     }
 
     // Find interval with largest error
-    size_t aMaxIdx   = 0;
+    int    aMaxIdx   = 0;
     double aMaxError = 0.0;
-    for (size_t i = 0; i < aHeap.size(); ++i)
+    for (int i = 0; i < aHeap.Length(); ++i)
     {
-      if (aHeap[i].Error > aMaxError)
+      if (aHeap.Value(i).Error > aMaxError)
       {
-        aMaxError = aHeap[i].Error;
+        aMaxError = aHeap.Value(i).Error;
         aMaxIdx   = i;
       }
     }
@@ -239,11 +241,11 @@ IntegResult Kronrod(Function&            theFunc,
       break; // No more refinement needed
     }
 
-    // Bisect the interval with largest error
-    const Interval& aWorst = aHeap[aMaxIdx];
-    const double    aBisMid = 0.5 * (aWorst.Lower + aWorst.Upper);
+    // Bisect the interval with largest error (copy to avoid reference invalidation)
+    const Interval aWorst  = aHeap.Value(aMaxIdx);
+    const double   aBisMid = 0.5 * (aWorst.Lower + aWorst.Upper);
 
-    IntegResult aLeftResult = KronrodRule(theFunc, aWorst.Lower, aBisMid, theConfig.NbGaussPoints);
+    IntegResult aLeftResult  = KronrodRule(theFunc, aWorst.Lower, aBisMid, theConfig.NbGaussPoints);
     IntegResult aRightResult = KronrodRule(theFunc, aBisMid, aWorst.Upper, theConfig.NbGaussPoints);
 
     if (!aLeftResult.IsDone() || !aRightResult.IsDone())
@@ -265,8 +267,8 @@ IntegResult Kronrod(Function&            theFunc,
     ++aIterations;
 
     // Replace the worst interval with the two new intervals
-    aHeap[aMaxIdx] = {aWorst.Lower, aBisMid, *aLeftResult.Value, *aLeftResult.AbsoluteError};
-    aHeap.push_back({aBisMid, aWorst.Upper, *aRightResult.Value, *aRightResult.AbsoluteError});
+    aHeap.ChangeValue(aMaxIdx) = {aWorst.Lower, aBisMid, *aLeftResult.Value, *aLeftResult.AbsoluteError};
+    aHeap.Append({aBisMid, aWorst.Upper, *aRightResult.Value, *aRightResult.AbsoluteError});
   }
 
   aResult.Status        = Status::OK;

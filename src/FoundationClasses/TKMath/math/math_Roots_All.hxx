@@ -18,8 +18,10 @@
 #include <math_Config.hxx>
 #include <math_Roots_Multiple.hxx>
 
+#include <NCollection_Array1.hxx>
+#include <NCollection_Vector.hxx>
+
 #include <cmath>
-#include <vector>
 
 namespace math
 {
@@ -38,16 +40,16 @@ struct NullInterval
 //! Result for all roots finder including null intervals.
 struct AllRootsResult
 {
-  Status                     Status = Status::NotConverged;
-  std::vector<double>        Roots;         //!< Isolated root locations
-  std::vector<int>           RootStates;    //!< State numbers for roots
-  std::vector<NullInterval>  NullIntervals; //!< Intervals where function is null
+  Status                          Status = Status::NotConverged;
+  NCollection_Vector<double>      Roots;         //!< Isolated root locations
+  NCollection_Vector<int>         RootStates;    //!< State numbers for roots
+  NCollection_Vector<NullInterval> NullIntervals; //!< Intervals where function is null
 
   bool IsDone() const { return Status == Status::OK; }
   explicit operator bool() const { return IsDone(); }
 
-  int NbRoots() const { return static_cast<int>(Roots.size()); }
-  int NbIntervals() const { return static_cast<int>(NullIntervals.size()); }
+  int NbRoots() const { return Roots.Length(); }
+  int NbIntervals() const { return NullIntervals.Length(); }
 };
 
 //! Find all roots of a function using sampling and refinement.
@@ -72,24 +74,26 @@ struct AllRootsResult
 //! @param theEpsNul tolerance for null interval detection
 //! @return AllRootsResult with roots and null intervals
 template <typename Func>
-AllRootsResult FindAllRoots(Func&                      theFunc,
-                            const std::vector<double>& theSamples,
-                            double                     theEpsX   = 1.0e-10,
-                            double                     theEpsF   = 1.0e-10,
-                            double                     theEpsNul = 1.0e-10)
+AllRootsResult FindAllRoots(Func&                            theFunc,
+                            const NCollection_Array1<double>& theSamples,
+                            double                           theEpsX   = 1.0e-10,
+                            double                           theEpsF   = 1.0e-10,
+                            double                           theEpsNul = 1.0e-10)
 {
   AllRootsResult aResult;
 
-  const int aNbp = static_cast<int>(theSamples.size());
+  const int aNbp = theSamples.Length();
   if (aNbp < 2)
   {
     aResult.Status = Status::InvalidInput;
     return aResult;
   }
 
+  const int aLower = theSamples.Lower();
+
   // Evaluate function at first sample point
   double aVal, aPrevVal;
-  if (!theFunc.Value(theSamples[0], aPrevVal))
+  if (!theFunc.Value(theSamples.Value(aLower), aPrevVal))
   {
     aResult.Status = Status::NotConverged;
     return aResult;
@@ -107,12 +111,12 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
   double aDebNul = 0.0, aFinNul = 0.0;
   double aValSav = aPrevVal;
 
-  std::vector<double> aIntervalStarts, aIntervalEnds;
+  NCollection_Vector<double> aIntervalStarts, aIntervalEnds;
 
   // Scan through samples to find null intervals
   for (int i = 1; i < aNbp; ++i)
   {
-    if (!theFunc.Value(theSamples[i], aVal))
+    if (!theFunc.Value(theSamples.Value(aLower + i), aVal))
     {
       aResult.Status = Status::NotConverged;
       return aResult;
@@ -128,28 +132,32 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
     {
       // End of null interval
       aInInterval = false;
-      aIntervalStarts.push_back(aDebNul);
+      aIntervalStarts.Append(aDebNul);
 
       // Refine end of null interval
       double aCst = (aVal > 0.0) ? theEpsNul : -theEpsNul;
 
       // Use root finding to locate precise boundary
-      MultipleResult aRes = FindMultipleRoots(theFunc, theSamples[i - 1], theSamples[i], 10,
-                                              theEpsX, theEpsF, aCst);
+      MultipleResult aRes = FindMultipleRoots(theFunc,
+                                              theSamples.Value(aLower + i - 1),
+                                              theSamples.Value(aLower + i),
+                                              10, theEpsX, theEpsF, aCst);
       if (aRes.IsDone() && aRes.NbRoots() > 0)
       {
         aFinNul = aRes.Roots[0];
       }
       else
       {
-        aFinNul = theSamples[i - 1];
+        aFinNul = theSamples.Value(aLower + i - 1);
       }
 
       // Try opposite sign
-      aCst     = -aCst;
-      auto aRes2 = FindMultipleRoots(theFunc, theSamples[i - 1], theSamples[i], 10,
-                                     theEpsX, theEpsF, aCst);
-      if (aRes2.IsDone() && aRes2.NbRoots > 0)
+      aCst       = -aCst;
+      auto aRes2 = FindMultipleRoots(theFunc,
+                                     theSamples.Value(aLower + i - 1),
+                                     theSamples.Value(aLower + i),
+                                     10, theEpsX, theEpsF, aCst);
+      if (aRes2.IsDone() && aRes2.NbRoots() > 0)
       {
         if (aRes2.Roots[0] < aFinNul)
         {
@@ -157,7 +165,7 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
         }
       }
 
-      aIntervalEnds.push_back(aFinNul);
+      aIntervalEnds.Append(aFinNul);
     }
     else if (!aInInterval && aPrevNul && aCurNul)
     {
@@ -165,7 +173,7 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
       aInInterval = true;
       if (i == 1)
       {
-        aDebNul   = theSamples[0];
+        aDebNul   = theSamples.Value(aLower);
         aNulStart = true;
       }
       else
@@ -173,21 +181,25 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
         // Refine start of null interval
         double aCst = (aValSav > 0.0) ? theEpsNul : -theEpsNul;
 
-        MultipleResult aRes = FindMultipleRoots(theFunc, theSamples[i - 2], theSamples[i - 1], 10,
-                                                theEpsX, theEpsF, aCst);
+        MultipleResult aRes = FindMultipleRoots(theFunc,
+                                                theSamples.Value(aLower + i - 2),
+                                                theSamples.Value(aLower + i - 1),
+                                                10, theEpsX, theEpsF, aCst);
         if (aRes.IsDone() && aRes.NbRoots() > 0)
         {
           aDebNul = aRes.Roots[aRes.NbRoots() - 1];
         }
         else
         {
-          aDebNul = theSamples[i - 1];
+          aDebNul = theSamples.Value(aLower + i - 1);
         }
 
         // Try opposite sign
-        aCst     = -aCst;
-        auto aRes2 = FindMultipleRoots(theFunc, theSamples[i - 2], theSamples[i - 1], 10,
-                                       theEpsX, theEpsF, aCst);
+        aCst       = -aCst;
+        auto aRes2 = FindMultipleRoots(theFunc,
+                                       theSamples.Value(aLower + i - 2),
+                                       theSamples.Value(aLower + i - 1),
+                                       10, theEpsX, theEpsF, aCst);
         if (aRes2.IsDone() && aRes2.NbRoots() > 0)
         {
           if (aRes2.Roots[aRes2.NbRoots() - 1] > aDebNul)
@@ -204,33 +216,36 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
   // Handle interval ending at last sample
   if (aInInterval)
   {
-    aIntervalStarts.push_back(aDebNul);
-    aFinNul = theSamples[aNbp - 1];
-    aIntervalEnds.push_back(aFinNul);
+    aIntervalStarts.Append(aDebNul);
+    aFinNul = theSamples.Value(aLower + aNbp - 1);
+    aIntervalEnds.Append(aFinNul);
     aNulEnd = true;
   }
 
   // Store null intervals
-  for (size_t k = 0; k < aIntervalStarts.size(); ++k)
+  for (int k = 0; k < aIntervalStarts.Length(); ++k)
   {
     NullInterval anInt;
-    anInt.A = aIntervalStarts[k];
-    anInt.B = aIntervalEnds[k];
-    aResult.NullIntervals.push_back(anInt);
+    anInt.A = aIntervalStarts.Value(k);
+    anInt.B = aIntervalEnds.Value(k);
+    aResult.NullIntervals.Append(anInt);
   }
 
+  const double aSampleFirst = theSamples.Value(aLower);
+  const double aSampleLast  = theSamples.Value(aLower + aNbp - 1);
+
   // Find isolated roots between null intervals
-  if (aIntervalStarts.empty())
+  if (aIntervalStarts.IsEmpty())
   {
     // No null intervals - find all roots in entire range
-    MultipleResult aRes = FindMultipleRoots(theFunc, theSamples[0], theSamples[aNbp - 1],
+    MultipleResult aRes = FindMultipleRoots(theFunc, aSampleFirst, aSampleLast,
                                             aNbp, theEpsX, theEpsF);
     if (aRes.IsDone())
     {
-      for (size_t j = 0; j < aRes.NbRoots(); ++j)
+      for (int j = 0; j < aRes.NbRoots(); ++j)
       {
-        aResult.Roots.push_back(aRes.Roots[j]);
-        aResult.RootStates.push_back(0);
+        aResult.Roots.Append(aRes.Roots[j]);
+        aResult.RootStates.Append(0);
       }
     }
   }
@@ -239,37 +254,37 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
     // Find roots before first null interval
     if (!aNulStart)
     {
-      double aStart = theSamples[0];
-      double aEnd   = aIntervalStarts[0];
+      double aStart = aSampleFirst;
+      double aEnd   = aIntervalStarts.Value(0);
       int    aNbrpt = std::max(3, static_cast<int>(
-        std::abs((aEnd - aStart) / (theSamples[aNbp - 1] - theSamples[0])) * aNbp));
+        std::abs((aEnd - aStart) / (aSampleLast - aSampleFirst)) * aNbp));
 
       MultipleResult aRes = FindMultipleRoots(theFunc, aStart, aEnd, aNbrpt, theEpsX, theEpsF);
       if (aRes.IsDone())
       {
-        for (size_t j = 0; j < aRes.NbRoots(); ++j)
+        for (int j = 0; j < aRes.NbRoots(); ++j)
         {
-          aResult.Roots.push_back(aRes.Roots[j]);
-          aResult.RootStates.push_back(0);
+          aResult.Roots.Append(aRes.Roots[j]);
+          aResult.RootStates.Append(0);
         }
       }
     }
 
     // Find roots between null intervals
-    for (size_t k = 1; k < aIntervalStarts.size(); ++k)
+    for (int k = 1; k < aIntervalStarts.Length(); ++k)
     {
-      double aStart = aIntervalEnds[k - 1];
-      double aEnd   = aIntervalStarts[k];
+      double aStart = aIntervalEnds.Value(k - 1);
+      double aEnd   = aIntervalStarts.Value(k);
       int    aNbrpt = std::max(3, static_cast<int>(
-        std::abs((aEnd - aStart) / (theSamples[aNbp - 1] - theSamples[0])) * aNbp));
+        std::abs((aEnd - aStart) / (aSampleLast - aSampleFirst)) * aNbp));
 
       MultipleResult aRes = FindMultipleRoots(theFunc, aStart, aEnd, aNbrpt, theEpsX, theEpsF);
       if (aRes.IsDone())
       {
-        for (size_t j = 0; j < aRes.NbRoots(); ++j)
+        for (int j = 0; j < aRes.NbRoots(); ++j)
         {
-          aResult.Roots.push_back(aRes.Roots[j]);
-          aResult.RootStates.push_back(0);
+          aResult.Roots.Append(aRes.Roots[j]);
+          aResult.RootStates.Append(0);
         }
       }
     }
@@ -277,18 +292,18 @@ AllRootsResult FindAllRoots(Func&                      theFunc,
     // Find roots after last null interval
     if (!aNulEnd)
     {
-      double aStart = aIntervalEnds.back();
-      double aEnd   = theSamples[aNbp - 1];
+      double aStart = aIntervalEnds.Value(aIntervalEnds.Length() - 1);
+      double aEnd   = aSampleLast;
       int    aNbrpt = std::max(3, static_cast<int>(
-        std::abs((aEnd - aStart) / (theSamples[aNbp - 1] - theSamples[0])) * aNbp));
+        std::abs((aEnd - aStart) / (aSampleLast - aSampleFirst)) * aNbp));
 
       MultipleResult aRes = FindMultipleRoots(theFunc, aStart, aEnd, aNbrpt, theEpsX, theEpsF);
       if (aRes.IsDone())
       {
-        for (size_t j = 0; j < aRes.NbRoots(); ++j)
+        for (int j = 0; j < aRes.NbRoots(); ++j)
         {
-          aResult.Roots.push_back(aRes.Roots[j]);
-          aResult.RootStates.push_back(0);
+          aResult.Roots.Append(aRes.Roots[j]);
+          aResult.RootStates.Append(0);
         }
       }
     }
@@ -318,14 +333,14 @@ AllRootsResult FindAllRoots(Func&  theFunc,
                             double theEpsF   = 1.0e-10,
                             double theEpsNul = 1.0e-10)
 {
-  std::vector<double> aSamples(theNbSamples);
-  const double        aStep = (theB - theA) / (theNbSamples - 1);
+  NCollection_Array1<double> aSamples(0, theNbSamples - 1);
+  const double               aStep = (theB - theA) / (theNbSamples - 1);
   for (int i = 0; i < theNbSamples; ++i)
   {
-    aSamples[i] = theA + i * aStep;
+    aSamples.SetValue(i, theA + i * aStep);
   }
   // Ensure last point is exactly theB
-  aSamples[theNbSamples - 1] = theB;
+  aSamples.SetValue(theNbSamples - 1, theB);
 
   return FindAllRoots(theFunc, aSamples, theEpsX, theEpsF, theEpsNul);
 }
