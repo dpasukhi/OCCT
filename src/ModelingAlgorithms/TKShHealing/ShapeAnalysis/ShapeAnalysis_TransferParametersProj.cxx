@@ -94,8 +94,8 @@ void ShapeAnalysis_TransferParametersProj::Init(const TopoDS_Edge& E, const Topo
     Handle(Geom_Surface)        aSurface = BRep_Tool::Surface(F, myLocation);
     Handle(GeomAdaptor_Surface) AdS      = new GeomAdaptor_Surface(aSurface);
 
-    Adaptor3d_CurveOnSurface Ad1(AC2d, AdS);
-    myAC3d   = Ad1; // new Adaptor3d_CurveOnSurface(AC2d,AdS);
+    GeomAdaptor_CurveOnSurface Ad1(AC2d, AdS);
+    myAC3d   = Ad1; // new GeomAdaptor_CurveOnSurface(AC2d,AdS);
     myInitOK = Standard_True;
   }
 }
@@ -177,9 +177,9 @@ Standard_Real ShapeAnalysis_TransferParametersProj::PreformSegment(const Standar
   if (To2d)
   {
     gp_Pnt                      p1   = myCurve->Value(Param).Transformed(myLocation.Inverted());
-    Handle(Adaptor3d_Surface)   AdS  = myAC3d.GetSurface();
+    Handle(GeomAdaptor_Surface)   AdS  = myAC3d.GetSurface();
     Handle(Geom2dAdaptor_Curve) AC2d = new Geom2dAdaptor_Curve(myCurve2d, First, Last);
-    Adaptor3d_CurveOnSurface    Ad1(AC2d, AdS);
+    GeomAdaptor_CurveOnSurface    Ad1(AC2d, AdS);
     projDev = sac.Project(Ad1, p1, myPrecision, pproj, ppar); // pdn
     linDev  = p1.Distance(Ad1.Value(linPar));
   }
@@ -411,7 +411,7 @@ void ShapeAnalysis_TransferParametersProj::TransferRange(TopoDS_Edge&           
       Standard_Real               len              = last - first;
       Handle(Geom2dAdaptor_Curve) AC2d = new Geom2dAdaptor_Curve(toGC->PCurve(), first, last);
       Handle(GeomAdaptor_Surface) AdS  = new GeomAdaptor_Surface(toGC->Surface());
-      Adaptor3d_CurveOnSurface    Ad1(AC2d, AdS);
+      GeomAdaptor_CurveOnSurface    Ad1(AC2d, AdS);
       ShapeAnalysis_Curve         sac1;
 
       // gp_Pnt p1 = Ad1.Value(prevPar);

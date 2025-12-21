@@ -21,6 +21,7 @@
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
@@ -46,7 +47,7 @@ public:
   Standard_EXPORT BRepAdaptor_Curve2d(const TopoDS_Edge& E, const TopoDS_Face& F);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   //! Initialize with the pcurve of <E> on <F>.
   Standard_EXPORT void Initialize(const TopoDS_Edge& E, const TopoDS_Face& F);

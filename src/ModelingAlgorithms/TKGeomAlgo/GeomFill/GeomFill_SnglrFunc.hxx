@@ -21,7 +21,7 @@
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard_Integer.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -31,15 +31,15 @@ class gp_Pnt;
 class gp_Vec;
 
 //! to represent function C'(t)^C''(t)
-class GeomFill_SnglrFunc : public Adaptor3d_Curve
+class GeomFill_SnglrFunc : public GeomAdaptor_Curve
 {
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT GeomFill_SnglrFunc(const Handle(Adaptor3d_Curve)& HC);
+  Standard_EXPORT GeomFill_SnglrFunc(const Handle(GeomAdaptor_Curve)& HC);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   Standard_EXPORT void SetRatio(const Standard_Real Ratio);
 
@@ -111,7 +111,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Curve) myHCurve;
+  Handle(GeomAdaptor_Curve) myHCurve;
   Standard_Real           ratio;
 };
 

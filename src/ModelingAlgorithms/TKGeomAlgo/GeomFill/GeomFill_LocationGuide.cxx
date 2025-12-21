@@ -16,7 +16,7 @@
 
 #include <GeomFill_LocationGuide.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtCS.hxx>
 #include <Extrema_POnSurf.hxx>
@@ -70,7 +70,7 @@ static void TraceRevol(const Standard_Real                        t,
                        const Standard_Real                        s,
                        const Handle(GeomFill_TrihedronWithGuide)& Law,
                        const Handle(GeomFill_SectionLaw)&         Section,
-                       const Handle(Adaptor3d_Curve)&             Curve,
+                       const Handle(GeomAdaptor_Curve)&             Curve,
                        const gp_Mat&                              Trans)
 
 {
@@ -535,7 +535,7 @@ Handle(GeomFill_LocationLaw) GeomFill_LocationGuide::Copy() const
 // Purpose : Calcul des poles sur la surface d'arret (intersection
 // courbe guide / surface de revolution en myNbPts points)
 //==================================================================
-Standard_Boolean GeomFill_LocationGuide::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_LocationGuide::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   Standard_Real LastAngle;
   myCurve   = C;
@@ -557,7 +557,7 @@ Standard_Boolean GeomFill_LocationGuide::SetCurve(const Handle(Adaptor3d_Curve)&
 // Function: GetCurve
 // Purpose : return the trajectoire
 //==================================================================
-const Handle(Adaptor3d_Curve)& GeomFill_LocationGuide::GetCurve() const
+const Handle(GeomAdaptor_Curve)& GeomFill_LocationGuide::GetCurve() const
 {
   return myCurve;
 }
@@ -1317,7 +1317,7 @@ Handle(Geom_Curve) GeomFill_LocationGuide::Section() const
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) GeomFill_LocationGuide::Guide() const
+Handle(GeomAdaptor_Curve) GeomFill_LocationGuide::Guide() const
 {
   return myGuide;
 }

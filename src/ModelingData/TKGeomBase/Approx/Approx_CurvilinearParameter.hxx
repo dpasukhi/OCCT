@@ -17,10 +17,13 @@
 #ifndef _Approx_CurvilinearParameter_HeaderFile
 #define _Approx_CurvilinearParameter_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_OStream.hxx>
+
+class Geom_BSplineCurve;
+class GeomAdaptor_Curve;
 
 //! Approximation of a Curve to make its parameter be its curvilinear abscissa.
 //! If the curve is a curve on a surface S, C2D is the corresponding Pcurve,
@@ -39,25 +42,25 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! case of a free 3D curve
-  Standard_EXPORT Approx_CurvilinearParameter(const Handle(Adaptor3d_Curve)& C3D,
+  Standard_EXPORT Approx_CurvilinearParameter(const Handle(GeomAdaptor_Curve)& C3D,
                                               const Standard_Real            Tol,
                                               const GeomAbs_Shape            Order,
                                               const Standard_Integer         MaxDegree,
                                               const Standard_Integer         MaxSegments);
 
   //! case of a curve on one surface
-  Standard_EXPORT Approx_CurvilinearParameter(const Handle(Adaptor2d_Curve2d)& C2D,
-                                              const Handle(Adaptor3d_Surface)& Surf,
+  Standard_EXPORT Approx_CurvilinearParameter(const Handle(Geom2dAdaptor_Curve)& C2D,
+                                              const Handle(GeomAdaptor_Surface)& Surf,
                                               const Standard_Real              Tol,
                                               const GeomAbs_Shape              Order,
                                               const Standard_Integer           MaxDegree,
                                               const Standard_Integer           MaxSegments);
 
   //! case of a curve on two surfaces
-  Standard_EXPORT Approx_CurvilinearParameter(const Handle(Adaptor2d_Curve2d)& C2D1,
-                                              const Handle(Adaptor3d_Surface)& Surf1,
-                                              const Handle(Adaptor2d_Curve2d)& C2D2,
-                                              const Handle(Adaptor3d_Surface)& Surf2,
+  Standard_EXPORT Approx_CurvilinearParameter(const Handle(Geom2dAdaptor_Curve)& C2D1,
+                                              const Handle(GeomAdaptor_Surface)& Surf1,
+                                              const Handle(Geom2dAdaptor_Curve)& C2D2,
+                                              const Handle(GeomAdaptor_Surface)& Surf2,
                                               const Standard_Real              Tol,
                                               const GeomAbs_Shape              Order,
                                               const Standard_Integer           MaxDegree,
@@ -91,8 +94,8 @@ public:
   Standard_EXPORT void Dump(Standard_OStream& o) const;
 
 private:
-  Standard_EXPORT static void ToleranceComputation(const Handle(Adaptor2d_Curve2d)& C2D,
-                                                   const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void ToleranceComputation(const Handle(Geom2dAdaptor_Curve)& C2D,
+                                                   const Handle(GeomAdaptor_Surface)& S,
                                                    const Standard_Integer           MaxNumber,
                                                    const Standard_Real              Tol,
                                                    Standard_Real&                   TolV,

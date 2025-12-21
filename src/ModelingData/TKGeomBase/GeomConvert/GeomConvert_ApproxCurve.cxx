@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
 #include <AdvApprox_PrefAndRec.hxx>
 #include <Geom_BSplineCurve.hxx>
@@ -34,7 +34,7 @@
 class GeomConvert_ApproxCurve_Eval : public AdvApprox_EvaluatorFunction
 {
 public:
-  GeomConvert_ApproxCurve_Eval(const Handle(Adaptor3d_Curve)& theFunc,
+  GeomConvert_ApproxCurve_Eval(const Handle(GeomAdaptor_Curve)& theFunc,
                                Standard_Real                  First,
                                Standard_Real                  Last)
       : fonct(theFunc)
@@ -51,7 +51,7 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Handle(Adaptor3d_Curve) fonct;
+  Handle(GeomAdaptor_Curve) fonct;
   Standard_Real           StartEndSav[2];
 };
 
@@ -118,7 +118,7 @@ GeomConvert_ApproxCurve::GeomConvert_ApproxCurve(const Handle(Geom_Curve)& Curve
   Approximate(HCurve, Tol3d, Order, MaxSegments, MaxDegree);
 }
 
-GeomConvert_ApproxCurve::GeomConvert_ApproxCurve(const Handle(Adaptor3d_Curve)& Curve,
+GeomConvert_ApproxCurve::GeomConvert_ApproxCurve(const Handle(GeomAdaptor_Curve)& Curve,
                                                  const Standard_Real            Tol3d,
                                                  const GeomAbs_Shape            Order,
                                                  const Standard_Integer         MaxSegments,
@@ -127,7 +127,7 @@ GeomConvert_ApproxCurve::GeomConvert_ApproxCurve(const Handle(Adaptor3d_Curve)& 
   Approximate(Curve, Tol3d, Order, MaxSegments, MaxDegree);
 }
 
-void GeomConvert_ApproxCurve::Approximate(const Handle(Adaptor3d_Curve)& theCurve,
+void GeomConvert_ApproxCurve::Approximate(const Handle(GeomAdaptor_Curve)& theCurve,
                                           const Standard_Real            theTol3d,
                                           const GeomAbs_Shape            theOrder,
                                           const Standard_Integer         theMaxSegments,

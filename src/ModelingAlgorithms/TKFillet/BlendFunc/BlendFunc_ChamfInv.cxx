@@ -14,16 +14,18 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_ChamfInv.hxx>
 #include <math_Matrix.hxx>
 
 //=================================================================================================
 
-BlendFunc_ChamfInv::BlendFunc_ChamfInv(const Handle(Adaptor3d_Surface)& S1,
-                                       const Handle(Adaptor3d_Surface)& S2,
-                                       const Handle(Adaptor3d_Curve)&   C)
+BlendFunc_ChamfInv::BlendFunc_ChamfInv(const Handle(GeomAdaptor_Surface)& S1,
+                                       const Handle(GeomAdaptor_Surface)& S2,
+                                       const Handle(GeomAdaptor_Curve)&   C)
     : BlendFunc_GenChamfInv(S1, S2, C),
       corde1(surf1, curv),
       corde2(surf2, curv)

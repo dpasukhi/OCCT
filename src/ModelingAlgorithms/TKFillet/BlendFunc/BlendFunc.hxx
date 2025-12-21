@@ -17,7 +17,7 @@
 #ifndef _BlendFunc_HeaderFile
 #define _BlendFunc_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BlendFunc_SectionShape.hxx>
 #include <Convert_ParameterisationType.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -57,11 +57,11 @@ public:
   //! Used to obtain the next level of continuity.
   Standard_EXPORT static GeomAbs_Shape NextShape(const GeomAbs_Shape S);
 
-  Standard_EXPORT static Standard_Boolean ComputeNormal(const Handle(Adaptor3d_Surface)& Surf,
+  Standard_EXPORT static Standard_Boolean ComputeNormal(const Handle(GeomAdaptor_Surface)& Surf,
                                                         const gp_Pnt2d&                  p2d,
                                                         gp_Vec&                          Normal);
 
-  Standard_EXPORT static Standard_Boolean ComputeDNormal(const Handle(Adaptor3d_Surface)& Surf,
+  Standard_EXPORT static Standard_Boolean ComputeDNormal(const Handle(GeomAdaptor_Surface)& Surf,
                                                          const gp_Pnt2d&                  p2d,
                                                          gp_Vec&                          Normal,
                                                          gp_Vec&                          DNu,

@@ -14,15 +14,17 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRepBlend_HCurve2dTool.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <GeomAbs_CurveType.hxx>
 
 //============================================================
-Standard_Integer BRepBlend_HCurve2dTool::NbSamples(const Handle(Adaptor2d_Curve2d)& C,
+Standard_Integer BRepBlend_HCurve2dTool::NbSamples(const Handle(Geom2dAdaptor_Curve)& C,
                                                    const Standard_Real              U0,
                                                    const Standard_Real              U1)
 {

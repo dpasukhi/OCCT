@@ -83,7 +83,7 @@
 #include <Approx_CurveOnSurface.hxx>
 #include <Geom_BSplineSurface.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Approx_FitAndDivide.hxx>
 #include <Convert_CompBezierCurvesToBSplineCurve.hxx>
 
@@ -97,9 +97,9 @@ class CurveEvaluator : public AppCont_Function
 {
 
 public:
-  Handle(Adaptor3d_Curve) myCurve;
+  Handle(GeomAdaptor_Curve) myCurve;
 
-  CurveEvaluator(const Handle(Adaptor3d_Curve)& C)
+  CurveEvaluator(const Handle(GeomAdaptor_Curve)& C)
       : myCurve(C)
   {
     myNbPnt   = 1;
@@ -1696,7 +1696,7 @@ static Standard_Integer approxcurve(Draw_Interpretor& di, Standard_Integer n, co
 
   else if (Case == 3)
   {
-    Handle(Adaptor3d_Curve)     HACur = new GeomAdaptor_Curve(curve);
+    Handle(GeomAdaptor_Curve)     HACur = new GeomAdaptor_Curve(curve);
     Approx_CurvilinearParameter appr(HACur, Tol, Continuity, MaxDeg, MaxSeg);
     if (appr.HasResult())
     {
@@ -1710,8 +1710,8 @@ static Standard_Integer approxcurve(Draw_Interpretor& di, Standard_Integer n, co
   }
   else if (Case == 4)
   {
-    Handle(Adaptor2d_Curve2d)   HACur2d = new Geom2dAdaptor_Curve(curve2d);
-    Handle(Adaptor3d_Surface)   HASur   = new GeomAdaptor_Surface(surface);
+    Handle(Geom2dAdaptor_Curve)   HACur2d = new Geom2dAdaptor_Curve(curve2d);
+    Handle(GeomAdaptor_Surface)   HASur   = new GeomAdaptor_Surface(surface);
     Approx_CurvilinearParameter appr(HACur2d, HASur, Tol, Continuity, MaxDeg, MaxSeg);
     if (appr.HasResult())
     {
@@ -1726,10 +1726,10 @@ static Standard_Integer approxcurve(Draw_Interpretor& di, Standard_Integer n, co
 
   else if (Case == 5)
   {
-    Handle(Adaptor2d_Curve2d) HACur2d  = new Geom2dAdaptor_Curve(curve2d);
-    Handle(Adaptor3d_Surface) HASur    = new GeomAdaptor_Surface(surface);
-    Handle(Adaptor2d_Curve2d) HACur2d2 = new Geom2dAdaptor_Curve(curve2d2);
-    Handle(Adaptor3d_Surface) HASur2   = new GeomAdaptor_Surface(surface2);
+    Handle(Geom2dAdaptor_Curve) HACur2d  = new Geom2dAdaptor_Curve(curve2d);
+    Handle(GeomAdaptor_Surface) HASur    = new GeomAdaptor_Surface(surface);
+    Handle(Geom2dAdaptor_Curve) HACur2d2 = new Geom2dAdaptor_Curve(curve2d2);
+    Handle(GeomAdaptor_Surface) HASur2   = new GeomAdaptor_Surface(surface2);
     Approx_CurvilinearParameter
       appr(HACur2d, HASur, HACur2d2, HASur2, Tol, Continuity, MaxDeg, MaxSeg);
     if (appr.HasResult())

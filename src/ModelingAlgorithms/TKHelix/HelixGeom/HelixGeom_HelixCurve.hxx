@@ -14,13 +14,13 @@
 #ifndef _HelixGeom_HelixCurve_HeaderFile
 #define _HelixGeom_HelixCurve_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 
 class gp_Pnt;
 class gp_Vec;
 
-DEFINE_STANDARD_HANDLE(HelixGeom_HelixCurve, Adaptor3d_Curve)
+DEFINE_STANDARD_HANDLE(HelixGeom_HelixCurve, GeomAdaptor_Curve)
 
 //! Adaptor class for calculation of helix curves with analytical expressions.
 //!
@@ -36,9 +36,9 @@ DEFINE_STANDARD_HANDLE(HelixGeom_HelixCurve, Adaptor3d_Curve)
 //! where r(t) = rStart + taper_factor * t
 //!
 //! @sa HelixGeom_BuilderHelix, HelixGeom_BuilderHelixCoil
-class HelixGeom_HelixCurve : public Adaptor3d_Curve
+class HelixGeom_HelixCurve : public GeomAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(HelixGeom_HelixCurve, Adaptor3d_Curve)
+  DEFINE_STANDARD_RTTIEXT(HelixGeom_HelixCurve, GeomAdaptor_Curve)
 public:
   //! implementation of analytical expressions
   Standard_EXPORT HelixGeom_HelixCurve();

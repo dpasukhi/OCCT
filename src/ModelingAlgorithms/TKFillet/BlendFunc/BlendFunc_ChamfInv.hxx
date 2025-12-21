@@ -17,11 +17,12 @@
 #ifndef _BlendFunc_ChamfInv_HeaderFile
 #define _BlendFunc_ChamfInv_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <BlendFunc_Corde.hxx>
 #include <BlendFunc_GenChamfInv.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 
 //! Class for a function used to compute a chamfer with two constant distances
@@ -31,9 +32,9 @@ class BlendFunc_ChamfInv : public BlendFunc_GenChamfInv
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_ChamfInv(const Handle(Adaptor3d_Surface)& S1,
-                                     const Handle(Adaptor3d_Surface)& S2,
-                                     const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT BlendFunc_ChamfInv(const Handle(GeomAdaptor_Surface)& S1,
+                                     const Handle(GeomAdaptor_Surface)& S2,
+                                     const Handle(GeomAdaptor_Curve)&   C);
 
   Standard_EXPORT Standard_Boolean IsSolution(const math_Vector&  Sol,
                                               const Standard_Real Tol) Standard_OVERRIDE;

@@ -14,7 +14,9 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_Point.hxx>
 #include <BlendFunc.hxx>
 #include <BRepBlend_SurfRstConstRad.hxx>
@@ -52,10 +54,10 @@ static void t3dto2d(Standard_Real& a,
 
 //=================================================================================================
 
-BRepBlend_SurfRstConstRad::BRepBlend_SurfRstConstRad(const Handle(Adaptor3d_Surface)& Surf,
-                                                     const Handle(Adaptor3d_Surface)& SurfRst,
-                                                     const Handle(Adaptor2d_Curve2d)& Rst,
-                                                     const Handle(Adaptor3d_Curve)&   CGuide)
+BRepBlend_SurfRstConstRad::BRepBlend_SurfRstConstRad(const Handle(GeomAdaptor_Surface)& Surf,
+                                                     const Handle(GeomAdaptor_Surface)& SurfRst,
+                                                     const Handle(Geom2dAdaptor_Curve)& Rst,
+                                                     const Handle(GeomAdaptor_Curve)&   CGuide)
     : surf(Surf),
       surfrst(SurfRst),
       rst(Rst),
@@ -249,8 +251,8 @@ Standard_Boolean BRepBlend_SurfRstConstRad::Values(const math_Vector& X,
 
 //=================================================================================================
 
-void BRepBlend_SurfRstConstRad::Set(const Handle(Adaptor3d_Surface)& SurfRef,
-                                    const Handle(Adaptor2d_Curve2d)& RstRef)
+void BRepBlend_SurfRstConstRad::Set(const Handle(GeomAdaptor_Surface)& SurfRef,
+                                    const Handle(Geom2dAdaptor_Curve)& RstRef)
 {
   surfref = SurfRef;
   rstref  = RstRef;

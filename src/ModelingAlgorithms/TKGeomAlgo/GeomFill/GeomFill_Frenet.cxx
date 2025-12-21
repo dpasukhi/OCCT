@@ -16,7 +16,7 @@
 
 #include <GeomFill_Frenet.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Extrema_ExtPC.hxx>
 #include <GeomAbs_CurveType.hxx>
 #include <GeomFill_SnglrFunc.hxx>
@@ -106,7 +106,7 @@ Handle(GeomFill_TrihedronLaw) GeomFill_Frenet::Copy() const
 
 //=================================================================================================
 
-Standard_Boolean GeomFill_Frenet::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_Frenet::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   GeomFill_TrihedronLaw::SetCurve(C);
   if (!C.IsNull())

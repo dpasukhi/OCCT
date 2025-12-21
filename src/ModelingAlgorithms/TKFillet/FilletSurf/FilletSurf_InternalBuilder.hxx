@@ -26,7 +26,7 @@
 #include <TopAbs_Orientation.hxx>
 #include <FilletSurf_StatusType.hxx>
 
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 class ChFiDS_Spine;
 class Geom_Surface;
 class Geom_Curve;
@@ -121,9 +121,9 @@ protected:
                                                        const Handle(ChFiDS_Spine)&        Spine,
                                                        const Standard_Integer             Choix,
                                                        const Handle(BRepAdaptor_Surface)& S1,
-                                                       const Handle(Adaptor3d_TopolTool)& I1,
+                                                       const Handle(GeomAdaptor_TopolTool)& I1,
                                                        const Handle(BRepAdaptor_Surface)& S2,
-                                                       const Handle(Adaptor3d_TopolTool)& I2,
+                                                       const Handle(GeomAdaptor_TopolTool)& I2,
                                                        const Standard_Real                MaxStep,
                                                        const Standard_Real                Fleche,
                                                        const Standard_Real                TolGuide,
@@ -143,13 +143,13 @@ protected:
                                            const Handle(ChFiDS_Spine)&        Spine,
                                            const Standard_Integer             Choix,
                                            const Handle(BRepAdaptor_Surface)& S1,
-                                           const Handle(Adaptor3d_TopolTool)& I1,
+                                           const Handle(GeomAdaptor_TopolTool)& I1,
                                            const Handle(BRepAdaptor_Curve2d)& PC1,
                                            const Handle(BRepAdaptor_Surface)& Sref1,
                                            const Handle(BRepAdaptor_Curve2d)& PCref1,
                                            Standard_Boolean&                  Decroch1,
                                            const Handle(BRepAdaptor_Surface)& S2,
-                                           const Handle(Adaptor3d_TopolTool)& I2,
+                                           const Handle(GeomAdaptor_TopolTool)& I2,
                                            const TopAbs_Orientation           Or2,
                                            const Standard_Real                MaxStep,
                                            const Standard_Real                Fleche,
@@ -169,10 +169,10 @@ protected:
                                            const Handle(ChFiDS_Spine)&        Spine,
                                            const Standard_Integer             Choix,
                                            const Handle(BRepAdaptor_Surface)& S1,
-                                           const Handle(Adaptor3d_TopolTool)& I1,
+                                           const Handle(GeomAdaptor_TopolTool)& I1,
                                            const TopAbs_Orientation           Or1,
                                            const Handle(BRepAdaptor_Surface)& S2,
-                                           const Handle(Adaptor3d_TopolTool)& I2,
+                                           const Handle(GeomAdaptor_TopolTool)& I2,
                                            const Handle(BRepAdaptor_Curve2d)& PC2,
                                            const Handle(BRepAdaptor_Surface)& Sref2,
                                            const Handle(BRepAdaptor_Curve2d)& PCref2,
@@ -195,14 +195,14 @@ protected:
                                            const Handle(ChFiDS_Spine)&        Spine,
                                            const Standard_Integer             Choix,
                                            const Handle(BRepAdaptor_Surface)& S1,
-                                           const Handle(Adaptor3d_TopolTool)& I1,
+                                           const Handle(GeomAdaptor_TopolTool)& I1,
                                            const Handle(BRepAdaptor_Curve2d)& PC1,
                                            const Handle(BRepAdaptor_Surface)& Sref1,
                                            const Handle(BRepAdaptor_Curve2d)& PCref1,
                                            Standard_Boolean&                  Decroch1,
                                            const TopAbs_Orientation           Or1,
                                            const Handle(BRepAdaptor_Surface)& S2,
-                                           const Handle(Adaptor3d_TopolTool)& I2,
+                                           const Handle(GeomAdaptor_TopolTool)& I2,
                                            const Handle(BRepAdaptor_Curve2d)& PC2,
                                            const Handle(BRepAdaptor_Surface)& Sref2,
                                            const Handle(BRepAdaptor_Curve2d)& PCref2,

@@ -35,7 +35,7 @@
 // Function : IsLinear
 // purpose : Returns TRUE if theC is line-like.
 //=======================================================================
-static Standard_Boolean IsLinear(const Adaptor3d_Curve& theC)
+static Standard_Boolean IsLinear(const GeomAdaptor_Curve& theC)
 {
   const GeomAbs_CurveType aCT = theC.GetType();
   if (aCT == GeomAbs_OffsetCurve)
@@ -64,7 +64,7 @@ static Standard_Boolean IsLinear(const Adaptor3d_Curve& theC)
 // Function : IsPlanar
 // purpose : Returns TRUE if theS is plane-like.
 //=======================================================================
-static Standard_Boolean IsPlanar(const Adaptor3d_Surface& theS)
+static Standard_Boolean IsPlanar(const GeomAdaptor_Surface& theS)
 {
   const GeomAbs_SurfaceType aST = theS.GetType();
   if (aST == GeomAbs_OffsetSurface)

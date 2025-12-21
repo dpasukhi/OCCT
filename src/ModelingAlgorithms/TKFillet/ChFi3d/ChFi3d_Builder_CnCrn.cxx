@@ -35,7 +35,7 @@
 //                              consecutives
 // Traitement des coins
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <AppBlend_Approx.hxx>
 #include <Blend_FuncInv.hxx>
 #include <Bnd_Box2d.hxx>
@@ -2429,8 +2429,8 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
       Handle(Geom2d_Line)              l      = new Geom2d_Line(p2d1, dir);
       Handle(Geom2d_Curve)             pcurve = new Geom2d_TrimmedCurve(l, 0, l0);
       Handle(Geom2dAdaptor_Curve)      Acurv  = new Geom2dAdaptor_Curve(pcurve);
-      Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-      Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
+      GeomAdaptor_CurveOnSurface         CurvOnS(Acurv, Asurf);
+      Handle(GeomAdaptor_CurveOnSurface) HCons = new GeomAdaptor_CurveOnSurface(CurvOnS);
       // Order.SetValue(ic,1);
       Order.SetValue(ic, constr);
       Handle(GeomPlate_CurveConstraint) Cont =
@@ -2787,8 +2787,8 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
 
           // construction of borders for Plate
           Handle(Geom2dAdaptor_Curve)      Acurv = new Geom2dAdaptor_Curve(pcurve);
-          Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-          Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
+          GeomAdaptor_CurveOnSurface         CurvOnS(Acurv, Asurf);
+          Handle(GeomAdaptor_CurveOnSurface) HCons = new GeomAdaptor_CurveOnSurface(CurvOnS);
 
           // constraints G1 are set if edges ic and icplus are not both alive
 
@@ -2959,8 +2959,8 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
           Handle(GeomAdaptor_Surface) Asurf;
           Asurf = new GeomAdaptor_Surface(BRep_Tool::Surface(TopoDS::Face(Fproj.Value(nb))));
           Handle(Geom2dAdaptor_Curve)      Acurv = new Geom2dAdaptor_Curve(proj2d);
-          Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-          Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
+          GeomAdaptor_CurveOnSurface         CurvOnS(Acurv, Asurf);
+          Handle(GeomAdaptor_CurveOnSurface) HCons = new GeomAdaptor_CurveOnSurface(CurvOnS);
           Order.SetValue(n3d, 1);
           Handle(GeomPlate_CurveConstraint) Cont =
             new GeomPlate_CurveConstraint(HCons, Order.Value(n3d), 10, tolapp3d, angular, 0.1);
@@ -3089,8 +3089,8 @@ void ChFi3d_Builder::PerformMoreThreeCorner(const Standard_Integer Jndex,
         Handle(GeomAdaptor_Surface) Asurf;
         Asurf = new GeomAdaptor_Surface(BRep_Tool::Surface(TopoDS::Face(Fvive.Value(ic, icplus))));
         Handle(Geom2dAdaptor_Curve)      Acurv = new Geom2dAdaptor_Curve(ctrim2d);
-        Adaptor3d_CurveOnSurface         CurvOnS(Acurv, Asurf);
-        Handle(Adaptor3d_CurveOnSurface) HCons = new Adaptor3d_CurveOnSurface(CurvOnS);
+        GeomAdaptor_CurveOnSurface         CurvOnS(Acurv, Asurf);
+        Handle(GeomAdaptor_CurveOnSurface) HCons = new GeomAdaptor_CurveOnSurface(CurvOnS);
         Order.SetValue(n3d, 0);
         Handle(GeomPlate_CurveConstraint) Cont =
           new GeomPlate_CurveConstraint(HCons, Order.Value(n3d), 10, tolapp3d, angular, 0.1);

@@ -17,7 +17,6 @@
 #ifndef _BlendFunc_ConstRad_HeaderFile
 #define _BlendFunc_ConstRad_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
@@ -34,6 +33,8 @@
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_Array1OfVec2d.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class gp_Circ;
 class Blend_Point;
 class gp_Ax1;
@@ -43,9 +44,9 @@ class BlendFunc_ConstRad : public Blend_Function
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_ConstRad(const Handle(Adaptor3d_Surface)& S1,
-                                     const Handle(Adaptor3d_Surface)& S2,
-                                     const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT BlendFunc_ConstRad(const Handle(GeomAdaptor_Surface)& S1,
+                                     const Handle(GeomAdaptor_Surface)& S2,
+                                     const Handle(GeomAdaptor_Curve)&   C);
 
   //! returns the number of equations of the function.
   Standard_EXPORT Standard_Integer NbEquations() const Standard_OVERRIDE;
@@ -220,10 +221,10 @@ private:
                                                  const Standard_Boolean ByParam = Standard_False,
                                                  const Standard_Real    Param   = 0);
 
-  Handle(Adaptor3d_Surface)    surf1;
-  Handle(Adaptor3d_Surface)    surf2;
-  Handle(Adaptor3d_Curve)      curv;
-  Handle(Adaptor3d_Curve)      tcurv;
+  Handle(GeomAdaptor_Surface)    surf1;
+  Handle(GeomAdaptor_Surface)    surf2;
+  Handle(GeomAdaptor_Curve)      curv;
+  Handle(GeomAdaptor_Curve)      tcurv;
   gp_Pnt                       pts1;
   gp_Pnt                       pts2;
   Standard_Boolean             istangent;

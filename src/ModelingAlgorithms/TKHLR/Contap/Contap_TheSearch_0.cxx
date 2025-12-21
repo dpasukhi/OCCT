@@ -19,28 +19,28 @@
 #include <StdFail_NotDone.hxx>
 #include <Standard_OutOfRange.hxx>
 #include <Standard_ConstructionError.hxx>
-#include <Adaptor3d_HVertex.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_HVertex.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Contap_HCurve2dTool.hxx>
 #include <Contap_HContTool.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <Contap_ArcFunction.hxx>
 #include <Contap_ThePathPointOfTheSearch.hxx>
 #include <Contap_SequenceOfPathPointOfTheSearch.hxx>
 #include <Contap_TheSegmentOfTheSearch.hxx>
 #include <Contap_SequenceOfSegmentOfTheSearch.hxx>
 
-#define TheVertex Handle(Adaptor3d_HVertex)
-#define TheVertex_hxx <Adaptor3d_HVertex.hxx>
-#define TheArc Handle(Adaptor2d_Curve2d)
-#define TheArc_hxx <Adaptor2d_Curve2d.hxx>
+#define TheVertex Handle(GeomAdaptor_HVertex)
+#define TheVertex_hxx <GeomAdaptor_HVertex.hxx>
+#define TheArc Handle(Geom2dAdaptor_Curve)
+#define TheArc_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheArcTool Contap_HCurve2dTool
 #define TheArcTool_hxx <Contap_HCurve2dTool.hxx>
 #define TheSOBTool Contap_HContTool
 #define TheSOBTool_hxx <Contap_HContTool.hxx>
-#define Handle_TheTopolTool Handle(Adaptor3d_TopolTool)
-#define TheTopolTool Adaptor3d_TopolTool
-#define TheTopolTool_hxx <Adaptor3d_TopolTool.hxx>
+#define Handle_TheTopolTool Handle(GeomAdaptor_TopolTool)
+#define TheTopolTool GeomAdaptor_TopolTool
+#define TheTopolTool_hxx <GeomAdaptor_TopolTool.hxx>
 #define TheFunction Contap_ArcFunction
 #define TheFunction_hxx <Contap_ArcFunction.hxx>
 #define IntStart_ThePathPoint Contap_ThePathPointOfTheSearch

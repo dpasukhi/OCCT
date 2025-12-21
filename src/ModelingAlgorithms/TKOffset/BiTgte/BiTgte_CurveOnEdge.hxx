@@ -22,7 +22,7 @@
 #include <Standard_Handle.hxx>
 
 #include <TopoDS_Edge.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard_Real.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_Integer.hxx>
@@ -38,20 +38,20 @@ class gp_Parab;
 class Geom_BezierCurve;
 class Geom_BSplineCurve;
 
-DEFINE_STANDARD_HANDLE(BiTgte_CurveOnEdge, Adaptor3d_Curve)
+DEFINE_STANDARD_HANDLE(BiTgte_CurveOnEdge, GeomAdaptor_Curve)
 
 //! private class used to create a filler rolling on
 //! an edge.
-class BiTgte_CurveOnEdge : public Adaptor3d_Curve
+class BiTgte_CurveOnEdge : public GeomAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(BiTgte_CurveOnEdge, Adaptor3d_Curve)
+  DEFINE_STANDARD_RTTIEXT(BiTgte_CurveOnEdge, GeomAdaptor_Curve)
 public:
   Standard_EXPORT BiTgte_CurveOnEdge();
 
   Standard_EXPORT BiTgte_CurveOnEdge(const TopoDS_Edge& EonF, const TopoDS_Edge& Edge);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   Standard_EXPORT void Init(const TopoDS_Edge& EonF, const TopoDS_Edge& Edge);
 
@@ -77,7 +77,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(GeomAdaptor_Curve) Trim(const Standard_Real First,
                                                const Standard_Real Last,
                                                const Standard_Real Tol) const Standard_OVERRIDE;
 

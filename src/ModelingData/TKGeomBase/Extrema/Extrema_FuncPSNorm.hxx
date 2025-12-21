@@ -17,6 +17,7 @@
 #ifndef _Extrema_FunctPSNorm_HeaderFile
 #define _Extrema_FunctPSNorm_HeaderFile
 
+#include <GeomAdaptor_Surface.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 
@@ -27,7 +28,6 @@
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <math_Vector.hxx>
 
-class Adaptor3d_Surface;
 class math_Matrix;
 class Extrema_POnSurf;
 
@@ -58,10 +58,10 @@ public:
 
   Standard_EXPORT Extrema_FuncPSNorm();
 
-  Standard_EXPORT Extrema_FuncPSNorm(const gp_Pnt& P, const Adaptor3d_Surface& S);
+  Standard_EXPORT Extrema_FuncPSNorm(const gp_Pnt& P, const GeomAdaptor_Surface& S);
 
   //! sets the field mysurf of the function.
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S);
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S);
 
   //! sets the field mysurf of the function.
   Standard_EXPORT void SetPoint(const gp_Pnt& P);
@@ -96,7 +96,7 @@ public:
 
 private:
   gp_Pnt                    myP;
-  const Adaptor3d_Surface*  myS;
+  const GeomAdaptor_Surface*  myS;
   Standard_Real             myU;
   Standard_Real             myV;
   gp_Pnt                    myPs;

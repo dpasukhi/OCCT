@@ -17,10 +17,11 @@
 #ifndef _BlendFunc_EvolRadInv_HeaderFile
 #define _BlendFunc_EvolRadInv_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <Blend_FuncInv.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class Law_Function;
 class math_Matrix;
 
@@ -29,13 +30,13 @@ class BlendFunc_EvolRadInv : public Blend_FuncInv
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_EvolRadInv(const Handle(Adaptor3d_Surface)& S1,
-                                       const Handle(Adaptor3d_Surface)& S2,
-                                       const Handle(Adaptor3d_Curve)&   C,
+  Standard_EXPORT BlendFunc_EvolRadInv(const Handle(GeomAdaptor_Surface)& S1,
+                                       const Handle(GeomAdaptor_Surface)& S2,
+                                       const Handle(GeomAdaptor_Curve)&   C,
                                        const Handle(Law_Function)&      Law);
 
   Standard_EXPORT void Set(const Standard_Boolean           OnFirst,
-                           const Handle(Adaptor2d_Curve2d)& COnSurf);
+                           const Handle(Geom2dAdaptor_Curve)& COnSurf);
 
   Standard_EXPORT void GetTolerance(math_Vector& Tolerance, const Standard_Real Tol) const;
 
@@ -68,10 +69,10 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface) surf1;
-  Handle(Adaptor3d_Surface) surf2;
-  Handle(Adaptor3d_Curve)   curv;
-  Handle(Adaptor2d_Curve2d) csurf;
+  Handle(GeomAdaptor_Surface) surf1;
+  Handle(GeomAdaptor_Surface) surf2;
+  Handle(GeomAdaptor_Curve)   curv;
+  Handle(Geom2dAdaptor_Curve) csurf;
   Handle(Law_Function)      fevol;
   Standard_Real             sg1;
   Standard_Real             sg2;

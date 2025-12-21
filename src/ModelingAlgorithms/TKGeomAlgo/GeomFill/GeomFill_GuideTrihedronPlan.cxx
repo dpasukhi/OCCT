@@ -16,7 +16,7 @@
 
 #include <GeomFill_GuideTrihedronPlan.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <Geom_Plane.hxx>
 #include <GeomAdaptor_Surface.hxx>
@@ -72,7 +72,7 @@ static void InGoodPeriod(const Standard_Real Prec,
 
 //=================================================================================================
 
-GeomFill_GuideTrihedronPlan::GeomFill_GuideTrihedronPlan(const Handle(Adaptor3d_Curve)& theGuide)
+GeomFill_GuideTrihedronPlan::GeomFill_GuideTrihedronPlan(const Handle(GeomAdaptor_Curve)& theGuide)
     : X(1, 1),
       XTol(1, 1),
       Inf(1, 1),
@@ -198,7 +198,7 @@ void GeomFill_GuideTrihedronPlan::Init()
 // function : SetCurve
 // purpose  : calculation of trihedron
 //=======================================================================
-Standard_Boolean GeomFill_GuideTrihedronPlan::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_GuideTrihedronPlan::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   myCurve = C;
   if (!myCurve.IsNull())
@@ -211,7 +211,7 @@ Standard_Boolean GeomFill_GuideTrihedronPlan::SetCurve(const Handle(Adaptor3d_Cu
 // purpose  : calculation of trihedron
 //=======================================================================
 
-Handle(Adaptor3d_Curve) GeomFill_GuideTrihedronPlan::Guide() const
+Handle(GeomAdaptor_Curve) GeomFill_GuideTrihedronPlan::Guide() const
 {
   return myGuide;
 }

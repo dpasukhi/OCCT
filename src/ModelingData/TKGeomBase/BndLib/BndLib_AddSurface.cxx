@@ -16,7 +16,7 @@
 
 //  Modified by skv - Fri Aug 27 12:29:04 2004 OCC6503
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_Box.hxx>
 #include <BndLib.hxx>
 #include <BndLib_AddSurface.hxx>
@@ -35,15 +35,15 @@
 #include <math_PSO.hxx>
 #include <math_Powell.hxx>
 //
-static Standard_Integer NbUSamples(const Adaptor3d_Surface& S,
+static Standard_Integer NbUSamples(const GeomAdaptor_Surface& S,
                                    const Standard_Real      Umin,
                                    const Standard_Real      Umax);
 //
-static Standard_Integer NbVSamples(const Adaptor3d_Surface& S,
+static Standard_Integer NbVSamples(const GeomAdaptor_Surface& S,
                                    const Standard_Real      Vmin,
                                    const Standard_Real      Vmax);
 //
-static Standard_Real AdjustExtr(const Adaptor3d_Surface& S,
+static Standard_Real AdjustExtr(const GeomAdaptor_Surface& S,
                                 const Standard_Real      UMin,
                                 const Standard_Real      UMax,
                                 const Standard_Real      VMin,
@@ -65,7 +65,7 @@ static void ComputePolesIndexes(const TColStd_Array1OfReal&    theKnots,
 
 //=================================================================================================
 
-void BndLib_AddSurface::Add(const Adaptor3d_Surface& S, const Standard_Real Tol, Bnd_Box& B)
+void BndLib_AddSurface::Add(const GeomAdaptor_Surface& S, const Standard_Real Tol, Bnd_Box& B)
 {
 
   BndLib_AddSurface::Add(S,
@@ -79,7 +79,7 @@ void BndLib_AddSurface::Add(const Adaptor3d_Surface& S, const Standard_Real Tol,
 
 //=================================================================================================
 
-static Standard_Integer NbUSamples(const Adaptor3d_Surface& S)
+static Standard_Integer NbUSamples(const GeomAdaptor_Surface& S)
 {
   Standard_Integer    N;
   GeomAbs_SurfaceType Type = S.GetType();
@@ -102,7 +102,7 @@ static Standard_Integer NbUSamples(const Adaptor3d_Surface& S)
 
 //=================================================================================================
 
-static Standard_Integer NbVSamples(const Adaptor3d_Surface& S)
+static Standard_Integer NbVSamples(const GeomAdaptor_Surface& S)
 {
   Standard_Integer    N;
   GeomAbs_SurfaceType Type = S.GetType();
@@ -243,7 +243,7 @@ void ComputePolesIndexes(const TColStd_Array1OfReal&    theKnots,
 //  Modified by skv - Fri Aug 27 12:29:04 2004 OCC6503 End
 //=================================================================================================
 
-void BndLib_AddSurface::Add(const Adaptor3d_Surface& S,
+void BndLib_AddSurface::Add(const GeomAdaptor_Surface& S,
                             const Standard_Real      UMin,
                             const Standard_Real      UMax,
                             const Standard_Real      VMin,
@@ -309,7 +309,7 @@ void BndLib_AddSurface::Add(const Adaptor3d_Surface& S,
       break;
     }
     case GeomAbs_OffsetSurface: {
-      Handle(Adaptor3d_Surface) HS = S.BasisSurface();
+      Handle(GeomAdaptor_Surface) HS = S.BasisSurface();
       Add(*HS, UMin, UMax, VMin, VMax, Tol, B);
       B.Enlarge(S.OffsetValue());
       B.Enlarge(Tol);
@@ -464,7 +464,7 @@ void BndLib_AddSurface::Add(const Adaptor3d_Surface& S,
 
 //=================================================================================================
 
-void BndLib_AddSurface::AddOptimal(const Adaptor3d_Surface& S, const Standard_Real Tol, Bnd_Box& B)
+void BndLib_AddSurface::AddOptimal(const GeomAdaptor_Surface& S, const Standard_Real Tol, Bnd_Box& B)
 {
 
   BndLib_AddSurface::AddOptimal(S,
@@ -478,7 +478,7 @@ void BndLib_AddSurface::AddOptimal(const Adaptor3d_Surface& S, const Standard_Re
 
 //=================================================================================================
 
-void BndLib_AddSurface::AddOptimal(const Adaptor3d_Surface& S,
+void BndLib_AddSurface::AddOptimal(const GeomAdaptor_Surface& S,
                                    const Standard_Real      UMin,
                                    const Standard_Real      UMax,
                                    const Standard_Real      VMin,
@@ -536,7 +536,7 @@ void BndLib_AddSurface::AddOptimal(const Adaptor3d_Surface& S,
 
 //=================================================================================================
 
-void BndLib_AddSurface::AddGenSurf(const Adaptor3d_Surface& S,
+void BndLib_AddSurface::AddGenSurf(const GeomAdaptor_Surface& S,
                                    const Standard_Real      UMin,
                                    const Standard_Real      UMax,
                                    const Standard_Real      VMin,
@@ -685,7 +685,7 @@ void BndLib_AddSurface::AddGenSurf(const Adaptor3d_Surface& S,
 class SurfMaxMinCoord : public math_MultipleVarFunction
 {
 public:
-  SurfMaxMinCoord(const Adaptor3d_Surface& theSurf,
+  SurfMaxMinCoord(const GeomAdaptor_Surface& theSurf,
                   const Standard_Real      UMin,
                   const Standard_Real      UMax,
                   const Standard_Real      VMin,
@@ -779,7 +779,7 @@ private:
     return Standard_True;
   }
 
-  const Adaptor3d_Surface& mySurf;
+  const GeomAdaptor_Surface& mySurf;
   Standard_Real            myUMin;
   Standard_Real            myUMax;
   Standard_Real            myVMin;
@@ -791,7 +791,7 @@ private:
 
 //=================================================================================================
 
-Standard_Real AdjustExtr(const Adaptor3d_Surface& S,
+Standard_Real AdjustExtr(const GeomAdaptor_Surface& S,
                          const Standard_Real      UMin,
                          const Standard_Real      UMax,
                          const Standard_Real      VMin,
@@ -854,7 +854,7 @@ Standard_Real AdjustExtr(const Adaptor3d_Surface& S,
 
 //=================================================================================================
 
-Standard_Integer NbUSamples(const Adaptor3d_Surface& S,
+Standard_Integer NbUSamples(const GeomAdaptor_Surface& S,
                             const Standard_Real      Umin,
                             const Standard_Real      Umax)
 {
@@ -894,7 +894,7 @@ Standard_Integer NbUSamples(const Adaptor3d_Surface& S,
 
 //=================================================================================================
 
-Standard_Integer NbVSamples(const Adaptor3d_Surface& S,
+Standard_Integer NbVSamples(const GeomAdaptor_Surface& S,
                             const Standard_Real      Vmin,
                             const Standard_Real      Vmax)
 {

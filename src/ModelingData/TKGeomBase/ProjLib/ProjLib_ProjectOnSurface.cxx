@@ -16,8 +16,8 @@
 
 #include <ProjLib_ProjectOnSurface.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Approx_FitAndDivide.hxx>
 #include <BSplCLib.hxx>
 #include <Extrema_ExtPS.hxx>
@@ -34,7 +34,7 @@
 // purpose  : Evaluate current point of the projected curve
 //=======================================================================
 static gp_Pnt OnSurface_Value(const Standard_Real            U,
-                              const Handle(Adaptor3d_Curve)& myCurve,
+                              const Handle(GeomAdaptor_Curve)& myCurve,
                               Extrema_ExtPS*                 myExtPS)
 {
   // Try to find the closest solution point.
@@ -67,7 +67,7 @@ static gp_Pnt OnSurface_Value(const Standard_Real            U,
 static Standard_Boolean OnSurface_D1(const Standard_Real,            // U,
                                      gp_Pnt&,                        // P,
                                      gp_Vec&,                        // V,
-                                     const Handle(Adaptor3d_Curve)&, //  myCurve,
+                                     const Handle(GeomAdaptor_Curve)&, //  myCurve,
                                      Extrema_ExtPS*)                 // myExtPS)
 {
   return Standard_False;
@@ -82,7 +82,7 @@ class ProjLib_OnSurface : public AppCont_Function
 
 {
 public:
-  ProjLib_OnSurface(const Handle(Adaptor3d_Curve)& C, const Handle(Adaptor3d_Surface)& S)
+  ProjLib_OnSurface(const Handle(GeomAdaptor_Curve)& C, const Handle(GeomAdaptor_Surface)& S)
       : myCurve(C)
   {
     myNbPnt                     = 1;
@@ -120,7 +120,7 @@ private:
   ProjLib_OnSurface& operator=(const ProjLib_OnSurface&);
 
 private:
-  Handle(Adaptor3d_Curve) myCurve;
+  Handle(GeomAdaptor_Curve) myCurve;
   Extrema_ExtPS*          myExtPS;
 };
 
@@ -142,7 +142,7 @@ ProjLib_ProjectOnSurface::ProjLib_ProjectOnSurface()
 
 //=================================================================================================
 
-ProjLib_ProjectOnSurface::ProjLib_ProjectOnSurface(const Handle(Adaptor3d_Surface)& S)
+ProjLib_ProjectOnSurface::ProjLib_ProjectOnSurface(const Handle(GeomAdaptor_Surface)& S)
     : myTolerance(0.0),
       myIsDone(Standard_False)
 {
@@ -151,7 +151,7 @@ ProjLib_ProjectOnSurface::ProjLib_ProjectOnSurface(const Handle(Adaptor3d_Surfac
 
 //=================================================================================================
 
-void ProjLib_ProjectOnSurface::Load(const Handle(Adaptor3d_Surface)& S)
+void ProjLib_ProjectOnSurface::Load(const Handle(GeomAdaptor_Surface)& S)
 {
   mySurface = S;
   myIsDone  = Standard_False;
@@ -159,7 +159,7 @@ void ProjLib_ProjectOnSurface::Load(const Handle(Adaptor3d_Surface)& S)
 
 //=================================================================================================
 
-void ProjLib_ProjectOnSurface::Load(const Handle(Adaptor3d_Curve)& C, const Standard_Real Tolerance)
+void ProjLib_ProjectOnSurface::Load(const Handle(GeomAdaptor_Curve)& C, const Standard_Real Tolerance)
 {
   myTolerance = Tolerance;
   myCurve     = C;

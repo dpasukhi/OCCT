@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <Bnd_Box2d.hxx>
 #include <GCPnts_QuasiUniformDeflection.hxx>
 #include <Geom_BezierSurface.hxx>
@@ -39,7 +39,7 @@ extern OSD_Chronometer FFaceTimer1, FFaceTimer2, FFaceTimer3, FFaceTimer4;
 
 //=================================================================================================
 
-static void FindLimits(const Adaptor3d_Curve& aCurve,
+static void FindLimits(const GeomAdaptor_Curve& aCurve,
                        const Standard_Real    aLimit,
                        Standard_Real&         First,
                        Standard_Real&         Last)
@@ -132,7 +132,7 @@ void StdPrs_WFDeflectionRestrictedFace::Add(const Handle(Prs3d_Presentation)&  a
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
     const TopAbs_Orientation anOrient  = ToolRst.Orientation();
-    const Adaptor2d_Curve2d* TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve* TheRCurve = &ToolRst.Value();
     if (TheRCurve->GetType() != GeomAbs_Line)
     {
       GCPnts_QuasiUniformDeflection UDP(*TheRCurve, ddefle);
@@ -300,7 +300,7 @@ void StdPrs_WFDeflectionRestrictedFace::Add(const Handle(Prs3d_Presentation)&  a
 
   // draw the isos
 
-  Adaptor3d_IsoCurve anIso;
+  GeomAdaptor_IsoCurve anIso;
   anIso.Load(aFace);
   Handle(Geom_Curve)         BC;
   const BRepAdaptor_Surface& BS      = *aFace;
@@ -412,7 +412,7 @@ Standard_Boolean StdPrs_WFDeflectionRestrictedFace::Match(const Standard_Real X,
 
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
-    const Adaptor2d_Curve2d* TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve* TheRCurve = &ToolRst.Value();
     u                                  = TheRCurve->FirstParameter();
     v                                  = TheRCurve->LastParameter();
     step                               = (v - u) / nbPoints;
@@ -479,7 +479,7 @@ Standard_Boolean StdPrs_WFDeflectionRestrictedFace::Match(const Standard_Real X,
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
     TopAbs_Orientation            Orient    = ToolRst.Orientation();
-    const Adaptor2d_Curve2d*      TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve*      TheRCurve = &ToolRst.Value();
     GCPnts_QuasiUniformDeflection UDP(*TheRCurve, Deflection);
     if (UDP.IsDone())
     {
@@ -510,7 +510,7 @@ Standard_Boolean StdPrs_WFDeflectionRestrictedFace::Match(const Standard_Real X,
 
   // draw the isos
 
-  Adaptor3d_IsoCurve anIso;
+  GeomAdaptor_IsoCurve anIso;
   anIso.Load(aFace);
   Standard_Integer NumberOfLines = isobuild.NbLines();
   Standard_Real    anAngle       = aDrawer->DeviationAngle();

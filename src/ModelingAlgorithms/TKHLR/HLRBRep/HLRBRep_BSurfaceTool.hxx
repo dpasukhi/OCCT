@@ -17,7 +17,6 @@
 #ifndef _HLRBRep_BSurfaceTool_HeaderFile
 #define _HLRBRep_BSurfaceTool_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <gp_Pnt.hxx>
@@ -32,6 +31,8 @@
 #include <gp_Dir.hxx>
 
 class BRepAdaptor_Surface;
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class gp_Pnt;
 class gp_Vec;
 class Geom_BezierSurface;
@@ -63,13 +64,13 @@ public:
                          const GeomAbs_Shape        Sh);
 
   //! If <First> >= <Last>
-  static Handle(Adaptor3d_Surface) UTrim(const BRepAdaptor_Surface& S,
+  static Handle(GeomAdaptor_Surface) UTrim(const BRepAdaptor_Surface& S,
                                          const Standard_Real        First,
                                          const Standard_Real        Last,
                                          const Standard_Real        Tol);
 
   //! If <First> >= <Last>
-  static Handle(Adaptor3d_Surface) VTrim(const BRepAdaptor_Surface& S,
+  static Handle(GeomAdaptor_Surface) VTrim(const BRepAdaptor_Surface& S,
                                          const Standard_Real        First,
                                          const Standard_Real        Last,
                                          const Standard_Real        Tol);
@@ -174,7 +175,7 @@ public:
 
   static gp_Dir Direction(const BRepAdaptor_Surface& S);
 
-  static Handle(Adaptor3d_Curve) BasisCurve(const BRepAdaptor_Surface& S);
+  static Handle(GeomAdaptor_Curve) BasisCurve(const BRepAdaptor_Surface& S);
 
   static gp_Ax1 Axis(const BRepAdaptor_Surface& S);
 

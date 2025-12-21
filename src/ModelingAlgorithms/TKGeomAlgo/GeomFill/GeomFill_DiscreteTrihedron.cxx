@@ -15,7 +15,7 @@
 
 #include <GeomFill_DiscreteTrihedron.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAbs_CurveType.hxx>
 #include <GeomFill_Frenet.hxx>
 #include <GeomFill_HSequenceOfAx2.hxx>
@@ -52,7 +52,7 @@ Handle(GeomFill_TrihedronLaw) GeomFill_DiscreteTrihedron::Copy() const
 
 //=================================================================================================
 
-Standard_Boolean GeomFill_DiscreteTrihedron::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_DiscreteTrihedron::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   GeomFill_TrihedronLaw::SetCurve(C);
   if (!C.IsNull())

@@ -17,7 +17,7 @@
 #ifndef _Extrema_ECC2d_HeaderFile
 #define _Extrema_ECC2d_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Extrema_Curve2dTool.hxx>
 #include <Extrema_ExtPC2d.hxx>
 #include <Extrema_GGenExtCC.hxx>
@@ -25,9 +25,9 @@
 #include <gp_Pnt2d.hxx>
 
 //! Type alias for 2D curve-curve extremum computation.
-using Extrema_ECC2d = Extrema_GGenExtCC<Adaptor2d_Curve2d,
+using Extrema_ECC2d = Extrema_GGenExtCC<Geom2dAdaptor_Curve,
                                         Extrema_Curve2dTool,
-                                        Adaptor2d_Curve2d,
+                                        Geom2dAdaptor_Curve,
                                         Extrema_Curve2dTool,
                                         Extrema_POnCurv2d,
                                         gp_Pnt2d,

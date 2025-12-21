@@ -82,7 +82,7 @@ Standard_Boolean Extrema_GlobOptFuncConicS::checkInputData(const math_Vector& X,
 
 //=================================================================================================
 
-Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const Adaptor3d_Surface* S,
+Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const GeomAdaptor_Surface* S,
                                                      const Standard_Real      theUf,
                                                      const Standard_Real      theUl,
                                                      const Standard_Real      theVf,
@@ -97,7 +97,7 @@ Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const Adaptor3d_Surface* S,
 
 //=================================================================================================
 
-Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const Adaptor3d_Surface* S)
+Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const GeomAdaptor_Surface* S)
     : myS(S),
       myUf(S->FirstUParameter()),
       myUl(S->LastUParameter()),
@@ -108,8 +108,8 @@ Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const Adaptor3d_Surface* S)
 
 //=================================================================================================
 
-Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const Adaptor3d_Curve*   C,
-                                                     const Adaptor3d_Surface* S)
+Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const GeomAdaptor_Curve*   C,
+                                                     const GeomAdaptor_Surface* S)
     : myS(S),
       myUf(S->FirstUParameter()),
       myUl(S->LastUParameter()),
@@ -123,7 +123,7 @@ Extrema_GlobOptFuncConicS::Extrema_GlobOptFuncConicS(const Adaptor3d_Curve*   C,
 
 //=================================================================================================
 
-void Extrema_GlobOptFuncConicS::LoadConic(const Adaptor3d_Curve* C,
+void Extrema_GlobOptFuncConicS::LoadConic(const GeomAdaptor_Curve* C,
                                           const Standard_Real    theTf,
                                           const Standard_Real    theTl)
 {

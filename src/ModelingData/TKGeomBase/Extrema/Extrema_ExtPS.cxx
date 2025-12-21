@@ -29,7 +29,7 @@
 
 //=================================================================================================
 
-static Standard_Boolean IsoIsDeg(const Adaptor3d_Surface& S,
+static Standard_Boolean IsoIsDeg(const GeomAdaptor_Surface& S,
                                  const Standard_Real      Param,
                                  const GeomAbs_IsoType    IT,
                                  const Standard_Real      TolMin,
@@ -144,7 +144,7 @@ Extrema_ExtPS::Extrema_ExtPS()
 //=================================================================================================
 
 Extrema_ExtPS::Extrema_ExtPS(const gp_Pnt&            theP,
-                             const Adaptor3d_Surface& theS,
+                             const GeomAdaptor_Surface& theS,
                              const Standard_Real      theTolU,
                              const Standard_Real      theTolV,
                              const Extrema_ExtFlag    theF,
@@ -167,7 +167,7 @@ Extrema_ExtPS::Extrema_ExtPS(const gp_Pnt&            theP,
 //=================================================================================================
 
 Extrema_ExtPS::Extrema_ExtPS(const gp_Pnt&            theP,
-                             const Adaptor3d_Surface& theS,
+                             const GeomAdaptor_Surface& theS,
                              const Standard_Real      theUinf,
                              const Standard_Real      theUsup,
                              const Standard_Real      theVinf,
@@ -187,7 +187,7 @@ Extrema_ExtPS::Extrema_ExtPS(const gp_Pnt&            theP,
 
 //=================================================================================================
 
-void Extrema_ExtPS::Initialize(const Adaptor3d_Surface& theS,
+void Extrema_ExtPS::Initialize(const GeomAdaptor_Surface& theS,
                                const Standard_Real      theUinf,
                                const Standard_Real      theUsup,
                                const Standard_Real      theVinf,

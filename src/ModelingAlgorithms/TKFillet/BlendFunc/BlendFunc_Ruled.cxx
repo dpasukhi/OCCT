@@ -14,6 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Blend_Point.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_Ruled.hxx>
@@ -28,9 +30,9 @@
 #include <Standard_DomainError.hxx>
 #include <Standard_NotImplemented.hxx>
 
-BlendFunc_Ruled::BlendFunc_Ruled(const Handle(Adaptor3d_Surface)& S1,
-                                 const Handle(Adaptor3d_Surface)& S2,
-                                 const Handle(Adaptor3d_Curve)&   C)
+BlendFunc_Ruled::BlendFunc_Ruled(const Handle(GeomAdaptor_Surface)& S1,
+                                 const Handle(GeomAdaptor_Surface)& S2,
+                                 const Handle(GeomAdaptor_Curve)&   C)
     :
 
       surf1(S1),

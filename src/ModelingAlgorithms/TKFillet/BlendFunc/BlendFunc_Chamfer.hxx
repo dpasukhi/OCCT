@@ -17,12 +17,13 @@
 #ifndef _BlendFunc_Chamfer_HeaderFile
 #define _BlendFunc_Chamfer_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <BlendFunc_Corde.hxx>
 #include <BlendFunc_GenChamfer.hxx>
 #include <math_Vector.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 class gp_Pnt;
 class gp_Vec;
@@ -35,9 +36,9 @@ class BlendFunc_Chamfer : public BlendFunc_GenChamfer
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_Chamfer(const Handle(Adaptor3d_Surface)& S1,
-                                    const Handle(Adaptor3d_Surface)& S2,
-                                    const Handle(Adaptor3d_Curve)&   CG);
+  Standard_EXPORT BlendFunc_Chamfer(const Handle(GeomAdaptor_Surface)& S1,
+                                    const Handle(GeomAdaptor_Surface)& S2,
+                                    const Handle(GeomAdaptor_Curve)&   CG);
 
   //! computes the values <F> of the Functions for the
   //! variable <X>.

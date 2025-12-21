@@ -31,9 +31,9 @@ constexpr double EPSDIST = 0.00000001;
 constexpr double EPSNUL  = 0.00000001;
 
 //! Performs intersection of a curve with a quadric surface.
-//! @tparam SurfaceType The surface type (Handle(Adaptor3d_Surface) or Standard_Address)
+//! @tparam SurfaceType The surface type (Handle(GeomAdaptor_Surface) or Standard_Address)
 //! @tparam SurfaceTool The surface tool class
-//! @tparam CurveType The curve type (Handle(Adaptor3d_Curve) or gp_Lin)
+//! @tparam CurveType The curve type (Handle(GeomAdaptor_Curve) or gp_Lin)
 //! @tparam CurveTool The curve tool class
 //! @tparam QuadCurvFuncType The quadric curve function class
 //! @param theSurface [in] The quadric surface

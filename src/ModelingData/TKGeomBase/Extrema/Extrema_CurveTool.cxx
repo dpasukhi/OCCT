@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Extrema_CurveTool.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
@@ -23,7 +23,7 @@
 
 //=================================================================================================
 
-Standard_Boolean Extrema_CurveTool::IsPeriodic(const Adaptor3d_Curve& C)
+Standard_Boolean Extrema_CurveTool::IsPeriodic(const GeomAdaptor_Curve& C)
 {
   GeomAbs_CurveType aType = GetType(C);
   if (aType == GeomAbs_Circle || aType == GeomAbs_Ellipse)
@@ -34,7 +34,7 @@ Standard_Boolean Extrema_CurveTool::IsPeriodic(const Adaptor3d_Curve& C)
 
 //=================================================================================================
 
-Handle(TColStd_HArray1OfReal) Extrema_CurveTool::DeflCurvIntervals(const Adaptor3d_Curve& C)
+Handle(TColStd_HArray1OfReal) Extrema_CurveTool::DeflCurvIntervals(const GeomAdaptor_Curve& C)
 {
   const Standard_Real           epsd    = 1.e-3;
   const Standard_Real           maxdefl = 1.e3;

@@ -16,7 +16,7 @@
 
 #include <TopOpeBRep_LineInter.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRepAdaptor_Curve2d.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Curve.hxx>
@@ -528,14 +528,14 @@ const TopoDS_Shape& TopOpeBRep_LineInter::Arc() const
   {
     if (myILR->IsArcOnS1())
     {
-      const Handle(Adaptor2d_Curve2d)& AHC2D = myILR->ArcOnS1();
+      const Handle(Geom2dAdaptor_Curve)& AHC2D = myILR->ArcOnS1();
       const BRepAdaptor_Curve2d&       BC2DP = *((BRepAdaptor_Curve2d*)AHC2D.get());
       const TopoDS_Shape&              S     = BC2DP.Edge();
       return S;
     }
     else
     {
-      const Handle(Adaptor2d_Curve2d)& AHC2D = myILR->ArcOnS2();
+      const Handle(Geom2dAdaptor_Curve)& AHC2D = myILR->ArcOnS2();
       const BRepAdaptor_Curve2d&       BC2DP = *((BRepAdaptor_Curve2d*)AHC2D.get());
       const TopoDS_Shape&              S     = BC2DP.Edge();
       return S;

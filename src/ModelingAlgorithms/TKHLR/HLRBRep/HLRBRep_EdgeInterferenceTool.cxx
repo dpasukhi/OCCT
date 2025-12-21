@@ -18,6 +18,8 @@
   #define No_Exception
 #endif
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <HLRBRep_Data.hxx>
 #include <HLRBRep_EdgeInterferenceTool.hxx>
 

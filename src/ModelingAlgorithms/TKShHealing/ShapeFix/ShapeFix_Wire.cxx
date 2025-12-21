@@ -2108,7 +2108,7 @@ static Standard_Boolean RemoveLoop(TopoDS_Edge&                      E,
   Handle(Geom2dAdaptor_Curve) AC = new Geom2dAdaptor_Curve(c2d);
   Handle(GeomAdaptor_Surface) AS = new GeomAdaptor_Surface(S);
 
-  Adaptor3d_CurveOnSurface ACS(AC, AS);
+  GeomAdaptor_CurveOnSurface ACS(AC, AS);
   gp_Pnt                   P1(ACS.Value(t1));
   gp_Pnt                   P2(ACS.Value(t2));
   gp_Pnt pcurPnt((P1.X() + P2.X()) / 2, (P1.Y() + P2.Y()) / 2, (P1.Z() + P2.Z()) / 2);
@@ -2246,7 +2246,7 @@ static Standard_Boolean RemoveLoop(TopoDS_Edge&                      E,
   Handle(Geom2dAdaptor_Curve) AC = new Geom2dAdaptor_Curve(c2d);
   Handle(GeomAdaptor_Surface) AS = new GeomAdaptor_Surface(S);
 
-  Adaptor3d_CurveOnSurface ACS(AC, AS);
+  GeomAdaptor_CurveOnSurface ACS(AC, AS);
   gp_Pnt                   P1(ACS.Value(t1));
   gp_Pnt                   P2(ACS.Value(t2));
   gp_Pnt pcurPnt((P1.X() + P2.X()) / 2, (P1.Y() + P2.Y()) / 2, (P1.Z() + P2.Z()) / 2);

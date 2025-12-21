@@ -17,10 +17,11 @@
 #ifndef _GeomFill_FunctionDraft_HeaderFile
 #define _GeomFill_FunctionDraft_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
 class math_Matrix;
 class gp_Vec;
 class GeomFill_Tensor;
@@ -30,8 +31,8 @@ class GeomFill_FunctionDraft : public math_FunctionSetWithDerivatives
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT GeomFill_FunctionDraft(const Handle(Adaptor3d_Surface)& S,
-                                         const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT GeomFill_FunctionDraft(const Handle(GeomAdaptor_Surface)& S,
+                                         const Handle(GeomAdaptor_Curve)&   C);
 
   //! returns the number of variables of the function.
   Standard_EXPORT virtual Standard_Integer NbVariables() const Standard_OVERRIDE;
@@ -63,7 +64,7 @@ public:
 
   //! returns the values <F> of the T derivatives for
   //! the parameter Param.
-  Standard_EXPORT Standard_Boolean DerivT(const Handle(Adaptor3d_Curve)& C,
+  Standard_EXPORT Standard_Boolean DerivT(const Handle(GeomAdaptor_Curve)& C,
                                           const Standard_Real            Param,
                                           const Standard_Real            W,
                                           const gp_Vec&                  dN,
@@ -72,7 +73,7 @@ public:
 
   //! returns the values <F> of the T2 derivatives for
   //! the parameter Param.
-  Standard_EXPORT Standard_Boolean Deriv2T(const Handle(Adaptor3d_Curve)& C,
+  Standard_EXPORT Standard_Boolean Deriv2T(const Handle(GeomAdaptor_Curve)& C,
                                            const Standard_Real            Param,
                                            const Standard_Real            W,
                                            const gp_Vec&                  d2N,
@@ -91,8 +92,8 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Curve)   TheCurve;
-  Handle(Adaptor3d_Surface) TheSurface;
+  Handle(GeomAdaptor_Curve)   TheCurve;
+  Handle(GeomAdaptor_Surface) TheSurface;
 };
 
 #endif // _GeomFill_FunctionDraft_HeaderFile

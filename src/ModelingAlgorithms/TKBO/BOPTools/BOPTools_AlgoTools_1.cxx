@@ -12,7 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BOPTools_AlgoTools.hxx>
 #include <BOPTools_Parallel.hxx>
 #include <BRep_Builder.hxx>
@@ -748,7 +748,7 @@ void CorrectEdgeTolerance(const TopoDS_Edge&                myShape,
   //
   // 1. Minimum of conditions to Perform
   Handle(BRep_CurveRepresentation) myCref;
-  Handle(Adaptor3d_Curve)          myHCurve;
+  Handle(GeomAdaptor_Curve)          myHCurve;
 
   myCref.Nullify();
 
@@ -839,8 +839,8 @@ void CorrectEdgeTolerance(const TopoDS_Edge&                myShape,
         const Handle(Geom2d_Curve)& PCref   = myCref->PCurve();
         Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
         Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-        Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-        myHCurve = new Adaptor3d_CurveOnSurface(ACSref);
+        GeomAdaptor_CurveOnSurface    ACSref(GHPCref, GAHSref);
+        myHCurve = new GeomAdaptor_CurveOnSurface(ACSref);
       }
     }
   }
@@ -887,7 +887,7 @@ void CorrectEdgeTolerance(const TopoDS_Edge&                myShape,
         Handle(Geom2d_Curve)             PC   = cr->PCurve();
         Handle(GeomAdaptor_Surface)      GAHS = new GeomAdaptor_Surface(Sb);
         Handle(Geom2dAdaptor_Curve)      GHPC = new Geom2dAdaptor_Curve(PC, f, l);
-        Handle(Adaptor3d_CurveOnSurface) ACS  = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+        Handle(GeomAdaptor_CurveOnSurface) ACS  = new GeomAdaptor_CurveOnSurface(GHPC, GAHS);
 
         BRepLib_ValidateEdge aValidateEdge(myHCurve, ACS, SameParameter);
         aValidateEdge.Process();
@@ -962,7 +962,7 @@ void CorrectEdgeTolerance(const TopoDS_Edge&                myShape,
         Handle(Geom2dAdaptor_Curve) GHPC =
           new Geom2dAdaptor_Curve(PC, myHCurve->FirstParameter(), myHCurve->LastParameter());
 
-        Handle(Adaptor3d_CurveOnSurface) ACS = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+        Handle(GeomAdaptor_CurveOnSurface) ACS = new GeomAdaptor_CurveOnSurface(GHPC, GAHS);
 
         BRepLib_ValidateEdge aValidateProjEdge(myHCurve, ACS, Standard_True);
         aValidateProjEdge.Process();

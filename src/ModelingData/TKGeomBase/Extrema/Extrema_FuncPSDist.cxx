@@ -21,7 +21,7 @@
 
 //=================================================================================================
 
-Extrema_FuncPSDist::Extrema_FuncPSDist(const Adaptor3d_Surface& theS, const gp_Pnt& theP)
+Extrema_FuncPSDist::Extrema_FuncPSDist(const GeomAdaptor_Surface& theS, const gp_Pnt& theP)
     : mySurf(theS),
       myP(theP)
 {

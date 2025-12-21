@@ -17,7 +17,7 @@
 #ifndef _GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox_HeaderFile
 #define _GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <IntImp_ConstIsoparametric.hxx>
@@ -27,7 +27,7 @@
 #include <gp_Dir.hxx>
 #include <gp_Dir2d.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class math_Matrix;
 
 class GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox
@@ -37,8 +37,8 @@ public:
   DEFINE_STANDARD_ALLOC
 
   Standard_EXPORT GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox(
-    const Handle(Adaptor3d_Surface)& S1,
-    const Handle(Adaptor3d_Surface)& S2);
+    const Handle(GeomAdaptor_Surface)& S1,
+    const Handle(GeomAdaptor_Surface)& S2);
 
   Standard_EXPORT Standard_Integer NbVariables() const;
 
@@ -72,9 +72,9 @@ public:
 
   gp_Dir2d DirectionOnS2() const;
 
-  const Handle(Adaptor3d_Surface)& AuxillarSurface1() const;
+  const Handle(GeomAdaptor_Surface)& AuxillarSurface1() const;
 
-  const Handle(Adaptor3d_Surface)& AuxillarSurface2() const;
+  const Handle(GeomAdaptor_Surface)& AuxillarSurface2() const;
 
 protected:
 private:
@@ -103,10 +103,10 @@ private:
   Standard_Real             vres2;
 };
 
-#define ThePSurface Handle(Adaptor3d_Surface)
-#define ThePSurface_hxx <Adaptor3d_Surface.hxx>
-#define ThePSurfaceTool Adaptor3d_HSurfaceTool
-#define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
+#define ThePSurface Handle(GeomAdaptor_Surface)
+#define ThePSurface_hxx <GeomAdaptor_Surface.hxx>
+#define ThePSurfaceTool GeomAdaptor_HSurfaceTool
+#define ThePSurfaceTool_hxx <GeomAdaptor_HSurfaceTool.hxx>
 #define IntImp_ZerParFunc GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox
 #define IntImp_ZerParFunc_hxx <GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox.hxx>
 

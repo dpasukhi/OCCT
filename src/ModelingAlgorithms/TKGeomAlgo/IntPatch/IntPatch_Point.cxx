@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_HVertex.hxx>
+#include <GeomAdaptor_HVertex.hxx>
 #include <gp_Pnt.hxx>
 #include <IntPatch_Point.hxx>
 #include <IntSurf_PntOn2S.hxx>
@@ -36,7 +36,7 @@ void IntPatch_Point::SetValue(const gp_Pnt&          Pt,
   tol = Tol;
 }
 
-void IntPatch_Point::SetVertex(const Standard_Boolean OnFirst, const Handle(Adaptor3d_HVertex)& V)
+void IntPatch_Point::SetVertex(const Standard_Boolean OnFirst, const Handle(GeomAdaptor_HVertex)& V)
 {
   if (OnFirst)
   {
@@ -53,7 +53,7 @@ void IntPatch_Point::SetVertex(const Standard_Boolean OnFirst, const Handle(Adap
 }
 
 void IntPatch_Point::SetArc(const Standard_Boolean           OnFirst,
-                            const Handle(Adaptor2d_Curve2d)& A,
+                            const Handle(Geom2dAdaptor_Curve)& A,
                             const Standard_Real              Param,
                             const IntSurf_Transition&        TLine,
                             const IntSurf_Transition&        TArc)

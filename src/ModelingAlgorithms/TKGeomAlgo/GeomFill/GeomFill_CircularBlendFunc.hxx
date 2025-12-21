@@ -21,6 +21,9 @@
 #include <Standard_Type.hxx>
 
 #include <gp_Pnt.hxx>
+#include <Standard_Handle.hxx>
+
+class GeomAdaptor_Curve;
 #include <Standard_Integer.hxx>
 #include <Convert_ParameterisationType.hxx>
 #include <Approx_SweepFunction.hxx>
@@ -50,9 +53,9 @@ public:
   //! matches the circle one. ChFi3d_Polynomial
   //! corresponds to a polynomial representation of
   //! circles.
-  Standard_EXPORT GeomFill_CircularBlendFunc(const Handle(Adaptor3d_Curve)& Path,
-                                             const Handle(Adaptor3d_Curve)& Curve1,
-                                             const Handle(Adaptor3d_Curve)& Curve2,
+  Standard_EXPORT GeomFill_CircularBlendFunc(const Handle(GeomAdaptor_Curve)& Path,
+                                             const Handle(GeomAdaptor_Curve)& Curve1,
+                                             const Handle(GeomAdaptor_Curve)& Curve2,
                                              const Standard_Real            Radius,
                                              const Standard_Boolean Polynomial = Standard_False);
 
@@ -170,12 +173,12 @@ private:
   Standard_Real                maxang;
   Standard_Real                minang;
   Standard_Real                distmin;
-  Handle(Adaptor3d_Curve)      myPath;
-  Handle(Adaptor3d_Curve)      myCurve1;
-  Handle(Adaptor3d_Curve)      myCurve2;
-  Handle(Adaptor3d_Curve)      myTPath;
-  Handle(Adaptor3d_Curve)      myTCurve1;
-  Handle(Adaptor3d_Curve)      myTCurve2;
+  Handle(GeomAdaptor_Curve)      myPath;
+  Handle(GeomAdaptor_Curve)      myCurve1;
+  Handle(GeomAdaptor_Curve)      myCurve2;
+  Handle(GeomAdaptor_Curve)      myTPath;
+  Handle(GeomAdaptor_Curve)      myTCurve1;
+  Handle(GeomAdaptor_Curve)      myTCurve2;
   Standard_Integer             myDegree;
   Standard_Integer             myNbKnots;
   Standard_Integer             myNbPoles;

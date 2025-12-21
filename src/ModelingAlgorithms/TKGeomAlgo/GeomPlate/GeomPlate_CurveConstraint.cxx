@@ -56,7 +56,7 @@ GeomPlate_CurveConstraint ::GeomPlate_CurveConstraint()
 //---------------------------------------------------------
 //         Constructeurs avec courbe sur surface
 //---------------------------------------------------------
-GeomPlate_CurveConstraint ::GeomPlate_CurveConstraint(const Handle(Adaptor3d_Curve)& Boundary,
+GeomPlate_CurveConstraint ::GeomPlate_CurveConstraint(const Handle(GeomAdaptor_Curve)& Boundary,
                                                       const Standard_Integer         Tang,
                                                       const Standard_Integer         NPt,
                                                       const Standard_Real            TolDist,
@@ -75,7 +75,7 @@ GeomPlate_CurveConstraint ::GeomPlate_CurveConstraint(const Handle(Adaptor3d_Cur
   myConstG1  = Standard_True;
   myConstG2  = Standard_True;
 
-  myFrontiere = Handle(Adaptor3d_CurveOnSurface)::DownCast(Boundary);
+  myFrontiere = Handle(GeomAdaptor_CurveOnSurface)::DownCast(Boundary);
 
   if (myFrontiere.IsNull())
   {
@@ -314,7 +314,7 @@ void GeomPlate_CurveConstraint ::SetCurve2dOnSurf(const Handle(Geom2d_Curve)& Cu
 //---------------------------------------------------------
 // Fonction : ProjectedCurve
 //---------------------------------------------------------
-Handle(Adaptor2d_Curve2d) GeomPlate_CurveConstraint ::ProjectedCurve() const
+Handle(Geom2dAdaptor_Curve) GeomPlate_CurveConstraint ::ProjectedCurve() const
 {
   return myHCurve2d;
 }
@@ -322,7 +322,7 @@ Handle(Adaptor2d_Curve2d) GeomPlate_CurveConstraint ::ProjectedCurve() const
 //---------------------------------------------------------
 // Fonction : SetProjectedCurve
 //---------------------------------------------------------
-void GeomPlate_CurveConstraint ::SetProjectedCurve(const Handle(Adaptor2d_Curve2d)& Curve,
+void GeomPlate_CurveConstraint ::SetProjectedCurve(const Handle(Geom2dAdaptor_Curve)& Curve,
                                                    const Standard_Real              TolU,
                                                    const Standard_Real              TolV)
 {
@@ -334,10 +334,10 @@ void GeomPlate_CurveConstraint ::SetProjectedCurve(const Handle(Adaptor2d_Curve2
 //---------------------------------------------------------
 // Fonction : Curve3d
 //---------------------------------------------------------
-Handle(Adaptor3d_Curve) GeomPlate_CurveConstraint ::Curve3d() const
+Handle(GeomAdaptor_Curve) GeomPlate_CurveConstraint ::Curve3d() const
 {
   if (my3dCurve.IsNull())
-    return Handle(Adaptor3d_Curve)(myFrontiere);
+    return Handle(GeomAdaptor_Curve)(myFrontiere);
   else
     return my3dCurve;
 }

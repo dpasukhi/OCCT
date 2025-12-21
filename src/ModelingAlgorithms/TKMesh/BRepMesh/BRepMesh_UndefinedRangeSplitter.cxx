@@ -18,7 +18,7 @@
 //=================================================================================================
 
 Standard_Integer BRepMesh_UndefinedRangeSplitter::getUndefinedIntervalNb(
-  const Handle(Adaptor3d_Surface)& /*theSurface*/,
+  const Handle(GeomAdaptor_Surface)& /*theSurface*/,
   const Standard_Boolean /*isU*/,
   const GeomAbs_Shape /*theContinuity*/) const
 {

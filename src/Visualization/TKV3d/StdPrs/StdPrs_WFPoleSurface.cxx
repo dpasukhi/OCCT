@@ -14,7 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <Graphic3d_ArrayOfPolylines.hxx>
@@ -55,7 +56,7 @@ static void AddPoles(const Handle(Prs3d_Presentation)& aPresentation,
 //=================================================================================================
 
 void StdPrs_WFPoleSurface::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                               const Adaptor3d_Surface&          aSurface,
+                               const GeomAdaptor_Surface&          aSurface,
                                const Handle(Prs3d_Drawer)&       aDrawer)
 {
 

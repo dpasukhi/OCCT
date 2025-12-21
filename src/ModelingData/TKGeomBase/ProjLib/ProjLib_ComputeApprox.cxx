@@ -31,8 +31,8 @@
 #include <Precision.hxx>
 #include <Approx_FitAndDivide2d.hxx>
 #include <AppParCurves_MultiCurve.hxx>
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -62,8 +62,8 @@ static inline Standard_Boolean IsEqual(Standard_Real Check, Standard_Real With, 
 //=================================================================================================
 
 static gp_Pnt2d Function_Value(const Standard_Real              U,
-                               const Handle(Adaptor3d_Curve)&   myCurve,
-                               const Handle(Adaptor3d_Surface)& mySurface,
+                               const Handle(GeomAdaptor_Curve)&   myCurve,
+                               const Handle(GeomAdaptor_Surface)& mySurface,
                                const Standard_Real              U1,
                                const Standard_Real              U2,
                                const Standard_Real              V1,
@@ -140,8 +140,8 @@ static gp_Pnt2d Function_Value(const Standard_Real              U,
 static Standard_Boolean Function_D1(const Standard_Real              U,
                                     gp_Pnt2d&                        P,
                                     gp_Vec2d&                        D,
-                                    const Handle(Adaptor3d_Curve)&   myCurve,
-                                    const Handle(Adaptor3d_Surface)& mySurface,
+                                    const Handle(GeomAdaptor_Curve)&   myCurve,
+                                    const Handle(GeomAdaptor_Surface)& mySurface,
                                     const Standard_Real              U1,
                                     const Standard_Real              U2,
                                     const Standard_Real              V1,
@@ -191,7 +191,7 @@ static Standard_Boolean Function_D1(const Standard_Real              U,
 
 //=================================================================================================
 
-static Standard_Real Function_ComputeStep(const Handle(Adaptor3d_Curve)& myCurve,
+static Standard_Real Function_ComputeStep(const Handle(GeomAdaptor_Curve)& myCurve,
                                           const Standard_Real            R)
 {
   Standard_Real Step0 = .1;
@@ -221,8 +221,8 @@ static void Function_SetUVBounds(Standard_Real&                   myU1,
                                  Standard_Real&                   myV2,
                                  Standard_Boolean&                UCouture,
                                  Standard_Boolean&                VCouture,
-                                 const Handle(Adaptor3d_Curve)&   myCurve,
-                                 const Handle(Adaptor3d_Surface)& mySurface)
+                                 const Handle(GeomAdaptor_Curve)&   myCurve,
+                                 const Handle(GeomAdaptor_Surface)& mySurface)
 {
   Standard_Real W1, W2, W;
   gp_Pnt        P1, P2, P;
@@ -929,8 +929,8 @@ static void Function_SetUVBounds(Standard_Real&                   myU1,
 
 class ProjLib_Function : public AppCont_Function
 {
-  Handle(Adaptor3d_Curve)   myCurve;
-  Handle(Adaptor3d_Surface) mySurface;
+  Handle(GeomAdaptor_Curve)   myCurve;
+  Handle(GeomAdaptor_Surface) mySurface;
   Standard_Boolean          myIsPeriodic[2];
   Standard_Real             myPeriod[2];
 
@@ -938,7 +938,7 @@ public:
   Standard_Real    myU1, myU2, myV1, myV2;
   Standard_Boolean UCouture, VCouture;
 
-  ProjLib_Function(const Handle(Adaptor3d_Curve)& C, const Handle(Adaptor3d_Surface)& S)
+  ProjLib_Function(const Handle(GeomAdaptor_Curve)& C, const Handle(GeomAdaptor_Surface)& S)
       : myCurve(C),
         mySurface(S),
         myU1(0.0),
@@ -1015,7 +1015,7 @@ public:
 
 //=================================================================================================
 
-static Standard_Real ComputeTolU(const Handle(Adaptor3d_Surface)& theSurf,
+static Standard_Real ComputeTolU(const Handle(GeomAdaptor_Surface)& theSurf,
                                  const Standard_Real              theTolerance)
 {
   Standard_Real aTolU = theSurf->UResolution(theTolerance);
@@ -1029,7 +1029,7 @@ static Standard_Real ComputeTolU(const Handle(Adaptor3d_Surface)& theSurf,
 
 //=================================================================================================
 
-static Standard_Real ComputeTolV(const Handle(Adaptor3d_Surface)& theSurf,
+static Standard_Real ComputeTolV(const Handle(GeomAdaptor_Surface)& theSurf,
                                  const Standard_Real              theTolerance)
 {
   Standard_Real aTolV = theSurf->VResolution(theTolerance);
@@ -1054,8 +1054,8 @@ ProjLib_ComputeApprox::ProjLib_ComputeApprox()
 
 //=================================================================================================
 
-ProjLib_ComputeApprox::ProjLib_ComputeApprox(const Handle(Adaptor3d_Curve)&   C,
-                                             const Handle(Adaptor3d_Surface)& S,
+ProjLib_ComputeApprox::ProjLib_ComputeApprox(const Handle(GeomAdaptor_Curve)&   C,
+                                             const Handle(GeomAdaptor_Surface)& S,
                                              const Standard_Real              Tol)
     : myTolerance(std::max(Tol, Precision::PApproximation())),
       myDegMin(-1),
@@ -1068,8 +1068,8 @@ ProjLib_ComputeApprox::ProjLib_ComputeApprox(const Handle(Adaptor3d_Curve)&   C,
 
 //=================================================================================================
 
-void ProjLib_ComputeApprox::Perform(const Handle(Adaptor3d_Curve)&   C,
-                                    const Handle(Adaptor3d_Surface)& S)
+void ProjLib_ComputeApprox::Perform(const Handle(GeomAdaptor_Curve)&   C,
+                                    const Handle(GeomAdaptor_Surface)& S)
 {
   // if the surface is a plane and the curve a BSpline or a BezierCurve,
   // don`t make an Approx but only the projection of the poles.

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Extrema_FuncExtSS.hxx>
 #include <Extrema_POnSurf.hxx>
 #include <gp_Vec.hxx>
@@ -65,7 +65,7 @@ Extrema_FuncExtSS::Extrema_FuncExtSS()
 
 //=================================================================================================
 
-Extrema_FuncExtSS::Extrema_FuncExtSS(const Adaptor3d_Surface& S1, const Adaptor3d_Surface& S2)
+Extrema_FuncExtSS::Extrema_FuncExtSS(const GeomAdaptor_Surface& S1, const GeomAdaptor_Surface& S2)
     : myU1(0.0),
       myV1(0.0),
       myU2(0.0),
@@ -79,7 +79,7 @@ Extrema_FuncExtSS::Extrema_FuncExtSS(const Adaptor3d_Surface& S1, const Adaptor3
 
 //=================================================================================================
 
-void Extrema_FuncExtSS::Initialize(const Adaptor3d_Surface& S1, const Adaptor3d_Surface& S2)
+void Extrema_FuncExtSS::Initialize(const GeomAdaptor_Surface& S1, const GeomAdaptor_Surface& S2)
 {
   myS1     = &S1;
   myS2     = &S2;

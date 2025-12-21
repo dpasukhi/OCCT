@@ -17,14 +17,14 @@
 #ifndef _IntPatch_Intersection_HeaderFile
 #define _IntPatch_Intersection_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntPatch_SequenceOfPoint.hxx>
 #include <IntPatch_SequenceOfLine.hxx>
 #include <IntSurf_ListOfPntOn2S.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 #include <NCollection_Vector.hxx>
 
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 //! This class provides a generic algorithm to intersect
 //! 2 surfaces.
@@ -35,15 +35,15 @@ public:
 
   Standard_EXPORT IntPatch_Intersection();
 
-  Standard_EXPORT IntPatch_Intersection(const Handle(Adaptor3d_Surface)&   S1,
-                                        const Handle(Adaptor3d_TopolTool)& D1,
-                                        const Handle(Adaptor3d_Surface)&   S2,
-                                        const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT IntPatch_Intersection(const Handle(GeomAdaptor_Surface)&   S1,
+                                        const Handle(GeomAdaptor_TopolTool)& D1,
+                                        const Handle(GeomAdaptor_Surface)&   S2,
+                                        const Handle(GeomAdaptor_TopolTool)& D2,
                                         const Standard_Real                TolArc,
                                         const Standard_Real                TolTang);
 
-  Standard_EXPORT IntPatch_Intersection(const Handle(Adaptor3d_Surface)&   S1,
-                                        const Handle(Adaptor3d_TopolTool)& D1,
+  Standard_EXPORT IntPatch_Intersection(const Handle(GeomAdaptor_Surface)&   S1,
+                                        const Handle(GeomAdaptor_TopolTool)& D1,
                                         const Standard_Real                TolArc,
                                         const Standard_Real                TolTang);
 
@@ -81,10 +81,10 @@ public:
   //! after deleting TopOpeBRep.
   //! If theIsReqToPostWLProc == FALSE, then we will work with Walking-line
   //! obtained after intersection algorithm directly (without any post-processing).
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   S1,
-                               const Handle(Adaptor3d_TopolTool)& D1,
-                               const Handle(Adaptor3d_Surface)&   S2,
-                               const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   S1,
+                               const Handle(GeomAdaptor_TopolTool)& D1,
+                               const Handle(GeomAdaptor_Surface)&   S2,
+                               const Handle(GeomAdaptor_TopolTool)& D2,
                                const Standard_Real                TolArc,
                                const Standard_Real                TolTang,
                                const Standard_Boolean             isGeomInt = Standard_True,
@@ -104,10 +104,10 @@ public:
   //! after deleting TopOpeBRep.
   //! If theIsReqToPostWLProc == FALSE, then we will work with Walking-line
   //! obtained after intersection algorithm directly (without any post-processing).
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   S1,
-                               const Handle(Adaptor3d_TopolTool)& D1,
-                               const Handle(Adaptor3d_Surface)&   S2,
-                               const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   S1,
+                               const Handle(GeomAdaptor_TopolTool)& D1,
+                               const Handle(GeomAdaptor_Surface)&   S2,
+                               const Handle(GeomAdaptor_TopolTool)& D2,
                                const Standard_Real                TolArc,
                                const Standard_Real                TolTang,
                                IntSurf_ListOfPntOn2S&             LOfPnts,
@@ -116,10 +116,10 @@ public:
                                const Standard_Boolean theIsReqToPostWLProc  = Standard_True);
 
   //! Perform with start point
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   S1,
-                               const Handle(Adaptor3d_TopolTool)& D1,
-                               const Handle(Adaptor3d_Surface)&   S2,
-                               const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   S1,
+                               const Handle(GeomAdaptor_TopolTool)& D1,
+                               const Handle(GeomAdaptor_Surface)&   S2,
+                               const Handle(GeomAdaptor_TopolTool)& D2,
                                const Standard_Real                U1,
                                const Standard_Real                V1,
                                const Standard_Real                U2,
@@ -128,8 +128,8 @@ public:
                                const Standard_Real                TolTang);
 
   //! Uses for finding self-intersected surfaces.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   S1,
-                               const Handle(Adaptor3d_TopolTool)& D1,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   S1,
+                               const Handle(GeomAdaptor_TopolTool)& D1,
                                const Standard_Real                TolArc,
                                const Standard_Real                TolTang);
 
@@ -170,42 +170,42 @@ public:
   //! Dump of each result line.
   //! Mode for more accurate dumps.
   Standard_EXPORT void Dump(const Standard_Integer             Mode,
-                            const Handle(Adaptor3d_Surface)&   S1,
-                            const Handle(Adaptor3d_TopolTool)& D1,
-                            const Handle(Adaptor3d_Surface)&   S2,
-                            const Handle(Adaptor3d_TopolTool)& D2) const;
+                            const Handle(GeomAdaptor_Surface)&   S1,
+                            const Handle(GeomAdaptor_TopolTool)& D1,
+                            const Handle(GeomAdaptor_Surface)&   S2,
+                            const Handle(GeomAdaptor_TopolTool)& D2) const;
 
   //! Checks if surface theS1 has degenerated boundary (dS/du or dS/dv = 0) and
   //! calculates minimal distance between corresponding singular points and surface theS2
   //! If singular point exists the method returns "true" and stores minimal distance in theDist.
   Standard_EXPORT static Standard_Boolean CheckSingularPoints(
-    const Handle(Adaptor3d_Surface)&   theS1,
-    const Handle(Adaptor3d_TopolTool)& theD1,
-    const Handle(Adaptor3d_Surface)&   theS2,
+    const Handle(GeomAdaptor_Surface)&   theS1,
+    const Handle(GeomAdaptor_TopolTool)& theD1,
+    const Handle(GeomAdaptor_Surface)&   theS2,
     Standard_Real&                     theDist);
 
   //! Calculates recommended value for myUVMaxStep depending on surfaces and their domains
-  Standard_EXPORT static Standard_Real DefineUVMaxStep(const Handle(Adaptor3d_Surface)&   theS1,
-                                                       const Handle(Adaptor3d_TopolTool)& theD1,
-                                                       const Handle(Adaptor3d_Surface)&   theS2,
-                                                       const Handle(Adaptor3d_TopolTool)& theD2);
+  Standard_EXPORT static Standard_Real DefineUVMaxStep(const Handle(GeomAdaptor_Surface)&   theS1,
+                                                       const Handle(GeomAdaptor_TopolTool)& theD1,
+                                                       const Handle(GeomAdaptor_Surface)&   theS2,
+                                                       const Handle(GeomAdaptor_TopolTool)& theD2);
 
   //! Prepares surfaces for intersection
   Standard_EXPORT static void PrepareSurfaces(
-    const Handle(Adaptor3d_Surface)&               theS1,
-    const Handle(Adaptor3d_TopolTool)&             theD1,
-    const Handle(Adaptor3d_Surface)&               theS2,
-    const Handle(Adaptor3d_TopolTool)&             theD2,
+    const Handle(GeomAdaptor_Surface)&               theS1,
+    const Handle(GeomAdaptor_TopolTool)&             theD1,
+    const Handle(GeomAdaptor_Surface)&               theS2,
+    const Handle(GeomAdaptor_TopolTool)&             theD2,
     const Standard_Real                            Tol,
-    NCollection_Vector<Handle(Adaptor3d_Surface)>& theSeqHS1,
-    NCollection_Vector<Handle(Adaptor3d_Surface)>& theSeqHS2);
+    NCollection_Vector<Handle(GeomAdaptor_Surface)>& theSeqHS1,
+    NCollection_Vector<Handle(GeomAdaptor_Surface)>& theSeqHS2);
 
 protected:
 private:
-  Standard_EXPORT void ParamParamPerfom(const Handle(Adaptor3d_Surface)&   S1,
-                                        const Handle(Adaptor3d_TopolTool)& D1,
-                                        const Handle(Adaptor3d_Surface)&   S2,
-                                        const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void ParamParamPerfom(const Handle(GeomAdaptor_Surface)&   S1,
+                                        const Handle(GeomAdaptor_TopolTool)& D1,
+                                        const Handle(GeomAdaptor_Surface)&   S2,
+                                        const Handle(GeomAdaptor_TopolTool)& D2,
                                         const Standard_Real                TolArc,
                                         const Standard_Real                TolTang,
                                         IntSurf_ListOfPntOn2S&             LOfPnts,
@@ -218,10 +218,10 @@ private:
   //! When intersection result returns IntPatch_RLine and another
   //! IntPatch_Line (not restriction) we (in case of theIsReqToKeepRLine==TRUE)
   //! will always keep both lines even if they are coincided.
-  Standard_EXPORT void GeomGeomPerfom(const Handle(Adaptor3d_Surface)&   S1,
-                                      const Handle(Adaptor3d_TopolTool)& D1,
-                                      const Handle(Adaptor3d_Surface)&   S2,
-                                      const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void GeomGeomPerfom(const Handle(GeomAdaptor_Surface)&   S1,
+                                      const Handle(GeomAdaptor_TopolTool)& D1,
+                                      const Handle(GeomAdaptor_Surface)&   S2,
+                                      const Handle(GeomAdaptor_TopolTool)& D2,
                                       const Standard_Real                TolArc,
                                       const Standard_Real                TolTang,
                                       IntSurf_ListOfPntOn2S&             LOfPnts,
@@ -229,10 +229,10 @@ private:
                                       const GeomAbs_SurfaceType          typs2,
                                       const Standard_Boolean             theIsReqToKeepRLine);
 
-  Standard_EXPORT void GeomParamPerfom(const Handle(Adaptor3d_Surface)&   S1,
-                                       const Handle(Adaptor3d_TopolTool)& D1,
-                                       const Handle(Adaptor3d_Surface)&   S2,
-                                       const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void GeomParamPerfom(const Handle(GeomAdaptor_Surface)&   S1,
+                                       const Handle(GeomAdaptor_TopolTool)& D1,
+                                       const Handle(GeomAdaptor_Surface)&   S2,
+                                       const Handle(GeomAdaptor_TopolTool)& D2,
                                        const Standard_Boolean             isNotAnalitical,
                                        const GeomAbs_SurfaceType          typs1,
                                        const GeomAbs_SurfaceType          typs2);

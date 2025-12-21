@@ -17,7 +17,7 @@
 // - fixed trimming of circles and ellipses (radians used instead of degrees)
 // szv#4 S4163
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Curve.hxx>
 #include <BRepTools.hxx>

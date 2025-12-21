@@ -765,15 +765,15 @@ Standard_Boolean IntTools_Tools::ComputeTolerance(const Handle(Geom_Curve)&   th
 {
   GeomLib_CheckCurveOnSurface aCS;
   //
-  const Handle(Adaptor3d_Curve) aGeomAdaptorCurve =
+  const Handle(GeomAdaptor_Curve) aGeomAdaptorCurve =
     new GeomAdaptor_Curve(theCurve3D, theFirst, theLast);
 
-  Handle(Adaptor2d_Curve2d) aGeom2dAdaptorCurve =
+  Handle(Geom2dAdaptor_Curve) aGeom2dAdaptorCurve =
     new Geom2dAdaptor_Curve(theCurve2D, theFirst, theLast);
   Handle(GeomAdaptor_Surface) aGeomAdaptorSurface = new GeomAdaptor_Surface(theSurf);
 
-  Handle(Adaptor3d_CurveOnSurface) anAdaptor3dCurveOnSurface =
-    new Adaptor3d_CurveOnSurface(aGeom2dAdaptorCurve, aGeomAdaptorSurface);
+  Handle(GeomAdaptor_CurveOnSurface) anAdaptor3dCurveOnSurface =
+    new GeomAdaptor_CurveOnSurface(aGeom2dAdaptorCurve, aGeomAdaptorSurface);
 
   aCS.Init(aGeomAdaptorCurve, theTolRange);
   aCS.SetParallel(theToRunParallel);

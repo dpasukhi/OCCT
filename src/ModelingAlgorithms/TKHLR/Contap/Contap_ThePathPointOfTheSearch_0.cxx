@@ -16,8 +16,8 @@
 
 #include <Contap_ThePathPointOfTheSearch.hxx>
 
-#include <Adaptor3d_HVertex.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_HVertex.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard_DomainError.hxx>
 #include <gp_Pnt.hxx>
 
@@ -30,8 +30,8 @@ Contap_ThePathPointOfTheSearch::Contap_ThePathPointOfTheSearch()
 
 Contap_ThePathPointOfTheSearch::Contap_ThePathPointOfTheSearch(const gp_Pnt&                    P,
                                                                const Standard_Real              Tol,
-                                                               const Handle(Adaptor3d_HVertex)& V,
-                                                               const Handle(Adaptor2d_Curve2d)& A,
+                                                               const Handle(GeomAdaptor_HVertex)& V,
+                                                               const Handle(Geom2dAdaptor_Curve)& A,
                                                                const Standard_Real Parameter)
     : point(P),
       tol(Tol),
@@ -44,7 +44,7 @@ Contap_ThePathPointOfTheSearch::Contap_ThePathPointOfTheSearch(const gp_Pnt&    
 
 Contap_ThePathPointOfTheSearch::Contap_ThePathPointOfTheSearch(const gp_Pnt&                    P,
                                                                const Standard_Real              Tol,
-                                                               const Handle(Adaptor2d_Curve2d)& A,
+                                                               const Handle(Geom2dAdaptor_Curve)& A,
                                                                const Standard_Real Parameter)
     : point(P),
       tol(Tol),

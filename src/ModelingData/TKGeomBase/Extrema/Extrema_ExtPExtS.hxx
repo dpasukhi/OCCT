@@ -17,6 +17,7 @@
 #ifndef _Extrema_ExtPExtS_HeaderFile
 #define _Extrema_ExtPExtS_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
 #include <Extrema_GenExtPS.hxx>
 #include <Extrema_FuncPSNorm.hxx>
 #include <Extrema_POnSurf.hxx>
@@ -92,7 +93,7 @@ private:
   Standard_Real                                myvsup;
   Standard_Real                                mytolv;
   Extrema_FuncPSNorm                           myF;
-  Handle(Adaptor3d_Curve)                      myC;
+  Handle(GeomAdaptor_Curve)                      myC;
   Handle(GeomAdaptor_SurfaceOfLinearExtrusion) myS;
   gp_Vec                                       myDirection;
   gp_Ax2                                       myPosition;

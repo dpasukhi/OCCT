@@ -398,7 +398,7 @@ Handle(IMeshData::ListOfPnt2d) BRepMesh_NURBSRangeSplitter::GenerateSurfaceNodes
 //=================================================================================================
 
 Standard_Integer BRepMesh_NURBSRangeSplitter::getUndefinedIntervalNb(
-  const Handle(Adaptor3d_Surface)& theSurface,
+  const Handle(GeomAdaptor_Surface)& theSurface,
   const Standard_Boolean           isU,
   const GeomAbs_Shape /*theContinuity*/) const
 {
@@ -408,7 +408,7 @@ Standard_Integer BRepMesh_NURBSRangeSplitter::getUndefinedIntervalNb(
 //=================================================================================================
 
 void BRepMesh_NURBSRangeSplitter::getUndefinedInterval(
-  const Handle(Adaptor3d_Surface)&               theSurface,
+  const Handle(GeomAdaptor_Surface)&               theSurface,
   const Standard_Boolean                         isU,
   const GeomAbs_Shape                            theContinuity,
   const std::pair<Standard_Real, Standard_Real>& theRange,

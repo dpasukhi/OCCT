@@ -23,7 +23,7 @@
 #include <Standard_Type.hxx>
 #include <TopoDS_Vertex.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(BRepTopAdaptor_HVertex, Adaptor3d_HVertex)
+IMPLEMENT_STANDARD_RTTIEXT(BRepTopAdaptor_HVertex, GeomAdaptor_HVertex)
 
 BRepTopAdaptor_HVertex::BRepTopAdaptor_HVertex(const TopoDS_Vertex&               V,
                                                const Handle(BRepAdaptor_Curve2d)& C)
@@ -38,13 +38,13 @@ gp_Pnt2d BRepTopAdaptor_HVertex::Value()
   return gp_Pnt2d(RealFirst(), RealFirst()); // do nothing
 }
 
-Standard_Real BRepTopAdaptor_HVertex::Parameter(const Handle(Adaptor2d_Curve2d)& C)
+Standard_Real BRepTopAdaptor_HVertex::Parameter(const Handle(Geom2dAdaptor_Curve)& C)
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   return BRep_Tool::Parameter(myVtx, brhc->Edge(), brhc->Face());
 }
 
-Standard_Real BRepTopAdaptor_HVertex::Resolution(const Handle(Adaptor2d_Curve2d)& C)
+Standard_Real BRepTopAdaptor_HVertex::Resolution(const Handle(Geom2dAdaptor_Curve)& C)
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   const TopoDS_Face&          F    = brhc->Face();
@@ -155,7 +155,7 @@ TopAbs_Orientation BRepTopAdaptor_HVertex::Orientation()
   return myVtx.Orientation();
 }
 
-Standard_Boolean BRepTopAdaptor_HVertex::IsSame(const Handle(Adaptor3d_HVertex)& Other)
+Standard_Boolean BRepTopAdaptor_HVertex::IsSame(const Handle(GeomAdaptor_HVertex)& Other)
 {
   Handle(BRepTopAdaptor_HVertex) brhv = Handle(BRepTopAdaptor_HVertex)::DownCast(Other);
   return myVtx.IsSame(brhv->Vertex());

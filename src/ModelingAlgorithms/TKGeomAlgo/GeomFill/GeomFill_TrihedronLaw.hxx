@@ -17,8 +17,9 @@
 #ifndef _GeomFill_TrihedronLaw_HeaderFile
 #define _GeomFill_TrihedronLaw_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
 #include <GeomFill_PipeError.hxx>
+
+class GeomAdaptor_Curve;
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
@@ -34,7 +35,7 @@ class GeomFill_TrihedronLaw : public Standard_Transient
 public:
   //! initialize curve of trihedron law
   //! @return Standard_True
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C);
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C);
 
   Standard_EXPORT virtual Handle(GeomFill_TrihedronLaw) Copy() const = 0;
 
@@ -112,8 +113,8 @@ public:
   DEFINE_STANDARD_RTTIEXT(GeomFill_TrihedronLaw, Standard_Transient)
 
 protected:
-  Handle(Adaptor3d_Curve) myCurve;
-  Handle(Adaptor3d_Curve) myTrimmed;
+  Handle(GeomAdaptor_Curve) myCurve;
+  Handle(GeomAdaptor_Curve) myTrimmed;
 
 private:
 };

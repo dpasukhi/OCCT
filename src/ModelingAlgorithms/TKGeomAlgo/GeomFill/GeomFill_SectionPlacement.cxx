@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_Box.hxx>
 #include <BndLib_Add3dCurve.hxx>
 #include <Extrema_ExtCC.hxx>
@@ -50,7 +50,7 @@
 
 //=================================================================================================
 
-static void Tangente(const Adaptor3d_Curve& Path,
+static void Tangente(const GeomAdaptor_Curve& Path,
                      const Standard_Real    Param,
                      gp_Pnt&                P,
                      gp_Vec&                Tang)
@@ -105,7 +105,7 @@ static Standard_Real EvalAngle(const gp_Vec& V1, const gp_Vec& V2)
 // Purpose : Examine un extrema pour updater <Dist> & <Param>
 //===============================================================
 static void DistMini(const Extrema_ExtPC&   Ext,
-                     const Adaptor3d_Curve& C,
+                     const GeomAdaptor_Curve& C,
                      Standard_Real&         Dist,
                      Standard_Real&         Param)
 {
@@ -358,14 +358,14 @@ void GeomFill_SectionPlacement::SetLocation(const Handle(GeomFill_LocationLaw)& 
 
 void GeomFill_SectionPlacement::Perform(const Standard_Real Tol)
 {
-  Handle(Adaptor3d_Curve) Path;
+  Handle(GeomAdaptor_Curve) Path;
   Path = myLaw->GetCurve();
   Perform(Path, Tol);
 }
 
 //=================================================================================================
 
-void GeomFill_SectionPlacement::Perform(const Handle(Adaptor3d_Curve)& Path,
+void GeomFill_SectionPlacement::Perform(const Handle(GeomAdaptor_Curve)& Path,
                                         const Standard_Real            Tol)
 {
   Standard_Real IntTol     = 1.e-5;
@@ -676,7 +676,7 @@ void GeomFill_SectionPlacement::Perform(const Handle(Adaptor3d_Curve)& Path,
 void GeomFill_SectionPlacement::Perform(const Standard_Real Param, const Standard_Real Tol)
 {
   done = Standard_True;
-  Handle(Adaptor3d_Curve) Path;
+  Handle(GeomAdaptor_Curve) Path;
   Path = myLaw->GetCurve();
 
   PathParam = Param;

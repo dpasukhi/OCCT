@@ -12,6 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
 #include <StdPrs_BRepFont.hxx>
 
 #include <BRep_Tool.hxx>
@@ -133,7 +134,7 @@ void StdPrs_BRepFont::init()
 {
   mySurface                              = new Geom_Plane(gp_Pln(gp::XOY()));
   myCurve2dAdaptor                       = new Geom2dAdaptor_Curve();
-  Handle(Adaptor3d_Surface) aSurfAdaptor = new GeomAdaptor_Surface(mySurface);
+  Handle(GeomAdaptor_Surface) aSurfAdaptor = new GeomAdaptor_Surface(mySurface);
   myCurvOnSurf.Load(aSurfAdaptor);
 }
 
@@ -271,7 +272,7 @@ bool StdPrs_BRepFont::to3d(const Handle(Geom2d_Curve)& theCurve2d,
   Standard_Real aMaxDeviation   = 0.0;
   Standard_Real anAverDeviation = 0.0;
   myCurve2dAdaptor->Load(theCurve2d);
-  const Handle(Adaptor2d_Curve2d)& aCurve = myCurve2dAdaptor; // to avoid ambiguity
+  const Handle(Geom2dAdaptor_Curve)& aCurve = myCurve2dAdaptor; // to avoid ambiguity
   myCurvOnSurf.Load(aCurve);
   GeomLib::BuildCurve3d(myPrecision,
                         myCurvOnSurf,

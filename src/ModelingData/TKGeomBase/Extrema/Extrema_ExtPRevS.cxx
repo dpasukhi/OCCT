@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtPElC.hxx>
 #include <Extrema_ExtPRevS.hxx>
@@ -38,7 +38,7 @@ IMPLEMENT_STANDARD_RTTIEXT(Extrema_ExtPRevS, Standard_Transient)
 static gp_Ax2 GetPosition(
   const GeomAdaptor_SurfaceOfRevolution& S) // const Handle(Adaptor_HCurve)& C)
 {
-  Handle(Adaptor3d_Curve) C = S.BasisCurve();
+  Handle(GeomAdaptor_Curve) C = S.BasisCurve();
 
   switch (C->GetType())
   {
@@ -81,7 +81,7 @@ static gp_Ax2 GetPosition(
 static Standard_Boolean HasSingularity(const GeomAdaptor_SurfaceOfRevolution& S)
 {
 
-  const Handle(Adaptor3d_Curve) C = S.BasisCurve();
+  const Handle(GeomAdaptor_Curve) C = S.BasisCurve();
   gp_Dir                        N = S.AxeOfRevolution().Direction();
   gp_Pnt                        P = S.AxeOfRevolution().Location();
 
@@ -104,7 +104,7 @@ static Standard_Boolean HasSingularity(const GeomAdaptor_SurfaceOfRevolution& S)
 
 static void PerformExtPElC(Extrema_ExtPElC&               E,
                            const gp_Pnt&                  P,
-                           const Handle(Adaptor3d_Curve)& C,
+                           const Handle(GeomAdaptor_Curve)& C,
                            const Standard_Real            Tol)
 {
   switch (C->GetType())
@@ -185,7 +185,7 @@ static Standard_Boolean IsOriginalPnt(const gp_Pnt&          P,
 static Standard_Boolean IsExtremum(const Standard_Real      U,
                                    const Standard_Real      V,
                                    const gp_Pnt&            P,
-                                   const Adaptor3d_Surface* S,
+                                   const GeomAdaptor_Surface* S,
                                    gp_Pnt&                  E,
                                    Standard_Real&           Dist2,
                                    const Standard_Boolean   IsVSup,
@@ -271,7 +271,7 @@ void Extrema_ExtPRevS::Initialize(const Handle(GeomAdaptor_SurfaceOfRevolution)&
   myNbExt                    = 0;
   myIsAnalyticallyComputable = Standard_False;
 
-  Handle(Adaptor3d_Curve) anACurve = theS->BasisCurve();
+  Handle(GeomAdaptor_Curve) anACurve = theS->BasisCurve();
 
   if (myS != theS)
   {
@@ -310,7 +310,7 @@ void Extrema_ExtPRevS::Perform(const gp_Pnt& P)
     return;
   }
 
-  Handle(Adaptor3d_Curve) anACurve = myS->BasisCurve();
+  Handle(GeomAdaptor_Curve) anACurve = myS->BasisCurve();
 
   gp_Ax1 Ax  = myS->AxeOfRevolution();
   gp_Vec Dir = Ax.Direction(), Z = myPosition.Direction();

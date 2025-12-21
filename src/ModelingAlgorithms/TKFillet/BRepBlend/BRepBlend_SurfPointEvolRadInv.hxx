@@ -17,11 +17,12 @@
 #ifndef _BRepBlend_SurfPointEvolRadInv_HeaderFile
 #define _BRepBlend_SurfPointEvolRadInv_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <Blend_SurfPointFuncInv.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class Law_Function;
 class math_Matrix;
 
@@ -39,8 +40,8 @@ class BRepBlend_SurfPointEvolRadInv : public Blend_SurfPointFuncInv
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BRepBlend_SurfPointEvolRadInv(const Handle(Adaptor3d_Surface)& S,
-                                                const Handle(Adaptor3d_Curve)&   C,
+  Standard_EXPORT BRepBlend_SurfPointEvolRadInv(const Handle(GeomAdaptor_Surface)& S,
+                                                const Handle(GeomAdaptor_Curve)&   C,
                                                 const Handle(Law_Function)&      Evol);
 
   Standard_EXPORT void Set(const Standard_Integer Choix);
@@ -86,8 +87,8 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface) surf;
-  Handle(Adaptor3d_Curve)   curv;
+  Handle(GeomAdaptor_Surface) surf;
+  Handle(GeomAdaptor_Curve)   curv;
   gp_Pnt                    point;
   Standard_Real             ray;
   Standard_Integer          choix;

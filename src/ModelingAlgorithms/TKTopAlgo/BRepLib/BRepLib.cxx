@@ -267,13 +267,13 @@ void BRepLib::SameRange(const TopoDS_Edge& AnEdge, const Standard_Real Tolerance
 //=======================================================================
 
 static Standard_Integer evaluateMaxSegment(const Standard_Integer          aMaxSegment,
-                                           const Adaptor3d_CurveOnSurface& aCurveOnSurface)
+                                           const GeomAdaptor_CurveOnSurface& aCurveOnSurface)
 {
   if (aMaxSegment != 0)
     return aMaxSegment;
 
-  const Handle(Adaptor3d_Surface)& aSurf   = aCurveOnSurface.GetSurface();
-  const Handle(Adaptor2d_Curve2d)& aCurv2d = aCurveOnSurface.GetCurve();
+  const Handle(GeomAdaptor_Surface)& aSurf   = aCurveOnSurface.GetSurface();
+  const Handle(Geom2dAdaptor_Curve)& aCurv2d = aCurveOnSurface.GetCurve();
 
   Standard_Real aNbSKnots = 0, aNbC2dKnots = 0;
 
@@ -403,7 +403,7 @@ Standard_Boolean BRepLib::BuildCurve3d(const TopoDS_Edge&     AnEdge,
         new Geom2dAdaptor_Curve(AnAdaptor3dCurve2d);
       Handle(GeomAdaptor_Surface) AnAdaptor3dSurfacePtr =
         new GeomAdaptor_Surface(AnAdaptor3dSurface);
-      Adaptor3d_CurveOnSurface CurveOnSurface(AnAdaptor3dCurve2dPtr, AnAdaptor3dSurfacePtr);
+      GeomAdaptor_CurveOnSurface CurveOnSurface(AnAdaptor3dCurve2dPtr, AnAdaptor3dSurfacePtr);
 
       Handle(Geom_Curve) NewCurvePtr;
 
@@ -507,7 +507,7 @@ Standard_Boolean BRepLib::UpdateEdgeTol(const TopoDS_Edge&  AnEdge,
   TopLoc_Location               local_location;
   GCPnts_QuasiUniformDeflection a_sampler;
   GeomAdaptor_Curve             geom_reference_curve;
-  Adaptor3d_CurveOnSurface      curve_on_surface_reference;
+  GeomAdaptor_CurveOnSurface      curve_on_surface_reference;
   Handle(Geom_Curve) C   = BRep_Tool::Curve(AnEdge, local_location, current_first, current_last);
   curve_on_surface_index = -1;
   if (!C.IsNull())
@@ -627,7 +627,7 @@ Standard_Boolean BRepLib::UpdateEdgeTol(const TopoDS_Edge&  AnEdge,
           new Geom2dAdaptor_Curve(an_adaptor_curve2d);
         Handle(GeomAdaptor_Surface) an_adaptor_surface_ptr =
           new GeomAdaptor_Surface(an_adaptor_surface);
-        Adaptor3d_CurveOnSurface a_curve_on_surface(an_adaptor_curve2d_ptr, an_adaptor_surface_ptr);
+        GeomAdaptor_CurveOnSurface a_curve_on_surface(an_adaptor_curve2d_ptr, an_adaptor_surface_ptr);
 
         if (BRep_Tool::SameParameter(AnEdge))
         {
@@ -1004,9 +1004,9 @@ static Standard_Boolean EvalTol(const Handle(Geom2d_Curve)& pc,
 
 //=================================================================================================
 
-static Standard_Real ComputeTol(const Handle(Adaptor3d_Curve)&   c3d,
-                                const Handle(Adaptor2d_Curve2d)& c2d,
-                                const Handle(Adaptor3d_Surface)& surf,
+static Standard_Real ComputeTol(const Handle(GeomAdaptor_Curve)&   c3d,
+                                const Handle(Geom2dAdaptor_Curve)& c2d,
+                                const Handle(GeomAdaptor_Surface)& surf,
                                 const Standard_Integer           nbp)
 
 {
@@ -1014,7 +1014,7 @@ static Standard_Real ComputeTol(const Handle(Adaptor3d_Curve)&   c3d,
   TColStd_Array1OfReal dist(1, nbp + 10);
   dist.Init(-1.);
 
-  // Adaptor3d_CurveOnSurface  cons(c2d,surf);
+  // GeomAdaptor_CurveOnSurface  cons(c2d,surf);
   Standard_Real uf = surf->FirstUParameter(), ul = surf->LastUParameter(),
                 vf = surf->FirstVParameter(), vl = surf->LastVParameter();
   Standard_Real    du = 0.01 * (ul - uf), dv = 0.01 * (vl - vf);
@@ -1537,8 +1537,8 @@ TopoDS_Edge BRepLib::SameParameter(const TopoDS_Edge&  theEdge,
         {
           //	  Approx_SameParameter SameP(HC,HC2d,HS,Tolerance);
           Standard_Real                    aTol     = (isANA && isBSP) ? 1.e-7 : theTolerance;
-          const Handle(Adaptor3d_Curve)&   aHCurv   = HC;   // to avoid ambiguity
-          const Handle(Adaptor2d_Curve2d)& aHCurv2d = HC2d; // to avoid ambiguity
+          const Handle(GeomAdaptor_Curve)&   aHCurv   = HC;   // to avoid ambiguity
+          const Handle(Geom2dAdaptor_Curve)& aHCurv2d = HC2d; // to avoid ambiguity
           Approx_SameParameter             SameP(aHCurv, aHCurv2d, HS, aTol);
 
           if (SameP.IsSameParameter())
@@ -1875,7 +1875,7 @@ void BRepLib::UpdateInnerTolerances(const TopoDS_Shape& aShape)
 
     if (!BRep_Tool::Degenerated(anEdge) && EFmap(i).Extent() > 0)
     {
-      NCollection_Sequence<Handle(Adaptor3d_Curve)> theRep;
+      NCollection_Sequence<Handle(GeomAdaptor_Curve)> theRep;
       theRep.Append(anHCurve);
       TopTools_ListIteratorOfListOfShape itl(EFmap(i));
       for (; itl.More(); itl.Next())

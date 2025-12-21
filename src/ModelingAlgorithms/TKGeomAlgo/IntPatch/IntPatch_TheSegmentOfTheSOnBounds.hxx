@@ -24,7 +24,7 @@
 #include <IntPatch_ThePathPointOfTheSOnBounds.hxx>
 
 class Standard_DomainError;
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 class IntPatch_ThePathPointOfTheSOnBounds;
 
 class IntPatch_TheSegmentOfTheSOnBounds
@@ -36,7 +36,7 @@ public:
   Standard_EXPORT IntPatch_TheSegmentOfTheSOnBounds();
 
   //! Defines the concerned arc.
-  void SetValue(const Handle(Adaptor2d_Curve2d)& A);
+  void SetValue(const Handle(Geom2dAdaptor_Curve)& A);
 
   //! Defines the first point or the last point,
   //! depending on the value of the boolean First.
@@ -45,7 +45,7 @@ public:
 
   //! Returns the geometric curve on the surface 's domain
   //! which is solution.
-  const Handle(Adaptor2d_Curve2d)& Curve() const;
+  const Handle(Geom2dAdaptor_Curve)& Curve() const;
 
   //! Returns True if there is a vertex (ThePathPoint) defining
   //! the lowest valid parameter on the arc.
@@ -63,7 +63,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor2d_Curve2d)           arc;
+  Handle(Geom2dAdaptor_Curve)           arc;
   Standard_Boolean                    hasfp;
   IntPatch_ThePathPointOfTheSOnBounds thefp;
   Standard_Boolean                    haslp;
@@ -74,14 +74,14 @@ private:
 // Inline implementations
 //=================================================================================================
 
-inline void IntPatch_TheSegmentOfTheSOnBounds::SetValue(const Handle(Adaptor2d_Curve2d)& A)
+inline void IntPatch_TheSegmentOfTheSOnBounds::SetValue(const Handle(Geom2dAdaptor_Curve)& A)
 {
   hasfp = Standard_False;
   haslp = Standard_False;
   arc   = A;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_TheSegmentOfTheSOnBounds::Curve() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_TheSegmentOfTheSOnBounds::Curve() const
 {
   return arc;
 }

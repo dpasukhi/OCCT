@@ -152,7 +152,7 @@ void BRepIntCurveSurface_Inter::Find()
     if (!myCurrentnbpoints)
       continue;
 
-    const Handle(Adaptor3d_Surface)& aSurf = aSurfForFastClass; // to avoid ambiguity
+    const Handle(GeomAdaptor_Surface)& aSurf = aSurfForFastClass; // to avoid ambiguity
     myFastClass->Initialize(aSurf);
     myIndFace = i;
     if (FindPoint())

@@ -16,14 +16,14 @@
 
 #include <IntCurveSurface_TheQuadCurvFuncOfTheQuadCurvExactHInter.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <IntSurf_Quadric.hxx>
 #include <IntCurveSurface_TheHCurveTool.hxx>
 #include <gp_Vec.hxx>
 
 IntCurveSurface_TheQuadCurvFuncOfTheQuadCurvExactHInter::
   IntCurveSurface_TheQuadCurvFuncOfTheQuadCurvExactHInter(const IntSurf_Quadric&         Q,
-                                                          const Handle(Adaptor3d_Curve)& C)
+                                                          const Handle(GeomAdaptor_Curve)& C)
     : myQuadric(Q),
       myCurve(C)
 {

@@ -17,13 +17,14 @@
 #ifndef _BlendFunc_Corde_HeaderFile
 #define _BlendFunc_Corde_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 
 //! This function calculates point (pts) on the curve of
@@ -36,8 +37,8 @@ class BlendFunc_Corde
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_Corde(const Handle(Adaptor3d_Surface)& S,
-                                  const Handle(Adaptor3d_Curve)&   CGuide);
+  Standard_EXPORT BlendFunc_Corde(const Handle(GeomAdaptor_Surface)& S,
+                                  const Handle(GeomAdaptor_Curve)&   CGuide);
 
   Standard_EXPORT void SetParam(const Standard_Real Param);
 
@@ -84,8 +85,8 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface) surf;
-  Handle(Adaptor3d_Curve)   guide;
+  Handle(GeomAdaptor_Surface) surf;
+  Handle(GeomAdaptor_Curve)   guide;
   gp_Pnt                    pts;
   gp_Pnt2d                  pt2d;
   Standard_Real             dis;

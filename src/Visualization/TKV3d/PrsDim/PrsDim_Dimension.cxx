@@ -1142,7 +1142,7 @@ Standard_Boolean PrsDim_Dimension::InitCircularDimension(const TopoDS_Shape& the
         Standard_Real       aMidU   = (aFirstU + aLastU) * 0.5;
         Standard_Real       aMidV   = (aFirstV + aLastV) * 0.5;
         aSurf1.D0(aMidU, aMidV, aCurPos);
-        Handle(Adaptor3d_Curve) aBasisCurve;
+        Handle(GeomAdaptor_Curve) aBasisCurve;
         Standard_Boolean        isExpectedType = Standard_False;
         if (aSurfType == PrsDim_KOS_Cylinder)
         {

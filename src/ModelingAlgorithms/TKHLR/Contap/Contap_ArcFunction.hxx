@@ -17,8 +17,8 @@
 #ifndef _Contap_ArcFunction_HeaderFile
 #define _Contap_ArcFunction_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Contap_TFunction.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
@@ -33,7 +33,7 @@ public:
 
   Standard_EXPORT Contap_ArcFunction();
 
-  Standard_EXPORT void Set(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT void Set(const Handle(GeomAdaptor_Surface)& S);
 
   void Set(const gp_Dir& Direction);
 
@@ -43,7 +43,7 @@ public:
 
   void Set(const gp_Pnt& Eye, const Standard_Real Angle);
 
-  void Set(const Handle(Adaptor2d_Curve2d)& A);
+  void Set(const Handle(Geom2dAdaptor_Curve)& A);
 
   Standard_EXPORT Standard_Boolean Value(const Standard_Real X, Standard_Real& F) Standard_OVERRIDE;
 
@@ -63,7 +63,7 @@ public:
   Standard_EXPORT const IntSurf_Quadric& Quadric() const;
 
   //! Returns mySurf field
-  const Handle(Adaptor3d_Surface)& Surface() const;
+  const Handle(GeomAdaptor_Surface)& Surface() const;
 
   //! Returns the point, which has been computed
   //! while the last calling Value() method
@@ -71,8 +71,8 @@ public:
 
 protected:
 private:
-  Handle(Adaptor2d_Curve2d) myArc;
-  Handle(Adaptor3d_Surface) mySurf;
+  Handle(Geom2dAdaptor_Curve) myArc;
+  Handle(GeomAdaptor_Surface) mySurf;
   Standard_Real             myMean;
   Contap_TFunction          myType;
   gp_Dir                    myDir;

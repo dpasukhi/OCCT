@@ -14,13 +14,14 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_TrihedronWithGuide.hxx>
 #include <gp_Pnt.hxx>
 #include <Standard_Type.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomFill_TrihedronWithGuide, GeomFill_TrihedronLaw)
 
-Handle(Adaptor3d_Curve) GeomFill_TrihedronWithGuide::Guide() const
+Handle(GeomAdaptor_Curve) GeomFill_TrihedronWithGuide::Guide() const
 {
   return myGuide;
 }

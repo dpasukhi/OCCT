@@ -17,10 +17,10 @@
 #ifndef _IntPatch_LineConstructor_HeaderFile
 #define _IntPatch_LineConstructor_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntPatch_SequenceOfLine.hxx>
 
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 //! The intersections algorithms compute the intersection
 //! on two surfaces and return the intersections lines as
@@ -34,10 +34,10 @@ public:
 
   Standard_EXPORT void Perform(const IntPatch_SequenceOfLine&     SL,
                                const Handle(IntPatch_Line)&       L,
-                               const Handle(Adaptor3d_Surface)&   S1,
-                               const Handle(Adaptor3d_TopolTool)& D1,
-                               const Handle(Adaptor3d_Surface)&   S2,
-                               const Handle(Adaptor3d_TopolTool)& D2,
+                               const Handle(GeomAdaptor_Surface)&   S1,
+                               const Handle(GeomAdaptor_TopolTool)& D1,
+                               const Handle(GeomAdaptor_Surface)&   S2,
+                               const Handle(GeomAdaptor_TopolTool)& D2,
                                const Standard_Real                Tol);
 
   Standard_EXPORT Standard_Integer NbLines() const;

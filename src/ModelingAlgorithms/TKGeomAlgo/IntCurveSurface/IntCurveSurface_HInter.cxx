@@ -16,8 +16,8 @@
 
 #include <IntCurveSurface_HInter.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
 #include <Bnd_BoundSortBox.hxx>
 #include <Bnd_Box.hxx>
 #include <gp_Circ.hxx>
@@ -40,10 +40,10 @@
 #include "IntCurveSurface_Inter.pxx"
 
 // Type aliases for readability
-using TheCurve              = Handle(Adaptor3d_Curve);
+using TheCurve              = Handle(GeomAdaptor_Curve);
 using TheCurveTool          = IntCurveSurface_TheHCurveTool;
-using TheSurface            = Handle(Adaptor3d_Surface);
-using TheSurfaceTool        = Adaptor3d_HSurfaceTool;
+using TheSurface            = Handle(GeomAdaptor_Surface);
+using TheSurfaceTool        = GeomAdaptor_HSurfaceTool;
 using ThePolygon            = IntCurveSurface_ThePolygonOfHInter;
 using ThePolyhedron         = IntCurveSurface_ThePolyhedronOfHInter;
 using TheInterference       = IntCurveSurface_TheInterferenceOfHInter;

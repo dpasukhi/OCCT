@@ -43,7 +43,7 @@
 //  Purpose : Initialisation de la section et de la surface d'arret
 //==============================================
 GeomFill_FunctionGuide::GeomFill_FunctionGuide(const Handle(GeomFill_SectionLaw)& S,
-                                               const Handle(Adaptor3d_Curve)&     C,
+                                               const Handle(GeomAdaptor_Curve)&     C,
                                                const Standard_Real                Param)
     : TheGuide(C),
       TheLaw(S),

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <Approx_CurveOnSurface.hxx>
 #include <Approx_SameParameter.hxx>
 #include <BOPTools_AlgoTools.hxx>
@@ -250,9 +250,9 @@ static Handle(Geom2d_Curve) Couture(const TopoDS_Edge&          E,
 // purpose  : Check a posteriori that sameparameter has worked correctly
 //=======================================================================
 
-static Standard_Boolean CheckSameParameter(const Handle(Adaptor3d_Curve)&   C3d,
+static Standard_Boolean CheckSameParameter(const Handle(GeomAdaptor_Curve)&   C3d,
                                            const Handle(Geom2d_Curve)&      Pcurv,
-                                           const Handle(Adaptor3d_Surface)& S,
+                                           const Handle(GeomAdaptor_Surface)& S,
                                            const Standard_Real              tol3d,
                                            Standard_Real&                   tolreached)
 {
@@ -289,8 +289,8 @@ static Standard_Boolean CheckSameParameter(const Handle(Adaptor3d_Curve)&   C3d,
 // with exact calculation method of edge tolerance
 //=======================================================================
 static Standard_Boolean CheckSameParameterExact(
-  const Handle(Adaptor3d_Curve)&          C3d,
-  const Handle(Adaptor3d_CurveOnSurface)& curveOnSurface,
+  const Handle(GeomAdaptor_Curve)&          C3d,
+  const Handle(GeomAdaptor_CurveOnSurface)& curveOnSurface,
   const Standard_Real                     tol3d,
   Standard_Real&                          tolreached)
 {
@@ -356,7 +356,7 @@ static Standard_Boolean SameParameter(TopoDS_Edge&                E,
     }
   }
 
-  const Handle(Adaptor3d_Curve)& aHCurve = HC3d; // to avoid ambiguity
+  const Handle(GeomAdaptor_Curve)& aHCurve = HC3d; // to avoid ambiguity
   Approx_SameParameter           sp(aHCurve, Pcurv, S, tol3d);
   if (sp.IsDone() && !sp.IsSameParameter())
     Pcurv = sp.Curve2d();
@@ -368,8 +368,8 @@ static Standard_Boolean SameParameter(TopoDS_Edge&                E,
     return Standard_False;
   }
 
-  Handle(Adaptor3d_Curve)          curve3d        = sp.Curve3d();
-  Handle(Adaptor3d_CurveOnSurface) curveOnSurface = sp.CurveOnSurface();
+  Handle(GeomAdaptor_Curve)          curve3d        = sp.Curve3d();
+  Handle(GeomAdaptor_CurveOnSurface) curveOnSurface = sp.CurveOnSurface();
 
   if (!CheckSameParameterExact(curve3d, curveOnSurface, tol3d, ResTol) && ResTol > tolreached)
   {
@@ -996,7 +996,7 @@ static Standard_Boolean Filling(const TopoDS_Shape&           EF,
 
     Handle(BRepAdaptor_Surface) AS;
     Handle(BRepAdaptor_Curve2d) AC2d;
-    Handle(Adaptor3d_CurveOnSurface) HConS;
+    Handle(GeomAdaptor_CurveOnSurface) HConS;
   */
   Handle(Geom2d_Line) L;
   gp_Pnt2d            P2d(0., 0.);
@@ -1058,7 +1058,7 @@ static Standard_Boolean Filling(const TopoDS_Shape&           EF,
        AS = new BRepAdaptor_Surface(TopoDS::Face(F1));
        AC2d = new BRepAdaptor_Curve2d();
        AC2d->ChangeCurve2d().Initialize(E1,TopoDS::Face(F1));
-       HConS = new (Adaptor3d_CurveOnSurface)();
+       HConS = new (GeomAdaptor_CurveOnSurface)();
        HConS->ChangeCurve().Load(AC2d);
        HConS->ChangeCurve().Load(AS);
 
@@ -1074,7 +1074,7 @@ static Standard_Boolean Filling(const TopoDS_Shape&           EF,
       AS = new BRepAdaptor_Surface(TopoDS::Face(F2));
       AC2d = new BRepAdaptor_Curve2d();
       AC2d->ChangeCurve2d().Initialize(E2,TopoDS::Face(F2));
-      HConS = new (Adaptor3d_CurveOnSurface);
+      HConS = new (GeomAdaptor_CurveOnSurface);
 
       HConS->ChangeCurve().Load(AC2d);
       HConS->ChangeCurve().Load(AS);

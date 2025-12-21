@@ -17,7 +17,7 @@
 #ifndef _ProjLib_ProjectOnPlane_HeaderFile
 #define _ProjLib_ProjectOnPlane_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Ax3.hxx>
 #include <gp_Dir.hxx>
 #include <GeomAbs_CurveType.hxx>
@@ -43,7 +43,7 @@ class Geom_BSplineCurve;
 //!
 //! The projection can be done along every direction not
 //! parallel to the plane.
-class ProjLib_ProjectOnPlane : public Adaptor3d_Curve
+class ProjLib_ProjectOnPlane : public GeomAdaptor_Curve
 {
 public:
   DEFINE_STANDARD_ALLOC
@@ -62,7 +62,7 @@ public:
   Standard_EXPORT ProjLib_ProjectOnPlane(const gp_Ax3& Pl, const gp_Dir& D);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   //! Sets the Curve and perform the projection.
   //! if <KeepParametrization> is true, the parametrization
@@ -70,7 +70,7 @@ public:
   //! the parametrization of the initial curve <C>.
   //! It means: proj(C(u)) = PC(u) for each u.
   //! Otherwise, the parametrization may change.
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Curve)& C,
+  Standard_EXPORT void Load(const Handle(GeomAdaptor_Curve)& C,
                             const Standard_Real            Tolerance,
                             const Standard_Boolean         KeepParametrization = Standard_True);
 
@@ -78,7 +78,7 @@ public:
 
   Standard_EXPORT const gp_Dir& GetDirection() const;
 
-  Standard_EXPORT const Handle(Adaptor3d_Curve)& GetCurve() const;
+  Standard_EXPORT const Handle(GeomAdaptor_Curve)& GetCurve() const;
 
   Standard_EXPORT const Handle(GeomAdaptor_Curve)& GetResult() const;
 
@@ -104,7 +104,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(GeomAdaptor_Curve) Trim(const Standard_Real First,
                                                const Standard_Real Last,
                                                const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -203,7 +203,7 @@ protected:
   void BuildByApprox(const Standard_Real theLimitParameter);
 
 private:
-  Handle(Adaptor3d_Curve)   myCurve;
+  Handle(GeomAdaptor_Curve)   myCurve;
   gp_Ax3                    myPlane;
   gp_Dir                    myDirection;
   Standard_Boolean          myKeepParam;

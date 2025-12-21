@@ -19,28 +19,28 @@
 #include <StdFail_NotDone.hxx>
 #include <Standard_OutOfRange.hxx>
 #include <Standard_ConstructionError.hxx>
-#include <Adaptor3d_HVertex.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_HVertex.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <IntPatch_HCurve2dTool.hxx>
 #include <IntPatch_HInterTool.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <IntPatch_ArcFunction.hxx>
 #include <IntPatch_ThePathPointOfTheSOnBounds.hxx>
 #include <IntPatch_SequenceOfPathPointOfTheSOnBounds.hxx>
 #include <IntPatch_TheSegmentOfTheSOnBounds.hxx>
 #include <IntPatch_SequenceOfSegmentOfTheSOnBounds.hxx>
 
-#define TheVertex Handle(Adaptor3d_HVertex)
-#define TheVertex_hxx <Adaptor3d_HVertex.hxx>
-#define TheArc Handle(Adaptor2d_Curve2d)
-#define TheArc_hxx <Adaptor2d_Curve2d.hxx>
+#define TheVertex Handle(GeomAdaptor_HVertex)
+#define TheVertex_hxx <GeomAdaptor_HVertex.hxx>
+#define TheArc Handle(Geom2dAdaptor_Curve)
+#define TheArc_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheArcTool IntPatch_HCurve2dTool
 #define TheArcTool_hxx <IntPatch_HCurve2dTool.hxx>
 #define TheSOBTool IntPatch_HInterTool
 #define TheSOBTool_hxx <IntPatch_HInterTool.hxx>
-#define Handle_TheTopolTool Handle(Adaptor3d_TopolTool)
-#define TheTopolTool Adaptor3d_TopolTool
-#define TheTopolTool_hxx <Adaptor3d_TopolTool.hxx>
+#define Handle_TheTopolTool Handle(GeomAdaptor_TopolTool)
+#define TheTopolTool GeomAdaptor_TopolTool
+#define TheTopolTool_hxx <GeomAdaptor_TopolTool.hxx>
 #define TheFunction IntPatch_ArcFunction
 #define TheFunction_hxx <IntPatch_ArcFunction.hxx>
 #define IntStart_ThePathPoint IntPatch_ThePathPointOfTheSOnBounds

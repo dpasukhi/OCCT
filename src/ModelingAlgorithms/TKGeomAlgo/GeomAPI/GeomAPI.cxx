@@ -16,7 +16,7 @@
 
 #include <GeomAPI.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
 #include <Geom2dAdaptor.hxx>
@@ -59,6 +59,6 @@ Handle(Geom_Curve) GeomAPI::To3d(const Handle(Geom2d_Curve)& C, const gp_Pln& P)
   Handle(Geom_Plane)          ThePlane = new Geom_Plane(P);
   Handle(GeomAdaptor_Surface) AHS      = new GeomAdaptor_Surface(ThePlane);
 
-  Adaptor3d_CurveOnSurface COS(AHC, AHS);
+  GeomAdaptor_CurveOnSurface COS(AHC, AHS);
   return GeomAdaptor::MakeCurve(COS);
 }

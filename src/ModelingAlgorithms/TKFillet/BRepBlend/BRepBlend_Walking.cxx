@@ -14,12 +14,12 @@
 
 #include <BRepBlend_Walking.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
-#include <Adaptor3d_HVertex.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
+#include <GeomAdaptor_HVertex.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <BRepBlend_BlendTool.hxx>
 #include <BRepBlend_Extremity.hxx>
 #include <BRepBlend_HCurve2dTool.hxx>
@@ -70,16 +70,16 @@ extern Standard_Boolean Blend_GettraceDRAWSECT();
 extern Standard_Boolean Blend_GetcontextNOTESTDEFL();
 
 // Pour debug : visualisation de la section
-static void Drawsect(const Handle(Adaptor3d_Surface)& surf1,
-                     const Handle(Adaptor3d_Surface)& surf2,
+static void Drawsect(const Handle(GeomAdaptor_Surface)& surf1,
+                     const Handle(GeomAdaptor_Surface)& surf2,
                      const math_Vector&               sol,
                      const Standard_Real              param,
                      Blend_Function&                  Func,
                      const Blend_Status               State)
 {
   //  if(!sectioncalculee) return;
-  Blend_Point      BP(Adaptor3d_HSurfaceTool::Value(surf1, sol(1), sol(2)),
-                 Adaptor3d_HSurfaceTool::Value(surf2, sol(3), sol(4)),
+  Blend_Point      BP(GeomAdaptor_HSurfaceTool::Value(surf1, sol(1), sol(2)),
+                 GeomAdaptor_HSurfaceTool::Value(surf2, sol(3), sol(4)),
                  param,
                  sol(1),
                  sol(2),
@@ -122,8 +122,8 @@ static void Drawsect(const Handle(Adaptor3d_Surface)& surf1,
   #endif
 }
 
-static void Drawsect(const Handle(Adaptor3d_Surface)& surf1,
-                     const Handle(Adaptor3d_Surface)& surf2,
+static void Drawsect(const Handle(GeomAdaptor_Surface)& surf1,
+                     const Handle(GeomAdaptor_Surface)& surf2,
                      const math_Vector&               sol,
                      const Standard_Real              param,
                      Blend_Function&                  Func)
@@ -132,10 +132,10 @@ static void Drawsect(const Handle(Adaptor3d_Surface)& surf1,
 }
 #endif
 
-BRepBlend_Walking::BRepBlend_Walking(const Handle(Adaptor3d_Surface)&   Surf1,
-                                     const Handle(Adaptor3d_Surface)&   Surf2,
-                                     const Handle(Adaptor3d_TopolTool)& Domain1,
-                                     const Handle(Adaptor3d_TopolTool)& Domain2,
+BRepBlend_Walking::BRepBlend_Walking(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                     const Handle(GeomAdaptor_Surface)&   Surf2,
+                                     const Handle(GeomAdaptor_TopolTool)& Domain1,
+                                     const Handle(GeomAdaptor_TopolTool)& Domain2,
                                      const Handle(ChFiDS_ElSpine)&      HGuide)
     : sol(1, 4),
       surf1(Surf1),
@@ -158,8 +158,8 @@ BRepBlend_Walking::BRepBlend_Walking(const Handle(Adaptor3d_Surface)&   Surf1,
   hguide     = HGuide;
 }
 
-void BRepBlend_Walking::SetDomainsToRecadre(const Handle(Adaptor3d_TopolTool)& Domain1,
-                                            const Handle(Adaptor3d_TopolTool)& Domain2)
+void BRepBlend_Walking::SetDomainsToRecadre(const Handle(GeomAdaptor_TopolTool)& Domain1,
+                                            const Handle(GeomAdaptor_TopolTool)& Domain2)
 {
   recdomain1 = Domain1;
   recdomain2 = Domain2;
@@ -400,7 +400,7 @@ Standard_Boolean BRepBlend_Walking::PerformFirstSection(Blend_Function&        F
   BRepBlend_Extremity       Ext1, Ext2;
   Standard_Integer          Index1 = 0, Index2 = 0, nbarc;
   Standard_Boolean          Isvtx1 = Standard_False, Isvtx2 = Standard_False;
-  Handle(Adaptor3d_HVertex) Vtx1, Vtx2;
+  Handle(GeomAdaptor_HVertex) Vtx1, Vtx2;
   gp_Pnt2d                  p2d;
   Standard_Real             CorrectedU = 0., CorrectedV = 0.;
   gp_Pnt                    CorrectedPnt;
@@ -505,7 +505,7 @@ Standard_Boolean BRepBlend_Walking::PerformFirstSection(Blend_Function&        F
     ParSol(2)          = p2d.Y();
     ParSol(3)          = solrst1(3);
     ParSol(4)          = solrst1(4);
-    gp_Pnt thePntOnRst = Adaptor3d_HSurfaceTool::Value(surf1, ParSol(1), ParSol(2));
+    gp_Pnt thePntOnRst = GeomAdaptor_HSurfaceTool::Value(surf1, ParSol(1), ParSol(2));
     if (CorrectExtremityOnOneRst(1,
                                  ParSol(3),
                                  ParSol(4),
@@ -535,7 +535,7 @@ Standard_Boolean BRepBlend_Walking::PerformFirstSection(Blend_Function&        F
     ParSol(2)          = solrst2(4);
     ParSol(3)          = p2d.X();
     ParSol(4)          = p2d.Y();
-    gp_Pnt thePntOnRst = Adaptor3d_HSurfaceTool::Value(surf2, ParSol(3), ParSol(4));
+    gp_Pnt thePntOnRst = GeomAdaptor_HSurfaceTool::Value(surf2, ParSol(3), ParSol(4));
     if (CorrectExtremityOnOneRst(2,
                                  ParSol(1),
                                  ParSol(2),
@@ -983,8 +983,8 @@ Blend_Status BRepBlend_Walking::CheckDeflection(const Standard_Boolean OnFirst,
     {
       prevTg = previousP.TangentOnS1();
     }
-    tolu = Adaptor3d_HSurfaceTool::UResolution(surf1, tolpoint3d);
-    tolv = Adaptor3d_HSurfaceTool::VResolution(surf1, tolpoint3d);
+    tolu = GeomAdaptor_HSurfaceTool::UResolution(surf1, tolpoint3d);
+    tolv = GeomAdaptor_HSurfaceTool::VResolution(surf1, tolpoint3d);
   }
   else
   {
@@ -998,8 +998,8 @@ Blend_Status BRepBlend_Walking::CheckDeflection(const Standard_Boolean OnFirst,
     {
       prevTg = previousP.TangentOnS2();
     }
-    tolu = Adaptor3d_HSurfaceTool::UResolution(surf2, tolpoint3d);
-    tolv = Adaptor3d_HSurfaceTool::VResolution(surf2, tolpoint3d);
+    tolu = GeomAdaptor_HSurfaceTool::UResolution(surf2, tolpoint3d);
+    tolv = GeomAdaptor_HSurfaceTool::VResolution(surf2, tolpoint3d);
   }
 
   gp_Vec Corde(prevP, Psurf);
@@ -1128,7 +1128,7 @@ Standard_Integer BRepBlend_Walking::ArcToRecadre(const Standard_Boolean OnFirst,
   Standard_Boolean            byinter = (line->NbPoints() != 0), okinter = 0;
   Standard_Real               distmin = RealLast();
   Standard_Real               uprev = 0., vprev = 0., prm = 0., dist = 0.;
-  Handle(Adaptor3d_TopolTool) Iter;
+  Handle(GeomAdaptor_TopolTool) Iter;
 
   if (OnFirst)
   {
@@ -1190,7 +1190,7 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
                                             math_Vector&               solrst,
                                             Standard_Integer&          Indexsol,
                                             Standard_Boolean&          IsVtx,
-                                            Handle(Adaptor3d_HVertex)& Vtx,
+                                            Handle(GeomAdaptor_HVertex)& Vtx,
                                             const Standard_Real        Extrap)
 
 {
@@ -1205,8 +1205,8 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
 
   math_Vector toler(1, 4), infb(1, 4), supb(1, 4), valsol(1, 4);
 
-  Handle(Adaptor2d_Curve2d)   thecur;
-  Handle(Adaptor3d_TopolTool) Iter;
+  Handle(Geom2dAdaptor_Curve)   thecur;
+  Handle(GeomAdaptor_TopolTool) Iter;
 
   if (OnFirst)
     Iter = recdomain1;
@@ -1228,7 +1228,7 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
     Iter->Next();
   }
 
-  Handle(Adaptor2d_Curve2d) thearc = Iter->Value();
+  Handle(Geom2dAdaptor_Curve) thearc = Iter->Value();
 
   if (OnFirst)
   {
@@ -1363,7 +1363,7 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
     // Recadrage eventuelle pour le cas periodique
     if (periodic)
     {
-      Handle(Adaptor3d_Surface) surf;
+      Handle(GeomAdaptor_Surface) surf;
       if (OnFirst)
         surf = surf2;
       else
@@ -1535,7 +1535,7 @@ Standard_Boolean BRepBlend_Walking::Recadre(Blend_FuncInv&             FuncInv,
 }
 
 void BRepBlend_Walking::Transition(const Standard_Boolean           OnFirst,
-                                   const Handle(Adaptor2d_Curve2d)& A,
+                                   const Handle(Geom2dAdaptor_Curve)& A,
                                    const Standard_Real              Param,
                                    IntSurf_Transition&              TLine,
                                    IntSurf_Transition&              TArc)
@@ -1569,7 +1569,7 @@ void BRepBlend_Walking::Transition(const Standard_Boolean           OnFirst,
   BRepBlend_HCurve2dTool::D1(A, Param, p2d, dp2d);
   if (OnFirst)
   {
-    Adaptor3d_HSurfaceTool::D1(surf1, p2d.X(), p2d.Y(), pbid, d1u, d1v);
+    GeomAdaptor_HSurfaceTool::D1(surf1, p2d.X(), p2d.Y(), pbid, d1u, d1v);
     if (!computetranstionaveclacorde)
       tgline = previousP.TangentOnS1();
     else
@@ -1577,7 +1577,7 @@ void BRepBlend_Walking::Transition(const Standard_Boolean           OnFirst,
   }
   else
   {
-    Adaptor3d_HSurfaceTool::D1(surf2, p2d.X(), p2d.Y(), pbid, d1u, d1v);
+    GeomAdaptor_HSurfaceTool::D1(surf2, p2d.X(), p2d.Y(), pbid, d1u, d1v);
     if (!computetranstionaveclacorde)
       tgline = previousP.TangentOnS2();
     else
@@ -1591,14 +1591,14 @@ void BRepBlend_Walking::Transition(const Standard_Boolean           OnFirst,
     normale.SetXYZ(thenormal.XYZ());
   else
   {
-    Handle(Adaptor3d_Surface) surf;
+    Handle(GeomAdaptor_Surface) surf;
     if (OnFirst)
       surf = surf1;
     else
       surf = surf2;
     Standard_Integer   iu, iv;
     TColgp_Array2OfVec Der(0, 2, 0, 2);
-    Adaptor3d_HSurfaceTool::D2(surf,
+    GeomAdaptor_HSurfaceTool::D2(surf,
                                p2d.X(),
                                p2d.Y(),
                                pbid,
@@ -1607,18 +1607,18 @@ void BRepBlend_Walking::Transition(const Standard_Boolean           OnFirst,
                                Der(2, 0),
                                Der(0, 2),
                                Der(1, 1));
-    Der(2, 1) = Adaptor3d_HSurfaceTool::DN(surf, p2d.X(), p2d.Y(), 2, 1);
-    Der(1, 2) = Adaptor3d_HSurfaceTool::DN(surf, p2d.X(), p2d.Y(), 1, 2);
-    Der(2, 2) = Adaptor3d_HSurfaceTool::DN(surf, p2d.X(), p2d.Y(), 2, 2);
+    Der(2, 1) = GeomAdaptor_HSurfaceTool::DN(surf, p2d.X(), p2d.Y(), 2, 1);
+    Der(1, 2) = GeomAdaptor_HSurfaceTool::DN(surf, p2d.X(), p2d.Y(), 1, 2);
+    Der(2, 2) = GeomAdaptor_HSurfaceTool::DN(surf, p2d.X(), p2d.Y(), 2, 2);
     CSLib::Normal(2,
                   Der,
                   1.e-9,
                   p2d.X(),
                   p2d.Y(),
-                  Adaptor3d_HSurfaceTool::FirstUParameter(surf),
-                  Adaptor3d_HSurfaceTool::LastUParameter(surf),
-                  Adaptor3d_HSurfaceTool::FirstVParameter(surf),
-                  Adaptor3d_HSurfaceTool::LastVParameter(surf),
+                  GeomAdaptor_HSurfaceTool::FirstUParameter(surf),
+                  GeomAdaptor_HSurfaceTool::LastUParameter(surf),
+                  GeomAdaptor_HSurfaceTool::FirstVParameter(surf),
+                  GeomAdaptor_HSurfaceTool::LastVParameter(surf),
                   stat,
                   thenormal,
                   iu,
@@ -1638,11 +1638,11 @@ void BRepBlend_Walking::MakeExtremity(BRepBlend_Extremity&             Extrem,
                                       const Standard_Integer           Index,
                                       const Standard_Real              Param,
                                       const Standard_Boolean           IsVtx,
-                                      const Handle(Adaptor3d_HVertex)& Vtx)
+                                      const Handle(GeomAdaptor_HVertex)& Vtx)
 {
   IntSurf_Transition          Tline, Tarc;
   Standard_Integer            nbarc;
-  Handle(Adaptor3d_TopolTool) Iter;
+  Handle(GeomAdaptor_TopolTool) Iter;
 
   if (OnFirst)
   {
@@ -1676,10 +1676,10 @@ void BRepBlend_Walking::MakeExtremity(BRepBlend_Extremity&             Extrem,
 
 void BRepBlend_Walking::MakeSingularExtremity(BRepBlend_Extremity&             Extrem,
                                               const Standard_Boolean           OnFirst,
-                                              const Handle(Adaptor3d_HVertex)& Vtx)
+                                              const Handle(GeomAdaptor_HVertex)& Vtx)
 {
   IntSurf_Transition          Tline, Tarc;
-  Handle(Adaptor3d_TopolTool) Iter;
+  Handle(GeomAdaptor_TopolTool) Iter;
   Standard_Real               prm;
 
   if (OnFirst)
@@ -1699,7 +1699,7 @@ void BRepBlend_Walking::MakeSingularExtremity(BRepBlend_Extremity&             E
   Extrem.SetVertex(Vtx);
   while (Iter->More())
   {
-    Handle(Adaptor2d_Curve2d) arc = Iter->Value();
+    Handle(Geom2dAdaptor_Curve) arc = Iter->Value();
     Iter->Initialize(arc);
     Iter->InitVertexIterator();
     while (Iter->MoreVertex())
@@ -1836,7 +1836,7 @@ void BRepBlend_Walking::InternalPerform(Blend_Function&     Func,
   gp_Pnt2d                  p2d;
   math_Vector               tolerance(1, 4), infbound(1, 4), supbound(1, 4), parinit(1, 4);
   math_Vector               solrst1(1, 4), solrst2(1, 4);
-  Handle(Adaptor3d_HVertex) Vtx1, Vtx2;
+  Handle(GeomAdaptor_HVertex) Vtx1, Vtx2;
   BRepBlend_Extremity       Ext1, Ext2;
 
   // IntSurf_Transition Tline,Tarc;
@@ -2055,11 +2055,11 @@ void BRepBlend_Walking::InternalPerform(Blend_Function&     Func,
           p2d    = BRepBlend_HCurve2dTool::Value(recdomain1->Value(), solrst1(1));
           sol(1) = p2d.X();
           sol(2) = p2d.Y();
-          Pnt1   = Adaptor3d_HSurfaceTool::Value(surf1, sol(1), sol(2));
+          Pnt1   = GeomAdaptor_HSurfaceTool::Value(surf1, sol(1), sol(2));
           p2d    = BRepBlend_HCurve2dTool::Value(recdomain2->Value(), solrst2(1));
           sol(3) = p2d.X();
           sol(4) = p2d.Y();
-          Pnt2   = Adaptor3d_HSurfaceTool::Value(surf2, sol(3), sol(4));
+          Pnt2   = GeomAdaptor_HSurfaceTool::Value(surf2, sol(3), sol(4));
           const Standard_Real TolProd = 1.e-5;
           Standard_Real       SavedParams[2];
           Standard_Boolean    SameDirs[2] = {Standard_False, Standard_False};
@@ -2135,7 +2135,7 @@ void BRepBlend_Walking::InternalPerform(Blend_Function&     Func,
           sol(2) = p2d.Y();
           sol(3) = solrst1(3);
           sol(4) = solrst1(4);
-          gp_Pnt           thePntOnRst = Adaptor3d_HSurfaceTool::Value(surf1, sol(1), sol(2));
+          gp_Pnt           thePntOnRst = GeomAdaptor_HSurfaceTool::Value(surf1, sol(1), sol(2));
           Standard_Real    NewU, NewV, NewParam;
           gp_Pnt           NewPnt;
           Standard_Boolean Corrected = CorrectExtremityOnOneRst(1,
@@ -2172,7 +2172,7 @@ void BRepBlend_Walking::InternalPerform(Blend_Function&     Func,
           sol(2) = solrst2(4);
           sol(3) = p2d.X();
           sol(4) = p2d.Y();
-          gp_Pnt           thePntOnRst = Adaptor3d_HSurfaceTool::Value(surf2, sol(3), sol(4));
+          gp_Pnt           thePntOnRst = GeomAdaptor_HSurfaceTool::Value(surf2, sol(3), sol(4));
           Standard_Real    NewU, NewV, NewParam;
           gp_Pnt           NewPnt;
           Standard_Boolean Corrected = CorrectExtremityOnOneRst(2,
@@ -2527,9 +2527,9 @@ Standard_Boolean BRepBlend_Walking::CorrectExtremityOnOneRst(const Standard_Inte
   if (theElSpine.NbVertices() == 0)
     return Standard_False;
 
-  Handle(Adaptor3d_TopolTool) DomainOfRst = (IndexOfRst == 1) ? recdomain1 : recdomain2;
-  Handle(Adaptor3d_Surface)   SurfOfRst   = (IndexOfRst == 1) ? surf1 : surf2;
-  Handle(Adaptor3d_Surface)   AnotherSurf = (IndexOfRst == 1) ? surf2 : surf1;
+  Handle(GeomAdaptor_TopolTool) DomainOfRst = (IndexOfRst == 1) ? recdomain1 : recdomain2;
+  Handle(GeomAdaptor_Surface)   SurfOfRst   = (IndexOfRst == 1) ? surf1 : surf2;
+  Handle(GeomAdaptor_Surface)   AnotherSurf = (IndexOfRst == 1) ? surf2 : surf1;
 
   // Correct point on surface 2
   // First we find right <param>
@@ -2542,7 +2542,7 @@ Standard_Boolean BRepBlend_Walking::CorrectExtremityOnOneRst(const Standard_Inte
   for (Standard_Integer k = 0; k < 2; k++)
   {
     gp_Pnt2d      P2dOnEnd = BRepBlend_HCurve2dTool::Value(DomainOfRst->Value(), Ends[k]);
-    gp_Pnt        PntOnEnd = Adaptor3d_HSurfaceTool::Value(SurfOfRst, P2dOnEnd.X(), P2dOnEnd.Y());
+    gp_Pnt        PntOnEnd = GeomAdaptor_HSurfaceTool::Value(SurfOfRst, P2dOnEnd.X(), P2dOnEnd.Y());
     Extrema_ExtPC projoncurv(PntOnEnd, theElSpine);
     if (!projoncurv.IsDone())
       continue;
@@ -2591,7 +2591,7 @@ Standard_Boolean BRepBlend_Walking::CorrectExtremityOnOneRst(const Standard_Inte
   const gp_Dir& Dir0 = theAx1.Direction();
   // Check new point: is it real solution?
   gp_Pnt      OldPonGuide = hguide->Value(theParam);
-  gp_Pnt      PntOnSurf2  = Adaptor3d_HSurfaceTool::Value(AnotherSurf, theU, theV); // old point
+  gp_Pnt      PntOnSurf2  = GeomAdaptor_HSurfaceTool::Value(AnotherSurf, theU, theV); // old point
   gce_MakePln PlaneBuilder(thePntOnRst, OldPonGuide, PntOnSurf2);
   if (!PlaneBuilder.IsDone())
     return Standard_False;

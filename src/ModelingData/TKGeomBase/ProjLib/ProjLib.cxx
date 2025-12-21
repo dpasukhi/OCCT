@@ -14,9 +14,11 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ProjLib.hxx>
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ElSLib.hxx>
 #include <Geom2d_Line.hxx>
 #include <Geom2d_Circle.hxx>
@@ -214,7 +216,7 @@ void ProjLib::MakePCurveOfType(const ProjLib_ProjectedCurve& PC, Handle(Geom2d_C
 
 //=================================================================================================
 
-Standard_Boolean ProjLib::IsAnaSurf(const Handle(Adaptor3d_Surface)& theAS)
+Standard_Boolean ProjLib::IsAnaSurf(const Handle(GeomAdaptor_Surface)& theAS)
 {
   switch (theAS->GetType())
   {

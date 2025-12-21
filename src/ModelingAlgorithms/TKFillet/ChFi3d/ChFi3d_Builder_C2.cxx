@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_CurvPointFuncInv.hxx>
 #include <Blend_FuncInv.hxx>
 #include <BRepBlend_Line.hxx>
@@ -655,8 +655,8 @@ Standard_Boolean ChFi3d_Builder::PerformTwoCornerbyInter(const Standard_Integer 
     }
     Handle(Geom2dAdaptor_Curve) c2df =
       new Geom2dAdaptor_Curve(SmaFD->Interference(IFaArcSma).PCurveOnFace(), fsma, lsma);
-    Adaptor3d_CurveOnSurface         consf(c2df, HF);
-    Handle(Adaptor3d_CurveOnSurface) Hconsf = new Adaptor3d_CurveOnSurface(consf);
+    GeomAdaptor_CurveOnSurface         consf(c2df, HF);
+    Handle(GeomAdaptor_CurveOnSurface) Hconsf = new GeomAdaptor_CurveOnSurface(consf);
     if (!ChFi3d_IntCS(BigHS, Hconsf, UVi, wi))
     {
 #ifdef OCCT_DEBUG

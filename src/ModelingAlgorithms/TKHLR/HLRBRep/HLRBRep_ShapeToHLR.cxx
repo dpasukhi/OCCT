@@ -18,6 +18,8 @@
 // #define No_Exception
 #endif
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepTools.hxx>
 #include <HLRBRep_Data.hxx>

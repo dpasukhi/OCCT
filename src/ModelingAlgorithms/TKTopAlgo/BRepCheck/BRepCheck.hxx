@@ -17,7 +17,8 @@
 #ifndef _BRepCheck_HeaderFile
 #define _BRepCheck_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRepCheck_ListOfStatus.hxx>
 #include <BRepCheck_Status.hxx>
 #include <Standard_OStream.hxx>
@@ -25,7 +26,6 @@
 class TopoDS_Wire;
 class TopoDS_Face;
 class TopoDS_Edge;
-class Adaptor3d_Curve;
 
 //! This package provides tools to check the validity
 //! of the BRep.
@@ -44,10 +44,10 @@ public:
                                                            TopoDS_Edge&       E2);
 
   //! Returns the resolution on the 3d curve
-  Standard_EXPORT static Standard_Real PrecCurve(const Adaptor3d_Curve& aAC3D);
+  Standard_EXPORT static Standard_Real PrecCurve(const GeomAdaptor_Curve& aAC3D);
 
   //! Returns the resolution on the surface
-  Standard_EXPORT static Standard_Real PrecSurface(const Handle(Adaptor3d_Surface)& aAHSurf);
+  Standard_EXPORT static Standard_Real PrecSurface(const Handle(GeomAdaptor_Surface)& aAHSurf);
 };
 
 #endif // _BRepCheck_HeaderFile

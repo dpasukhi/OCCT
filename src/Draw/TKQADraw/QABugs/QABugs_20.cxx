@@ -3484,16 +3484,16 @@ static Standard_Integer QAEndsWith(Draw_Interpretor& di, Standard_Integer n, con
 }
 
 // Class is used in OCC30435
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 
 class CurveEvaluator : public AppCont_Function
 
 {
 
 public:
-  Handle(Adaptor3d_Curve) myCurve;
+  Handle(GeomAdaptor_Curve) myCurve;
 
-  CurveEvaluator(const Handle(Adaptor3d_Curve)& C)
+  CurveEvaluator(const Handle(GeomAdaptor_Curve)& C)
       : myCurve(C)
   {
     myNbPnt   = 1;

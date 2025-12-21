@@ -15,7 +15,7 @@
 
 #include <IntPatch_SpecialPoints.hxx>
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtPS.hxx>
 #include <Extrema_GenLocateExtPS.hxx>
@@ -32,8 +32,8 @@
 class FuncPreciseSeam : public math_FunctionSetWithDerivatives
 {
 public:
-  FuncPreciseSeam(const Handle(Adaptor3d_Surface)& theQSurf, // quadric
-                  const Handle(Adaptor3d_Surface)& thePSurf, // another surface
+  FuncPreciseSeam(const Handle(GeomAdaptor_Surface)& theQSurf, // quadric
+                  const Handle(GeomAdaptor_Surface)& thePSurf, // another surface
                   const Standard_Boolean           isTheUSeam,
                   const Standard_Real              theIsoParameter)
       : myQSurf(theQSurf),
@@ -117,8 +117,8 @@ protected:
   FuncPreciseSeam operator=(FuncPreciseSeam&);
 
 private:
-  const Handle(Adaptor3d_Surface)& myQSurf;
-  const Handle(Adaptor3d_Surface)& myPSurf;
+  const Handle(GeomAdaptor_Surface)& myQSurf;
+  const Handle(GeomAdaptor_Surface)& myPSurf;
 
   //! 1 for U-coordinate, 0 - for V one.
   const Standard_Integer mySeamCoordInd;
@@ -150,7 +150,7 @@ static inline void GetTangent(const Standard_Real theConeSemiAngle,
 //            Returns the foot of projection (theProjPt) and its parameters
 //           on theSurf.
 //=======================================================================
-static Standard_Boolean IsPointOnSurface(const Handle(Adaptor3d_Surface)& theSurf,
+static Standard_Boolean IsPointOnSurface(const Handle(GeomAdaptor_Surface)& theSurf,
                                          const gp_Pnt&                    thePt,
                                          const Standard_Real              theTol,
                                          gp_Pnt&                          theProjPt,
@@ -230,8 +230,8 @@ static Standard_Boolean IsPointOnSurface(const Handle(Adaptor3d_Surface)& theSur
 //            thePSurf is another surface to intersect.
 //=======================================================================
 Standard_Boolean IntPatch_SpecialPoints::AddCrossUVIsoPoint(
-  const Handle(Adaptor3d_Surface)& theQSurf,
-  const Handle(Adaptor3d_Surface)& thePSurf,
+  const Handle(GeomAdaptor_Surface)& theQSurf,
+  const Handle(GeomAdaptor_Surface)& thePSurf,
   const IntSurf_PntOn2S&           theRefPt,
   const Standard_Real              theTol,
   IntSurf_PntOn2S&                 theAddedPoint,
@@ -288,8 +288,8 @@ Standard_Boolean IntPatch_SpecialPoints::AddCrossUVIsoPoint(
 //            thePSurf is another surface to intersect.
 //=======================================================================
 Standard_Boolean IntPatch_SpecialPoints::AddPointOnUorVIso(
-  const Handle(Adaptor3d_Surface)& theQSurf,
-  const Handle(Adaptor3d_Surface)& thePSurf,
+  const Handle(GeomAdaptor_Surface)& theQSurf,
+  const Handle(GeomAdaptor_Surface)& thePSurf,
   const IntSurf_PntOn2S&           theRefPt,
   const Standard_Boolean           theIsU,
   const Standard_Real              theIsoParameter,
@@ -774,8 +774,8 @@ Standard_Integer IntPatch_SpecialPoints::GetTangentToIntLineForCone(
 //            thePSurf is another surface to intersect.
 //           Returns TRUE, if the pole is an intersection point.
 //=======================================================================
-Standard_Boolean IntPatch_SpecialPoints::AddSingularPole(const Handle(Adaptor3d_Surface)& theQSurf,
-                                                         const Handle(Adaptor3d_Surface)& thePSurf,
+Standard_Boolean IntPatch_SpecialPoints::AddSingularPole(const Handle(GeomAdaptor_Surface)& theQSurf,
+                                                         const Handle(GeomAdaptor_Surface)& thePSurf,
                                                          const IntSurf_PntOn2S&           thePtIso,
                                                          IntPatch_Point&                  theVertex,
                                                          IntSurf_PntOn2S&       theAddedPoint,
@@ -947,8 +947,8 @@ to the inters. curve. In this case @U_{q}@ must be recomputed.
 */
 //=======================================================================
 Standard_Boolean IntPatch_SpecialPoints::ContinueAfterSpecialPoint(
-  const Handle(Adaptor3d_Surface)& theQSurf,
-  const Handle(Adaptor3d_Surface)& thePSurf,
+  const Handle(GeomAdaptor_Surface)& theQSurf,
+  const Handle(GeomAdaptor_Surface)& thePSurf,
   const IntSurf_PntOn2S&           theRefPt,
   const IntPatch_SpecPntType       theSPType,
   const Standard_Real              theTol2D,

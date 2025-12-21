@@ -14,7 +14,7 @@
 
 #include <DrawTrSurf_BSplineSurface.hxx>
 
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <Draw_Color.hxx>
 #include <Draw_Display.hxx>
 #include <Draw_MarkerShape.hxx>
@@ -158,7 +158,7 @@ void DrawTrSurf_BSplineSurface::DrawOn(Draw_Display& dis) const
     Handle(GeomAdaptor_Surface) HS = new GeomAdaptor_Surface();
     HS->Load(surf);
 
-    Adaptor3d_IsoCurve C(HS);
+    GeomAdaptor_IsoCurve C(HS);
 
     dis.SetColor(isosLook);
     first = S->FirstUKnotIndex() + 1;

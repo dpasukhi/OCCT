@@ -17,7 +17,7 @@
 #include <Geom2dInt_TheIntConicCurveOfGInter.hxx>
 
 #include <IntCurve_IConicTool.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dInt_Geom2dCurveTool.hxx>
 #include <Geom2dInt_TheProjPCurOfGInter.hxx>
 #include <Geom2dInt_TheIntersectorOfTheIntConicCurveOfGInter.hxx>
@@ -31,8 +31,8 @@
 
 #define TheImpTool IntCurve_IConicTool
 #define TheImpTool_hxx <IntCurve_IConicTool.hxx>
-#define ThePCurve Adaptor2d_Curve2d
-#define ThePCurve_hxx <Adaptor2d_Curve2d.hxx>
+#define ThePCurve Geom2dAdaptor_Curve
+#define ThePCurve_hxx <Geom2dAdaptor_Curve.hxx>
 #define ThePCurveTool Geom2dInt_Geom2dCurveTool
 #define ThePCurveTool_hxx <Geom2dInt_Geom2dCurveTool.hxx>
 #define TheProjPCur Geom2dInt_TheProjPCurOfGInter

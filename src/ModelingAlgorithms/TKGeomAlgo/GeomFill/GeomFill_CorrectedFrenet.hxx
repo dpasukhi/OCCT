@@ -29,6 +29,8 @@
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <GeomFill_Trihedron.hxx>
+
+class GeomAdaptor_Curve;
 class GeomFill_Frenet;
 class Law_Function;
 
@@ -49,7 +51,7 @@ public:
 
   //! initialize curve of frenet law
   //! @return Standard_True in case if execution end correctly
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C)
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   Standard_EXPORT virtual void SetInterval(const Standard_Real First,

@@ -14,7 +14,7 @@
 
 #include <DrawTrSurf_Surface.hxx>
 
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <Draw_Color.hxx>
 #include <Draw_Display.hxx>
 #include <DrawTrSurf.hxx>
@@ -169,7 +169,7 @@ void DrawTrSurf_Surface::DrawOn(Draw_Display& dis, const Standard_Boolean Iso) c
   Handle(GeomAdaptor_Surface) HS = new GeomAdaptor_Surface();
   HS->Load(surf, UFirst, ULast, VFirst, VLast);
 
-  Adaptor3d_IsoCurve C(HS);
+  GeomAdaptor_IsoCurve C(HS);
 
   if (Iso)
   {

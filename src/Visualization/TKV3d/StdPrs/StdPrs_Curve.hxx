@@ -17,11 +17,11 @@
 #ifndef _StdPrs_Curve_HeaderFile
 #define _StdPrs_Curve_HeaderFile
 
-#include <Prs3d_Root.hxx>
 #include <Prs3d_Drawer.hxx>
+#include <Prs3d_Root.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 
-class Adaptor3d_Curve;
+class GeomAdaptor_Curve;
 
 //! A framework to define display of lines, arcs of circles
 //! and conic sections.
@@ -37,7 +37,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Adaptor3d_Curve&            aCurve,
+                                  const GeomAdaptor_Curve&            aCurve,
                                   const Handle(Prs3d_Drawer)&       aDrawer,
                                   const Standard_Boolean            drawCurve = Standard_True);
 
@@ -48,7 +48,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Adaptor3d_Curve&            aCurve,
+                                  const GeomAdaptor_Curve&            aCurve,
                                   const Standard_Real               U1,
                                   const Standard_Real               U2,
                                   const Handle(Prs3d_Drawer)&       aDrawer,
@@ -62,7 +62,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Adaptor3d_Curve&            aCurve,
+                                  const GeomAdaptor_Curve&            aCurve,
                                   const Handle(Prs3d_Drawer)&       aDrawer,
                                   TColgp_SequenceOfPnt&             Points,
                                   const Standard_Boolean            drawCurve = Standard_True);
@@ -78,7 +78,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Adaptor3d_Curve&            aCurve,
+                                  const GeomAdaptor_Curve&            aCurve,
                                   const Standard_Real               U1,
                                   const Standard_Real               U2,
                                   TColgp_SequenceOfPnt&             Points,
@@ -91,7 +91,7 @@ public:
                                                 const Standard_Real         Y,
                                                 const Standard_Real         Z,
                                                 const Standard_Real         aDistance,
-                                                const Adaptor3d_Curve&      aCurve,
+                                                const GeomAdaptor_Curve&      aCurve,
                                                 const Handle(Prs3d_Drawer)& aDrawer);
 
   //! returns true if the distance between the point (X,Y,Z) and the
@@ -100,7 +100,7 @@ public:
                                                 const Standard_Real    Y,
                                                 const Standard_Real    Z,
                                                 const Standard_Real    aDistance,
-                                                const Adaptor3d_Curve& aCurve,
+                                                const GeomAdaptor_Curve& aCurve,
                                                 const Standard_Real    aDeflection,
                                                 const Standard_Real    aLimit,
                                                 const Standard_Integer aNbPoints);
@@ -113,7 +113,7 @@ public:
                                                 const Standard_Real         Y,
                                                 const Standard_Real         Z,
                                                 const Standard_Real         aDistance,
-                                                const Adaptor3d_Curve&      aCurve,
+                                                const GeomAdaptor_Curve&      aCurve,
                                                 const Standard_Real         U1,
                                                 const Standard_Real         U2,
                                                 const Handle(Prs3d_Drawer)& aDrawer);
@@ -126,7 +126,7 @@ public:
                                                 const Standard_Real    Y,
                                                 const Standard_Real    Z,
                                                 const Standard_Real    aDistance,
-                                                const Adaptor3d_Curve& aCurve,
+                                                const GeomAdaptor_Curve& aCurve,
                                                 const Standard_Real    U1,
                                                 const Standard_Real    U2,
                                                 const Standard_Real    aDeflection,

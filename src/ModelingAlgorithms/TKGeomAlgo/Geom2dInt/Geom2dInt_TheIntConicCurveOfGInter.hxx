@@ -20,9 +20,9 @@
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <IntRes2d_Intersection.hxx>
 class IntCurve_IConicTool;
-class Adaptor2d_Curve2d;
 class Geom2dInt_Geom2dCurveTool;
 class Geom2dInt_TheProjPCurOfGInter;
 class Geom2dInt_TheIntersectorOfTheIntConicCurveOfGInter;
@@ -45,7 +45,7 @@ public:
   //! Intersection between a line and a parametric curve.
   Geom2dInt_TheIntConicCurveOfGInter(const gp_Lin2d&          L,
                                      const IntRes2d_Domain&   D1,
-                                     const Adaptor2d_Curve2d& PCurve,
+                                     const Geom2dAdaptor_Curve& PCurve,
                                      const IntRes2d_Domain&   D2,
                                      const Standard_Real      TolConf,
                                      const Standard_Real      Tol);
@@ -53,7 +53,7 @@ public:
   //! Intersection between a line and a parametric curve.
   Standard_EXPORT Geom2dInt_TheIntConicCurveOfGInter(const gp_Circ2d&         C,
                                                      const IntRes2d_Domain&   D1,
-                                                     const Adaptor2d_Curve2d& PCurve,
+                                                     const Geom2dAdaptor_Curve& PCurve,
                                                      const IntRes2d_Domain&   D2,
                                                      const Standard_Real      TolConf,
                                                      const Standard_Real      Tol);
@@ -61,7 +61,7 @@ public:
   //! Intersection between an ellipse and a parametric curve.
   Standard_EXPORT Geom2dInt_TheIntConicCurveOfGInter(const gp_Elips2d&        E,
                                                      const IntRes2d_Domain&   D1,
-                                                     const Adaptor2d_Curve2d& PCurve,
+                                                     const Geom2dAdaptor_Curve& PCurve,
                                                      const IntRes2d_Domain&   D2,
                                                      const Standard_Real      TolConf,
                                                      const Standard_Real      Tol);
@@ -69,7 +69,7 @@ public:
   //! Intersection between a parabola and a parametric curve.
   Standard_EXPORT Geom2dInt_TheIntConicCurveOfGInter(const gp_Parab2d&        Prb,
                                                      const IntRes2d_Domain&   D1,
-                                                     const Adaptor2d_Curve2d& PCurve,
+                                                     const Geom2dAdaptor_Curve& PCurve,
                                                      const IntRes2d_Domain&   D2,
                                                      const Standard_Real      TolConf,
                                                      const Standard_Real      Tol);
@@ -78,7 +78,7 @@ public:
   //! and a parametric curve.
   Standard_EXPORT Geom2dInt_TheIntConicCurveOfGInter(const gp_Hypr2d&         H,
                                                      const IntRes2d_Domain&   D1,
-                                                     const Adaptor2d_Curve2d& PCurve,
+                                                     const Geom2dAdaptor_Curve& PCurve,
                                                      const IntRes2d_Domain&   D2,
                                                      const Standard_Real      TolConf,
                                                      const Standard_Real      Tol);
@@ -86,7 +86,7 @@ public:
   //! Intersection between a line and a parametric curve.
   void Perform(const gp_Lin2d&          L,
                const IntRes2d_Domain&   D1,
-               const Adaptor2d_Curve2d& PCurve,
+               const Geom2dAdaptor_Curve& PCurve,
                const IntRes2d_Domain&   D2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
@@ -94,7 +94,7 @@ public:
   //! Intersection between a line and a parametric curve.
   void Perform(const gp_Circ2d&         C,
                const IntRes2d_Domain&   D1,
-               const Adaptor2d_Curve2d& PCurve,
+               const Geom2dAdaptor_Curve& PCurve,
                const IntRes2d_Domain&   D2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
@@ -102,7 +102,7 @@ public:
   //! Intersection between an ellipse and a parametric curve.
   void Perform(const gp_Elips2d&        E,
                const IntRes2d_Domain&   D1,
-               const Adaptor2d_Curve2d& PCurve,
+               const Geom2dAdaptor_Curve& PCurve,
                const IntRes2d_Domain&   D2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
@@ -110,7 +110,7 @@ public:
   //! Intersection between a parabola and a parametric curve.
   void Perform(const gp_Parab2d&        Prb,
                const IntRes2d_Domain&   D1,
-               const Adaptor2d_Curve2d& PCurve,
+               const Geom2dAdaptor_Curve& PCurve,
                const IntRes2d_Domain&   D2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
@@ -119,7 +119,7 @@ public:
   //! and a parametric curve.
   void Perform(const gp_Hypr2d&         H,
                const IntRes2d_Domain&   D1,
-               const Adaptor2d_Curve2d& PCurve,
+               const Geom2dAdaptor_Curve& PCurve,
                const IntRes2d_Domain&   D2,
                const Standard_Real      TolConf,
                const Standard_Real      Tol);
@@ -130,7 +130,7 @@ private:
   //! and a parametric curve.
   void Perform(const IntCurve_IConicTool& ICurve,
                const IntRes2d_Domain&     D1,
-               const Adaptor2d_Curve2d&   PCurve,
+               const Geom2dAdaptor_Curve&   PCurve,
                const IntRes2d_Domain&     D2,
                const Standard_Real        TolConf,
                const Standard_Real        Tol);
@@ -138,8 +138,8 @@ private:
 
 #define TheImpTool IntCurve_IConicTool
 #define TheImpTool_hxx <IntCurve_IConicTool.hxx>
-#define ThePCurve Adaptor2d_Curve2d
-#define ThePCurve_hxx <Adaptor2d_Curve2d.hxx>
+#define ThePCurve Geom2dAdaptor_Curve
+#define ThePCurve_hxx <Geom2dAdaptor_Curve.hxx>
 #define ThePCurveTool Geom2dInt_Geom2dCurveTool
 #define ThePCurveTool_hxx <Geom2dInt_Geom2dCurveTool.hxx>
 #define TheProjPCur Geom2dInt_TheProjPCurOfGInter

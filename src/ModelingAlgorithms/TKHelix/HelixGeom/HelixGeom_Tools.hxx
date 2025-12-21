@@ -14,7 +14,7 @@
 #ifndef _HelixGeom_Tools_HeaderFile
 #define _HelixGeom_Tools_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 
 class Geom_BSplineCurve;
@@ -66,7 +66,7 @@ public:
   //! @param theBSpl [out] Resulting B-spline curve
   //! @param theMaxError [out] Maximum approximation error achieved
   //! @return 0 on success, error code otherwise
-  Standard_EXPORT static Standard_Integer ApprCurve3D(const Handle(Adaptor3d_Curve)& theHC,
+  Standard_EXPORT static Standard_Integer ApprCurve3D(const Handle(GeomAdaptor_Curve)& theHC,
                                                       const Standard_Real            theTol,
                                                       const GeomAbs_Shape            theCont,
                                                       const Standard_Integer         theMaxSeg,

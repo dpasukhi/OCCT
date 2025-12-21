@@ -17,11 +17,11 @@
 #ifndef _IntCurveSurface_TheQuadCurvExactHInter_HeaderFile
 #define _IntCurveSurface_TheQuadCurvExactHInter_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class IntCurveSurface_TheHCurveTool;
 class IntCurveSurface_TheQuadCurvFuncOfTheQuadCurvExactHInter;
 
@@ -32,8 +32,8 @@ public:
 
   //! Provides the signed distance function : Q(w)
   //! and its first derivative dQ(w)/dw
-  Standard_EXPORT IntCurveSurface_TheQuadCurvExactHInter(const Handle(Adaptor3d_Surface)& S,
-                                                         const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT IntCurveSurface_TheQuadCurvExactHInter(const Handle(GeomAdaptor_Surface)& S,
+                                                         const Handle(GeomAdaptor_Curve)&   C);
 
   Standard_EXPORT Standard_Boolean IsDone() const;
 

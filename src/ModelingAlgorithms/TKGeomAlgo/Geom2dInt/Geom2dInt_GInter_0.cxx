@@ -17,7 +17,7 @@
 #include <Geom2dInt_GInter.hxx>
 
 #include <Standard_ConstructionError.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dInt_Geom2dCurveTool.hxx>
 #include <Geom2dInt_TheProjPCurOfGInter.hxx>
 #include <Geom2dInt_TheCurveLocatorOfTheProjPCurOfGInter.hxx>
@@ -31,8 +31,8 @@
 #include <Geom2dInt_ExactIntersectionPointOfTheIntPCurvePCurveOfGInter.hxx>
 #include <IntRes2d_Domain.hxx>
 
-#define TheCurve Adaptor2d_Curve2d
-#define TheCurve_hxx <Adaptor2d_Curve2d.hxx>
+#define TheCurve Geom2dAdaptor_Curve
+#define TheCurve_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheCurveTool Geom2dInt_Geom2dCurveTool
 #define TheCurveTool_hxx <Geom2dInt_Geom2dCurveTool.hxx>
 #define IntCurve_TheProjPCur Geom2dInt_TheProjPCurOfGInter

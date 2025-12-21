@@ -17,7 +17,6 @@
 #ifndef _BlendFunc_CSConstRad_HeaderFile
 #define _BlendFunc_CSConstRad_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -34,6 +33,8 @@
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 class gp_Circ;
 class Blend_Point;
@@ -43,9 +44,9 @@ class BlendFunc_CSConstRad : public Blend_CSFunction
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_CSConstRad(const Handle(Adaptor3d_Surface)& S,
-                                       const Handle(Adaptor3d_Curve)&   C,
-                                       const Handle(Adaptor3d_Curve)&   CGuide);
+  Standard_EXPORT BlendFunc_CSConstRad(const Handle(GeomAdaptor_Surface)& S,
+                                       const Handle(GeomAdaptor_Curve)&   C,
+                                       const Handle(GeomAdaptor_Curve)&   CGuide);
 
   //! returns the number of equations of the function (3).
   Standard_EXPORT Standard_Integer NbEquations() const Standard_OVERRIDE;
@@ -211,9 +212,9 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface)    surf;
-  Handle(Adaptor3d_Curve)      curv;
-  Handle(Adaptor3d_Curve)      guide;
+  Handle(GeomAdaptor_Surface)    surf;
+  Handle(GeomAdaptor_Curve)      curv;
+  Handle(GeomAdaptor_Curve)      guide;
   gp_Pnt                       pts;
   gp_Pnt                       ptc;
   gp_Pnt2d                     pt2d;

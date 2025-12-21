@@ -15,7 +15,7 @@
 // commercial license or contractual agreement.
 
 #include <Extrema_FuncPSNorm.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Extrema_POnSurf.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
@@ -33,7 +33,7 @@ Extrema_FuncPSNorm::Extrema_FuncPSNorm()
 }
 
 //=============================================================================
-Extrema_FuncPSNorm::Extrema_FuncPSNorm(const gp_Pnt& P, const Adaptor3d_Surface& S)
+Extrema_FuncPSNorm::Extrema_FuncPSNorm(const gp_Pnt& P, const GeomAdaptor_Surface& S)
     : myU(0.0),
       myV(0.0)
 {
@@ -44,7 +44,7 @@ Extrema_FuncPSNorm::Extrema_FuncPSNorm(const gp_Pnt& P, const Adaptor3d_Surface&
 }
 
 //=============================================================================
-void Extrema_FuncPSNorm::Initialize(const Adaptor3d_Surface& S)
+void Extrema_FuncPSNorm::Initialize(const GeomAdaptor_Surface& S)
 {
   myS     = &S;
   mySinit = Standard_True;

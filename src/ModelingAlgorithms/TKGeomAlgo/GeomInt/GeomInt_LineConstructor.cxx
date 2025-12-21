@@ -16,8 +16,8 @@
 
 #include <algorithm>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <ElCLib.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 #include <GeomInt.hxx>

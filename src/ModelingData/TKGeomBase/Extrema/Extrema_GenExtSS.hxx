@@ -17,6 +17,7 @@
 #ifndef _Extrema_GenExtSS_HeaderFile
 #define _Extrema_GenExtSS_HeaderFile
 
+#include <GeomAdaptor_Surface.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -24,7 +25,6 @@
 #include <TColgp_HArray2OfPnt.hxx>
 #include <Extrema_FuncExtSS.hxx>
 
-class Adaptor3d_Surface;
 class Extrema_POnSurf;
 
 //! It calculates all the extremum distances
@@ -48,8 +48,8 @@ public:
   //! surfaces.
   //! NbU and NbV are used to locate the close points
   //! to find the zeros.
-  Standard_EXPORT Extrema_GenExtSS(const Adaptor3d_Surface& S1,
-                                   const Adaptor3d_Surface& S2,
+  Standard_EXPORT Extrema_GenExtSS(const GeomAdaptor_Surface& S1,
+                                   const GeomAdaptor_Surface& S2,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
                                    const Standard_Real      Tol1,
@@ -62,8 +62,8 @@ public:
   //! surface.
   //! NbU and NbV are used to locate the close points
   //! to find the zeros.
-  Standard_EXPORT Extrema_GenExtSS(const Adaptor3d_Surface& S1,
-                                   const Adaptor3d_Surface& S2,
+  Standard_EXPORT Extrema_GenExtSS(const GeomAdaptor_Surface& S1,
+                                   const GeomAdaptor_Surface& S2,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
                                    const Standard_Real      U1min,
@@ -77,12 +77,12 @@ public:
                                    const Standard_Real      Tol1,
                                    const Standard_Real      Tol2);
 
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S2,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S2,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      Tol2);
 
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S2,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S2,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      U2min,
@@ -94,12 +94,12 @@ public:
   //! the algorithm is done with S1
   //! An exception is raised if the fields have not
   //! been initialized.
-  Standard_EXPORT void Perform(const Adaptor3d_Surface& S1, const Standard_Real Tol1);
+  Standard_EXPORT void Perform(const GeomAdaptor_Surface& S1, const Standard_Real Tol1);
 
   //! the algorithm is done withS1
   //! An exception is raised if the fields have not
   //! been initialized.
-  Standard_EXPORT void Perform(const Adaptor3d_Surface& S1,
+  Standard_EXPORT void Perform(const GeomAdaptor_Surface& S1,
                                const Standard_Real      U1min,
                                const Standard_Real      U1sup,
                                const Standard_Real      V1min,
@@ -144,7 +144,7 @@ private:
   Standard_Real               mytol1;
   Standard_Real               mytol2;
   Extrema_FuncExtSS           myF;
-  const Adaptor3d_Surface*    myS2;
+  const GeomAdaptor_Surface*    myS2;
 };
 
 #endif // _Extrema_GenExtSS_HeaderFile

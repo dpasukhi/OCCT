@@ -16,7 +16,7 @@
 
 #include <BRepOffset_Offset.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_GCurve.hxx>
 #include <BRep_TEdge.hxx>
@@ -1044,7 +1044,7 @@ void BRepOffset_Offset::Init(const TopoDS_Edge&     Path,
 
   Handle(Geom_Curve) C1 = BRep_Tool::Curve(Edge1, Loc, f[1], l[1]);
 
-  Handle(Adaptor3d_Curve) HEdge1;
+  Handle(GeomAdaptor_Curve) HEdge1;
   Standard_Boolean        C1is3D = Standard_True;
   if (C1.IsNull())
   {
@@ -1056,8 +1056,8 @@ void BRepOffset_Offset::Init(const TopoDS_Edge&     Path,
     C12d = new Geom2d_TrimmedCurve(C12d, f[1], l[1]);
     Handle(GeomAdaptor_Surface) HS1 = new GeomAdaptor_Surface(S1);
     Handle(Geom2dAdaptor_Curve) HC1 = new Geom2dAdaptor_Curve(C12d);
-    Adaptor3d_CurveOnSurface    Cons(HC1, HS1);
-    HEdge1 = new Adaptor3d_CurveOnSurface(Cons);
+    GeomAdaptor_CurveOnSurface    Cons(HC1, HS1);
+    HEdge1 = new GeomAdaptor_CurveOnSurface(Cons);
   }
   else
   {
@@ -1073,7 +1073,7 @@ void BRepOffset_Offset::Init(const TopoDS_Edge&     Path,
 
   Handle(Geom_Curve) C2 = BRep_Tool::Curve(Edge2, Loc, f[2], l[2]);
 
-  Handle(Adaptor3d_Curve) HEdge2;
+  Handle(GeomAdaptor_Curve) HEdge2;
   Standard_Boolean        C2is3D = Standard_True;
   if (C2.IsNull())
   {
@@ -1085,8 +1085,8 @@ void BRepOffset_Offset::Init(const TopoDS_Edge&     Path,
     C12d = new Geom2d_TrimmedCurve(C12d, f[2], l[2]);
     Handle(GeomAdaptor_Surface) HS1 = new GeomAdaptor_Surface(S1);
     Handle(Geom2dAdaptor_Curve) HC1 = new Geom2dAdaptor_Curve(C12d);
-    Adaptor3d_CurveOnSurface    Cons(HC1, HS1);
-    HEdge2 = new Adaptor3d_CurveOnSurface(Cons);
+    GeomAdaptor_CurveOnSurface    Cons(HC1, HS1);
+    HEdge2 = new GeomAdaptor_CurveOnSurface(Cons);
   }
   else
   {

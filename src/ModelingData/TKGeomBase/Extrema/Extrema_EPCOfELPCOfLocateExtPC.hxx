@@ -17,7 +17,7 @@
 #ifndef _Extrema_EPCOfELPCOfLocateExtPC_HeaderFile
 #define _Extrema_EPCOfELPCOfLocateExtPC_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Extrema_CurveTool.hxx>
 #include <Extrema_GGenExtPC.hxx>
 #include <Extrema_PCFOfEPCOfELPCOfLocateExtPC.hxx>
@@ -25,7 +25,7 @@
 #include <gp_Pnt.hxx>
 
 //! Type alias for 3D curve extremum point search for LocateExtPC.
-using Extrema_EPCOfELPCOfLocateExtPC = Extrema_GGenExtPC<Adaptor3d_Curve,
+using Extrema_EPCOfELPCOfLocateExtPC = Extrema_GGenExtPC<GeomAdaptor_Curve,
                                                          Extrema_CurveTool,
                                                          Extrema_POnCurv,
                                                          gp_Pnt,

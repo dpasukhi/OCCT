@@ -21,13 +21,14 @@
 #include <Standard_DefineAlloc.hxx>
 
 #include <Extrema_ECC.hxx>
+
 #include <Extrema_SequenceOfPOnCurv.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <gp_Pnt.hxx>
 
-class Adaptor3d_Curve;
 class Extrema_POnCurv;
 class Extrema_ExtElC;
+class GeomAdaptor_Curve;
 
 //! It calculates all the distance between two curves.
 //! These distances can be maximum or minimum.
@@ -40,14 +41,14 @@ public:
                                 const Standard_Real TolC2 = 1.0e-10);
 
   //! It calculates all the distances.
-  Standard_EXPORT Extrema_ExtCC(const Adaptor3d_Curve& C1,
-                                const Adaptor3d_Curve& C2,
+  Standard_EXPORT Extrema_ExtCC(const GeomAdaptor_Curve& C1,
+                                const GeomAdaptor_Curve& C2,
                                 const Standard_Real    TolC1 = 1.0e-10,
                                 const Standard_Real    TolC2 = 1.0e-10);
 
   //! It calculates all the distances.
-  Standard_EXPORT Extrema_ExtCC(const Adaptor3d_Curve& C1,
-                                const Adaptor3d_Curve& C2,
+  Standard_EXPORT Extrema_ExtCC(const GeomAdaptor_Curve& C1,
+                                const GeomAdaptor_Curve& C2,
                                 const Standard_Real    U1,
                                 const Standard_Real    U2,
                                 const Standard_Real    V1,
@@ -56,14 +57,14 @@ public:
                                 const Standard_Real    TolC2 = 1.0e-10);
 
   //! Initializes but does not perform algorithm.
-  Standard_EXPORT void Initialize(const Adaptor3d_Curve& C1,
-                                  const Adaptor3d_Curve& C2,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Curve& C1,
+                                  const GeomAdaptor_Curve& C2,
                                   const Standard_Real    TolC1 = 1.0e-10,
                                   const Standard_Real    TolC2 = 1.0e-10);
 
   //! Initializes but does not perform algorithm.
-  Standard_EXPORT void Initialize(const Adaptor3d_Curve& C1,
-                                  const Adaptor3d_Curve& C2,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Curve& C1,
+                                  const GeomAdaptor_Curve& C2,
                                   const Standard_Real    U1,
                                   const Standard_Real    U2,
                                   const Standard_Real    V1,
@@ -71,10 +72,10 @@ public:
                                   const Standard_Real    TolC1 = 1.0e-10,
                                   const Standard_Real    TolC2 = 1.0e-10);
 
-  Standard_EXPORT void SetCurve(const Standard_Integer theRank, const Adaptor3d_Curve& C);
+  Standard_EXPORT void SetCurve(const Standard_Integer theRank, const GeomAdaptor_Curve& C);
 
   Standard_EXPORT void SetCurve(const Standard_Integer theRank,
-                                const Adaptor3d_Curve& C,
+                                const GeomAdaptor_Curve& C,
                                 const Standard_Real    Uinf,
                                 const Standard_Real    Usup);
 
@@ -166,7 +167,7 @@ private:
   Standard_Boolean          myIsParallel;
   Extrema_SequenceOfPOnCurv mypoints;
   TColStd_SequenceOfReal    mySqDist;
-  const Adaptor3d_Curve*    myC[2];
+  const GeomAdaptor_Curve*    myC[2];
   Standard_Real             myInf[2];
   Standard_Real             mySup[2];
   Standard_Real             myTol[2];

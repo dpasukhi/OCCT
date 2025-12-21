@@ -17,8 +17,8 @@
 #ifndef _IntPatch_ArcFunction_HeaderFile
 #define _IntPatch_ArcFunction_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntSurf_Quadric.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 #include <math_FunctionWithDerivative.hxx>
@@ -32,9 +32,9 @@ public:
 
   void SetQuadric(const IntSurf_Quadric& Q);
 
-  void Set(const Handle(Adaptor2d_Curve2d)& A);
+  void Set(const Handle(Geom2dAdaptor_Curve)& A);
 
-  void Set(const Handle(Adaptor3d_Surface)& S);
+  void Set(const Handle(GeomAdaptor_Surface)& S);
 
   Standard_EXPORT Standard_Boolean Value(const Standard_Real X, Standard_Real& F) Standard_OVERRIDE;
 
@@ -53,9 +53,9 @@ public:
 
   const IntSurf_Quadric& Quadric() const;
 
-  const Handle(Adaptor2d_Curve2d)& Arc() const;
+  const Handle(Geom2dAdaptor_Curve)& Arc() const;
 
-  const Handle(Adaptor3d_Surface)& Surface() const;
+  const Handle(GeomAdaptor_Surface)& Surface() const;
 
   //! Returns the point, which has been computed
   //! while the last calling Value() method
@@ -63,8 +63,8 @@ public:
 
 protected:
 private:
-  Handle(Adaptor2d_Curve2d) myArc;
-  Handle(Adaptor3d_Surface) mySurf;
+  Handle(Geom2dAdaptor_Curve) myArc;
+  Handle(GeomAdaptor_Surface) mySurf;
   IntSurf_Quadric           myQuad;
   gp_Pnt                    ptsol;
   TColgp_SequenceOfPnt      seqpt;

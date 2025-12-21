@@ -17,7 +17,7 @@
 #ifndef _Contap_SurfProps_HeaderFile
 #define _Contap_SurfProps_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 class gp_Pnt;
 class gp_Vec;
@@ -31,7 +31,7 @@ public:
 
   //! Computes the point <P>, and normal vector <N> on
   //! <S> at parameters U,V.
-  Standard_EXPORT static void Normale(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void Normale(const Handle(GeomAdaptor_Surface)& S,
                                       const Standard_Real              U,
                                       const Standard_Real              V,
                                       gp_Pnt&                          P,
@@ -39,7 +39,7 @@ public:
 
   //! Computes the point <P>, and normal vector <N> on
   //! <S> at parameters U,V.
-  Standard_EXPORT static void DerivAndNorm(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void DerivAndNorm(const Handle(GeomAdaptor_Surface)& S,
                                            const Standard_Real              U,
                                            const Standard_Real              V,
                                            gp_Pnt&                          P,
@@ -49,7 +49,7 @@ public:
 
   //! Computes the point <P>, normal vector <N>, and its
   //! derivatives <Dnu> and <Dnv> on <S> at parameters U,V.
-  Standard_EXPORT static void NormAndDn(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void NormAndDn(const Handle(GeomAdaptor_Surface)& S,
                                         const Standard_Real              U,
                                         const Standard_Real              V,
                                         gp_Pnt&                          P,

@@ -18,7 +18,7 @@
 // Add methods for supporting history.
 //  Modified by skv - Mon Jan 12 11:50:02 2004 OCC4455
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_ListIteratorOfListOfPointRepresentation.hxx>
 #include <BRep_PointRepresentation.hxx>
@@ -3482,7 +3482,7 @@ void BRepOffset_MakeOffset::MakeMissingWalls(const Message_ProgressRange& theRan
           GeomAdaptor_Surface         GAsurf(theSurf);
           Handle(Geom2dAdaptor_Curve) HC2d  = new Geom2dAdaptor_Curve(AC2d);
           Handle(GeomAdaptor_Surface) HSurf = new GeomAdaptor_Surface(GAsurf);
-          Adaptor3d_CurveOnSurface    ConS(HC2d, HSurf);
+          GeomAdaptor_CurveOnSurface    ConS(HC2d, HSurf);
           Standard_Real               max_deviation = 0., average_deviation;
           GeomLib::BuildCurve3d(Precision::Confusion(),
                                 ConS,
@@ -3507,7 +3507,7 @@ void BRepOffset_MakeOffset::MakeMissingWalls(const Message_ProgressRange& theRan
           GeomAdaptor_Surface         GAsurf(theSurf);
           Handle(Geom2dAdaptor_Curve) HC2d  = new Geom2dAdaptor_Curve(AC2d);
           Handle(GeomAdaptor_Surface) HSurf = new GeomAdaptor_Surface(GAsurf);
-          Adaptor3d_CurveOnSurface    ConS(HC2d, HSurf);
+          GeomAdaptor_CurveOnSurface    ConS(HC2d, HSurf);
           Standard_Real               max_deviation = 0., average_deviation;
           GeomLib::BuildCurve3d(Precision::Confusion(),
                                 ConS,

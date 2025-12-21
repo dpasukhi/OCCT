@@ -30,7 +30,7 @@
 //: s1 abv 22.04.99: PRO7226 #489490: ensure fixing of degenerated edge
 // #9 smh 14.12.99 BUC60615 Using tolerance of verteces during checking degenerated edge.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <Bnd_Array1OfBox2d.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
@@ -1085,7 +1085,7 @@ Standard_Boolean ShapeAnalysis_Wire::CheckCurveGap(const Standard_Integer num)
   }
   Handle(Geom2dAdaptor_Curve) AC = new Geom2dAdaptor_Curve(pc, pcuf, pcul);
   Handle(GeomAdaptor_Surface) AS = new GeomAdaptor_Surface(mySurf->Surface());
-  Adaptor3d_CurveOnSurface    ACS(AC, AS);
+  GeomAdaptor_CurveOnSurface    ACS(AC, AS);
   gp_Pnt                      cpnt, pcpnt;
   Standard_Integer            nbp = 45;
   Standard_Real               dist, maxdist = 0.;
@@ -1635,7 +1635,7 @@ Standard_Boolean ShapeAnalysis_Wire::CheckOuterBound(const Standard_Boolean APIM
 
 //=================================================================================================
 
-static Standard_Real ProjectInside(const Adaptor3d_CurveOnSurface& AD,
+static Standard_Real ProjectInside(const GeomAdaptor_CurveOnSurface& AD,
                                    const gp_Pnt&                   pnt,
                                    const Standard_Real             preci,
                                    gp_Pnt&                         proj,
@@ -1733,13 +1733,13 @@ Standard_Boolean ShapeAnalysis_Wire::CheckNotchedEdges(const Standard_Integer nu
 
   Handle(Geom2dAdaptor_Curve) AC2d1 = new Geom2dAdaptor_Curve(c2d1, a1, b1);
   Handle(GeomAdaptor_Surface) AdS1  = new GeomAdaptor_Surface(new Geom_Plane(gp_Pln()));
-  Adaptor3d_CurveOnSurface    Ad1(AC2d1, AdS1);
+  GeomAdaptor_CurveOnSurface    Ad1(AC2d1, AdS1);
 
   Handle(Geom2dAdaptor_Curve) AC2d2 = new Geom2dAdaptor_Curve(c2d2, a2, b2);
   Handle(GeomAdaptor_Surface) AdS2  = new GeomAdaptor_Surface(new Geom_Plane(gp_Pln()));
-  Adaptor3d_CurveOnSurface    Ad2(AC2d2, AdS2);
+  GeomAdaptor_CurveOnSurface    Ad2(AC2d2, AdS2);
 
-  Adaptor3d_CurveOnSurface longAD, shortAD;
+  GeomAdaptor_CurveOnSurface longAD, shortAD;
   Standard_Real            lenP, firstP;
 
   ShapeAnalysis_Curve sac;

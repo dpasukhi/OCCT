@@ -18,7 +18,7 @@
 #include <IntPatch_WLine.hxx>
 #include <NCollection_List.hxx>
 
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 //! IntPatch_WLineTool provides set of static methods related to walking lines.
 class IntPatch_WLineTool
@@ -42,10 +42,10 @@ public:
   //! of the points is less than 2.
   Standard_EXPORT static Handle(IntPatch_WLine) ComputePurgedWLine(
     const Handle(IntPatch_WLine)&      theWLine,
-    const Handle(Adaptor3d_Surface)&   theS1,
-    const Handle(Adaptor3d_Surface)&   theS2,
-    const Handle(Adaptor3d_TopolTool)& theDom1,
-    const Handle(Adaptor3d_TopolTool)& theDom2);
+    const Handle(GeomAdaptor_Surface)&   theS1,
+    const Handle(GeomAdaptor_Surface)&   theS2,
+    const Handle(GeomAdaptor_TopolTool)& theDom1,
+    const Handle(GeomAdaptor_TopolTool)& theDom2);
 
   //! Joins all WLines from theSlin to one if it is possible and records
   //! the result into theSlin again. Lines will be kept to be split if:
@@ -56,8 +56,8 @@ public:
   //! this point will be deleted.
   Standard_EXPORT static void JoinWLines(IntPatch_SequenceOfLine&  theSlin,
                                          IntPatch_SequenceOfPoint& theSPnt,
-                                         Handle(Adaptor3d_Surface) theS1,
-                                         Handle(Adaptor3d_Surface) theS2,
+                                         Handle(GeomAdaptor_Surface) theS1,
+                                         Handle(GeomAdaptor_Surface) theS2,
                                          const Standard_Real       theTol3D);
 
   //! Extends every line from theSlin (if it is possible) to be started/finished
@@ -73,8 +73,8 @@ public:
   //! theListOfCriticalPoints must contain 3D-points where joining is disabled.
   Standard_EXPORT static void ExtendTwoWLines(
     IntPatch_SequenceOfLine&         theSlin,
-    const Handle(Adaptor3d_Surface)& theS1,
-    const Handle(Adaptor3d_Surface)& theS2,
+    const Handle(GeomAdaptor_Surface)& theS1,
+    const Handle(GeomAdaptor_Surface)& theS2,
     const Standard_Real              theToler3D,
     const Standard_Real* const       theArrPeriods,
     const Bnd_Box2d&                 theBoxS1,

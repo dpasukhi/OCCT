@@ -16,7 +16,7 @@
 
 #include <GeomFill_LocationLaw.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Mat.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>

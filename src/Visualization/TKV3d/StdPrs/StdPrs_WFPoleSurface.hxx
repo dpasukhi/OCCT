@@ -20,7 +20,7 @@
 #include <Prs3d_Root.hxx>
 #include <Prs3d_Drawer.hxx>
 
-class Adaptor3d_Surface;
+class GeomAdaptor_Surface;
 
 //! Computes the presentation of surfaces by drawing a
 //! double network of lines linking the poles of the surface
@@ -38,7 +38,7 @@ public:
   //! Adaptor3d, and provides data from a Geom surface.
   //! This makes it possible to use the surface in a geometric algorithm.
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Adaptor3d_Surface&          aSurface,
+                                  const GeomAdaptor_Surface&          aSurface,
                                   const Handle(Prs3d_Drawer)&       aDrawer);
 
 protected:

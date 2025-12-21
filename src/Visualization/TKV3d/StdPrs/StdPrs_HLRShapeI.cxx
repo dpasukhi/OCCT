@@ -11,6 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
 #include <StdPrs_HLRShapeI.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(StdPrs_HLRShapeI, Standard_Transient)

@@ -17,11 +17,11 @@
 #ifndef _StdPrs_DeflectionCurve_HeaderFile
 #define _StdPrs_DeflectionCurve_HeaderFile
 
-#include <Prs3d_Root.hxx>
 #include <Prs3d_Drawer.hxx>
+#include <Prs3d_Root.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 
-class Adaptor3d_Curve;
+class GeomAdaptor_Curve;
 
 //! A framework to provide display of any curve with
 //! respect to the maximal chordal deviation defined in
@@ -39,7 +39,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  Adaptor3d_Curve&                  aCurve,
+                                  GeomAdaptor_Curve&                  aCurve,
                                   const Handle(Prs3d_Drawer)&       aDrawer,
                                   const Standard_Boolean            drawCurve = Standard_True);
 
@@ -52,7 +52,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  Adaptor3d_Curve&                  aCurve,
+                                  GeomAdaptor_Curve&                  aCurve,
                                   const Standard_Real               U1,
                                   const Standard_Real               U2,
                                   const Handle(Prs3d_Drawer)&       aDrawer,
@@ -65,7 +65,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  Adaptor3d_Curve&                  aCurve,
+                                  GeomAdaptor_Curve&                  aCurve,
                                   const Standard_Real               aDeflection,
                                   const Standard_Real               aLimit,
                                   const Standard_Real               anAngle   = 0.2,
@@ -79,7 +79,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  Adaptor3d_Curve&                  aCurve,
+                                  GeomAdaptor_Curve&                  aCurve,
                                   const Standard_Real               aDeflection,
                                   const Handle(Prs3d_Drawer)&       aDrawer,
                                   TColgp_SequenceOfPnt&             Points,
@@ -94,7 +94,7 @@ public:
   //! it is used if the curve is a part of some shape and PrimitiveArray
   //! visualization approach is activated (it is activated by default).
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  Adaptor3d_Curve&                  aCurve,
+                                  GeomAdaptor_Curve&                  aCurve,
                                   const Standard_Real               U1,
                                   const Standard_Real               U2,
                                   const Standard_Real               aDeflection,
@@ -109,7 +109,7 @@ public:
                                                 const Standard_Real         Y,
                                                 const Standard_Real         Z,
                                                 const Standard_Real         aDistance,
-                                                const Adaptor3d_Curve&      aCurve,
+                                                const GeomAdaptor_Curve&      aCurve,
                                                 const Handle(Prs3d_Drawer)& aDrawer);
 
   //! returns true if the distance between the point (X,Y,Z) and the
@@ -121,7 +121,7 @@ public:
                                                 const Standard_Real         Y,
                                                 const Standard_Real         Z,
                                                 const Standard_Real         aDistance,
-                                                const Adaptor3d_Curve&      aCurve,
+                                                const GeomAdaptor_Curve&      aCurve,
                                                 const Standard_Real         U1,
                                                 const Standard_Real         U2,
                                                 const Handle(Prs3d_Drawer)& aDrawer);
@@ -133,7 +133,7 @@ public:
                                                 const Standard_Real    theY,
                                                 const Standard_Real    theZ,
                                                 const Standard_Real    theDistance,
-                                                const Adaptor3d_Curve& theCurve,
+                                                const GeomAdaptor_Curve& theCurve,
                                                 const Standard_Real    theDeflection,
                                                 const Standard_Real    theLimit,
                                                 const Standard_Real    theAngle);
@@ -145,7 +145,7 @@ public:
                                                 const Standard_Real    theY,
                                                 const Standard_Real    theZ,
                                                 const Standard_Real    theDistance,
-                                                const Adaptor3d_Curve& theCurve,
+                                                const GeomAdaptor_Curve& theCurve,
                                                 const Standard_Real    theU1,
                                                 const Standard_Real    theU2,
                                                 const Standard_Real    theDeflection,

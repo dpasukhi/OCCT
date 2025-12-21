@@ -17,7 +17,7 @@
 //  Modified by skv - Mon Jun  7 18:38:57 2004 OCC5898
 //  Modified by skv - Thu Aug 21 11:55:58 2008 OCC20222
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_FuncInv.hxx>
 #include <BRepAlgo_NormalProjection.hxx>
 #include <BRepBlend_Line.hxx>
@@ -143,9 +143,9 @@ static Standard_Real recadre(const Standard_Real    p,
 //           parameter in FaceInterference.
 //=======================================================================
 
-static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& fb,
-                               const Handle(Adaptor2d_Curve2d)& pcfb,
-                               const Handle(Adaptor3d_Surface)& surf,
+static Standard_Boolean Update(const Handle(GeomAdaptor_Surface)& fb,
+                               const Handle(Geom2dAdaptor_Curve)& pcfb,
+                               const Handle(GeomAdaptor_Surface)& surf,
                                ChFiDS_FaceInterference&         fi,
                                ChFiDS_CommonPoint&              cp,
                                gp_Pnt2d&                        p2dbout,
@@ -154,10 +154,10 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& fb,
                                Standard_Real&                   wop,
                                const Standard_Real              tol)
 {
-  Adaptor3d_CurveOnSurface    c1(pcfb, fb);
+  GeomAdaptor_CurveOnSurface    c1(pcfb, fb);
   Handle(Geom2d_Curve)        pc  = fi.PCurveOnSurf();
   Handle(Geom2dAdaptor_Curve) hpc = new Geom2dAdaptor_Curve(pc);
-  Adaptor3d_CurveOnSurface    c2(hpc, surf);
+  GeomAdaptor_CurveOnSurface    c2(hpc, surf);
   Extrema_LocateExtCC         ext(c1, c2, pared, wop);
   if (ext.IsDone())
   {
@@ -187,8 +187,8 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& fb,
 //           and <p2dbout>
 //=======================================================================
 
-static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& fb,
-                               const Handle(Adaptor3d_Curve)&   ct,
+static Standard_Boolean Update(const Handle(GeomAdaptor_Surface)& fb,
+                               const Handle(GeomAdaptor_Curve)&   ct,
                                ChFiDS_FaceInterference&         fi,
                                ChFiDS_CommonPoint&              cp,
                                gp_Pnt2d&                        p2dbout,
@@ -331,16 +331,16 @@ static Standard_Boolean IntersUpdateOnSame(Handle(GeomAdaptor_Surface)& HGs,
 //           face at end.
 //=======================================================================
 
-static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& face,
-                               const Handle(Adaptor2d_Curve2d)& edonface,
-                               const Handle(Adaptor3d_Surface)& surf,
+static Standard_Boolean Update(const Handle(GeomAdaptor_Surface)& face,
+                               const Handle(Geom2dAdaptor_Curve)& edonface,
+                               const Handle(GeomAdaptor_Surface)& surf,
                                ChFiDS_FaceInterference&         fi,
                                ChFiDS_CommonPoint&              cp,
                                const Standard_Boolean           isfirst)
 {
   if (!cp.IsOnArc())
     return 0;
-  Adaptor3d_CurveOnSurface c1(edonface, face);
+  GeomAdaptor_CurveOnSurface c1(edonface, face);
   Standard_Real            pared  = cp.ParameterOnArc();
   Standard_Real            parltg = fi.Parameter(isfirst);
   Handle(Geom2d_Curve)     pc     = fi.PCurveOnSurf();
@@ -350,7 +350,7 @@ static Standard_Boolean Update(const Handle(Adaptor3d_Surface)& face,
   f                               = std::max(f - delta, pc->FirstParameter());
   l                               = std::min(l + delta, pc->LastParameter());
   Handle(Geom2dAdaptor_Curve) hpc = new Geom2dAdaptor_Curve(pc, f, l);
-  Adaptor3d_CurveOnSurface    c2(hpc, surf);
+  GeomAdaptor_CurveOnSurface    c2(hpc, surf);
 
   Extrema_LocateExtCC ext(c1, c2, pared, parltg);
   if (ext.IsDone())

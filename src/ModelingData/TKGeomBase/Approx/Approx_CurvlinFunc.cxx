@@ -16,10 +16,10 @@
 
 #include <Approx_CurvlinFunc.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GCPnts_AbscissaPoint.hxx>
 #include <GeomLib.hxx>
 #include <Standard_ConstructionError.hxx>
@@ -101,7 +101,7 @@ static void findfourpoints(const Standard_Real,
   }
 }
 
-/*static Standard_Real curvature(const Standard_Real U, const Adaptor3d_Curve& C)
+/*static Standard_Real curvature(const Standard_Real U, const GeomAdaptor_Curve& C)
 {
   Standard_Real k, tau, mod1, mod2, OMEGA;
   gp_Pnt P;
@@ -118,7 +118,7 @@ static void findfourpoints(const Standard_Real,
 }
 */
 
-Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor3d_Curve)& C, const Standard_Real Tol)
+Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(GeomAdaptor_Curve)& C, const Standard_Real Tol)
     : myC3D(C),
       myCase(1),
       myFirstS(0),
@@ -130,8 +130,8 @@ Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor3d_Curve)& C, const S
   Init();
 }
 
-Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D,
-                                       const Handle(Adaptor3d_Surface)& S,
+Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D,
+                                       const Handle(GeomAdaptor_Surface)& S,
                                        const Standard_Real              Tol)
     : myC2D1(C2D),
       mySurf1(S),
@@ -145,10 +145,10 @@ Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D,
   Init();
 }
 
-Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D1,
-                                       const Handle(Adaptor2d_Curve2d)& C2D2,
-                                       const Handle(Adaptor3d_Surface)& S1,
-                                       const Handle(Adaptor3d_Surface)& S2,
+Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D1,
+                                       const Handle(Geom2dAdaptor_Curve)& C2D2,
+                                       const Handle(GeomAdaptor_Surface)& S1,
+                                       const Handle(GeomAdaptor_Surface)& S2,
                                        const Standard_Real              Tol)
     : myC2D1(C2D1),
       myC2D2(C2D2),
@@ -166,7 +166,7 @@ Approx_CurvlinFunc::Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D1,
 
 void Approx_CurvlinFunc::Init()
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
+  GeomAdaptor_CurveOnSurface CurOnSur;
 
   switch (myCase)
   {
@@ -206,7 +206,7 @@ void Approx_CurvlinFunc::Init()
 // history  : 23/10/1998 PMN : Cut at curve's discontinuities
 //=================================================================================================
 
-void Approx_CurvlinFunc::Init(Adaptor3d_Curve&               C,
+void Approx_CurvlinFunc::Init(GeomAdaptor_Curve&               C,
                               Handle(TColStd_HArray1OfReal)& Si,
                               Handle(TColStd_HArray1OfReal)& Ui) const
 {
@@ -271,7 +271,7 @@ Standard_Real Approx_CurvlinFunc::LastParameter() const
 
 Standard_Integer Approx_CurvlinFunc::NbIntervals(const GeomAbs_Shape S) const
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
+  GeomAdaptor_CurveOnSurface CurOnSur;
 
   switch (myCase)
   {
@@ -305,7 +305,7 @@ Standard_Integer Approx_CurvlinFunc::NbIntervals(const GeomAbs_Shape S) const
 
 void Approx_CurvlinFunc::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S) const
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
+  GeomAdaptor_CurveOnSurface CurOnSur;
   Standard_Integer         i;
 
   switch (myCase)
@@ -352,8 +352,8 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
     return;
 
   Standard_Real                    FirstU, LastU;
-  Adaptor3d_CurveOnSurface         CurOnSur;
-  Handle(Adaptor3d_CurveOnSurface) HCurOnSur;
+  GeomAdaptor_CurveOnSurface         CurOnSur;
+  Handle(GeomAdaptor_CurveOnSurface) HCurOnSur;
 
   switch (myCase)
   {
@@ -367,7 +367,7 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
       CurOnSur.Load(myC2D2);
       CurOnSur.Load(mySurf2);
       HCurOnSur =
-        Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(myFirstU2, myLastU2, Tol));
+        Handle(GeomAdaptor_CurveOnSurface)::DownCast(CurOnSur.Trim(myFirstU2, myLastU2, Tol));
       myC2D2  = HCurOnSur->GetCurve();
       mySurf2 = HCurOnSur->GetSurface();
       CurOnSur.Load(myC2D2);
@@ -375,7 +375,7 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
 
       FirstU    = GetUParameter(CurOnSur, First, 1);
       LastU     = GetUParameter(CurOnSur, Last, 1);
-      HCurOnSur = Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(FirstU, LastU, Tol));
+      HCurOnSur = Handle(GeomAdaptor_CurveOnSurface)::DownCast(CurOnSur.Trim(FirstU, LastU, Tol));
       myC2D2    = HCurOnSur->GetCurve();
       mySurf2   = HCurOnSur->GetSurface();
 
@@ -384,7 +384,7 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
       CurOnSur.Load(myC2D1);
       CurOnSur.Load(mySurf1);
       HCurOnSur =
-        Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(myFirstU1, myLastU1, Tol));
+        Handle(GeomAdaptor_CurveOnSurface)::DownCast(CurOnSur.Trim(myFirstU1, myLastU1, Tol));
       myC2D1  = HCurOnSur->GetCurve();
       mySurf1 = HCurOnSur->GetSurface();
       CurOnSur.Load(myC2D1);
@@ -392,7 +392,7 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
 
       FirstU    = GetUParameter(CurOnSur, First, 1);
       LastU     = GetUParameter(CurOnSur, Last, 1);
-      HCurOnSur = Handle(Adaptor3d_CurveOnSurface)::DownCast(CurOnSur.Trim(FirstU, LastU, Tol));
+      HCurOnSur = Handle(GeomAdaptor_CurveOnSurface)::DownCast(CurOnSur.Trim(FirstU, LastU, Tol));
       myC2D1    = HCurOnSur->GetCurve();
       mySurf1   = HCurOnSur->GetSurface();
   }
@@ -402,7 +402,7 @@ void Approx_CurvlinFunc::Trim(const Standard_Real First,
 
 void Approx_CurvlinFunc::Length()
 {
-  Adaptor3d_CurveOnSurface CurOnSur;
+  GeomAdaptor_CurveOnSurface CurOnSur;
   Standard_Real            FirstU, LastU;
 
   switch (myCase)
@@ -436,7 +436,7 @@ void Approx_CurvlinFunc::Length()
   }
 }
 
-Standard_Real Approx_CurvlinFunc::Length(Adaptor3d_Curve&    C,
+Standard_Real Approx_CurvlinFunc::Length(GeomAdaptor_Curve&    C,
                                          const Standard_Real FirstU,
                                          const Standard_Real LastU) const
 {
@@ -454,7 +454,7 @@ Standard_Real Approx_CurvlinFunc::GetLength() const
 Standard_Real Approx_CurvlinFunc::GetSParameter(const Standard_Real U) const
 {
   Standard_Real            S = 0, S1, S2;
-  Adaptor3d_CurveOnSurface CurOnSur;
+  GeomAdaptor_CurveOnSurface CurOnSur;
 
   switch (myCase)
   {
@@ -478,7 +478,7 @@ Standard_Real Approx_CurvlinFunc::GetSParameter(const Standard_Real U) const
   return S;
 }
 
-Standard_Real Approx_CurvlinFunc::GetUParameter(Adaptor3d_Curve&       C,
+Standard_Real Approx_CurvlinFunc::GetUParameter(GeomAdaptor_Curve&       C,
                                                 const Standard_Real    S,
                                                 const Standard_Integer NumberOfCurve) const
 {
@@ -551,7 +551,7 @@ Standard_Real Approx_CurvlinFunc::GetUParameter(Adaptor3d_Curve&       C,
   return U;
 }
 
-Standard_Real Approx_CurvlinFunc::GetSParameter(Adaptor3d_Curve&    C,
+Standard_Real Approx_CurvlinFunc::GetSParameter(GeomAdaptor_Curve&    C,
                                                 const Standard_Real U,
                                                 const Standard_Real Len) const
 {
@@ -660,15 +660,15 @@ Standard_Boolean Approx_CurvlinFunc::EvalCurOnSur(const Standard_Real    S,
                                                   TColStd_Array1OfReal&  Result,
                                                   const Standard_Integer NumberOfCurve) const
 {
-  Handle(Adaptor2d_Curve2d) Cur2D;
-  Handle(Adaptor3d_Surface) Surf;
+  Handle(Geom2dAdaptor_Curve) Cur2D;
+  Handle(GeomAdaptor_Surface) Surf;
   Standard_Real             U = 0, Length = 0;
 
   if (NumberOfCurve == 1)
   {
     Cur2D = myC2D1;
     Surf  = mySurf1;
-    Adaptor3d_CurveOnSurface CurOnSur(myC2D1, mySurf1);
+    GeomAdaptor_CurveOnSurface CurOnSur(myC2D1, mySurf1);
     U = GetUParameter(CurOnSur, S, 1);
     if (myCase == 3)
       Length = myLength1;
@@ -679,7 +679,7 @@ Standard_Boolean Approx_CurvlinFunc::EvalCurOnSur(const Standard_Real    S,
   {
     Cur2D = myC2D2;
     Surf  = mySurf2;
-    Adaptor3d_CurveOnSurface CurOnSur(myC2D2, mySurf2);
+    GeomAdaptor_CurveOnSurface CurOnSur(myC2D2, mySurf2);
     U      = GetUParameter(CurOnSur, S, 2);
     Length = myLength2;
   }

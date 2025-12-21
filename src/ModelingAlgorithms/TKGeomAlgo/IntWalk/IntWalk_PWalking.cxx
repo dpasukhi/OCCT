@@ -12,8 +12,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
 #include <Extrema_GenLocateExtPS.hxx>
 #include <Geom_Surface.hxx>
 #include <gp_Dir.hxx>
@@ -43,8 +43,8 @@ void IntWalk_PWalking::ComputePasInit(const Standard_Real theDeltaU1,
 {
   const Standard_Real              aRangePart = 0.01;
   const Standard_Real              Increment  = 2.0 * pasMax;
-  const Handle(Adaptor3d_Surface)& Caro1      = myIntersectionOn2S.Function().AuxillarSurface1();
-  const Handle(Adaptor3d_Surface)& Caro2      = myIntersectionOn2S.Function().AuxillarSurface2();
+  const Handle(GeomAdaptor_Surface)& Caro1      = myIntersectionOn2S.Function().AuxillarSurface1();
+  const Handle(GeomAdaptor_Surface)& Caro2      = myIntersectionOn2S.Function().AuxillarSurface2();
 
   const Standard_Real aDeltaU1 = std::abs(UM1 - Um1);
   const Standard_Real aDeltaV1 = std::abs(VM1 - Vm1);
@@ -74,10 +74,10 @@ void IntWalk_PWalking::ComputePasInit(const Standard_Real theDeltaU1,
   else
     pasuv[3] = std::max(Increment * theDeltaV2, pasuv[3]);
 
-  const Standard_Real ResoU1tol = Adaptor3d_HSurfaceTool::UResolution(Caro1, tolconf);
-  const Standard_Real ResoV1tol = Adaptor3d_HSurfaceTool::VResolution(Caro1, tolconf);
-  const Standard_Real ResoU2tol = Adaptor3d_HSurfaceTool::UResolution(Caro2, tolconf);
-  const Standard_Real ResoV2tol = Adaptor3d_HSurfaceTool::VResolution(Caro2, tolconf);
+  const Standard_Real ResoU1tol = GeomAdaptor_HSurfaceTool::UResolution(Caro1, tolconf);
+  const Standard_Real ResoV1tol = GeomAdaptor_HSurfaceTool::VResolution(Caro1, tolconf);
+  const Standard_Real ResoU2tol = GeomAdaptor_HSurfaceTool::UResolution(Caro2, tolconf);
+  const Standard_Real ResoV2tol = GeomAdaptor_HSurfaceTool::VResolution(Caro2, tolconf);
 
   myStepMin[0] = std::max(myStepMin[0], 2.0 * ResoU1tol);
   myStepMin[1] = std::max(myStepMin[1], 2.0 * ResoV1tol);
@@ -187,8 +187,8 @@ static Standard_Boolean AdjustToDomain(const Standard_Integer     theNbElem,
 
 //=================================================================================================
 
-IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
-                                   const Handle(Adaptor3d_Surface)& Caro2,
+IntWalk_PWalking::IntWalk_PWalking(const Handle(GeomAdaptor_Surface)& Caro1,
+                                   const Handle(GeomAdaptor_Surface)& Caro2,
                                    const Standard_Real              TolTangency,
                                    const Standard_Real              Epsilon,
                                    const Standard_Real              Deflection,
@@ -213,21 +213,21 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   Standard_Real KELARG = 20.;
   //
   pasMax = Increment * 0.2; //-- June 25 99 after problems with precision
-  Um1    = Adaptor3d_HSurfaceTool::FirstUParameter(Caro1);
-  Vm1    = Adaptor3d_HSurfaceTool::FirstVParameter(Caro1);
-  UM1    = Adaptor3d_HSurfaceTool::LastUParameter(Caro1);
-  VM1    = Adaptor3d_HSurfaceTool::LastVParameter(Caro1);
+  Um1    = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro1);
+  Vm1    = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro1);
+  UM1    = GeomAdaptor_HSurfaceTool::LastUParameter(Caro1);
+  VM1    = GeomAdaptor_HSurfaceTool::LastVParameter(Caro1);
 
-  Um2 = Adaptor3d_HSurfaceTool::FirstUParameter(Caro2);
-  Vm2 = Adaptor3d_HSurfaceTool::FirstVParameter(Caro2);
-  UM2 = Adaptor3d_HSurfaceTool::LastUParameter(Caro2);
-  VM2 = Adaptor3d_HSurfaceTool::LastVParameter(Caro2);
+  Um2 = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro2);
+  Vm2 = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro2);
+  UM2 = GeomAdaptor_HSurfaceTool::LastUParameter(Caro2);
+  VM2 = GeomAdaptor_HSurfaceTool::LastVParameter(Caro2);
 
-  ResoU1 = Adaptor3d_HSurfaceTool::UResolution(Caro1, Precision::Confusion());
-  ResoV1 = Adaptor3d_HSurfaceTool::VResolution(Caro1, Precision::Confusion());
+  ResoU1 = GeomAdaptor_HSurfaceTool::UResolution(Caro1, Precision::Confusion());
+  ResoV1 = GeomAdaptor_HSurfaceTool::VResolution(Caro1, Precision::Confusion());
 
-  ResoU2 = Adaptor3d_HSurfaceTool::UResolution(Caro2, Precision::Confusion());
-  ResoV2 = Adaptor3d_HSurfaceTool::VResolution(Caro2, Precision::Confusion());
+  ResoU2 = GeomAdaptor_HSurfaceTool::UResolution(Caro2, Precision::Confusion());
+  ResoV2 = GeomAdaptor_HSurfaceTool::VResolution(Caro2, Precision::Confusion());
 
   Standard_Real NEWRESO;
   Standard_Real MAXVAL;
@@ -287,64 +287,64 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   if (ResoV2 > 0.0001 * pasuv[3])
     ResoV2 = 0.00001 * pasuv[3];
 
-  if (Adaptor3d_HSurfaceTool::IsUPeriodic(Caro1) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsUPeriodic(Caro1) == Standard_False)
   {
     // UM1+=KELARG*pasuv[0];  Um1-=KELARG*pasuv[0];
   }
   else
   {
     Standard_Real t = UM1 - Um1;
-    if (t < Adaptor3d_HSurfaceTool::UPeriod(Caro1))
+    if (t < GeomAdaptor_HSurfaceTool::UPeriod(Caro1))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::UPeriod(Caro1) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::UPeriod(Caro1) - t);
       t = (t > KELARG * pasuv[0]) ? KELARG * pasuv[0] : t;
       UM1 += t;
       Um1 -= t;
     }
   }
 
-  if (Adaptor3d_HSurfaceTool::IsVPeriodic(Caro1) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsVPeriodic(Caro1) == Standard_False)
   {
     // VM1+=KELARG*pasuv[1];  Vm1-=KELARG*pasuv[1];
   }
   else
   {
     Standard_Real t = VM1 - Vm1;
-    if (t < Adaptor3d_HSurfaceTool::VPeriod(Caro1))
+    if (t < GeomAdaptor_HSurfaceTool::VPeriod(Caro1))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::VPeriod(Caro1) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::VPeriod(Caro1) - t);
       t = (t > KELARG * pasuv[1]) ? KELARG * pasuv[1] : t;
       VM1 += t;
       Vm1 -= t;
     }
   }
 
-  if (Adaptor3d_HSurfaceTool::IsUPeriodic(Caro2) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsUPeriodic(Caro2) == Standard_False)
   {
     // UM2+=KELARG*pasuv[2];  Um2-=KELARG*pasuv[2];
   }
   else
   {
     Standard_Real t = UM2 - Um2;
-    if (t < Adaptor3d_HSurfaceTool::UPeriod(Caro2))
+    if (t < GeomAdaptor_HSurfaceTool::UPeriod(Caro2))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::UPeriod(Caro2) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::UPeriod(Caro2) - t);
       t = (t > KELARG * pasuv[2]) ? KELARG * pasuv[2] : t;
       UM2 += t;
       Um2 -= t;
     }
   }
 
-  if (Adaptor3d_HSurfaceTool::IsVPeriodic(Caro2) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsVPeriodic(Caro2) == Standard_False)
   {
     // VM2+=KELARG*pasuv[3];  Vm2-=KELARG*pasuv[3];
   }
   else
   {
     Standard_Real t = VM2 - Vm2;
-    if (t < Adaptor3d_HSurfaceTool::VPeriod(Caro2))
+    if (t < GeomAdaptor_HSurfaceTool::VPeriod(Caro2))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::VPeriod(Caro2) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::VPeriod(Caro2) - t);
       t = (t > KELARG * pasuv[3]) ? KELARG * pasuv[3] : t;
       VM2 += t;
       Vm2 -= t;
@@ -368,8 +368,8 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
 
 //=================================================================================================
 
-IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
-                                   const Handle(Adaptor3d_Surface)& Caro2,
+IntWalk_PWalking::IntWalk_PWalking(const Handle(GeomAdaptor_Surface)& Caro1,
+                                   const Handle(GeomAdaptor_Surface)& Caro2,
                                    const Standard_Real              TolTangency,
                                    const Standard_Real              Epsilon,
                                    const Standard_Real              Deflection,
@@ -394,21 +394,21 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   //
   pasMax = Increment * 0.2; //-- June 25 99 after problems with precision
   //
-  Um1 = Adaptor3d_HSurfaceTool::FirstUParameter(Caro1);
-  Vm1 = Adaptor3d_HSurfaceTool::FirstVParameter(Caro1);
-  UM1 = Adaptor3d_HSurfaceTool::LastUParameter(Caro1);
-  VM1 = Adaptor3d_HSurfaceTool::LastVParameter(Caro1);
+  Um1 = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro1);
+  Vm1 = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro1);
+  UM1 = GeomAdaptor_HSurfaceTool::LastUParameter(Caro1);
+  VM1 = GeomAdaptor_HSurfaceTool::LastVParameter(Caro1);
 
-  Um2 = Adaptor3d_HSurfaceTool::FirstUParameter(Caro2);
-  Vm2 = Adaptor3d_HSurfaceTool::FirstVParameter(Caro2);
-  UM2 = Adaptor3d_HSurfaceTool::LastUParameter(Caro2);
-  VM2 = Adaptor3d_HSurfaceTool::LastVParameter(Caro2);
+  Um2 = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro2);
+  Vm2 = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro2);
+  UM2 = GeomAdaptor_HSurfaceTool::LastUParameter(Caro2);
+  VM2 = GeomAdaptor_HSurfaceTool::LastVParameter(Caro2);
 
-  ResoU1 = Adaptor3d_HSurfaceTool::UResolution(Caro1, Precision::Confusion());
-  ResoV1 = Adaptor3d_HSurfaceTool::VResolution(Caro1, Precision::Confusion());
+  ResoU1 = GeomAdaptor_HSurfaceTool::UResolution(Caro1, Precision::Confusion());
+  ResoV1 = GeomAdaptor_HSurfaceTool::VResolution(Caro1, Precision::Confusion());
 
-  ResoU2 = Adaptor3d_HSurfaceTool::UResolution(Caro2, Precision::Confusion());
-  ResoV2 = Adaptor3d_HSurfaceTool::VResolution(Caro2, Precision::Confusion());
+  ResoU2 = GeomAdaptor_HSurfaceTool::UResolution(Caro2, Precision::Confusion());
+  ResoV2 = GeomAdaptor_HSurfaceTool::VResolution(Caro2, Precision::Confusion());
   //
   Standard_Real NEWRESO, MAXVAL, MAXVAL2;
   //
@@ -465,7 +465,7 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   pasuv[2] = pasMax * std::abs(UM2 - Um2);
   pasuv[3] = pasMax * std::abs(VM2 - Vm2);
   //
-  if (Adaptor3d_HSurfaceTool::IsUPeriodic(Caro1) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsUPeriodic(Caro1) == Standard_False)
   {
     UM1 += KELARG * pasuv[0];
     Um1 -= KELARG * pasuv[0];
@@ -473,16 +473,16 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   else
   {
     Standard_Real t = UM1 - Um1;
-    if (t < Adaptor3d_HSurfaceTool::UPeriod(Caro1))
+    if (t < GeomAdaptor_HSurfaceTool::UPeriod(Caro1))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::UPeriod(Caro1) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::UPeriod(Caro1) - t);
       t = (t > KELARG * pasuv[0]) ? KELARG * pasuv[0] : t;
       UM1 += t;
       Um1 -= t;
     }
   }
   //
-  if (Adaptor3d_HSurfaceTool::IsVPeriodic(Caro1) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsVPeriodic(Caro1) == Standard_False)
   {
     VM1 += KELARG * pasuv[1];
     Vm1 -= KELARG * pasuv[1];
@@ -490,16 +490,16 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   else
   {
     Standard_Real t = VM1 - Vm1;
-    if (t < Adaptor3d_HSurfaceTool::VPeriod(Caro1))
+    if (t < GeomAdaptor_HSurfaceTool::VPeriod(Caro1))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::VPeriod(Caro1) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::VPeriod(Caro1) - t);
       t = (t > KELARG * pasuv[1]) ? KELARG * pasuv[1] : t;
       VM1 += t;
       Vm1 -= t;
     }
   }
   //
-  if (Adaptor3d_HSurfaceTool::IsUPeriodic(Caro2) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsUPeriodic(Caro2) == Standard_False)
   {
     UM2 += KELARG * pasuv[2];
     Um2 -= KELARG * pasuv[2];
@@ -507,16 +507,16 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   else
   {
     Standard_Real t = UM2 - Um2;
-    if (t < Adaptor3d_HSurfaceTool::UPeriod(Caro2))
+    if (t < GeomAdaptor_HSurfaceTool::UPeriod(Caro2))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::UPeriod(Caro2) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::UPeriod(Caro2) - t);
       t = (t > KELARG * pasuv[2]) ? KELARG * pasuv[2] : t;
       UM2 += t;
       Um2 -= t;
     }
   }
 
-  if (Adaptor3d_HSurfaceTool::IsVPeriodic(Caro2) == Standard_False)
+  if (GeomAdaptor_HSurfaceTool::IsVPeriodic(Caro2) == Standard_False)
   {
     VM2 += KELARG * pasuv[3];
     Vm2 -= KELARG * pasuv[3];
@@ -524,9 +524,9 @@ IntWalk_PWalking::IntWalk_PWalking(const Handle(Adaptor3d_Surface)& Caro1,
   else
   {
     Standard_Real t = VM2 - Vm2;
-    if (t < Adaptor3d_HSurfaceTool::VPeriod(Caro2))
+    if (t < GeomAdaptor_HSurfaceTool::VPeriod(Caro2))
     {
-      t = 0.5 * (Adaptor3d_HSurfaceTool::VPeriod(Caro2) - t);
+      t = 0.5 * (GeomAdaptor_HSurfaceTool::VPeriod(Caro2) - t);
       t = (t > KELARG * pasuv[3]) ? KELARG * pasuv[3] : t;
       VM2 += t;
       Vm2 -= t;
@@ -608,7 +608,7 @@ void IntWalk_PWalking::Perform(const TColStd_Array1OfReal& ParDep)
 //            (theU0, theV0) is initial point for extrema
 //=======================================================================
 static Standard_Real SQDistPointSurface(const gp_Pnt&            thePnt,
-                                        const Adaptor3d_Surface& theSurf,
+                                        const GeomAdaptor_Surface& theSurf,
                                         const Standard_Real      theU0,
                                         const Standard_Real      theV0)
 {
@@ -627,8 +627,8 @@ static Standard_Real SQDistPointSurface(const gp_Pnt&            thePnt,
 //            Checks if any point in one surface lie in another surface
 //            (with given tolerance)
 //==================================================================================
-static Standard_Boolean IsTangentExtCheck(const Handle(Adaptor3d_Surface)& theSurf1,
-                                          const Handle(Adaptor3d_Surface)& theSurf2,
+static Standard_Boolean IsTangentExtCheck(const Handle(GeomAdaptor_Surface)& theSurf1,
+                                          const Handle(GeomAdaptor_Surface)& theSurf2,
                                           const Standard_Real              theU10,
                                           const Standard_Real              theV10,
                                           const Standard_Real              theU20,
@@ -717,18 +717,18 @@ void IntWalk_PWalking::Perform(const TColStd_Array1OfReal& ParDep,
   done = Standard_False;
   //
   // Caro1 and Caro2
-  const Handle(Adaptor3d_Surface)& Caro1 = myIntersectionOn2S.Function().AuxillarSurface1();
-  const Handle(Adaptor3d_Surface)& Caro2 = myIntersectionOn2S.Function().AuxillarSurface2();
+  const Handle(GeomAdaptor_Surface)& Caro1 = myIntersectionOn2S.Function().AuxillarSurface1();
+  const Handle(GeomAdaptor_Surface)& Caro2 = myIntersectionOn2S.Function().AuxillarSurface2();
   //
-  const Standard_Real UFirst1 = Adaptor3d_HSurfaceTool::FirstUParameter(Caro1);
-  const Standard_Real VFirst1 = Adaptor3d_HSurfaceTool::FirstVParameter(Caro1);
-  const Standard_Real ULast1  = Adaptor3d_HSurfaceTool::LastUParameter(Caro1);
-  const Standard_Real VLast1  = Adaptor3d_HSurfaceTool::LastVParameter(Caro1);
+  const Standard_Real UFirst1 = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro1);
+  const Standard_Real VFirst1 = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro1);
+  const Standard_Real ULast1  = GeomAdaptor_HSurfaceTool::LastUParameter(Caro1);
+  const Standard_Real VLast1  = GeomAdaptor_HSurfaceTool::LastVParameter(Caro1);
 
-  const Standard_Real UFirst2 = Adaptor3d_HSurfaceTool::FirstUParameter(Caro2);
-  const Standard_Real VFirst2 = Adaptor3d_HSurfaceTool::FirstVParameter(Caro2);
-  const Standard_Real ULast2  = Adaptor3d_HSurfaceTool::LastUParameter(Caro2);
-  const Standard_Real VLast2  = Adaptor3d_HSurfaceTool::LastVParameter(Caro2);
+  const Standard_Real UFirst2 = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro2);
+  const Standard_Real VFirst2 = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro2);
+  const Standard_Real ULast2  = GeomAdaptor_HSurfaceTool::LastUParameter(Caro2);
+  const Standard_Real VLast2  = GeomAdaptor_HSurfaceTool::LastVParameter(Caro2);
   //
   ComputePasInit(u1max - u1min, v1max - v1min, u2max - u2min, v2max - v2min);
 
@@ -1755,18 +1755,18 @@ Standard_Boolean IntWalk_PWalking::ExtendLineInCommonZone(
   const Standard_Boolean          theDirectionFlag)
 {
   // Caro1 and Caro2
-  const Handle(Adaptor3d_Surface)& Caro1 = myIntersectionOn2S.Function().AuxillarSurface1();
-  const Handle(Adaptor3d_Surface)& Caro2 = myIntersectionOn2S.Function().AuxillarSurface2();
+  const Handle(GeomAdaptor_Surface)& Caro1 = myIntersectionOn2S.Function().AuxillarSurface1();
+  const Handle(GeomAdaptor_Surface)& Caro2 = myIntersectionOn2S.Function().AuxillarSurface2();
   //
-  const Standard_Real UFirst1 = Adaptor3d_HSurfaceTool::FirstUParameter(Caro1);
-  const Standard_Real VFirst1 = Adaptor3d_HSurfaceTool::FirstVParameter(Caro1);
-  const Standard_Real ULast1  = Adaptor3d_HSurfaceTool::LastUParameter(Caro1);
-  const Standard_Real VLast1  = Adaptor3d_HSurfaceTool::LastVParameter(Caro1);
+  const Standard_Real UFirst1 = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro1);
+  const Standard_Real VFirst1 = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro1);
+  const Standard_Real ULast1  = GeomAdaptor_HSurfaceTool::LastUParameter(Caro1);
+  const Standard_Real VLast1  = GeomAdaptor_HSurfaceTool::LastVParameter(Caro1);
 
-  const Standard_Real UFirst2 = Adaptor3d_HSurfaceTool::FirstUParameter(Caro2);
-  const Standard_Real VFirst2 = Adaptor3d_HSurfaceTool::FirstVParameter(Caro2);
-  const Standard_Real ULast2  = Adaptor3d_HSurfaceTool::LastUParameter(Caro2);
-  const Standard_Real VLast2  = Adaptor3d_HSurfaceTool::LastVParameter(Caro2);
+  const Standard_Real UFirst2 = GeomAdaptor_HSurfaceTool::FirstUParameter(Caro2);
+  const Standard_Real VFirst2 = GeomAdaptor_HSurfaceTool::FirstVParameter(Caro2);
+  const Standard_Real ULast2  = GeomAdaptor_HSurfaceTool::LastUParameter(Caro2);
+  const Standard_Real VLast2  = GeomAdaptor_HSurfaceTool::LastVParameter(Caro2);
 
   Standard_Boolean          bOutOfTangentZone = Standard_False;
   Standard_Boolean          bStop             = !myIntersectionOn2S.IsTangent();
@@ -2265,8 +2265,8 @@ Standard_Boolean IntWalk_PWalking::ExtendLineInCommonZone(
 //  theInit should be initialized before function calling.
 //=======================================================================
 Standard_Boolean IntWalk_PWalking::DistanceMinimizeByGradient(
-  const Handle(Adaptor3d_Surface)& theASurf1,
-  const Handle(Adaptor3d_Surface)& theASurf2,
+  const Handle(GeomAdaptor_Surface)& theASurf1,
+  const Handle(GeomAdaptor_Surface)& theASurf2,
   TColStd_Array1OfReal&            theInit,
   const Standard_Real*             theStep0)
 {
@@ -2404,7 +2404,7 @@ Standard_Boolean IntWalk_PWalking::DistanceMinimizeByGradient(
 //    before the function calling.
 //=======================================================================
 Standard_Boolean IntWalk_PWalking::DistanceMinimizeByExtrema(
-  const Handle(Adaptor3d_Surface)& theASurf,
+  const Handle(GeomAdaptor_Surface)& theASurf,
   const gp_Pnt&                    theP0,
   Standard_Real&                   theU0,
   Standard_Real&                   theV0,
@@ -2456,8 +2456,8 @@ Standard_Boolean IntWalk_PWalking::DistanceMinimizeByExtrema(
 //=================================================================================================
 
 Standard_Boolean IntWalk_PWalking::HandleSingleSingularPoint(
-  const Handle(Adaptor3d_Surface)& theASurf1,
-  const Handle(Adaptor3d_Surface)& theASurf2,
+  const Handle(GeomAdaptor_Surface)& theASurf1,
+  const Handle(GeomAdaptor_Surface)& theASurf2,
   const Standard_Real              the3DTol,
   TColStd_Array1OfReal&            thePnt)
 {
@@ -2495,7 +2495,7 @@ Standard_Boolean IntWalk_PWalking::HandleSingleSingularPoint(
 
       Standard_Real aPars[4];
       anInt.Point().Parameters(aPars[0], aPars[1], aPars[2], aPars[3]);
-      Handle(Adaptor3d_Surface) aSurfs[2] = {theASurf1, theASurf2};
+      Handle(GeomAdaptor_Surface) aSurfs[2] = {theASurf1, theASurf2};
       // Local resolutions
       Standard_Real    aTol2 = the3DTol * the3DTol;
       gp_Pnt           aP;
@@ -2571,8 +2571,8 @@ Standard_Boolean IntWalk_PWalking::HandleSingleSingularPoint(
 
 //=================================================================================================
 
-Standard_Boolean IntWalk_PWalking::SeekPointOnBoundary(const Handle(Adaptor3d_Surface)& theASurf1,
-                                                       const Handle(Adaptor3d_Surface)& theASurf2,
+Standard_Boolean IntWalk_PWalking::SeekPointOnBoundary(const Handle(GeomAdaptor_Surface)& theASurf1,
+                                                       const Handle(GeomAdaptor_Surface)& theASurf2,
                                                        const Standard_Real              theU1,
                                                        const Standard_Real              theV1,
                                                        const Standard_Real              theU2,
@@ -2795,8 +2795,8 @@ Standard_Boolean IntWalk_PWalking::SeekPointOnBoundary(const Handle(Adaptor3d_Su
 
 //=================================================================================================
 
-Standard_Boolean IntWalk_PWalking::PutToBoundary(const Handle(Adaptor3d_Surface)& theASurf1,
-                                                 const Handle(Adaptor3d_Surface)& theASurf2)
+Standard_Boolean IntWalk_PWalking::PutToBoundary(const Handle(GeomAdaptor_Surface)& theASurf1,
+                                                 const Handle(GeomAdaptor_Surface)& theASurf2)
 {
   constexpr Standard_Real aTolMin = Precision::Confusion();
 
@@ -3001,8 +3001,8 @@ Standard_Boolean IntWalk_PWalking::PutToBoundary(const Handle(Adaptor3d_Surface)
 
 //=================================================================================================
 
-Standard_Boolean IntWalk_PWalking::SeekAdditionalPoints(const Handle(Adaptor3d_Surface)& theASurf1,
-                                                        const Handle(Adaptor3d_Surface)& theASurf2,
+Standard_Boolean IntWalk_PWalking::SeekAdditionalPoints(const Handle(GeomAdaptor_Surface)& theASurf1,
+                                                        const Handle(GeomAdaptor_Surface)& theASurf2,
                                                         const Standard_Integer theMinNbPoints)
 {
   const Standard_Real aTol      = 1.0e-14;
@@ -3268,8 +3268,8 @@ IntWalk_StatusDeflection IntWalk_PWalking::TestDeflection(const IntImp_ConstIsop
   Standard_Real            FlecheCourante, Ratio = 1.0;
 
   // Caro1 and Caro2
-  const Handle(Adaptor3d_Surface)& Caro1 = myIntersectionOn2S.Function().AuxillarSurface1();
-  const Handle(Adaptor3d_Surface)& Caro2 = myIntersectionOn2S.Function().AuxillarSurface2();
+  const Handle(GeomAdaptor_Surface)& Caro1 = myIntersectionOn2S.Function().AuxillarSurface1();
+  const Handle(GeomAdaptor_Surface)& Caro2 = myIntersectionOn2S.Function().AuxillarSurface2();
 
   const IntSurf_PntOn2S& CurrentPoint = myIntersectionOn2S.Point();
   //==================================================================================
@@ -3342,22 +3342,22 @@ IntWalk_StatusDeflection IntWalk_PWalking::TestDeflection(const IntImp_ConstIsop
         previousPoint.ParametersOnS2(CurU, CurV);
       gp_Pnt CurPnt =
         (choixIso == IntImp_UIsoparametricOnCaro1 || choixIso == IntImp_VIsoparametricOnCaro1)
-          ? Adaptor3d_HSurfaceTool::Value(Caro1, CurU, CurV)
-          : Adaptor3d_HSurfaceTool::Value(Caro2, CurU, CurV);
+          ? GeomAdaptor_HSurfaceTool::Value(Caro1, CurU, CurV)
+          : GeomAdaptor_HSurfaceTool::Value(Caro2, CurU, CurV);
       gp_Pnt OffsetPnt;
       switch (choixIso)
       {
         case IntImp_UIsoparametricOnCaro1:
-          OffsetPnt = Adaptor3d_HSurfaceTool::Value(Caro1, CurU + sensCheminement * pasuv[0], CurV);
+          OffsetPnt = GeomAdaptor_HSurfaceTool::Value(Caro1, CurU + sensCheminement * pasuv[0], CurV);
           break;
         case IntImp_VIsoparametricOnCaro1:
-          OffsetPnt = Adaptor3d_HSurfaceTool::Value(Caro1, CurU, CurV + sensCheminement * pasuv[1]);
+          OffsetPnt = GeomAdaptor_HSurfaceTool::Value(Caro1, CurU, CurV + sensCheminement * pasuv[1]);
           break;
         case IntImp_UIsoparametricOnCaro2:
-          OffsetPnt = Adaptor3d_HSurfaceTool::Value(Caro2, CurU + sensCheminement * pasuv[2], CurV);
+          OffsetPnt = GeomAdaptor_HSurfaceTool::Value(Caro2, CurU + sensCheminement * pasuv[2], CurV);
           break;
         case IntImp_VIsoparametricOnCaro2:
-          OffsetPnt = Adaptor3d_HSurfaceTool::Value(Caro2, CurU, CurV + sensCheminement * pasuv[3]);
+          OffsetPnt = GeomAdaptor_HSurfaceTool::Value(Caro2, CurU, CurV + sensCheminement * pasuv[3]);
           break;
         default:
           break;

@@ -15,10 +15,11 @@
 #ifndef _BlendFunc_GenChamfInv_HeaderFile
 #define _BlendFunc_GenChamfInv_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <Blend_FuncInv.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 
 //! Deferred class for a function used to compute a general chamfer on a surface's boundary
@@ -27,12 +28,12 @@ class BlendFunc_GenChamfInv : public Blend_FuncInv
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_GenChamfInv(const Handle(Adaptor3d_Surface)& S1,
-                                        const Handle(Adaptor3d_Surface)& S2,
-                                        const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT BlendFunc_GenChamfInv(const Handle(GeomAdaptor_Surface)& S1,
+                                        const Handle(GeomAdaptor_Surface)& S2,
+                                        const Handle(GeomAdaptor_Curve)&   C);
 
   Standard_EXPORT virtual void Set(const Standard_Boolean           OnFirst,
-                                   const Handle(Adaptor2d_Curve2d)& COnSurf) Standard_OVERRIDE;
+                                   const Handle(Geom2dAdaptor_Curve)& COnSurf) Standard_OVERRIDE;
 
   Standard_EXPORT void GetTolerance(math_Vector&        Tolerance,
                                     const Standard_Real Tol) const Standard_OVERRIDE;
@@ -56,10 +57,10 @@ public:
                                    const Standard_Integer Choix) = 0;
 
 protected:
-  Handle(Adaptor3d_Surface) surf1;
-  Handle(Adaptor3d_Surface) surf2;
-  Handle(Adaptor3d_Curve)   curv;
-  Handle(Adaptor2d_Curve2d) csurf;
+  Handle(GeomAdaptor_Surface) surf1;
+  Handle(GeomAdaptor_Surface) surf2;
+  Handle(GeomAdaptor_Curve)   curv;
+  Handle(Geom2dAdaptor_Curve) csurf;
   Standard_Integer          choix;
   Standard_Boolean          first;
 

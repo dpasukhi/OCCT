@@ -18,20 +18,20 @@
 
 #include <StdFail_NotDone.hxx>
 #include <Standard_DomainError.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <IntPatch_HCurve2dTool.hxx>
 #include <IntPatch_CSFunction.hxx>
 #include <math_FunctionSetRoot.hxx>
 #include <gp_Pnt.hxx>
 
-#define ThePSurface Handle(Adaptor3d_Surface)
-#define ThePSurface_hxx <Adaptor3d_Surface.hxx>
-#define ThePSurfaceTool Adaptor3d_HSurfaceTool
-#define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
-#define TheCurve Handle(Adaptor2d_Curve2d)
-#define TheCurve_hxx <Adaptor2d_Curve2d.hxx>
+#define ThePSurface Handle(GeomAdaptor_Surface)
+#define ThePSurface_hxx <GeomAdaptor_Surface.hxx>
+#define ThePSurfaceTool GeomAdaptor_HSurfaceTool
+#define ThePSurfaceTool_hxx <GeomAdaptor_HSurfaceTool.hxx>
+#define TheCurve Handle(Geom2dAdaptor_Curve)
+#define TheCurve_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheCurveTool IntPatch_HCurve2dTool
 #define TheCurveTool_hxx <IntPatch_HCurve2dTool.hxx>
 #define TheFunction IntPatch_CSFunction

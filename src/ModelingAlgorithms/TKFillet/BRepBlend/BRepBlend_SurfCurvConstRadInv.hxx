@@ -17,10 +17,11 @@
 #ifndef _BRepBlend_SurfCurvConstRadInv_HeaderFile
 #define _BRepBlend_SurfCurvConstRadInv_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <Blend_SurfCurvFuncInv.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 
 //! Function of reframing between a restriction surface of the
@@ -39,9 +40,9 @@ class BRepBlend_SurfCurvConstRadInv : public Blend_SurfCurvFuncInv
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BRepBlend_SurfCurvConstRadInv(const Handle(Adaptor3d_Surface)& S,
-                                                const Handle(Adaptor3d_Curve)&   C,
-                                                const Handle(Adaptor3d_Curve)&   Cg);
+  Standard_EXPORT BRepBlend_SurfCurvConstRadInv(const Handle(GeomAdaptor_Surface)& S,
+                                                const Handle(GeomAdaptor_Curve)&   C,
+                                                const Handle(GeomAdaptor_Curve)&   Cg);
 
   Standard_EXPORT void Set(const Standard_Real R, const Standard_Integer Choix);
 
@@ -67,7 +68,7 @@ public:
   Standard_EXPORT Standard_Boolean Values(const math_Vector& X, math_Vector& F, math_Matrix& D);
 
   //! Set the restriction on which a solution has to be found.
-  Standard_EXPORT void Set(const Handle(Adaptor2d_Curve2d)& Rst);
+  Standard_EXPORT void Set(const Handle(Geom2dAdaptor_Curve)& Rst);
 
   //! Returns in the vector Tolerance the parametric tolerance
   //! for each of the 3 variables;
@@ -86,10 +87,10 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface) surf;
-  Handle(Adaptor3d_Curve)   curv;
-  Handle(Adaptor3d_Curve)   guide;
-  Handle(Adaptor2d_Curve2d) rst;
+  Handle(GeomAdaptor_Surface) surf;
+  Handle(GeomAdaptor_Curve)   curv;
+  Handle(GeomAdaptor_Curve)   guide;
+  Handle(Geom2dAdaptor_Curve) rst;
   Standard_Real             ray;
   Standard_Integer          choix;
 };

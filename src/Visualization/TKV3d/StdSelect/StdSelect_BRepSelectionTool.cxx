@@ -449,7 +449,7 @@ static Handle(TColgp_HArray1OfPnt) GetPointsFromPolygon(const TopoDS_Edge& theEd
 
 //=================================================================================================
 
-static Standard_Boolean FindLimits(const Adaptor3d_Curve& theCurve,
+static Standard_Boolean FindLimits(const GeomAdaptor_Curve& theCurve,
                                    const Standard_Real    theLimit,
                                    Standard_Real&         theFirst,
                                    Standard_Real&         theLast)

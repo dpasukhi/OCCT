@@ -17,7 +17,7 @@
 #ifndef _IntPolyh_Point_HeaderFile
 #define _IntPolyh_Point_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 //! The class represents the point on the surface with
 //! both 3D and 2D points.
@@ -107,7 +107,7 @@ public:
   void SetPartOfCommon(const Standard_Integer ii) { myPOC = ii; }
 
   //! Creates middle point from P1 and P2 and stores it to this
-  Standard_EXPORT void Middle(const Handle(Adaptor3d_Surface)& MySurface,
+  Standard_EXPORT void Middle(const Handle(GeomAdaptor_Surface)& MySurface,
                               const IntPolyh_Point&            P1,
                               const IntPolyh_Point&            P2);
   //! Addition

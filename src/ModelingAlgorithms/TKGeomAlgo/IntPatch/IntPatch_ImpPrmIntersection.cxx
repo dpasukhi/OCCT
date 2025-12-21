@@ -16,8 +16,8 @@
 
 #include <IntPatch_ImpPrmIntersection.hxx>
 
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <ElCLib.hxx>
 #include <ElSLib.hxx>
 #include <IntPatch_ArcFunction.hxx>
@@ -45,17 +45,17 @@
 static Standard_Boolean DecomposeResult(const Handle(IntPatch_PointLine)&  theLine,
                                         const Standard_Boolean             IsReversed,
                                         const IntSurf_Quadric&             theQuad,
-                                        const Handle(Adaptor3d_TopolTool)& thePDomain,
-                                        const Handle(Adaptor3d_Surface)&   theQSurf,
-                                        const Handle(Adaptor3d_Surface)&   theOtherSurf,
+                                        const Handle(GeomAdaptor_TopolTool)& thePDomain,
+                                        const Handle(GeomAdaptor_Surface)&   theQSurf,
+                                        const Handle(GeomAdaptor_Surface)&   theOtherSurf,
                                         const Standard_Real                theArcTol,
                                         const Standard_Real                theTolTang,
                                         IntPatch_SequenceOfLine&           theLines);
 static void             ComputeTangency(const IntPatch_TheSOnBounds&       solrst,
                                         IntSurf_SequenceOfPathPoint&       seqpdep,
-                                        const Handle(Adaptor3d_TopolTool)& Domain,
+                                        const Handle(GeomAdaptor_TopolTool)& Domain,
                                         IntPatch_TheSurfFunction&          Func,
-                                        const Handle(Adaptor3d_Surface)&   PSurf,
+                                        const Handle(GeomAdaptor_Surface)&   PSurf,
                                         TColStd_Array1OfInteger&           Destination);
 static void             Recadre(const Standard_Boolean,
                                 GeomAbs_SurfaceType                            typeS1,
@@ -70,18 +70,18 @@ static void             Recadre(const Standard_Boolean,
 
 static Standard_Boolean IsCoincide(IntPatch_TheSurfFunction&         theFunc,
                                    const Handle(IntPatch_PointLine)& theLine,
-                                   const Handle(Adaptor2d_Curve2d)&  theArc,
+                                   const Handle(Geom2dAdaptor_Curve)&  theArc,
                                    const Standard_Boolean            isTheSurface1Using,
                                    const Standard_Real               theToler3D,
                                    const Standard_Real               theToler2D,
                                    const Standard_Real               thePeriod);
 
-static Standard_Real GetLocalStep(const Handle(Adaptor3d_Surface)& theSurf,
+static Standard_Real GetLocalStep(const Handle(GeomAdaptor_Surface)& theSurf,
                                   const Standard_Real              theStep);
 
 //=================================================================================================
 
-static IntPatch_SpecPntType IsSeamOrPole(const Handle(Adaptor3d_Surface)& theQSurf,
+static IntPatch_SpecPntType IsSeamOrPole(const Handle(GeomAdaptor_Surface)& theQSurf,
                                          const Handle(IntSurf_LineOn2S)&  theLine,
                                          const Standard_Boolean           IsReversed,
                                          const Standard_Integer           theRefIndex,
@@ -178,10 +178,10 @@ IntPatch_ImpPrmIntersection::IntPatch_ImpPrmIntersection()
 
 //=================================================================================================
 
-IntPatch_ImpPrmIntersection::IntPatch_ImpPrmIntersection(const Handle(Adaptor3d_Surface)&   Surf1,
-                                                         const Handle(Adaptor3d_TopolTool)& D1,
-                                                         const Handle(Adaptor3d_Surface)&   Surf2,
-                                                         const Handle(Adaptor3d_TopolTool)& D2,
+IntPatch_ImpPrmIntersection::IntPatch_ImpPrmIntersection(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                                         const Handle(GeomAdaptor_TopolTool)& D1,
+                                                         const Handle(GeomAdaptor_Surface)&   Surf2,
+                                                         const Handle(GeomAdaptor_TopolTool)& D2,
                                                          const Standard_Real                TolArc,
                                                          const Standard_Real                TolTang,
                                                          const Standard_Real                Fleche,
@@ -208,17 +208,17 @@ void IntPatch_ImpPrmIntersection::SetStartPoint(const Standard_Real U, const Sta
 
 void ComputeTangency(const IntPatch_TheSOnBounds&       solrst,
                      IntSurf_SequenceOfPathPoint&       seqpdep,
-                     const Handle(Adaptor3d_TopolTool)& Domain,
+                     const Handle(GeomAdaptor_TopolTool)& Domain,
                      IntPatch_TheSurfFunction&          Func,
-                     const Handle(Adaptor3d_Surface)&   PSurf,
+                     const Handle(GeomAdaptor_Surface)&   PSurf,
                      TColStd_Array1OfInteger&           Destination)
 {
   Standard_Integer          i, k, NbPoints, seqlength;
   Standard_Real             theparam, test;
   Standard_Boolean          fairpt, ispassing;
   TopAbs_Orientation        arcorien, vtxorien;
-  Handle(Adaptor2d_Curve2d) thearc;
-  Handle(Adaptor3d_HVertex) vtx, vtxbis;
+  Handle(Geom2dAdaptor_Curve) thearc;
+  Handle(GeomAdaptor_HVertex) vtx, vtxbis;
   // Standard_Boolean ispassing;
   IntPatch_ThePathPointOfTheSOnBounds PStart;
   IntSurf_PathPoint                   PPoint;
@@ -514,7 +514,7 @@ void Recadre(const Standard_Boolean,
 
 //=================================================================================================
 
-Standard_Real GetLocalStep(const Handle(Adaptor3d_Surface)& theSurf, const Standard_Real theStep)
+Standard_Real GetLocalStep(const Handle(GeomAdaptor_Surface)& theSurf, const Standard_Real theStep)
 {
   Standard_Real aLocalStep = theStep;
   if (theSurf->UContinuity() > GeomAbs_C0 && theSurf->VContinuity() > GeomAbs_C0)
@@ -586,10 +586,10 @@ Standard_Real GetLocalStep(const Handle(Adaptor3d_Surface)& theSurf, const Stand
 
 //=================================================================================================
 
-void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   Surf2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+void IntPatch_ImpPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   Surf2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                TolArc,
                                           const Standard_Real                TolTang,
                                           const Standard_Real                Fleche,
@@ -619,7 +619,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
   gp_Pnt2d p2d;
   gp_Vec2d d2d;
 
-  Handle(Adaptor2d_Curve2d) currentarc;
+  Handle(Geom2dAdaptor_Curve) currentarc;
   GeomAbs_SurfaceType       typeS1, typeS2;
   IntSurf_Quadric           Quad;
   IntPatch_TheSurfFunction  Func;
@@ -744,7 +744,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
     // plane only touches surface and does not cross it,
     // so no inner points exist.
     SearchIns = Standard_False;
-    Handle(Adaptor3d_TopolTool) T;
+    Handle(GeomAdaptor_TopolTool) T;
     if (reversed)
     {
       T = D1;
@@ -1386,7 +1386,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
         paramf  = PStartf.Parameter();
 
         gp_Pnt2d                  _p2d = thesegm.Curve()->Value(paramf);
-        Handle(Adaptor3d_HVertex) _vtx;
+        Handle(GeomAdaptor_HVertex) _vtx;
         if (PStartf.IsNew() == Standard_False)
           _vtx = PStartf.Vertex();
         const gp_Pnt& _Pp = PStartf.Value();
@@ -1451,7 +1451,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
         paraml  = PStartl.Parameter();
 
         gp_Pnt2d                  _p2d = thesegm.Curve()->Value(paraml);
-        Handle(Adaptor3d_HVertex) _vtx;
+        Handle(GeomAdaptor_HVertex) _vtx;
         if (PStartl.IsNew() == Standard_False)
           _vtx = PStartl.Vertex();
         const gp_Pnt&  _Pp = PStartl.Value();
@@ -1557,7 +1557,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
         gp_Pnt                           ptpoly;
         IntSurf_PntOn2S                  p2s;
         Handle(IntSurf_LineOn2S)         Thelin   = new IntSurf_LineOn2S();
-        const Handle(Adaptor2d_Curve2d)& arcsegm  = thesegm.Curve();
+        const Handle(Geom2dAdaptor_Curve)& arcsegm  = thesegm.Curve();
         Standard_Integer                 nbsample = 100;
 
         if (!reversed)
@@ -1717,8 +1717,8 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
   // after (higher indices) - only Walking-line.
 
   const Standard_Real              aTol3d      = std::max(Func.Tolerance(), TolTang);
-  const Handle(Adaptor3d_Surface)& aQSurf      = (reversed) ? Surf2 : Surf1;
-  const Handle(Adaptor3d_Surface)& anOtherSurf = (reversed) ? Surf1 : Surf2;
+  const Handle(GeomAdaptor_Surface)& aQSurf      = (reversed) ? Surf2 : Surf1;
+  const Handle(GeomAdaptor_Surface)& anOtherSurf = (reversed) ? Surf1 : Surf2;
 
   for (Standard_Integer i = 1; i <= slin.Length(); i++)
   {
@@ -1731,7 +1731,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
       break;
     }
 
-    const Handle(Adaptor2d_Curve2d)& anArc = aRL1->IsArcOnS1() ? aRL1->ArcOnS1() : aRL1->ArcOnS2();
+    const Handle(Geom2dAdaptor_Curve)& anArc = aRL1->IsArcOnS1() ? aRL1->ArcOnS1() : aRL1->ArcOnS2();
     if (anArc->GetType() != GeomAbs_Line)
     {
       // Restriction line must be isoline.
@@ -1753,7 +1753,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
       if (!aRL2.IsNull())
       {
-        const Handle(Adaptor2d_Curve2d)& anArc2 =
+        const Handle(Geom2dAdaptor_Curve)& anArc2 =
           aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
         if (anArc2->GetType() != GeomAbs_Line)
         {
@@ -1791,7 +1791,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
         }
         else
         { // Restriction-Restriction
-          const Handle(Adaptor2d_Curve2d)& anArc2 =
+          const Handle(Geom2dAdaptor_Curve)& anArc2 =
             aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
 
           const Standard_Real aRange2 = anArc2->LastParameter() - anArc2->FirstParameter();
@@ -1832,7 +1832,7 @@ void IntPatch_ImpPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
   // post processing for cones and spheres
 
-  const Handle(Adaptor3d_TopolTool)& PDomain = (reversed) ? D1 : D2;
+  const Handle(GeomAdaptor_TopolTool)& PDomain = (reversed) ? D1 : D2;
 
   IntPatch_SequenceOfLine dslin;
   Standard_Boolean        isDecompose = Standard_False;
@@ -2060,7 +2060,7 @@ static inline void Correct2DBounds(const Standard_Real UF,
 
 static void AdjustLine(Handle(IntSurf_LineOn2S)&        Line,
                        const Standard_Boolean           IsReversed,
-                       const Handle(Adaptor3d_Surface)& QSurf,
+                       const Handle(GeomAdaptor_Surface)& QSurf,
                        const Standard_Real              TOL2D)
 {
   Standard_Real VF = QSurf->FirstVParameter();
@@ -2345,7 +2345,7 @@ static Standard_Boolean TestMiddleOnPrm(const IntSurf_PntOn2S&             aP,
                                         const IntSurf_PntOn2S&             aV,
                                         const Standard_Boolean             IsReversed,
                                         const Standard_Real                ArcTol,
-                                        const Handle(Adaptor3d_TopolTool)& PDomain)
+                                        const Handle(GeomAdaptor_TopolTool)& PDomain)
 
 {
   Standard_Boolean result = Standard_False;
@@ -2373,7 +2373,7 @@ static void VerifyVertices(const Handle(IntSurf_LineOn2S)&    Line,
                            const Handle(IntSurf_LineOn2S)&    Vertices,
                            const Standard_Real                TOL2D,
                            const Standard_Real                ArcTol,
-                           const Handle(Adaptor3d_TopolTool)& PDomain,
+                           const Handle(GeomAdaptor_TopolTool)& PDomain,
                            IntSurf_PntOn2S&                   VrtF,
                            Standard_Boolean&                  AddFirst,
                            IntSurf_PntOn2S&                   VrtL,
@@ -2671,7 +2671,7 @@ static void PutIntVertices(const Handle(IntPatch_PointLine)& Line,
           // In fact, aRLine is always on the parametric surface.
           // If (theIsReversed == TRUE) then (U1, V1) - point on
           // parametric surface, otherwise - point on quadric.
-          const Handle(Adaptor2d_Curve2d)& anArc =
+          const Handle(Geom2dAdaptor_Curve)& anArc =
             aRLine->IsArcOnS1() ? aRLine->ArcOnS1() : aRLine->ArcOnS2();
 
           const gp_Lin2d aLin(anArc->Line());
@@ -2831,7 +2831,7 @@ static Standard_Boolean IsPointOnBoundary(const Standard_Real theToler2D,
 // purpose  : Can change values of theNewLine (by adding the computed point on boundary,
 //            which parameter will be adjusted) and theIsOnBoundary variables.
 //=======================================================================
-static void DetectOfBoundaryAchievement(const Handle(Adaptor3d_Surface)& theQSurf, // quadric
+static void DetectOfBoundaryAchievement(const Handle(GeomAdaptor_Surface)& theQSurf, // quadric
                                         const Standard_Boolean           theIsReversed,
                                         const Handle(IntSurf_LineOn2S)&  theSourceLine,
                                         const Standard_Integer           thePointIndex,
@@ -2913,9 +2913,9 @@ static void DetectOfBoundaryAchievement(const Handle(Adaptor3d_Surface)& theQSur
 static Standard_Boolean DecomposeResult(const Handle(IntPatch_PointLine)&  theLine,
                                         const Standard_Boolean             IsReversed,
                                         const IntSurf_Quadric&             theQuad,
-                                        const Handle(Adaptor3d_TopolTool)& thePDomain,
-                                        const Handle(Adaptor3d_Surface)&   theQSurf, // quadric
-                                        const Handle(Adaptor3d_Surface)&   thePSurf, // parametric
+                                        const Handle(GeomAdaptor_TopolTool)& thePDomain,
+                                        const Handle(GeomAdaptor_Surface)&   theQSurf, // quadric
+                                        const Handle(GeomAdaptor_Surface)&   thePSurf, // parametric
                                         const Standard_Real                theArcTol,
                                         const Standard_Real                theTolTang,
                                         IntPatch_SequenceOfLine&           theLines)
@@ -2925,7 +2925,7 @@ static Standard_Boolean DecomposeResult(const Handle(IntPatch_PointLine)&  theLi
     const Handle(IntPatch_RLine)& aRL = Handle(IntPatch_RLine)::DownCast(theLine);
     if (!aRL.IsNull())
     {
-      const Handle(Adaptor2d_Curve2d)& anArc = aRL->IsArcOnS1() ? aRL->ArcOnS1() : aRL->ArcOnS2();
+      const Handle(Geom2dAdaptor_Curve)& anArc = aRL->IsArcOnS1() ? aRL->ArcOnS1() : aRL->ArcOnS2();
       if (anArc->GetType() != GeomAbs_Line)
       {
         // Restriction line must be isoline.
@@ -3417,7 +3417,7 @@ static Standard_Boolean DecomposeResult(const Handle(IntPatch_PointLine)&  theLi
         PutIntVertices(aRLine, sline, IsReversed, aVLine, theArcTol);
       }
 
-      const Handle(Adaptor2d_Curve2d)& anArc =
+      const Handle(Geom2dAdaptor_Curve)& anArc =
         aRLine->IsArcOnS1() ? aRLine->ArcOnS1() : aRLine->ArcOnS2();
 
       Standard_Real aFPar = anArc->FirstParameter(), aLPar = anArc->LastParameter();
@@ -3524,7 +3524,7 @@ static Standard_Boolean CheckSegmSegm(const Standard_Real theRefParF,
 Standard_Boolean IsCoincide(
   IntPatch_TheSurfFunction&         theFunc,
   const Handle(IntPatch_PointLine)& theLine,
-  const Handle(Adaptor2d_Curve2d)&  theArc,
+  const Handle(Geom2dAdaptor_Curve)&  theArc,
   const Standard_Boolean            isTheSurface1Using, // Surf1 is parametric?
   const Standard_Real               theToler3D,
   const Standard_Real               theToler2D,
@@ -3541,7 +3541,7 @@ Standard_Boolean IsCoincide(
   if (theLine->ArcType() == IntPatch_Restriction)
   { // Restriction-restriction processing
     const Handle(IntPatch_RLine)&    aRL2  = Handle(IntPatch_RLine)::DownCast(theLine);
-    const Handle(Adaptor2d_Curve2d)& anArc = aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
+    const Handle(Geom2dAdaptor_Curve)& anArc = aRL2->IsArcOnS1() ? aRL2->ArcOnS1() : aRL2->ArcOnS2();
 
     if (anArc->GetType() != GeomAbs_Line)
     {

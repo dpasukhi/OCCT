@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_Box.hxx>
 #include <BndLib_Add3dCurve.hxx>
 #include <GCPnts_QuasiUniformDeflection.hxx>
@@ -29,7 +29,7 @@
 
 //=================================================================================================
 
-static void FindLimits(const Adaptor3d_Curve& aCurve,
+static void FindLimits(const GeomAdaptor_Curve& aCurve,
                        const Standard_Real    aLimit,
                        Standard_Real&         First,
                        Standard_Real&         Last)
@@ -113,7 +113,7 @@ static void PrintPoints(Handle(TColgp_HArray1OfVec)&        aHAV1,
 
 //=================================================================================================
 
-static void DrawCurve(Adaptor3d_Curve&                    aCurve,
+static void DrawCurve(GeomAdaptor_Curve&                    aCurve,
                       const Standard_Real                 TheDeflection,
                       const Standard_Real                 U1,
                       const Standard_Real                 U2,
@@ -246,7 +246,7 @@ static void DrawCurve(Adaptor3d_Curve&                    aCurve,
 
 //=================================================================================================
 
-static Standard_Real GetDeflection(const Adaptor3d_Curve&              aCurve,
+static Standard_Real GetDeflection(const GeomAdaptor_Curve&              aCurve,
                                    const Standard_Real                 U1,
                                    const Standard_Real                 U2,
                                    const Handle(VrmlConverter_Drawer)& aDrawer)
@@ -286,7 +286,7 @@ static Standard_Real GetDeflection(const Adaptor3d_Curve&              aCurve,
 //=================================================================================================
 
 void VrmlConverter_DeflectionCurve::Add(Standard_OStream&                   anOStream,
-                                        Adaptor3d_Curve&                    aCurve,
+                                        GeomAdaptor_Curve&                    aCurve,
                                         const Handle(VrmlConverter_Drawer)& aDrawer)
 {
 
@@ -302,7 +302,7 @@ void VrmlConverter_DeflectionCurve::Add(Standard_OStream&                   anOS
 //=================================================================================================
 
 void VrmlConverter_DeflectionCurve::Add(Standard_OStream&                   anOStream,
-                                        Adaptor3d_Curve&                    aCurve,
+                                        GeomAdaptor_Curve&                    aCurve,
                                         const Standard_Real                 U1,
                                         const Standard_Real                 U2,
                                         const Handle(VrmlConverter_Drawer)& aDrawer)
@@ -322,7 +322,7 @@ void VrmlConverter_DeflectionCurve::Add(Standard_OStream&                   anOS
 //=================================================================================================
 
 void VrmlConverter_DeflectionCurve::Add(Standard_OStream&   anOStream,
-                                        Adaptor3d_Curve&    aCurve,
+                                        GeomAdaptor_Curve&    aCurve,
                                         const Standard_Real aDeflection,
                                         const Standard_Real aLimit)
 {
@@ -339,7 +339,7 @@ void VrmlConverter_DeflectionCurve::Add(Standard_OStream&   anOStream,
 //=================================================================================================
 
 void VrmlConverter_DeflectionCurve::Add(Standard_OStream&                   anOStream,
-                                        Adaptor3d_Curve&                    aCurve,
+                                        GeomAdaptor_Curve&                    aCurve,
                                         const Standard_Real                 aDeflection,
                                         const Handle(VrmlConverter_Drawer)& aDrawer)
 {
@@ -353,7 +353,7 @@ void VrmlConverter_DeflectionCurve::Add(Standard_OStream&                   anOS
 //=================================================================================================
 
 void VrmlConverter_DeflectionCurve::Add(Standard_OStream&   anOStream,
-                                        Adaptor3d_Curve&    aCurve,
+                                        GeomAdaptor_Curve&    aCurve,
                                         const Standard_Real U1,
                                         const Standard_Real U2,
                                         const Standard_Real aDeflection)
@@ -368,7 +368,7 @@ void VrmlConverter_DeflectionCurve::Add(Standard_OStream&   anOStream,
 //=================================================================================================
 
 void VrmlConverter_DeflectionCurve::Add(Standard_OStream&                    anOStream,
-                                        const Adaptor3d_Curve&               aCurve,
+                                        const GeomAdaptor_Curve&               aCurve,
                                         const Handle(TColStd_HArray1OfReal)& aParams,
                                         const Standard_Integer               aNbNodes,
                                         const Handle(VrmlConverter_Drawer)&  aDrawer)

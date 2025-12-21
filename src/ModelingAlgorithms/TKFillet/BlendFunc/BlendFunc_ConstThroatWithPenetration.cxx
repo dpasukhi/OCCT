@@ -12,6 +12,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BlendFunc_ConstThroatWithPenetration.hxx>
 #include <ElCLib.hxx>
 #include <gp_Pnt.hxx>
@@ -25,9 +27,9 @@
 //=================================================================================================
 
 BlendFunc_ConstThroatWithPenetration::BlendFunc_ConstThroatWithPenetration(
-  const Handle(Adaptor3d_Surface)& S1,
-  const Handle(Adaptor3d_Surface)& S2,
-  const Handle(Adaptor3d_Curve)&   C)
+  const Handle(GeomAdaptor_Surface)& S1,
+  const Handle(GeomAdaptor_Surface)& S2,
+  const Handle(GeomAdaptor_Curve)&   C)
     : BlendFunc_ConstThroat(S1, S2, C)
 {
 }

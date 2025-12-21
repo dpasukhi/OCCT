@@ -17,7 +17,7 @@
 #ifndef _Geom2dConvert_ApproxCurve_HeaderFile
 #define _Geom2dConvert_ApproxCurve_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_OStream.hxx>
 
@@ -51,7 +51,7 @@ public:
   //! -   the maximum number of segments allowed MaxSegments
   //! -   the highest degree MaxDegree which the
   //! polynomial defining the BSpline is allowed to have.
-  Standard_EXPORT Geom2dConvert_ApproxCurve(const Handle(Adaptor2d_Curve2d)& Curve,
+  Standard_EXPORT Geom2dConvert_ApproxCurve(const Handle(Geom2dAdaptor_Curve)& Curve,
                                             const Standard_Real              Tol2d,
                                             const GeomAbs_Shape              Order,
                                             const Standard_Integer           MaxSegments,
@@ -81,7 +81,7 @@ public:
 protected:
 private:
   //! Converts a curve to B-spline
-  Standard_EXPORT void Approximate(const Handle(Adaptor2d_Curve2d)& theCurve,
+  Standard_EXPORT void Approximate(const Handle(Geom2dAdaptor_Curve)& theCurve,
                                    const Standard_Real              theTol3d,
                                    const GeomAbs_Shape              theOrder,
                                    const Standard_Integer           theMaxSegments,

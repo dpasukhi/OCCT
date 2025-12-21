@@ -16,6 +16,8 @@
 
 //  Modified by skv - Tue Aug  1 16:29:59 2006 OCC13116
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ElCLib.hxx>
 #include <gp.hxx>
 #include <gp_Circ.hxx>

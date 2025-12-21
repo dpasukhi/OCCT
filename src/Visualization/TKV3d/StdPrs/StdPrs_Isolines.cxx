@@ -15,7 +15,7 @@
 
 #include <StdPrs_Isolines.hxx>
 
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <Bnd_Range.hxx>
 #include <BRepTools.hxx>
 #include <BRep_Tool.hxx>
@@ -87,7 +87,7 @@ static void sortSegments(const SeqOfVecOfSegments&   theSegments,
 //! @param theLimit [in] the parameter limit value.
 //! @param theFirst [in/out] the first parameter value.
 //! @param theLast  [in/out] the last parameter value.
-static void findLimits(const Adaptor3d_Curve& theCurve,
+static void findLimits(const GeomAdaptor_Curve& theCurve,
                        const Standard_Real    theLimit,
                        Standard_Real&         theFirst,
                        Standard_Real&         theLast)
@@ -432,7 +432,7 @@ void StdPrs_Isolines::addOnSurface(const Handle(BRepAdaptor_Surface)& theSurface
     for (anEdgeTool.Init(); anEdgeTool.More(); anEdgeTool.Next())
     {
       TopAbs_Orientation       anOrientation = anEdgeTool.Orientation();
-      const Adaptor2d_Curve2d* anEdgeCurve   = &anEdgeTool.Value();
+      const Geom2dAdaptor_Curve* anEdgeCurve   = &anEdgeTool.Value();
       if (anEdgeCurve->GetType() != GeomAbs_Line)
       {
         GCPnts_QuasiUniformDeflection aSampler(*anEdgeCurve, aSamplerDeflection);
@@ -555,7 +555,7 @@ void StdPrs_Isolines::addOnSurface(const Handle(BRepAdaptor_Surface)& theSurface
     GeomAbs_SurfaceType  aSurfType = theSurface->GetType();
     Handle(Geom_Surface) aBSurface;
     GeomAdaptor_Curve    aBSurfaceCurve;
-    Adaptor3d_IsoCurve   aCanonicalCurve;
+    GeomAdaptor_IsoCurve   aCanonicalCurve;
     if (aSurfType == GeomAbs_BezierSurface)
     {
       aBSurface = theSurface->Bezier();
@@ -606,8 +606,8 @@ void StdPrs_Isolines::addOnSurface(const Handle(BRepAdaptor_Surface)& theSurface
             continue;
           }
         }
-        Adaptor3d_Curve* aCurve = aBSurface.IsNull() ? (Adaptor3d_Curve*)&aCanonicalCurve
-                                                     : (Adaptor3d_Curve*)&aBSurfaceCurve;
+        GeomAdaptor_Curve* aCurve = aBSurface.IsNull() ? (GeomAdaptor_Curve*)&aCanonicalCurve
+                                                     : (GeomAdaptor_Curve*)&aBSurfaceCurve;
 
         Handle(TColgp_HSequenceOfPnt) aPoints = new TColgp_HSequenceOfPnt();
         StdPrs_DeflectionCurve::Add(Handle(Prs3d_Presentation)(),

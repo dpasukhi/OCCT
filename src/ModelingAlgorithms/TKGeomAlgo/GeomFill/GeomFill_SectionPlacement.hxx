@@ -17,6 +17,7 @@
 #ifndef _GeomFill_SectionPlacement_HeaderFile
 #define _GeomFill_SectionPlacement_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -46,7 +47,7 @@ public:
 
   Standard_EXPORT void Perform(const Standard_Real Tol);
 
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Curve)& Path, const Standard_Real Tol);
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Curve)& Path, const Standard_Real Tol);
 
   Standard_EXPORT void Perform(const Standard_Real ParamOnPath, const Standard_Real Tol);
 

@@ -17,13 +17,13 @@
 #ifndef _IntPatch_ImpPrmIntersection_HeaderFile
 #define _IntPatch_ImpPrmIntersection_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntPatch_SequenceOfPoint.hxx>
 #include <IntPatch_SequenceOfLine.hxx>
 #include <IntPatch_TheSOnBounds.hxx>
 #include <IntPatch_TheSearchInside.hxx>
 
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 //! Implementation of the intersection between a natural
 //! quadric patch : Plane, Cone, Cylinder or Sphere and
@@ -35,10 +35,10 @@ public:
 
   Standard_EXPORT IntPatch_ImpPrmIntersection();
 
-  Standard_EXPORT IntPatch_ImpPrmIntersection(const Handle(Adaptor3d_Surface)&   Surf1,
-                                              const Handle(Adaptor3d_TopolTool)& D1,
-                                              const Handle(Adaptor3d_Surface)&   Surf2,
-                                              const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT IntPatch_ImpPrmIntersection(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                              const Handle(GeomAdaptor_TopolTool)& D1,
+                                              const Handle(GeomAdaptor_Surface)&   Surf2,
+                                              const Handle(GeomAdaptor_TopolTool)& D2,
                                               const Standard_Real                TolArc,
                                               const Standard_Real                TolTang,
                                               const Standard_Real                Fleche,
@@ -47,10 +47,10 @@ public:
   //! to search for solution from the given point
   Standard_EXPORT void SetStartPoint(const Standard_Real U, const Standard_Real V);
 
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   Surf1,
-                               const Handle(Adaptor3d_TopolTool)& D1,
-                               const Handle(Adaptor3d_Surface)&   Surf2,
-                               const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
+                               const Handle(GeomAdaptor_TopolTool)& D1,
+                               const Handle(GeomAdaptor_Surface)&   Surf2,
+                               const Handle(GeomAdaptor_TopolTool)& D2,
                                const Standard_Real                TolArc,
                                const Standard_Real                TolTang,
                                const Standard_Real                Fleche,

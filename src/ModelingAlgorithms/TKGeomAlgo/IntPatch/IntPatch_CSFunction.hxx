@@ -17,8 +17,8 @@
 #ifndef _IntPatch_CSFunction_HeaderFile
 #define _IntPatch_CSFunction_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <math_FunctionSetWithDerivatives.hxx>
 #include <math_Vector.hxx>
 
@@ -33,9 +33,9 @@ public:
 
   //! S1 is the surface on which the intersection is searched.
   //! C is a curve on the surface S2.
-  Standard_EXPORT IntPatch_CSFunction(const Handle(Adaptor3d_Surface)& S1,
-                                      const Handle(Adaptor2d_Curve2d)& C,
-                                      const Handle(Adaptor3d_Surface)& S2);
+  Standard_EXPORT IntPatch_CSFunction(const Handle(GeomAdaptor_Surface)& S1,
+                                      const Handle(Geom2dAdaptor_Curve)& C,
+                                      const Handle(GeomAdaptor_Surface)& S2);
 
   Standard_EXPORT Standard_Integer NbVariables() const;
 
@@ -51,9 +51,9 @@ public:
 
   Standard_EXPORT Standard_Real Root() const;
 
-  Standard_EXPORT const Handle(Adaptor3d_Surface)& AuxillarSurface() const;
+  Standard_EXPORT const Handle(GeomAdaptor_Surface)& AuxillarSurface() const;
 
-  Standard_EXPORT const Handle(Adaptor2d_Curve2d)& AuxillarCurve() const;
+  Standard_EXPORT const Handle(Geom2dAdaptor_Curve)& AuxillarCurve() const;
 
 protected:
 private:

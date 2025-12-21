@@ -14,7 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Geom_Plane.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pln.hxx>
@@ -28,7 +29,7 @@
 #include <StdPrs_Plane.hxx>
 
 void StdPrs_Plane::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                       const Adaptor3d_Surface&          aPlane,
+                       const GeomAdaptor_Surface&          aPlane,
                        const Handle(Prs3d_Drawer)&       aDrawer)
 {
   //  aPresentation->NewGroup();
@@ -134,7 +135,7 @@ Standard_Boolean StdPrs_Plane::Match(const Standard_Real      X,
                                      const Standard_Real      Y,
                                      const Standard_Real      Z,
                                      const Standard_Real      aDistance,
-                                     const Adaptor3d_Surface& aPlane,
+                                     const GeomAdaptor_Surface& aPlane,
                                      const Handle(Prs3d_Drawer)&)
 {
   if (aPlane.GetType() == GeomAbs_Plane)

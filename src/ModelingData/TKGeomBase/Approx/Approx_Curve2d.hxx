@@ -17,7 +17,7 @@
 #ifndef _Approx_Curve2d_HeaderFile
 #define _Approx_Curve2d_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <GeomAbs_Shape.hxx>
 
@@ -27,7 +27,7 @@ class Approx_Curve2d
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT Approx_Curve2d(const Handle(Adaptor2d_Curve2d)& C2D,
+  Standard_EXPORT Approx_Curve2d(const Handle(Geom2dAdaptor_Curve)& C2D,
                                  const Standard_Real              First,
                                  const Standard_Real              Last,
                                  const Standard_Real              TolU,

@@ -16,11 +16,11 @@
 
 #include <Approx_CurveOnSurface.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
 #include <AdvApprox_DichoCutting.hxx>
 #include <AdvApprox_PrefAndRec.hxx>
@@ -47,8 +47,8 @@
 class Approx_CurveOnSurface_Eval : public AdvApprox_EvaluatorFunction
 {
 public:
-  Approx_CurveOnSurface_Eval(const Handle(Adaptor3d_Curve)&   theFunc,
-                             const Handle(Adaptor2d_Curve2d)& theFunc2d,
+  Approx_CurveOnSurface_Eval(const Handle(GeomAdaptor_Curve)&   theFunc,
+                             const Handle(Geom2dAdaptor_Curve)& theFunc2d,
                              Standard_Real                    First,
                              Standard_Real                    Last)
       : fonct(theFunc),
@@ -66,8 +66,8 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Handle(Adaptor3d_Curve)   fonct;
-  Handle(Adaptor2d_Curve2d) fonct2d;
+  Handle(GeomAdaptor_Curve)   fonct;
+  Handle(Geom2dAdaptor_Curve) fonct2d;
   Standard_Real             StartEndSav[2];
 };
 
@@ -147,7 +147,7 @@ void Approx_CurveOnSurface_Eval::Evaluate(Standard_Integer* Dimension,
 class Approx_CurveOnSurface_Eval3d : public AdvApprox_EvaluatorFunction
 {
 public:
-  Approx_CurveOnSurface_Eval3d(const Handle(Adaptor3d_Curve)& theFunc,
+  Approx_CurveOnSurface_Eval3d(const Handle(GeomAdaptor_Curve)& theFunc,
                                Standard_Real                  First,
                                Standard_Real                  Last)
       : fonct(theFunc)
@@ -164,7 +164,7 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Handle(Adaptor3d_Curve) fonct;
+  Handle(GeomAdaptor_Curve) fonct;
   Standard_Real           StartEndSav[2];
 };
 
@@ -230,7 +230,7 @@ void Approx_CurveOnSurface_Eval3d::Evaluate(Standard_Integer* Dimension,
 class Approx_CurveOnSurface_Eval2d : public AdvApprox_EvaluatorFunction
 {
 public:
-  Approx_CurveOnSurface_Eval2d(const Handle(Adaptor2d_Curve2d)& theFunc2d,
+  Approx_CurveOnSurface_Eval2d(const Handle(Geom2dAdaptor_Curve)& theFunc2d,
                                Standard_Real                    First,
                                Standard_Real                    Last)
       : fonct2d(theFunc2d)
@@ -247,7 +247,7 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Handle(Adaptor2d_Curve2d) fonct2d;
+  Handle(Geom2dAdaptor_Curve) fonct2d;
   Standard_Real             StartEndSav[2];
 };
 
@@ -308,8 +308,8 @@ void Approx_CurveOnSurface_Eval2d::Evaluate(Standard_Integer* Dimension,
 
 //=================================================================================================
 
-Approx_CurveOnSurface::Approx_CurveOnSurface(const Handle(Adaptor2d_Curve2d)& C2D,
-                                             const Handle(Adaptor3d_Surface)& Surf,
+Approx_CurveOnSurface::Approx_CurveOnSurface(const Handle(Geom2dAdaptor_Curve)& C2D,
+                                             const Handle(GeomAdaptor_Surface)& Surf,
                                              const Standard_Real              First,
                                              const Standard_Real              Last,
                                              const Standard_Real              Tol,
@@ -334,8 +334,8 @@ Approx_CurveOnSurface::Approx_CurveOnSurface(const Handle(Adaptor2d_Curve2d)& C2
 
 //=================================================================================================
 
-Approx_CurveOnSurface::Approx_CurveOnSurface(const Handle(Adaptor2d_Curve2d)& theC2D,
-                                             const Handle(Adaptor3d_Surface)& theSurf,
+Approx_CurveOnSurface::Approx_CurveOnSurface(const Handle(Geom2dAdaptor_Curve)& theC2D,
+                                             const Handle(GeomAdaptor_Surface)& theSurf,
                                              const Standard_Real              theFirst,
                                              const Standard_Real              theLast,
                                              const Standard_Real              theTol)
@@ -377,7 +377,7 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
   else if (aContinuity > GeomAbs_C2)
     aContinuity = GeomAbs_C2; // Restriction of AdvApprox_ApproxAFunction
 
-  Handle(Adaptor2d_Curve2d) TrimmedC2D = myC2D->Trim(myFirst, myLast, Precision::PConfusion());
+  Handle(Geom2dAdaptor_Curve) TrimmedC2D = myC2D->Trim(myFirst, myLast, Precision::PConfusion());
 
   Standard_Boolean isU, isForward;
   Standard_Real    aParam;
@@ -391,7 +391,7 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
     }
   }
 
-  Handle(Adaptor3d_CurveOnSurface) HCOnS = new Adaptor3d_CurveOnSurface(TrimmedC2D, mySurf);
+  Handle(GeomAdaptor_CurveOnSurface) HCOnS = new GeomAdaptor_CurveOnSurface(TrimmedC2D, mySurf);
 
   Standard_Integer              Num1DSS = 0, Num2DSS = 0, Num3DSS = 0;
   Handle(TColStd_HArray1OfReal) OneDTol;
@@ -423,17 +423,17 @@ void Approx_CurveOnSurface::Perform(const Standard_Integer theMaxSegments,
 
     if (mySurf->UContinuity() == GeomAbs_C0)
     {
-      if (!Adaptor3d_HSurfaceTool::IsSurfG1(mySurf, Standard_True, Precision::Angular()))
+      if (!GeomAdaptor_HSurfaceTool::IsSurfG1(mySurf, Standard_True, Precision::Angular()))
         TolU = std::min(1.e-3, 1.e3 * TolU);
-      if (!Adaptor3d_HSurfaceTool::IsSurfG1(mySurf, Standard_True, Precision::Confusion()))
+      if (!GeomAdaptor_HSurfaceTool::IsSurfG1(mySurf, Standard_True, Precision::Confusion()))
         TolU = std::min(1.e-3, 1.e2 * TolU);
     }
 
     if (mySurf->VContinuity() == GeomAbs_C0)
     {
-      if (!Adaptor3d_HSurfaceTool::IsSurfG1(mySurf, Standard_False, Precision::Angular()))
+      if (!GeomAdaptor_HSurfaceTool::IsSurfG1(mySurf, Standard_False, Precision::Angular()))
         TolV = std::min(1.e-3, 1.e3 * TolV);
-      if (!Adaptor3d_HSurfaceTool::IsSurfG1(mySurf, Standard_False, Precision::Confusion()))
+      if (!GeomAdaptor_HSurfaceTool::IsSurfG1(mySurf, Standard_False, Precision::Confusion()))
         TolV = std::min(1.e-3, 1.e2 * TolV);
     }
 
@@ -564,7 +564,7 @@ Standard_Real Approx_CurveOnSurface::MaxError2dV() const
 
 //=================================================================================================
 
-Standard_Boolean Approx_CurveOnSurface::isIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
+Standard_Boolean Approx_CurveOnSurface::isIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
                                                   Standard_Boolean&                theIsU,
                                                   Standard_Real&                   theParam,
                                                   Standard_Boolean& theIsForward) const
@@ -644,7 +644,7 @@ Standard_Boolean Approx_CurveOnSurface::isIsoLine(const Handle(Adaptor2d_Curve2d
 
 //=================================================================================================
 
-Standard_Boolean Approx_CurveOnSurface::buildC3dOnIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
+Standard_Boolean Approx_CurveOnSurface::buildC3dOnIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
                                                           const Standard_Boolean           theIsU,
                                                           const Standard_Real              theParam,
                                                           const Standard_Boolean theIsForward)

@@ -29,8 +29,8 @@
 //: r9 abv 09.04.99: id_turbine-C.stp #3865: check degenerated 2d point by recomputing to 3d instead
 //: of Resolution s5 abv 22.04.99  Adding debug printouts in catch {} blocks
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <BndLib_Add3dCurve.hxx>
 #include <ElSLib.hxx>
 #include <Geom_BezierSurface.hxx>
@@ -1475,7 +1475,7 @@ Standard_Real ShapeAnalysis_Surface::UVFromIso(const gp_Pnt&       P3d,
     Standard_Boolean   UV  = Standard_True;
     Standard_Real      par = 0., other = 0., dist = 0.;
     Handle(Geom_Curve) iso;
-    Adaptor3d_IsoCurve anIsoCurve(Adaptor3d());
+    GeomAdaptor_IsoCurve anIsoCurve(Adaptor3d());
     for (Standard_Integer num = 0; num < 6; num++)
     {
 
@@ -1542,7 +1542,7 @@ Standard_Real ShapeAnalysis_Surface::UVFromIso(const gp_Pnt&       P3d,
 
       else
       {
-        Adaptor3d_Curve*  anAdaptor = NULL;
+        GeomAdaptor_Curve*  anAdaptor = NULL;
         GeomAdaptor_Curve aGeomCurve;
 
         const Bnd_Box* anIsoBox = 0;

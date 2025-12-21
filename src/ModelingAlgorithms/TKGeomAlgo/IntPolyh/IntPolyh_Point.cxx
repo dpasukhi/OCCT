@@ -20,7 +20,7 @@
 
 //=================================================================================================
 
-void IntPolyh_Point::Middle(const Handle(Adaptor3d_Surface)& MySurface,
+void IntPolyh_Point::Middle(const Handle(GeomAdaptor_Surface)& MySurface,
                             const IntPolyh_Point&            Point1,
                             const IntPolyh_Point&            Point2)
 {

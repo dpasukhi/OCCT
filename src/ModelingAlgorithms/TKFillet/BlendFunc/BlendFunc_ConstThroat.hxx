@@ -15,13 +15,14 @@
 #ifndef _BlendFunc_ConstThroat_HeaderFile
 #define _BlendFunc_ConstThroat_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <BlendFunc_GenChamfer.hxx>
 #include <math_Vector.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 #include <TColgp_Array1OfVec2d.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 
 //! Class for a function used to compute a symmetric chamfer
@@ -31,9 +32,9 @@ class BlendFunc_ConstThroat : public BlendFunc_GenChamfer
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_ConstThroat(const Handle(Adaptor3d_Surface)& S1,
-                                        const Handle(Adaptor3d_Surface)& S2,
-                                        const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT BlendFunc_ConstThroat(const Handle(GeomAdaptor_Surface)& S1,
+                                        const Handle(GeomAdaptor_Surface)& S2,
+                                        const Handle(GeomAdaptor_Curve)&   C);
 
   //! computes the values <F> of the Functions for the
   //! variable <X>.

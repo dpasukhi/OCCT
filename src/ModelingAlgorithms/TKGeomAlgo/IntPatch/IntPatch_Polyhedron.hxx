@@ -17,7 +17,7 @@
 #ifndef _IntPatch_Polyhedron_HeaderFile
 #define _IntPatch_Polyhedron_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_HArray1OfBox.hxx>
 
 //! This class provides a linear approximation of the PSurface.
@@ -29,23 +29,23 @@ public:
 
   //! MaTriangle constructor with an double array of pnt for the
   //! representation of a double array of triangles.
-  Standard_EXPORT IntPatch_Polyhedron(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT IntPatch_Polyhedron(const Handle(GeomAdaptor_Surface)& Surface,
                                       const Standard_Integer           nbdU,
                                       const Standard_Integer           nbdV);
 
-  Standard_EXPORT IntPatch_Polyhedron(const Handle(Adaptor3d_Surface)& Surface);
+  Standard_EXPORT IntPatch_Polyhedron(const Handle(GeomAdaptor_Surface)& Surface);
 
   Standard_EXPORT void Destroy();
 
   ~IntPatch_Polyhedron() { Destroy(); }
 
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)& Surface,
                                const Standard_Integer           nbdU,
                                const Standard_Integer           nbdV);
 
   Standard_EXPORT void DeflectionOverEstimation(const Standard_Real flec);
 
-  Standard_EXPORT Standard_Real DeflectionOnTriangle(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT Standard_Real DeflectionOnTriangle(const Handle(GeomAdaptor_Surface)& Surface,
                                                      const Standard_Integer           Index) const;
 
   Standard_EXPORT void UMinSingularity(const Standard_Boolean Sing);

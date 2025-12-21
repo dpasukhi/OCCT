@@ -40,7 +40,7 @@ inline void Contap_ArcFunction::Set(const gp_Pnt& Eye)
   myEye  = Eye;
 }
 
-inline void Contap_ArcFunction::Set(const Handle(Adaptor2d_Curve2d)& A)
+inline void Contap_ArcFunction::Set(const Handle(Geom2dAdaptor_Curve)& A)
 {
   myArc = A;
   seqpt.Clear();
@@ -51,7 +51,7 @@ inline const gp_Pnt& Contap_ArcFunction::Valpoint(const Standard_Integer Index) 
   return seqpt(Index);
 }
 
-inline const Handle(Adaptor3d_Surface)& Contap_ArcFunction::Surface() const
+inline const Handle(GeomAdaptor_Surface)& Contap_ArcFunction::Surface() const
 {
   return (mySurf);
 }

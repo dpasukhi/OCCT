@@ -751,7 +751,7 @@ Standard_Boolean PrsDim::GetPlaneFromFace(const TopoDS_Face&    aFace,
 {
   Standard_Boolean          Result = Standard_False;
   BRepAdaptor_Surface       surf1(aFace);
-  Handle(Adaptor3d_Surface) surf2;
+  Handle(GeomAdaptor_Surface) surf2;
   Standard_Boolean          isOffset = Standard_False;
   Offset                             = 0.0;
 
@@ -776,7 +776,7 @@ Standard_Boolean PrsDim::GetPlaneFromFace(const TopoDS_Face&    aFace,
   }
   else if (surf2->GetType() == GeomAbs_SurfaceOfExtrusion)
   {
-    Handle(Adaptor3d_Curve) BasisCurve   = surf2->BasisCurve();
+    Handle(GeomAdaptor_Curve) BasisCurve   = surf2->BasisCurve();
     gp_Dir                  ExtrusionDir = surf2->Direction();
     if (BasisCurve->GetType() == GeomAbs_Line)
     {

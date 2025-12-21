@@ -16,8 +16,8 @@
 
 //  Modified by skv - Fri Jul  8 11:21:38 2005 OCC9145
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor2d_OffsetCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <Geom2dAdaptor_OffsetCurve.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_GCurve.hxx>
 #include <BRep_TEdge.hxx>
@@ -104,7 +104,7 @@ static Standard_Integer NbBISSEC    = 0;
 
 //  Modified by Sergey KHROMOV - Thu Nov 16 17:24:39 2000 Begin
 
-static void QuasiFleche(const Adaptor3d_Curve&  C,
+static void QuasiFleche(const GeomAdaptor_Curve&  C,
                         const Standard_Real     Deflection2,
                         const Standard_Real     Udeb,
                         const gp_Pnt&           Pdeb,
@@ -119,7 +119,7 @@ static void QuasiFleche(const Adaptor3d_Curve&  C,
 
 static Standard_Boolean PerformCurve(TColStd_SequenceOfReal& Parameters,
                                      TColgp_SequenceOfPnt&   Points,
-                                     const Adaptor3d_Curve&  C,
+                                     const GeomAdaptor_Curve&  C,
                                      const Standard_Real     Deflection,
                                      const Standard_Real     U1,
                                      const Standard_Real     U2,
@@ -252,7 +252,7 @@ static Standard_Boolean KPartCircle(const TopoDS_Face&                          
     {
       if (E.Orientation() == TopAbs_FORWARD)
         anOffset *= -1;
-      Adaptor2d_OffsetCurve Off(AHC, anOffset);
+      Geom2dAdaptor_OffsetCurve Off(AHC, anOffset);
       OC = new Geom2d_Line(Off.Line());
     }
     else if (AHC->GetType() == GeomAbs_Circle)
@@ -2107,7 +2107,7 @@ void MakeOffset(const TopoDS_Edge&                                 E,
     {
 
       Handle(Geom2dAdaptor_Curve) AHC = new Geom2dAdaptor_Curve(G2d);
-      Adaptor2d_OffsetCurve       Off(AHC, anOffset);
+      Geom2dAdaptor_OffsetCurve       Off(AHC, anOffset);
       Handle(Geom2d_Circle)       CC = new Geom2d_Circle(Off.Circle());
 
       Standard_Real Delta = 2 * M_PI - l + f;
@@ -2142,7 +2142,7 @@ void MakeOffset(const TopoDS_Edge&                                 E,
   else if (AC.GetType() == GeomAbs_Line)
   {
     Handle(Geom2dAdaptor_Curve) AHC = new Geom2dAdaptor_Curve(G2d);
-    Adaptor2d_OffsetCurve       Off(AHC, anOffset);
+    Geom2dAdaptor_OffsetCurve       Off(AHC, anOffset);
     Handle(Geom2d_Line)         CC    = new Geom2d_Line(Off.Line());
     Standard_Real               Delta = (l - f);
     if (ToExtendFirstPar)
@@ -2668,7 +2668,7 @@ static void CheckBadEdges(const TopoDS_Face&              Spine,
 static Standard_Boolean PerformCurve(TColStd_SequenceOfReal& Parameters,
 
                                      TColgp_SequenceOfPnt&  Points,
-                                     const Adaptor3d_Curve& C,
+                                     const GeomAdaptor_Curve& C,
                                      const Standard_Real    Deflection,
                                      const Standard_Real    U1,
                                      const Standard_Real    U2,
@@ -2711,7 +2711,7 @@ static Standard_Boolean PerformCurve(TColStd_SequenceOfReal& Parameters,
 
 //=================================================================================================
 
-static void QuasiFleche(const Adaptor3d_Curve& C,
+static void QuasiFleche(const GeomAdaptor_Curve& C,
 
                         const Standard_Real     Deflection2,
                         const Standard_Real     Udeb,

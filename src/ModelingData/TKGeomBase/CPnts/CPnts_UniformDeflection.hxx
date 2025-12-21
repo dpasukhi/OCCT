@@ -19,11 +19,12 @@
 
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
-
 #include <Standard_Integer.hxx>
+
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
-class Adaptor3d_Curve;
-class Adaptor2d_Curve2d;
+
+class GeomAdaptor_Curve;
 
 //! This class defines an algorithm to create a set of points
 //! (with a given chordal deviation) at the
@@ -71,13 +72,13 @@ public:
   //! P(u + std::max(CurrentStep,std::abs(LastParameter-FirstParameter)))
   //! if the singularity is at the first point ,the next point
   //! calculated is the P(LastParameter)
-  Standard_EXPORT CPnts_UniformDeflection(const Adaptor3d_Curve& C,
+  Standard_EXPORT CPnts_UniformDeflection(const GeomAdaptor_Curve& C,
                                           const Standard_Real    Deflection,
                                           const Standard_Real    Resolution,
                                           const Standard_Boolean WithControl);
 
   //! As above with 2d curve
-  Standard_EXPORT CPnts_UniformDeflection(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT CPnts_UniformDeflection(const Geom2dAdaptor_Curve& C,
                                           const Standard_Real      Deflection,
                                           const Standard_Real      Resolution,
                                           const Standard_Boolean   WithControl);
@@ -86,7 +87,7 @@ public:
   //! the curve <C>. Deflection defines the step between the points.
   //! <U1> and <U2> define the distribution span.
   //! <U1> and <U2> must be in the parametric range of the curve.
-  Standard_EXPORT CPnts_UniformDeflection(const Adaptor3d_Curve& C,
+  Standard_EXPORT CPnts_UniformDeflection(const GeomAdaptor_Curve& C,
                                           const Standard_Real    Deflection,
                                           const Standard_Real    U1,
                                           const Standard_Real    U2,
@@ -94,7 +95,7 @@ public:
                                           const Standard_Boolean WithControl);
 
   //! As above with 2d curve
-  Standard_EXPORT CPnts_UniformDeflection(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT CPnts_UniformDeflection(const Geom2dAdaptor_Curve& C,
                                           const Standard_Real      Deflection,
                                           const Standard_Real      U1,
                                           const Standard_Real      U2,
@@ -103,21 +104,21 @@ public:
 
   //! Initialize the algorithms with <C>, <Deflection>, <UStep>,
   //! <Resolution> and <WithControl>
-  Standard_EXPORT void Initialize(const Adaptor3d_Curve& C,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Curve& C,
                                   const Standard_Real    Deflection,
                                   const Standard_Real    Resolution,
                                   const Standard_Boolean WithControl);
 
   //! Initialize the algorithms with <C>, <Deflection>, <UStep>,
   //! <Resolution> and <WithControl>
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& C,
                                   const Standard_Real      Deflection,
                                   const Standard_Real      Resolution,
                                   const Standard_Boolean   WithControl);
 
   //! Initialize the algorithms with <C>, <Deflection>, <UStep>,
   //! <U1>, <U2> and <WithControl>
-  Standard_EXPORT void Initialize(const Adaptor3d_Curve& C,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Curve& C,
                                   const Standard_Real    Deflection,
                                   const Standard_Real    U1,
                                   const Standard_Real    U2,
@@ -126,7 +127,7 @@ public:
 
   //! Initialize the algorithms with <C>, <Deflection>, <UStep>,
   //! <U1>, <U2> and <WithControl>
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& C,
                                   const Standard_Real      Deflection,
                                   const Standard_Real      U1,
                                   const Standard_Real      U2,

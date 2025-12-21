@@ -17,7 +17,7 @@
 #ifndef _Contap_SurfFunction_HeaderFile
 #define _Contap_SurfFunction_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Contap_TFunction.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
@@ -39,7 +39,7 @@ public:
 
   Standard_EXPORT Contap_SurfFunction();
 
-  Standard_EXPORT void Set(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT void Set(const Handle(GeomAdaptor_Surface)& S);
 
   void Set(const gp_Pnt& Eye);
 
@@ -90,14 +90,14 @@ public:
 
   Standard_Real Angle() const;
 
-  const Handle(Adaptor3d_Surface)& Surface() const;
+  const Handle(GeomAdaptor_Surface)& Surface() const;
 
   //! Method is entered for compatibility with IntPatch_TheSurfFunction.
-  const Handle(Adaptor3d_Surface)& PSurface() const { return Surface(); }
+  const Handle(GeomAdaptor_Surface)& PSurface() const { return Surface(); }
 
 protected:
 private:
-  Handle(Adaptor3d_Surface) mySurf;
+  Handle(GeomAdaptor_Surface) mySurf;
   Standard_Real             myMean;
   Contap_TFunction          myType;
   gp_Dir                    myDir;

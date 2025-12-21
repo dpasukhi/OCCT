@@ -16,9 +16,9 @@
 
 #include <GeomPlate_BuildPlateSurface.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <Approx_CurveOnSurface.hxx>
 #include <Extrema_ExtPS.hxx>
 #include <Extrema_POnSurf.hxx>
@@ -249,7 +249,7 @@ static void TrierTab(Handle(TColStd_HArray1OfInteger)& Tab)
 //---------------------------------------------------------
 // Function : ProjectCurve
 //---------------------------------------------------------
-Handle(Geom2d_Curve) GeomPlate_BuildPlateSurface::ProjectCurve(const Handle(Adaptor3d_Curve)& Curv)
+Handle(Geom2d_Curve) GeomPlate_BuildPlateSurface::ProjectCurve(const Handle(GeomAdaptor_Curve)& Curv)
 {
   // Project a curve on a plane
   Handle(Geom2d_Curve)        Curve2d;
@@ -309,7 +309,7 @@ Handle(Geom2d_Curve) GeomPlate_BuildPlateSurface::ProjectCurve(const Handle(Adap
 //---------------------------------------------------------
 // Function : ProjectedCurve
 //---------------------------------------------------------
-Handle(Adaptor2d_Curve2d) GeomPlate_BuildPlateSurface::ProjectedCurve(Handle(Adaptor3d_Curve)& Curv)
+Handle(Geom2dAdaptor_Curve) GeomPlate_BuildPlateSurface::ProjectedCurve(Handle(GeomAdaptor_Curve)& Curv)
 {
   // Projection of a curve on the initial surface
 
@@ -1635,10 +1635,10 @@ void GeomPlate_BuildPlateSurface::ComputeSurfInit(const Message_ProgressRange& t
       Standard_Real LastPar  = myLinCont->Value(i)->LastParameter();
       Standard_Real Uif      = (LastPar - FirstPar) / (NbPoint);
 
-      Handle(Adaptor3d_Curve)             Curve = myLinCont->Value(i)->Curve3d();
+      Handle(GeomAdaptor_Curve)             Curve = myLinCont->Value(i)->Curve3d();
       Handle(ProjLib_HCompProjectedCurve) ProjCurve =
         new ProjLib_HCompProjectedCurve(hsur, Curve, myTol3d, myTol3d);
-      Adaptor3d_CurveOnSurface AProj(ProjCurve, hsur);
+      GeomAdaptor_CurveOnSurface AProj(ProjCurve, hsur);
 
       gp_Pnt P;
       gp_Vec DerC, DerCproj;
@@ -1907,13 +1907,13 @@ void GeomPlate_BuildPlateSurface::Intersect(Handle(GeomPlate_HArray1OfSequenceOf
               gp_Vec vec, vecU, vecV, N;
               if (myLinCont->Value(i)->Order() == 0)
               {
-                Handle(Adaptor3d_Curve) theCurve = myLinCont->Value(i)->Curve3d();
+                Handle(GeomAdaptor_Curve) theCurve = myLinCont->Value(i)->Curve3d();
                 theCurve->D1(int2d.ParamOnFirst(), P1, vec);
                 myLinCont->Value(j)->D1(int2d.ParamOnSecond(), P2, vecU, vecV);
               }
               else
               {
-                Handle(Adaptor3d_Curve) theCurve = myLinCont->Value(j)->Curve3d();
+                Handle(GeomAdaptor_Curve) theCurve = myLinCont->Value(j)->Curve3d();
                 theCurve->D1(int2d.ParamOnSecond(), P2, vec);
                 myLinCont->Value(i)->D1(int2d.ParamOnFirst(), P1, vecU, vecV);
               }

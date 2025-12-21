@@ -29,7 +29,7 @@ Contap_ArcFunction::Contap_ArcFunction()
 {
 }
 
-void Contap_ArcFunction::Set(const Handle(Adaptor3d_Surface)& S)
+void Contap_ArcFunction::Set(const Handle(GeomAdaptor_Surface)& S)
 {
   mySurf = S;
   Standard_Integer i;
@@ -43,7 +43,7 @@ void Contap_ArcFunction::Set(const Handle(Adaptor3d_Surface)& S)
     for (i = 1; i <= nbs; i++)
     {
       Contap_HContTool::SamplePoint(S, i, U, V);
-      //      Adaptor3d_HSurfaceTool::D1(S,U,V,solpt,d1u,d1v);
+      //      GeomAdaptor_HSurfaceTool::D1(S,U,V,solpt,d1u,d1v);
       //      myMean = myMean + d1u.Crossed(d1v).Magnitude();
       Contap_SurfProps::Normale(S, U, V, solpt, norm);
       myMean = myMean + norm.Magnitude();
@@ -56,7 +56,7 @@ Standard_Boolean Contap_ArcFunction::Value(const Standard_Real U, Standard_Real&
 {
   // gp_Vec d1u,d1v;
   gp_Pnt2d pt2d(Contap_HCurve2dTool::Value(myArc, U));
-  //  Adaptor3d_HSurfaceTool::D1(mySurf,pt2d.X(),pt2d.Y(),solpt,d1u,d1v);
+  //  GeomAdaptor_HSurfaceTool::D1(mySurf,pt2d.X(),pt2d.Y(),solpt,d1u,d1v);
   //  gp_Vec norm(d1u.Crossed(d1v));
   gp_Vec norm;
   Contap_SurfProps::Normale(mySurf, pt2d.X(), pt2d.Y(), solpt, norm);
@@ -89,7 +89,7 @@ Standard_Boolean Contap_ArcFunction::Derivative(const Standard_Real U, Standard_
   Standard_Real dfu = 0., dfv = 0.;
   //  gp_Vec d1u,d1v,d2u,d2v,d2uv;
   Contap_HCurve2dTool::D1(myArc, U, pt2d, d2d);
-  //  Adaptor3d_HSurfaceTool::D2(mySurf,pt2d.X(),pt2d.Y(),solpt,d1u,d1v,d2u,d2v,d2uv);
+  //  GeomAdaptor_HSurfaceTool::D2(mySurf,pt2d.X(),pt2d.Y(),solpt,d1u,d1v,d2u,d2v,d2uv);
   gp_Vec norm, dnu, dnv;
   Contap_SurfProps::NormAndDn(mySurf, pt2d.X(), pt2d.Y(), solpt, norm, dnu, dnv);
 
@@ -140,7 +140,7 @@ Standard_Boolean Contap_ArcFunction::Values(const Standard_Real U,
   Standard_Real dfu = 0., dfv = 0.;
   // gp_Vec d1u,d1v,d2u,d2v,d2uv;
   Contap_HCurve2dTool::D1(myArc, U, pt2d, d2d);
-  //  Adaptor3d_HSurfaceTool::D2(mySurf,pt2d.X(),pt2d.Y(),solpt,d1u,d1v,d2u,d2v,d2uv);
+  //  GeomAdaptor_HSurfaceTool::D2(mySurf,pt2d.X(),pt2d.Y(),solpt,d1u,d1v,d2u,d2v,d2uv);
   //  gp_Vec norm(d1u.Crossed(d1v));
   gp_Vec norm, dnu, dnv;
   Contap_SurfProps::NormAndDn(mySurf, pt2d.X(), pt2d.Y(), solpt, norm, dnu, dnv);

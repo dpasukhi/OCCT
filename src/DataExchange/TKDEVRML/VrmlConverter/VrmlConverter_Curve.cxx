@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
@@ -25,7 +25,7 @@
 
 //=================================================================================================
 
-static void FindLimits(const Adaptor3d_Curve& aCurve,
+static void FindLimits(const GeomAdaptor_Curve& aCurve,
                        const Standard_Real    aLimit,
                        Standard_Real&         First,
                        Standard_Real&         Last)
@@ -75,7 +75,7 @@ static void FindLimits(const Adaptor3d_Curve& aCurve,
 
 //=================================================================================================
 
-static void DrawCurve(const Adaptor3d_Curve&              aCurve,
+static void DrawCurve(const GeomAdaptor_Curve&              aCurve,
                       const Standard_Integer              NbP,
                       const Standard_Real                 U1,
                       const Standard_Real                 U2,
@@ -206,7 +206,7 @@ static void DrawCurve(const Adaptor3d_Curve&              aCurve,
 
 //=================================================================================================
 
-void VrmlConverter_Curve::Add(const Adaptor3d_Curve&              aCurve,
+void VrmlConverter_Curve::Add(const GeomAdaptor_Curve&              aCurve,
                               const Handle(VrmlConverter_Drawer)& aDrawer,
                               Standard_OStream&                   anOStream)
 {
@@ -226,7 +226,7 @@ void VrmlConverter_Curve::Add(const Adaptor3d_Curve&              aCurve,
 
 //=================================================================================================
 
-void VrmlConverter_Curve::Add(const Adaptor3d_Curve&              aCurve,
+void VrmlConverter_Curve::Add(const GeomAdaptor_Curve&              aCurve,
                               const Standard_Real                 U1,
                               const Standard_Real                 U2,
                               const Handle(VrmlConverter_Drawer)& aDrawer,
@@ -251,7 +251,7 @@ void VrmlConverter_Curve::Add(const Adaptor3d_Curve&              aCurve,
 
 //=================================================================================================
 
-void VrmlConverter_Curve::Add(const Adaptor3d_Curve& aCurve,
+void VrmlConverter_Curve::Add(const GeomAdaptor_Curve& aCurve,
                               const Standard_Real    U1,
                               const Standard_Real    U2,
                               Standard_OStream&      anOStream,

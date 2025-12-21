@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <gp_Dir.hxx>
@@ -32,7 +32,7 @@
 //=================================================================================================
 
 void StdPrs_PoleCurve::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                           const Adaptor3d_Curve&            aCurve,
+                           const GeomAdaptor_Curve&            aCurve,
                            const Handle(Prs3d_Drawer)&       aDrawer)
 {
   aPresentation->CurrentGroup()->SetPrimitivesAspect(aDrawer->LineAspect()->Aspect());
@@ -80,7 +80,7 @@ Standard_Boolean StdPrs_PoleCurve::Match(const Standard_Real    X,
                                          const Standard_Real    Y,
                                          const Standard_Real    Z,
                                          const Standard_Real    aDistance,
-                                         const Adaptor3d_Curve& aCurve,
+                                         const GeomAdaptor_Curve& aCurve,
                                          const Handle(Prs3d_Drawer)& /*aDrawer*/)
 {
   GeomAbs_CurveType CType = aCurve.GetType();
@@ -119,7 +119,7 @@ Standard_Integer StdPrs_PoleCurve::Pick(const Standard_Real    X,
                                         const Standard_Real    Y,
                                         const Standard_Real    Z,
                                         const Standard_Real    aDistance,
-                                        const Adaptor3d_Curve& aCurve,
+                                        const GeomAdaptor_Curve& aCurve,
                                         const Handle(Prs3d_Drawer)& /*aDrawer*/)
 {
   Standard_Real     x, y, z, DistMin = RealLast();

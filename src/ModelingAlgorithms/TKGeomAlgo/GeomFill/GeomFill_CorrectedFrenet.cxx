@@ -16,7 +16,7 @@
 
 #include <GeomFill_CorrectedFrenet.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_Box.hxx>
 #include <BndLib_Add3dCurve.hxx>
 #include <Geom_BezierCurve.hxx>
@@ -97,7 +97,7 @@ static void draw(const Handle(Law_Function)& law)
 #endif
 
 static Standard_Real ComputeTorsion(const Standard_Real            Param,
-                                    const Handle(Adaptor3d_Curve)& aCurve)
+                                    const Handle(GeomAdaptor_Curve)& aCurve)
 {
   Standard_Real Torsion;
 
@@ -215,7 +215,7 @@ static void smoothlaw(Handle(Law_BSpline)&                 Law,
 
 //=================================================================================================
 
-static Standard_Boolean FindPlane(const Handle(Adaptor3d_Curve)& theC, Handle(Geom_Plane)& theP)
+static Standard_Boolean FindPlane(const Handle(GeomAdaptor_Curve)& theC, Handle(Geom_Plane)& theP)
 {
   Standard_Boolean            found = Standard_True;
   Handle(TColgp_HArray1OfPnt) TabP;
@@ -354,7 +354,7 @@ Handle(GeomFill_TrihedronLaw) GeomFill_CorrectedFrenet::Copy() const
   return copy;
 }
 
-Standard_Boolean GeomFill_CorrectedFrenet::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_CorrectedFrenet::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   GeomFill_TrihedronLaw::SetCurve(C);
   if (!C.IsNull())

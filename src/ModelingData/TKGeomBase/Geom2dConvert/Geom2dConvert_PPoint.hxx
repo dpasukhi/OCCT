@@ -17,10 +17,9 @@
 #ifndef _Geom2dConvert_PPoint_HeaderFile
 #define _Geom2dConvert_PPoint_HeaderFile
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
-
-class Adaptor2d_Curve2d;
 
 //! Class representing a point on curve, with 2D coordinate and the tangent
 class Geom2dConvert_PPoint
@@ -46,7 +45,7 @@ public:
 
   //! Constructor.
   Standard_EXPORT Geom2dConvert_PPoint(const Standard_Real      theParameter,
-                                       const Adaptor2d_Curve2d& theAdaptor);
+                                       const Geom2dAdaptor_Curve& theAdaptor);
 
   //! Compute the distance between two 2d points.
   inline Standard_Real Dist(const Geom2dConvert_PPoint& theOth) const

@@ -14,6 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <HLRBRep_TheQuadCurvExactInterCSurf.hxx>
 
 #include <gp_Lin.hxx>

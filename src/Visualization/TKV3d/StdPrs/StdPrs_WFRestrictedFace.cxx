@@ -14,7 +14,7 @@
 #include <Hatch_Hatcher.hxx>
 #include <Graphic3d_Group.hxx>
 #include <Prs3d_IsoAspect.hxx>
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <Precision.hxx>
@@ -49,7 +49,7 @@ void StdPrs_WFRestrictedFace::Add(const Handle(Prs3d_Presentation)&  thePresenta
 
   for (aToolRst.Init(); aToolRst.More(); aToolRst.Next())
   {
-    const Adaptor2d_Curve2d& aRCurve = aToolRst.Value();
+    const Geom2dAdaptor_Curve& aRCurve = aToolRst.Value();
     BndLib_Add2dCurve::Add(aRCurve, Precision::PConfusion(), aBndBox);
   }
   if (!aBndBox.IsVoid())
@@ -112,7 +112,7 @@ void StdPrs_WFRestrictedFace::Add(const Handle(Prs3d_Presentation)&  thePresenta
   for (aToolRst.Init(); aToolRst.More(); aToolRst.Next())
   {
     TopAbs_Orientation       anOrientation = aToolRst.Orientation();
-    const Adaptor2d_Curve2d* aRCurve       = &aToolRst.Value();
+    const Geom2dAdaptor_Curve* aRCurve       = &aToolRst.Value();
     anU1                                   = aRCurve->FirstParameter();
     anU2                                   = aRCurve->LastParameter();
     if (aRCurve->GetType() != GeomAbs_Line)
@@ -142,7 +142,7 @@ void StdPrs_WFRestrictedFace::Add(const Handle(Prs3d_Presentation)&  thePresenta
   }
 
   // Draw the isos
-  Adaptor3d_IsoCurve anIsoCurve;
+  GeomAdaptor_IsoCurve anIsoCurve;
   anIsoCurve.Load(theFace);
   Handle(Geom_Curve)         aBCurve;
   const BRepAdaptor_Surface& aBSurface = *theFace;
@@ -242,7 +242,7 @@ Standard_Boolean StdPrs_WFRestrictedFace::Match(const Standard_Real             
 
   for (aToolRst.Init(); aToolRst.More(); aToolRst.Next())
   {
-    const Adaptor2d_Curve2d* aRCurve = &aToolRst.Value();
+    const Geom2dAdaptor_Curve* aRCurve = &aToolRst.Value();
     anU                              = aRCurve->FirstParameter();
     aV                               = aRCurve->LastParameter();
     if (aRCurve->GetType() != GeomAbs_Line)
@@ -335,7 +335,7 @@ Standard_Boolean StdPrs_WFRestrictedFace::Match(const Standard_Real             
   for (aToolRst.Init(); aToolRst.More(); aToolRst.Next())
   {
     TopAbs_Orientation       Orient  = aToolRst.Orientation();
-    const Adaptor2d_Curve2d* aRCurve = &aToolRst.Value();
+    const Geom2dAdaptor_Curve* aRCurve = &aToolRst.Value();
     anU1                             = aRCurve->FirstParameter();
     anU2                             = aRCurve->LastParameter();
     if (aRCurve->GetType() != GeomAbs_Line)
@@ -366,7 +366,7 @@ Standard_Boolean StdPrs_WFRestrictedFace::Match(const Standard_Real             
 
   // Draw the isos
 
-  Adaptor3d_IsoCurve anIso;
+  GeomAdaptor_IsoCurve anIso;
   anIso.Load(theFace);
   Standard_Integer aNbLines = anIsoBuild.NbLines();
 

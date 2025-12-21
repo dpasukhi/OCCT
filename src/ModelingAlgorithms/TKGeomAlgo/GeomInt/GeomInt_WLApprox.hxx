@@ -17,14 +17,14 @@
 #ifndef _GeomInt_WLApprox_HeaderFile
 #define _GeomInt_WLApprox_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <NCollection_Vector.hxx>
 #include <GeomInt_TheComputeLineOfWLApprox.hxx>
 #include <GeomInt_TheComputeLineBezierOfWLApprox.hxx>
 #include <Approx_MCurvesToBSpCurve.hxx>
 #include <Approx_ParametrizationType.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class IntSurf_Quadric;
 class IntSurf_QuadricTool;
 class IntPatch_WLine;
@@ -77,8 +77,8 @@ public:
 
   Standard_EXPORT GeomInt_WLApprox();
 
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)& Surf1,
-                               const Handle(Adaptor3d_Surface)& Surf2,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)& Surf1,
+                               const Handle(GeomAdaptor_Surface)& Surf2,
                                const Handle(IntPatch_WLine)&    aLine,
                                const Standard_Boolean           ApproxXYZ  = Standard_True,
                                const Standard_Boolean           ApproxU1V1 = Standard_True,
@@ -123,7 +123,7 @@ public:
 protected:
 private:
   Standard_EXPORT void Perform(const IntSurf_Quadric&           Surf1,
-                               const Handle(Adaptor3d_Surface)& Surf2,
+                               const Handle(GeomAdaptor_Surface)& Surf2,
                                const Handle(IntPatch_WLine)&    aLine,
                                const Standard_Boolean           ApproxXYZ,
                                const Standard_Boolean           ApproxU1V1,

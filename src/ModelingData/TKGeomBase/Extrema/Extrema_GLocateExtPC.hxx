@@ -33,7 +33,7 @@
 //! the parameter value U0. The function F(u)=distance(P,C(u)) has an extremum
 //! when g(u)=dF/du=0. The algorithm searches a zero near the close point.
 //!
-//! @tparam TheCurve    Curve type (e.g., Adaptor3d_Curve, Adaptor2d_Curve2d)
+//! @tparam TheCurve    Curve type (e.g., GeomAdaptor_Curve, Geom2dAdaptor_Curve)
 //! @tparam TheCurveTool Tool for curve operations
 //! @tparam ThePoint    Point type (e.g., gp_Pnt, gp_Pnt2d)
 //! @tparam TheVector   Vector type (e.g., gp_Vec, gp_Vec2d)

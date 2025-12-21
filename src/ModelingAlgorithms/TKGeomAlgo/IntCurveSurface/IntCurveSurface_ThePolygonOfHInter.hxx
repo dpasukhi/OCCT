@@ -17,7 +17,7 @@
 #ifndef _IntCurveSurface_ThePolygonOfHInter_HeaderFile
 #define _IntCurveSurface_ThePolygonOfHInter_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_Box.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_HArray1OfReal.hxx>
@@ -32,15 +32,15 @@ class IntCurveSurface_ThePolygonOfHInter
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT IntCurveSurface_ThePolygonOfHInter(const Handle(Adaptor3d_Curve)& Curve,
+  Standard_EXPORT IntCurveSurface_ThePolygonOfHInter(const Handle(GeomAdaptor_Curve)& Curve,
                                                      const Standard_Integer         NbPnt);
 
-  Standard_EXPORT IntCurveSurface_ThePolygonOfHInter(const Handle(Adaptor3d_Curve)& Curve,
+  Standard_EXPORT IntCurveSurface_ThePolygonOfHInter(const Handle(GeomAdaptor_Curve)& Curve,
                                                      const Standard_Real            U1,
                                                      const Standard_Real            U2,
                                                      const Standard_Integer         NbPnt);
 
-  Standard_EXPORT IntCurveSurface_ThePolygonOfHInter(const Handle(Adaptor3d_Curve)& Curve,
+  Standard_EXPORT IntCurveSurface_ThePolygonOfHInter(const Handle(GeomAdaptor_Curve)& Curve,
                                                      const TColStd_Array1OfReal&    Upars);
 
   //! Give the bounding box of the polygon.
@@ -86,9 +86,9 @@ public:
   Standard_EXPORT void Dump() const;
 
 protected:
-  Standard_EXPORT void Init(const Handle(Adaptor3d_Curve)& Curve);
+  Standard_EXPORT void Init(const Handle(GeomAdaptor_Curve)& Curve);
 
-  Standard_EXPORT void Init(const Handle(Adaptor3d_Curve)& Curve,
+  Standard_EXPORT void Init(const Handle(GeomAdaptor_Curve)& Curve,
                             const TColStd_Array1OfReal&    Upars);
 
 private:

@@ -29,7 +29,7 @@
 //! This class inherits from math_FunctionSetWithDerivatives and is used by
 //! the algorithm math_FunctionSetRoot.
 //!
-//! @tparam TheCurve1 Type of the first curve (e.g., Adaptor3d_Curve)
+//! @tparam TheCurve1 Type of the first curve (e.g., GeomAdaptor_Curve)
 //! @tparam TheCurveTool1 Tool class for the first curve
 //! @tparam TheCurve2 Type of the second curve
 //! @tparam TheCurveTool2 Tool class for the second curve

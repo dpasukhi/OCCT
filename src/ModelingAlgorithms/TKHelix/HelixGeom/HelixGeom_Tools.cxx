@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
 #include <AdvApprox_DichoCutting.hxx>
 #include <AdvApprox_EvaluatorFunction.hxx>
@@ -28,7 +28,7 @@
 class HelixGeom_Tools_Eval : public AdvApprox_EvaluatorFunction
 {
 public:
-  HelixGeom_Tools_Eval(const Handle(Adaptor3d_Curve)& theFunc)
+  HelixGeom_Tools_Eval(const Handle(GeomAdaptor_Curve)& theFunc)
       : fonct(theFunc)
   {
   }
@@ -41,7 +41,7 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Handle(Adaptor3d_Curve) fonct;
+  Handle(GeomAdaptor_Curve) fonct;
 };
 
 void HelixGeom_Tools_Eval::Evaluate(Standard_Integer* Dimension,
@@ -91,7 +91,7 @@ void HelixGeom_Tools_Eval::Evaluate(Standard_Integer* Dimension,
 
 //=================================================================================================
 
-Standard_Integer HelixGeom_Tools::ApprCurve3D(const Handle(Adaptor3d_Curve)& theHC,
+Standard_Integer HelixGeom_Tools::ApprCurve3D(const Handle(GeomAdaptor_Curve)& theHC,
                                               const Standard_Real            theTol,
                                               const GeomAbs_Shape            theCont,
                                               const Standard_Integer         theMaxSeg,

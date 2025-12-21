@@ -16,7 +16,7 @@
 
 #include <BiTgte_CurveOnEdge.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
@@ -35,7 +35,7 @@
 #include <Standard_NotImplemented.hxx>
 #include <TopoDS_Edge.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(BiTgte_CurveOnEdge, Adaptor3d_Curve)
+IMPLEMENT_STANDARD_RTTIEXT(BiTgte_CurveOnEdge, GeomAdaptor_Curve)
 
 //=================================================================================================
 
@@ -56,7 +56,7 @@ BiTgte_CurveOnEdge::BiTgte_CurveOnEdge(const TopoDS_Edge& theEonF, const TopoDS_
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) BiTgte_CurveOnEdge::ShallowCopy() const
+Handle(GeomAdaptor_Curve) BiTgte_CurveOnEdge::ShallowCopy() const
 {
   Handle(BiTgte_CurveOnEdge) aCopy = new BiTgte_CurveOnEdge();
 
@@ -138,7 +138,7 @@ void BiTgte_CurveOnEdge::Intervals(TColStd_Array1OfReal&, const GeomAbs_Shape) c
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) BiTgte_CurveOnEdge::Trim(const Standard_Real,
+Handle(GeomAdaptor_Curve) BiTgte_CurveOnEdge::Trim(const Standard_Real,
                                                  const Standard_Real,
                                                  const Standard_Real) const
 {

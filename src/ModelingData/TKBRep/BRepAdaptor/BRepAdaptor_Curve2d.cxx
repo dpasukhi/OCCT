@@ -34,7 +34,7 @@ BRepAdaptor_Curve2d::BRepAdaptor_Curve2d(const TopoDS_Edge& E, const TopoDS_Face
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) BRepAdaptor_Curve2d::ShallowCopy() const
+Handle(Geom2dAdaptor_Curve) BRepAdaptor_Curve2d::ShallowCopy() const
 {
   Handle(BRepAdaptor_Curve2d) aCopy = new BRepAdaptor_Curve2d();
 

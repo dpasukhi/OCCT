@@ -25,7 +25,7 @@
 #include <TopoDS_Face.hxx>
 
 class IntTools_Context;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 //! This class provides the intersection of
 //! face's underlying surfaces.
@@ -90,8 +90,8 @@ public:
 protected:
   //! Creates curves from the IntPatch_Line.
   Standard_EXPORT void MakeCurve(const Standard_Integer             Index,
-                                 const Handle(Adaptor3d_TopolTool)& D1,
-                                 const Handle(Adaptor3d_TopolTool)& D2,
+                                 const Handle(GeomAdaptor_TopolTool)& D1,
+                                 const Handle(GeomAdaptor_TopolTool)& D2,
                                  const Standard_Real                theToler);
 
   //! Computes the valid tolerance for the intersection curves

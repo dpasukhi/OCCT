@@ -12,6 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
 #include <HLRBRep_Algo.hxx>
 #include <HLRBRep_Data.hxx>
 #include <StdPrs_HLRToolShape.hxx>

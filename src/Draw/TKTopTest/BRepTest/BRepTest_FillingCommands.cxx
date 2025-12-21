@@ -131,8 +131,8 @@ static Standard_Integer plate(Draw_Interpretor& di, Standard_Integer n, const ch
     S->Initialize(F);
     Handle(BRepAdaptor_Curve2d) C = new BRepAdaptor_Curve2d();
     C->Initialize(E, F);
-    Adaptor3d_CurveOnSurface         ConS(C, S);
-    Handle(Adaptor3d_CurveOnSurface) HConS = new Adaptor3d_CurveOnSurface(ConS);
+    GeomAdaptor_CurveOnSurface         ConS(C, S);
+    Handle(GeomAdaptor_CurveOnSurface) HConS = new GeomAdaptor_CurveOnSurface(ConS);
     Fronts->SetValue(i, HConS);
     Handle(GeomPlate_CurveConstraint) Cont =
       new BRepFill_CurveConstraint(HConS, Tang->Value(i), NbPtsCur->Value(i));
@@ -231,7 +231,7 @@ static Standard_Integer gplate(Draw_Interpretor& di, Standard_Integer n, const c
     {
       Handle(BRepAdaptor_Curve) C = new BRepAdaptor_Curve();
       C->Initialize(E);
-      const Handle(Adaptor3d_Curve)&    aC   = C; // to avoid ambiguity
+      const Handle(GeomAdaptor_Curve)&    aC   = C; // to avoid ambiguity
       Handle(GeomPlate_CurveConstraint) Cont = new BRepFill_CurveConstraint(aC, Conti);
       Henri.Add(Cont);
     }
@@ -246,8 +246,8 @@ static Standard_Integer gplate(Draw_Interpretor& di, Standard_Integer n, const c
       S->Initialize(F);
       Handle(BRepAdaptor_Curve2d) C = new BRepAdaptor_Curve2d();
       C->Initialize(E, F);
-      Adaptor3d_CurveOnSurface          ConS(C, S);
-      Handle(Adaptor3d_CurveOnSurface)  HConS = new Adaptor3d_CurveOnSurface(ConS);
+      GeomAdaptor_CurveOnSurface          ConS(C, S);
+      Handle(GeomAdaptor_CurveOnSurface)  HConS = new GeomAdaptor_CurveOnSurface(ConS);
       Handle(GeomPlate_CurveConstraint) Cont  = new BRepFill_CurveConstraint(HConS, Conti);
       Henri.Add(Cont);
     }
@@ -358,8 +358,8 @@ static Standard_Integer approxplate(Draw_Interpretor& di, Standard_Integer n, co
     S->Initialize(F);
     Handle(BRepAdaptor_Curve2d) C = new BRepAdaptor_Curve2d();
     C->Initialize(E, F);
-    Adaptor3d_CurveOnSurface         ConS(C, S);
-    Handle(Adaptor3d_CurveOnSurface) HConS = new Adaptor3d_CurveOnSurface(ConS);
+    GeomAdaptor_CurveOnSurface         ConS(C, S);
+    Handle(GeomAdaptor_CurveOnSurface) HConS = new GeomAdaptor_CurveOnSurface(ConS);
     Fronts->SetValue(i, HConS);
     Handle(GeomPlate_CurveConstraint) Cont =
       new BRepFill_CurveConstraint(HConS, Tang->Value(i), NbPtsCur->Value(i));

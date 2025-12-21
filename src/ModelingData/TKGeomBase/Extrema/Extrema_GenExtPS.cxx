@@ -18,8 +18,8 @@
 
 #include <Extrema_GenExtPS.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_HArray1OfSphere.hxx>
 #include <GeomAbs_IsoType.hxx>
 #include <Bnd_Sphere.hxx>
@@ -228,7 +228,7 @@ Extrema_GenExtPS::~Extrema_GenExtPS()
 //=================================================================================================
 
 Extrema_GenExtPS::Extrema_GenExtPS(const gp_Pnt&            P,
-                                   const Adaptor3d_Surface& S,
+                                   const GeomAdaptor_Surface& S,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
                                    const Standard_Real      TolU,
@@ -244,7 +244,7 @@ Extrema_GenExtPS::Extrema_GenExtPS(const gp_Pnt&            P,
 }
 
 Extrema_GenExtPS::Extrema_GenExtPS(const gp_Pnt&            P,
-                                   const Adaptor3d_Surface& S,
+                                   const GeomAdaptor_Surface& S,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
                                    const Standard_Real      Umin,
@@ -263,7 +263,7 @@ Extrema_GenExtPS::Extrema_GenExtPS(const gp_Pnt&            P,
   Perform(P);
 }
 
-void Extrema_GenExtPS::Initialize(const Adaptor3d_Surface& S,
+void Extrema_GenExtPS::Initialize(const GeomAdaptor_Surface& S,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      TolU,
@@ -276,7 +276,7 @@ void Extrema_GenExtPS::Initialize(const Adaptor3d_Surface& S,
   Initialize(S, NbU, NbV, myumin, myusup, myvmin, myvsup, TolU, TolV);
 }
 
-void Extrema_GenExtPS::Initialize(const Adaptor3d_Surface& S,
+void Extrema_GenExtPS::Initialize(const GeomAdaptor_Surface& S,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      Umin,
@@ -351,7 +351,7 @@ inline static void fillParams(const TColStd_Array1OfReal&    theKnots,
     theParams->SetValue(i + 1, aParams(i));
 }
 
-void Extrema_GenExtPS::GetGridPoints(const Adaptor3d_Surface& theSurf)
+void Extrema_GenExtPS::GetGridPoints(const GeomAdaptor_Surface& theSurf)
 {
   // creation parametric points for BSpline and Bezier surfaces
   // with taking into account of Degree and NbKnots of BSpline or Bezier geometry
@@ -715,7 +715,7 @@ void Extrema_GenExtPS::BuildGrid(const gp_Pnt& thePoint)
   }
 }
 
-static Standard_Real LengthOfIso(const Adaptor3d_Surface& theS,
+static Standard_Real LengthOfIso(const GeomAdaptor_Surface& theS,
                                  const GeomAbs_IsoType    theIso,
                                  const Standard_Real      thePar1,
                                  const Standard_Real      thePar2,
@@ -753,7 +753,7 @@ static Standard_Real LengthOfIso(const Adaptor3d_Surface& theS,
   return aLen;
 }
 
-static void CorrectNbSamples(const Adaptor3d_Surface& theS,
+static void CorrectNbSamples(const GeomAdaptor_Surface& theS,
                              const Standard_Real      theU1,
                              const Standard_Real      theU2,
                              Standard_Integer&        theNbU,

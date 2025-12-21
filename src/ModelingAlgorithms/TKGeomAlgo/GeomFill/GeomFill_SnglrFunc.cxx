@@ -14,14 +14,14 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_SnglrFunc.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
 #include <Standard_NotImplemented.hxx>
 
-GeomFill_SnglrFunc::GeomFill_SnglrFunc(const Handle(Adaptor3d_Curve)& HC)
+GeomFill_SnglrFunc::GeomFill_SnglrFunc(const Handle(GeomAdaptor_Curve)& HC)
     : myHCurve(HC),
       ratio(1)
 {
@@ -29,7 +29,7 @@ GeomFill_SnglrFunc::GeomFill_SnglrFunc(const Handle(Adaptor3d_Curve)& HC)
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) GeomFill_SnglrFunc::ShallowCopy() const
+Handle(GeomAdaptor_Curve) GeomFill_SnglrFunc::ShallowCopy() const
 {
   Handle(GeomFill_SnglrFunc) aCopy = new GeomFill_SnglrFunc(myHCurve->ShallowCopy());
   aCopy->ratio                     = ratio;

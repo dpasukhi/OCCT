@@ -475,7 +475,7 @@ void BRepFill_PipeShell::Add(const TopoDS_Shape&    Profile,
     Handle(Geom_Surface)        thePlane = BRep_Tool::Surface(ProfileFace);
     Handle(GeomAdaptor_Surface) GAHplane = new GeomAdaptor_Surface(thePlane);
     IntCurveSurface_HInter      Intersector;
-    Handle(Adaptor3d_Curve)     aHCurve[2];
+    Handle(GeomAdaptor_Curve)     aHCurve[2];
     aHCurve[0] = Loc->GetCurve();
     aHCurve[1] = Loc->Guide();
     gp_Pnt           PointsOnSpines[2];

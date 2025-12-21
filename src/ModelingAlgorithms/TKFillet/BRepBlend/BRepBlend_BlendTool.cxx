@@ -14,10 +14,12 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRepBlend_BlendTool.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepBlend_HCurve2dTool.hxx>
 #include <Extrema_EPCOfExtPC2d.hxx>
@@ -36,8 +38,8 @@
 // pmn 8/10/98 : On retourne toujours une distance. (BUC60360)
 //=======================================================================
 Standard_Boolean BRepBlend_BlendTool::Project(const gp_Pnt2d& P,
-                                              const Handle(Adaptor3d_Surface)&,
-                                              const Handle(Adaptor2d_Curve2d)& C,
+                                              const Handle(GeomAdaptor_Surface)&,
+                                              const Handle(Geom2dAdaptor_Curve)& C,
                                               Standard_Real&                   Paramproj,
                                               Standard_Real&                   Dist)
 {
@@ -82,8 +84,8 @@ Standard_Boolean BRepBlend_BlendTool::Project(const gp_Pnt2d& P,
 //=======================================================================
 Standard_Boolean BRepBlend_BlendTool::Inters(const gp_Pnt2d& P1,
                                              const gp_Pnt2d& P2,
-                                             const Handle(Adaptor3d_Surface)&,
-                                             const Handle(Adaptor2d_Curve2d)& C,
+                                             const Handle(GeomAdaptor_Surface)&,
+                                             const Handle(Geom2dAdaptor_Curve)& C,
                                              Standard_Real&                   Param,
                                              Standard_Real&                   Dist)
 {
@@ -111,21 +113,21 @@ Standard_Boolean BRepBlend_BlendTool::Inters(const gp_Pnt2d& P1,
   return Standard_True;
 }
 
-Standard_Integer BRepBlend_BlendTool::NbSamplesV(const Handle(Adaptor3d_Surface)&,
+Standard_Integer BRepBlend_BlendTool::NbSamplesV(const Handle(GeomAdaptor_Surface)&,
                                                  const Standard_Real,
                                                  const Standard_Real)
 {
   return 10;
 }
 
-Standard_Integer BRepBlend_BlendTool::NbSamplesU(const Handle(Adaptor3d_Surface)&,
+Standard_Integer BRepBlend_BlendTool::NbSamplesU(const Handle(GeomAdaptor_Surface)&,
                                                  const Standard_Real,
                                                  const Standard_Real)
 {
   return 10;
 }
 
-void BRepBlend_BlendTool::Bounds(const Handle(Adaptor2d_Curve2d)& A,
+void BRepBlend_BlendTool::Bounds(const Handle(Geom2dAdaptor_Curve)& A,
                                  Standard_Real&                   Ufirst,
                                  Standard_Real&                   Ulast)
 {

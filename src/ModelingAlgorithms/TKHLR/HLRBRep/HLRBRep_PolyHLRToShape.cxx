@@ -16,6 +16,8 @@
 
 // Modified by cma, Fri Nov 10 17:36:13 1995
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRepLib_MakeEdge2d.hxx>
 #include <HLRAlgo_EdgeIterator.hxx>

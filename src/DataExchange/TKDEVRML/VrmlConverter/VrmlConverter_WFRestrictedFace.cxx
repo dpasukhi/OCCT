@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <Hatch_Hatcher.hxx>
@@ -47,7 +47,7 @@ void VrmlConverter_WFRestrictedFace::Add(Standard_OStream&                   anO
 
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
-    const Adaptor2d_Curve2d& TheRCurve = ToolRst.Value();
+    const Geom2dAdaptor_Curve& TheRCurve = ToolRst.Value();
     BndLib_Add2dCurve::Add(TheRCurve, Precision::PConfusion(), B);
   }
 
@@ -101,7 +101,7 @@ void VrmlConverter_WFRestrictedFace::Add(Standard_OStream&                   anO
   for (ToolRst.Init(); ToolRst.More(); ToolRst.Next())
   {
     TopAbs_Orientation       Orient    = ToolRst.Orientation();
-    const Adaptor2d_Curve2d* TheRCurve = &ToolRst.Value();
+    const Geom2dAdaptor_Curve* TheRCurve = &ToolRst.Value();
     U1                                 = TheRCurve->FirstParameter();
     U2                                 = TheRCurve->LastParameter();
     if (TheRCurve->GetType() != GeomAbs_Line)
@@ -132,7 +132,7 @@ void VrmlConverter_WFRestrictedFace::Add(Standard_OStream&                   anO
 
   // draw the isos
 
-  Adaptor3d_IsoCurve anIso;
+  GeomAdaptor_IsoCurve anIso;
   anIso.Load(aFace);
   Standard_Integer NumberOfLines = isobuild.NbLines();
 

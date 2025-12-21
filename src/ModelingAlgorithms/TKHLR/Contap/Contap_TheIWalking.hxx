@@ -17,7 +17,7 @@
 #ifndef _Contap_TheIWalking_HeaderFile
 #define _Contap_TheIWalking_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntSurf_SequenceOfPathPoint.hxx>
 #include <math_Vector.hxx>
 #include <IntWalk_VectorOfWalkingData.hxx>
@@ -37,7 +37,7 @@ class IntSurf_PathPoint;
 class IntSurf_PathPointTool;
 class IntSurf_InteriorPoint;
 class IntSurf_InteriorPointTool;
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class Contap_SurfFunction;
 class Contap_TheIWLineOfTheIWalking;
 class math_FunctionSetRoot;
@@ -77,14 +77,14 @@ public:
   Standard_EXPORT void Perform(const IntSurf_SequenceOfPathPoint&     Pnts1,
                                const IntSurf_SequenceOfInteriorPoint& Pnts2,
                                Contap_SurfFunction&                   Func,
-                               const Handle(Adaptor3d_Surface)&       S,
+                               const Handle(GeomAdaptor_Surface)&       S,
                                const Standard_Boolean                 Reversed = Standard_False);
 
   //! Searches a set of polylines starting on a point of Pnts1.
   //! Each point on a resulting polyline verifies F(u,v)=0
   Standard_EXPORT void Perform(const IntSurf_SequenceOfPathPoint& Pnts1,
                                Contap_SurfFunction&               Func,
-                               const Handle(Adaptor3d_Surface)&   S,
+                               const Handle(GeomAdaptor_Surface)&   S,
                                const Standard_Boolean             Reversed = Standard_False);
 
   //! Returns true if the calculus was successful.
@@ -241,10 +241,10 @@ private:
 #define ThePointOfLoopTool_hxx <IntSurf_InteriorPointTool.hxx>
 #define ThePOLIterator IntSurf_SequenceOfInteriorPoint
 #define ThePOLIterator_hxx <IntSurf_SequenceOfInteriorPoint.hxx>
-#define ThePSurface Handle(Adaptor3d_Surface)
-#define ThePSurface_hxx <Adaptor3d_Surface.hxx>
-#define ThePSurfaceTool Adaptor3d_HSurfaceTool
-#define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
+#define ThePSurface Handle(GeomAdaptor_Surface)
+#define ThePSurface_hxx <GeomAdaptor_Surface.hxx>
+#define ThePSurfaceTool GeomAdaptor_HSurfaceTool
+#define ThePSurfaceTool_hxx <GeomAdaptor_HSurfaceTool.hxx>
 #define TheIWFunction Contap_SurfFunction
 #define TheIWFunction_hxx <Contap_SurfFunction.hxx>
 #define IntWalk_TheIWLine Contap_TheIWLineOfTheIWalking

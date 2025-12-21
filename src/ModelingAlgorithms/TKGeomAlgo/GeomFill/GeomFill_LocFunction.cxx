@@ -14,6 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_LocationLaw.hxx>
 #include <GeomFill_LocFunction.hxx>
 #include <gp_Mat.hxx>

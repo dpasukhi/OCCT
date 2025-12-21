@@ -14,6 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <HLRAlgo_Intersection.hxx>
 #include <HLRBRep_AreaLimit.hxx>
 #include <Standard_Type.hxx>

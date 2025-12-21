@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepTopAdaptor_Tool.hxx>
 #include <BRepTopAdaptor_TopolTool.hxx>
@@ -33,13 +33,13 @@ BRepTopAdaptor_Tool::BRepTopAdaptor_Tool(const TopoDS_Face& F, const Standard_Re
 
   Handle(BRepAdaptor_Surface) surface = new BRepAdaptor_Surface();
   surface->Initialize(F, Standard_True);
-  const Handle(Adaptor3d_Surface)& aSurf = surface; // to avoid ambiguity
+  const Handle(GeomAdaptor_Surface)& aSurf = surface; // to avoid ambiguity
   myTopolTool->Initialize(aSurf);
   myHSurface = surface;
   myloaded   = Standard_True;
 }
 
-BRepTopAdaptor_Tool::BRepTopAdaptor_Tool(const Handle(Adaptor3d_Surface)& surface,
+BRepTopAdaptor_Tool::BRepTopAdaptor_Tool(const Handle(GeomAdaptor_Surface)& surface,
                                          const Standard_Real /*Tol2d*/)
 {
   myTopolTool = new BRepTopAdaptor_TopolTool();
@@ -52,13 +52,13 @@ void BRepTopAdaptor_Tool::Init(const TopoDS_Face& F, const Standard_Real /*Tol2d
 {
   Handle(BRepAdaptor_Surface) surface = new BRepAdaptor_Surface();
   surface->Initialize(F);
-  const Handle(Adaptor3d_Surface)& aSurf = surface; // to avoid ambiguity
+  const Handle(GeomAdaptor_Surface)& aSurf = surface; // to avoid ambiguity
   myTopolTool->Initialize(aSurf);
   myHSurface = surface;
   myloaded   = Standard_True;
 }
 
-void BRepTopAdaptor_Tool::Init(const Handle(Adaptor3d_Surface)& surface,
+void BRepTopAdaptor_Tool::Init(const Handle(GeomAdaptor_Surface)& surface,
                                const Standard_Real /*Tol2d*/)
 {
   myTopolTool->Initialize(surface);
@@ -83,7 +83,7 @@ Handle(BRepTopAdaptor_TopolTool) BRepTopAdaptor_Tool::GetTopolTool()
   }
 }
 
-Handle(Adaptor3d_Surface) BRepTopAdaptor_Tool::GetSurface()
+Handle(GeomAdaptor_Surface) BRepTopAdaptor_Tool::GetSurface()
 {
   if (myloaded)
   {

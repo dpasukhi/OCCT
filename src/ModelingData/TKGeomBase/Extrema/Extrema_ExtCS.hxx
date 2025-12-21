@@ -21,15 +21,16 @@
 #include <Standard_DefineAlloc.hxx>
 
 #include <Extrema_ExtElCS.hxx>
+
 #include <Extrema_SequenceOfPOnSurf.hxx>
 #include <Extrema_SequenceOfPOnCurv.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 
-class Adaptor3d_Curve;
-class Adaptor3d_Surface;
 class Extrema_POnCurv;
 class Extrema_POnSurf;
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class gp_Pnt;
 
 //! It calculates all the extremum distances
@@ -43,16 +44,16 @@ public:
   Standard_EXPORT Extrema_ExtCS();
 
   //! It calculates all the distances between C and S.
-  Standard_EXPORT Extrema_ExtCS(const Adaptor3d_Curve&   C,
-                                const Adaptor3d_Surface& S,
+  Standard_EXPORT Extrema_ExtCS(const GeomAdaptor_Curve&   C,
+                                const GeomAdaptor_Surface& S,
                                 const Standard_Real      TolC,
                                 const Standard_Real      TolS);
 
   //! It calculates all the distances between C and S.
   //! UCinf and UCmax are the start and end parameters
   //! of the curve.
-  Standard_EXPORT Extrema_ExtCS(const Adaptor3d_Curve&   C,
-                                const Adaptor3d_Surface& S,
+  Standard_EXPORT Extrema_ExtCS(const GeomAdaptor_Curve&   C,
+                                const GeomAdaptor_Surface& S,
                                 const Standard_Real      UCinf,
                                 const Standard_Real      UCsup,
                                 const Standard_Real      Uinf,
@@ -63,12 +64,12 @@ public:
                                 const Standard_Real      TolS);
 
   //! Initializes the fields of the algorithm.
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S,
                                   const Standard_Real      TolC,
                                   const Standard_Real      TolS);
 
   //! Initializes the fields of the algorithm.
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S,
                                   const Standard_Real      Uinf,
                                   const Standard_Real      Usup,
                                   const Standard_Real      Vinf,
@@ -79,7 +80,7 @@ public:
   //! Computes the distances.
   //! An exception is raised if the fields have not been
   //! initialized.
-  Standard_EXPORT void Perform(const Adaptor3d_Curve& C,
+  Standard_EXPORT void Perform(const GeomAdaptor_Curve& C,
                                const Standard_Real    Uinf,
                                const Standard_Real    Usup);
 
@@ -101,7 +102,7 @@ public:
                               Extrema_POnSurf&       P2) const;
 
 private:
-  Standard_EXPORT Standard_Boolean AddSolution(const Adaptor3d_Curve& Curve,
+  Standard_EXPORT Standard_Boolean AddSolution(const GeomAdaptor_Curve& Curve,
                                                const Standard_Real    T,
                                                const Standard_Real    U,
                                                const Standard_Real    V,
@@ -115,7 +116,7 @@ private:
   Extrema_ExtCS& operator=(Extrema_ExtCS&) Standard_DELETE;
 
 private:
-  const Adaptor3d_Surface*  myS;
+  const GeomAdaptor_Surface*  myS;
   Standard_Boolean          myDone;
   Standard_Boolean          myIsPar;
   Extrema_ExtElCS           myExtElCS;

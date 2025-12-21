@@ -17,13 +17,13 @@
 #ifndef _GeomFill_LocationLaw_HeaderFile
 #define _GeomFill_LocationLaw_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <GeomFill_PipeError.hxx>
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_Array1OfVec2d.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
+class GeomAdaptor_Curve;
 class gp_Mat;
 class gp_Vec;
 class gp_Pnt;
@@ -39,9 +39,9 @@ class GeomFill_LocationLaw : public Standard_Transient
 
 public:
   //! initialize curve of location law
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C) = 0;
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C) = 0;
 
-  Standard_EXPORT virtual const Handle(Adaptor3d_Curve)& GetCurve() const = 0;
+  Standard_EXPORT virtual const Handle(GeomAdaptor_Curve)& GetCurve() const = 0;
 
   //! Set a transformation Matrix like the law M(t) become
   //! Mat * M(t)

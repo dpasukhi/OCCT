@@ -16,7 +16,7 @@
 
 #include <BRepFill_EdgeOnSurfLaw.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepTools_WireExplorer.hxx>
@@ -52,7 +52,7 @@ BRepFill_EdgeOnSurfLaw::BRepFill_EdgeOnSurfLaw(const TopoDS_Wire& Path, const To
   TopoDS_Edge                        E;
   Handle(Geom2d_Curve)               C;
   Handle(Geom2dAdaptor_Curve)        AC2d;
-  Handle(Adaptor3d_CurveOnSurface)   AC;
+  Handle(GeomAdaptor_CurveOnSurface)   AC;
   Handle(BRepAdaptor_Surface)        AS;
   Standard_Real                      First = 0., Last = 0.;
   Handle(GeomFill_Darboux)           TLaw = new (GeomFill_Darboux)();
@@ -94,7 +94,7 @@ BRepFill_EdgeOnSurfLaw::BRepFill_EdgeOnSurfLaw(const TopoDS_Wire& Path, const To
       }
 
       AC2d = new (Geom2dAdaptor_Curve)(C, First, Last);
-      AC   = new (Adaptor3d_CurveOnSurface)(Adaptor3d_CurveOnSurface(AC2d, AS));
+      AC   = new (GeomAdaptor_CurveOnSurface)(GeomAdaptor_CurveOnSurface(AC2d, AS));
       myLaws->SetValue(ipath, Law->Copy());
       myLaws->ChangeValue(ipath)->SetCurve(AC);
     }

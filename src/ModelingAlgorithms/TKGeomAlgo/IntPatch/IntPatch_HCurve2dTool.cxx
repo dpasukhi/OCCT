@@ -17,7 +17,7 @@
 #include <IntPatch_HCurve2dTool.hxx>
 
 //============================================================
-Standard_Integer IntPatch_HCurve2dTool::NbSamples(const Handle(Adaptor2d_Curve2d)& C,
+Standard_Integer IntPatch_HCurve2dTool::NbSamples(const Handle(Geom2dAdaptor_Curve)& C,
                                                   const Standard_Real              U0,
                                                   const Standard_Real              U1)
 {

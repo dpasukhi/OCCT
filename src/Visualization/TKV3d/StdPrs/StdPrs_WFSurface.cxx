@@ -14,7 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <GeomAbs_IsoType.hxx>
 #include <Graphic3d_ArrayOfPolylines.hxx>
 #include <Graphic3d_Group.hxx>
@@ -25,7 +26,7 @@
 #include <StdPrs_Curve.hxx>
 #include <StdPrs_WFSurface.hxx>
 
-static void FindLimits(const Handle(Adaptor3d_Surface)& surf,
+static void FindLimits(const Handle(GeomAdaptor_Surface)& surf,
                        const Standard_Real              aLimit,
                        Standard_Real&                   UFirst,
                        Standard_Real&                   ULast,
@@ -134,7 +135,7 @@ static void FindLimits(const Handle(Adaptor3d_Surface)& surf,
 //=================================================================================================
 
 void StdPrs_WFSurface::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                           const Handle(Adaptor3d_Surface)&  aSurface,
+                           const Handle(GeomAdaptor_Surface)&  aSurface,
                            const Handle(Prs3d_Drawer)&       aDrawer)
 {
 
@@ -150,7 +151,7 @@ void StdPrs_WFSurface::Add(const Handle(Prs3d_Presentation)& aPresentation,
   Standard_Boolean UClosed = aSurface->IsUClosed();
   Standard_Boolean VClosed = aSurface->IsVClosed();
 
-  Adaptor3d_IsoCurve anIso;
+  GeomAdaptor_IsoCurve anIso;
   anIso.Load(aSurface);
 
   // Trace des frontieres.

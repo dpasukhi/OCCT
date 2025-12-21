@@ -16,8 +16,8 @@
 
 #include <GeomFill_LocationDraft.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Geom_Line.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_DraftTrihedron.hxx>
@@ -93,7 +93,7 @@ void GeomFill_LocationDraft::SetTrsf(const gp_Mat& Transfo)
 // Purpose : Calcul des poles sur la surfaces d'arret (intersection
 // entre la generatrice et la surface en myNbPts points de la section)
 //==================================================================
-Standard_Boolean GeomFill_LocationDraft::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_LocationDraft::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   myCurve               = C;
   myTrimmed             = C;
@@ -105,7 +105,7 @@ Standard_Boolean GeomFill_LocationDraft::SetCurve(const Handle(Adaptor3d_Curve)&
 
 //=================================================================================================
 
-void GeomFill_LocationDraft::SetStopSurf(const Handle(Adaptor3d_Surface)& Surf)
+void GeomFill_LocationDraft::SetStopSurf(const Handle(GeomAdaptor_Surface)& Surf)
 {
   mySurf = Surf;
   Prepare();
@@ -186,7 +186,7 @@ void GeomFill_LocationDraft::Prepare()
 
 //=================================================================================================
 
-const Handle(Adaptor3d_Curve)& GeomFill_LocationDraft::GetCurve() const
+const Handle(GeomAdaptor_Curve)& GeomFill_LocationDraft::GetCurve() const
 {
   return myCurve;
 }

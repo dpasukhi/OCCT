@@ -15,7 +15,7 @@
 #ifndef _BRepBlend_Walking_HeaderFile
 #define _BRepBlend_Walking_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRepBlend_SequenceOfPointOnRst.hxx>
 #include <Blend_Point.hxx>
 #include <Blend_SequenceOfPoint.hxx>
@@ -26,11 +26,11 @@
 #include <math_Vector.hxx>
 
 class BRepBlend_Line;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 class StdFail_NotDone;
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 class BRepBlend_HCurve2dTool;
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class BRepBlend_HCurveTool;
 class BRepBlend_BlendTool;
 class BRepBlend_PointOnRst;
@@ -47,15 +47,15 @@ class BRepBlend_Walking
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BRepBlend_Walking(const Handle(Adaptor3d_Surface)&   Surf1,
-                                    const Handle(Adaptor3d_Surface)&   Surf2,
-                                    const Handle(Adaptor3d_TopolTool)& Domain1,
-                                    const Handle(Adaptor3d_TopolTool)& Domain2,
+  Standard_EXPORT BRepBlend_Walking(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                    const Handle(GeomAdaptor_Surface)&   Surf2,
+                                    const Handle(GeomAdaptor_TopolTool)& Domain1,
+                                    const Handle(GeomAdaptor_TopolTool)& Domain2,
                                     const Handle(ChFiDS_ElSpine)&      HGuide);
 
   //! To define different domains for control and clipping.
-  Standard_EXPORT void SetDomainsToRecadre(const Handle(Adaptor3d_TopolTool)& RecDomain1,
-                                           const Handle(Adaptor3d_TopolTool)& RecDomain2);
+  Standard_EXPORT void SetDomainsToRecadre(const Handle(GeomAdaptor_TopolTool)& RecDomain1,
+                                           const Handle(GeomAdaptor_TopolTool)& RecDomain2);
 
   //! To define singular points computed before walking.
   Standard_EXPORT void AddSingularPoint(const Blend_Point& P);
@@ -155,11 +155,11 @@ private:
                                            math_Vector&               Solrst,
                                            Standard_Integer&          Indexsol,
                                            Standard_Boolean&          IsVtx,
-                                           Handle(Adaptor3d_HVertex)& Vtx,
+                                           Handle(GeomAdaptor_HVertex)& Vtx,
                                            const Standard_Real        Extrap = 0.0);
 
   Standard_EXPORT void Transition(const Standard_Boolean           OnFirst,
-                                  const Handle(Adaptor2d_Curve2d)& A,
+                                  const Handle(Geom2dAdaptor_Curve)& A,
                                   const Standard_Real              Param,
                                   IntSurf_Transition&              TLine,
                                   IntSurf_Transition&              TArc);
@@ -169,11 +169,11 @@ private:
                                      const Standard_Integer           Index,
                                      const Standard_Real              Param,
                                      const Standard_Boolean           IsVtx,
-                                     const Handle(Adaptor3d_HVertex)& Vtx);
+                                     const Handle(GeomAdaptor_HVertex)& Vtx);
 
   Standard_EXPORT void MakeSingularExtremity(BRepBlend_Extremity&             Extrem,
                                              const Standard_Boolean           OnFirst,
-                                             const Handle(Adaptor3d_HVertex)& Vtx);
+                                             const Handle(GeomAdaptor_HVertex)& Vtx);
 
   Standard_EXPORT Blend_Status CheckDeflection(const Standard_Boolean OnFirst,
                                                const Blend_Point&     CurPoint);
@@ -188,12 +188,12 @@ private:
   Handle(BRepBlend_Line)      line;
   math_Vector                 sol;
   Blend_SequenceOfPoint       jalons;
-  Handle(Adaptor3d_Surface)   surf1;
-  Handle(Adaptor3d_Surface)   surf2;
-  Handle(Adaptor3d_TopolTool) domain1;
-  Handle(Adaptor3d_TopolTool) domain2;
-  Handle(Adaptor3d_TopolTool) recdomain1;
-  Handle(Adaptor3d_TopolTool) recdomain2;
+  Handle(GeomAdaptor_Surface)   surf1;
+  Handle(GeomAdaptor_Surface)   surf2;
+  Handle(GeomAdaptor_TopolTool) domain1;
+  Handle(GeomAdaptor_TopolTool) domain2;
+  Handle(GeomAdaptor_TopolTool) recdomain1;
+  Handle(GeomAdaptor_TopolTool) recdomain2;
   Handle(ChFiDS_ElSpine)      hguide;
   Standard_Boolean            ToCorrectOnRst1;
   Standard_Boolean            ToCorrectOnRst2;

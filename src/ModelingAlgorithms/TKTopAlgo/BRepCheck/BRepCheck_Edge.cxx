@@ -14,8 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BRep_GCurve.hxx>
 #include <BRepLib_ValidateEdge.hxx>
 #include <BRep_PolygonOnTriangulation.hxx>
@@ -239,8 +239,8 @@ void BRepCheck_Edge::Minimum()
           {
             Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
             Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-            Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-            myHCurve = new Adaptor3d_CurveOnSurface(ACSref);
+            GeomAdaptor_CurveOnSurface    ACSref(GHPCref, GAHSref);
+            myHCurve = new GeomAdaptor_CurveOnSurface(ACSref);
           }
         }
       }
@@ -393,7 +393,7 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
               Handle(Geom2d_Curve)             PC   = cr->PCurve();
               Handle(GeomAdaptor_Surface)      GAHS = new GeomAdaptor_Surface(Sb);
               Handle(Geom2dAdaptor_Curve)      GHPC = new Geom2dAdaptor_Curve(PC, f, l);
-              Handle(Adaptor3d_CurveOnSurface) ACS  = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+              Handle(GeomAdaptor_CurveOnSurface) ACS  = new GeomAdaptor_CurveOnSurface(GHPC, GAHS);
 
               BRepLib_ValidateEdge aValidateEdge(myHCurve, ACS, SameParameter);
               aValidateEdge.SetExitIfToleranceExceeded(Tol);
@@ -486,7 +486,7 @@ void BRepCheck_Edge::InContext(const TopoDS_Shape& S)
               Handle(Geom2dAdaptor_Curve) GHPC =
                 new Geom2dAdaptor_Curve(PC, myHCurve->FirstParameter(), myHCurve->LastParameter());
 
-              Handle(Adaptor3d_CurveOnSurface) ACS = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+              Handle(GeomAdaptor_CurveOnSurface) ACS = new GeomAdaptor_CurveOnSurface(GHPC, GAHS);
 
               BRepLib_ValidateEdge aValidateEdgeProj(myHCurve, ACS, SameParameter);
               aValidateEdgeProj.SetExitIfToleranceExceeded(Tol);
@@ -631,8 +631,8 @@ Standard_Real BRepCheck_Edge::Tolerance()
         const Handle(Geom2d_Curve)& PCref   = cr->PCurve();
         Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
         Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-        Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-        theRep(iRep) = new Adaptor3d_CurveOnSurface(ACSref);
+        GeomAdaptor_CurveOnSurface    ACSref(GHPCref, GAHSref);
+        theRep(iRep) = new GeomAdaptor_CurveOnSurface(ACSref);
         iRep++;
       }
       if (cr->IsCurveOnClosedSurface())
@@ -642,8 +642,8 @@ Standard_Real BRepCheck_Edge::Tolerance()
         const Handle(Geom2d_Curve)& PCref   = cr->PCurve2();
         Handle(GeomAdaptor_Surface) GAHSref = new GeomAdaptor_Surface(Sref);
         Handle(Geom2dAdaptor_Curve) GHPCref = new Geom2dAdaptor_Curve(PCref, First, Last);
-        Adaptor3d_CurveOnSurface    ACSref(GHPCref, GAHSref);
-        theRep(iRep) = new Adaptor3d_CurveOnSurface(ACSref);
+        GeomAdaptor_CurveOnSurface    ACSref(GHPCref, GAHSref);
+        theRep(iRep) = new GeomAdaptor_CurveOnSurface(ACSref);
         iRep++;
         nbRep++;
       }
@@ -661,7 +661,7 @@ Standard_Real BRepCheck_Edge::Tolerance()
   {
     prm  = ((NCONTROL - 1 - i) * First + i * Last) / (NCONTROL - 1);
     tol2 = dist2 = 0.;
-    center       = (*(Handle(Adaptor3d_Curve)*)&theRep(1))->Value(prm);
+    center       = (*(Handle(GeomAdaptor_Curve)*)&theRep(1))->Value(prm);
     if (Precision::IsInfinite(center.X()) || Precision::IsInfinite(center.Y())
         || Precision::IsInfinite(center.Z()))
     {
@@ -669,7 +669,7 @@ Standard_Real BRepCheck_Edge::Tolerance()
     }
     for (iRep = 2; iRep <= nbRep; iRep++)
     {
-      othP = (*(Handle(Adaptor3d_Curve)*)&theRep(iRep))->Value(prm);
+      othP = (*(Handle(GeomAdaptor_Curve)*)&theRep(iRep))->Value(prm);
       if (Precision::IsInfinite(othP.X()) || Precision::IsInfinite(othP.Y())
           || Precision::IsInfinite(othP.Z()))
       {

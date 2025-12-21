@@ -24,7 +24,7 @@
 //                                                  Courbes.              +
 //=========================================================================
 
-#include <Adaptor2d_OffsetCurve.hxx>
+#include <Geom2dAdaptor_OffsetCurve.hxx>
 #include <ElCLib.hxx>
 #include <GccAna_Circ2dBisec.hxx>
 #include <GccAna_CircLin2dBisec.hxx>
@@ -96,7 +96,7 @@ Geom2dGcc_Circ2d2TanOnGeo::Geom2dGcc_Circ2d2TanOnGeo(const GccEnt_QualifiedCirc&
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     Standard_Integer                   nbsolution = Bis.NbSolutions();
     Handle(Geom2dAdaptor_Curve)        HCu2       = new Geom2dAdaptor_Curve(OnCurv);
-    Adaptor2d_OffsetCurve              Cu2(HCu2, 0.);
+    Geom2dAdaptor_OffsetCurve              Cu2(HCu2, 0.);
     firstparam = std::max(Cu2.FirstParameter(), thefirst);
     lastparam  = std::min(Cu2.LastParameter(), thelast);
     IntRes2d_Domain D2(Cu2.Value(firstparam),
@@ -371,7 +371,7 @@ Geom2dGcc_Circ2d2TanOnGeo::Geom2dGcc_Circ2d2TanOnGeo(const GccEnt_QualifiedCirc&
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     Standard_Integer                   nbsolution = Bis.NbSolutions();
     Handle(Geom2dAdaptor_Curve)        HCu2       = new Geom2dAdaptor_Curve(OnCurv);
-    Adaptor2d_OffsetCurve              C2(HCu2, 0.);
+    Geom2dAdaptor_OffsetCurve              C2(HCu2, 0.);
     firstparam = std::max(C2.FirstParameter(), thefirst);
     lastparam  = std::min(C2.LastParameter(), thelast);
     IntRes2d_Domain D2(C2.Value(firstparam), firstparam, Tol, C2.Value(lastparam), lastparam, Tol);
@@ -583,7 +583,7 @@ Geom2dGcc_Circ2d2TanOnGeo::Geom2dGcc_Circ2d2TanOnGeo(const GccEnt_QualifiedLin& 
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     Standard_Integer                   nbsolution = Bis.NbSolutions();
     Handle(Geom2dAdaptor_Curve)        HCu2       = new Geom2dAdaptor_Curve(OnCurv);
-    Adaptor2d_OffsetCurve              C2(HCu2, 0.);
+    Geom2dAdaptor_OffsetCurve              C2(HCu2, 0.);
     firstparam = std::max(C2.FirstParameter(), thefirst);
     lastparam  = std::min(C2.LastParameter(), thelast);
     IntRes2d_Domain D2(C2.Value(firstparam), firstparam, Tol, C2.Value(lastparam), lastparam, Tol);
@@ -760,7 +760,7 @@ Geom2dGcc_Circ2d2TanOnGeo::Geom2dGcc_Circ2d2TanOnGeo(const GccEnt_QualifiedCirc&
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     Standard_Integer                   nbsolution = Bis.NbSolutions();
     Handle(Geom2dAdaptor_Curve)        HCu2       = new Geom2dAdaptor_Curve(OnCurv);
-    Adaptor2d_OffsetCurve              C2(HCu2, 0.);
+    Geom2dAdaptor_OffsetCurve              C2(HCu2, 0.);
     firstparam = std::max(C2.FirstParameter(), thefirst);
     lastparam  = std::min(C2.LastParameter(), thelast);
     IntRes2d_Domain D2(C2.Value(firstparam), firstparam, Tol, C2.Value(lastparam), lastparam, Tol);
@@ -953,7 +953,7 @@ Geom2dGcc_Circ2d2TanOnGeo::Geom2dGcc_Circ2d2TanOnGeo(const GccEnt_QualifiedLin& 
     Standard_Real                      Tol2 = Tol1;
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     Handle(Geom2dAdaptor_Curve)        HCu2 = new Geom2dAdaptor_Curve(OnCurv);
-    Adaptor2d_OffsetCurve              C2(HCu2, 0.);
+    Geom2dAdaptor_OffsetCurve              C2(HCu2, 0.);
     firstparam = std::max(C2.FirstParameter(), thefirst);
     lastparam  = std::min(C2.LastParameter(), thelast);
     IntRes2d_Domain D2(C2.Value(firstparam), firstparam, Tol, C2.Value(lastparam), lastparam, Tol);
@@ -1098,7 +1098,7 @@ Geom2dGcc_Circ2d2TanOnGeo::Geom2dGcc_Circ2d2TanOnGeo(const gp_Pnt2d&            
     Standard_Real                      Tol2 = Tol1;
     Geom2dInt_TheIntConicCurveOfGInter Intp;
     Handle(Geom2dAdaptor_Curve)        HCu2 = new Geom2dAdaptor_Curve(OnCurv);
-    Adaptor2d_OffsetCurve              Cu2(HCu2, 0.);
+    Geom2dAdaptor_OffsetCurve              Cu2(HCu2, 0.);
     firstparam = std::max(Cu2.FirstParameter(), thefirst);
     lastparam  = std::min(Cu2.LastParameter(), thelast);
     IntRes2d_Domain D2(Cu2.Value(firstparam),

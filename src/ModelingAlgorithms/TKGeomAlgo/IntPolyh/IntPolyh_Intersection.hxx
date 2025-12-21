@@ -17,7 +17,7 @@
 #ifndef _IntPolyh_Intersection_HeaderFile
 #define _IntPolyh_Intersection_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntPolyh_ArrayOfPointNormal.hxx>
 #include <IntPolyh_ArrayOfSectionLines.hxx>
 #include <IntPolyh_ArrayOfTangentZones.hxx>
@@ -48,27 +48,27 @@ public:
 public: //! @name Constructors
   //! Constructor for intersection of two surfaces with default parameters.
   //! Performs intersection.
-  Standard_EXPORT IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& theS1,
-                                        const Handle(Adaptor3d_Surface)& theS2);
+  Standard_EXPORT IntPolyh_Intersection(const Handle(GeomAdaptor_Surface)& theS1,
+                                        const Handle(GeomAdaptor_Surface)& theS2);
 
   //! Constructor for intersection of two surfaces with the given
   //! size of the sampling nets:
   //! - <theNbSU1> x <theNbSV1> - for the first surface <theS1>;
   //! - <theNbSU2> x <theNbSV2> - for the second surface <theS2>.
   //! Performs intersection.
-  Standard_EXPORT IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& theS1,
+  Standard_EXPORT IntPolyh_Intersection(const Handle(GeomAdaptor_Surface)& theS1,
                                         const Standard_Integer           theNbSU1,
                                         const Standard_Integer           theNbSV1,
-                                        const Handle(Adaptor3d_Surface)& theS2,
+                                        const Handle(GeomAdaptor_Surface)& theS2,
                                         const Standard_Integer           theNbSU2,
                                         const Standard_Integer           theNbSV2);
 
   //! Constructor for intersection of two surfaces with the precomputed sampling.
   //! Performs intersection.
-  Standard_EXPORT IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& theS1,
+  Standard_EXPORT IntPolyh_Intersection(const Handle(GeomAdaptor_Surface)& theS1,
                                         const TColStd_Array1OfReal&      theUPars1,
                                         const TColStd_Array1OfReal&      theVPars1,
-                                        const Handle(Adaptor3d_Surface)& theS2,
+                                        const Handle(GeomAdaptor_Surface)& theS2,
                                         const TColStd_Array1OfReal&      theUPars2,
                                         const TColStd_Array1OfReal&      theVPars2);
 
@@ -184,8 +184,8 @@ private: //! @name Performing the intersection
 
 private: //! @name Fields
   // Inputs
-  Handle(Adaptor3d_Surface) mySurf1;           //!< First surface
-  Handle(Adaptor3d_Surface) mySurf2;           //!< Second surface
+  Handle(GeomAdaptor_Surface) mySurf1;           //!< First surface
+  Handle(GeomAdaptor_Surface) mySurf2;           //!< Second surface
                                                // clang-format off
   Standard_Integer myNbSU1;                    //!< Number of samples in U direction for first surface
   Standard_Integer myNbSV1;                    //!< Number of samples in V direction for first surface

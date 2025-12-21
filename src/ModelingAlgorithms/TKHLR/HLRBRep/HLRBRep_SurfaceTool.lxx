@@ -24,8 +24,8 @@
 #include <gp_Dir.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineSurface.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BRepAdaptor_Surface.hxx>
 
 inline Standard_Real HLRBRep_SurfaceTool::FirstUParameter(const Standard_Address Surf)
@@ -74,7 +74,7 @@ inline void HLRBRep_SurfaceTool::VIntervals(const Standard_Address Surf,
   ((BRepAdaptor_Surface*)Surf)->VIntervals(Tab, S);
 }
 
-inline Handle(Adaptor3d_Surface) HLRBRep_SurfaceTool::UTrim(const Standard_Address Surf,
+inline Handle(GeomAdaptor_Surface) HLRBRep_SurfaceTool::UTrim(const Standard_Address Surf,
                                                             const Standard_Real    F,
                                                             const Standard_Real    L,
                                                             const Standard_Real    Tol)
@@ -82,7 +82,7 @@ inline Handle(Adaptor3d_Surface) HLRBRep_SurfaceTool::UTrim(const Standard_Addre
   return ((BRepAdaptor_Surface*)Surf)->UTrim(F, L, Tol);
 }
 
-inline Handle(Adaptor3d_Surface) HLRBRep_SurfaceTool::VTrim(const Standard_Address Surf,
+inline Handle(GeomAdaptor_Surface) HLRBRep_SurfaceTool::VTrim(const Standard_Address Surf,
                                                             const Standard_Real    F,
                                                             const Standard_Real    L,
                                                             const Standard_Real    Tol)
@@ -246,12 +246,12 @@ inline gp_Dir HLRBRep_SurfaceTool::Direction(const Standard_Address S)
   return (((BRepAdaptor_Surface*)S)->Direction());
 }
 
-inline Handle(Adaptor3d_Curve) HLRBRep_SurfaceTool::BasisCurve(const Standard_Address S)
+inline Handle(GeomAdaptor_Curve) HLRBRep_SurfaceTool::BasisCurve(const Standard_Address S)
 {
   return (((BRepAdaptor_Surface*)S)->BasisCurve());
 }
 
-inline Handle(Adaptor3d_Surface) HLRBRep_SurfaceTool::BasisSurface(const Standard_Address S)
+inline Handle(GeomAdaptor_Surface) HLRBRep_SurfaceTool::BasisSurface(const Standard_Address S)
 {
   return (((BRepAdaptor_Surface*)S)->BasisSurface());
 }

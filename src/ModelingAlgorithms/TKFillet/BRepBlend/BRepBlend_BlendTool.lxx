@@ -14,45 +14,45 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_HVertex.hxx>
+#include <GeomAdaptor_HVertex.hxx>
 
-inline Standard_Boolean BRepBlend_BlendTool::SingularOnUMin(const Handle(Adaptor3d_Surface)&)
+inline Standard_Boolean BRepBlend_BlendTool::SingularOnUMin(const Handle(GeomAdaptor_Surface)&)
 {
   return Standard_False;
 }
 
-inline Standard_Boolean BRepBlend_BlendTool::SingularOnUMax(const Handle(Adaptor3d_Surface)&)
+inline Standard_Boolean BRepBlend_BlendTool::SingularOnUMax(const Handle(GeomAdaptor_Surface)&)
 {
   return Standard_False;
 }
 
-inline Standard_Boolean BRepBlend_BlendTool::SingularOnVMin(const Handle(Adaptor3d_Surface)&)
+inline Standard_Boolean BRepBlend_BlendTool::SingularOnVMin(const Handle(GeomAdaptor_Surface)&)
 {
   return Standard_False;
 }
 
-inline Standard_Boolean BRepBlend_BlendTool::SingularOnVMax(const Handle(Adaptor3d_Surface)&)
+inline Standard_Boolean BRepBlend_BlendTool::SingularOnVMax(const Handle(GeomAdaptor_Surface)&)
 {
   return Standard_False;
 }
 
-inline Standard_Real BRepBlend_BlendTool::Tolerance(const Handle(Adaptor3d_HVertex)& V,
-                                                    const Handle(Adaptor2d_Curve2d)& A)
+inline Standard_Real BRepBlend_BlendTool::Tolerance(const Handle(GeomAdaptor_HVertex)& V,
+                                                    const Handle(Geom2dAdaptor_Curve)& A)
 {
   //  return Adaptor2d_HCurve2dTool::Resolution(A,1.e-6); // a voir
   return V->Resolution(A); // a voir
 }
 
-inline Standard_Real BRepBlend_BlendTool::Parameter(const Handle(Adaptor3d_HVertex)& V,
-                                                    const Handle(Adaptor2d_Curve2d)& C)
+inline Standard_Real BRepBlend_BlendTool::Parameter(const Handle(GeomAdaptor_HVertex)& V,
+                                                    const Handle(Geom2dAdaptor_Curve)& C)
 {
   //  return BRep_Tool::Parameter(V,A->Curve().Edge());
   return V->Parameter(C);
 }
 
-inline Handle(Adaptor2d_Curve2d) BRepBlend_BlendTool::CurveOnSurf(
-  const Handle(Adaptor2d_Curve2d)& C,
-  const Handle(Adaptor3d_Surface)&)
+inline Handle(Geom2dAdaptor_Curve) BRepBlend_BlendTool::CurveOnSurf(
+  const Handle(Geom2dAdaptor_Curve)& C,
+  const Handle(GeomAdaptor_Surface)&)
 {
   return C;
 }

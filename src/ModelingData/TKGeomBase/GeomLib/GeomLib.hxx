@@ -17,7 +17,9 @@
 #ifndef _GeomLib_HeaderFile
 #define _GeomLib_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -28,18 +30,15 @@ class Geom_Curve;
 class gp_Ax2;
 class Geom2d_Curve;
 class gp_GTrsf2d;
-class Adaptor3d_CurveOnSurface;
+class GeomAdaptor_CurveOnSurface;
 class Geom_BoundedCurve;
 class gp_Pnt;
 class gp_Vec;
 class Geom_BoundedSurface;
 class gp_Dir;
-class Adaptor3d_Curve;
 class Geom_BSplineSurface;
 class Geom_BezierSurface;
 class Geom_Surface;
-
-typedef class Adaptor2d_Curve2d Adaptor2d_Curve2d;
 
 //! Geom Library. This package provides an
 //! implementation of functions for basic computation
@@ -82,7 +81,7 @@ public:
                                         Handle(Geom2d_Curve)&       NewCurve2dPtr);
 
   Standard_EXPORT static void BuildCurve3d(const Standard_Real       Tolerance,
-                                           Adaptor3d_CurveOnSurface& CurvePtr,
+                                           GeomAdaptor_CurveOnSurface& CurvePtr,
                                            const Standard_Real       FirstParameter,
                                            const Standard_Real       LastParameter,
                                            Handle(Geom_Curve)&       NewCurvePtr,
@@ -211,8 +210,8 @@ public:
   //! parameters given in the Parameters array by
   //! evaluating each parameter the two curves and taking
   //! the maximum of the evaluated distance
-  Standard_EXPORT static void EvalMaxParametricDistance(const Adaptor3d_Curve&      Curve,
-                                                        const Adaptor3d_Curve&      AReferenceCurve,
+  Standard_EXPORT static void EvalMaxParametricDistance(const GeomAdaptor_Curve&      Curve,
+                                                        const GeomAdaptor_Curve&      AReferenceCurve,
                                                         const Standard_Real         Tolerance,
                                                         const TColStd_Array1OfReal& Parameters,
                                                         Standard_Real&              MaxDistance);
@@ -221,8 +220,8 @@ public:
   //! given in the Parameters array by projecting from the Curve
   //! to the reference curve and taking the minimum distance
   //! Than the maximum will be taken on those minimas.
-  Standard_EXPORT static void EvalMaxDistanceAlongParameter(const Adaptor3d_Curve& Curve,
-                                                            const Adaptor3d_Curve& AReferenceCurve,
+  Standard_EXPORT static void EvalMaxDistanceAlongParameter(const GeomAdaptor_Curve& Curve,
+                                                            const GeomAdaptor_Curve& AReferenceCurve,
                                                             const Standard_Real    Tolerance,
                                                             const TColStd_Array1OfReal& Parameters,
                                                             Standard_Real& MaxDistance);
@@ -290,7 +289,7 @@ public:
   //! @param theParam     Line parameter.
   //! @param theIsForward Flag indicating forward parameterization on a isoline.
   //! @return Standard_True when 2d curve is a line and Standard_False otherwise.
-  Standard_EXPORT static Standard_Boolean isIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
+  Standard_EXPORT static Standard_Boolean isIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
                                                     Standard_Boolean&                theIsU,
                                                     Standard_Real&                   theParam,
                                                     Standard_Boolean&                theIsForward);
@@ -303,8 +302,8 @@ public:
   //! @param theIsForward Flag indicating forward parameterization on a isoline.
   //! @return Standard_True when 3d curve is built and Standard_False otherwise.
   Standard_EXPORT static Handle(Geom_Curve) buildC3dOnIsoLine(
-    const Handle(Adaptor2d_Curve2d)& theC2D,
-    const Handle(Adaptor3d_Surface)& theSurf,
+    const Handle(Geom2dAdaptor_Curve)& theC2D,
+    const Handle(GeomAdaptor_Surface)& theSurf,
     const Standard_Real              theFirst,
     const Standard_Real              theLast,
     const Standard_Real              theTolerance,

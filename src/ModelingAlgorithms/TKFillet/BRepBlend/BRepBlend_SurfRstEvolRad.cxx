@@ -14,7 +14,9 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_Point.hxx>
 #include <BlendFunc.hxx>
 #include <BRepBlend_SurfRstEvolRad.hxx>
@@ -115,10 +117,10 @@ static void FusionneIntervalles(const TColStd_Array1OfReal& I1,
 
 //=================================================================================================
 
-BRepBlend_SurfRstEvolRad::BRepBlend_SurfRstEvolRad(const Handle(Adaptor3d_Surface)& Surf,
-                                                   const Handle(Adaptor3d_Surface)& SurfRst,
-                                                   const Handle(Adaptor2d_Curve2d)& Rst,
-                                                   const Handle(Adaptor3d_Curve)&   CGuide,
+BRepBlend_SurfRstEvolRad::BRepBlend_SurfRstEvolRad(const Handle(GeomAdaptor_Surface)& Surf,
+                                                   const Handle(GeomAdaptor_Surface)& SurfRst,
+                                                   const Handle(Geom2dAdaptor_Curve)& Rst,
+                                                   const Handle(GeomAdaptor_Curve)&   CGuide,
                                                    const Handle(Law_Function)&      Evol)
     : surf(Surf),
       surfrst(SurfRst),
@@ -303,8 +305,8 @@ Standard_Boolean BRepBlend_SurfRstEvolRad::Values(const math_Vector& X,
 
 //=================================================================================================
 
-void BRepBlend_SurfRstEvolRad::Set(const Handle(Adaptor3d_Surface)& SurfRef,
-                                   const Handle(Adaptor2d_Curve2d)& RstRef)
+void BRepBlend_SurfRstEvolRad::Set(const Handle(GeomAdaptor_Surface)& SurfRef,
+                                   const Handle(Geom2dAdaptor_Curve)& RstRef)
 {
   surfref = SurfRef;
   rstref  = RstRef;

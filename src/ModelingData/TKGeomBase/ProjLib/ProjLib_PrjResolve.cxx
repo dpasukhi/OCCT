@@ -14,7 +14,9 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt2d.hxx>
 #include <math_FunctionSetRoot.hxx>
 #include <math_NewtonFunctionSetRoot.hxx>
@@ -23,8 +25,8 @@
 #include <Standard_ConstructionError.hxx>
 #include <StdFail_NotDone.hxx>
 
-ProjLib_PrjResolve::ProjLib_PrjResolve(const Adaptor3d_Curve&   C,
-                                       const Adaptor3d_Surface& S,
+ProjLib_PrjResolve::ProjLib_PrjResolve(const GeomAdaptor_Curve&   C,
+                                       const GeomAdaptor_Surface& S,
                                        const Standard_Integer   Fix)
     : myDone(Standard_False),
       myFix(Fix)

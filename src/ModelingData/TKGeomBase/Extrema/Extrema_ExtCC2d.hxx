@@ -25,9 +25,8 @@
 #include <Standard_Integer.hxx>
 #include <gp_Pnt2d.hxx>
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Extrema_ECC2d.hxx>
-
-class Adaptor2d_Curve2d;
 class Extrema_POnCurv2d;
 class Extrema_ExtElC2d;
 
@@ -41,14 +40,14 @@ public:
   Standard_EXPORT Extrema_ExtCC2d();
 
   //! It calculates all the distances.
-  Standard_EXPORT Extrema_ExtCC2d(const Adaptor2d_Curve2d& C1,
-                                  const Adaptor2d_Curve2d& C2,
+  Standard_EXPORT Extrema_ExtCC2d(const Geom2dAdaptor_Curve& C1,
+                                  const Geom2dAdaptor_Curve& C2,
                                   const Standard_Real      TolC1 = 1.0e-10,
                                   const Standard_Real      TolC2 = 1.0e-10);
 
   //! It calculates all the distances.
-  Standard_EXPORT Extrema_ExtCC2d(const Adaptor2d_Curve2d& C1,
-                                  const Adaptor2d_Curve2d& C2,
+  Standard_EXPORT Extrema_ExtCC2d(const Geom2dAdaptor_Curve& C1,
+                                  const Geom2dAdaptor_Curve& C2,
                                   const Standard_Real      U1,
                                   const Standard_Real      U2,
                                   const Standard_Real      V1,
@@ -57,13 +56,13 @@ public:
                                   const Standard_Real      TolC2 = 1.0e-10);
 
   //! initializes the fields.
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& C2,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& C2,
                                   const Standard_Real      V1,
                                   const Standard_Real      V2,
                                   const Standard_Real      TolC1 = 1.0e-10,
                                   const Standard_Real      TolC2 = 1.0e-10);
 
-  Standard_EXPORT void Perform(const Adaptor2d_Curve2d& C1,
+  Standard_EXPORT void Perform(const Geom2dAdaptor_Curve& C1,
                                const Standard_Real      U1,
                                const Standard_Real      U2);
 
@@ -129,7 +128,7 @@ private:
   TColStd_SequenceOfReal      mySqDist;
   Standard_Integer            mynbext;
   Standard_Boolean            inverse;
-  const Adaptor2d_Curve2d*    myC;
+  const Geom2dAdaptor_Curve*    myC;
   Standard_Real               myv1;
   Standard_Real               myv2;
   Standard_Real               mytolc1;

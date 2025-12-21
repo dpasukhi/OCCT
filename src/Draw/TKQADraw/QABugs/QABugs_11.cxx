@@ -1938,7 +1938,7 @@ static Standard_Integer OCC5739_UniAbs(Draw_Interpretor& di,
     return 1;
   }
   const char*        name      = argv[1];
-  Adaptor3d_Curve*   adapCurve = NULL;
+  GeomAdaptor_Curve*   adapCurve = NULL;
   Handle(Geom_Curve) curve     = DrawTrSurf::GetCurve(argv[2]);
   if (!curve.IsNull())
     adapCurve = new GeomAdaptor_Curve(curve);

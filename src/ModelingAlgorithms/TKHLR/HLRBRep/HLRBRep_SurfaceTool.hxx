@@ -17,8 +17,6 @@
 #ifndef _HLRBRep_SurfaceTool_HeaderFile
 #define _HLRBRep_SurfaceTool_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <gp_Pnt.hxx>
@@ -32,6 +30,8 @@
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class gp_Pnt;
 class gp_Vec;
 class Geom_BezierSurface;
@@ -59,13 +59,13 @@ public:
   static void VIntervals(const Standard_Address S, TColStd_Array1OfReal& T, const GeomAbs_Shape Sh);
 
   //! If <First> >= <Last>
-  static Handle(Adaptor3d_Surface) UTrim(const Standard_Address S,
+  static Handle(GeomAdaptor_Surface) UTrim(const Standard_Address S,
                                          const Standard_Real    First,
                                          const Standard_Real    Last,
                                          const Standard_Real    Tol);
 
   //! If <First> >= <Last>
-  static Handle(Adaptor3d_Surface) VTrim(const Standard_Address S,
+  static Handle(GeomAdaptor_Surface) VTrim(const Standard_Address S,
                                          const Standard_Real    First,
                                          const Standard_Real    Last,
                                          const Standard_Real    Tol);
@@ -147,9 +147,9 @@ public:
 
   static gp_Dir Direction(const Standard_Address S);
 
-  static Handle(Adaptor3d_Curve) BasisCurve(const Standard_Address S);
+  static Handle(GeomAdaptor_Curve) BasisCurve(const Standard_Address S);
 
-  static Handle(Adaptor3d_Surface) BasisSurface(const Standard_Address S);
+  static Handle(GeomAdaptor_Surface) BasisSurface(const Standard_Address S);
 
   static Standard_Real OffsetValue(const Standard_Address S);
 

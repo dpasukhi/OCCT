@@ -17,7 +17,7 @@
 #ifndef _GeomInt_TheInt2SOfThePrmPrmSvSurfacesOfWLApprox_HeaderFile
 #define _GeomInt_TheInt2SOfThePrmPrmSvSurfacesOfWLApprox_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntSurf_PntOn2S.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Dir2d.hxx>
@@ -25,7 +25,7 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <IntImp_ConstIsoparametric.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox;
 class math_FunctionSetRoot;
 class IntSurf_PntOn2S;
@@ -38,8 +38,8 @@ public:
   //! compute the solution point with the close point
   Standard_EXPORT GeomInt_TheInt2SOfThePrmPrmSvSurfacesOfWLApprox(
     const TColStd_Array1OfReal&      Param,
-    const Handle(Adaptor3d_Surface)& S1,
-    const Handle(Adaptor3d_Surface)& S2,
+    const Handle(GeomAdaptor_Surface)& S1,
+    const Handle(GeomAdaptor_Surface)& S2,
     const Standard_Real              TolTangency);
 
   //! initialize the parameters to compute the solution point
@@ -53,8 +53,8 @@ public:
   //! inter.Perform(Param,rsnld);
   //! }
   Standard_EXPORT GeomInt_TheInt2SOfThePrmPrmSvSurfacesOfWLApprox(
-    const Handle(Adaptor3d_Surface)& S1,
-    const Handle(Adaptor3d_Surface)& S2,
+    const Handle(GeomAdaptor_Surface)& S1,
+    const Handle(GeomAdaptor_Surface)& S2,
     const Standard_Real              TolTangency);
 
   //! returns the best constant isoparametric to find
@@ -131,10 +131,10 @@ private:
   Standard_Real                                                vres2;
 };
 
-#define ThePSurface Handle(Adaptor3d_Surface)
-#define ThePSurface_hxx <Adaptor3d_Surface.hxx>
-#define ThePSurfaceTool Adaptor3d_HSurfaceTool
-#define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
+#define ThePSurface Handle(GeomAdaptor_Surface)
+#define ThePSurface_hxx <GeomAdaptor_Surface.hxx>
+#define ThePSurfaceTool GeomAdaptor_HSurfaceTool
+#define ThePSurfaceTool_hxx <GeomAdaptor_HSurfaceTool.hxx>
 #define IntImp_TheFunction GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox
 #define IntImp_TheFunction_hxx <GeomInt_TheFunctionOfTheInt2SOfThePrmPrmSvSurfacesOfWLApprox.hxx>
 #define IntImp_Int2S GeomInt_TheInt2SOfThePrmPrmSvSurfacesOfWLApprox

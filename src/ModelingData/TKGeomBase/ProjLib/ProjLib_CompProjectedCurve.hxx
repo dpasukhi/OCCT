@@ -17,34 +17,35 @@
 #ifndef _ProjLib_CompProjectedCurve_HeaderFile
 #define _ProjLib_CompProjectedCurve_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <Geom2d_Curve.hxx>
+#include <Geom_Curve.hxx>
+#include <GeomAbs_CurveType.hxx>
+#include <GeomAbs_Shape.hxx>
 #include <ProjLib_HSequenceOfHSequenceOfPnt.hxx>
 #include <ProjLib_Projector.hxx>
-#include <TColGeom_HArray1OfCurve.hxx>
 #include <TColGeom2d_HArray1OfCurve.hxx>
-#include <TColgp_HArray1OfPnt.hxx>
-#include <TColgp_HArray1OfPnt2d.hxx>
+#include <TColGeom_HArray1OfCurve.hxx>
+#include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfBoolean.hxx>
 #include <TColStd_HArray1OfReal.hxx>
-#include <Geom_Curve.hxx>
-#include <Geom2d_Curve.hxx>
-#include <GeomAbs_Shape.hxx>
-#include <TColStd_Array1OfReal.hxx>
-#include <GeomAbs_CurveType.hxx>
+#include <TColgp_HArray1OfPnt.hxx>
+#include <TColgp_HArray1OfPnt2d.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class gp_Pnt2d;
 class gp_Vec2d;
 
-class ProjLib_CompProjectedCurve : public Adaptor2d_Curve2d
+class ProjLib_CompProjectedCurve : public Geom2dAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(ProjLib_CompProjectedCurve, Adaptor2d_Curve2d)
+  DEFINE_STANDARD_RTTIEXT(ProjLib_CompProjectedCurve, Geom2dAdaptor_Curve)
 public:
   Standard_EXPORT ProjLib_CompProjectedCurve();
 
   //! try to find all solutions
-  Standard_EXPORT ProjLib_CompProjectedCurve(const Handle(Adaptor3d_Surface)& S,
-                                             const Handle(Adaptor3d_Curve)&   C,
+  Standard_EXPORT ProjLib_CompProjectedCurve(const Handle(GeomAdaptor_Surface)& S,
+                                             const Handle(GeomAdaptor_Curve)&   C,
                                              const Standard_Real              TolU,
                                              const Standard_Real              TolV);
 
@@ -52,8 +53,8 @@ public:
   //! assumption that maximum distance between surface and curve less or
   //! equal then MaxDist.
   //! if MaxDist < 0 then algorithm works as above.
-  Standard_EXPORT ProjLib_CompProjectedCurve(const Handle(Adaptor3d_Surface)& S,
-                                             const Handle(Adaptor3d_Curve)&   C,
+  Standard_EXPORT ProjLib_CompProjectedCurve(const Handle(GeomAdaptor_Surface)& S,
+                                             const Handle(GeomAdaptor_Curve)&   C,
                                              const Standard_Real              TolU,
                                              const Standard_Real              TolV,
                                              const Standard_Real              MaxDist);
@@ -64,12 +65,12 @@ public:
   //! if MaxDist < 0 then algorithm try to find all solutions
   //! Tolerances of parameters are calculated automatically.
   Standard_EXPORT ProjLib_CompProjectedCurve(const Standard_Real              Tol3d,
-                                             const Handle(Adaptor3d_Surface)& S,
-                                             const Handle(Adaptor3d_Curve)&   C,
+                                             const Handle(GeomAdaptor_Surface)& S,
+                                             const Handle(GeomAdaptor_Curve)&   C,
                                              const Standard_Real              MaxDist = -1.0);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   //! computes a set of projected point and determine the
   //! continuous parts of the projected curves. The points
@@ -107,14 +108,14 @@ public:
   Standard_EXPORT void SetProj3d(const Standard_Boolean theProj3d);
 
   //! Changes the surface.
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT void Load(const Handle(GeomAdaptor_Surface)& S);
 
   //! Changes the curve.
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Curve)& C);
+  Standard_EXPORT void Load(const Handle(GeomAdaptor_Curve)& C);
 
-  Standard_EXPORT const Handle(Adaptor3d_Surface)& GetSurface() const;
+  Standard_EXPORT const Handle(GeomAdaptor_Surface)& GetSurface() const;
 
-  Standard_EXPORT const Handle(Adaptor3d_Curve)& GetCurve() const;
+  Standard_EXPORT const Handle(GeomAdaptor_Curve)& GetCurve() const;
 
   Standard_EXPORT void GetTolerance(Standard_Real& TolU, Standard_Real& TolV) const;
 
@@ -185,7 +186,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 2d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) Trim(const Standard_Real FirstParam,
+  Standard_EXPORT Handle(Geom2dAdaptor_Curve) Trim(const Standard_Real FirstParam,
                                                  const Standard_Real LastParam,
                                                  const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -254,8 +255,8 @@ private:
   Standard_EXPORT void BuildIntervals(const GeomAbs_Shape S) const;
 
 private:
-  Handle(Adaptor3d_Surface)                 mySurface;
-  Handle(Adaptor3d_Curve)                   myCurve;
+  Handle(GeomAdaptor_Surface)                 mySurface;
+  Handle(GeomAdaptor_Curve)                   myCurve;
   Standard_Integer                          myNbCurves;
   Handle(ProjLib_HSequenceOfHSequenceOfPnt) mySequence;
   Handle(TColStd_HArray1OfBoolean)          myUIso;
@@ -283,6 +284,6 @@ private:
   Handle(TColGeom2d_HArray1OfCurve) myResult2dCurve;
 };
 
-DEFINE_STANDARD_HANDLE(ProjLib_CompProjectedCurve, Adaptor2d_Curve2d)
+DEFINE_STANDARD_HANDLE(ProjLib_CompProjectedCurve, Geom2dAdaptor_Curve)
 
 #endif // _ProjLib_CompProjectedCurve_HeaderFile

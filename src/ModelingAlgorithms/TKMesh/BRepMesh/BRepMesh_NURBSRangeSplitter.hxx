@@ -47,14 +47,14 @@ protected:
 
   //! Returns number of intervals computed using available geometrical parameters.
   Standard_EXPORT virtual Standard_Integer getUndefinedIntervalNb(
-    const Handle(Adaptor3d_Surface)& theSurface,
+    const Handle(GeomAdaptor_Surface)& theSurface,
     const Standard_Boolean           isU,
     const GeomAbs_Shape              theContinuity) const;
 
 private:
   //! Tries to compute intervals even for cases with no intervals
   //! at all using available geometrical parameters.
-  void getUndefinedInterval(const Handle(Adaptor3d_Surface)&               theSurface,
+  void getUndefinedInterval(const Handle(GeomAdaptor_Surface)&               theSurface,
                             const Standard_Boolean                         isU,
                             const GeomAbs_Shape                            theContinuity,
                             const std::pair<Standard_Real, Standard_Real>& theRange,

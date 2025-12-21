@@ -12,10 +12,12 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRepBlend_Extremity.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_HVertex.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_HVertex.hxx>
 #include <BRepBlend_PointOnRst.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
@@ -54,7 +56,7 @@ BRepBlend_Extremity::BRepBlend_Extremity(const gp_Pnt&                    P,
                                          const Standard_Real              V,
                                          const Standard_Real              Param,
                                          const Standard_Real              Tol,
-                                         const Handle(Adaptor3d_HVertex)& Vtx)
+                                         const Handle(GeomAdaptor_HVertex)& Vtx)
     : vtx(Vtx),
       pt(P),
       tang(gp_Vec(0, 0, 0)),
@@ -102,7 +104,7 @@ void BRepBlend_Extremity::SetValue(const gp_Pnt&                    P,
                                    const Standard_Real              V,
                                    const Standard_Real              Param,
                                    const Standard_Real              Tol,
-                                   const Handle(Adaptor3d_HVertex)& Vtx)
+                                   const Handle(GeomAdaptor_HVertex)& Vtx)
 {
   pt    = P;
   u     = U;
@@ -127,13 +129,13 @@ void BRepBlend_Extremity::SetValue(const gp_Pnt&       P,
   seqpt.Clear();
 }
 
-void BRepBlend_Extremity::SetVertex(const Handle(Adaptor3d_HVertex)& V)
+void BRepBlend_Extremity::SetVertex(const Handle(GeomAdaptor_HVertex)& V)
 {
   isvtx = Standard_True;
   vtx   = V;
 }
 
-void BRepBlend_Extremity::AddArc(const Handle(Adaptor2d_Curve2d)& A,
+void BRepBlend_Extremity::AddArc(const Handle(Geom2dAdaptor_Curve)& A,
                                  const Standard_Real              Param,
                                  const IntSurf_Transition&        TLine,
                                  const IntSurf_Transition&        TArc)

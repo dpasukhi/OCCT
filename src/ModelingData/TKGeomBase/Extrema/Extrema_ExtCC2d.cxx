@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_Curve2dTool.hxx>
 #include <Extrema_ECC2d.hxx>
@@ -47,8 +47,8 @@ Extrema_ExtCC2d::Extrema_ExtCC2d()
 {
 }
 
-Extrema_ExtCC2d::Extrema_ExtCC2d(const Adaptor2d_Curve2d& C1,
-                                 const Adaptor2d_Curve2d& C2,
+Extrema_ExtCC2d::Extrema_ExtCC2d(const Geom2dAdaptor_Curve& C1,
+                                 const Geom2dAdaptor_Curve& C2,
                                  const Standard_Real      TolC1,
                                  const Standard_Real      TolC2)
     : myIsFindSingleSolution(Standard_False)
@@ -61,8 +61,8 @@ Extrema_ExtCC2d::Extrema_ExtCC2d(const Adaptor2d_Curve2d& C1,
   Perform(C1, Extrema_Curve2dTool::FirstParameter(C1), Extrema_Curve2dTool::LastParameter(C1));
 }
 
-Extrema_ExtCC2d::Extrema_ExtCC2d(const Adaptor2d_Curve2d& C1,
-                                 const Adaptor2d_Curve2d& C2,
+Extrema_ExtCC2d::Extrema_ExtCC2d(const Geom2dAdaptor_Curve& C1,
+                                 const Geom2dAdaptor_Curve& C2,
                                  const Standard_Real      U1,
                                  const Standard_Real      U2,
                                  const Standard_Real      V1,
@@ -75,7 +75,7 @@ Extrema_ExtCC2d::Extrema_ExtCC2d(const Adaptor2d_Curve2d& C1,
   Perform(C1, U1, U2);
 }
 
-void Extrema_ExtCC2d::Initialize(const Adaptor2d_Curve2d& C2,
+void Extrema_ExtCC2d::Initialize(const Geom2dAdaptor_Curve& C2,
                                  const Standard_Real      V1,
                                  const Standard_Real      V2,
                                  const Standard_Real      TolC1,
@@ -88,7 +88,7 @@ void Extrema_ExtCC2d::Initialize(const Adaptor2d_Curve2d& C2,
   mytolc2 = TolC2;
 }
 
-void Extrema_ExtCC2d::Perform(const Adaptor2d_Curve2d& C1,
+void Extrema_ExtCC2d::Perform(const Geom2dAdaptor_Curve& C1,
                               const Standard_Real      U1,
                               const Standard_Real      U2)
 {

@@ -18,7 +18,7 @@
 //: s4 abv 26.04.99: sim6049.igs 21677: copy of curve is necessary to get True SP
 //    abv 06.05.99: S4137: adding methods GetTangent2d()
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_GCurve.hxx>
 #include <BRepLib_ValidateEdge.hxx>
@@ -742,7 +742,7 @@ Standard_Boolean ShapeAnalysis_Edge::CheckSameParameter(const TopoDS_Edge&     e
     Handle(Geom2dAdaptor_Curve) GHPC = new Geom2dAdaptor_Curve(aPC, f, l);
     Handle(GeomAdaptor_Surface) GAHS = new GeomAdaptor_Surface(aST);
 
-    Handle(Adaptor3d_CurveOnSurface) ACS = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+    Handle(GeomAdaptor_CurveOnSurface) ACS = new GeomAdaptor_CurveOnSurface(GHPC, GAHS);
 
     BRepLib_ValidateEdge aValidateEdge(aGAC, ACS, SameParameter);
     aValidateEdge.SetControlPointsNumber(NbControl - 1);
@@ -768,7 +768,7 @@ Standard_Boolean ShapeAnalysis_Edge::CheckSameParameter(const TopoDS_Edge&     e
         Handle(Geom_Surface)::DownCast(aFaceSurf->Transformed(aFaceLoc.Transformation()));
       Handle(GeomAdaptor_Surface) GAHS = new GeomAdaptor_Surface(aST);
 
-      Handle(Adaptor3d_CurveOnSurface) ACS = new Adaptor3d_CurveOnSurface(GHPC, GAHS);
+      Handle(GeomAdaptor_CurveOnSurface) ACS = new GeomAdaptor_CurveOnSurface(GHPC, GAHS);
 
       BRepLib_ValidateEdge aValidateEdgeOnPlane(aGAC, ACS, SameParameter);
       aValidateEdgeOnPlane.SetControlPointsNumber(NbControl - 1);

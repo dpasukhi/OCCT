@@ -33,14 +33,14 @@ inline void Contap_Point::SetParameter(const Standard_Real Para)
   paraline = Para;
 }
 
-inline void Contap_Point::SetVertex(const Handle(Adaptor3d_HVertex)& V)
+inline void Contap_Point::SetVertex(const Handle(GeomAdaptor_HVertex)& V)
 {
 
   isvtx = Standard_True;
   vtx   = V;
 }
 
-inline void Contap_Point::SetArc(const Handle(Adaptor2d_Curve2d)& A,
+inline void Contap_Point::SetArc(const Handle(Geom2dAdaptor_Curve)& A,
                                  const Standard_Real              Param,
                                  const IntSurf_Transition&        TLine,
                                  const IntSurf_Transition&        TArc)
@@ -97,7 +97,7 @@ inline Standard_Boolean Contap_Point::IsOnArc() const
   return onarc;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& Contap_Point::Arc() const
+inline const Handle(Geom2dAdaptor_Curve)& Contap_Point::Arc() const
 {
 
   if (!onarc)
@@ -142,7 +142,7 @@ inline Standard_Boolean Contap_Point::IsVertex() const
   return isvtx;
 }
 
-inline const Handle(Adaptor3d_HVertex)& Contap_Point::Vertex() const
+inline const Handle(GeomAdaptor_HVertex)& Contap_Point::Vertex() const
 {
 
   if (!isvtx)

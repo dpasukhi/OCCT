@@ -32,7 +32,7 @@ namespace IntCurveSurface_PolyhedronUtils
 constexpr double THE_MIN_EDGE_LENGTH_SQUARED = 1e-15;
 
 //! Initialize polyhedron with uniform UV sampling.
-//! @tparam SurfaceType Type of surface (e.g., Handle(Adaptor3d_Surface))
+//! @tparam SurfaceType Type of surface (e.g., Handle(GeomAdaptor_Surface))
 //! @tparam SurfaceTool Tool class providing surface operations (D0, Value)
 //! @param[in]     theSurface       The surface to discretize
 //! @param[in]     theU0            First U parameter

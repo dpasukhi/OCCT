@@ -16,7 +16,7 @@
 
 #include <IntCurvesFace_ShapeIntersector.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_BoundSortBox.hxx>
 #include <gp_Lin.hxx>
 #include <IntCurvesFace_Intersector.hxx>
@@ -126,7 +126,7 @@ void IntCurvesFace_ShapeIntersector::PerformNearest(const gp_Lin&       theL,
   SortResult();
 }
 
-void IntCurvesFace_ShapeIntersector::Perform(const Handle(Adaptor3d_Curve)& theHCurve,
+void IntCurvesFace_ShapeIntersector::Perform(const Handle(GeomAdaptor_Curve)& theHCurve,
                                              const Standard_Real            theParMin,
                                              const Standard_Real            theParMax)
 {

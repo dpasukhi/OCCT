@@ -23,7 +23,7 @@
 
 #include <math.h>
 
-IMPLEMENT_STANDARD_RTTIEXT(HelixGeom_HelixCurve, Adaptor3d_Curve)
+IMPLEMENT_STANDARD_RTTIEXT(HelixGeom_HelixCurve, GeomAdaptor_Curve)
 
 //=================================================================================================
 

@@ -79,7 +79,7 @@ void HLRTopoBRep_DSFiller::Insert(const TopoDS_Shape&            S,
       TopoDS_Face S1 = TopoDS::Face(ex.Current());
       S1.Orientation(TopAbs_FORWARD);
       Handle(BRepTopAdaptor_TopolTool) Domain;
-      Handle(Adaptor3d_Surface)        Surface;
+      Handle(GeomAdaptor_Surface)        Surface;
       if (MST.IsBound(S1))
       {
         BRepTopAdaptor_Tool& BRT = MST.ChangeFind(S1);

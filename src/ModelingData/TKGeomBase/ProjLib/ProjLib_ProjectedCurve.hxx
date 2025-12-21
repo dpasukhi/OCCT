@@ -17,8 +17,9 @@
 #ifndef _ProjLib_ProjectedCurve_HeaderFile
 #define _ProjLib_ProjectedCurve_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <AppParCurves_Constraint.hxx>
 #include <GeomAbs_CurveType.hxx>
 #include <GeomAbs_Shape.hxx>
@@ -35,7 +36,7 @@ class gp_Parab2d;
 class Geom2d_BezierCurve;
 class Geom2d_BSplineCurve;
 
-DEFINE_STANDARD_HANDLE(ProjLib_ProjectedCurve, Adaptor2d_Curve2d)
+DEFINE_STANDARD_HANDLE(ProjLib_ProjectedCurve, Geom2dAdaptor_Curve)
 
 //! Compute the 2d-curve. Try to solve the particular
 //! case if possible. Otherwise, an approximation is
@@ -46,43 +47,43 @@ DEFINE_STANDARD_HANDLE(ProjLib_ProjectedCurve, Adaptor2d_Curve2d)
 //! computed from 3d tolerance with help of U,V resolutions of surface. 3d and 2d tolerances have
 //! sense only for curves on surface, it defines precision of projecting and approximation and have
 //! nothing to do with distance between the projected curve and the surface.
-class ProjLib_ProjectedCurve : public Adaptor2d_Curve2d
+class ProjLib_ProjectedCurve : public Geom2dAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(ProjLib_ProjectedCurve, Adaptor2d_Curve2d)
+  DEFINE_STANDARD_RTTIEXT(ProjLib_ProjectedCurve, Geom2dAdaptor_Curve)
 public:
   //! Empty constructor, it only sets some initial values for class fields.
   Standard_EXPORT ProjLib_ProjectedCurve();
 
   //! Constructor with initialisation field mySurface
-  Standard_EXPORT ProjLib_ProjectedCurve(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT ProjLib_ProjectedCurve(const Handle(GeomAdaptor_Surface)& S);
 
   //! Constructor, which performs projecting.
   //! If projecting uses approximation, default parameters are used, in particular, 3d tolerance of
   //! approximation is Precision::Confusion()
-  Standard_EXPORT ProjLib_ProjectedCurve(const Handle(Adaptor3d_Surface)& S,
-                                         const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT ProjLib_ProjectedCurve(const Handle(GeomAdaptor_Surface)& S,
+                                         const Handle(GeomAdaptor_Curve)&   C);
 
   //! Constructor, which performs projecting.
   //! If projecting uses approximation, 3d tolerance is Tol, default parameters are used,
-  Standard_EXPORT ProjLib_ProjectedCurve(const Handle(Adaptor3d_Surface)& S,
-                                         const Handle(Adaptor3d_Curve)&   C,
+  Standard_EXPORT ProjLib_ProjectedCurve(const Handle(GeomAdaptor_Surface)& S,
+                                         const Handle(GeomAdaptor_Curve)&   C,
                                          const Standard_Real              Tol);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   //! Changes the tolerance used to project
   //! the curve on the surface
   Standard_EXPORT void Load(const Standard_Real Tolerance);
 
   //! Changes the Surface.
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT void Load(const Handle(GeomAdaptor_Surface)& S);
 
   //! Performs projecting for given curve.
   //! If projecting uses approximation,
   //! approximation parameters can be set before by corresponding methods
   //! SetDegree(...), SetMaxSegmets(...), SetBndPnt(...), SetMaxDist(...)
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Curve)& C);
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Curve)& C);
 
   //! Set min and max possible degree of result BSpline curve2d, which is got by approximation.
   //! If theDegMin/Max < 0, algorithm uses values that are chosen depending of types curve 3d
@@ -106,9 +107,9 @@ public:
   //! theMaxDist, algorithm stops working.
   Standard_EXPORT void SetMaxDist(const Standard_Real theMaxDist);
 
-  Standard_EXPORT const Handle(Adaptor3d_Surface)& GetSurface() const;
+  Standard_EXPORT const Handle(GeomAdaptor_Surface)& GetSurface() const;
 
-  Standard_EXPORT const Handle(Adaptor3d_Curve)& GetCurve() const;
+  Standard_EXPORT const Handle(GeomAdaptor_Curve)& GetCurve() const;
 
   //! returns the tolerance reached if an approximation
   //! is Done.
@@ -137,7 +138,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(Geom2dAdaptor_Curve) Trim(const Standard_Real First,
                                                  const Standard_Real Last,
                                                  const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -225,8 +226,8 @@ public:
 
 private:
   Standard_Real             myTolerance;
-  Handle(Adaptor3d_Surface) mySurface;
-  Handle(Adaptor3d_Curve)   myCurve;
+  Handle(GeomAdaptor_Surface) mySurface;
+  Handle(GeomAdaptor_Curve)   myCurve;
   ProjLib_Projector         myResult;
   Standard_Integer          myDegMin;
   Standard_Integer          myDegMax;

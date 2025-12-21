@@ -17,10 +17,9 @@
 #ifndef _StdPrs_Plane_HeaderFile
 #define _StdPrs_Plane_HeaderFile
 
+#include <GeomAdaptor_Surface.hxx>
 #include <Prs3d_Root.hxx>
 #include <Prs3d_Drawer.hxx>
-
-class Adaptor3d_Surface;
 
 //! A framework to display infinite planes.
 class StdPrs_Plane : public Prs3d_Root
@@ -33,7 +32,7 @@ public:
   //! aPresentation, and the attributes of the display are
   //! defined by the attribute manager aDrawer.
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Adaptor3d_Surface&          aPlane,
+                                  const GeomAdaptor_Surface&          aPlane,
                                   const Handle(Prs3d_Drawer)&       aDrawer);
 
   //! returns true if the distance between the point (X,Y,Z) and the
@@ -42,7 +41,7 @@ public:
                                                 const Standard_Real         Y,
                                                 const Standard_Real         Z,
                                                 const Standard_Real         aDistance,
-                                                const Adaptor3d_Surface&    aPlane,
+                                                const GeomAdaptor_Surface&    aPlane,
                                                 const Handle(Prs3d_Drawer)& aDrawer);
 };
 

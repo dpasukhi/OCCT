@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Extrema_FuncExtSS.hxx>
 #include <Extrema_GenLocateExtSS.hxx>
 #include <Extrema_POnSurf.hxx>
@@ -33,8 +33,8 @@ Extrema_GenLocateExtSS::Extrema_GenLocateExtSS()
 
 //=================================================================================================
 
-Extrema_GenLocateExtSS::Extrema_GenLocateExtSS(const Adaptor3d_Surface& S1,
-                                               const Adaptor3d_Surface& S2,
+Extrema_GenLocateExtSS::Extrema_GenLocateExtSS(const GeomAdaptor_Surface& S1,
+                                               const GeomAdaptor_Surface& S2,
                                                const Standard_Real      U1,
                                                const Standard_Real      V1,
                                                const Standard_Real      U2,
@@ -47,8 +47,8 @@ Extrema_GenLocateExtSS::Extrema_GenLocateExtSS(const Adaptor3d_Surface& S1,
 
 //=================================================================================================
 
-void Extrema_GenLocateExtSS::Perform(const Adaptor3d_Surface& S1,
-                                     const Adaptor3d_Surface& S2,
+void Extrema_GenLocateExtSS::Perform(const GeomAdaptor_Surface& S1,
+                                     const GeomAdaptor_Surface& S2,
                                      const Standard_Real      U1,
                                      const Standard_Real      V1,
                                      const Standard_Real      U2,

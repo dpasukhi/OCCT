@@ -29,10 +29,10 @@
 class StdFail_NotDone;
 class Standard_OutOfRange;
 class Standard_ConstructionError;
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 class Contap_HCurve2dTool;
 class Contap_HContTool;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 class Contap_ArcFunction;
 class Contap_ThePathPointOfTheSearch;
 class Contap_TheSegmentOfTheSearch;
@@ -51,7 +51,7 @@ public:
   //! TolBoundary defines if a curve is on Q.
   //! TolTangency defines if a point is on Q.
   Standard_EXPORT void Perform(Contap_ArcFunction&                F,
-                               const Handle(Adaptor3d_TopolTool)& Domain,
+                               const Handle(GeomAdaptor_TopolTool)& Domain,
                                const Standard_Real                TolBoundary,
                                const Standard_Real                TolTangency,
                                const Standard_Boolean RecheckOnRegularity = Standard_False);
@@ -94,17 +94,17 @@ private:
   Contap_SequenceOfPathPointOfTheSearch spnt;
 };
 
-#define TheVertex Handle(Adaptor3d_HVertex)
-#define TheVertex_hxx <Adaptor3d_HVertex.hxx>
-#define TheArc Handle(Adaptor2d_Curve2d)
-#define TheArc_hxx <Adaptor2d_Curve2d.hxx>
+#define TheVertex Handle(GeomAdaptor_HVertex)
+#define TheVertex_hxx <GeomAdaptor_HVertex.hxx>
+#define TheArc Handle(Geom2dAdaptor_Curve)
+#define TheArc_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheArcTool Contap_HCurve2dTool
 #define TheArcTool_hxx <Contap_HCurve2dTool.hxx>
 #define TheSOBTool Contap_HContTool
 #define TheSOBTool_hxx <Contap_HContTool.hxx>
-#define Handle_TheTopolTool Handle(Adaptor3d_TopolTool)
-#define TheTopolTool Adaptor3d_TopolTool
-#define TheTopolTool_hxx <Adaptor3d_TopolTool.hxx>
+#define Handle_TheTopolTool Handle(GeomAdaptor_TopolTool)
+#define TheTopolTool GeomAdaptor_TopolTool
+#define TheTopolTool_hxx <GeomAdaptor_TopolTool.hxx>
 #define TheFunction Contap_ArcFunction
 #define TheFunction_hxx <Contap_ArcFunction.hxx>
 #define IntStart_ThePathPoint Contap_ThePathPointOfTheSearch

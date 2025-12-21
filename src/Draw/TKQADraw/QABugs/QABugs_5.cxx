@@ -16,7 +16,7 @@
 #include <QABugs.hxx>
 
 #include <Draw_Interpretor.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <DrawTrSurf.hxx>
 #include <DBRep.hxx>
 #include <GeomAdaptor_Surface.hxx>
@@ -40,7 +40,7 @@ static Standard_Integer OCC6001(Draw_Interpretor& di, Standard_Integer argc, con
     return 1;
   }
   const char*             name = argv[1];
-  Handle(Adaptor3d_Curve) hcurve;
+  Handle(GeomAdaptor_Curve) hcurve;
   Handle(Geom_Curve)      curve = DrawTrSurf::GetCurve(argv[2]);
   if (!curve.IsNull())
     hcurve = new GeomAdaptor_Curve(curve);

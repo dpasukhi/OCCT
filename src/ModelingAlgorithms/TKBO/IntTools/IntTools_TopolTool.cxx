@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ElSLib.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineSurface.hxx>
@@ -26,7 +26,7 @@
 #include <TColgp_Array2OfPnt.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(IntTools_TopolTool, Adaptor3d_TopolTool)
+IMPLEMENT_STANDARD_RTTIEXT(IntTools_TopolTool, GeomAdaptor_TopolTool)
 
 static void Analyse(const TColgp_Array2OfPnt& array2,
                     Standard_Integer&         theNbSamplesU,
@@ -44,7 +44,7 @@ IntTools_TopolTool::IntTools_TopolTool()
 
 //=================================================================================================
 
-IntTools_TopolTool::IntTools_TopolTool(const Handle(Adaptor3d_Surface)& theSurface)
+IntTools_TopolTool::IntTools_TopolTool(const Handle(GeomAdaptor_Surface)& theSurface)
 {
   Initialize(theSurface);
   myNbSmplU = 0;
@@ -62,9 +62,9 @@ void IntTools_TopolTool::Initialize()
 
 //=================================================================================================
 
-void IntTools_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& theSurface)
+void IntTools_TopolTool::Initialize(const Handle(GeomAdaptor_Surface)& theSurface)
 {
-  Adaptor3d_TopolTool::Initialize(theSurface);
+  GeomAdaptor_TopolTool::Initialize(theSurface);
   // myS = theSurface;
   myNbSmplU = 0;
   myNbSmplV = 0;
@@ -403,7 +403,7 @@ void IntTools_TopolTool::SamplePoint(const Standard_Integer Index, gp_Pnt2d& P2d
     P3d = myS->Value(u, v);
   }
   else
-    Adaptor3d_TopolTool::SamplePoint(Index, P2d, P3d);
+    GeomAdaptor_TopolTool::SamplePoint(Index, P2d, P3d);
 }
 
 //=================================================================================================
@@ -527,10 +527,10 @@ void IntTools_TopolTool::SamplePnts(const Standard_Real    theDefl,
                                     const Standard_Integer theNUmin,
                                     const Standard_Integer theNVmin)
 {
-  Adaptor3d_TopolTool::SamplePnts(theDefl, theNUmin, theNVmin);
+  GeomAdaptor_TopolTool::SamplePnts(theDefl, theNUmin, theNVmin);
 
-  myNbSmplU = Adaptor3d_TopolTool::NbSamplesU();
-  myNbSmplV = Adaptor3d_TopolTool::NbSamplesV();
+  myNbSmplU = GeomAdaptor_TopolTool::NbSamplesU();
+  myNbSmplV = GeomAdaptor_TopolTool::NbSamplesV();
 
   myU0 = myUPars->Value(1);
   myV0 = myVPars->Value(1);

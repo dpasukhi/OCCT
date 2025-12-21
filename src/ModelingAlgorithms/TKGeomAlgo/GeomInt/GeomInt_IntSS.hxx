@@ -31,7 +31,7 @@ class Geom2d_Curve;
 class gp_Pnt2d;
 class IntPatch_RLine;
 class Bnd_Box2d;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 class IntPatch_WLine;
 
 class GeomInt_IntSS
@@ -183,8 +183,8 @@ protected:
                                        const Standard_Real    V2);
 
   Standard_EXPORT void MakeCurve(const Standard_Integer             Ind,
-                                 const Handle(Adaptor3d_TopolTool)& D1,
-                                 const Handle(Adaptor3d_TopolTool)& D2,
+                                 const Handle(GeomAdaptor_TopolTool)& D1,
+                                 const Handle(GeomAdaptor_TopolTool)& D2,
                                  const Standard_Real                Tol,
                                  const Standard_Boolean             Approx,
                                  const Standard_Boolean             Approx1,

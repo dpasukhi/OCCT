@@ -17,11 +17,11 @@
 #ifndef _IntPatch_TheSearchInside_HeaderFile
 #define _IntPatch_TheSearchInside_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntSurf_SequenceOfInteriorPoint.hxx>
 
-class Adaptor3d_HSurfaceTool;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_HSurfaceTool;
+class GeomAdaptor_TopolTool;
 class IntPatch_HInterTool;
 class IntPatch_TheSurfFunction;
 
@@ -33,17 +33,17 @@ public:
   Standard_EXPORT IntPatch_TheSearchInside();
 
   Standard_EXPORT IntPatch_TheSearchInside(IntPatch_TheSurfFunction&          F,
-                                           const Handle(Adaptor3d_Surface)&   Surf,
-                                           const Handle(Adaptor3d_TopolTool)& T,
+                                           const Handle(GeomAdaptor_Surface)&   Surf,
+                                           const Handle(GeomAdaptor_TopolTool)& T,
                                            const Standard_Real                Epsilon);
 
   Standard_EXPORT void Perform(IntPatch_TheSurfFunction&          F,
-                               const Handle(Adaptor3d_Surface)&   Surf,
-                               const Handle(Adaptor3d_TopolTool)& T,
+                               const Handle(GeomAdaptor_Surface)&   Surf,
+                               const Handle(GeomAdaptor_TopolTool)& T,
                                const Standard_Real                Epsilon);
 
   Standard_EXPORT void Perform(IntPatch_TheSurfFunction&        F,
-                               const Handle(Adaptor3d_Surface)& Surf,
+                               const Handle(GeomAdaptor_Surface)& Surf,
                                const Standard_Real              UStart,
                                const Standard_Real              VStart);
 
@@ -67,13 +67,13 @@ private:
   IntSurf_SequenceOfInteriorPoint list;
 };
 
-#define ThePSurface Handle(Adaptor3d_Surface)
-#define ThePSurface_hxx <Adaptor3d_Surface.hxx>
-#define ThePSurfaceTool Adaptor3d_HSurfaceTool
-#define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
-#define Handle_TheTopolTool Handle(Adaptor3d_TopolTool)
-#define TheTopolTool Adaptor3d_TopolTool
-#define TheTopolTool_hxx <Adaptor3d_TopolTool.hxx>
+#define ThePSurface Handle(GeomAdaptor_Surface)
+#define ThePSurface_hxx <GeomAdaptor_Surface.hxx>
+#define ThePSurfaceTool GeomAdaptor_HSurfaceTool
+#define ThePSurfaceTool_hxx <GeomAdaptor_HSurfaceTool.hxx>
+#define Handle_TheTopolTool Handle(GeomAdaptor_TopolTool)
+#define TheTopolTool GeomAdaptor_TopolTool
+#define TheTopolTool_hxx <GeomAdaptor_TopolTool.hxx>
 #define TheSITool IntPatch_HInterTool
 #define TheSITool_hxx <IntPatch_HInterTool.hxx>
 #define TheFunction IntPatch_TheSurfFunction

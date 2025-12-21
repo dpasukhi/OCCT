@@ -13,15 +13,15 @@
 
 #include <BRepLib_ValidateEdge.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRepCheck.hxx>
 #include <Extrema_LocateExtPC.hxx>
 #include <GeomLib_CheckCurveOnSurface.hxx>
 
 //=================================================================================================
 
-BRepLib_ValidateEdge::BRepLib_ValidateEdge(Handle(Adaptor3d_Curve)          theReferenceCurve,
-                                           Handle(Adaptor3d_CurveOnSurface) theOtherCurve,
+BRepLib_ValidateEdge::BRepLib_ValidateEdge(Handle(GeomAdaptor_Curve)          theReferenceCurve,
+                                           Handle(GeomAdaptor_CurveOnSurface) theOtherCurve,
                                            Standard_Boolean                 theSameParameter)
     : myReferenceCurve(theReferenceCurve),
       myOtherCurve(theOtherCurve),
@@ -66,7 +66,7 @@ void BRepLib_ValidateEdge::UpdateTolerance(Standard_Real& theToleranceToUpdate)
 
 Standard_Real BRepLib_ValidateEdge::correctTolerance(Standard_Real theTolerance)
 {
-  const Handle(Adaptor3d_Surface)& aSurface          = myOtherCurve->GetSurface();
+  const Handle(GeomAdaptor_Surface)& aSurface          = myOtherCurve->GetSurface();
   Standard_Real                    aCurvePrecision   = BRepCheck::PrecCurve(*myReferenceCurve);
   Standard_Real                    aSurfacePrecision = BRepCheck::PrecSurface(aSurface);
   Standard_Real                    aToleranceDelta =

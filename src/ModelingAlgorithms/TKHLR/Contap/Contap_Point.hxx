@@ -24,7 +24,7 @@
 #include <gp_Pnt.hxx>
 #include <IntSurf_Transition.hxx>
 
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 
 //! Definition of a vertex on the contour line.
 //! Most of the time, such a point is an intersection
@@ -52,11 +52,11 @@ public:
   //! Sets the values of a point which is a vertex on
   //! the initial facet of restriction of one
   //! of the surface.
-  void SetVertex(const Handle(Adaptor3d_HVertex)& V);
+  void SetVertex(const Handle(GeomAdaptor_HVertex)& V);
 
   //! Sets the value of the arc and of the parameter on
   //! this arc of the point.
-  void SetArc(const Handle(Adaptor2d_Curve2d)& A,
+  void SetArc(const Handle(Geom2dAdaptor_Curve)& A,
               const Standard_Real              Param,
               const IntSurf_Transition&        TLine,
               const IntSurf_Transition&        TArc);
@@ -83,7 +83,7 @@ public:
 
   //! Returns the arc of restriction containing the
   //! vertex.
-  const Handle(Adaptor2d_Curve2d)& Arc() const;
+  const Handle(Geom2dAdaptor_Curve)& Arc() const;
 
   //! Returns the parameter of the point on the
   //! arc returned by the method Arc().
@@ -103,7 +103,7 @@ public:
   //! on the domain of the patch, i-e when the function
   //! IsVertex returns True.
   //! Otherwise, an exception is raised.
-  const Handle(Adaptor3d_HVertex)& Vertex() const;
+  const Handle(GeomAdaptor_HVertex)& Vertex() const;
 
   //! Returns True if the point belongs to several
   //! lines.
@@ -121,12 +121,12 @@ private:
   Standard_Real             vparam;
   Standard_Real             paraline;
   Standard_Boolean          onarc;
-  Handle(Adaptor2d_Curve2d) arc;
+  Handle(Geom2dAdaptor_Curve) arc;
   IntSurf_Transition        traline;
   IntSurf_Transition        traarc;
   Standard_Real             prmarc;
   Standard_Boolean          isvtx;
-  Handle(Adaptor3d_HVertex) vtx;
+  Handle(GeomAdaptor_HVertex) vtx;
   Standard_Boolean          ismult;
   Standard_Boolean          myInternal;
 };

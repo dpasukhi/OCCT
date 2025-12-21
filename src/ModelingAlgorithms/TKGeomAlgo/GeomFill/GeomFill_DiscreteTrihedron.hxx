@@ -25,6 +25,8 @@
 #include <Standard_Integer.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
+
+class GeomAdaptor_Curve;
 class GeomFill_Frenet;
 class gp_Vec;
 
@@ -47,7 +49,7 @@ public:
 
   //! initialize curve of trihedron law
   //! @return Standard_True in case if execution end correctly
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C)
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   //! compute Trihedron on curve at parameter <Param>

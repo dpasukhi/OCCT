@@ -170,7 +170,7 @@ static Standard_Boolean GoodOrientation(const Bnd_Box&                      B,
   Nb++; // Number of points
 
   TColgp_Array1OfPnt      Pnts(1, Nb);
-  Handle(Adaptor3d_Curve) AC;
+  Handle(GeomAdaptor_Curve) AC;
   gp_XYZ                  Bary(0., 0., 0.);
 
   for (ii = 1; ii <= Nb; ii++)

@@ -16,7 +16,7 @@
 
 #include <Law.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BSplCLib.hxx>
 #include <gp_Pnt.hxx>
 #include <Law_BSpFunc.hxx>
@@ -155,7 +155,7 @@ Handle(TColStd_HArray1OfReal) Law::MixTgt(const Standard_Integer         Degree,
   return res;
 }
 
-Handle(Law_BSpline) Law::Reparametrize(const Adaptor3d_Curve& Curve,
+Handle(Law_BSpline) Law::Reparametrize(const GeomAdaptor_Curve& Curve,
                                        const Standard_Real    First,
                                        const Standard_Real    Last,
                                        const Standard_Boolean HasDF,

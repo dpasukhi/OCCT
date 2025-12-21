@@ -44,7 +44,7 @@
 //! The function F(u,v)=distance(C1(u),C2(v)) has an extremum when gradient(f)=0.
 //! The algorithm uses Evtushenko's global optimization solver.
 //!
-//! @tparam TheCurve1 Type of the first curve (e.g., Adaptor3d_Curve)
+//! @tparam TheCurve1 Type of the first curve (e.g., GeomAdaptor_Curve)
 //! @tparam TheCurveTool1 Tool class for the first curve
 //! @tparam TheCurve2 Type of the second curve
 //! @tparam TheCurveTool2 Tool class for the second curve

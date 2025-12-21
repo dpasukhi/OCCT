@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_OffsetCurve.hxx>
+#include <Geom2dAdaptor_OffsetCurve.hxx>
 #include <Geom2d_CartesianPoint.hxx>
 #include <Geom2d_Geometry.hxx>
 #include <Geom2d_TrimmedCurve.hxx>
@@ -281,8 +281,8 @@ Standard_Boolean MAT2d_Circuit::IsSharpCorner(const Handle(Geom2d_Geometry)& Geo
 
     Handle(Geom2dAdaptor_Curve) HC1 = new Geom2dAdaptor_Curve(C1);
     Handle(Geom2dAdaptor_Curve) HC2 = new Geom2dAdaptor_Curve(C2);
-    Adaptor2d_OffsetCurve       OC1(HC1, D, MilC1, C1->LastParameter());
-    Adaptor2d_OffsetCurve       OC2(HC2, D, C2->FirstParameter(), MilC2);
+    Geom2dAdaptor_OffsetCurve       OC1(HC1, D, MilC1, C1->LastParameter());
+    Geom2dAdaptor_OffsetCurve       OC2(HC2, D, C2->FirstParameter(), MilC2);
     Geom2dInt_GInter            Intersect;
     Intersect.Perform(OC1, OC2, Tol, Tol);
 

@@ -16,9 +16,9 @@
 
 #include <IntCurveSurface_TheQuadCurvExactHInter.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntCurveSurface_TheHCurveTool.hxx>
 #include <IntCurveSurface_TheQuadCurvFuncOfTheQuadCurvExactHInter.hxx>
 
@@ -27,15 +27,15 @@
 //==================================================================================================
 
 IntCurveSurface_TheQuadCurvExactHInter::IntCurveSurface_TheQuadCurvExactHInter(
-  const Handle(Adaptor3d_Surface)& S,
-  const Handle(Adaptor3d_Curve)&   C)
+  const Handle(GeomAdaptor_Surface)& S,
+  const Handle(GeomAdaptor_Curve)&   C)
     : nbpnts(-1),
       nbintv(-1)
 {
   IntCurveSurface_QuadricCurveExactInterUtils::PerformIntersection<
-    Handle(Adaptor3d_Surface),
-    Adaptor3d_HSurfaceTool,
-    Handle(Adaptor3d_Curve),
+    Handle(GeomAdaptor_Surface),
+    GeomAdaptor_HSurfaceTool,
+    Handle(GeomAdaptor_Curve),
     IntCurveSurface_TheHCurveTool,
     IntCurveSurface_TheQuadCurvFuncOfTheQuadCurvExactHInter>(S, C, pnts, intv, nbpnts, nbintv);
 }

@@ -17,12 +17,12 @@
 #ifndef _IntPatch_ImpImpIntersection_HeaderFile
 #define _IntPatch_ImpImpIntersection_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntPatch_SequenceOfPoint.hxx>
 #include <IntPatch_SequenceOfLine.hxx>
 #include <IntPatch_TheSOnBounds.hxx>
 
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 //! Implementation of the intersection between two
 //! quadric patches : Plane, Cone, Cylinder or Sphere.
@@ -56,10 +56,10 @@ public:
   //! IntPatch_Line (not restriction) we (in case of theIsReqToKeepRLine==TRUE)
   //! will always keep both lines even if they are coincided.
   Standard_EXPORT IntPatch_ImpImpIntersection(
-    const Handle(Adaptor3d_Surface)&   S1,
-    const Handle(Adaptor3d_TopolTool)& D1,
-    const Handle(Adaptor3d_Surface)&   S2,
-    const Handle(Adaptor3d_TopolTool)& D2,
+    const Handle(GeomAdaptor_Surface)&   S1,
+    const Handle(GeomAdaptor_TopolTool)& D1,
+    const Handle(GeomAdaptor_Surface)&   S2,
+    const Handle(GeomAdaptor_TopolTool)& D2,
     const Standard_Real                TolArc,
     const Standard_Real                TolTang,
     const Standard_Boolean             theIsReqToKeepRLine = Standard_False);
@@ -70,10 +70,10 @@ public:
   //! When intersection result returns IntPatch_RLine and another
   //! IntPatch_Line (not restriction) we (in case of theIsReqToKeepRLine==TRUE)
   //! will always keep both lines even if they are coincided.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   S1,
-                               const Handle(Adaptor3d_TopolTool)& D1,
-                               const Handle(Adaptor3d_Surface)&   S2,
-                               const Handle(Adaptor3d_TopolTool)& D2,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   S1,
+                               const Handle(GeomAdaptor_TopolTool)& D1,
+                               const Handle(GeomAdaptor_Surface)&   S2,
+                               const Handle(GeomAdaptor_TopolTool)& D2,
                                const Standard_Real                TolArc,
                                const Standard_Real                TolTang,
                                const Standard_Boolean theIsReqToKeepRLine = Standard_False);

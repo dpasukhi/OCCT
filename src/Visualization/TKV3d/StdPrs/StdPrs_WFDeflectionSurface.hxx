@@ -17,7 +17,7 @@
 #ifndef _StdPrs_WFDeflectionSurface_HeaderFile
 #define _StdPrs_WFDeflectionSurface_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Prs3d_Root.hxx>
 #include <Prs3d_Drawer.hxx>
 
@@ -40,7 +40,7 @@ public:
   //! This makes it possible to use the surface in a geometric algorithm.
   //! Note that this surface object is manipulated by handles.
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Handle(Adaptor3d_Surface)&  aSurface,
+                                  const Handle(GeomAdaptor_Surface)&  aSurface,
                                   const Handle(Prs3d_Drawer)&       aDrawer);
 
 protected:

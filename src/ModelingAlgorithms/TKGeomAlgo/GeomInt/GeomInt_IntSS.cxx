@@ -16,7 +16,7 @@
 
 #include <GeomInt_IntSS.hxx>
 
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <Extrema_ExtPS.hxx>
 
@@ -84,11 +84,11 @@ void GeomInt_IntSS::InternalPerform(const Standard_Real    Tol,
     Deflection /= 10.;
   }
 
-  Handle(Adaptor3d_TopolTool) dom1 = new Adaptor3d_TopolTool(myHS1);
-  Handle(Adaptor3d_TopolTool) dom2 = new Adaptor3d_TopolTool(myHS2);
+  Handle(GeomAdaptor_TopolTool) dom1 = new GeomAdaptor_TopolTool(myHS1);
+  Handle(GeomAdaptor_TopolTool) dom2 = new GeomAdaptor_TopolTool(myHS2);
 
-  NCollection_Vector<Handle(Adaptor3d_Surface)> aVecHS1;
-  NCollection_Vector<Handle(Adaptor3d_Surface)> aVecHS2;
+  NCollection_Vector<Handle(GeomAdaptor_Surface)> aVecHS1;
+  NCollection_Vector<Handle(GeomAdaptor_Surface)> aVecHS2;
 
   if (myHS1 == myHS2)
   {
@@ -102,14 +102,14 @@ void GeomInt_IntSS::InternalPerform(const Standard_Real    Tol,
 
   for (Standard_Integer aNumOfHS1 = 0; aNumOfHS1 < aVecHS1.Length(); aNumOfHS1++)
   {
-    const Handle(Adaptor3d_Surface)& aHS1 = aVecHS1.Value(aNumOfHS1);
+    const Handle(GeomAdaptor_Surface)& aHS1 = aVecHS1.Value(aNumOfHS1);
 
     for (Standard_Integer aNumOfHS2 = 0; aNumOfHS2 < aVecHS2.Length(); aNumOfHS2++)
     {
-      const Handle(Adaptor3d_Surface)& aHS2 = aVecHS2.Value(aNumOfHS2);
+      const Handle(GeomAdaptor_Surface)& aHS2 = aVecHS2.Value(aNumOfHS2);
 
-      Handle(Adaptor3d_TopolTool) aDom1 = new Adaptor3d_TopolTool(aHS1);
-      Handle(Adaptor3d_TopolTool) aDom2 = new Adaptor3d_TopolTool(aHS2);
+      Handle(GeomAdaptor_TopolTool) aDom1 = new GeomAdaptor_TopolTool(aHS1);
+      Handle(GeomAdaptor_TopolTool) aDom2 = new GeomAdaptor_TopolTool(aHS2);
 
       myLConstruct.Load(aDom1,
                         aDom2,

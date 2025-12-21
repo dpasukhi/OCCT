@@ -18,6 +18,8 @@
   #define No_Exception
 #endif
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <HLRBRep_VertexList.hxx>
 #include <Standard_DomainError.hxx>
 #include <Standard_NoMoreObject.hxx>

@@ -14,6 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_Corde.hxx>
 #include <ElCLib.hxx>
@@ -27,8 +29,8 @@
 
 //=================================================================================================
 
-BlendFunc_Corde::BlendFunc_Corde(const Handle(Adaptor3d_Surface)& S,
-                                 const Handle(Adaptor3d_Curve)&   CG)
+BlendFunc_Corde::BlendFunc_Corde(const Handle(GeomAdaptor_Surface)& S,
+                                 const Handle(GeomAdaptor_Curve)&   CG)
     : surf(S),
       guide(CG),
       dis(0.0),

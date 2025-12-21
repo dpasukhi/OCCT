@@ -16,6 +16,7 @@
 
 //  Modified by skv - Fri Jun 18 12:52:54 2004 OCC6129
 
+#include <GeomAdaptor_Curve.hxx>
 #include <AdvApprox_ApproxAFunction.hxx>
 #include <BSplCLib.hxx>
 #include <Geom_BSplineSurface.hxx>

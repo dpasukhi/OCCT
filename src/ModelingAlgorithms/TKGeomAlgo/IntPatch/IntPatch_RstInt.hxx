@@ -17,10 +17,10 @@
 #ifndef _IntPatch_RstInt_HeaderFile
 #define _IntPatch_RstInt_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 class IntPatch_Line;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 //! trouver les points d intersection entre la ligne de
 //! cheminement et les arcs de restriction
@@ -30,9 +30,9 @@ public:
   DEFINE_STANDARD_ALLOC
 
   Standard_EXPORT static void PutVertexOnLine(const Handle(IntPatch_Line)&       L,
-                                              const Handle(Adaptor3d_Surface)&   Surf,
-                                              const Handle(Adaptor3d_TopolTool)& Domain,
-                                              const Handle(Adaptor3d_Surface)&   OtherSurf,
+                                              const Handle(GeomAdaptor_Surface)&   Surf,
+                                              const Handle(GeomAdaptor_TopolTool)& Domain,
+                                              const Handle(GeomAdaptor_Surface)&   OtherSurf,
                                               const Standard_Boolean             OnFirst,
                                               const Standard_Real                Tol);
 };

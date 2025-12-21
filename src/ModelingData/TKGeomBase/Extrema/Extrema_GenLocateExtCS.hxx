@@ -17,13 +17,13 @@
 #ifndef _Extrema_GenLocateExtCS_HeaderFile
 #define _Extrema_GenLocateExtCS_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 
 #include <Extrema_POnCurv.hxx>
 #include <Extrema_POnSurf.hxx>
-class Adaptor3d_Curve;
-class Adaptor3d_Surface;
 
 //! With two close points it calculates the distance
 //! between two surfaces.
@@ -41,16 +41,16 @@ public:
   //! The function F(t,u,v)=distance(C(t),S(u,v))
   //! has an extremun when gradient(F)=0. The algorithm searches
   //! a zero near the close points.
-  Standard_EXPORT Extrema_GenLocateExtCS(const Adaptor3d_Curve&   C,
-                                         const Adaptor3d_Surface& S,
+  Standard_EXPORT Extrema_GenLocateExtCS(const GeomAdaptor_Curve&   C,
+                                         const GeomAdaptor_Surface& S,
                                          const Standard_Real      T,
                                          const Standard_Real      U,
                                          const Standard_Real      V,
                                          const Standard_Real      Tol1,
                                          const Standard_Real      Tol2);
 
-  Standard_EXPORT void Perform(const Adaptor3d_Curve&   C,
-                               const Adaptor3d_Surface& S,
+  Standard_EXPORT void Perform(const GeomAdaptor_Curve&   C,
+                               const GeomAdaptor_Surface& S,
                                const Standard_Real      T,
                                const Standard_Real      U,
                                const Standard_Real      V,

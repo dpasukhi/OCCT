@@ -18,18 +18,18 @@
 #include <IntSurf_LineOn2S.hxx>
 #include <IntPatch_Point.hxx>
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_RLine::ArcOnS1() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_RLine::ArcOnS1() const
 {
   return theArcOnS1;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_RLine::ArcOnS2() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_RLine::ArcOnS2() const
 {
   return theArcOnS2;
 }
 
-//-- Il faut mettre cet include ici , car l include fait un define Handle(Adaptor2d_Curve2d) ...
-//-- et en fin de fichier un undef Handle(Adaptor2d_Curve2d) ...
+//-- Il faut mettre cet include ici , car l include fait un define Handle(Geom2dAdaptor_Curve) ...
+//-- et en fin de fichier un undef Handle(Geom2dAdaptor_Curve) ...
 
 inline void IntPatch_RLine::AddVertex(const IntPatch_Point&  thePnt,
                                       const Standard_Boolean theIsPrepend)

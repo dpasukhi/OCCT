@@ -17,6 +17,7 @@
 #ifndef _BRepLib_HeaderFile
 #define _BRepLib_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -31,7 +32,6 @@
 #include <NCollection_List.hxx>
 
 class Geom2d_Curve;
-class Adaptor3d_Curve;
 class Geom_Plane;
 class TopoDS_Shape;
 class TopoDS_Solid;
@@ -295,7 +295,7 @@ public:
   //! finds a range of curve between vertices not covered by vertices tolerances.
   //! Returns false if there is no such range. Otherwise, sets theFirst and
   //! theLast as its bounds.
-  Standard_EXPORT static Standard_Boolean FindValidRange(const Adaptor3d_Curve& theCurve,
+  Standard_EXPORT static Standard_Boolean FindValidRange(const GeomAdaptor_Curve& theCurve,
                                                          const Standard_Real    theTolE,
                                                          const Standard_Real    theParV1,
                                                          const gp_Pnt&          thePntV1,

@@ -16,7 +16,7 @@
 
 #include <IntPatch_ALineToWLine.hxx>
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ElSLib.hxx>
 #include <IntPatch_ALine.hxx>
 #include <IntPatch_Point.hxx>
@@ -67,8 +67,8 @@ static void AddVertexPoint(Handle(IntSurf_LineOn2S)&  theLine,
 //           theSingularSurfaceID contains the ID of surface with
 //            special point (0 - none, 1 - theS1, 2 - theS2)
 //=======================================================================
-static IntPatch_SpecPntType IsPoleOrSeam(const Handle(Adaptor3d_Surface)& theS1,
-                                         const Handle(Adaptor3d_Surface)& theS2,
+static IntPatch_SpecPntType IsPoleOrSeam(const Handle(GeomAdaptor_Surface)& theS1,
+                                         const Handle(GeomAdaptor_Surface)& theS2,
                                          const IntSurf_PntOn2S&           thePIsoRef,
                                          Handle(IntSurf_LineOn2S)&        theLine,
                                          IntPatch_Point&                  theVertex,
@@ -140,8 +140,8 @@ static IntPatch_SpecPntType IsPoleOrSeam(const Handle(Adaptor3d_Surface)& theS1,
 
 //=================================================================================================
 
-IntPatch_ALineToWLine::IntPatch_ALineToWLine(const Handle(Adaptor3d_Surface)& theS1,
-                                             const Handle(Adaptor3d_Surface)& theS2,
+IntPatch_ALineToWLine::IntPatch_ALineToWLine(const Handle(GeomAdaptor_Surface)& theS1,
+                                             const Handle(GeomAdaptor_Surface)& theS2,
                                              const Standard_Integer           theNbPoints)
     : myS1(theS1),
       myS2(theS2),

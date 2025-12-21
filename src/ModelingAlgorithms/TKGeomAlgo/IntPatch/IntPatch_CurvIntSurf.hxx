@@ -19,7 +19,7 @@
 
 #include <IntPatch_CSFunction.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class IntPatch_HCurve2dTool;
 class math_FunctionSetRoot;
 

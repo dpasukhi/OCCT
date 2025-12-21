@@ -16,7 +16,7 @@
 
 #include <IntPolyh_Intersection.hxx>
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 #include <IntPolyh_Couple.hxx>
 #include <IntPolyh_MaillageAffinage.hxx>
@@ -31,8 +31,8 @@ static Standard_Integer ComputeIntersection(IntPolyh_PMaillageAffinage& theMaill
 
 //=================================================================================================
 
-IntPolyh_Intersection::IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& theS1,
-                                             const Handle(Adaptor3d_Surface)& theS2)
+IntPolyh_Intersection::IntPolyh_Intersection(const Handle(GeomAdaptor_Surface)& theS1,
+                                             const Handle(GeomAdaptor_Surface)& theS2)
 {
   mySurf1      = theS1;
   mySurf2      = theS2;
@@ -49,10 +49,10 @@ IntPolyh_Intersection::IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& th
 
 //=================================================================================================
 
-IntPolyh_Intersection::IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& theS1,
+IntPolyh_Intersection::IntPolyh_Intersection(const Handle(GeomAdaptor_Surface)& theS1,
                                              const Standard_Integer           theNbSU1,
                                              const Standard_Integer           theNbSV1,
-                                             const Handle(Adaptor3d_Surface)& theS2,
+                                             const Handle(GeomAdaptor_Surface)& theS2,
                                              const Standard_Integer           theNbSU2,
                                              const Standard_Integer           theNbSV2)
 {
@@ -71,10 +71,10 @@ IntPolyh_Intersection::IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& th
 
 //=================================================================================================
 
-IntPolyh_Intersection::IntPolyh_Intersection(const Handle(Adaptor3d_Surface)& theS1,
+IntPolyh_Intersection::IntPolyh_Intersection(const Handle(GeomAdaptor_Surface)& theS1,
                                              const TColStd_Array1OfReal&      theUPars1,
                                              const TColStd_Array1OfReal&      theVPars1,
-                                             const Handle(Adaptor3d_Surface)& theS2,
+                                             const Handle(GeomAdaptor_Surface)& theS2,
                                              const TColStd_Array1OfReal&      theUPars2,
                                              const TColStd_Array1OfReal&      theVPars2)
 {

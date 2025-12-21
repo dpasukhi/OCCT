@@ -16,7 +16,7 @@
 
 #include <GeomFill_CurveAndTrihedron.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_LocationLaw.hxx>
 #include <GeomFill_TrihedronLaw.hxx>
 #include <GeomLib.hxx>
@@ -55,14 +55,14 @@ Handle(GeomFill_LocationLaw) GeomFill_CurveAndTrihedron::Copy() const
 
 //=================================================================================================
 
-Standard_Boolean GeomFill_CurveAndTrihedron::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_CurveAndTrihedron::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   myCurve   = C;
   myTrimmed = C;
   return myLaw->SetCurve(C);
 }
 
-const Handle(Adaptor3d_Curve)& GeomFill_CurveAndTrihedron::GetCurve() const
+const Handle(GeomAdaptor_Curve)& GeomFill_CurveAndTrihedron::GetCurve() const
 {
   return myCurve;
 }

@@ -17,7 +17,6 @@
 #ifndef _BlendFunc_EvolRad_HeaderFile
 #define _BlendFunc_EvolRad_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Vec2d.hxx>
@@ -34,6 +33,8 @@
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_Array1OfVec2d.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class Law_Function;
 class gp_Circ;
 class Blend_Point;
@@ -43,9 +44,9 @@ class BlendFunc_EvolRad : public Blend_Function
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_EvolRad(const Handle(Adaptor3d_Surface)& S1,
-                                    const Handle(Adaptor3d_Surface)& S2,
-                                    const Handle(Adaptor3d_Curve)&   C,
+  Standard_EXPORT BlendFunc_EvolRad(const Handle(GeomAdaptor_Surface)& S1,
+                                    const Handle(GeomAdaptor_Surface)& S2,
+                                    const Handle(GeomAdaptor_Curve)&   C,
                                     const Handle(Law_Function)&      Law);
 
   //! returns the number of equations of the function.
@@ -218,10 +219,10 @@ private:
                                                  const Standard_Boolean ByParam = Standard_False,
                                                  const Standard_Real    Param   = 0);
 
-  Handle(Adaptor3d_Surface)    surf1;
-  Handle(Adaptor3d_Surface)    surf2;
-  Handle(Adaptor3d_Curve)      curv;
-  Handle(Adaptor3d_Curve)      tcurv;
+  Handle(GeomAdaptor_Surface)    surf1;
+  Handle(GeomAdaptor_Surface)    surf2;
+  Handle(GeomAdaptor_Curve)      curv;
+  Handle(GeomAdaptor_Curve)      tcurv;
   Handle(Law_Function)         fevol;
   Handle(Law_Function)         tevol;
   gp_Pnt                       pts1;

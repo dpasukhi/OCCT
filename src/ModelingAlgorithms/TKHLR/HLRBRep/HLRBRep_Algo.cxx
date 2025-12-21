@@ -16,6 +16,8 @@
 
 #define No_Standard_OutOfRange
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <HLRBRep_Algo.hxx>
 #include <HLRBRep_ShapeBounds.hxx>
 #include <HLRTopoBRep_OutLiner.hxx>

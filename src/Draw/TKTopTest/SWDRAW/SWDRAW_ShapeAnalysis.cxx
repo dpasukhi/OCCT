@@ -58,7 +58,7 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
 #include <TopTools_HSequenceOfShape.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRepAdaptor_Curve2d.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <Geom_Plane.hxx>
@@ -390,8 +390,8 @@ static Standard_Integer projpcurve(Draw_Interpretor& di, Standard_Integer argc, 
     IsStartPoint = Standard_True;
   }
 
-  Adaptor3d_CurveOnSurface aCOnS =
-    Adaptor3d_CurveOnSurface(new BRepAdaptor_Curve2d(BRepAdaptor_Curve2d(aEdge, aFace)),
+  GeomAdaptor_CurveOnSurface aCOnS =
+    GeomAdaptor_CurveOnSurface(new BRepAdaptor_Curve2d(BRepAdaptor_Curve2d(aEdge, aFace)),
                              new BRepAdaptor_Surface(BRepAdaptor_Surface(aFace, Standard_False)));
 
   gp_Pnt              aPnt;

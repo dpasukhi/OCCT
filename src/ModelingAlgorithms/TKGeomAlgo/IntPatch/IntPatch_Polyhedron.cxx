@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <gp_XYZ.hxx>
@@ -30,7 +30,7 @@
 #define NBMAXUV 30
 
 //================================================================================
-static Standard_Integer NbPOnU(const Handle(Adaptor3d_Surface)& S)
+static Standard_Integer NbPOnU(const Handle(GeomAdaptor_Surface)& S)
 {
   const Standard_Real    u0   = S->FirstUParameter();
   const Standard_Real    u1   = S->LastUParameter();
@@ -39,7 +39,7 @@ static Standard_Integer NbPOnU(const Handle(Adaptor3d_Surface)& S)
 }
 
 //================================================================================
-static Standard_Integer NbPOnV(const Handle(Adaptor3d_Surface)& S)
+static Standard_Integer NbPOnV(const Handle(GeomAdaptor_Surface)& S)
 {
   const Standard_Real    v0   = S->FirstVParameter();
   const Standard_Real    v1   = S->LastVParameter();
@@ -65,7 +65,7 @@ void IntPatch_Polyhedron::Destroy()
 
 //=================================================================================================
 
-IntPatch_Polyhedron::IntPatch_Polyhedron(const Handle(Adaptor3d_Surface)& Surface)
+IntPatch_Polyhedron::IntPatch_Polyhedron(const Handle(GeomAdaptor_Surface)& Surface)
     : TheDeflection(Epsilon(100.)),
       nbdeltaU(NbPOnU(Surface)),
       nbdeltaV(NbPOnV(Surface)),
@@ -126,7 +126,7 @@ IntPatch_Polyhedron::IntPatch_Polyhedron(const Handle(Adaptor3d_Surface)& Surfac
 
 //=================================================================================================
 
-IntPatch_Polyhedron::IntPatch_Polyhedron(const Handle(Adaptor3d_Surface)& Surface,
+IntPatch_Polyhedron::IntPatch_Polyhedron(const Handle(GeomAdaptor_Surface)& Surface,
                                          const Standard_Integer           nbu,
                                          const Standard_Integer           nbv)
     : TheDeflection(Epsilon(100.)),
@@ -189,7 +189,7 @@ IntPatch_Polyhedron::IntPatch_Polyhedron(const Handle(Adaptor3d_Surface)& Surfac
 
 //=================================================================================================
 
-Standard_Real IntPatch_Polyhedron::DeflectionOnTriangle(const Handle(Adaptor3d_Surface)& Surface,
+Standard_Real IntPatch_Polyhedron::DeflectionOnTriangle(const Handle(GeomAdaptor_Surface)& Surface,
                                                         const Standard_Integer Triang) const
 {
   Standard_Integer i1, i2, i3;

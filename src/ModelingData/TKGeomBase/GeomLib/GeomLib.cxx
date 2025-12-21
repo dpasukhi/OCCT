@@ -43,9 +43,9 @@
 
 #include <GeomLib.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <AdvApprox_PrefAndRec.hxx>
 #include <CSLib.hxx>
 #include <CSLib_NormalStatus.hxx>
@@ -473,8 +473,8 @@ void GeomLib::FuseIntervals(const TColStd_Array1OfReal& I1,
 
 //=================================================================================================
 
-void GeomLib::EvalMaxParametricDistance(const Adaptor3d_Curve& ACurve,
-                                        const Adaptor3d_Curve& AReferenceCurve,
+void GeomLib::EvalMaxParametricDistance(const GeomAdaptor_Curve& ACurve,
+                                        const GeomAdaptor_Curve& AReferenceCurve,
                                         //			       const Standard_Real  Tolerance,
                                         const Standard_Real,
                                         const TColStd_Array1OfReal& Parameters,
@@ -508,8 +508,8 @@ void GeomLib::EvalMaxParametricDistance(const Adaptor3d_Curve& ACurve,
 
 //=================================================================================================
 
-void GeomLib::EvalMaxDistanceAlongParameter(const Adaptor3d_Curve&      ACurve,
-                                            const Adaptor3d_Curve&      AReferenceCurve,
+void GeomLib::EvalMaxDistanceAlongParameter(const GeomAdaptor_Curve&      ACurve,
+                                            const GeomAdaptor_Curve&      AReferenceCurve,
                                             const Standard_Real         Tolerance,
                                             const TColStd_Array1OfReal& Parameters,
                                             Standard_Real&              MaxDistance)
@@ -997,7 +997,7 @@ void GeomLib::SameRange(const Standard_Real         Tolerance,
 class GeomLib_CurveOnSurfaceEvaluator : public AdvApprox_EvaluatorFunction
 {
 public:
-  GeomLib_CurveOnSurfaceEvaluator(Adaptor3d_CurveOnSurface& theCurveOnSurface,
+  GeomLib_CurveOnSurfaceEvaluator(GeomAdaptor_CurveOnSurface& theCurveOnSurface,
                                   Standard_Real             theFirst,
                                   Standard_Real             theLast)
       : CurveOnSurface(theCurveOnSurface),
@@ -1014,11 +1014,11 @@ public:
                         Standard_Integer* ErrorCode);
 
 private:
-  Adaptor3d_CurveOnSurface& CurveOnSurface;
+  GeomAdaptor_CurveOnSurface& CurveOnSurface;
   Standard_Real             FirstParam;
   Standard_Real             LastParam;
 
-  Handle(Adaptor3d_Curve) TrimCurve;
+  Handle(GeomAdaptor_Curve) TrimCurve;
 };
 
 void GeomLib_CurveOnSurfaceEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
@@ -1066,7 +1066,7 @@ void GeomLib_CurveOnSurfaceEvaluator::Evaluate(Standard_Integer*, /*Dimension*/
 //=================================================================================================
 
 void GeomLib::BuildCurve3d(const Standard_Real       Tolerance,
-                           Adaptor3d_CurveOnSurface& Curve,
+                           GeomAdaptor_CurveOnSurface& Curve,
                            const Standard_Real       FirstParameter,
                            const Standard_Real       LastParameter,
                            Handle(Geom_Curve)&       NewCurvePtr,
@@ -1110,7 +1110,7 @@ void GeomLib::BuildCurve3d(const Standard_Real       Tolerance,
       return;
     }
 
-    Handle(Adaptor2d_Curve2d) TrimmedC2D =
+    Handle(Geom2dAdaptor_Curve) TrimmedC2D =
       geom_adaptor_curve_ptr->Trim(FirstParameter, LastParameter, Precision::PConfusion());
 
     Standard_Boolean isU, isForward;
@@ -2936,7 +2936,7 @@ static Standard_Boolean CompareWeightPoles(const TColgp_Array1OfPnt&         the
 
 //=================================================================================================
 
-Standard_Boolean GeomLib::isIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
+Standard_Boolean GeomLib::isIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
                                     Standard_Boolean&                theIsU,
                                     Standard_Real&                   theParam,
                                     Standard_Boolean&                theIsForward)
@@ -3014,8 +3014,8 @@ Standard_Boolean GeomLib::isIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
 
 //=================================================================================================
 
-Handle(Geom_Curve) GeomLib::buildC3dOnIsoLine(const Handle(Adaptor2d_Curve2d)& theC2D,
-                                              const Handle(Adaptor3d_Surface)& theSurf,
+Handle(Geom_Curve) GeomLib::buildC3dOnIsoLine(const Handle(Geom2dAdaptor_Curve)& theC2D,
+                                              const Handle(GeomAdaptor_Surface)& theSurf,
                                               const Standard_Real              theFirst,
                                               const Standard_Real              theLast,
                                               const Standard_Real              theTolerance,

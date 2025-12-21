@@ -67,7 +67,7 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 
 #include <GeomAdaptor_Surface.hxx>
 
@@ -83,7 +83,7 @@
 #include <GCPnts_DistFunction.hxx>
 #include <gce_MakeLin.hxx>
 #include <TColStd_Array1OfBoolean.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <TColgp_Array2OfPnt.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <DrawTrSurf_BSplineSurface.hxx>
@@ -828,11 +828,11 @@ static Standard_Integer movelaw(Draw_Interpretor& di, Standard_Integer n, const 
 #include <math_MultipleVarFunction.hxx>
 #include <math_BrentMinimum.hxx>
 
-static Standard_Real CompLocalDev(const Adaptor3d_Curve& theCurve,
+static Standard_Real CompLocalDev(const GeomAdaptor_Curve& theCurve,
                                   const Standard_Real    u1,
                                   const Standard_Real    u2);
 
-static void ComputeDeviation(const Adaptor3d_Curve&           theCurve,
+static void ComputeDeviation(const GeomAdaptor_Curve&           theCurve,
                              const Handle(Geom_BSplineCurve)& thePnts,
                              Standard_Real&                   theDmax,
                              Standard_Real&                   theUfMax,
@@ -864,7 +864,7 @@ static void ComputeDeviation(const Adaptor3d_Curve&           theCurve,
   }
 }
 
-Standard_Real CompLocalDev(const Adaptor3d_Curve& theCurve,
+Standard_Real CompLocalDev(const GeomAdaptor_Curve& theCurve,
                            const Standard_Real    u1,
                            const Standard_Real    u2)
 {
@@ -928,7 +928,7 @@ static Standard_Integer crvpoints(Draw_Interpretor& di, Standard_Integer /*n*/, 
   Standard_Integer i, nbp;
   Standard_Real    defl;
 
-  Handle(Adaptor3d_Curve) aHCurve;
+  Handle(GeomAdaptor_Curve) aHCurve;
   Handle(Geom_Curve)      C = DrawTrSurf::GetCurve(a[2]);
   if (C.IsNull())
   {
@@ -1001,7 +1001,7 @@ static Standard_Integer crvtpoints(Draw_Interpretor& di, Standard_Integer n, con
   Standard_Integer i, nbp, aMinPntsNb = 2;
   Standard_Real    defl, angle = Precision::Angular();
 
-  Handle(Adaptor3d_Curve) aHCurve;
+  Handle(GeomAdaptor_Curve) aHCurve;
   Handle(Geom_Curve)      C = DrawTrSurf::GetCurve(a[2]);
   if (C.IsNull())
   {
@@ -1455,7 +1455,7 @@ static Standard_Integer surfpoints(Draw_Interpretor& /*di*/, Standard_Integer /*
 
   Handle(GeomAdaptor_Surface) AS = new GeomAdaptor_Surface(S);
 
-  Handle(Adaptor3d_TopolTool) aTopTool = new Adaptor3d_TopolTool(AS);
+  Handle(GeomAdaptor_TopolTool) aTopTool = new GeomAdaptor_TopolTool(AS);
 
   aTopTool->SamplePnts(defl, 10, 10);
 

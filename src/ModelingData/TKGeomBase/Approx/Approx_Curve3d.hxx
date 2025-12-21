@@ -17,9 +17,10 @@
 #ifndef _Approx_Curve3d_HeaderFile
 #define _Approx_Curve3d_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Geom_BSplineCurve.hxx>
+
+class GeomAdaptor_Curve;
 
 class Approx_Curve3d
 {
@@ -28,7 +29,7 @@ public:
 
   //! Approximation of a curve with respect of the
   //! required tolerance Tol3D.
-  Standard_EXPORT Approx_Curve3d(const Handle(Adaptor3d_Curve)& Curve,
+  Standard_EXPORT Approx_Curve3d(const Handle(GeomAdaptor_Curve)& Curve,
                                  const Standard_Real            Tol3d,
                                  const GeomAbs_Shape            Order,
                                  const Standard_Integer         MaxSegments,

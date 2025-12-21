@@ -27,7 +27,7 @@
 #include <Standard_Integer.hxx>
 #include <math_Vector.hxx>
 
-class Adaptor3d_Curve;
+class GeomAdaptor_Curve;
 class GeomFill_SectionLaw;
 class Geom_Curve;
 class Geom_Surface;
@@ -41,7 +41,7 @@ public:
   DEFINE_STANDARD_ALLOC
 
   Standard_EXPORT GeomFill_FunctionGuide(const Handle(GeomFill_SectionLaw)& S,
-                                         const Handle(Adaptor3d_Curve)&     Guide,
+                                         const Handle(GeomAdaptor_Curve)&     Guide,
                                          const Standard_Real                ParamOnLaw = 0.0);
 
   Standard_EXPORT void SetParam(const Standard_Real Param,
@@ -105,7 +105,7 @@ private:
                             const gp_XYZ&       DDir,
                             gp_Vec&             DSDT) const;
 
-  Handle(Adaptor3d_Curve)     TheGuide;
+  Handle(GeomAdaptor_Curve)     TheGuide;
   Handle(GeomFill_SectionLaw) TheLaw;
   Standard_Boolean            isconst;
   Handle(Geom_Curve)          TheCurve;

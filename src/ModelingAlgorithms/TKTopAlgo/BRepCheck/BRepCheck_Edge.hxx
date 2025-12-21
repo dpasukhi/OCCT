@@ -17,7 +17,7 @@
 #ifndef _BRepCheck_Edge_HeaderFile
 #define _BRepCheck_Edge_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BRepCheck_Result.hxx>
 #include <BRepCheck_Status.hxx>
 
@@ -67,7 +67,7 @@ public:
 
 private:
   Handle(BRep_CurveRepresentation) myCref;
-  Handle(Adaptor3d_Curve)          myHCurve;
+  Handle(GeomAdaptor_Curve)          myHCurve;
   Standard_Boolean                 myGctrl;
   Standard_Boolean                 myIsExactMethod;
 };

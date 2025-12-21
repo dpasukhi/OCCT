@@ -17,12 +17,12 @@
 #ifndef _GeomConvert_ApproxCurve_HeaderFile
 #define _GeomConvert_ApproxCurve_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_OStream.hxx>
 
 class Geom_BSplineCurve;
 class Geom_Curve;
+class GeomAdaptor_Curve;
 
 //! A framework to convert a 3D curve to a 3D BSpline.
 //! This is done by approximation to a BSpline curve within a given tolerance.
@@ -53,7 +53,7 @@ public:
   //! MaxSegments allowed in the resulting BSpline curve, and
   //! -      the highest degree MaxDeg which the
   //! polynomial defining the BSpline curve may have.
-  Standard_EXPORT GeomConvert_ApproxCurve(const Handle(Adaptor3d_Curve)& Curve,
+  Standard_EXPORT GeomConvert_ApproxCurve(const Handle(GeomAdaptor_Curve)& Curve,
                                           const Standard_Real            Tol3d,
                                           const GeomAbs_Shape            Order,
                                           const Standard_Integer         MaxSegments,
@@ -82,7 +82,7 @@ public:
 protected:
 private:
   //! Converts a curve to B-spline
-  Standard_EXPORT void Approximate(const Handle(Adaptor3d_Curve)& theCurve,
+  Standard_EXPORT void Approximate(const Handle(GeomAdaptor_Curve)& theCurve,
                                    const Standard_Real            theTol3d,
                                    const GeomAbs_Shape            theOrder,
                                    const Standard_Integer         theMaxSegments,

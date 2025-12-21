@@ -17,6 +17,7 @@
 #ifndef _Law_HeaderFile
 #define _Law_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -30,7 +31,6 @@
 class Law_BSpFunc;
 class Law_Linear;
 class Law_BSpline;
-class Adaptor3d_Curve;
 
 //! Multiple services concerning 1d functions.
 class Law
@@ -71,7 +71,7 @@ public:
   //! Computes a 1d curve to reparametrize a curve. Its an
   //! interpolation of NbPoints points calculated at quasi
   //! constant abscissa.
-  Standard_EXPORT static Handle(Law_BSpline) Reparametrize(const Adaptor3d_Curve& Curve,
+  Standard_EXPORT static Handle(Law_BSpline) Reparametrize(const GeomAdaptor_Curve& Curve,
                                                            const Standard_Real    First,
                                                            const Standard_Real    Last,
                                                            const Standard_Boolean HasDF,

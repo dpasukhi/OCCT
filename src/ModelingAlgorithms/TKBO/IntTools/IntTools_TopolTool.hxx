@@ -16,18 +16,18 @@
 #ifndef _IntTools_TopolTool_HeaderFile
 #define _IntTools_TopolTool_HeaderFile
 
-#include <Adaptor3d_TopolTool.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 class gp_Pnt2d;
 class gp_Pnt;
 
 class IntTools_TopolTool;
-DEFINE_STANDARD_HANDLE(IntTools_TopolTool, Adaptor3d_TopolTool)
+DEFINE_STANDARD_HANDLE(IntTools_TopolTool, GeomAdaptor_TopolTool)
 
 //! Class redefine methods of TopolTool from Adaptor3d
 //! concerning sample points
-class IntTools_TopolTool : public Adaptor3d_TopolTool
+class IntTools_TopolTool : public GeomAdaptor_TopolTool
 {
 
 public:
@@ -35,7 +35,7 @@ public:
   Standard_EXPORT IntTools_TopolTool();
 
   //! Initializes me by surface
-  Standard_EXPORT IntTools_TopolTool(const Handle(Adaptor3d_Surface)& theSurface);
+  Standard_EXPORT IntTools_TopolTool(const Handle(GeomAdaptor_Surface)& theSurface);
 
   //! Redefined empty initializer
   //!
@@ -44,7 +44,7 @@ public:
   Standard_EXPORT virtual void Initialize() Standard_OVERRIDE;
 
   //! Initializes me by surface
-  Standard_EXPORT virtual void Initialize(const Handle(Adaptor3d_Surface)& theSurface)
+  Standard_EXPORT virtual void Initialize(const Handle(GeomAdaptor_Surface)& theSurface)
     Standard_OVERRIDE;
 
   Standard_EXPORT virtual void ComputeSamplePoints() Standard_OVERRIDE;
@@ -76,7 +76,7 @@ public:
                                           const Standard_Integer theNUmin,
                                           const Standard_Integer theNVmin) Standard_OVERRIDE;
 
-  DEFINE_STANDARD_RTTIEXT(IntTools_TopolTool, Adaptor3d_TopolTool)
+  DEFINE_STANDARD_RTTIEXT(IntTools_TopolTool, GeomAdaptor_TopolTool)
 
 protected:
 private:

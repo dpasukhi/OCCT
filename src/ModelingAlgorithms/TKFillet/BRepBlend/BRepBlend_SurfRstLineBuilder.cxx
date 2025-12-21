@@ -14,8 +14,10 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <Blend_FuncInv.hxx>
 #include <Blend_SurfCurvFuncInv.hxx>
 #include <Blend_SurfPointFuncInv.hxx>
@@ -200,11 +202,11 @@ Standard_Integer BRepBlend_SurfRstLineBuilder::ArcToRecadre(const math_Vector&  
 //=================================================================================================
 
 BRepBlend_SurfRstLineBuilder::BRepBlend_SurfRstLineBuilder(
-  const Handle(Adaptor3d_Surface)&   Surf1,
-  const Handle(Adaptor3d_TopolTool)& Domain1,
-  const Handle(Adaptor3d_Surface)&   Surf2,
-  const Handle(Adaptor2d_Curve2d)&   Rst,
-  const Handle(Adaptor3d_TopolTool)& Domain2)
+  const Handle(GeomAdaptor_Surface)&   Surf1,
+  const Handle(GeomAdaptor_TopolTool)& Domain1,
+  const Handle(GeomAdaptor_Surface)&   Surf2,
+  const Handle(Geom2dAdaptor_Curve)&   Rst,
+  const Handle(GeomAdaptor_TopolTool)& Domain2)
     : done(Standard_False),
       sol(1, 3),
       surf1(Surf1),
@@ -372,9 +374,9 @@ Standard_Boolean BRepBlend_SurfRstLineBuilder::PerformFirstSection(Blend_SurfRst
   Standard_Real             U = 0., V = 0.;
   math_Vector               infbound(1, 3), supbound(1, 3), tolerance(1, 3);
   math_Vector               solinvp(1, 3), solinvrst(1, 4), solinvs(1, 3);
-  Handle(Adaptor3d_HVertex) Vtxp, Vtxrst, Vtxs, Vtxc;
+  Handle(GeomAdaptor_HVertex) Vtxp, Vtxrst, Vtxs, Vtxc;
   Standard_Boolean          IsVtxp = 0, IsVtxrst = 0, IsVtxs = 0;
-  Handle(Adaptor2d_Curve2d) Arc;
+  Handle(Geom2dAdaptor_Curve) Arc;
   wp = wrst = ws = Pmax;
   param          = Pdep;
   Func.Set(param);
@@ -567,10 +569,10 @@ void BRepBlend_SurfRstLineBuilder::InternalPerform(Blend_SurfRstFunction&  Func,
   math_Vector               infbound(1, 3), supbound(1, 3);
   math_Vector               parinit(1, 3), tolerance(1, 3);
   math_Vector               solinvp(1, 3), solinvrst(1, 4), solinvs(1, 3);
-  Handle(Adaptor3d_HVertex) Vtxp, Vtxrst, Vtxs, Vtxc;
+  Handle(GeomAdaptor_HVertex) Vtxp, Vtxrst, Vtxs, Vtxc;
   Standard_Boolean          IsVtxp = 0, IsVtxrst = 0, IsVtxs = 0;
   BRepBlend_Extremity       Extrst, Exts;
-  Handle(Adaptor2d_Curve2d) Arc;
+  Handle(Geom2dAdaptor_Curve) Arc;
 
   // IntSurf_Transition Tline,Tarc;
 
@@ -1002,9 +1004,9 @@ void BRepBlend_SurfRstLineBuilder::InternalPerform(Blend_SurfRstFunction&  Func,
 
 Standard_Boolean BRepBlend_SurfRstLineBuilder::Recadre(Blend_SurfCurvFuncInv&     FinvC,
                                                        math_Vector&               Solinv,
-                                                       Handle(Adaptor2d_Curve2d)& Arc,
+                                                       Handle(Geom2dAdaptor_Curve)& Arc,
                                                        Standard_Boolean&          IsVtx,
-                                                       Handle(Adaptor3d_HVertex)& Vtx)
+                                                       Handle(GeomAdaptor_HVertex)& Vtx)
 {
   Standard_Boolean recadre = Standard_False;
 
@@ -1140,7 +1142,7 @@ Standard_Boolean BRepBlend_SurfRstLineBuilder::Recadre(Blend_SurfRstFunction&   
                                                        Blend_FuncInv&             Finv,
                                                        math_Vector&               Solinv,
                                                        Standard_Boolean&          IsVtx,
-                                                       Handle(Adaptor3d_HVertex)& Vtx)
+                                                       Handle(GeomAdaptor_HVertex)& Vtx)
 {
   math_Vector toler(1, 4), infb(1, 4), supb(1, 4);
   Finv.GetTolerance(toler, tolpoint3d);
@@ -1220,7 +1222,7 @@ Standard_Boolean BRepBlend_SurfRstLineBuilder::Recadre(Blend_SurfRstFunction&   
 Standard_Boolean BRepBlend_SurfRstLineBuilder::Recadre(Blend_SurfPointFuncInv&    FinvP,
                                                        math_Vector&               Solinv,
                                                        Standard_Boolean&          IsVtx,
-                                                       Handle(Adaptor3d_HVertex)& Vtx)
+                                                       Handle(GeomAdaptor_HVertex)& Vtx)
 {
   // Le point.
   gp_Pnt2d      p2drst;
@@ -1288,7 +1290,7 @@ Standard_Boolean BRepBlend_SurfRstLineBuilder::Recadre(Blend_SurfPointFuncInv&  
 //=================================================================================================
 
 void BRepBlend_SurfRstLineBuilder::Transition(const Standard_Boolean           OnFirst,
-                                              const Handle(Adaptor2d_Curve2d)& Arc,
+                                              const Handle(Geom2dAdaptor_Curve)& Arc,
                                               const Standard_Real              Param,
                                               IntSurf_Transition&              TLine,
                                               IntSurf_Transition&              TArc)
@@ -1345,14 +1347,14 @@ void BRepBlend_SurfRstLineBuilder::Transition(const Standard_Boolean           O
 
 void BRepBlend_SurfRstLineBuilder::MakeExtremity(BRepBlend_Extremity&             Extrem,
                                                  const Standard_Boolean           OnFirst,
-                                                 const Handle(Adaptor2d_Curve2d)& Arc,
+                                                 const Handle(Geom2dAdaptor_Curve)& Arc,
                                                  const Standard_Real              Param,
                                                  const Standard_Boolean           IsVtx,
-                                                 const Handle(Adaptor3d_HVertex)& Vtx)
+                                                 const Handle(GeomAdaptor_HVertex)& Vtx)
 {
   IntSurf_Transition          Tline, Tarc;
   Standard_Real               prm;
-  Handle(Adaptor3d_TopolTool) Iter;
+  Handle(GeomAdaptor_TopolTool) Iter;
   if (OnFirst)
   {
     Extrem.SetValue(previousP.PointOnS(), sol(1), sol(2), previousP.Parameter(), tolpoint3d);
@@ -1379,7 +1381,7 @@ void BRepBlend_SurfRstLineBuilder::MakeExtremity(BRepBlend_Extremity&           
     Extrem.SetVertex(Vtx);
     while (Iter->More())
     {
-      Handle(Adaptor2d_Curve2d) arc = Iter->Value();
+      Handle(Geom2dAdaptor_Curve) arc = Iter->Value();
       if (arc != Arc)
       {
         Iter->Initialize(arc);

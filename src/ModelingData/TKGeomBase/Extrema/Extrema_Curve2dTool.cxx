@@ -15,14 +15,14 @@
 // commercial license or contractual agreement.
 
 #include <Extrema_Curve2dTool.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <Precision.hxx>
 #include <GCPnts_TangentialDeflection.hxx>
 
 //=================================================================================================
 
-Handle(TColStd_HArray1OfReal) Extrema_Curve2dTool::DeflCurvIntervals(const Adaptor2d_Curve2d& C)
+Handle(TColStd_HArray1OfReal) Extrema_Curve2dTool::DeflCurvIntervals(const Geom2dAdaptor_Curve& C)
 {
   const Standard_Real           epsd    = 1.e-3;
   const Standard_Real           maxdefl = 1.e3;

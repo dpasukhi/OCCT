@@ -571,7 +571,7 @@ void BOPTools_AlgoTools2D::MakePCurveOnFace(const TopoDS_Face&              aF,
     }
     if (isExtendSurf)
     {
-      Handle(Adaptor3d_Surface) anA3dSurf;
+      Handle(GeomAdaptor_Surface) anA3dSurf;
       Standard_Real             dt = (aBAHS->LastUParameter() - aBAHS->FirstUParameter());
       if (!aBAHS->IsUPeriodic() || std::abs(dt - aBAHS->UPeriod()) > 0.01 * dt)
       {

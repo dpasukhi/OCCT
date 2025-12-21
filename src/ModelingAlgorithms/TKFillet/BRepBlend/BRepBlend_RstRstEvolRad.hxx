@@ -17,8 +17,7 @@
 #ifndef _BRepBlend_RstRstEvolRad_HeaderFile
 #define _BRepBlend_RstRstEvolRad_HeaderFile
 
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -48,11 +47,11 @@ class BRepBlend_RstRstEvolRad : public Blend_RstRstFunction
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BRepBlend_RstRstEvolRad(const Handle(Adaptor3d_Surface)& Surf1,
-                                          const Handle(Adaptor2d_Curve2d)& Rst1,
-                                          const Handle(Adaptor3d_Surface)& Surf2,
-                                          const Handle(Adaptor2d_Curve2d)& Rst2,
-                                          const Handle(Adaptor3d_Curve)&   CGuide,
+  Standard_EXPORT BRepBlend_RstRstEvolRad(const Handle(GeomAdaptor_Surface)& Surf1,
+                                          const Handle(Geom2dAdaptor_Curve)& Rst1,
+                                          const Handle(GeomAdaptor_Surface)& Surf2,
+                                          const Handle(Geom2dAdaptor_Curve)& Rst2,
+                                          const Handle(GeomAdaptor_Curve)&   CGuide,
                                           const Handle(Law_Function)&      Evol);
 
   //! Returns 2.
@@ -82,10 +81,10 @@ public:
                                           math_Vector&       F,
                                           math_Matrix&       D) Standard_OVERRIDE;
 
-  Standard_EXPORT void Set(const Handle(Adaptor3d_Surface)& SurfRef1,
-                           const Handle(Adaptor2d_Curve2d)& RstRef1,
-                           const Handle(Adaptor3d_Surface)& SurfRef2,
-                           const Handle(Adaptor2d_Curve2d)& RstRef2);
+  Standard_EXPORT void Set(const Handle(GeomAdaptor_Surface)& SurfRef1,
+                           const Handle(Geom2dAdaptor_Curve)& RstRef1,
+                           const Handle(GeomAdaptor_Surface)& SurfRef2,
+                           const Handle(Geom2dAdaptor_Curve)& RstRef2);
 
   Standard_EXPORT void Set(const Standard_Real Param) Standard_OVERRIDE;
 
@@ -240,14 +239,14 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface)    surf1;
-  Handle(Adaptor3d_Surface)    surf2;
-  Handle(Adaptor2d_Curve2d)    rst1;
-  Handle(Adaptor2d_Curve2d)    rst2;
-  Adaptor3d_CurveOnSurface     cons1;
-  Adaptor3d_CurveOnSurface     cons2;
-  Handle(Adaptor3d_Curve)      guide;
-  Handle(Adaptor3d_Curve)      tguide;
+  Handle(GeomAdaptor_Surface)    surf1;
+  Handle(GeomAdaptor_Surface)    surf2;
+  Handle(Geom2dAdaptor_Curve)    rst1;
+  Handle(Geom2dAdaptor_Curve)    rst2;
+  GeomAdaptor_CurveOnSurface     cons1;
+  GeomAdaptor_CurveOnSurface     cons2;
+  Handle(GeomAdaptor_Curve)      guide;
+  Handle(GeomAdaptor_Curve)      tguide;
   gp_Pnt                       ptrst1;
   gp_Pnt                       ptrst2;
   gp_Pnt2d                     pt2drst1;
@@ -268,10 +267,10 @@ private:
   gp_Vec                       nplan;
   Standard_Real                normtg;
   Standard_Real                theD;
-  Handle(Adaptor3d_Surface)    surfref1;
-  Handle(Adaptor2d_Curve2d)    rstref1;
-  Handle(Adaptor3d_Surface)    surfref2;
-  Handle(Adaptor2d_Curve2d)    rstref2;
+  Handle(GeomAdaptor_Surface)    surfref1;
+  Handle(Geom2dAdaptor_Curve)    rstref1;
+  Handle(GeomAdaptor_Surface)    surfref2;
+  Handle(Geom2dAdaptor_Curve)    rstref2;
   Standard_Real                maxang;
   Standard_Real                minang;
   Standard_Real                distmin;

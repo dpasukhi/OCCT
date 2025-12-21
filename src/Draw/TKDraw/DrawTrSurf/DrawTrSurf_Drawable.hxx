@@ -20,9 +20,9 @@
 #include <Draw_Drawable3D.hxx>
 #include <GeomAbs_IsoType.hxx>
 
-class Adaptor2d_Curve2d;
-class Adaptor3d_Curve;
-class Adaptor3d_IsoCurve;
+class Geom2dAdaptor_Curve;
+class GeomAdaptor_Curve;
+class GeomAdaptor_IsoCurve;
 
 DEFINE_STANDARD_HANDLE(DrawTrSurf_Drawable, Draw_Drawable3D)
 
@@ -36,14 +36,14 @@ class DrawTrSurf_Drawable : public Draw_Drawable3D
   DEFINE_STANDARD_RTTIEXT(DrawTrSurf_Drawable, Draw_Drawable3D)
 public:
   //! Draw a polygon of the curve on the Display
-  Standard_EXPORT void DrawCurve2dOn(Adaptor2d_Curve2d& C, Draw_Display& D) const;
+  Standard_EXPORT void DrawCurve2dOn(Geom2dAdaptor_Curve& C, Draw_Display& D) const;
 
   //! Draw a polygon of the curve on the Display
-  Standard_EXPORT void DrawCurveOn(Adaptor3d_Curve& C, Draw_Display& D) const;
+  Standard_EXPORT void DrawCurveOn(GeomAdaptor_Curve& C, Draw_Display& D) const;
 
   //! Load C with the specified iso and Draw a polygon
   //! of the curve on the Display
-  Standard_EXPORT void DrawIsoCurveOn(Adaptor3d_IsoCurve&   C,
+  Standard_EXPORT void DrawIsoCurveOn(GeomAdaptor_IsoCurve&   C,
                                       const GeomAbs_IsoType T,
                                       const Standard_Real   P,
                                       const Standard_Real   F,

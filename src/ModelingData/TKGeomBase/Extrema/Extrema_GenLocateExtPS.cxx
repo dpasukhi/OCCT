@@ -61,7 +61,7 @@ static void CorrectTol(const Standard_Real theU0, const Standard_Real theV0, mat
 //=================================================================================================
 
 Standard_Boolean Extrema_GenLocateExtPS::IsMinDist(const gp_Pnt&            theP,
-                                                   const Adaptor3d_Surface& theS,
+                                                   const GeomAdaptor_Surface& theS,
                                                    const Standard_Real      theU0,
                                                    const Standard_Real      theV0)
 {
@@ -102,7 +102,7 @@ Standard_Boolean Extrema_GenLocateExtPS::IsMinDist(const gp_Pnt&            theP
 
 //=================================================================================================
 
-Extrema_GenLocateExtPS::Extrema_GenLocateExtPS(const Adaptor3d_Surface& theS,
+Extrema_GenLocateExtPS::Extrema_GenLocateExtPS(const GeomAdaptor_Surface& theS,
                                                const Standard_Real      theTolU,
                                                const Standard_Real      theTolV)
     : mySurf(theS),

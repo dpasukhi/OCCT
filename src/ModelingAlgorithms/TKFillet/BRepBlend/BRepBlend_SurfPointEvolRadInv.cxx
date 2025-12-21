@@ -14,6 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRepBlend_SurfPointEvolRadInv.hxx>
 #include <gp_Pnt.hxx>
 #include <Law_Function.hxx>
@@ -21,8 +23,8 @@
 
 //=================================================================================================
 
-BRepBlend_SurfPointEvolRadInv::BRepBlend_SurfPointEvolRadInv(const Handle(Adaptor3d_Surface)& S,
-                                                             const Handle(Adaptor3d_Curve)&   C,
+BRepBlend_SurfPointEvolRadInv::BRepBlend_SurfPointEvolRadInv(const Handle(GeomAdaptor_Surface)& S,
+                                                             const Handle(GeomAdaptor_Curve)&   C,
                                                              const Handle(Law_Function)&      Evol)
     : surf(S),
       curv(C)

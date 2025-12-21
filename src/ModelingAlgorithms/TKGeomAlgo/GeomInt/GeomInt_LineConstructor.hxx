@@ -20,7 +20,7 @@
 #include <GeomAdaptor_Surface.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 class IntPatch_Line;
 
 //! Splits given Line.
@@ -34,8 +34,8 @@ public:
 
   //! Initializes me by two surfaces and corresponding
   //! tools which represent boundaries of surfaces
-  void Load(const Handle(Adaptor3d_TopolTool)& D1,
-            const Handle(Adaptor3d_TopolTool)& D2,
+  void Load(const Handle(GeomAdaptor_TopolTool)& D1,
+            const Handle(GeomAdaptor_TopolTool)& D2,
             const Handle(GeomAdaptor_Surface)& S1,
             const Handle(GeomAdaptor_Surface)& S2);
 
@@ -58,8 +58,8 @@ protected:
 private:
   Standard_Boolean            done;
   TColStd_SequenceOfReal      seqp;
-  Handle(Adaptor3d_TopolTool) myDom1;
-  Handle(Adaptor3d_TopolTool) myDom2;
+  Handle(GeomAdaptor_TopolTool) myDom1;
+  Handle(GeomAdaptor_TopolTool) myDom2;
   Handle(GeomAdaptor_Surface) myHS1;
   Handle(GeomAdaptor_Surface) myHS2;
 };

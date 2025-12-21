@@ -17,11 +17,11 @@
 #ifndef _IntCurveSurface_ThePolyhedronOfHInter_HeaderFile
 #define _IntCurveSurface_ThePolyhedronOfHInter_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_HArray1OfBox.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class Bnd_Box;
 
 class IntCurveSurface_ThePolyhedronOfHInter
@@ -29,7 +29,7 @@ class IntCurveSurface_ThePolyhedronOfHInter
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT IntCurveSurface_ThePolyhedronOfHInter(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT IntCurveSurface_ThePolyhedronOfHInter(const Handle(GeomAdaptor_Surface)& Surface,
                                                         const Standard_Integer           nbdU,
                                                         const Standard_Integer           nbdV,
                                                         const Standard_Real              U1,
@@ -37,7 +37,7 @@ public:
                                                         const Standard_Real              U2,
                                                         const Standard_Real              V2);
 
-  Standard_EXPORT IntCurveSurface_ThePolyhedronOfHInter(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT IntCurveSurface_ThePolyhedronOfHInter(const Handle(GeomAdaptor_Surface)& Surface,
                                                         const TColStd_Array1OfReal&      Upars,
                                                         const TColStd_Array1OfReal&      Vpars);
 
@@ -47,7 +47,7 @@ public:
 
   Standard_EXPORT void DeflectionOverEstimation(const Standard_Real flec);
 
-  Standard_EXPORT Standard_Real DeflectionOnTriangle(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT Standard_Real DeflectionOnTriangle(const Handle(GeomAdaptor_Surface)& Surface,
                                                      const Standard_Integer           Index) const;
 
   Standard_EXPORT void UMinSingularity(const Standard_Boolean Sing);
@@ -153,13 +153,13 @@ public:
   Standard_EXPORT void Dump() const;
 
 protected:
-  Standard_EXPORT void Init(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT void Init(const Handle(GeomAdaptor_Surface)& Surface,
                             const Standard_Real              U1,
                             const Standard_Real              V1,
                             const Standard_Real              U2,
                             const Standard_Real              V2);
 
-  Standard_EXPORT void Init(const Handle(Adaptor3d_Surface)& Surface,
+  Standard_EXPORT void Init(const Handle(GeomAdaptor_Surface)& Surface,
                             const TColStd_Array1OfReal&      Upars,
                             const TColStd_Array1OfReal&      Vpars);
 

@@ -32,7 +32,7 @@
 #include <Extrema_ExtCC.hxx>
 #include <Extrema_POnCurv.hxx>
 #include <Geom_Line.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 
 // perform checks on the argument
 static const TopoDS_Shape& check(const TopoDS_Shape& S)
@@ -239,7 +239,7 @@ void BRepPrimAPI_MakeRevol::Build(const Message_ProgressRange& /*theRange*/)
 // purpose  : used in CheckValidity to find out is there
 //           intersection between curve and axe of revolution
 //=======================================================================
-static Standard_Boolean IsIntersect(const Handle(Adaptor3d_Curve)& theC, const gp_Ax1& theAxe)
+static Standard_Boolean IsIntersect(const Handle(GeomAdaptor_Curve)& theC, const gp_Ax1& theAxe)
 {
   const gp_Lin anAxis(theAxe);
   // Quick test for circle

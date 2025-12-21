@@ -16,7 +16,7 @@
 
 #include <BRepTools.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <Bnd_Box2d.hxx>
 #include <BndLib_Add2dCurve.hxx>
 #include <BRep_GCurve.hxx>
@@ -1236,13 +1236,13 @@ Standard_Real BRepTools::EvalAndUpdateTol(const TopoDS_Edge&          theE,
     first = std::max(first, C2d->FirstParameter());
     last  = std::min(last, C2d->LastParameter());
   }
-  const Handle(Adaptor3d_Curve) aGeomAdaptorCurve = new GeomAdaptor_Curve(C3d, first, last);
+  const Handle(GeomAdaptor_Curve) aGeomAdaptorCurve = new GeomAdaptor_Curve(C3d, first, last);
 
-  Handle(Adaptor2d_Curve2d)   aGeom2dAdaptorCurve = new Geom2dAdaptor_Curve(C2d, first, last);
+  Handle(Geom2dAdaptor_Curve)   aGeom2dAdaptorCurve = new Geom2dAdaptor_Curve(C2d, first, last);
   Handle(GeomAdaptor_Surface) aGeomAdaptorSurface = new GeomAdaptor_Surface(S);
 
-  Handle(Adaptor3d_CurveOnSurface) anAdaptor3dCurveOnSurface =
-    new Adaptor3d_CurveOnSurface(aGeom2dAdaptorCurve, aGeomAdaptorSurface);
+  Handle(GeomAdaptor_CurveOnSurface) anAdaptor3dCurveOnSurface =
+    new GeomAdaptor_CurveOnSurface(aGeom2dAdaptorCurve, aGeomAdaptorSurface);
 
   GeomLib_CheckCurveOnSurface CT(aGeomAdaptorCurve);
   CT.Perform(anAdaptor3dCurveOnSurface);

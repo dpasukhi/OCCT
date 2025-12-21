@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtSS.hxx>
 #include <Extrema_GenExtSS.hxx>
@@ -41,8 +41,8 @@ Extrema_ExtSS::Extrema_ExtSS()
 {
 }
 
-Extrema_ExtSS::Extrema_ExtSS(const Adaptor3d_Surface& S1,
-                             const Adaptor3d_Surface& S2,
+Extrema_ExtSS::Extrema_ExtSS(const GeomAdaptor_Surface& S1,
+                             const GeomAdaptor_Surface& S2,
                              const Standard_Real      TolS1,
                              const Standard_Real      TolS2)
 
@@ -62,8 +62,8 @@ Extrema_ExtSS::Extrema_ExtSS(const Adaptor3d_Surface& S1,
           TolS1);
 }
 
-Extrema_ExtSS::Extrema_ExtSS(const Adaptor3d_Surface& S1,
-                             const Adaptor3d_Surface& S2,
+Extrema_ExtSS::Extrema_ExtSS(const GeomAdaptor_Surface& S1,
+                             const GeomAdaptor_Surface& S2,
                              const Standard_Real      Uinf1,
                              const Standard_Real      Usup1,
                              const Standard_Real      Vinf1,
@@ -80,7 +80,7 @@ Extrema_ExtSS::Extrema_ExtSS(const Adaptor3d_Surface& S1,
   Perform(S1, Uinf1, Usup1, Vinf1, Vsup1, TolS1);
 }
 
-void Extrema_ExtSS::Initialize(const Adaptor3d_Surface& S2,
+void Extrema_ExtSS::Initialize(const GeomAdaptor_Surface& S2,
                                const Standard_Real      Uinf2,
                                const Standard_Real      Usup2,
                                const Standard_Real      Vinf2,
@@ -97,7 +97,7 @@ void Extrema_ExtSS::Initialize(const Adaptor3d_Surface& S2,
   myStype = S2.GetType();
 }
 
-void Extrema_ExtSS::Perform(const Adaptor3d_Surface& S1,
+void Extrema_ExtSS::Perform(const GeomAdaptor_Surface& S1,
                             const Standard_Real      Uinf1,
                             const Standard_Real      Usup1,
                             const Standard_Real      Vinf1,

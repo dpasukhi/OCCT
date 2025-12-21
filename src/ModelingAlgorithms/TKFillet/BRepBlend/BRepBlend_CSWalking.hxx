@@ -15,8 +15,6 @@
 #ifndef _BRepBlend_CSWalking_HeaderFile
 #define _BRepBlend_CSWalking_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
 #include <BRepBlend_SequenceOfPointOnRst.hxx>
 #include <Blend_Point.hxx>
 #include <Blend_Status.hxx>
@@ -24,11 +22,13 @@
 #include <math_Vector.hxx>
 
 class BRepBlend_Line;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
+class GeomAdaptor_TopolTool;
 class StdFail_NotDone;
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 class BRepBlend_HCurve2dTool;
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class BRepBlend_HCurveTool;
 class BRepBlend_BlendTool;
 class BRepBlend_PointOnRst;
@@ -45,9 +45,9 @@ class BRepBlend_CSWalking
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BRepBlend_CSWalking(const Handle(Adaptor3d_Curve)&     Curv,
-                                      const Handle(Adaptor3d_Surface)&   Surf,
-                                      const Handle(Adaptor3d_TopolTool)& Domain);
+  Standard_EXPORT BRepBlend_CSWalking(const Handle(GeomAdaptor_Curve)&     Curv,
+                                      const Handle(GeomAdaptor_Surface)&   Surf,
+                                      const Handle(GeomAdaptor_TopolTool)& Domain);
 
   Standard_EXPORT void Perform(Blend_CSFunction&      F,
                                const Standard_Real    Pdep,
@@ -70,7 +70,7 @@ private:
                                        math_Vector&        Sol,
                                        const Standard_Real Bound);
 
-  Standard_EXPORT void Transition(const Handle(Adaptor2d_Curve2d)& A,
+  Standard_EXPORT void Transition(const Handle(Geom2dAdaptor_Curve)& A,
                                   const Standard_Real              Param,
                                   IntSurf_Transition&              TLine,
                                   IntSurf_Transition&              TArc);
@@ -79,7 +79,7 @@ private:
                                      const Standard_Integer           Index,
                                      const Standard_Real              Param,
                                      const Standard_Boolean           IsVtx,
-                                     const Handle(Adaptor3d_HVertex)& Vtx);
+                                     const Handle(GeomAdaptor_HVertex)& Vtx);
 
   Standard_EXPORT Blend_Status CheckDeflectionOnSurf(const gp_Pnt&   Psurf,
                                                      const gp_Pnt2d& Ponsurf,
@@ -97,9 +97,9 @@ private:
 
   Standard_Boolean              done;
   Handle(BRepBlend_Line)        line;
-  Handle(Adaptor3d_Surface)     surf;
-  Handle(Adaptor3d_Curve)       curv;
-  Handle(Adaptor3d_TopolTool)   domain;
+  Handle(GeomAdaptor_Surface)     surf;
+  Handle(GeomAdaptor_Curve)       curv;
+  Handle(GeomAdaptor_TopolTool)   domain;
   Standard_Real                 tolpoint3d;
   Standard_Real                 tolgui;
   Standard_Real                 pasmax;

@@ -17,7 +17,7 @@
 #ifndef _StdPrs_WFSurface_HeaderFile
 #define _StdPrs_WFSurface_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Prs3d_Root.hxx>
 #include <Prs3d_Drawer.hxx>
 
@@ -35,7 +35,7 @@ public:
   //! The number of isoparametric curves to be drawn and their color are
   //! controlled by the furnished Drawer.
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Handle(Adaptor3d_Surface)&  aSurface,
+                                  const Handle(GeomAdaptor_Surface)&  aSurface,
                                   const Handle(Prs3d_Drawer)&       aDrawer);
 
 protected:

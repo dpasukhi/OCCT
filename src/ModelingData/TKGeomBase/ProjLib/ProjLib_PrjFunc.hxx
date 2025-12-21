@@ -17,23 +17,24 @@
 #ifndef _ProjLib_PrjFunc_HeaderFile
 #define _ProjLib_PrjFunc_HeaderFile
 
+#include <math_FunctionSetWithDerivatives.hxx>
+#include <math_Vector.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 
-#include <math_FunctionSetWithDerivatives.hxx>
-#include <math_Vector.hxx>
-
-class math_Matrix;
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class gp_Pnt2d;
+class math_Matrix;
 
 class ProjLib_PrjFunc : public math_FunctionSetWithDerivatives
 {
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT ProjLib_PrjFunc(const Adaptor3d_Curve*   C,
+  Standard_EXPORT ProjLib_PrjFunc(const GeomAdaptor_Curve*   C,
                                   const Standard_Real      FixVal,
-                                  const Adaptor3d_Surface* S,
+                                  const GeomAdaptor_Surface* S,
                                   const Standard_Integer   Fix);
 
   //! returns the number of variables of the function.
@@ -64,8 +65,8 @@ public:
   Standard_EXPORT gp_Pnt2d Solution() const;
 
 private:
-  const Adaptor3d_Curve*   myCurve;
-  const Adaptor3d_Surface* mySurface;
+  const GeomAdaptor_Curve*   myCurve;
+  const GeomAdaptor_Surface* mySurface;
   Standard_Real            myt;
   Standard_Real            myU;
   Standard_Real            myV;

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <BRep_Tool.hxx>
 #include <ChFi3d_Builder_0.hxx>
 #include <ChFi3d_ChBuilder.hxx>
@@ -422,10 +422,10 @@ void ChFi3d_ChBuilder::PerformThreeCorner(const Standard_Integer Jndex)
 
   Handle(BRepAdaptor_Surface) Fac     = new BRepAdaptor_Surface(face[pivot]);
   Handle(GeomAdaptor_Surface) bidsurf = new GeomAdaptor_Surface(Fac->Surface());
-  Handle(Adaptor3d_TopolTool) IFac    = new Adaptor3d_TopolTool(bidsurf);
+  Handle(GeomAdaptor_TopolTool) IFac    = new GeomAdaptor_TopolTool(bidsurf);
 
   Handle(GeomAdaptor_Surface) Surf  = ChFi3d_BoundSurf(DStr, fdpiv, jf[pivot][deb], jf[pivot][fin]);
-  Handle(Adaptor3d_TopolTool) ISurf = new Adaptor3d_TopolTool(Surf);
+  Handle(GeomAdaptor_TopolTool) ISurf = new GeomAdaptor_TopolTool(Surf);
 
   // Creation of a new Stripe for the corner
   Handle(ChFiDS_Stripe) corner    = new ChFiDS_Stripe();

@@ -17,7 +17,7 @@
 #ifndef _BRepBlend_PointOnRst_HeaderFile
 #define _BRepBlend_PointOnRst_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <IntSurf_Transition.hxx>
 
 //! Definition of an intersection point between a line
@@ -35,21 +35,21 @@ public:
   //! Creates the PointOnRst on the arc A, at parameter Param,
   //! with the transition TLine on the walking line, and
   //! TArc on the arc A.
-  Standard_EXPORT BRepBlend_PointOnRst(const Handle(Adaptor2d_Curve2d)& A,
+  Standard_EXPORT BRepBlend_PointOnRst(const Handle(Geom2dAdaptor_Curve)& A,
                                        const Standard_Real              Param,
                                        const IntSurf_Transition&        TLine,
                                        const IntSurf_Transition&        TArc);
 
   //! Sets the values of a point which is on the arc
   //! A, at parameter Param.
-  Standard_EXPORT void SetArc(const Handle(Adaptor2d_Curve2d)& A,
+  Standard_EXPORT void SetArc(const Handle(Geom2dAdaptor_Curve)& A,
                               const Standard_Real              Param,
                               const IntSurf_Transition&        TLine,
                               const IntSurf_Transition&        TArc);
 
   //! Returns the arc of restriction containing the
   //! vertex.
-  const Handle(Adaptor2d_Curve2d)& Arc() const;
+  const Handle(Geom2dAdaptor_Curve)& Arc() const;
 
   //! Returns the transition of the point on the
   //! line on surface.
@@ -65,7 +65,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor2d_Curve2d) arc;
+  Handle(Geom2dAdaptor_Curve) arc;
   IntSurf_Transition        traline;
   IntSurf_Transition        traarc;
   Standard_Real             prm;

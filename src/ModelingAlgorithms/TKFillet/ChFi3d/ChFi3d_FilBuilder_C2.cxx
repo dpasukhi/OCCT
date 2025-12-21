@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepBlend_Line.hxx>
 #include <BRepLProp_CLProps.hxx>
@@ -568,7 +568,7 @@ void ChFi3d_FilBuilder::PerformTwoCorner(const Standard_Integer Index)
         }
         else
         {
-          Handle(Adaptor3d_Curve) HPivTrim =
+          Handle(GeomAdaptor_Curve) HPivTrim =
             Hpivot->Trim(std::min(parCP1, parCP2), std::max(parCP1, parCP2), tolesp);
           Bpiv = new GeomFill_SimpleBound(HPivTrim, tolapp3d, 2.e-4);
           fil.Init(Bfac, B2, Bpiv, B1, 1);

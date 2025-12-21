@@ -12,10 +12,10 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_HVertex.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_HVertex.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <Bnd_Box2d.hxx>
 #include <Bnd_Range.hxx>
 #include <ElCLib.hxx>
@@ -54,19 +54,19 @@
 
 #include <algorithm>
 
-static void PutPointsOnLine(const Handle(Adaptor3d_Surface)& S1,
-                            const Handle(Adaptor3d_Surface)& S2,
+static void PutPointsOnLine(const Handle(GeomAdaptor_Surface)& S1,
+                            const Handle(GeomAdaptor_Surface)& S2,
                             const IntPatch_SequenceOfPathPointOfTheSOnBounds&,
                             const IntPatch_SequenceOfLine&,
                             const Standard_Boolean,
-                            const Handle(Adaptor3d_TopolTool)&,
+                            const Handle(GeomAdaptor_TopolTool)&,
                             const IntSurf_Quadric&,
                             const IntSurf_Quadric&,
                             const Standard_Boolean,
                             const Standard_Real);
 
 static Standard_Boolean MultiplePoint(const IntPatch_SequenceOfPathPointOfTheSOnBounds& listpnt,
-                                      const Handle(Adaptor3d_TopolTool)&                Domain,
+                                      const Handle(GeomAdaptor_TopolTool)&                Domain,
                                       const IntSurf_Quadric&                            QuadSurf,
                                       const gp_Vec&                                     Normale,
                                       const IntPatch_SequenceOfLine&                    slin,
@@ -77,7 +77,7 @@ static Standard_Boolean MultiplePoint(const IntPatch_SequenceOfPathPointOfTheSOn
                                       const Standard_Real                               theToler);
 
 static Standard_Boolean PointOnSecondDom(const IntPatch_SequenceOfPathPointOfTheSOnBounds& listpnt,
-                                         const Handle(Adaptor3d_TopolTool)&                Domain,
+                                         const Handle(GeomAdaptor_TopolTool)&                Domain,
                                          const IntSurf_Quadric&                            QuadSurf,
                                          const gp_Vec&                                     Normale,
                                          const gp_Vec&                                     Vtgint,
@@ -99,7 +99,7 @@ static Standard_Boolean FindLine(gp_Pnt&                          Psurf,
                                  gp_Vec&                          Vtgtint,
                                  Standard_Integer&                theLineIdx,
                                  Standard_Integer                 OnlyThisLine,
-                                 const Handle(Adaptor2d_Curve2d)& thearc,
+                                 const Handle(Geom2dAdaptor_Curve)& thearc,
                                  Standard_Real&                   theparameteronarc,
                                  gp_Pnt&                          thepointonarc,
                                  const IntSurf_Quadric&           QuadSurf1,
@@ -123,7 +123,7 @@ static void ProcessRLine(IntPatch_SequenceOfLine&,
 Standard_Boolean IntersectionWithAnArc(gp_Pnt&                          PSurf,
                                        const Handle(IntPatch_ALine)&    alin,
                                        Standard_Real&                   para,
-                                       const Handle(Adaptor2d_Curve2d)& thearc,
+                                       const Handle(Geom2dAdaptor_Curve)& thearc,
                                        Standard_Real&                   _theparameteronarc,
                                        gp_Pnt&                          thepointonarc,
                                        const IntSurf_Quadric&           QuadSurf,
@@ -300,8 +300,8 @@ Standard_Boolean IntersectionWithAnArc(gp_Pnt&                          PSurf,
 }
 
 //-- ======================================================================
-static void Recadre(const Handle(Adaptor3d_Surface)& myHS1,
-                    const Handle(Adaptor3d_Surface)& myHS2,
+static void Recadre(const Handle(GeomAdaptor_Surface)& myHS1,
+                    const Handle(GeomAdaptor_Surface)& myHS2,
                     Standard_Real&                   u1,
                     Standard_Real&                   v1,
                     Standard_Real&                   u2,
@@ -422,12 +422,12 @@ static void Recadre(const Handle(Adaptor3d_Surface)& myHS1,
 
 //=================================================================================================
 
-void PutPointsOnLine(const Handle(Adaptor3d_Surface)&                  S1,
-                     const Handle(Adaptor3d_Surface)&                  S2,
+void PutPointsOnLine(const Handle(GeomAdaptor_Surface)&                  S1,
+                     const Handle(GeomAdaptor_Surface)&                  S2,
                      const IntPatch_SequenceOfPathPointOfTheSOnBounds& listpnt,
                      const IntPatch_SequenceOfLine&                    slin,
                      const Standard_Boolean                            OnFirst,
-                     const Handle(Adaptor3d_TopolTool)&                Domain,
+                     const Handle(GeomAdaptor_TopolTool)&                Domain,
                      const IntSurf_Quadric&                            QuadSurf,
                      const IntSurf_Quadric&                            OtherQuad,
                      const Standard_Boolean                            multpoint,
@@ -459,8 +459,8 @@ void PutPointsOnLine(const Handle(Adaptor3d_Surface)&                  S1,
 
   IntSurf_Transition Transline, Transarc;
 
-  Handle(Adaptor2d_Curve2d) currentarc;
-  Handle(Adaptor3d_HVertex) vtx, vtxbis;
+  Handle(Geom2dAdaptor_Curve) currentarc;
+  Handle(GeomAdaptor_HVertex) vtx, vtxbis;
 
   IntPatch_Point                      solpnt;
   IntPatch_ThePathPointOfTheSOnBounds currentpointonrst;
@@ -526,7 +526,7 @@ void PutPointsOnLine(const Handle(Adaptor3d_Surface)&                  S1,
           //  Modified by skv - Thu Jan 15 15:57:15 2004 OCC4455 Begin
           if (!currentpointonrst.IsNew())
           {
-            Handle(Adaptor3d_HVertex) aVtx    = currentpointonrst.Vertex();
+            Handle(GeomAdaptor_HVertex) aVtx    = currentpointonrst.Vertex();
             Standard_Real             aVtxTol = aVtx->Resolution(currentarc);
             Standard_Real             aTolAng = 0.01 * tolerance;
 
@@ -708,7 +708,7 @@ void PutPointsOnLine(const Handle(Adaptor3d_Surface)&                  S1,
 }
 
 Standard_Boolean MultiplePoint(const IntPatch_SequenceOfPathPointOfTheSOnBounds& listpnt,
-                               const Handle(Adaptor3d_TopolTool)&                Domain,
+                               const Handle(GeomAdaptor_TopolTool)&                Domain,
                                const IntSurf_Quadric&                            QuadSurf,
                                const gp_Vec&                                     Normale,
                                const IntPatch_SequenceOfLine&                    slin,
@@ -727,8 +727,8 @@ Standard_Boolean MultiplePoint(const IntPatch_SequenceOfPathPointOfTheSOnBounds&
   IntSurf_Transition Transline, Transarc;
 
   IntPatch_Point            intpt;
-  Handle(Adaptor2d_Curve2d) currentarc;
-  Handle(Adaptor3d_HVertex) vtx, vtxbis;
+  Handle(Geom2dAdaptor_Curve) currentarc;
+  Handle(GeomAdaptor_HVertex) vtx, vtxbis;
 
   Standard_Integer                    nbpnt             = listpnt.Length();
   IntPatch_ThePathPointOfTheSOnBounds currentpointonrst = listpnt.Value(Index);
@@ -900,7 +900,7 @@ Standard_Boolean MultiplePoint(const IntPatch_SequenceOfPathPointOfTheSOnBounds&
 }
 
 Standard_Boolean PointOnSecondDom(const IntPatch_SequenceOfPathPointOfTheSOnBounds& listpnt,
-                                  const Handle(Adaptor3d_TopolTool)&                Domain,
+                                  const Handle(GeomAdaptor_TopolTool)&                Domain,
                                   const IntSurf_Quadric&                            QuadSurf,
                                   const gp_Vec&                                     Normale,
                                   const gp_Vec&                                     Vtgint,
@@ -918,8 +918,8 @@ Standard_Boolean PointOnSecondDom(const IntPatch_SequenceOfPathPointOfTheSOnBoun
 
   IntSurf_Transition        Transline, Transarc;
   IntPatch_Point            intpt;
-  Handle(Adaptor2d_Curve2d) currentarc;
-  Handle(Adaptor3d_HVertex) vtx, vtxbis;
+  Handle(Geom2dAdaptor_Curve) currentarc;
+  Handle(GeomAdaptor_HVertex) vtx, vtxbis;
   gp_Pnt                    ptbid;
   gp_Vec                    Vtgrst;
 
@@ -1069,7 +1069,7 @@ Standard_Boolean FindLine(gp_Pnt&                          Psurf,
                           gp_Vec&                          Vtgtint,
                           Standard_Integer&                theLineIdx,
                           Standard_Integer                 OnlyThisLine,
-                          const Handle(Adaptor2d_Curve2d)& thearc,
+                          const Handle(Geom2dAdaptor_Curve)& thearc,
                           Standard_Real&                   theparameteronarc,
                           gp_Pnt&                          thepointonarc,
                           const IntSurf_Quadric&           QuadSurf1,
@@ -1486,7 +1486,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
   Standard_Integer nbedg = listedg.Length();
   Standard_Integer Nblines, Nbpts;
 
-  Handle(Adaptor2d_Curve2d) arcRef;
+  Handle(Geom2dAdaptor_Curve) arcRef;
   IntPatch_Point            ptvtx, newptvtx;
 
   Handle(IntPatch_RLine) rline; //-- On fait rline = new ... par la suite
@@ -1697,7 +1697,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               tgline.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
               if (ptvtx.IsOnDomS1())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS1();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS1();
                 thearc->D1(ptvtx.ParameterOnArc1(), p2d, d2d);
                 Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1715,7 +1715,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               }
               if (ptvtx.IsOnDomS2())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS2();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS2();
                 thearc->D1(ptvtx.ParameterOnArc2(), p2d, d2d);
                 Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1775,7 +1775,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               tgline.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
               if (ptvtx.IsOnDomS1())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS1();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS1();
                 thearc->D1(ptvtx.ParameterOnArc1(), p2d, d2d);
                 Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1793,7 +1793,7 @@ void ProcessSegments(const IntPatch_SequenceOfSegmentOfTheSOnBounds& listedg,
               }
               if (ptvtx.IsOnDomS2())
               {
-                const Handle(Adaptor2d_Curve2d)& thearc = ptvtx.ArcOnS2();
+                const Handle(Geom2dAdaptor_Curve)& thearc = ptvtx.ArcOnS2();
                 thearc->D1(ptvtx.ParameterOnArc2(), p2d, d2d);
                 Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                 tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -1981,14 +1981,14 @@ static Standard_Boolean IsRLineGood(const IntSurf_Quadric&       Quad1,
     gp_Pnt aPMid;
     if (theRLine->IsArcOnS1())
     {
-      const Handle(Adaptor2d_Curve2d)& anAC2d = theRLine->ArcOnS1();
+      const Handle(Geom2dAdaptor_Curve)& anAC2d = theRLine->ArcOnS1();
       const Standard_Real aParF = anAC2d->FirstParameter(), aParL = anAC2d->LastParameter();
       gp_Pnt2d            aP2d(anAC2d->Value(0.5 * (aParF + aParL)));
       aPMid = Quad1.Value(aP2d.X(), aP2d.Y());
     }
     else
     {
-      const Handle(Adaptor2d_Curve2d)& anAC2d = theRLine->ArcOnS2();
+      const Handle(Geom2dAdaptor_Curve)& anAC2d = theRLine->ArcOnS2();
       const Standard_Real aParF = anAC2d->FirstParameter(), aParL = anAC2d->LastParameter();
       gp_Pnt2d            aP2d(anAC2d->Value(0.5 * (aParF + aParL)));
       aPMid = Quad2.Value(aP2d.X(), aP2d.Y());
@@ -2011,8 +2011,8 @@ static Standard_Boolean IsRLineGood(const IntSurf_Quadric&       Quad1,
 }
 
 void ProcessRLine(IntPatch_SequenceOfLine& slin,
-                  //		   const Handle(Adaptor3d_Surface)& Surf1,
-                  //		   const Handle(Adaptor3d_Surface)& Surf2,
+                  //		   const Handle(GeomAdaptor_Surface)& Surf1,
+                  //		   const Handle(GeomAdaptor_Surface)& Surf2,
                   const IntSurf_Quadric& Quad1,
                   const IntSurf_Quadric& Quad2,
                   const Standard_Real    _TolArc,
@@ -2032,7 +2032,7 @@ void ProcessRLine(IntPatch_SequenceOfLine& slin,
 
   Standard_Boolean OnFirst = Standard_False, project = Standard_False, keeppoint = Standard_False;
 
-  Handle(Adaptor2d_Curve2d) arcref;
+  Handle(Geom2dAdaptor_Curve) arcref;
   Standard_Real             paramproj, paramf, paraml;
 
   TColgp_SequenceOfPnt   seq_Pnt3d;
@@ -2251,7 +2251,7 @@ void ProcessRLine(IntPatch_SequenceOfLine& slin,
                     Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgrest.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
 
-                    const Handle(Adaptor2d_Curve2d)& thearc = Ptvtx.ArcOnS2();
+                    const Handle(Geom2dAdaptor_Curve)& thearc = Ptvtx.ArcOnS2();
                     thearc->D1(Ptvtx.ParameterOnArc2(), p2d, d2d);
                     Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -2272,7 +2272,7 @@ void ProcessRLine(IntPatch_SequenceOfLine& slin,
                     Quad2.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgrest.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
 
-                    const Handle(Adaptor2d_Curve2d)& thearc = Ptvtx.ArcOnS1();
+                    const Handle(Geom2dAdaptor_Curve)& thearc = Ptvtx.ArcOnS1();
                     thearc->D1(Ptvtx.ParameterOnArc1(), p2d, d2d);
                     Quad1.D1(p2d.X(), p2d.Y(), valpt, d1u, d1v);
                     tgarc.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
@@ -2467,7 +2467,7 @@ static Standard_Boolean IntToTo(const IntSurf_Quadric&,
                                 Standard_Boolean&,
                                 IntPatch_SequenceOfLine&);
 
-static Standard_Integer SetQuad(const Handle(Adaptor3d_Surface)& theS,
+static Standard_Integer SetQuad(const Handle(GeomAdaptor_Surface)& theS,
                                 GeomAbs_SurfaceType&             theTS,
                                 IntSurf_Quadric&                 theQuad);
 
@@ -2483,10 +2483,10 @@ IntPatch_ImpImpIntersection::IntPatch_ImpImpIntersection()
 
 //=================================================================================================
 
-IntPatch_ImpImpIntersection::IntPatch_ImpImpIntersection(const Handle(Adaptor3d_Surface)&   S1,
-                                                         const Handle(Adaptor3d_TopolTool)& D1,
-                                                         const Handle(Adaptor3d_Surface)&   S2,
-                                                         const Handle(Adaptor3d_TopolTool)& D2,
+IntPatch_ImpImpIntersection::IntPatch_ImpImpIntersection(const Handle(GeomAdaptor_Surface)&   S1,
+                                                         const Handle(GeomAdaptor_TopolTool)& D1,
+                                                         const Handle(GeomAdaptor_Surface)&   S2,
+                                                         const Handle(GeomAdaptor_TopolTool)& D2,
                                                          const Standard_Real                TolArc,
                                                          const Standard_Real                TolTang,
                                                          const Standard_Boolean theIsReqToKeepRLine)
@@ -2496,10 +2496,10 @@ IntPatch_ImpImpIntersection::IntPatch_ImpImpIntersection(const Handle(Adaptor3d_
 
 //=================================================================================================
 
-void IntPatch_ImpImpIntersection::Perform(const Handle(Adaptor3d_Surface)&   S1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   S2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+void IntPatch_ImpImpIntersection::Perform(const Handle(GeomAdaptor_Surface)&   S1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   S2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                TolArc,
                                           const Standard_Real                TolTang,
                                           const Standard_Boolean             theIsReqToKeepRLine)
@@ -2560,7 +2560,7 @@ void IntPatch_ImpImpIntersection::Perform(const Handle(Adaptor3d_Surface)&   S1,
     case 21: { // Plane/Cylinder
       Standard_Real VMin, VMax, H;
       //
-      const Handle(Adaptor3d_Surface)& aSCyl = bReverse ? S1 : S2;
+      const Handle(GeomAdaptor_Surface)& aSCyl = bReverse ? S1 : S2;
       VMin                                   = aSCyl->FirstVParameter();
       VMax                                   = aSCyl->LastVParameter();
       H = (Precision::IsNegativeInfinite(VMin) || Precision::IsPositiveInfinite(VMax))
@@ -3031,7 +3031,7 @@ void IntPatch_ImpImpIntersection::Perform(const Handle(Adaptor3d_Surface)&   S1,
 
 //=================================================================================================
 
-Standard_Integer SetQuad(const Handle(Adaptor3d_Surface)& theS,
+Standard_Integer SetQuad(const Handle(GeomAdaptor_Surface)& theS,
                          GeomAbs_SurfaceType&             theTS,
                          IntSurf_Quadric&                 theQuad)
 {

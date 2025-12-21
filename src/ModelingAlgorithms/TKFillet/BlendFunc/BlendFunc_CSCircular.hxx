@@ -17,7 +17,6 @@
 #ifndef _BlendFunc_CSCircular_HeaderFile
 #define _BlendFunc_CSCircular_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -34,6 +33,8 @@
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfInteger.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class Law_Function;
 class math_Matrix;
 class gp_Circ;
@@ -53,9 +54,9 @@ public:
   //! below:
   //! t is the current parameter on the guide line.
   //! Pguide = C(L(t)); Nguide = CGuide'(t)/||CGuide'(t)||
-  Standard_EXPORT BlendFunc_CSCircular(const Handle(Adaptor3d_Surface)& S,
-                                       const Handle(Adaptor3d_Curve)&   C,
-                                       const Handle(Adaptor3d_Curve)&   CGuide,
+  Standard_EXPORT BlendFunc_CSCircular(const Handle(GeomAdaptor_Surface)& S,
+                                       const Handle(GeomAdaptor_Curve)&   C,
+                                       const Handle(GeomAdaptor_Curve)&   CGuide,
                                        const Handle(Law_Function)&      L);
 
   Standard_EXPORT virtual Standard_Integer NbVariables() const Standard_OVERRIDE;
@@ -225,9 +226,9 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface)    surf;
-  Handle(Adaptor3d_Curve)      curv;
-  Handle(Adaptor3d_Curve)      guide;
+  Handle(GeomAdaptor_Surface)    surf;
+  Handle(GeomAdaptor_Curve)      curv;
+  Handle(GeomAdaptor_Curve)      guide;
   Handle(Law_Function)         law;
   gp_Pnt                       pts;
   gp_Pnt                       ptc;

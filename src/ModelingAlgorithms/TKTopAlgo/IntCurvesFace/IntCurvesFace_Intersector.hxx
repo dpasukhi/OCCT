@@ -17,7 +17,7 @@
 #ifndef _IntCurvesFace_Intersector_HeaderFile
 #define _IntCurvesFace_Intersector_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_BoundSortBox.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <IntCurveSurface_SequenceOfPnt.hxx>
@@ -76,7 +76,7 @@ public:
 
   //! same method for a HCurve from Adaptor3d.
   //! PInf an PSup can also be - and + INF.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Curve)& HCu,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Curve)& HCu,
                                const Standard_Real            PInf,
                                const Standard_Real            PSup);
 

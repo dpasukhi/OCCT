@@ -16,7 +16,7 @@
 
 //  Modified by skv - Thu Jul  7 12:29:34 2005 OCC9134
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_Box.hxx>
 #include <BndLib_AddSurface.hxx>
 #include <ElCLib.hxx>
@@ -50,8 +50,8 @@ Extrema_ExtCS::Extrema_ExtCS()
 {
 }
 
-Extrema_ExtCS::Extrema_ExtCS(const Adaptor3d_Curve&   C,
-                             const Adaptor3d_Surface& S,
+Extrema_ExtCS::Extrema_ExtCS(const GeomAdaptor_Curve&   C,
+                             const GeomAdaptor_Surface& S,
                              const Standard_Real      TolC,
                              const Standard_Real      TolS)
 
@@ -60,8 +60,8 @@ Extrema_ExtCS::Extrema_ExtCS(const Adaptor3d_Curve&   C,
   Perform(C, C.FirstParameter(), C.LastParameter());
 }
 
-Extrema_ExtCS::Extrema_ExtCS(const Adaptor3d_Curve&   C,
-                             const Adaptor3d_Surface& S,
+Extrema_ExtCS::Extrema_ExtCS(const GeomAdaptor_Curve&   C,
+                             const GeomAdaptor_Surface& S,
                              const Standard_Real      UCinf,
                              const Standard_Real      UCsup,
                              const Standard_Real      Uinf,
@@ -76,7 +76,7 @@ Extrema_ExtCS::Extrema_ExtCS(const Adaptor3d_Curve&   C,
   Perform(C, UCinf, UCsup);
 }
 
-void Extrema_ExtCS::Initialize(const Adaptor3d_Surface& S,
+void Extrema_ExtCS::Initialize(const GeomAdaptor_Surface& S,
                                const Standard_Real      TolC,
                                const Standard_Real      TolS)
 {
@@ -89,7 +89,7 @@ void Extrema_ExtCS::Initialize(const Adaptor3d_Surface& S,
              TolS);
 }
 
-void Extrema_ExtCS::Initialize(const Adaptor3d_Surface& S,
+void Extrema_ExtCS::Initialize(const GeomAdaptor_Surface& S,
                                const Standard_Real      Uinf,
                                const Standard_Real      Usup,
                                const Standard_Real      Vinf,
@@ -108,7 +108,7 @@ void Extrema_ExtCS::Initialize(const Adaptor3d_Surface& S,
   myStype = myS->GetType();
 }
 
-void Extrema_ExtCS::Perform(const Adaptor3d_Curve& C,
+void Extrema_ExtCS::Perform(const GeomAdaptor_Curve& C,
                             const Standard_Real    Uinf,
                             const Standard_Real    Usup)
 {
@@ -435,7 +435,7 @@ void Extrema_ExtCS::Perform(const Adaptor3d_Curve& C,
     // Add sharp points
     Standard_Integer     SolNumber   = mySqDist.Length();
     Standard_Address     CopyC       = (Standard_Address)&C;
-    Adaptor3d_Curve&     aC          = *(Adaptor3d_Curve*)CopyC;
+    GeomAdaptor_Curve&     aC          = *(GeomAdaptor_Curve*)CopyC;
     Standard_Integer     NbIntervals = aC.NbIntervals(GeomAbs_C1);
     TColStd_Array1OfReal SharpPoints(1, NbIntervals + 1);
     aC.Intervals(SharpPoints, GeomAbs_C1);
@@ -551,7 +551,7 @@ void Extrema_ExtCS::Points(const Standard_Integer N, Extrema_POnCurv& P1, Extrem
   P2 = myPOnS.Value(N);
 }
 
-Standard_Boolean Extrema_ExtCS::AddSolution(const Adaptor3d_Curve& theCurve,
+Standard_Boolean Extrema_ExtCS::AddSolution(const GeomAdaptor_Curve& theCurve,
                                             const Standard_Real    aT,
                                             const Standard_Real    aU,
                                             const Standard_Real    aV,

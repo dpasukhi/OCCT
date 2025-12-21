@@ -12,7 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_HSurfaceTool.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -26,13 +26,13 @@
   #define No_Standard_OutOfRange
 #endif
 
-#define SURFACE1 (*((Handle(Adaptor3d_Surface)*)(surface1)))
-#define SURFACE2 (*((Handle(Adaptor3d_Surface)*)(surface2)))
-#define CURVE (*((Handle(Adaptor2d_Curve2d)*)(curve)))
+#define SURFACE1 (*((Handle(GeomAdaptor_Surface)*)(surface1)))
+#define SURFACE2 (*((Handle(GeomAdaptor_Surface)*)(surface2)))
+#define CURVE (*((Handle(Geom2dAdaptor_Curve)*)(curve)))
 
-IntPatch_CSFunction::IntPatch_CSFunction(const Handle(Adaptor3d_Surface)& S1,
-                                         const Handle(Adaptor2d_Curve2d)& C,
-                                         const Handle(Adaptor3d_Surface)& S2)
+IntPatch_CSFunction::IntPatch_CSFunction(const Handle(GeomAdaptor_Surface)& S1,
+                                         const Handle(Geom2dAdaptor_Curve)& C,
+                                         const Handle(GeomAdaptor_Surface)& S2)
 {
   surface1 = (Standard_Address)(&S1);
   surface2 = (Standard_Address)(&S2);
@@ -53,9 +53,9 @@ Standard_Integer IntPatch_CSFunction::NbEquations() const
 Standard_Boolean IntPatch_CSFunction::Value(const math_Vector& X, math_Vector& F)
 {
 
-  gp_Pnt   Psurf(Adaptor3d_HSurfaceTool::Value(SURFACE1, X(1), X(2)));
+  gp_Pnt   Psurf(GeomAdaptor_HSurfaceTool::Value(SURFACE1, X(1), X(2)));
   gp_Pnt2d p2d(IntPatch_HCurve2dTool::Value(CURVE, X(3)));
-  gp_Pnt   Pcurv(Adaptor3d_HSurfaceTool::Value(SURFACE2, p2d.X(), p2d.Y()));
+  gp_Pnt   Pcurv(GeomAdaptor_HSurfaceTool::Value(SURFACE2, p2d.X(), p2d.Y()));
 
   F(1) = Psurf.X() - Pcurv.X();
   F(2) = Psurf.Y() - Pcurv.Y();
@@ -73,9 +73,9 @@ Standard_Boolean IntPatch_CSFunction::Derivatives(const math_Vector& X, math_Mat
   gp_Vec2d d2d;
   gp_Vec   d1u, d1v;
 
-  Adaptor3d_HSurfaceTool::D1(SURFACE1, X(1), X(2), Psurf, D1u, D1v);
+  GeomAdaptor_HSurfaceTool::D1(SURFACE1, X(1), X(2), Psurf, D1u, D1v);
   IntPatch_HCurve2dTool::D1(CURVE, X(3), p2d, d2d);
-  Adaptor3d_HSurfaceTool::D1(SURFACE2, p2d.X(), p2d.Y(), Pcurv, d1u, d1v);
+  GeomAdaptor_HSurfaceTool::D1(SURFACE2, p2d.X(), p2d.Y(), Pcurv, d1u, d1v);
   D1w.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
 
   D(1, 1) = D1u.X();
@@ -99,9 +99,9 @@ Standard_Boolean IntPatch_CSFunction::Values(const math_Vector& X, math_Vector& 
   gp_Vec2d d2d;
   gp_Vec   d1u, d1v;
 
-  Adaptor3d_HSurfaceTool::D1(SURFACE1, X(1), X(2), Psurf, D1u, D1v);
+  GeomAdaptor_HSurfaceTool::D1(SURFACE1, X(1), X(2), Psurf, D1u, D1v);
   IntPatch_HCurve2dTool::D1(CURVE, X(3), p2d, d2d);
-  Adaptor3d_HSurfaceTool::D1(SURFACE2, p2d.X(), p2d.Y(), Pcurv, d1u, d1v);
+  GeomAdaptor_HSurfaceTool::D1(SURFACE2, p2d.X(), p2d.Y(), Pcurv, d1u, d1v);
   D1w.SetLinearForm(d2d.X(), d1u, d2d.Y(), d1v);
 
   D(1, 1) = D1u.X();
@@ -131,12 +131,12 @@ Standard_Real IntPatch_CSFunction::Root() const
   return f;
 }
 
-const Handle(Adaptor3d_Surface)& IntPatch_CSFunction::AuxillarSurface() const
+const Handle(GeomAdaptor_Surface)& IntPatch_CSFunction::AuxillarSurface() const
 {
   return SURFACE1;
 }
 
-const Handle(Adaptor2d_Curve2d)& IntPatch_CSFunction::AuxillarCurve() const
+const Handle(Geom2dAdaptor_Curve)& IntPatch_CSFunction::AuxillarCurve() const
 {
   return CURVE;
 }

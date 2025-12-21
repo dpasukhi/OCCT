@@ -20,7 +20,7 @@
 #include <Precision.hxx>
 
 //============================================================
-Standard_Integer Geom2dInt_Geom2dCurveTool::NbSamples(const Adaptor2d_Curve2d& C,
+Standard_Integer Geom2dInt_Geom2dCurveTool::NbSamples(const Geom2dAdaptor_Curve& C,
                                                       const Standard_Real      U0,
                                                       const Standard_Real      U1)
 {
@@ -64,7 +64,7 @@ Standard_Integer Geom2dInt_Geom2dCurveTool::NbSamples(const Adaptor2d_Curve2d& C
 }
 
 //============================================================
-Standard_Integer Geom2dInt_Geom2dCurveTool::NbSamples(const Adaptor2d_Curve2d& C)
+Standard_Integer Geom2dInt_Geom2dCurveTool::NbSamples(const Geom2dAdaptor_Curve& C)
 {
   Standard_Integer  nbs  = C.NbSamples();
   GeomAbs_CurveType typC = C.GetType();

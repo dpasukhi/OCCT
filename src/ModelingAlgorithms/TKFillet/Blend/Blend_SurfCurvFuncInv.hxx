@@ -69,7 +69,7 @@ public:
                                                   math_Matrix&       D) = 0;
 
   //! Set the Point on which a solution has to be found.
-  Standard_EXPORT virtual void Set(const Handle(Adaptor2d_Curve2d)& Rst) = 0;
+  Standard_EXPORT virtual void Set(const Handle(Geom2dAdaptor_Curve)& Rst) = 0;
 
   //! Returns in the vector Tolerance the parametric tolerance
   //! for each of the 3 variables;

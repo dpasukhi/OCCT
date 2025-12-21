@@ -1022,10 +1022,10 @@ static void RefEdgeInter(const TopoDS_Face&                         F,
 // purpose  : return MaxSegment to pass in approximation
 //======================================================================
 
-static Standard_Integer evaluateMaxSegment(const Adaptor3d_CurveOnSurface& aCurveOnSurface)
+static Standard_Integer evaluateMaxSegment(const GeomAdaptor_CurveOnSurface& aCurveOnSurface)
 {
-  const Handle(Adaptor3d_Surface)& aSurf   = aCurveOnSurface.GetSurface();
-  const Handle(Adaptor2d_Curve2d)& aCurv2d = aCurveOnSurface.GetCurve();
+  const Handle(GeomAdaptor_Surface)& aSurf   = aCurveOnSurface.GetSurface();
+  const Handle(Geom2dAdaptor_Curve)& aCurv2d = aCurveOnSurface.GetCurve();
 
   Standard_Real aNbSKnots = 0, aNbC2dKnots = 0;
 
@@ -1412,7 +1412,7 @@ Standard_Boolean BRepOffset_Inter2d::ExtentEdge(const TopoDS_Edge&  E,
         GeomAdaptor_Surface              GAsurf(MinSurf);
         Handle(Geom2dAdaptor_Curve)      HC2d  = new Geom2dAdaptor_Curve(AC2d);
         Handle(GeomAdaptor_Surface)      HSurf = new GeomAdaptor_Surface(GAsurf);
-        Adaptor3d_CurveOnSurface         ConS(HC2d, HSurf);
+        GeomAdaptor_CurveOnSurface         ConS(HC2d, HSurf);
         Standard_Real /*max_deviation,*/ average_deviation;
         GeomAbs_Shape                    Continuity = GeomAbs_C1;
         Standard_Integer                 MaxDegree  = 14;

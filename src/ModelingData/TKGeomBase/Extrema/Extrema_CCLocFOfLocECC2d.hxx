@@ -17,7 +17,7 @@
 #ifndef _Extrema_CCLocFOfLocECC2d_HeaderFile
 #define _Extrema_CCLocFOfLocECC2d_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Extrema_Curve2dTool.hxx>
 #include <Extrema_GFuncExtCC.hxx>
 #include <Extrema_POnCurv2d.hxx>
@@ -26,9 +26,9 @@
 #include <gp_Vec2d.hxx>
 
 //! Type alias for 2D curve-curve extremum function.
-using Extrema_CCLocFOfLocECC2d = Extrema_GFuncExtCC<Adaptor2d_Curve2d,
+using Extrema_CCLocFOfLocECC2d = Extrema_GFuncExtCC<Geom2dAdaptor_Curve,
                                                     Extrema_Curve2dTool,
-                                                    Adaptor2d_Curve2d,
+                                                    Geom2dAdaptor_Curve,
                                                     Extrema_Curve2dTool,
                                                     Extrema_POnCurv2d,
                                                     gp_Pnt2d,

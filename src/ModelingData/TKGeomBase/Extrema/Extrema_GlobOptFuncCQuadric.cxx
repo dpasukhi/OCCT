@@ -90,8 +90,8 @@ Standard_Boolean Extrema_GlobOptFuncCQuadric::checkInputData(const math_Vector& 
 
 //=================================================================================================
 
-Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const Adaptor3d_Curve*   C,
-                                                         const Adaptor3d_Surface* S)
+Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const GeomAdaptor_Curve*   C,
+                                                         const GeomAdaptor_Surface* S)
     : myC(C)
 {
   myTf               = myC->FirstParameter();
@@ -103,7 +103,7 @@ Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const Adaptor3d_Curve* 
 
 //=================================================================================================
 
-Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const Adaptor3d_Curve* C)
+Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const GeomAdaptor_Curve* C)
     : myC(C)
 {
   myTf = myC->FirstParameter();
@@ -112,7 +112,7 @@ Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const Adaptor3d_Curve* 
 
 //=================================================================================================
 
-Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const Adaptor3d_Curve* C,
+Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const GeomAdaptor_Curve* C,
                                                          const Standard_Real    theTf,
                                                          const Standard_Real    theTl)
     : myC(C),
@@ -123,7 +123,7 @@ Extrema_GlobOptFuncCQuadric::Extrema_GlobOptFuncCQuadric(const Adaptor3d_Curve* 
 
 //=================================================================================================
 
-void Extrema_GlobOptFuncCQuadric::LoadQuad(const Adaptor3d_Surface* S,
+void Extrema_GlobOptFuncCQuadric::LoadQuad(const GeomAdaptor_Surface* S,
                                            const Standard_Real      theUf,
                                            const Standard_Real      theUl,
                                            const Standard_Real      theVf,

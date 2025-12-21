@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Blend_Point.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_EvolRad.hxx>
@@ -99,9 +99,9 @@ static void FusionneIntervalles(const TColStd_Array1OfReal& I1,
 
 //=================================================================================================
 
-BlendFunc_EvolRad::BlendFunc_EvolRad(const Handle(Adaptor3d_Surface)& S1,
-                                     const Handle(Adaptor3d_Surface)& S2,
-                                     const Handle(Adaptor3d_Curve)&   C,
+BlendFunc_EvolRad::BlendFunc_EvolRad(const Handle(GeomAdaptor_Surface)& S1,
+                                     const Handle(GeomAdaptor_Surface)& S2,
+                                     const Handle(GeomAdaptor_Curve)&   C,
                                      const Handle(Law_Function)&      Law)
     : surf1(S1),
       surf2(S2),

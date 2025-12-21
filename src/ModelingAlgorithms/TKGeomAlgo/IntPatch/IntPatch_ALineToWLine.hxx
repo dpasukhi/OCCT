@@ -17,7 +17,7 @@
 #ifndef _IntPatch_ALineToWLine_HeaderFile
 #define _IntPatch_ALineToWLine_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntPatch_SequenceOfLine.hxx>
 #include <IntSurf_Quadric.hxx>
 #include <IntSurf_LineOn2S.hxx>
@@ -31,8 +31,8 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor
-  Standard_EXPORT IntPatch_ALineToWLine(const Handle(Adaptor3d_Surface)& theS1,
-                                        const Handle(Adaptor3d_Surface)& theS2,
+  Standard_EXPORT IntPatch_ALineToWLine(const Handle(GeomAdaptor_Surface)& theS1,
+                                        const Handle(GeomAdaptor_Surface)& theS2,
                                         const Standard_Integer           theNbPoints = 200);
 
   Standard_EXPORT void SetTolOpenDomain(const Standard_Real aT);
@@ -98,8 +98,8 @@ protected:
                                        const Standard_Integer    theIndex) const;
 
 private:
-  Handle(Adaptor3d_Surface) myS1;
-  Handle(Adaptor3d_Surface) myS2;
+  Handle(GeomAdaptor_Surface) myS1;
+  Handle(GeomAdaptor_Surface) myS2;
   IntSurf_Quadric           myQuad1;
   IntSurf_Quadric           myQuad2;
 

@@ -20,7 +20,7 @@
 //    gka 21.06.99 S4208: adding method NextProject(Adaptor_Curve)
 //    msv 30.05.00 correct IsPlanar for a conic curve
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_Box2d.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtPC.hxx>
@@ -78,7 +78,7 @@
 // @param aProjParam The parameter of the closest point on the curve to the given point.
 //                   It will be updated to the parameter of the projection point if a closer point
 //                   is found during the iterations.
-static void ProjectOnSegments(const Adaptor3d_Curve& theCurve,
+static void ProjectOnSegments(const GeomAdaptor_Curve& theCurve,
                               const gp_Pnt&          thePoint,
                               const Standard_Integer theSegmentCount,
                               Standard_Real&         aStartParam,
@@ -198,7 +198,7 @@ Standard_Real ShapeAnalysis_Curve::Project(const Handle(Geom_Curve)& C3D,
 
 //=================================================================================================
 
-Standard_Real ShapeAnalysis_Curve::Project(const Adaptor3d_Curve& C3D,
+Standard_Real ShapeAnalysis_Curve::Project(const GeomAdaptor_Curve& C3D,
                                            const gp_Pnt&          P3D,
                                            const Standard_Real    preci,
                                            gp_Pnt&                proj,
@@ -254,7 +254,7 @@ Standard_Real ShapeAnalysis_Curve::Project(const Adaptor3d_Curve& C3D,
 
 //=================================================================================================
 
-Standard_Real ShapeAnalysis_Curve::ProjectAct(const Adaptor3d_Curve& theCurve,
+Standard_Real ShapeAnalysis_Curve::ProjectAct(const GeomAdaptor_Curve& theCurve,
                                               const gp_Pnt&          thePoint,
                                               const Standard_Real    theTolerance,
                                               gp_Pnt&                theProjPoint,
@@ -551,7 +551,7 @@ Standard_Real ShapeAnalysis_Curve::NextProject(const Standard_Real       paramPr
 //=================================================================================================
 
 Standard_Real ShapeAnalysis_Curve::NextProject(const Standard_Real    paramPrev,
-                                               const Adaptor3d_Curve& C3D,
+                                               const GeomAdaptor_Curve& C3D,
                                                const gp_Pnt&          P3D,
                                                const Standard_Real    preci,
                                                gp_Pnt&                proj,

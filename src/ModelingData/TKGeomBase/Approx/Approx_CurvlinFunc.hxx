@@ -17,11 +17,13 @@
 #ifndef _Approx_CurvlinFunc_HeaderFile
 #define _Approx_CurvlinFunc_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>
+
+class GeomAdaptor_Curve;
 
 DEFINE_STANDARD_HANDLE(Approx_CurvlinFunc, Standard_Transient)
 
@@ -31,16 +33,16 @@ class Approx_CurvlinFunc : public Standard_Transient
 {
 
 public:
-  Standard_EXPORT Approx_CurvlinFunc(const Handle(Adaptor3d_Curve)& C, const Standard_Real Tol);
+  Standard_EXPORT Approx_CurvlinFunc(const Handle(GeomAdaptor_Curve)& C, const Standard_Real Tol);
 
-  Standard_EXPORT Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D,
-                                     const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D,
+                                     const Handle(GeomAdaptor_Surface)& S,
                                      const Standard_Real              Tol);
 
-  Standard_EXPORT Approx_CurvlinFunc(const Handle(Adaptor2d_Curve2d)& C2D1,
-                                     const Handle(Adaptor2d_Curve2d)& C2D2,
-                                     const Handle(Adaptor3d_Surface)& S1,
-                                     const Handle(Adaptor3d_Surface)& S2,
+  Standard_EXPORT Approx_CurvlinFunc(const Handle(Geom2dAdaptor_Curve)& C2D1,
+                                     const Handle(Geom2dAdaptor_Curve)& C2D2,
+                                     const Handle(GeomAdaptor_Surface)& S1,
+                                     const Handle(GeomAdaptor_Surface)& S2,
                                      const Standard_Real              Tol);
 
   //! ---Purpose Update the tolerance to used
@@ -70,7 +72,7 @@ public:
   Standard_EXPORT void Length();
 
   //! Computes length of the curve segment.
-  Standard_EXPORT Standard_Real Length(Adaptor3d_Curve&    C,
+  Standard_EXPORT Standard_Real Length(GeomAdaptor_Curve&    C,
                                        const Standard_Real FirstU,
                                        const Standard_Real LasrU) const;
 
@@ -79,7 +81,7 @@ public:
   //! returns original parameter corresponding S. if
   //! Case == 1 computation is performed on myC2D1 and mySurf1,
   //! otherwise it is done on myC2D2 and mySurf2.
-  Standard_EXPORT Standard_Real GetUParameter(Adaptor3d_Curve&       C,
+  Standard_EXPORT Standard_Real GetUParameter(GeomAdaptor_Curve&       C,
                                               const Standard_Real    S,
                                               const Standard_Integer NumberOfCurve) const;
 
@@ -107,12 +109,12 @@ protected:
 private:
   Standard_EXPORT void Init();
 
-  Standard_EXPORT void Init(Adaptor3d_Curve&               C,
+  Standard_EXPORT void Init(GeomAdaptor_Curve&               C,
                             Handle(TColStd_HArray1OfReal)& Si,
                             Handle(TColStd_HArray1OfReal)& Ui) const;
 
   //! returns curvilinear parameter corresponding U.
-  Standard_EXPORT Standard_Real GetSParameter(Adaptor3d_Curve&    C,
+  Standard_EXPORT Standard_Real GetSParameter(GeomAdaptor_Curve&    C,
                                               const Standard_Real U,
                                               const Standard_Real Length) const;
 
@@ -121,11 +123,11 @@ private:
                                                 TColStd_Array1OfReal&  Result,
                                                 const Standard_Integer NumberOfCurve) const;
 
-  Handle(Adaptor3d_Curve)       myC3D;
-  Handle(Adaptor2d_Curve2d)     myC2D1;
-  Handle(Adaptor2d_Curve2d)     myC2D2;
-  Handle(Adaptor3d_Surface)     mySurf1;
-  Handle(Adaptor3d_Surface)     mySurf2;
+  Handle(GeomAdaptor_Curve)       myC3D;
+  Handle(Geom2dAdaptor_Curve)     myC2D1;
+  Handle(Geom2dAdaptor_Curve)     myC2D2;
+  Handle(GeomAdaptor_Surface)     mySurf1;
+  Handle(GeomAdaptor_Surface)     mySurf2;
   Standard_Integer              myCase;
   Standard_Real                 myFirstS;
   Standard_Real                 myLastS;

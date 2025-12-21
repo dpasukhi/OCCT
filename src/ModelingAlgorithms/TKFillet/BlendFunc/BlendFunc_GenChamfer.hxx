@@ -15,7 +15,6 @@
 #ifndef _BlendFunc_GenChamfer_HeaderFile
 #define _BlendFunc_GenChamfer_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <Blend_Function.hxx>
 #include <math_Vector.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -26,6 +25,8 @@
 #include <TColgp_Array1OfPnt2d.hxx>
 #include <TColgp_Array1OfVec2d.hxx>
 
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 class math_Matrix;
 class gp_Lin;
 class Blend_Point;
@@ -36,9 +37,9 @@ class BlendFunc_GenChamfer : public Blend_Function
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_GenChamfer(const Handle(Adaptor3d_Surface)& S1,
-                                       const Handle(Adaptor3d_Surface)& S2,
-                                       const Handle(Adaptor3d_Curve)&   CG);
+  Standard_EXPORT BlendFunc_GenChamfer(const Handle(GeomAdaptor_Surface)& S1,
+                                       const Handle(GeomAdaptor_Surface)& S2,
+                                       const Handle(GeomAdaptor_Curve)&   CG);
 
   //! returns the number of equations of the function.
   Standard_EXPORT Standard_Integer NbEquations() const Standard_OVERRIDE;
@@ -160,9 +161,9 @@ public:
                                   Standard_Real&         TolV) const Standard_OVERRIDE;
 
 protected:
-  Handle(Adaptor3d_Surface) surf1;
-  Handle(Adaptor3d_Surface) surf2;
-  Handle(Adaptor3d_Curve)   curv;
+  Handle(GeomAdaptor_Surface) surf1;
+  Handle(GeomAdaptor_Surface) surf2;
+  Handle(GeomAdaptor_Curve)   curv;
   Standard_Integer          choix;
   Standard_Real             tol;
   Standard_Real             distmin;

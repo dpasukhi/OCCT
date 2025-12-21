@@ -17,9 +17,11 @@
 #ifndef _ProjLib_ComputeApprox_HeaderFile
 #define _ProjLib_ComputeApprox_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
 #include <AppParCurves_Constraint.hxx>
+#include <Standard_Handle.hxx>
+
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 
 class Geom2d_BSplineCurve;
 class Geom2d_BezierCurve;
@@ -44,15 +46,15 @@ public:
 
   //! <Tol> is the tolerance with which the approximation is performed.
   //! Other parameters for approximation have default values.
-  Standard_EXPORT ProjLib_ComputeApprox(const Handle(Adaptor3d_Curve)&   C,
-                                        const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT ProjLib_ComputeApprox(const Handle(GeomAdaptor_Curve)&   C,
+                                        const Handle(GeomAdaptor_Surface)& S,
                                         const Standard_Real              Tol);
 
   //! Performs projecting.
   //! In case of approximation current values of parameters are used:
   //! default values or set by corresponding methods Set...
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Curve)&   C,
-                               const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Curve)&   C,
+                               const Handle(GeomAdaptor_Surface)& S);
 
   //! Set tolerance of approximation.
   //! Default value is Precision::Confusion().

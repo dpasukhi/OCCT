@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepBuilderAPI_Transform.hxx>
@@ -109,7 +109,7 @@ static void UpdateTolFromTopOrBottomPCurve(const TopoDS_Face& aFace, TopoDS_Edge
   Handle(Geom2dAdaptor_Curve) GAHC2d = new Geom2dAdaptor_Curve(aPCurve, fpar, lpar);
   Handle(Geom_Surface)        aSurf  = BRep_Tool::Surface(aFace);
   Handle(GeomAdaptor_Surface) GAHS   = new GeomAdaptor_Surface(aSurf);
-  Adaptor3d_CurveOnSurface    ConS(GAHC2d, GAHS);
+  GeomAdaptor_CurveOnSurface    ConS(GAHC2d, GAHS);
 
   Standard_Real          Tol      = BRep_Tool::Tolerance(anEdge);
   Standard_Real          InitTol  = Tol;

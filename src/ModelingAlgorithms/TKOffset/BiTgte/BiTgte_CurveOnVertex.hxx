@@ -21,7 +21,7 @@
 #include <Standard_DefineAlloc.hxx>
 
 #include <Standard_Real.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_Integer.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -38,13 +38,13 @@ class gp_Parab;
 class Geom_BezierCurve;
 class Geom_BSplineCurve;
 
-DEFINE_STANDARD_HANDLE(BiTgte_CurveOnVertex, Adaptor3d_Curve)
+DEFINE_STANDARD_HANDLE(BiTgte_CurveOnVertex, GeomAdaptor_Curve)
 
 //! private class used to create a filler rolling on
 //! an edge.
-class BiTgte_CurveOnVertex : public Adaptor3d_Curve
+class BiTgte_CurveOnVertex : public GeomAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(BiTgte_CurveOnVertex, Adaptor3d_Curve)
+  DEFINE_STANDARD_RTTIEXT(BiTgte_CurveOnVertex, GeomAdaptor_Curve)
 public:
   Standard_EXPORT BiTgte_CurveOnVertex();
 
@@ -74,7 +74,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(GeomAdaptor_Curve) Trim(const Standard_Real First,
                                                const Standard_Real Last,
                                                const Standard_Real Tol) const Standard_OVERRIDE;
 

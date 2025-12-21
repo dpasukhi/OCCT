@@ -17,7 +17,7 @@
 #ifndef _BRepTopAdaptor_HVertex_HeaderFile
 #define _BRepTopAdaptor_HVertex_HeaderFile
 
-#include <Adaptor3d_HVertex.hxx>
+#include <GeomAdaptor_HVertex.hxx>
 #include <BRepAdaptor_Curve2d.hxx>
 #include <Standard.hxx>
 #include <Standard_Type.hxx>
@@ -27,9 +27,9 @@
 class gp_Pnt2d;
 
 class BRepTopAdaptor_HVertex;
-DEFINE_STANDARD_HANDLE(BRepTopAdaptor_HVertex, Adaptor3d_HVertex)
+DEFINE_STANDARD_HANDLE(BRepTopAdaptor_HVertex, GeomAdaptor_HVertex)
 
-class BRepTopAdaptor_HVertex : public Adaptor3d_HVertex
+class BRepTopAdaptor_HVertex : public GeomAdaptor_HVertex
 {
 
 public:
@@ -42,19 +42,19 @@ public:
 
   Standard_EXPORT virtual gp_Pnt2d Value() Standard_OVERRIDE;
 
-  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Adaptor2d_Curve2d)& C)
+  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Geom2dAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   //! Parametric resolution (2d).
-  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Adaptor2d_Curve2d)& C)
+  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Geom2dAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   Standard_EXPORT virtual TopAbs_Orientation Orientation() Standard_OVERRIDE;
 
-  Standard_EXPORT virtual Standard_Boolean IsSame(const Handle(Adaptor3d_HVertex)& Other)
+  Standard_EXPORT virtual Standard_Boolean IsSame(const Handle(GeomAdaptor_HVertex)& Other)
     Standard_OVERRIDE;
 
-  DEFINE_STANDARD_RTTIEXT(BRepTopAdaptor_HVertex, Adaptor3d_HVertex)
+  DEFINE_STANDARD_RTTIEXT(BRepTopAdaptor_HVertex, GeomAdaptor_HVertex)
 
 protected:
 private:

@@ -22,6 +22,7 @@
 
 #include <GeomFill_Boundary.hxx>
 
+class GeomAdaptor_Curve;
 class Law_Function;
 class gp_Pnt;
 class gp_Vec;
@@ -69,7 +70,7 @@ public:
   //! Standard_Real dummy = 0. ;
   //! myBoundary = GeomFill_SimpleBound
   //! (Curve,Tol,dummy);
-  Standard_EXPORT GeomFill_SimpleBound(const Handle(Adaptor3d_Curve)& Curve,
+  Standard_EXPORT GeomFill_SimpleBound(const Handle(GeomAdaptor_Curve)& Curve,
                                        const Standard_Real            Tol3d,
                                        const Standard_Real            Tolang);
 
@@ -93,7 +94,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Curve) myC3d;
+  Handle(GeomAdaptor_Curve) myC3d;
   Handle(Law_Function)    myPar;
 };
 

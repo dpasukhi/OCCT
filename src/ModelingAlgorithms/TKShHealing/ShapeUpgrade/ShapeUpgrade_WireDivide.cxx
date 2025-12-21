@@ -19,7 +19,7 @@
 //    abv 14.07.99 dealing with edges without 3d curve
 //    svv 10.01.00 porting on DEC
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepLib_MakeFace.hxx>
@@ -433,15 +433,15 @@ void ShapeUpgrade_WireDivide::Perform()
 
       Standard_Real            af = 0., al = 0.;
       Handle(Geom_Curve)       c3d;
-      Adaptor3d_CurveOnSurface AdCS;
+      GeomAdaptor_CurveOnSurface AdCS;
       if (myEdgeDivide->HasCurve3d())
         sae.Curve3d(E, c3d, af, al, Standard_False);
       else if (myEdgeDivide->HasCurve2d() && !Surf.IsNull())
       {
         Handle(Geom2d_Curve) c2d;
         sae.PCurve(E, myFace, c2d, af, al, Standard_False);
-        Handle(Adaptor3d_Surface) AdS  = new GeomAdaptor_Surface(Surf);
-        Handle(Adaptor2d_Curve2d) AC2d = new Geom2dAdaptor_Curve(c2d, af, al);
+        Handle(GeomAdaptor_Surface) AdS  = new GeomAdaptor_Surface(Surf);
+        Handle(Geom2dAdaptor_Curve) AC2d = new Geom2dAdaptor_Curve(c2d, af, al);
         AdCS.Load(AC2d);
         AdCS.Load(AdS);
       }

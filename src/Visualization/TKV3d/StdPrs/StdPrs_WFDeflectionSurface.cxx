@@ -14,7 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_IsoCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <BndLib_AddSurface.hxx>
 #include <GeomAbs_IsoType.hxx>
 #include <gp_Pnt.hxx>
@@ -23,7 +24,7 @@
 #include <StdPrs_DeflectionCurve.hxx>
 #include <StdPrs_WFDeflectionSurface.hxx>
 
-static void FindLimits(const Handle(Adaptor3d_Surface)& surf,
+static void FindLimits(const Handle(GeomAdaptor_Surface)& surf,
                        const Standard_Real              aLimit,
                        Standard_Real&                   UFirst,
                        Standard_Real&                   ULast,
@@ -132,7 +133,7 @@ static void FindLimits(const Handle(Adaptor3d_Surface)& surf,
 //=================================================================================================
 
 void StdPrs_WFDeflectionSurface::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                     const Handle(Adaptor3d_Surface)&  aSurface,
+                                     const Handle(GeomAdaptor_Surface)&  aSurface,
                                      const Handle(Prs3d_Drawer)&       aDrawer)
 {
   Standard_Real U1, U2, V1, V2;
@@ -164,7 +165,7 @@ void StdPrs_WFDeflectionSurface::Add(const Handle(Prs3d_Presentation)& aPresenta
   else
     TheDeflection = aDrawer->MaximalChordialDeviation();
 
-  Adaptor3d_IsoCurve anIso;
+  GeomAdaptor_IsoCurve anIso;
   anIso.Load(aSurface);
 
   // Trace des frontieres.

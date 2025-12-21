@@ -115,13 +115,13 @@ void IntPatch_RLine::ParamOnS2(Standard_Real& a, Standard_Real& b) const
   }
 }
 
-void IntPatch_RLine::SetArcOnS1(const Handle(Adaptor2d_Curve2d)& A)
+void IntPatch_RLine::SetArcOnS1(const Handle(Geom2dAdaptor_Curve)& A)
 {
   theArcOnS1 = A;
   onS1       = Standard_True;
 }
 
-void IntPatch_RLine::SetArcOnS2(const Handle(Adaptor2d_Curve2d)& A)
+void IntPatch_RLine::SetArcOnS2(const Handle(Geom2dAdaptor_Curve)& A)
 {
   theArcOnS2 = A;
   onS2       = Standard_True;

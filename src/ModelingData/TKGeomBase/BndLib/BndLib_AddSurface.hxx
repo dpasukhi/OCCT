@@ -17,10 +17,10 @@
 #ifndef _BndLib_AddSurface_HeaderFile
 #define _BndLib_AddSurface_HeaderFile
 
+#include <GeomAdaptor_Surface.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 
-class Adaptor3d_Surface;
 class Bnd_Box;
 
 //! computes the box from a surface
@@ -59,7 +59,7 @@ public:
   //! // ...
   //! Standard_Real Tol = ... ;
   //! AddSurface::Add ( S, Tol, B );
-  Standard_EXPORT static void Add(const Adaptor3d_Surface& S, const Standard_Real Tol, Bnd_Box& B);
+  Standard_EXPORT static void Add(const GeomAdaptor_Surface& S, const Standard_Real Tol, Bnd_Box& B);
 
   //! Adds to the bounding box B the surface S
   //! the patch of the surface S limited in the u parametric
@@ -92,7 +92,7 @@ public:
   //! // ...
   //! Standard_Real Tol = ... ;
   //! AddSurface::Add ( S, Tol, B );
-  Standard_EXPORT static void Add(const Adaptor3d_Surface& S,
+  Standard_EXPORT static void Add(const GeomAdaptor_Surface& S,
                                   const Standard_Real      UMin,
                                   const Standard_Real      UMax,
                                   const Standard_Real      VMin,
@@ -103,11 +103,11 @@ public:
   //! Adds the surface S to the bounding box B.
   //! This algorithm builds precise bounding box
 
-  Standard_EXPORT static void AddOptimal(const Adaptor3d_Surface& S,
+  Standard_EXPORT static void AddOptimal(const GeomAdaptor_Surface& S,
                                          const Standard_Real      Tol,
                                          Bnd_Box&                 B);
 
-  Standard_EXPORT static void AddOptimal(const Adaptor3d_Surface& S,
+  Standard_EXPORT static void AddOptimal(const GeomAdaptor_Surface& S,
                                          const Standard_Real      UMin,
                                          const Standard_Real      UMax,
                                          const Standard_Real      VMin,
@@ -119,7 +119,7 @@ public:
   //! using numerical minimization algorithms
   //! This method is used in AddOptimal for not analytical surfaces and torus.
   //! if Tol < Precision::Confusion(), Precision::Confusion is used as computation tolerance
-  Standard_EXPORT static void AddGenSurf(const Adaptor3d_Surface& S,
+  Standard_EXPORT static void AddGenSurf(const GeomAdaptor_Surface& S,
                                          const Standard_Real      UMin,
                                          const Standard_Real      UMax,
                                          const Standard_Real      VMin,

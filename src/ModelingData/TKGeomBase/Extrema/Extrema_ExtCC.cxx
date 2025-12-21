@@ -19,7 +19,7 @@
 //                            tri des solutions pour eviter de rendre plusieurs
 //                            fois la meme solution
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_Range.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_CurveTool.hxx>
@@ -58,8 +58,8 @@ Extrema_ExtCC::Extrema_ExtCC(const Standard_Real TolC1, const Standard_Real TolC
 
 //=================================================================================================
 
-Extrema_ExtCC::Extrema_ExtCC(const Adaptor3d_Curve& C1,
-                             const Adaptor3d_Curve& C2,
+Extrema_ExtCC::Extrema_ExtCC(const GeomAdaptor_Curve& C1,
+                             const GeomAdaptor_Curve& C2,
                              const Standard_Real    U1,
                              const Standard_Real    U2,
                              const Standard_Real    V1,
@@ -80,8 +80,8 @@ Extrema_ExtCC::Extrema_ExtCC(const Adaptor3d_Curve& C1,
 
 //=================================================================================================
 
-Extrema_ExtCC::Extrema_ExtCC(const Adaptor3d_Curve& C1,
-                             const Adaptor3d_Curve& C2,
+Extrema_ExtCC::Extrema_ExtCC(const GeomAdaptor_Curve& C1,
+                             const GeomAdaptor_Curve& C2,
                              const Standard_Real    TolC1,
                              const Standard_Real    TolC2)
     : myIsFindSingleSolution(Standard_False),
@@ -98,8 +98,8 @@ Extrema_ExtCC::Extrema_ExtCC(const Adaptor3d_Curve& C1,
 
 //=================================================================================================
 
-void Extrema_ExtCC::Initialize(const Adaptor3d_Curve& C1,
-                               const Adaptor3d_Curve& C2,
+void Extrema_ExtCC::Initialize(const GeomAdaptor_Curve& C1,
+                               const GeomAdaptor_Curve& C2,
                                const Standard_Real    TolC1,
                                const Standard_Real    TolC2)
 {
@@ -114,8 +114,8 @@ void Extrema_ExtCC::Initialize(const Adaptor3d_Curve& C1,
 
 //=================================================================================================
 
-void Extrema_ExtCC::Initialize(const Adaptor3d_Curve& C1,
-                               const Adaptor3d_Curve& C2,
+void Extrema_ExtCC::Initialize(const GeomAdaptor_Curve& C1,
+                               const GeomAdaptor_Curve& C2,
                                const Standard_Real    U1,
                                const Standard_Real    U2,
                                const Standard_Real    V1,
@@ -134,7 +134,7 @@ void Extrema_ExtCC::Initialize(const Adaptor3d_Curve& C1,
 
 //=================================================================================================
 
-void Extrema_ExtCC::SetCurve(const Standard_Integer theRank, const Adaptor3d_Curve& C)
+void Extrema_ExtCC::SetCurve(const Standard_Integer theRank, const GeomAdaptor_Curve& C)
 {
   Standard_OutOfRange_Raise_if(theRank < 1 || theRank > 2, "Extrema_ExtCC::SetCurve()")
     Standard_Integer anInd = theRank - 1;
@@ -144,7 +144,7 @@ void Extrema_ExtCC::SetCurve(const Standard_Integer theRank, const Adaptor3d_Cur
 //=================================================================================================
 
 void Extrema_ExtCC::SetCurve(const Standard_Integer theRank,
-                             const Adaptor3d_Curve& C,
+                             const GeomAdaptor_Curve& C,
                              const Standard_Real    Uinf,
                              const Standard_Real    Usup)
 {

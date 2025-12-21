@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRepBlend_ConstRad.hxx>
 #include <BRepBlend_ConstRadInv.hxx>
 #include <BRepBlend_EvolRad.hxx>
@@ -590,9 +590,9 @@ void ChFi3d_FilBuilder::PerformThreeCorner(const Standard_Integer Jndex)
   // Try to not classify on the face for cases of reentering fillets which naturally depass
   // the border.
   Handle(GeomAdaptor_Surface) bidsurf = new GeomAdaptor_Surface(Fac->ChangeSurface().Surface());
-  Handle(Adaptor3d_TopolTool) IFac    = new Adaptor3d_TopolTool(bidsurf);
+  Handle(GeomAdaptor_TopolTool) IFac    = new GeomAdaptor_TopolTool(bidsurf);
   // end of the attempt.
-  Handle(Adaptor3d_TopolTool) ISurf     = new Adaptor3d_TopolTool(Surf);
+  Handle(GeomAdaptor_TopolTool) ISurf     = new GeomAdaptor_TopolTool(Surf);
   Handle(ChFiDS_Stripe)       corner    = new ChFiDS_Stripe();
   Handle(ChFiDS_HData)&       cornerset = corner->ChangeSetOfSurfData();
   cornerset                             = new ChFiDS_HData();

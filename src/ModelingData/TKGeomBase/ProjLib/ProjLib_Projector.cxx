@@ -16,6 +16,8 @@
 
 //  Modified by skv - Wed Aug 11 15:45:58 2004 OCC6272
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ElCLib.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>

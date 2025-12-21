@@ -16,13 +16,13 @@
 
 #include <BRepBlend_HCurveTool.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <GeomAbs_CurveType.hxx>
 
 //============================================================
-Standard_Integer BRepBlend_HCurveTool::NbSamples(const Handle(Adaptor3d_Curve)& C,
+Standard_Integer BRepBlend_HCurveTool::NbSamples(const Handle(GeomAdaptor_Curve)& C,
                                                  const Standard_Real            U0,
                                                  const Standard_Real            U1)
 {

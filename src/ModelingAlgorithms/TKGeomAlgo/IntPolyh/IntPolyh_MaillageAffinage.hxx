@@ -17,7 +17,7 @@
 #ifndef _IntPolyh_MaillageAffinage_HeaderFile
 #define _IntPolyh_MaillageAffinage_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_Box.hxx>
 #include <IntPolyh_ArrayOfPoints.hxx>
 #include <IntPolyh_ArrayOfEdges.hxx>
@@ -37,16 +37,16 @@ class IntPolyh_MaillageAffinage
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT IntPolyh_MaillageAffinage(const Handle(Adaptor3d_Surface)& S1,
+  Standard_EXPORT IntPolyh_MaillageAffinage(const Handle(GeomAdaptor_Surface)& S1,
                                             const Standard_Integer           NbSU1,
                                             const Standard_Integer           NbSV1,
-                                            const Handle(Adaptor3d_Surface)& S2,
+                                            const Handle(GeomAdaptor_Surface)& S2,
                                             const Standard_Integer           NbSU2,
                                             const Standard_Integer           NbSV2,
                                             const Standard_Integer           PRINT);
 
-  Standard_EXPORT IntPolyh_MaillageAffinage(const Handle(Adaptor3d_Surface)& S1,
-                                            const Handle(Adaptor3d_Surface)& S2,
+  Standard_EXPORT IntPolyh_MaillageAffinage(const Handle(GeomAdaptor_Surface)& S1,
+                                            const Handle(GeomAdaptor_Surface)& S2,
                                             const Standard_Integer           PRINT);
 
   //! Makes the sampling of the surface -
@@ -232,8 +232,8 @@ public:
   Standard_EXPORT Standard_Real GetMaxDeflection(const Standard_Integer SurfID) const;
 
 private:
-  Handle(Adaptor3d_Surface) MaSurface1;
-  Handle(Adaptor3d_Surface) MaSurface2;
+  Handle(GeomAdaptor_Surface) MaSurface1;
+  Handle(GeomAdaptor_Surface) MaSurface2;
   Bnd_Box                   MyBox1;
   Bnd_Box                   MyBox2;
   Standard_Integer          NbSamplesU1;

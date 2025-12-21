@@ -21,10 +21,10 @@
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard_Boolean.hxx>
 #include <Geom2dInt_TheDistBetweenPCurvesOfTheIntPCurvePCurveOfGInter.hxx>
 #include <math_Vector.hxx>
-class Adaptor2d_Curve2d;
 class Geom2dInt_Geom2dCurveTool;
 class Geom2dInt_TheProjPCurOfGInter;
 class Geom2dInt_TheIntPCurvePCurveOfGInter;
@@ -37,8 +37,8 @@ public:
   DEFINE_STANDARD_ALLOC
 
   Standard_EXPORT Geom2dInt_ExactIntersectionPointOfTheIntPCurvePCurveOfGInter(
-    const Adaptor2d_Curve2d& C1,
-    const Adaptor2d_Curve2d& C2,
+    const Geom2dAdaptor_Curve& C1,
+    const Geom2dAdaptor_Curve& C2,
     const Standard_Real      Tol);
 
   Standard_EXPORT void Perform(const Geom2dInt_ThePolygon2dOfTheIntPCurvePCurveOfGInter& Poly1,

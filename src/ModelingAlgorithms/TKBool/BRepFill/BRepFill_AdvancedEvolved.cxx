@@ -24,7 +24,7 @@
 #include <BRepAdaptor_Curve.hxx>
 #include <BOPAlgo_MakerVolume.hxx>
 #include <BOPAlgo_PaveFiller.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <math_NewtonMinimum.hxx>
 #include <BOPTools_AlgoTools.hxx>
 #include <math_Vector.hxx>
@@ -1070,7 +1070,7 @@ void BRepFill_AdvancedEvolved::RemoveExcessSolids(const TopTools_ListOfShape& th
 class NormalFunc : public math_MultipleVarFunctionWithGradient
 {
 public:
-  NormalFunc(const Adaptor3d_CurveOnSurface& theCOS) :myCOnS(theCOS)
+  NormalFunc(const GeomAdaptor_CurveOnSurface& theCOS) :myCOnS(theCOS)
   {
   }
 
@@ -1118,8 +1118,8 @@ public:
 
   gp_Pnt GetPoint(const Standard_Real theX)
   {
-    const Handle(Adaptor2d_Curve2d) &aC = myCOnS.GetCurve();
-    const Handle(Adaptor3d_Surface) &aS = myCOnS.GetSurface();
+    const Handle(Geom2dAdaptor_Curve) &aC = myCOnS.GetCurve();
+    const Handle(GeomAdaptor_Surface) &aS = myCOnS.GetSurface();
     const gp_Pnt2d aP2d(aC->Value(theX));
     return aS->Value(aP2d.X(), aP2d.Y());
   }
@@ -1129,7 +1129,7 @@ protected:
   NormalFunc& operator=(NormalFunc&);
 
 private:
-  const Adaptor3d_CurveOnSurface& myCOnS;
+  const GeomAdaptor_CurveOnSurface& myCOnS;
 };
 
 //=======================================================================
@@ -1143,8 +1143,8 @@ private:
 //=======================================================================
 Standard_Boolean NormalFunc::Value(const math_Vector& theX, Standard_Real& theF)
 {
-  const Handle(Adaptor2d_Curve2d) &aC = myCOnS.GetCurve();
-  const Handle(Adaptor3d_Surface) &aS = myCOnS.GetSurface();
+  const Handle(Geom2dAdaptor_Curve) &aC = myCOnS.GetCurve();
+  const Handle(GeomAdaptor_Surface) &aS = myCOnS.GetSurface();
 
   const gp_Pnt2d aP2d(aC->Value(theX(1)));
   gp_Pnt aP3d;
@@ -1182,8 +1182,8 @@ Standard_Boolean NormalFunc::Value(const math_Vector& theX, Standard_Real& theF)
 //=======================================================================
 Standard_Boolean NormalFunc::Gradient(const math_Vector& theX, math_Vector& theG)
 {
-  const Handle(Adaptor2d_Curve2d) &aC = myCOnS.GetCurve();
-  const Handle(Adaptor3d_Surface) &aS = myCOnS.GetSurface();
+  const Handle(Geom2dAdaptor_Curve) &aC = myCOnS.GetCurve();
+  const Handle(GeomAdaptor_Surface) &aS = myCOnS.GetSurface();
 
   gp_Pnt2d aP2d;
   gp_Vec2d aDc;

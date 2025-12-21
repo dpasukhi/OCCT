@@ -17,7 +17,7 @@
 #ifndef _Contap_Contour_HeaderFile
 #define _Contap_Contour_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Contap_TheSequenceOfLine.hxx>
 #include <Contap_TheSearch.hxx>
 #include <Contap_TheSearchInside.hxx>
@@ -26,7 +26,7 @@
 
 class gp_Vec;
 class gp_Pnt;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 
 class Contap_Contour
 {
@@ -42,39 +42,39 @@ public:
   Standard_EXPORT Contap_Contour(const gp_Pnt& Eye);
 
   //! Creates the contour in a given direction.
-  Standard_EXPORT Contap_Contour(const Handle(Adaptor3d_Surface)&   Surf,
-                                 const Handle(Adaptor3d_TopolTool)& Domain,
+  Standard_EXPORT Contap_Contour(const Handle(GeomAdaptor_Surface)&   Surf,
+                                 const Handle(GeomAdaptor_TopolTool)& Domain,
                                  const gp_Vec&                      Direction);
 
   //! Creates the contour in a given direction.
-  Standard_EXPORT Contap_Contour(const Handle(Adaptor3d_Surface)&   Surf,
-                                 const Handle(Adaptor3d_TopolTool)& Domain,
+  Standard_EXPORT Contap_Contour(const Handle(GeomAdaptor_Surface)&   Surf,
+                                 const Handle(GeomAdaptor_TopolTool)& Domain,
                                  const gp_Vec&                      Direction,
                                  const Standard_Real                Angle);
 
   //! Creates the contour for a perspective view.
-  Standard_EXPORT Contap_Contour(const Handle(Adaptor3d_Surface)&   Surf,
-                                 const Handle(Adaptor3d_TopolTool)& Domain,
+  Standard_EXPORT Contap_Contour(const Handle(GeomAdaptor_Surface)&   Surf,
+                                 const Handle(GeomAdaptor_TopolTool)& Domain,
                                  const gp_Pnt&                      Eye);
 
   //! Creates the contour in a given direction.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   Surf,
-                               const Handle(Adaptor3d_TopolTool)& Domain);
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   Surf,
+                               const Handle(GeomAdaptor_TopolTool)& Domain);
 
   //! Creates the contour in a given direction.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   Surf,
-                               const Handle(Adaptor3d_TopolTool)& Domain,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   Surf,
+                               const Handle(GeomAdaptor_TopolTool)& Domain,
                                const gp_Vec&                      Direction);
 
   //! Creates the contour in a given direction.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   Surf,
-                               const Handle(Adaptor3d_TopolTool)& Domain,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   Surf,
+                               const Handle(GeomAdaptor_TopolTool)& Domain,
                                const gp_Vec&                      Direction,
                                const Standard_Real                Angle);
 
   //! Creates the contour for a perspective view.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Surface)&   Surf,
-                               const Handle(Adaptor3d_TopolTool)& Domain,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Surface)&   Surf,
+                               const Handle(GeomAdaptor_TopolTool)& Domain,
                                const gp_Pnt&                      Eye);
 
   Standard_EXPORT void Init(const gp_Vec& Direction);
@@ -98,9 +98,9 @@ public:
 
 protected:
 private:
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_TopolTool)& Domain);
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_TopolTool)& Domain);
 
-  Standard_EXPORT void PerformAna(const Handle(Adaptor3d_TopolTool)& Domain);
+  Standard_EXPORT void PerformAna(const Handle(GeomAdaptor_TopolTool)& Domain);
 
   Standard_Boolean         done;
   Contap_TheSequenceOfLine slin;

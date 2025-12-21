@@ -18,9 +18,11 @@
 // 30/12/1996 PMN Ajout de GetMinimalWeight
 // 23/09/1997 PMN Supprimme GetCircle et GetTol (passe dans GeomFill)
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BlendFunc.hxx>
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <CSLib.hxx>
 #include <CSLib_NormalStatus.hxx>
 #include <Geom_Circle.hxx>
@@ -154,7 +156,7 @@ GeomAbs_Shape BlendFunc::NextShape(const GeomAbs_Shape S)
 
 //=================================================================================================
 
-Standard_Boolean BlendFunc::ComputeNormal(const Handle(Adaptor3d_Surface)& Surf,
+Standard_Boolean BlendFunc::ComputeNormal(const Handle(GeomAdaptor_Surface)& Surf,
                                           const gp_Pnt2d&                  p2d,
                                           gp_Vec&                          Normal)
 {
@@ -206,7 +208,7 @@ Standard_Boolean BlendFunc::ComputeNormal(const Handle(Adaptor3d_Surface)& Surf,
 
 //=================================================================================================
 
-Standard_Boolean BlendFunc::ComputeDNormal(const Handle(Adaptor3d_Surface)& Surf,
+Standard_Boolean BlendFunc::ComputeDNormal(const Handle(GeomAdaptor_Surface)& Surf,
                                            const gp_Pnt2d&                  p2d,
                                            gp_Vec&                          Normal,
                                            gp_Vec&                          DNu,

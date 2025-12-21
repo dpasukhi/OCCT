@@ -17,7 +17,7 @@
 #ifndef _IntPatch_PointLine_HeaderFile
 #define _IntPatch_PointLine_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntPatch_Line.hxx>
 
 class gp_Pnt;
@@ -81,8 +81,8 @@ public:
   //! the intersection line in given point.
   //! Returns negative value if computation is not possible.
   Standard_EXPORT static Standard_Real CurvatureRadiusOfIntersLine(
-    const Handle(Adaptor3d_Surface)& theS1,
-    const Handle(Adaptor3d_Surface)& theS2,
+    const Handle(GeomAdaptor_Surface)& theS1,
+    const Handle(GeomAdaptor_Surface)& theS2,
     const IntSurf_PntOn2S&           theUVPoint);
 
   DEFINE_STANDARD_RTTIEXT(IntPatch_PointLine, IntPatch_Line)

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Extrema_GenExtSS.hxx>
 #include <Extrema_POnSurf.hxx>
 #include <math_BFGS.hxx>
@@ -30,7 +30,7 @@ class Extrema_FuncDistSS : public math_MultipleVarFunctionWithGradient
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT Extrema_FuncDistSS(const Adaptor3d_Surface& S1, const Adaptor3d_Surface& S2)
+  Standard_EXPORT Extrema_FuncDistSS(const GeomAdaptor_Surface& S1, const GeomAdaptor_Surface& S2)
       : myS1(&S1),
         myS2(&S2)
   {
@@ -86,8 +86,8 @@ public:
 
 protected:
 private:
-  const Adaptor3d_Surface* myS1;
-  const Adaptor3d_Surface* myS2;
+  const GeomAdaptor_Surface* myS1;
+  const GeomAdaptor_Surface* myS2;
 };
 
 //=================================================================================================
@@ -120,8 +120,8 @@ Extrema_GenExtSS::~Extrema_GenExtSS()
 
 //=================================================================================================
 
-Extrema_GenExtSS::Extrema_GenExtSS(const Adaptor3d_Surface& S1,
-                                   const Adaptor3d_Surface& S2,
+Extrema_GenExtSS::Extrema_GenExtSS(const GeomAdaptor_Surface& S1,
+                                   const GeomAdaptor_Surface& S2,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
                                    const Standard_Real      Tol1,
@@ -134,8 +134,8 @@ Extrema_GenExtSS::Extrema_GenExtSS(const Adaptor3d_Surface& S1,
 
 //=================================================================================================
 
-Extrema_GenExtSS::Extrema_GenExtSS(const Adaptor3d_Surface& S1,
-                                   const Adaptor3d_Surface& S2,
+Extrema_GenExtSS::Extrema_GenExtSS(const GeomAdaptor_Surface& S1,
+                                   const GeomAdaptor_Surface& S2,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
                                    const Standard_Real      U1min,
@@ -156,7 +156,7 @@ Extrema_GenExtSS::Extrema_GenExtSS(const Adaptor3d_Surface& S1,
 
 //=================================================================================================
 
-void Extrema_GenExtSS::Initialize(const Adaptor3d_Surface& S2,
+void Extrema_GenExtSS::Initialize(const GeomAdaptor_Surface& S2,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      Tol2)
@@ -170,7 +170,7 @@ void Extrema_GenExtSS::Initialize(const Adaptor3d_Surface& S2,
 
 //=================================================================================================
 
-void Extrema_GenExtSS::Initialize(const Adaptor3d_Surface& S2,
+void Extrema_GenExtSS::Initialize(const GeomAdaptor_Surface& S2,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      U2min,
@@ -218,7 +218,7 @@ void Extrema_GenExtSS::Initialize(const Adaptor3d_Surface& S2,
 
 //=================================================================================================
 
-void Extrema_GenExtSS::Perform(const Adaptor3d_Surface& S1, const Standard_Real Tol1)
+void Extrema_GenExtSS::Perform(const GeomAdaptor_Surface& S1, const Standard_Real Tol1)
 {
   myu1min = S1.FirstUParameter();
   myu1sup = S1.LastUParameter();
@@ -229,7 +229,7 @@ void Extrema_GenExtSS::Perform(const Adaptor3d_Surface& S1, const Standard_Real 
 
 //=================================================================================================
 
-void Extrema_GenExtSS::Perform(const Adaptor3d_Surface& S1,
+void Extrema_GenExtSS::Perform(const GeomAdaptor_Surface& S1,
                                const Standard_Real      U1min,
                                const Standard_Real      U1sup,
                                const Standard_Real      V1min,

@@ -22,13 +22,13 @@
 #include <Standard_NotImplemented.hxx>
 #include <StdFail_NotDone.hxx>
 
-// mask the return of a Adaptor2d_Curve2d as a gp_Pnt
-static gp_Pnt Value(const Adaptor3d_Curve& theC, const Standard_Real theParameter)
+// mask the return of a Geom2dAdaptor_Curve as a gp_Pnt
+static gp_Pnt Value(const GeomAdaptor_Curve& theC, const Standard_Real theParameter)
 {
   return theC.Value(theParameter);
 }
 
-static gp_Pnt Value(const Adaptor2d_Curve2d& theC, const Standard_Real theParameter)
+static gp_Pnt Value(const Geom2dAdaptor_Curve& theC, const Standard_Real theParameter)
 {
   const gp_Pnt2d a2dPoint = theC.Value(theParameter);
   return gp_Pnt(a2dPoint.X(), a2dPoint.Y(), 0.0);
@@ -45,7 +45,7 @@ GCPnts_UniformDeflection::GCPnts_UniformDeflection()
 
 //=================================================================================================
 
-GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor3d_Curve& theC,
+GCPnts_UniformDeflection::GCPnts_UniformDeflection(const GeomAdaptor_Curve& theC,
                                                    const Standard_Real    theDeflection,
                                                    const Standard_Real    theU1,
                                                    const Standard_Real    theU2,
@@ -58,7 +58,7 @@ GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor3d_Curve& theC,
+GCPnts_UniformDeflection::GCPnts_UniformDeflection(const GeomAdaptor_Curve& theC,
                                                    const Standard_Real    theDeflection,
                                                    const Standard_Boolean theWithControl)
     : myDone(Standard_False),
@@ -69,7 +69,7 @@ GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor2d_Curve2d& theC,
+GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Geom2dAdaptor_Curve& theC,
                                                    const Standard_Real      theDeflection,
                                                    const Standard_Real      theU1,
                                                    const Standard_Real      theU2,
@@ -82,7 +82,7 @@ GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor2d_Curve2d& theC
 
 //=================================================================================================
 
-GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor2d_Curve2d& theC,
+GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Geom2dAdaptor_Curve& theC,
                                                    const Standard_Real      theDeflection,
                                                    const Standard_Boolean   theWithControl)
     : myDone(Standard_False),
@@ -93,7 +93,7 @@ GCPnts_UniformDeflection::GCPnts_UniformDeflection(const Adaptor2d_Curve2d& theC
 
 //=================================================================================================
 
-void GCPnts_UniformDeflection::Initialize(const Adaptor3d_Curve& theC,
+void GCPnts_UniformDeflection::Initialize(const GeomAdaptor_Curve& theC,
                                           const Standard_Real    theDeflection,
                                           const Standard_Boolean theWithControl)
 {
@@ -102,7 +102,7 @@ void GCPnts_UniformDeflection::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_UniformDeflection::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_UniformDeflection::Initialize(const Geom2dAdaptor_Curve& theC,
                                           const Standard_Real      theDeflection,
                                           const Standard_Boolean   theWithControl)
 {
@@ -111,7 +111,7 @@ void GCPnts_UniformDeflection::Initialize(const Adaptor2d_Curve2d& theC,
 
 //=================================================================================================
 
-void GCPnts_UniformDeflection::Initialize(const Adaptor3d_Curve& theC,
+void GCPnts_UniformDeflection::Initialize(const GeomAdaptor_Curve& theC,
                                           const Standard_Real    theDeflection,
                                           const Standard_Real    theU1,
                                           const Standard_Real    theU2,
@@ -122,7 +122,7 @@ void GCPnts_UniformDeflection::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_UniformDeflection::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_UniformDeflection::Initialize(const Geom2dAdaptor_Curve& theC,
                                           const Standard_Real      theDeflection,
                                           const Standard_Real      theU1,
                                           const Standard_Real      theU2,

@@ -17,8 +17,10 @@
 #ifndef _Approx_SameParameter_HeaderFile
 #define _Approx_SameParameter_HeaderFile
 
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
+#include <GeomAdaptor_Surface.hxx>
+
+class GeomAdaptor_Curve;
 
 class Geom_Curve;
 class Geom2d_Curve;
@@ -39,15 +41,15 @@ public:
                                        const Standard_Real         Tol);
 
   //! Warning: the C3D and C2D must have the same parametric domain.
-  Standard_EXPORT Approx_SameParameter(const Handle(Adaptor3d_Curve)&   C3D,
+  Standard_EXPORT Approx_SameParameter(const Handle(GeomAdaptor_Curve)&   C3D,
                                        const Handle(Geom2d_Curve)&      C2D,
-                                       const Handle(Adaptor3d_Surface)& S,
+                                       const Handle(GeomAdaptor_Surface)& S,
                                        const Standard_Real              Tol);
 
   //! Warning: the C3D and C2D must have the same parametric domain.
-  Standard_EXPORT Approx_SameParameter(const Handle(Adaptor3d_Curve)&   C3D,
-                                       const Handle(Adaptor2d_Curve2d)& C2D,
-                                       const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT Approx_SameParameter(const Handle(GeomAdaptor_Curve)&   C3D,
+                                       const Handle(Geom2dAdaptor_Curve)& C2D,
+                                       const Handle(GeomAdaptor_Surface)& S,
                                        const Standard_Real              Tol);
 
   //!@Returns .false. if calculations failed,
@@ -71,11 +73,11 @@ public:
   //! Returns the 3D curve that has the same parameter as
   //! the 3D curve once evaluated on the surface up to the
   //! specified tolerance.
-  Handle(Adaptor3d_Curve) Curve3d() const { return myC3d; }
+  Handle(GeomAdaptor_Curve) Curve3d() const { return myC3d; }
 
   //! Returns the 3D curve on surface that has the same parameter as
   //! the 3D curve up to the specified tolerance.
-  Handle(Adaptor3d_CurveOnSurface) CurveOnSurface() const { return myCurveOnSurface; }
+  Handle(GeomAdaptor_CurveOnSurface) CurveOnSurface() const { return myCurveOnSurface; }
 
 private:
   //! Internal data structure to unify access to the most actively used data.
@@ -83,7 +85,7 @@ private:
   //! a lot of memory is used in intermediate computations.
   struct Approx_SameParameter_Data
   {
-    Adaptor3d_CurveOnSurface myCOnS;  // Curve on surface.
+    GeomAdaptor_CurveOnSurface myCOnS;  // Curve on surface.
     Standard_Integer         myNbPnt; // Number of points.
     Standard_Real*           myPC3d;  // Parameters on 3d curve.
     Standard_Real*           myPC2d;  // Parameters on 2d curve.
@@ -134,7 +136,7 @@ private:
 
   //! Computes tangents on boundary points.
   //@return true if tangents are not null and false otherwise.
-  Standard_Boolean ComputeTangents(const Adaptor3d_CurveOnSurface& theCOnS,
+  Standard_Boolean ComputeTangents(const GeomAdaptor_CurveOnSurface& theCOnS,
                                    Standard_Real&                  theFirstTangent,
                                    Standard_Real&                  theLastTangent) const;
 
@@ -167,10 +169,10 @@ private:
   Standard_Boolean                 myDone;
   Standard_Real                    myTolReached;
   Handle(Geom2d_Curve)             myCurve2d;
-  Handle(Adaptor2d_Curve2d)        myHCurve2d;
-  Handle(Adaptor3d_Curve)          myC3d;
-  Handle(Adaptor3d_Surface)        mySurf;
-  Handle(Adaptor3d_CurveOnSurface) myCurveOnSurface;
+  Handle(Geom2dAdaptor_Curve)        myHCurve2d;
+  Handle(GeomAdaptor_Curve)          myC3d;
+  Handle(GeomAdaptor_Surface)        mySurf;
+  Handle(GeomAdaptor_CurveOnSurface) myCurveOnSurface;
 };
 
 #endif // _Approx_SameParameter_HeaderFile

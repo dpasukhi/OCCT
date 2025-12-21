@@ -17,7 +17,7 @@
 #ifndef _IntSurf_HeaderFile
 #define _IntSurf_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 class IntSurf_Transition;
 class gp_Dir;
@@ -53,8 +53,8 @@ public:
   //!
   //! If surface is not periodic in correspond direction then
   //! its period is considered to be equal to 0.
-  Standard_EXPORT static void SetPeriod(const Handle(Adaptor3d_Surface)& theFirstSurf,
-                                        const Handle(Adaptor3d_Surface)& theSecondSurf,
+  Standard_EXPORT static void SetPeriod(const Handle(GeomAdaptor_Surface)& theFirstSurf,
+                                        const Handle(GeomAdaptor_Surface)& theSecondSurf,
                                         Standard_Real                    theArrOfPeriod[4]);
 };
 

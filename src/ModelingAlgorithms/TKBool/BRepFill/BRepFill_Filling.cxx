@@ -16,7 +16,7 @@
 
 #include <BRepFill_Filling.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_TEdge.hxx>
 #include <BRep_Tool.hxx>
@@ -320,7 +320,7 @@ void BRepFill_Filling::AddConstraints(const BRepFill_SequenceOfEdgeFaceAndOrder&
       {
         Handle(BRepAdaptor_Curve) HCurve = new BRepAdaptor_Curve();
         HCurve->Initialize(CurEdge);
-        const Handle(Adaptor3d_Curve)& aHCurve = HCurve; // to avoid ambiguity
+        const Handle(GeomAdaptor_Curve)& aHCurve = HCurve; // to avoid ambiguity
         Constr = new BRepFill_CurveConstraint(aHCurve, CurOrder, myNbPtsOnCur, myTol3d);
       }
       else
@@ -341,8 +341,8 @@ void BRepFill_Filling::AddConstraints(const BRepFill_SequenceOfEdgeFaceAndOrder&
         Handle(GeomAdaptor_Surface) Surf    = new GeomAdaptor_Surface(Surface);
         Handle(Geom2dAdaptor_Curve) Curve2d = new Geom2dAdaptor_Curve(C2d);
 
-        Adaptor3d_CurveOnSurface         CurvOnSurf(Curve2d, Surf);
-        Handle(Adaptor3d_CurveOnSurface) HCurvOnSurf = new Adaptor3d_CurveOnSurface(CurvOnSurf);
+        GeomAdaptor_CurveOnSurface         CurvOnSurf(Curve2d, Surf);
+        Handle(GeomAdaptor_CurveOnSurface) HCurvOnSurf = new GeomAdaptor_CurveOnSurface(CurvOnSurf);
 
         Constr = new GeomPlate_CurveConstraint(HCurvOnSurf,
                                                CurOrder,
@@ -361,8 +361,8 @@ void BRepFill_Filling::AddConstraints(const BRepFill_SequenceOfEdgeFaceAndOrder&
       // If CurEdge has no 2d representation on CurFace,
       // there will be exception "Attempt to access to null object"
       // in this initialization (null pcurve).
-      Adaptor3d_CurveOnSurface         CurvOnSurf(Curve2d, Surf);
-      Handle(Adaptor3d_CurveOnSurface) HCurvOnSurf = new Adaptor3d_CurveOnSurface(CurvOnSurf);
+      GeomAdaptor_CurveOnSurface         CurvOnSurf(Curve2d, Surf);
+      Handle(GeomAdaptor_CurveOnSurface) HCurvOnSurf = new GeomAdaptor_CurveOnSurface(CurvOnSurf);
 
       Constr = new BRepFill_CurveConstraint(HCurvOnSurf,
                                             CurOrder,

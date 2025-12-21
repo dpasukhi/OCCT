@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <GeomInt_IntSS.hxx>
 
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <Approx_CurveOnSurface.hxx>
 #include <ElSLib.hxx>
 #include <Extrema_ExtPS.hxx>
@@ -230,7 +230,7 @@ static void IntersectCurveAndBoundary(const Handle(Geom2d_Curve)&       theC2d,
 // purpose  : Check if theAHC2d corresponds to a degenerated edge.
 //=======================================================================
 static Standard_Boolean isDegenerated(const Handle(GeomAdaptor_Surface)& theGAHS,
-                                      const Handle(Adaptor2d_Curve2d)&   theAHC2d,
+                                      const Handle(Geom2dAdaptor_Curve)&   theAHC2d,
                                       const Standard_Real                theFirstPar,
                                       const Standard_Real                theLastPar)
 {
@@ -259,8 +259,8 @@ static Standard_Boolean isDegenerated(const Handle(GeomAdaptor_Surface)& theGAHS
 //=================================================================================================
 
 void GeomInt_IntSS::MakeCurve(const Standard_Integer             Index,
-                              const Handle(Adaptor3d_TopolTool)& dom1,
-                              const Handle(Adaptor3d_TopolTool)& dom2,
+                              const Handle(GeomAdaptor_TopolTool)& dom1,
+                              const Handle(GeomAdaptor_TopolTool)& dom2,
                               const Standard_Real                Tol,
                               const Standard_Boolean             Approx,
                               const Standard_Boolean             ApproxS1,
@@ -1075,7 +1075,7 @@ void GeomInt_IntSS::TreatRLine(const Handle(IntPatch_RLine)&      theRL,
                                Standard_Real&                     theTolReached)
 {
   Handle(GeomAdaptor_Surface) aGAHS;
-  Handle(Adaptor2d_Curve2d)   anAHC2d;
+  Handle(Geom2dAdaptor_Curve)   anAHC2d;
   Standard_Real               tf, tl;
   // It is assumed that 2d curve is 2d line (rectangular surface domain)
   if (theRL->IsArcOnS1())

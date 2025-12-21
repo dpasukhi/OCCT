@@ -23,8 +23,8 @@
 //  by successive iteration find the point and its associated parameter
 //  call to FunctionRoot
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <CPnts_AbscissaPoint.hxx>
 #include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
@@ -42,7 +42,7 @@ static Standard_Real f3d(const Standard_Real X, const Standard_Address C)
 {
   gp_Pnt P;
   gp_Vec V;
-  ((Adaptor3d_Curve*)C)->D1(X, P, V);
+  ((GeomAdaptor_Curve*)C)->D1(X, P, V);
   return V.Magnitude();
 }
 
@@ -50,11 +50,11 @@ static Standard_Real f2d(const Standard_Real X, const Standard_Address C)
 {
   gp_Pnt2d P;
   gp_Vec2d V;
-  ((Adaptor2d_Curve2d*)C)->D1(X, P, V);
+  ((Geom2dAdaptor_Curve*)C)->D1(X, P, V);
   return V.Magnitude();
 }
 
-static Standard_Integer order(const Adaptor3d_Curve& C)
+static Standard_Integer order(const GeomAdaptor_Curve& C)
 {
   switch (C.GetType())
   {
@@ -76,7 +76,7 @@ static Standard_Integer order(const Adaptor3d_Curve& C)
   }
 }
 
-static Standard_Integer order(const Adaptor2d_Curve2d& C)
+static Standard_Integer order(const Geom2dAdaptor_Curve& C)
 {
   switch (C.GetType())
   {
@@ -100,35 +100,35 @@ static Standard_Integer order(const Adaptor2d_Curve2d& C)
 
 //=================================================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor3d_Curve& C)
+Standard_Real CPnts_AbscissaPoint::Length(const GeomAdaptor_Curve& C)
 {
   return CPnts_AbscissaPoint::Length(C, C.FirstParameter(), C.LastParameter());
 }
 
 //=================================================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor2d_Curve2d& C)
+Standard_Real CPnts_AbscissaPoint::Length(const Geom2dAdaptor_Curve& C)
 {
   return CPnts_AbscissaPoint::Length(C, C.FirstParameter(), C.LastParameter());
 }
 
 //=================================================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor3d_Curve& C, const Standard_Real Tol)
+Standard_Real CPnts_AbscissaPoint::Length(const GeomAdaptor_Curve& C, const Standard_Real Tol)
 {
   return CPnts_AbscissaPoint::Length(C, C.FirstParameter(), C.LastParameter(), Tol);
 }
 
 //=================================================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor2d_Curve2d& C, const Standard_Real Tol)
+Standard_Real CPnts_AbscissaPoint::Length(const Geom2dAdaptor_Curve& C, const Standard_Real Tol)
 {
   return CPnts_AbscissaPoint::Length(C, C.FirstParameter(), C.LastParameter(), Tol);
 }
 
 //=================================================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor3d_Curve& C,
+Standard_Real CPnts_AbscissaPoint::Length(const GeomAdaptor_Curve& C,
                                           const Standard_Real    U1,
                                           const Standard_Real    U2)
 {
@@ -147,7 +147,7 @@ Standard_Real CPnts_AbscissaPoint::Length(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor2d_Curve2d& C,
+Standard_Real CPnts_AbscissaPoint::Length(const Geom2dAdaptor_Curve& C,
                                           const Standard_Real      U1,
                                           const Standard_Real      U2)
 {
@@ -169,7 +169,7 @@ Standard_Real CPnts_AbscissaPoint::Length(const Adaptor2d_Curve2d& C,
 // purpose  : 3d with parameters and tolerance
 //=======================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor3d_Curve& C,
+Standard_Real CPnts_AbscissaPoint::Length(const GeomAdaptor_Curve& C,
                                           const Standard_Real    U1,
                                           const Standard_Real    U2,
                                           const Standard_Real    Tol)
@@ -192,7 +192,7 @@ Standard_Real CPnts_AbscissaPoint::Length(const Adaptor3d_Curve& C,
 // purpose  : 2d with parameters and tolerance
 //=======================================================================
 
-Standard_Real CPnts_AbscissaPoint::Length(const Adaptor2d_Curve2d& C,
+Standard_Real CPnts_AbscissaPoint::Length(const Geom2dAdaptor_Curve& C,
                                           const Standard_Real      U1,
                                           const Standard_Real      U2,
                                           const Standard_Real      Tol)
@@ -223,7 +223,7 @@ CPnts_AbscissaPoint::CPnts_AbscissaPoint()
 
 //=================================================================================================
 
-CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor3d_Curve& C,
+CPnts_AbscissaPoint::CPnts_AbscissaPoint(const GeomAdaptor_Curve& C,
                                          const Standard_Real    Abscissa,
                                          const Standard_Real    U0,
                                          const Standard_Real    Resolution)
@@ -236,7 +236,7 @@ CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor2d_Curve2d& C,
+CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Geom2dAdaptor_Curve& C,
                                          const Standard_Real      Abscissa,
                                          const Standard_Real      U0,
                                          const Standard_Real      Resolution)
@@ -247,7 +247,7 @@ CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor2d_Curve2d& C,
 
 //=================================================================================================
 
-CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor3d_Curve& C,
+CPnts_AbscissaPoint::CPnts_AbscissaPoint(const GeomAdaptor_Curve& C,
                                          const Standard_Real    Abscissa,
                                          const Standard_Real    U0,
                                          const Standard_Real    Ui,
@@ -259,7 +259,7 @@ CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor2d_Curve2d& C,
+CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Geom2dAdaptor_Curve& C,
                                          const Standard_Real      Abscissa,
                                          const Standard_Real      U0,
                                          const Standard_Real      Ui,
@@ -271,14 +271,14 @@ CPnts_AbscissaPoint::CPnts_AbscissaPoint(const Adaptor2d_Curve2d& C,
 
 //=================================================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor3d_Curve& C)
+void CPnts_AbscissaPoint::Init(const GeomAdaptor_Curve& C)
 {
   Init(C, C.FirstParameter(), C.LastParameter());
 }
 
 //=================================================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor2d_Curve2d& C)
+void CPnts_AbscissaPoint::Init(const Geom2dAdaptor_Curve& C)
 {
   Init(C, C.FirstParameter(), C.LastParameter());
 }
@@ -288,21 +288,21 @@ void CPnts_AbscissaPoint::Init(const Adaptor2d_Curve2d& C)
 // purpose  : introduced by rbv for curvilinear parametrization
 //=======================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor3d_Curve& C, const Standard_Real Tol)
+void CPnts_AbscissaPoint::Init(const GeomAdaptor_Curve& C, const Standard_Real Tol)
 {
   Init(C, C.FirstParameter(), C.LastParameter(), Tol);
 }
 
 //=================================================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor2d_Curve2d& C, const Standard_Real Tol)
+void CPnts_AbscissaPoint::Init(const Geom2dAdaptor_Curve& C, const Standard_Real Tol)
 {
   Init(C, C.FirstParameter(), C.LastParameter(), Tol);
 }
 
 //=================================================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor3d_Curve& C,
+void CPnts_AbscissaPoint::Init(const GeomAdaptor_Curve& C,
                                const Standard_Real    U1,
                                const Standard_Real    U2)
 {
@@ -320,7 +320,7 @@ void CPnts_AbscissaPoint::Init(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor2d_Curve2d& C,
+void CPnts_AbscissaPoint::Init(const Geom2dAdaptor_Curve& C,
                                const Standard_Real      U1,
                                const Standard_Real      U2)
 {
@@ -341,7 +341,7 @@ void CPnts_AbscissaPoint::Init(const Adaptor2d_Curve2d& C,
 // purpose  : introduced by rbv for curvilinear parametrization
 //=======================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor3d_Curve& C,
+void CPnts_AbscissaPoint::Init(const GeomAdaptor_Curve& C,
                                const Standard_Real    U1,
                                const Standard_Real    U2,
                                const Standard_Real    Tol)
@@ -360,7 +360,7 @@ void CPnts_AbscissaPoint::Init(const Adaptor3d_Curve& C,
 
 //=================================================================================================
 
-void CPnts_AbscissaPoint::Init(const Adaptor2d_Curve2d& C,
+void CPnts_AbscissaPoint::Init(const Geom2dAdaptor_Curve& C,
                                const Standard_Real      U1,
                                const Standard_Real      U2,
                                const Standard_Real      Tol)

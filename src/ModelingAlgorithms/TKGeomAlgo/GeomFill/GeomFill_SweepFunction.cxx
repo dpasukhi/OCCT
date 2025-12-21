@@ -20,6 +20,7 @@
   #define No_Standard_DimensionError
 #endif
 
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_LocationLaw.hxx>
 #include <GeomFill_SectionLaw.hxx>
 #include <GeomFill_SweepFunction.hxx>

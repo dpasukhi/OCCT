@@ -33,8 +33,8 @@
 //  Function : FunctionDraft
 //  Purpose : Initialisation de la section et de la surface d'arret
 //*******************************************************
-GeomFill_FunctionDraft::GeomFill_FunctionDraft(const Handle(Adaptor3d_Surface)& S,
-                                               const Handle(Adaptor3d_Curve)&   C)
+GeomFill_FunctionDraft::GeomFill_FunctionDraft(const Handle(GeomAdaptor_Surface)& S,
+                                               const Handle(GeomAdaptor_Curve)&   C)
 {
   TheCurve   = C;
   TheSurface = S;
@@ -126,7 +126,7 @@ Standard_Boolean GeomFill_FunctionDraft::Values(const math_Vector& X,
 // Function : DerivT
 // Purpose : calcul of the first derivative from t
 //*******************************************************
-Standard_Boolean GeomFill_FunctionDraft::DerivT(const Handle(Adaptor3d_Curve)& C,
+Standard_Boolean GeomFill_FunctionDraft::DerivT(const Handle(GeomAdaptor_Curve)& C,
                                                 const Standard_Real            Param,
                                                 const Standard_Real            W,
                                                 const gp_Vec&                  dN,
@@ -150,7 +150,7 @@ Standard_Boolean GeomFill_FunctionDraft::DerivT(const Handle(Adaptor3d_Curve)& C
 // Function : Deriv2T
 // Purpose : calcul of the second derivatice from t
 //*******************************************************
-Standard_Boolean GeomFill_FunctionDraft::Deriv2T(const Handle(Adaptor3d_Curve)& C,
+Standard_Boolean GeomFill_FunctionDraft::Deriv2T(const Handle(GeomAdaptor_Curve)& C,
                                                  const Standard_Real            Param,
                                                  const Standard_Real            W,
                                                  const gp_Vec&                  d2N,

@@ -110,7 +110,7 @@ inline Standard_Boolean IntPatch_Point::IsVertexOnS1() const
   return vtxonS1;
 }
 
-inline const Handle(Adaptor3d_HVertex)& IntPatch_Point::VertexOnS1() const
+inline const Handle(GeomAdaptor_HVertex)& IntPatch_Point::VertexOnS1() const
 {
   if (!vtxonS1)
   {
@@ -119,7 +119,7 @@ inline const Handle(Adaptor3d_HVertex)& IntPatch_Point::VertexOnS1() const
   return vS1;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_Point::ArcOnS1() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_Point::ArcOnS1() const
 {
   if (!onS1)
   {
@@ -165,7 +165,7 @@ inline Standard_Boolean IntPatch_Point::IsVertexOnS2() const
   return vtxonS2;
 }
 
-inline const Handle(Adaptor3d_HVertex)& IntPatch_Point::VertexOnS2() const
+inline const Handle(GeomAdaptor_HVertex)& IntPatch_Point::VertexOnS2() const
 {
   if (!vtxonS2)
   {
@@ -174,7 +174,7 @@ inline const Handle(Adaptor3d_HVertex)& IntPatch_Point::VertexOnS2() const
   return vS2;
 }
 
-inline const Handle(Adaptor2d_Curve2d)& IntPatch_Point::ArcOnS2() const
+inline const Handle(Geom2dAdaptor_Curve)& IntPatch_Point::ArcOnS2() const
 {
   if (!onS2)
   {

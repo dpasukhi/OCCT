@@ -144,7 +144,7 @@ Standard_Boolean LocOpe::TgtFaces(const TopoDS_Edge& E,
   HC2d->Initialize(e, F1);
   HC2d2->Initialize(e, F2);
 
-  //  Adaptor3d_CurveOnSurface C1(HC2d,HS1);
+  //  GeomAdaptor_CurveOnSurface C1(HC2d,HS1);
 
   Standard_Boolean rev1 = (F1.Orientation() == TopAbs_REVERSED);
   Standard_Boolean rev2 = (F2.Orientation() == TopAbs_REVERSED);

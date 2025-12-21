@@ -204,7 +204,7 @@ public: //! @name static API
   // direction we fall back to the initial vertex count: cells_count = 2 ^ log10 (
   // initial_vertex_count )
   Standard_EXPORT static std::pair<Standard_Integer, Standard_Integer> CellsCount(
-    const Handle(Adaptor3d_Surface)&     theSurface,
+    const Handle(GeomAdaptor_Surface)&     theSurface,
     const Standard_Integer               theVerticesNb,
     const Standard_Real                  theDeflection,
     const BRepMesh_DefaultRangeSplitter* theRangeSplitter);

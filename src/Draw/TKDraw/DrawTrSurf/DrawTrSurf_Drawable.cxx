@@ -14,8 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_IsoCurve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_IsoCurve.hxx>
 #include <Draw_Display.hxx>
 #include <DrawTrSurf_Drawable.hxx>
 #include <GCPnts_UniformDeflection.hxx>
@@ -47,7 +47,7 @@ DrawTrSurf_Drawable::DrawTrSurf_Drawable(
 
 //=================================================================================================
 
-void DrawTrSurf_Drawable::DrawCurve2dOn(Adaptor2d_Curve2d& C, Draw_Display& aDisplay) const
+void DrawTrSurf_Drawable::DrawCurve2dOn(Geom2dAdaptor_Curve& C, Draw_Display& aDisplay) const
 {
   gp_Pnt P;
 
@@ -100,7 +100,7 @@ void DrawTrSurf_Drawable::DrawCurve2dOn(Adaptor2d_Curve2d& C, Draw_Display& aDis
 // purpose  : draw a 3D curve
 //=======================================================================
 static void PlotCurve(Draw_Display&          aDisplay,
-                      const Adaptor3d_Curve& C,
+                      const GeomAdaptor_Curve& C,
                       Standard_Real&         theFirstParam,
                       Standard_Real          theHalfStep,
                       const gp_Pnt&          theFirstPnt,
@@ -127,7 +127,7 @@ static void PlotCurve(Draw_Display&          aDisplay,
 
 //=================================================================================================
 
-void DrawTrSurf_Drawable::DrawCurveOn(Adaptor3d_Curve& C, Draw_Display& aDisplay) const
+void DrawTrSurf_Drawable::DrawCurveOn(GeomAdaptor_Curve& C, Draw_Display& aDisplay) const
 {
   gp_Pnt P;
   if (myDrawMode == 1)
@@ -200,7 +200,7 @@ void DrawTrSurf_Drawable::DrawCurveOn(Adaptor3d_Curve& C, Draw_Display& aDisplay
 
 //=================================================================================================
 
-void DrawTrSurf_Drawable::DrawIsoCurveOn(Adaptor3d_IsoCurve&   C,
+void DrawTrSurf_Drawable::DrawIsoCurveOn(GeomAdaptor_IsoCurve&   C,
                                          const GeomAbs_IsoType T,
                                          const Standard_Real   P,
                                          const Standard_Real   F,

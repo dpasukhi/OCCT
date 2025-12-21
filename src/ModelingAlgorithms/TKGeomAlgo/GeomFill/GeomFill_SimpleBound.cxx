@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_SimpleBound.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
@@ -27,7 +27,7 @@ IMPLEMENT_STANDARD_RTTIEXT(GeomFill_SimpleBound, GeomFill_Boundary)
 
 //=================================================================================================
 
-GeomFill_SimpleBound::GeomFill_SimpleBound(const Handle(Adaptor3d_Curve)& Curve,
+GeomFill_SimpleBound::GeomFill_SimpleBound(const Handle(GeomAdaptor_Curve)& Curve,
                                            const Standard_Real            Tol3d,
                                            const Standard_Real            Tolang)
     : GeomFill_Boundary(Tol3d, Tolang),

@@ -25,8 +25,8 @@
 //--      - Pour rester coherent avec cette facon de faire,
 //--      Chercher(Nbvtx++).
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <gp_Pnt2d.hxx>
 #include <IntPatch_CurvIntSurf.hxx>
 #include <IntPatch_HInterTool.hxx>
@@ -44,7 +44,7 @@
 
 #include <ElCLib.hxx>
 
-#define myInfinite 1.e15 // the same as was in Adaptor3d_TopolTool
+#define myInfinite 1.e15 // the same as was in GeomAdaptor_TopolTool
 
 static void Recadre(GeomAbs_SurfaceType           typeS1,
                     GeomAbs_SurfaceType           typeS2,
@@ -110,26 +110,26 @@ static void Recadre(GeomAbs_SurfaceType           typeS1,
 
 const Standard_Real Confusion = Precision::Confusion();
 
-inline Standard_Real Tol3d(const Handle(Adaptor3d_HVertex)&   vtx,
-                           const Handle(Adaptor3d_TopolTool)& Domain,
+inline Standard_Real Tol3d(const Handle(GeomAdaptor_HVertex)&   vtx,
+                           const Handle(GeomAdaptor_TopolTool)& Domain,
                            const Standard_Real                tolDef = 0.)
 {
   return (Domain->Has3d() ? Domain->Tol3d(vtx) : tolDef < Confusion ? Confusion : tolDef);
 }
 
-inline Standard_Real Tol3d(const Handle(Adaptor2d_Curve2d)&   arc,
-                           const Handle(Adaptor3d_TopolTool)& Domain,
+inline Standard_Real Tol3d(const Handle(Geom2dAdaptor_Curve)&   arc,
+                           const Handle(GeomAdaptor_TopolTool)& Domain,
                            const Standard_Real                tolDef = 0.)
 {
   return (Domain->Has3d() ? Domain->Tol3d(arc) : tolDef < Confusion ? Confusion : tolDef);
 }
 
 static Standard_Boolean CoincideOnArc(const gp_Pnt&                      Ptsommet,
-                                      const Handle(Adaptor2d_Curve2d)&   A,
-                                      const Handle(Adaptor3d_Surface)&   Surf,
+                                      const Handle(Geom2dAdaptor_Curve)&   A,
+                                      const Handle(GeomAdaptor_Surface)&   Surf,
                                       const Standard_Real                Toler,
-                                      const Handle(Adaptor3d_TopolTool)& Domain,
-                                      Handle(Adaptor3d_HVertex)&         Vtx)
+                                      const Handle(GeomAdaptor_TopolTool)& Domain,
+                                      Handle(GeomAdaptor_HVertex)&         Vtx)
 {
   Standard_Real distmin = RealLast();
   Standard_Real tolarc  = std::max(Toler, Tol3d(A, Domain));
@@ -138,7 +138,7 @@ static Standard_Boolean CoincideOnArc(const gp_Pnt&                      Ptsomme
   Domain->InitVertexIterator();
   while (Domain->MoreVertex())
   {
-    Handle(Adaptor3d_HVertex) vtx1  = Domain->Vertex();
+    Handle(GeomAdaptor_HVertex) vtx1  = Domain->Vertex();
     Standard_Real             prm   = IntPatch_HInterTool::Parameter(vtx1, A);
     gp_Pnt2d                  p2d   = A->Value(prm);
     gp_Pnt                    point = Surf->Value(p2d.X(), p2d.Y());
@@ -251,7 +251,7 @@ static void GetLinePoint2d(const Handle(IntPatch_Line)& L,
 }
 
 static Standard_Boolean FindParameter(const Handle(IntPatch_Line)&     L,
-                                      const Handle(Adaptor3d_Surface)& OtherSurf,
+                                      const Handle(GeomAdaptor_Surface)& OtherSurf,
                                       const Standard_Real              Tol,
                                       const gp_Pnt&                    Ptsom,
                                       const gp_Pnt2d&                  Ptsom2d,
@@ -407,9 +407,9 @@ inline Standard_Boolean ArePnt2dEqual(const gp_Pnt2d&     p1,
 //=================================================================================================
 
 void IntPatch_RstInt::PutVertexOnLine(const Handle(IntPatch_Line)&       L,
-                                      const Handle(Adaptor3d_Surface)&   Surf,
-                                      const Handle(Adaptor3d_TopolTool)& Domain,
-                                      const Handle(Adaptor3d_Surface)&   OtherSurf,
+                                      const Handle(GeomAdaptor_Surface)&   Surf,
+                                      const Handle(GeomAdaptor_TopolTool)& Domain,
+                                      const Handle(GeomAdaptor_Surface)&   OtherSurf,
                                       const Standard_Boolean             OnFirst,
                                       const Standard_Real                Tol)
 {
@@ -446,8 +446,8 @@ void IntPatch_RstInt::PutVertexOnLine(const Handle(IntPatch_Line)&       L,
   gp_Vec2d d2d;
 
   IntPatch_Point            Sommet, ptline;
-  Handle(Adaptor3d_HVertex) vtxarc, vtxline;
-  Handle(Adaptor2d_Curve2d) arc;
+  Handle(GeomAdaptor_HVertex) vtxarc, vtxline;
+  Handle(Geom2dAdaptor_Curve) arc;
   Standard_Boolean          VtxOnArc, duplicate, found;
   IntSurf_Transition        transarc, transline;
 
@@ -494,8 +494,8 @@ void IntPatch_RstInt::PutVertexOnLine(const Handle(IntPatch_Line)&       L,
   //-- il faut dans ce cas considerer la restriction                      --
   //--                                la restriction decalee de +-2PI     --
   //------------------------------------------------------------------------
-  const Handle(Adaptor3d_Surface)& Surf1               = (OnFirst ? Surf : OtherSurf);
-  const Handle(Adaptor3d_Surface)& Surf2               = (OnFirst ? OtherSurf : Surf);
+  const Handle(GeomAdaptor_Surface)& Surf1               = (OnFirst ? Surf : OtherSurf);
+  const Handle(GeomAdaptor_Surface)& Surf2               = (OnFirst ? OtherSurf : Surf);
   GeomAbs_SurfaceType              TypeS1              = Surf1->GetType();
   GeomAbs_SurfaceType              TypeS2              = Surf2->GetType();
   Standard_Boolean                 SurfaceIsPeriodic   = Standard_False;
@@ -536,7 +536,7 @@ void IntPatch_RstInt::PutVertexOnLine(const Handle(IntPatch_Line)&       L,
     Domain->Initialize(arc);
     for (Domain->InitVertexIterator(); Domain->MoreVertex(); Domain->NextVertex())
     {
-      Handle(Adaptor3d_HVertex) vtx = Domain->Vertex();
+      Handle(GeomAdaptor_HVertex) vtx = Domain->Vertex();
       Standard_Real             prm = IntPatch_HInterTool::Parameter(vtx, arc);
       if (std::abs(prm - PFirst) < Precision::PConfusion())
       {
@@ -1005,7 +1005,7 @@ void IntPatch_RstInt::PutVertexOnLine(const Handle(IntPatch_Line)&       L,
                 }
                 else
                 {
-                  Handle(Adaptor3d_HVertex) vtxref =
+                  Handle(GeomAdaptor_HVertex) vtxref =
                     (OnFirst) ? (ptline.VertexOnS1()) : (ptline.VertexOnS2());
                   if ((OnFirst && !ptline.IsOnDomS2()) || (!OnFirst && !ptline.IsOnDomS1()))
                   {

@@ -33,12 +33,12 @@ namespace
 {
 static const Standard_Real Us3 = 0.3333333333333333333333333333;
 
-inline static void D0(const Adaptor3d_Curve& C, const Standard_Real U, gp_Pnt& P)
+inline static void D0(const GeomAdaptor_Curve& C, const Standard_Real U, gp_Pnt& P)
 {
   C.D0(U, P);
 }
 
-inline static void D2(const Adaptor3d_Curve& C,
+inline static void D2(const GeomAdaptor_Curve& C,
                       const Standard_Real    U,
                       gp_Pnt&                P,
                       gp_Vec&                V1,
@@ -47,7 +47,7 @@ inline static void D2(const Adaptor3d_Curve& C,
   C.D2(U, P, V1, V2);
 }
 
-static void D0(const Adaptor2d_Curve2d& C, const Standard_Real U, gp_Pnt& PP)
+static void D0(const Geom2dAdaptor_Curve& C, const Standard_Real U, gp_Pnt& PP)
 {
   Standard_Real X, Y;
   gp_Pnt2d      P;
@@ -56,7 +56,7 @@ static void D0(const Adaptor2d_Curve2d& C, const Standard_Real U, gp_Pnt& PP)
   PP.SetCoord(X, Y, 0.0);
 }
 
-static void D2(const Adaptor2d_Curve2d& C,
+static void D2(const Geom2dAdaptor_Curve& C,
                const Standard_Real      U,
                gp_Pnt&                  PP,
                gp_Vec&                  VV1,
@@ -122,7 +122,7 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection()
 
 //=================================================================================================
 
-GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor3d_Curve& theC,
+GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const GeomAdaptor_Curve& theC,
                                                          const Standard_Real theAngularDeflection,
                                                          const Standard_Real theCurvatureDeflection,
                                                          const Standard_Integer theMinimumOfPoints,
@@ -146,7 +146,7 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor3d_Curve& 
 
 //=================================================================================================
 
-GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor3d_Curve& theC,
+GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const GeomAdaptor_Curve& theC,
                                                          const Standard_Real    theFirstParameter,
                                                          const Standard_Real    theLastParameter,
                                                          const Standard_Real theAngularDeflection,
@@ -174,7 +174,7 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor3d_Curve& 
 
 //=================================================================================================
 
-GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& theC,
+GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Geom2dAdaptor_Curve& theC,
                                                          const Standard_Real theAngularDeflection,
                                                          const Standard_Real theCurvatureDeflection,
                                                          const Standard_Integer theMinimumOfPoints,
@@ -198,7 +198,7 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor2d_Curve2d
 
 //=================================================================================================
 
-GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor2d_Curve2d& theC,
+GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Geom2dAdaptor_Curve& theC,
                                                          const Standard_Real      theFirstParameter,
                                                          const Standard_Real      theLastParameter,
                                                          const Standard_Real theAngularDeflection,
@@ -226,7 +226,7 @@ GCPnts_TangentialDeflection::GCPnts_TangentialDeflection(const Adaptor2d_Curve2d
 
 //=================================================================================================
 
-void GCPnts_TangentialDeflection::Initialize(const Adaptor3d_Curve& theC,
+void GCPnts_TangentialDeflection::Initialize(const GeomAdaptor_Curve& theC,
                                              const Standard_Real    theAngularDeflection,
                                              const Standard_Real    theCurvatureDeflection,
                                              const Standard_Integer theMinimumOfPoints,
@@ -245,7 +245,7 @@ void GCPnts_TangentialDeflection::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_TangentialDeflection::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_TangentialDeflection::Initialize(const Geom2dAdaptor_Curve& theC,
                                              const Standard_Real      theAngularDeflection,
                                              const Standard_Real      theCurvatureDeflection,
                                              const Standard_Integer   theMinimumOfPoints,
@@ -264,7 +264,7 @@ void GCPnts_TangentialDeflection::Initialize(const Adaptor2d_Curve2d& theC,
 
 //=================================================================================================
 
-void GCPnts_TangentialDeflection::Initialize(const Adaptor3d_Curve& theC,
+void GCPnts_TangentialDeflection::Initialize(const GeomAdaptor_Curve& theC,
                                              const Standard_Real    theFirstParameter,
                                              const Standard_Real    theLastParameter,
                                              const Standard_Real    theAngularDeflection,
@@ -285,7 +285,7 @@ void GCPnts_TangentialDeflection::Initialize(const Adaptor3d_Curve& theC,
 
 //=================================================================================================
 
-void GCPnts_TangentialDeflection::Initialize(const Adaptor2d_Curve2d& theC,
+void GCPnts_TangentialDeflection::Initialize(const Geom2dAdaptor_Curve& theC,
                                              const Standard_Real      theFirstParameter,
                                              const Standard_Real      theLastParameter,
                                              const Standard_Real      theAngularDeflection,

@@ -17,7 +17,7 @@
 #ifndef _GeomFill_LocationDraft_HeaderFile
 #define _GeomFill_LocationDraft_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Mat.hxx>
 #include <gp_Dir.hxx>
 #include <Standard_Real.hxx>
@@ -30,6 +30,7 @@
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
+class GeomAdaptor_Curve;
 class GeomFill_DraftTrihedron;
 
 DEFINE_STANDARD_HANDLE(GeomFill_LocationDraft, GeomFill_LocationLaw)
@@ -40,17 +41,17 @@ class GeomFill_LocationDraft : public GeomFill_LocationLaw
 public:
   Standard_EXPORT GeomFill_LocationDraft(const gp_Dir& Direction, const Standard_Real Angle);
 
-  Standard_EXPORT void SetStopSurf(const Handle(Adaptor3d_Surface)& Surf);
+  Standard_EXPORT void SetStopSurf(const Handle(GeomAdaptor_Surface)& Surf);
 
   Standard_EXPORT void SetAngle(const Standard_Real Angle);
 
   //! calculation of poles on locking surfaces (the intersection between the generatrixand the
   //! surface at the cross - section points myNbPts)
   //! @return Standard_True in case if execution end correctly
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C)
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
-  Standard_EXPORT virtual const Handle(Adaptor3d_Curve)& GetCurve() const Standard_OVERRIDE;
+  Standard_EXPORT virtual const Handle(GeomAdaptor_Curve)& GetCurve() const Standard_OVERRIDE;
 
   Standard_EXPORT virtual void SetTrsf(const gp_Mat& Transfo) Standard_OVERRIDE;
 
@@ -182,9 +183,9 @@ private:
 
   gp_Mat                          Trans;
   Handle(GeomFill_DraftTrihedron) myLaw;
-  Handle(Adaptor3d_Surface)       mySurf;
-  Handle(Adaptor3d_Curve)         myCurve;
-  Handle(Adaptor3d_Curve)         myTrimmed;
+  Handle(GeomAdaptor_Surface)       mySurf;
+  Handle(GeomAdaptor_Curve)         myCurve;
+  Handle(GeomAdaptor_Curve)         myTrimmed;
   gp_Dir                          myDir;
   Standard_Real                   myAngle;
   Standard_Integer                myNbPts;

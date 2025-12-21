@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <ChFiDS_Spine.hxx>
 #include <ChFiDS_SurfData.hxx>
 #include <ChFiKPart_ComputeData.hxx>
@@ -46,8 +46,8 @@
 //=======================================================================
 Standard_Boolean ChFiKPart_Sphere(TopOpeBRepDS_DataStructure&      DStr,
                                   const Handle(ChFiDS_SurfData)&   Data,
-                                  const Handle(Adaptor3d_Surface)& S1,
-                                  const Handle(Adaptor3d_Surface)& S2,
+                                  const Handle(GeomAdaptor_Surface)& S1,
+                                  const Handle(GeomAdaptor_Surface)& S2,
                                   const TopAbs_Orientation         OrFace1,
                                   const TopAbs_Orientation /*OrFace2*/,
                                   const TopAbs_Orientation Or1,

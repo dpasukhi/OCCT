@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <GCPnts_QuasiUniformDeflection.hxx>
 #include <Geom_Circle.hxx>
@@ -81,9 +81,9 @@ GeomFill_SweepSectionGenerator::GeomFill_SweepSectionGenerator(const Handle(Geom
 //=================================================================================================
 
 GeomFill_SweepSectionGenerator::GeomFill_SweepSectionGenerator(
-  const Handle(Adaptor3d_Curve)& Path,
-  const Handle(Adaptor3d_Curve)& Curve1,
-  const Handle(Adaptor3d_Curve)& Curve2,
+  const Handle(GeomAdaptor_Curve)& Path,
+  const Handle(GeomAdaptor_Curve)& Curve1,
+  const Handle(GeomAdaptor_Curve)& Curve2,
   const Standard_Real            Radius)
 {
   Init(Path, Curve1, Curve2, Radius);
@@ -219,9 +219,9 @@ void GeomFill_SweepSectionGenerator::Init(const Handle(Geom_Curve)& Path,
 
 //=================================================================================================
 
-void GeomFill_SweepSectionGenerator::Init(const Handle(Adaptor3d_Curve)& Path,
-                                          const Handle(Adaptor3d_Curve)& Curve1,
-                                          const Handle(Adaptor3d_Curve)& Curve2,
+void GeomFill_SweepSectionGenerator::Init(const Handle(GeomAdaptor_Curve)& Path,
+                                          const Handle(GeomAdaptor_Curve)& Curve1,
+                                          const Handle(GeomAdaptor_Curve)& Curve2,
                                           const Standard_Real            Radius)
 {
   myIsDone = Standard_False;

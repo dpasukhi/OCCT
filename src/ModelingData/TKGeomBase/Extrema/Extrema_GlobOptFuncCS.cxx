@@ -116,7 +116,7 @@ Standard_Boolean Extrema_GlobOptFuncCS::checkInputData(const math_Vector& X,
 
 //=================================================================================================
 
-Extrema_GlobOptFuncCS::Extrema_GlobOptFuncCS(const Adaptor3d_Curve* C, const Adaptor3d_Surface* S)
+Extrema_GlobOptFuncCS::Extrema_GlobOptFuncCS(const GeomAdaptor_Curve* C, const GeomAdaptor_Surface* S)
     : myC(C),
       myS(S)
 {

@@ -17,12 +17,12 @@
 #ifndef _GCPnts_UniformDeflection_HeaderFile
 #define _GCPnts_UniformDeflection_HeaderFile
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <StdFail_NotDone.hxx>
 #include <TColStd_SequenceOfReal.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
 
-class Adaptor3d_Curve;
-class Adaptor2d_Curve2d;
+class GeomAdaptor_Curve;
 class gp_Pnt;
 
 //! Provides an algorithm to compute a distribution of
@@ -46,7 +46,7 @@ public:
   //! @param[in] theC  input 3D curve
   //! @param[in] theDeflection  target deflection
   //! @param[in] theWithControl  when TRUE, the algorithm controls the estimate deflection
-  Standard_EXPORT GCPnts_UniformDeflection(const Adaptor3d_Curve& theC,
+  Standard_EXPORT GCPnts_UniformDeflection(const GeomAdaptor_Curve& theC,
                                            const Standard_Real    theDeflection,
                                            const Standard_Boolean theWithControl = Standard_True);
 
@@ -54,7 +54,7 @@ public:
   //! @param[in] theC  input 2D curve
   //! @param[in] theDeflection  target deflection
   //! @param[in] theWithControl  when TRUE, the algorithm controls the estimate deflection
-  Standard_EXPORT GCPnts_UniformDeflection(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_UniformDeflection(const Geom2dAdaptor_Curve& theC,
                                            const Standard_Real      theDeflection,
                                            const Standard_Boolean   theWithControl = Standard_True);
 
@@ -64,7 +64,7 @@ public:
   //! @param[in] theU1  first parameter on curve
   //! @param[in] theU2  last  parameter on curve
   //! @param[in] theWithControl  when TRUE, the algorithm controls the estimate deflection
-  Standard_EXPORT GCPnts_UniformDeflection(const Adaptor3d_Curve& theC,
+  Standard_EXPORT GCPnts_UniformDeflection(const GeomAdaptor_Curve& theC,
                                            const Standard_Real    theDeflection,
                                            const Standard_Real    theU1,
                                            const Standard_Real    theU2,
@@ -76,24 +76,24 @@ public:
   //! @param[in] theU1  first parameter on curve
   //! @param[in] theU2  last  parameter on curve
   //! @param[in] theWithControl  when TRUE, the algorithm controls the estimate deflection
-  Standard_EXPORT GCPnts_UniformDeflection(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT GCPnts_UniformDeflection(const Geom2dAdaptor_Curve& theC,
                                            const Standard_Real      theDeflection,
                                            const Standard_Real      theU1,
                                            const Standard_Real      theU2,
                                            const Standard_Boolean   theWithControl = Standard_True);
 
   //! Initialize the algorithms with 3D curve and deflection.
-  Standard_EXPORT void Initialize(const Adaptor3d_Curve& theC,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Curve& theC,
                                   const Standard_Real    theDeflection,
                                   const Standard_Boolean theWithControl = Standard_True);
 
   //! Initialize the algorithms with 2D curve and deflection.
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Real      theDeflection,
                                   const Standard_Boolean   theWithControl = Standard_True);
 
   //! Initialize the algorithms with 3D curve, deflection, parameter range.
-  Standard_EXPORT void Initialize(const Adaptor3d_Curve& theC,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Curve& theC,
                                   const Standard_Real    theDeflection,
                                   const Standard_Real    theU1,
                                   const Standard_Real    theU2,
@@ -134,10 +134,10 @@ public:
   //! Warning
   //! theC is an adapted curve, i.e. an object which is an interface between:
   //! -   the services provided by either a 2D curve from
-  //!     the package Geom2d (in the case of an Adaptor2d_Curve2d curve)
-  //!     or a 3D curve from the package Geom (in the case of an Adaptor3d_Curve curve),
+  //!     the package Geom2d (in the case of an Geom2dAdaptor_Curve curve)
+  //!     or a 3D curve from the package Geom (in the case of an GeomAdaptor_Curve curve),
   //! -   and those required on the curve by the computation algorithm.
-  Standard_EXPORT void Initialize(const Adaptor2d_Curve2d& theC,
+  Standard_EXPORT void Initialize(const Geom2dAdaptor_Curve& theC,
                                   const Standard_Real      theDeflection,
                                   const Standard_Real      theU1,
                                   const Standard_Real      theU2,

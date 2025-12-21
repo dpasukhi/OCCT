@@ -12,7 +12,9 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_ChamfInv.hxx>
 #include <math_Matrix.hxx>
@@ -20,9 +22,9 @@
 
 //=================================================================================================
 
-BlendFunc_GenChamfInv::BlendFunc_GenChamfInv(const Handle(Adaptor3d_Surface)& S1,
-                                             const Handle(Adaptor3d_Surface)& S2,
-                                             const Handle(Adaptor3d_Curve)&   C)
+BlendFunc_GenChamfInv::BlendFunc_GenChamfInv(const Handle(GeomAdaptor_Surface)& S1,
+                                             const Handle(GeomAdaptor_Surface)& S2,
+                                             const Handle(GeomAdaptor_Curve)&   C)
     : surf1(S1),
       surf2(S2),
       curv(C),
@@ -40,7 +42,7 @@ Standard_Integer BlendFunc_GenChamfInv::NbEquations() const
 
 //=================================================================================================
 
-void BlendFunc_GenChamfInv::Set(const Standard_Boolean OnFirst, const Handle(Adaptor2d_Curve2d)& C)
+void BlendFunc_GenChamfInv::Set(const Standard_Boolean OnFirst, const Handle(Geom2dAdaptor_Curve)& C)
 {
   first = OnFirst;
   csurf = C;

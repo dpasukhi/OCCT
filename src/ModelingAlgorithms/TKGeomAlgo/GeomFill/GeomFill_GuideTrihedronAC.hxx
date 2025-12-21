@@ -25,6 +25,7 @@
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 class Approx_CurvlinFunc;
+class GeomAdaptor_Curve;
 class GeomFill_TrihedronLaw;
 class gp_Vec;
 
@@ -37,16 +38,16 @@ class GeomFill_GuideTrihedronAC : public GeomFill_TrihedronWithGuide
 {
 
 public:
-  Standard_EXPORT GeomFill_GuideTrihedronAC(const Handle(Adaptor3d_Curve)& guide);
+  Standard_EXPORT GeomFill_GuideTrihedronAC(const Handle(GeomAdaptor_Curve)& guide);
 
   //! initialize curve of trihedron law
   //! @return Standard_True
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C)
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
   Standard_EXPORT virtual Handle(GeomFill_TrihedronLaw) Copy() const Standard_OVERRIDE;
 
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) Guide() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) Guide() const Standard_OVERRIDE;
 
   Standard_EXPORT virtual Standard_Boolean D0(const Standard_Real Param,
                                               gp_Vec&             Tangent,
@@ -118,7 +119,7 @@ private:
   Standard_Real              Lguide;
   Handle(Approx_CurvlinFunc) myCurveAC;
   Standard_Real              L;
-  Handle(Adaptor3d_Curve)    myCurve;
+  Handle(GeomAdaptor_Curve)    myCurve;
   Standard_Real              UTol;
   Standard_Real              STol;
   Standard_Real              Orig1;

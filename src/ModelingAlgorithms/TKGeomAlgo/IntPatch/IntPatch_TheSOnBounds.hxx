@@ -27,10 +27,10 @@
 class StdFail_NotDone;
 class Standard_OutOfRange;
 class Standard_ConstructionError;
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 class IntPatch_HCurve2dTool;
 class IntPatch_HInterTool;
-class Adaptor3d_TopolTool;
+class GeomAdaptor_TopolTool;
 class IntPatch_ArcFunction;
 class IntPatch_ThePathPointOfTheSOnBounds;
 class IntPatch_TheSegmentOfTheSOnBounds;
@@ -49,7 +49,7 @@ public:
   //! TolBoundary defines if a curve is on Q.
   //! TolTangency defines if a point is on Q.
   Standard_EXPORT void Perform(IntPatch_ArcFunction&              F,
-                               const Handle(Adaptor3d_TopolTool)& Domain,
+                               const Handle(GeomAdaptor_TopolTool)& Domain,
                                const Standard_Real                TolBoundary,
                                const Standard_Real                TolTangency,
                                const Standard_Boolean RecheckOnRegularity = Standard_False);
@@ -92,17 +92,17 @@ private:
   IntPatch_SequenceOfPathPointOfTheSOnBounds spnt;
 };
 
-#define TheVertex Handle(Adaptor3d_HVertex)
-#define TheVertex_hxx <Adaptor3d_HVertex.hxx>
-#define TheArc Handle(Adaptor2d_Curve2d)
-#define TheArc_hxx <Adaptor2d_Curve2d.hxx>
+#define TheVertex Handle(GeomAdaptor_HVertex)
+#define TheVertex_hxx <GeomAdaptor_HVertex.hxx>
+#define TheArc Handle(Geom2dAdaptor_Curve)
+#define TheArc_hxx <Geom2dAdaptor_Curve.hxx>
 #define TheArcTool IntPatch_HCurve2dTool
 #define TheArcTool_hxx <IntPatch_HCurve2dTool.hxx>
 #define TheSOBTool IntPatch_HInterTool
 #define TheSOBTool_hxx <IntPatch_HInterTool.hxx>
-#define Handle_TheTopolTool Handle(Adaptor3d_TopolTool)
-#define TheTopolTool Adaptor3d_TopolTool
-#define TheTopolTool_hxx <Adaptor3d_TopolTool.hxx>
+#define Handle_TheTopolTool Handle(GeomAdaptor_TopolTool)
+#define TheTopolTool GeomAdaptor_TopolTool
+#define TheTopolTool_hxx <GeomAdaptor_TopolTool.hxx>
 #define TheFunction IntPatch_ArcFunction
 #define TheFunction_hxx <IntPatch_ArcFunction.hxx>
 #define IntStart_ThePathPoint IntPatch_ThePathPointOfTheSOnBounds

@@ -17,11 +17,11 @@
 #ifndef _BRepBlend_BlendTool_HeaderFile
 #define _BRepBlend_BlendTool_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 class gp_Pnt2d;
-class Adaptor2d_Curve2d;
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 
 class BRepBlend_BlendTool
 {
@@ -36,42 +36,42 @@ public:
   //! If the method returns Standard_False, Param proj and Dist
   //! are not significant.
   Standard_EXPORT static Standard_Boolean Project(const gp_Pnt2d&                  P,
-                                                  const Handle(Adaptor3d_Surface)& S,
-                                                  const Handle(Adaptor2d_Curve2d)& C,
+                                                  const Handle(GeomAdaptor_Surface)& S,
+                                                  const Handle(Geom2dAdaptor_Curve)& C,
                                                   Standard_Real&                   Paramproj,
                                                   Standard_Real&                   Dist);
 
   Standard_EXPORT static Standard_Boolean Inters(const gp_Pnt2d&                  P1,
                                                  const gp_Pnt2d&                  P2,
-                                                 const Handle(Adaptor3d_Surface)& S,
-                                                 const Handle(Adaptor2d_Curve2d)& C,
+                                                 const Handle(GeomAdaptor_Surface)& S,
+                                                 const Handle(Geom2dAdaptor_Curve)& C,
                                                  Standard_Real&                   Param,
                                                  Standard_Real&                   Dist);
 
   //! Returns the parameter of the vertex V on the edge A.
-  static Standard_Real Parameter(const Handle(Adaptor3d_HVertex)& V,
-                                 const Handle(Adaptor2d_Curve2d)& A);
+  static Standard_Real Parameter(const Handle(GeomAdaptor_HVertex)& V,
+                                 const Handle(Geom2dAdaptor_Curve)& A);
 
   //! Returns the parametric tolerance on the arc A
   //! used to consider that the vertex and another point meet,
   //! i-e if std::abs(Parameter(Vertex)-Parameter(OtherPnt))<=
   //! Tolerance, the points are "merged".
-  static Standard_Real Tolerance(const Handle(Adaptor3d_HVertex)& V,
-                                 const Handle(Adaptor2d_Curve2d)& A);
+  static Standard_Real Tolerance(const Handle(GeomAdaptor_HVertex)& V,
+                                 const Handle(Geom2dAdaptor_Curve)& A);
 
-  static Standard_Boolean SingularOnUMin(const Handle(Adaptor3d_Surface)& S);
+  static Standard_Boolean SingularOnUMin(const Handle(GeomAdaptor_Surface)& S);
 
-  static Standard_Boolean SingularOnUMax(const Handle(Adaptor3d_Surface)& S);
+  static Standard_Boolean SingularOnUMax(const Handle(GeomAdaptor_Surface)& S);
 
-  static Standard_Boolean SingularOnVMin(const Handle(Adaptor3d_Surface)& S);
+  static Standard_Boolean SingularOnVMin(const Handle(GeomAdaptor_Surface)& S);
 
-  static Standard_Boolean SingularOnVMax(const Handle(Adaptor3d_Surface)& S);
+  static Standard_Boolean SingularOnVMax(const Handle(GeomAdaptor_Surface)& S);
 
-  Standard_EXPORT static Standard_Integer NbSamplesU(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static Standard_Integer NbSamplesU(const Handle(GeomAdaptor_Surface)& S,
                                                      const Standard_Real              u1,
                                                      const Standard_Real              u2);
 
-  Standard_EXPORT static Standard_Integer NbSamplesV(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static Standard_Integer NbSamplesV(const Handle(GeomAdaptor_Surface)& S,
                                                      const Standard_Real              v1,
                                                      const Standard_Real              v2);
 
@@ -79,12 +79,12 @@ public:
   //! These limits must be finite : they are either
   //! the real limits of the arc, for a finite arc,
   //! or a bounding box for an infinite arc.
-  Standard_EXPORT static void Bounds(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT static void Bounds(const Handle(Geom2dAdaptor_Curve)& C,
                                      Standard_Real&                   Ufirst,
                                      Standard_Real&                   Ulast);
 
-  static Handle(Adaptor2d_Curve2d) CurveOnSurf(const Handle(Adaptor2d_Curve2d)& C,
-                                               const Handle(Adaptor3d_Surface)& S);
+  static Handle(Geom2dAdaptor_Curve) CurveOnSurf(const Handle(Geom2dAdaptor_Curve)& C,
+                                               const Handle(GeomAdaptor_Surface)& S);
 
 protected:
 private:

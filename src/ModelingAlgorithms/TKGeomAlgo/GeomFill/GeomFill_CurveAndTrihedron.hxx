@@ -27,6 +27,8 @@
 #include <Standard_Integer.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
+
+class GeomAdaptor_Curve;
 class GeomFill_TrihedronLaw;
 
 class GeomFill_CurveAndTrihedron;
@@ -47,10 +49,10 @@ public:
 
   //! initialize curve of trihedron law
   //! @return Standard_True in case if execution end correctly
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C)
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
-  Standard_EXPORT virtual const Handle(Adaptor3d_Curve)& GetCurve() const Standard_OVERRIDE;
+  Standard_EXPORT virtual const Handle(GeomAdaptor_Curve)& GetCurve() const Standard_OVERRIDE;
 
   //! Set a transformation Matrix like the law M(t) become
   //! Mat * M(t)
@@ -150,8 +152,8 @@ protected:
 private:
   Standard_Boolean              WithTrans;
   Handle(GeomFill_TrihedronLaw) myLaw;
-  Handle(Adaptor3d_Curve)       myCurve;
-  Handle(Adaptor3d_Curve)       myTrimmed;
+  Handle(GeomAdaptor_Curve)       myCurve;
+  Handle(GeomAdaptor_Curve)       myTrimmed;
   gp_Pnt                        Point;
   gp_Vec                        V1;
   gp_Vec                        V2;

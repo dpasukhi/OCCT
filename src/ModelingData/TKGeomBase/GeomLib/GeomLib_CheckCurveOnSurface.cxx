@@ -14,8 +14,8 @@
 
 #include <GeomLib_CheckCurveOnSurface.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
@@ -30,7 +30,7 @@
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 
-typedef NCollection_Array1<Handle(Adaptor3d_Curve)> Array1OfHCurve;
+typedef NCollection_Array1<Handle(GeomAdaptor_Curve)> Array1OfHCurve;
 
 class GeomLib_CheckCurveOnSurface_TargetFunc;
 
@@ -40,8 +40,8 @@ static Standard_Boolean MinComputing(GeomLib_CheckCurveOnSurface_TargetFunc& the
                                      Standard_Real&                          theBestValue,
                                      Standard_Real&                          theBestParameter);
 
-static Standard_Integer FillSubIntervals(const Handle(Adaptor3d_Curve)&   theCurve3d,
-                                         const Handle(Adaptor2d_Curve2d)& theCurve2d,
+static Standard_Integer FillSubIntervals(const Handle(GeomAdaptor_Curve)&   theCurve3d,
+                                         const Handle(Geom2dAdaptor_Curve)& theCurve2d,
                                          const Standard_Real              theFirst,
                                          const Standard_Real              theLast,
                                          Standard_Integer&                theNbParticles,
@@ -54,8 +54,8 @@ static Standard_Integer FillSubIntervals(const Handle(Adaptor3d_Curve)&   theCur
 class GeomLib_CheckCurveOnSurface_TargetFunc : public math_MultipleVarFunctionWithHessian
 {
 public:
-  GeomLib_CheckCurveOnSurface_TargetFunc(const Adaptor3d_Curve& theC3D,
-                                         const Adaptor3d_Curve& theCurveOnSurface,
+  GeomLib_CheckCurveOnSurface_TargetFunc(const GeomAdaptor_Curve& theC3D,
+                                         const GeomAdaptor_Curve& theCurveOnSurface,
                                          const Standard_Real    theFirst,
                                          const Standard_Real    theLast)
       : myCurve1(theC3D),
@@ -206,8 +206,8 @@ private:
     return ((myFirst <= theParam) && (theParam <= myLast));
   }
 
-  const Adaptor3d_Curve& myCurve1;
-  const Adaptor3d_Curve& myCurve2;
+  const GeomAdaptor_Curve& myCurve1;
+  const GeomAdaptor_Curve& myCurve2;
   const Standard_Real    myFirst;
   const Standard_Real    myLast;
 };
@@ -305,7 +305,7 @@ GeomLib_CheckCurveOnSurface::GeomLib_CheckCurveOnSurface()
 
 //=================================================================================================
 
-GeomLib_CheckCurveOnSurface::GeomLib_CheckCurveOnSurface(const Handle(Adaptor3d_Curve)& theCurve,
+GeomLib_CheckCurveOnSurface::GeomLib_CheckCurveOnSurface(const Handle(GeomAdaptor_Curve)& theCurve,
                                                          const Standard_Real            theTolRange)
     : myCurve(theCurve),
       myErrorStatus(0),
@@ -329,7 +329,7 @@ void GeomLib_CheckCurveOnSurface::Init()
 
 //=================================================================================================
 
-void GeomLib_CheckCurveOnSurface::Init(const Handle(Adaptor3d_Curve)& theCurve,
+void GeomLib_CheckCurveOnSurface::Init(const Handle(GeomAdaptor_Curve)& theCurve,
                                        const Standard_Real            theTolRange)
 {
   myCurve        = theCurve;
@@ -341,7 +341,7 @@ void GeomLib_CheckCurveOnSurface::Init(const Handle(Adaptor3d_Curve)& theCurve,
 
 //=================================================================================================
 
-void GeomLib_CheckCurveOnSurface::Perform(const Handle(Adaptor3d_CurveOnSurface)& theCurveOnSurface)
+void GeomLib_CheckCurveOnSurface::Perform(const Handle(GeomAdaptor_CurveOnSurface)& theCurveOnSurface)
 {
   if (myCurve.IsNull() || theCurveOnSurface.IsNull())
   {
@@ -403,7 +403,7 @@ void GeomLib_CheckCurveOnSurface::Perform(const Handle(Adaptor3d_CurveOnSurface)
       aCurveOnSurfaceArray.SetValue(
         anI,
         aNbThreads > 1 ? theCurveOnSurface->ShallowCopy()
-                       : static_cast<const Handle(Adaptor3d_Curve)&>(theCurveOnSurface));
+                       : static_cast<const Handle(GeomAdaptor_Curve)&>(theCurveOnSurface));
     }
     GeomLib_CheckCurveOnSurface_Local aComp(aCurveArray,
                                             aCurveOnSurfaceArray,
@@ -440,8 +440,8 @@ void GeomLib_CheckCurveOnSurface::Perform(const Handle(Adaptor3d_CurveOnSurface)
 //            (fills theSubIntervals array).
 //            Returns number of subintervals.
 //=======================================================================
-Standard_Integer FillSubIntervals(const Handle(Adaptor3d_Curve)&   theCurve3d,
-                                  const Handle(Adaptor2d_Curve2d)& theCurve2d,
+Standard_Integer FillSubIntervals(const Handle(GeomAdaptor_Curve)&   theCurve3d,
+                                  const Handle(Geom2dAdaptor_Curve)& theCurve2d,
                                   const Standard_Real              theFirst,
                                   const Standard_Real              theLast,
                                   Standard_Integer&                theNbParticles,

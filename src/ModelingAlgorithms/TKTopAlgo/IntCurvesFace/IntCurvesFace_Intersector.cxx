@@ -18,8 +18,8 @@
 
 #include <IntCurvesFace_Intersector.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
 #include <Bnd_BoundSortBox.hxx>
 #include <Bnd_Box.hxx>
 #include <BRepAdaptor_Surface.hxx>
@@ -42,7 +42,7 @@
 IMPLEMENT_STANDARD_RTTIEXT(IntCurvesFace_Intersector, Standard_Transient)
 
 //
-static void ComputeSamplePars(const Handle(Adaptor3d_Surface)& Hsurface,
+static void ComputeSamplePars(const Handle(GeomAdaptor_Surface)& Hsurface,
                               const Standard_Integer           nbsu,
                               const Standard_Integer           nbsv,
                               Handle(TColStd_HArray1OfReal)&   UPars,
@@ -115,7 +115,7 @@ static void ComputeSamplePars(const Handle(Adaptor3d_Surface)& Hsurface,
 
 GeomAbs_SurfaceType IntCurvesFace_Intersector::SurfaceType() const
 {
-  return (Adaptor3d_HSurfaceTool::GetType(Hsurface));
+  return (GeomAdaptor_HSurfaceTool::GetType(Hsurface));
 }
 
 //=================================================================================================
@@ -138,7 +138,7 @@ IntCurvesFace_Intersector::IntCurvesFace_Intersector(const TopoDS_Face&     Face
   Hsurface    = new BRepAdaptor_Surface(surface);
   myTopolTool = new BRepTopAdaptor_TopolTool(Hsurface);
 
-  GeomAbs_SurfaceType SurfaceType = Adaptor3d_HSurfaceTool::GetType(Hsurface);
+  GeomAbs_SurfaceType SurfaceType = GeomAdaptor_HSurfaceTool::GetType(Hsurface);
   if ((SurfaceType != GeomAbs_Plane) && (SurfaceType != GeomAbs_Cylinder)
       && (SurfaceType != GeomAbs_Cone) && (SurfaceType != GeomAbs_Sphere)
       && (SurfaceType != GeomAbs_Torus))
@@ -443,7 +443,7 @@ void IntCurvesFace_Intersector::Perform(const gp_Lin&       L,
 
 //=================================================================================================
 
-void IntCurvesFace_Intersector::Perform(const Handle(Adaptor3d_Curve)& HCu,
+void IntCurvesFace_Intersector::Perform(const Handle(GeomAdaptor_Curve)& HCu,
                                         const Standard_Real            ParMin,
                                         const Standard_Real            ParMax)
 {

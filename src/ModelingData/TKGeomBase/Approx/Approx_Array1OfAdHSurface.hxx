@@ -17,9 +17,9 @@
 #ifndef Approx_Array1OfAdHSurface_HeaderFile
 #define Approx_Array1OfAdHSurface_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <NCollection_Array1.hxx>
 
-typedef NCollection_Array1<Handle(Adaptor3d_Surface)> Approx_Array1OfAdHSurface;
+typedef NCollection_Array1<Handle(GeomAdaptor_Surface)> Approx_Array1OfAdHSurface;
 
 #endif

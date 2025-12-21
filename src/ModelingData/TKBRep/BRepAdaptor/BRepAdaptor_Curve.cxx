@@ -16,7 +16,7 @@
 
 #include <BRepAdaptor_Curve.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
@@ -39,7 +39,7 @@
 #include <TopoDS_Face.hxx>
 #include <Geom_OffsetCurve.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(BRepAdaptor_Curve, Adaptor3d_Curve)
+IMPLEMENT_STANDARD_RTTIEXT(BRepAdaptor_Curve, GeomAdaptor_Curve)
 
 //=================================================================================================
 
@@ -61,19 +61,19 @@ BRepAdaptor_Curve::BRepAdaptor_Curve(const TopoDS_Edge& E, const TopoDS_Face& F)
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) BRepAdaptor_Curve::ShallowCopy() const
+Handle(GeomAdaptor_Curve) BRepAdaptor_Curve::ShallowCopy() const
 {
   Handle(BRepAdaptor_Curve) aCopy = new BRepAdaptor_Curve();
 
   aCopy->myTrsf = myTrsf;
 
-  const Handle(Adaptor3d_Curve) aCurve     = myCurve.ShallowCopy();
+  const Handle(GeomAdaptor_Curve) aCurve     = myCurve.ShallowCopy();
   const GeomAdaptor_Curve&      aGeomCurve = *(Handle(GeomAdaptor_Curve)::DownCast(aCurve));
   aCopy->myCurve                           = aGeomCurve;
 
   if (!myConSurf.IsNull())
   {
-    aCopy->myConSurf = Handle(Adaptor3d_CurveOnSurface)::DownCast(myConSurf->ShallowCopy());
+    aCopy->myConSurf = Handle(GeomAdaptor_CurveOnSurface)::DownCast(myConSurf->ShallowCopy());
   }
   aCopy->myEdge = myEdge;
 
@@ -116,7 +116,7 @@ void BRepAdaptor_Curve::Initialize(const TopoDS_Edge& E)
       HS->Load(S);
       Handle(Geom2dAdaptor_Curve) HC = new Geom2dAdaptor_Curve();
       HC->Load(PC, pf, pl);
-      myConSurf = new Adaptor3d_CurveOnSurface();
+      myConSurf = new GeomAdaptor_CurveOnSurface();
       myConSurf->Load(HC, HS);
     }
     else
@@ -143,7 +143,7 @@ void BRepAdaptor_Curve::Initialize(const TopoDS_Edge& E, const TopoDS_Face& F)
   HS->Load(S);
   Handle(Geom2dAdaptor_Curve) HC = new Geom2dAdaptor_Curve();
   HC->Load(PC, pf, pl);
-  myConSurf = new Adaptor3d_CurveOnSurface();
+  myConSurf = new GeomAdaptor_CurveOnSurface();
   myConSurf->Load(HC, HS);
 
   myTrsf = L.Transformation();
@@ -179,7 +179,7 @@ const GeomAdaptor_Curve& BRepAdaptor_Curve::Curve() const
 
 //=================================================================================================
 
-const Adaptor3d_CurveOnSurface& BRepAdaptor_Curve::CurveOnSurface() const
+const GeomAdaptor_CurveOnSurface& BRepAdaptor_Curve::CurveOnSurface() const
 {
   return *myConSurf;
 }
@@ -270,7 +270,7 @@ void BRepAdaptor_Curve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) BRepAdaptor_Curve::Trim(const Standard_Real First,
+Handle(GeomAdaptor_Curve) BRepAdaptor_Curve::Trim(const Standard_Real First,
                                                 const Standard_Real Last,
                                                 const Standard_Real Tol) const
 {
@@ -286,11 +286,11 @@ Handle(Adaptor3d_Curve) BRepAdaptor_Curve::Trim(const Standard_Real First,
   }
   else
   {
-    Handle(Adaptor3d_CurveOnSurface) sav = myConSurf;
-    const_cast<Handle(Adaptor3d_CurveOnSurface)&>(myConSurf) =
-      Handle(Adaptor3d_CurveOnSurface)::DownCast(myConSurf->Trim(First, Last, Tol));
+    Handle(GeomAdaptor_CurveOnSurface) sav = myConSurf;
+    const_cast<Handle(GeomAdaptor_CurveOnSurface)&>(myConSurf) =
+      Handle(GeomAdaptor_CurveOnSurface)::DownCast(myConSurf->Trim(First, Last, Tol));
     res                                                      = new BRepAdaptor_Curve(*this);
-    const_cast<Handle(Adaptor3d_CurveOnSurface)&>(myConSurf) = sav;
+    const_cast<Handle(GeomAdaptor_CurveOnSurface)&>(myConSurf) = sav;
   }
   return res;
 }

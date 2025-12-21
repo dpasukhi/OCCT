@@ -16,9 +16,9 @@
 
 #include <Contap_TheSegmentOfTheSearch.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard_DomainError.hxx>
-#include <Adaptor3d_HVertex.hxx>
+#include <GeomAdaptor_HVertex.hxx>
 #include <Contap_ThePathPointOfTheSearch.hxx>
 
 Contap_TheSegmentOfTheSearch::Contap_TheSegmentOfTheSearch()

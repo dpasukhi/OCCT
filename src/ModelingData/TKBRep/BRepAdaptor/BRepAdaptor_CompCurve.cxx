@@ -33,7 +33,7 @@
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Wire.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(BRepAdaptor_CompCurve, Adaptor3d_Curve)
+IMPLEMENT_STANDARD_RTTIEXT(BRepAdaptor_CompCurve, GeomAdaptor_Curve)
 
 BRepAdaptor_CompCurve::BRepAdaptor_CompCurve()
     : TFirst(0.0),
@@ -76,7 +76,7 @@ BRepAdaptor_CompCurve::BRepAdaptor_CompCurve(const TopoDS_Wire&     theWire,
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) BRepAdaptor_CompCurve::ShallowCopy() const
+Handle(GeomAdaptor_Curve) BRepAdaptor_CompCurve::ShallowCopy() const
 {
   Handle(BRepAdaptor_CompCurve) aCopy = new BRepAdaptor_CompCurve();
 
@@ -87,7 +87,7 @@ Handle(Adaptor3d_Curve) BRepAdaptor_CompCurve::ShallowCopy() const
   aCopy->myCurves = new (BRepAdaptor_HArray1OfCurve)(1, myCurves->Size());
   for (Standard_Integer anI = 1; anI <= myCurves->Size(); ++anI)
   {
-    const Handle(Adaptor3d_Curve) aCurve     = myCurves->Value(anI).ShallowCopy();
+    const Handle(GeomAdaptor_Curve) aCurve     = myCurves->Value(anI).ShallowCopy();
     const BRepAdaptor_Curve&      aBrepCurve = *(Handle(BRepAdaptor_Curve)::DownCast(aCurve));
     aCopy->myCurves->SetValue(anI, aBrepCurve);
   }
@@ -296,7 +296,7 @@ void BRepAdaptor_CompCurve::Intervals(TColStd_Array1OfReal& T, const GeomAbs_Sha
   }
 }
 
-Handle(Adaptor3d_Curve) BRepAdaptor_CompCurve::Trim(const Standard_Real First,
+Handle(GeomAdaptor_Curve) BRepAdaptor_CompCurve::Trim(const Standard_Real First,
                                                     const Standard_Real Last,
                                                     const Standard_Real Tol) const
 {

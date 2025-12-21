@@ -16,7 +16,7 @@
 
 #include <IntCurveSurface_ThePolygonOfHInter.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Bnd_Box.hxx>
 #include <gp_Pnt.hxx>
 #include "IntCurveSurface_PolygonUtils.pxx"
@@ -26,7 +26,7 @@
 //==================================================================================================
 
 IntCurveSurface_ThePolygonOfHInter::IntCurveSurface_ThePolygonOfHInter(
-  const Handle(Adaptor3d_Curve)& Curve,
+  const Handle(GeomAdaptor_Curve)& Curve,
   const Standard_Integer         NbPnt)
     : ThePnts(1, (NbPnt < 5) ? 5 : NbPnt),
       ClosedPolygon(Standard_False)
@@ -40,7 +40,7 @@ IntCurveSurface_ThePolygonOfHInter::IntCurveSurface_ThePolygonOfHInter(
 //==================================================================================================
 
 IntCurveSurface_ThePolygonOfHInter::IntCurveSurface_ThePolygonOfHInter(
-  const Handle(Adaptor3d_Curve)& Curve,
+  const Handle(GeomAdaptor_Curve)& Curve,
   const Standard_Real            U1,
   const Standard_Real            U2,
   const Standard_Integer         NbPnt)
@@ -56,7 +56,7 @@ IntCurveSurface_ThePolygonOfHInter::IntCurveSurface_ThePolygonOfHInter(
 //==================================================================================================
 
 IntCurveSurface_ThePolygonOfHInter::IntCurveSurface_ThePolygonOfHInter(
-  const Handle(Adaptor3d_Curve)& Curve,
+  const Handle(GeomAdaptor_Curve)& Curve,
   const TColStd_Array1OfReal&    Upars)
     : ThePnts(1, Upars.Length()),
       ClosedPolygon(Standard_False),
@@ -69,9 +69,9 @@ IntCurveSurface_ThePolygonOfHInter::IntCurveSurface_ThePolygonOfHInter(
 
 //==================================================================================================
 
-void IntCurveSurface_ThePolygonOfHInter::Init(const Handle(Adaptor3d_Curve)& Curve)
+void IntCurveSurface_ThePolygonOfHInter::Init(const Handle(GeomAdaptor_Curve)& Curve)
 {
-  IntCurveSurface_PolygonUtils::InitUniform<Handle(Adaptor3d_Curve), IntCurveSurface_TheHCurveTool>(
+  IntCurveSurface_PolygonUtils::InitUniform<Handle(GeomAdaptor_Curve), IntCurveSurface_TheHCurveTool>(
     Curve,
     Binf,
     Bsup,
@@ -84,10 +84,10 @@ void IntCurveSurface_ThePolygonOfHInter::Init(const Handle(Adaptor3d_Curve)& Cur
 
 //==================================================================================================
 
-void IntCurveSurface_ThePolygonOfHInter::Init(const Handle(Adaptor3d_Curve)& Curve,
+void IntCurveSurface_ThePolygonOfHInter::Init(const Handle(GeomAdaptor_Curve)& Curve,
                                               const TColStd_Array1OfReal&    Upars)
 {
-  IntCurveSurface_PolygonUtils::InitWithParams<Handle(Adaptor3d_Curve),
+  IntCurveSurface_PolygonUtils::InitWithParams<Handle(GeomAdaptor_Curve),
                                                IntCurveSurface_TheHCurveTool>(Curve,
                                                                               Upars,
                                                                               NbPntIn,

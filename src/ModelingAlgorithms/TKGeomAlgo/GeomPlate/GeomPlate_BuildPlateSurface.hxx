@@ -216,9 +216,9 @@ private:
 
   Standard_EXPORT gp_Pnt2d ProjectPoint(const gp_Pnt& P);
 
-  Standard_EXPORT Handle(Geom2d_Curve) ProjectCurve(const Handle(Adaptor3d_Curve)& Curv);
+  Standard_EXPORT Handle(Geom2d_Curve) ProjectCurve(const Handle(GeomAdaptor_Curve)& Curv);
 
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) ProjectedCurve(Handle(Adaptor3d_Curve)& Curv);
+  Standard_EXPORT Handle(Geom2dAdaptor_Curve) ProjectedCurve(Handle(GeomAdaptor_Curve)& Curv);
 
   Standard_EXPORT void ComputeSurfInit(const Message_ProgressRange& theProgress);
 

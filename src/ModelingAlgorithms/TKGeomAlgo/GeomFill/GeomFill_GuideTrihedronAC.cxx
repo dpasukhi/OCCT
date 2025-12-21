@@ -15,7 +15,7 @@
 
 // Created:	Tue Jun 23 15:39:24 1998
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Approx_CurvlinFunc.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_Frenet.hxx>
@@ -32,7 +32,7 @@ IMPLEMENT_STANDARD_RTTIEXT(GeomFill_GuideTrihedronAC, GeomFill_TrihedronWithGuid
 
 //=================================================================================================
 
-GeomFill_GuideTrihedronAC::GeomFill_GuideTrihedronAC(const Handle(Adaptor3d_Curve)& guide)
+GeomFill_GuideTrihedronAC::GeomFill_GuideTrihedronAC(const Handle(GeomAdaptor_Curve)& guide)
 {
   myCurve.Nullify();
   myGuide   = guide;
@@ -49,7 +49,7 @@ GeomFill_GuideTrihedronAC::GeomFill_GuideTrihedronAC(const Handle(Adaptor3d_Curv
 // purpose  : calculation of trihedron
 //=======================================================================
 
-Handle(Adaptor3d_Curve) GeomFill_GuideTrihedronAC::Guide() const
+Handle(GeomAdaptor_Curve) GeomFill_GuideTrihedronAC::Guide() const
 {
   return myGuide;
 }
@@ -274,7 +274,7 @@ Handle(GeomFill_TrihedronLaw) GeomFill_GuideTrihedronAC::Copy() const
 
 //=================================================================================================
 
-Standard_Boolean GeomFill_GuideTrihedronAC::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_GuideTrihedronAC::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   myCurve   = C;
   myTrimmed = C;

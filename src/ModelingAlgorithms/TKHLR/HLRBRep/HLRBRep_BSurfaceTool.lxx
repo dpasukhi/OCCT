@@ -24,8 +24,8 @@
 #include <gp_Dir.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_BSplineSurface.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BRepAdaptor_Surface.hxx>
 
 //=================================================================================================
@@ -92,7 +92,7 @@ inline void HLRBRep_BSurfaceTool::VIntervals(const BRepAdaptor_Surface& Surf,
 
 //=================================================================================================
 
-inline Handle(Adaptor3d_Surface) HLRBRep_BSurfaceTool::UTrim(const BRepAdaptor_Surface& Surf,
+inline Handle(GeomAdaptor_Surface) HLRBRep_BSurfaceTool::UTrim(const BRepAdaptor_Surface& Surf,
                                                              const Standard_Real        F,
                                                              const Standard_Real        L,
                                                              const Standard_Real        Tol)
@@ -102,7 +102,7 @@ inline Handle(Adaptor3d_Surface) HLRBRep_BSurfaceTool::UTrim(const BRepAdaptor_S
 
 //=================================================================================================
 
-inline Handle(Adaptor3d_Surface) HLRBRep_BSurfaceTool::VTrim(const BRepAdaptor_Surface& Surf,
+inline Handle(GeomAdaptor_Surface) HLRBRep_BSurfaceTool::VTrim(const BRepAdaptor_Surface& Surf,
                                                              const Standard_Real        F,
                                                              const Standard_Real        L,
                                                              const Standard_Real        Tol)
@@ -316,7 +316,7 @@ inline gp_Dir HLRBRep_BSurfaceTool::Direction(const BRepAdaptor_Surface& S)
 
 //=================================================================================================
 
-inline Handle(Adaptor3d_Curve) HLRBRep_BSurfaceTool::BasisCurve(const BRepAdaptor_Surface& S)
+inline Handle(GeomAdaptor_Curve) HLRBRep_BSurfaceTool::BasisCurve(const BRepAdaptor_Surface& S)
 {
   return (S.BasisCurve());
 }

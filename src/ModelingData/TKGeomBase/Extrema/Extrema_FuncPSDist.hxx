@@ -21,7 +21,7 @@
 #include <Standard_DefineAlloc.hxx>
 
 #include <math_MultipleVarFunctionWithGradient.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 #include <Standard_Boolean.hxx>
 
@@ -49,7 +49,7 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor.
-  Standard_EXPORT Extrema_FuncPSDist(const Adaptor3d_Surface& theS, const gp_Pnt& theP);
+  Standard_EXPORT Extrema_FuncPSDist(const GeomAdaptor_Surface& theS, const gp_Pnt& theP);
 
   //! Number of variables.
   Standard_EXPORT Standard_Integer NbVariables() const Standard_OVERRIDE;
@@ -73,7 +73,7 @@ private:
   const Extrema_FuncPSDist& operator=(const Extrema_FuncPSDist&);
   Extrema_FuncPSDist(const Extrema_FuncPSDist&);
 
-  const Adaptor3d_Surface& mySurf;
+  const GeomAdaptor_Surface& mySurf;
   const gp_Pnt&            myP;
 };
 #endif // _Extrema_FuncPSDsit_HeaderFile

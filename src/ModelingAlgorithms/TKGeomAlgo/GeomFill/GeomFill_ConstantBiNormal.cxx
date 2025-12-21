@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_ConstantBiNormal.hxx>
 #include <GeomFill_Frenet.hxx>
 #include <GeomFill_TrihedronLaw.hxx>
@@ -67,7 +67,7 @@ Handle(GeomFill_TrihedronLaw) GeomFill_ConstantBiNormal::Copy() const
   return copy;
 }
 
-Standard_Boolean GeomFill_ConstantBiNormal::SetCurve(const Handle(Adaptor3d_Curve)& C)
+Standard_Boolean GeomFill_ConstantBiNormal::SetCurve(const Handle(GeomAdaptor_Curve)& C)
 {
   Standard_Boolean isOK = Standard_False;
   GeomFill_TrihedronLaw::SetCurve(C);

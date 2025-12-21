@@ -54,7 +54,7 @@ public:
 
   Standard_EXPORT void SetValue(const gp_Circ& C);
 
-  Standard_EXPORT void SetValue(const Handle(Adaptor2d_Curve2d)& A);
+  Standard_EXPORT void SetValue(const Handle(Geom2dAdaptor_Curve)& A);
 
   Standard_EXPORT void Add(const Contap_Point& P);
 
@@ -75,7 +75,7 @@ public:
 
   gp_Circ Circle() const;
 
-  Standard_EXPORT const Handle(Adaptor2d_Curve2d)& Arc() const;
+  Standard_EXPORT const Handle(Geom2dAdaptor_Curve)& Arc() const;
 
   //! Set The Transition of the line.
   Standard_EXPORT void SetTransitionOnS(const IntSurf_TypeTrans T);
@@ -89,7 +89,7 @@ private:
   IntSurf_TypeTrans                  Trans;
   Handle(IntSurf_LineOn2S)           curv;
   Handle(Contap_TheHSequenceOfPoint) svtx;
-  Handle(Adaptor2d_Curve2d)          thearc;
+  Handle(Geom2dAdaptor_Curve)          thearc;
   Contap_IType                       typL;
   gp_Pnt                             pt;
   gp_Dir                             dir1;

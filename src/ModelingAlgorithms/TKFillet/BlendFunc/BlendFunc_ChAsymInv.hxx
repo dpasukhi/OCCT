@@ -17,21 +17,23 @@
 #ifndef _BlendFunc_ChAsymInv_HeaderFile
 #define _BlendFunc_ChAsymInv_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
 #include <math_Matrix.hxx>
 #include <Blend_FuncInv.hxx>
+
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 
 class BlendFunc_ChAsymInv : public Blend_FuncInv
 {
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BlendFunc_ChAsymInv(const Handle(Adaptor3d_Surface)& S1,
-                                      const Handle(Adaptor3d_Surface)& S2,
-                                      const Handle(Adaptor3d_Curve)&   C);
+  Standard_EXPORT BlendFunc_ChAsymInv(const Handle(GeomAdaptor_Surface)& S1,
+                                      const Handle(GeomAdaptor_Surface)& S2,
+                                      const Handle(GeomAdaptor_Curve)&   C);
 
   Standard_EXPORT void Set(const Standard_Boolean           OnFirst,
-                           const Handle(Adaptor2d_Curve2d)& COnSurf) Standard_OVERRIDE;
+                           const Handle(Geom2dAdaptor_Curve)& COnSurf) Standard_OVERRIDE;
 
   Standard_EXPORT void GetTolerance(math_Vector&        Tolerance,
                                     const Standard_Real Tol) const Standard_OVERRIDE;
@@ -80,13 +82,13 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Surface) surf1;
-  Handle(Adaptor3d_Surface) surf2;
+  Handle(GeomAdaptor_Surface) surf1;
+  Handle(GeomAdaptor_Surface) surf2;
   Standard_Real             dist1;
   Standard_Real             angle;
   Standard_Real             tgang;
-  Handle(Adaptor3d_Curve)   curv;
-  Handle(Adaptor2d_Curve2d) csurf;
+  Handle(GeomAdaptor_Curve)   curv;
+  Handle(Geom2dAdaptor_Curve) csurf;
   Standard_Integer          choix;
   Standard_Boolean          first;
   math_Vector               FX;

@@ -17,10 +17,10 @@
 #ifndef _IntCurveSurface_TheExactHInter_HeaderFile
 #define _IntCurveSurface_TheExactHInter_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntCurveSurface_TheCSFunctionOfHInter.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class IntCurveSurface_TheHCurveTool;
 class IntCurveSurface_TheCSFunctionOfHInter;
 class math_FunctionSetRoot;

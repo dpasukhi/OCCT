@@ -14,7 +14,9 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_EvolRadInv.hxx>
 #include <Law_Function.hxx>
@@ -23,9 +25,9 @@
 
 #define Eps 1.e-15
 
-BlendFunc_EvolRadInv::BlendFunc_EvolRadInv(const Handle(Adaptor3d_Surface)& S1,
-                                           const Handle(Adaptor3d_Surface)& S2,
-                                           const Handle(Adaptor3d_Curve)&   C,
+BlendFunc_EvolRadInv::BlendFunc_EvolRadInv(const Handle(GeomAdaptor_Surface)& S1,
+                                           const Handle(GeomAdaptor_Surface)& S2,
+                                           const Handle(GeomAdaptor_Curve)&   C,
                                            const Handle(Law_Function)&      Law)
     : surf1(S1),
       surf2(S2),
@@ -69,7 +71,7 @@ void BlendFunc_EvolRadInv::Set(const Standard_Integer Choix)
   }
 }
 
-void BlendFunc_EvolRadInv::Set(const Standard_Boolean OnFirst, const Handle(Adaptor2d_Curve2d)& C)
+void BlendFunc_EvolRadInv::Set(const Standard_Boolean OnFirst, const Handle(Geom2dAdaptor_Curve)& C)
 {
   first = OnFirst;
   csurf = C;

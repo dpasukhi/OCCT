@@ -17,7 +17,8 @@
 #ifndef _ProjLib_HeaderFile
 #define _ProjLib_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Geom2d_Curve.hxx>
 
 class gp_Pnt2d;
@@ -59,7 +60,7 @@ class ProjLib_ProjectedCurve;
 //!  - Sphere.
 //!  - Torus.
 //!
-//! * A generic class to handle a Adaptor3d_Curve on a Adaptor3d_Surface.
+//! * A generic class to handle a GeomAdaptor_Curve on a GeomAdaptor_Surface.
 class ProjLib
 {
 public:
@@ -104,7 +105,7 @@ public:
   //! Returns "true" if surface is analytical, that is it can be
   //! Plane, Cylinder, Cone, Sphere, Torus.
   //! For all other types of surface method returns "false".
-  Standard_EXPORT static Standard_Boolean IsAnaSurf(const Handle(Adaptor3d_Surface)& theAS);
+  Standard_EXPORT static Standard_Boolean IsAnaSurf(const Handle(GeomAdaptor_Surface)& theAS);
 };
 
 #endif // _ProjLib_HeaderFile

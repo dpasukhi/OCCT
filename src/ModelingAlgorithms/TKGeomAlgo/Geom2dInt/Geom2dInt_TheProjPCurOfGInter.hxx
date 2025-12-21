@@ -17,11 +17,10 @@
 #ifndef _Geom2dInt_TheProjPCurOfGInter_HeaderFile
 #define _Geom2dInt_TheProjPCurOfGInter_HeaderFile
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Geom2dInt_TheCurveLocatorOfTheProjPCurOfGInter.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
-
-class Adaptor2d_Curve2d;
 class Geom2dInt_Geom2dCurveTool;
 class gp_Pnt2d;
 
@@ -41,7 +40,7 @@ public:
   //! In that case, no bounds are given. The research of
   //! the right parameter has to be made on the natural
   //! parametric domain of the curve.
-  Standard_EXPORT static Standard_Real FindParameter(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT static Standard_Real FindParameter(const Geom2dAdaptor_Curve& C,
                                                      const gp_Pnt2d&          Pnt,
                                                      const Standard_Real      Tol);
 
@@ -59,7 +58,7 @@ public:
   //! implement a more efficient algorithm. So, it is not
   //! necessary to check that the returned value verifies
   //! LowParameter <= Value <= HighParameter.
-  Standard_EXPORT static Standard_Real FindParameter(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT static Standard_Real FindParameter(const Geom2dAdaptor_Curve& C,
                                                      const gp_Pnt2d&          Pnt,
                                                      const Standard_Real      LowParameter,
                                                      const Standard_Real      HighParameter,

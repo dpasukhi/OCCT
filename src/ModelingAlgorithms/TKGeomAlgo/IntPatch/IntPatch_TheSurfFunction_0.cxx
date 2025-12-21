@@ -17,8 +17,8 @@
 #include <IntPatch_TheSurfFunction.hxx>
 
 #include <StdFail_UndefinedDerivative.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
 #include <IntSurf_Quadric.hxx>
 #include <IntSurf_QuadricTool.hxx>
 #include <math_Matrix.hxx>
@@ -26,10 +26,10 @@
 #include <gp_Vec.hxx>
 #include <gp_Dir2d.hxx>
 
-#define ThePSurface Handle(Adaptor3d_Surface)
-#define ThePSurface_hxx <Adaptor3d_Surface.hxx>
-#define ThePSurfaceTool Adaptor3d_HSurfaceTool
-#define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
+#define ThePSurface Handle(GeomAdaptor_Surface)
+#define ThePSurface_hxx <GeomAdaptor_Surface.hxx>
+#define ThePSurfaceTool GeomAdaptor_HSurfaceTool
+#define ThePSurfaceTool_hxx <GeomAdaptor_HSurfaceTool.hxx>
 #define TheISurface IntSurf_Quadric
 #define TheISurface_hxx <IntSurf_Quadric.hxx>
 #define TheISurfaceTool IntSurf_QuadricTool

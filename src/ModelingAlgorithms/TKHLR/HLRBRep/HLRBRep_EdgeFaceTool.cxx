@@ -14,6 +14,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Curve2d.hxx>
 #include <BRepExtrema_ExtPF.hxx>

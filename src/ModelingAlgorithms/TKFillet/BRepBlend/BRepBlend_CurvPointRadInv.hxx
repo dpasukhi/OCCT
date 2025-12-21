@@ -26,6 +26,7 @@
 #include <Blend_CurvPointFuncInv.hxx>
 #include <math_Vector.hxx>
 
+class GeomAdaptor_Curve;
 class math_Matrix;
 
 //! Function of reframing between a point and a curve.
@@ -43,8 +44,8 @@ class BRepBlend_CurvPointRadInv : public Blend_CurvPointFuncInv
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT BRepBlend_CurvPointRadInv(const Handle(Adaptor3d_Curve)& C1,
-                                            const Handle(Adaptor3d_Curve)& C2);
+  Standard_EXPORT BRepBlend_CurvPointRadInv(const Handle(GeomAdaptor_Curve)& C1,
+                                            const Handle(GeomAdaptor_Curve)& C2);
 
   Standard_EXPORT void Set(const Standard_Integer Choix);
 
@@ -89,8 +90,8 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Curve) curv1;
-  Handle(Adaptor3d_Curve) curv2;
+  Handle(GeomAdaptor_Curve) curv1;
+  Handle(GeomAdaptor_Curve) curv2;
   gp_Pnt                  point;
   Standard_Integer        choix;
 };

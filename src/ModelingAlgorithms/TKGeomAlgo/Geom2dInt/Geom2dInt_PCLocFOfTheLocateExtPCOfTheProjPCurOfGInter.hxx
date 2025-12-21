@@ -17,7 +17,7 @@
 #ifndef _Geom2dInt_PCLocFOfTheLocateExtPCOfTheProjPCurOfGInter_HeaderFile
 #define _Geom2dInt_PCLocFOfTheLocateExtPCOfTheProjPCurOfGInter_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Extrema_GFuncExtPC.hxx>
 #include <Extrema_POnCurv2d.hxx>
 #include <Extrema_SequenceOfPOnCurv2d.hxx>
@@ -27,7 +27,7 @@
 
 //! Type alias for 2D curve extremum function using Geom2dInt_Geom2dCurveTool.
 using Geom2dInt_PCLocFOfTheLocateExtPCOfTheProjPCurOfGInter =
-  Extrema_GFuncExtPC<Adaptor2d_Curve2d,
+  Extrema_GFuncExtPC<Geom2dAdaptor_Curve,
                      Geom2dInt_Geom2dCurveTool,
                      Extrema_POnCurv2d,
                      gp_Pnt2d,

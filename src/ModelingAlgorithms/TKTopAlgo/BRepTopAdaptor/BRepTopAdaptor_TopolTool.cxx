@@ -12,7 +12,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <BRep_Tool.hxx>
 #include <BRepAdaptor_Surface.hxx>
 #include <BRepTopAdaptor_FClass2d.hxx>
@@ -30,7 +30,7 @@
 #include <TColgp_Array2OfPnt.hxx>
 #include <TopoDS.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(BRepTopAdaptor_TopolTool, Adaptor3d_TopolTool)
+IMPLEMENT_STANDARD_RTTIEXT(BRepTopAdaptor_TopolTool, GeomAdaptor_TopolTool)
 
 static void Analyse(const TColgp_Array2OfPnt& array2,
                     const Standard_Integer    nbup,
@@ -52,7 +52,7 @@ BRepTopAdaptor_TopolTool::BRepTopAdaptor_TopolTool()
 
 //=================================================================================================
 
-BRepTopAdaptor_TopolTool::BRepTopAdaptor_TopolTool(const Handle(Adaptor3d_Surface)& S)
+BRepTopAdaptor_TopolTool::BRepTopAdaptor_TopolTool(const Handle(GeomAdaptor_Surface)& S)
     : myFClass2d(NULL)
 {
   Initialize(S);
@@ -68,7 +68,7 @@ void BRepTopAdaptor_TopolTool::Initialize()
 
 //=================================================================================================
 
-void BRepTopAdaptor_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
+void BRepTopAdaptor_TopolTool::Initialize(const Handle(GeomAdaptor_Surface)& S)
 {
   Handle(BRepAdaptor_Surface) brhs = Handle(BRepAdaptor_Surface)::DownCast(S);
   if (brhs.IsNull())
@@ -98,7 +98,7 @@ void BRepTopAdaptor_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
 
 //=================================================================================================
 
-void BRepTopAdaptor_TopolTool::Initialize(const Handle(Adaptor2d_Curve2d)& C)
+void BRepTopAdaptor_TopolTool::Initialize(const Handle(Geom2dAdaptor_Curve)& C)
 {
   myCurve = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   if (myCurve.IsNull())
@@ -130,9 +130,9 @@ void BRepTopAdaptor_TopolTool::Next()
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) BRepTopAdaptor_TopolTool::Value()
+Handle(Geom2dAdaptor_Curve) BRepTopAdaptor_TopolTool::Value()
 {
-  return Handle(Adaptor2d_Curve2d)::DownCast(myCIterator.Value());
+  return Handle(Geom2dAdaptor_Curve)::DownCast(myCIterator.Value());
 }
 
 // modified by NIZNHY-PKV Tue Mar 27 14:23:40 2001 f
@@ -166,7 +166,7 @@ void BRepTopAdaptor_TopolTool::NextVertex()
 
 //=================================================================================================
 
-Handle(Adaptor3d_HVertex) BRepTopAdaptor_TopolTool::Vertex()
+Handle(GeomAdaptor_HVertex) BRepTopAdaptor_TopolTool::Vertex()
 {
   return new BRepTopAdaptor_HVertex(TopoDS::Vertex(myVIterator.Current()), myCurve);
 }
@@ -213,7 +213,7 @@ void BRepTopAdaptor_TopolTool::Destroy()
 
 //=================================================================================================
 
-TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(Adaptor2d_Curve2d)& C)
+TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(Geom2dAdaptor_Curve)& C)
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   return brhc->Edge().Orientation();
@@ -221,9 +221,9 @@ TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(Adaptor2d_
 
 //=================================================================================================
 
-TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(Adaptor3d_HVertex)& C)
+TopAbs_Orientation BRepTopAdaptor_TopolTool::Orientation(const Handle(GeomAdaptor_HVertex)& C)
 {
-  return Adaptor3d_TopolTool::Orientation(C);
+  return GeomAdaptor_TopolTool::Orientation(C);
 }
 
 //-- ============================================================
@@ -577,7 +577,7 @@ Standard_Boolean BRepTopAdaptor_TopolTool::Has3d() const
 
 //=================================================================================================
 
-Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Adaptor2d_Curve2d)& C) const
+Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Geom2dAdaptor_Curve)& C) const
 {
   Handle(BRepAdaptor_Curve2d) brhc = Handle(BRepAdaptor_Curve2d)::DownCast(C);
   if (brhc.IsNull())
@@ -593,7 +593,7 @@ Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Adaptor2d_Curve2d)& C
 
 //=================================================================================================
 
-Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Adaptor3d_HVertex)& V) const
+Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(GeomAdaptor_HVertex)& V) const
 {
   Handle(BRepTopAdaptor_HVertex) brhv = Handle(BRepTopAdaptor_HVertex)::DownCast(V);
   if (brhv.IsNull())
@@ -606,7 +606,7 @@ Standard_Real BRepTopAdaptor_TopolTool::Tol3d(const Handle(Adaptor3d_HVertex)& V
 
 //=================================================================================================
 
-gp_Pnt BRepTopAdaptor_TopolTool::Pnt(const Handle(Adaptor3d_HVertex)& V) const
+gp_Pnt BRepTopAdaptor_TopolTool::Pnt(const Handle(GeomAdaptor_HVertex)& V) const
 {
   Handle(BRepTopAdaptor_HVertex) brhv = Handle(BRepTopAdaptor_HVertex)::DownCast(V);
   if (brhv.IsNull())

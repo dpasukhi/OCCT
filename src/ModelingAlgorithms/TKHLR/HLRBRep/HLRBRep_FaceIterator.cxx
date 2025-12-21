@@ -18,6 +18,8 @@
   #define No_Exception
 #endif
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <HLRBRep_FaceData.hxx>
 #include <HLRBRep_FaceIterator.hxx>
 

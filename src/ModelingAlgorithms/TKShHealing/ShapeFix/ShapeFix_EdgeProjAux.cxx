@@ -16,7 +16,7 @@
 
 #include <ShapeFix_EdgeProjAux.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <BRep_Tool.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtPC.hxx>
@@ -39,7 +39,7 @@
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Vertex.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <BSplCLib.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(ShapeFix_EdgeProjAux, Standard_Transient)
@@ -134,7 +134,7 @@ Standard_Real ShapeFix_EdgeProjAux::LastParam() const
 
 Standard_Boolean ShapeFix_EdgeProjAux::IsIso(const Handle(Geom2d_Curve)& /*theCurve2d*/)
 {
-  // Until an ISO is recognized by Adaptor3d_Curve
+  // Until an ISO is recognized by GeomAdaptor_Curve
   /*
     if (theCurve2d->IsKind(STANDARD_TYPE(Geom2d_Line))) {
       Handle(Geom2d_Line) theLine2d = Handle(Geom2d_Line)::DownCast(theCurve2d);
@@ -158,7 +158,7 @@ Standard_Boolean ShapeFix_EdgeProjAux::IsIso(const Handle(Geom2d_Curve)& /*theCu
 // ----------------------------------------------------------------------------
 
 static Standard_Boolean FindParameterWithExt(const gp_Pnt&                   Pt1,
-                                             const Adaptor3d_CurveOnSurface& COnS,
+                                             const GeomAdaptor_CurveOnSurface& COnS,
                                              const Standard_Real             Uinf,
                                              const Standard_Real             Usup,
                                              const Standard_Real             preci,
@@ -402,7 +402,7 @@ void ShapeFix_EdgeProjAux::Init2d(const Standard_Real preci)
   Geom2dAdaptor_Curve         CA     = Geom2dAdaptor_Curve(theCurve2d, cf, cl);
   Handle(Geom2dAdaptor_Curve) myHCur = new Geom2dAdaptor_Curve(CA);
 
-  Adaptor3d_CurveOnSurface COnS = Adaptor3d_CurveOnSurface(myHCur, myHSur);
+  GeomAdaptor_CurveOnSurface COnS = GeomAdaptor_CurveOnSurface(myHCur, myHSur);
 
   // ----------------------------------------------
   // --- topological limit == geometric limit ? ---
@@ -539,7 +539,7 @@ void ShapeFix_EdgeProjAux::Init3d(const Standard_Real preci)
   Geom2dAdaptor_Curve         CA     = Geom2dAdaptor_Curve(theCurve2d);
   Handle(Geom2dAdaptor_Curve) myHCur = new Geom2dAdaptor_Curve(CA);
 
-  Adaptor3d_CurveOnSurface COnS = Adaptor3d_CurveOnSurface(myHCur, myHSur);
+  GeomAdaptor_CurveOnSurface COnS = GeomAdaptor_CurveOnSurface(myHCur, myHSur);
 
   //: S4136  Standard_Real preci = BRepAPI::Precision();
   Standard_Real Uinf = theCurve2d->FirstParameter();

@@ -17,8 +17,8 @@
 #include <TopoDS_Edge.hxx>
 #include <Geom_Curve.hxx>
 #include <BRepAdaptor_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 #include <BRep_Tool.hxx>
 #include <Geom_Line.hxx>
@@ -64,7 +64,7 @@
   #include <GeomLib.hxx>
 #endif
 
-static Standard_Boolean IsDegenerated(const Handle(Adaptor3d_CurveOnSurface)& theCurve);
+static Standard_Boolean IsDegenerated(const Handle(GeomAdaptor_CurveOnSurface)& theCurve);
 static Standard_Boolean IsDegenerated(const IntSurf_Quadric& theQuadric);
 
 static void FindVertex(const TheArc&,
@@ -163,7 +163,7 @@ void FindVertex(const TheArc&                 A,
   }
 }
 
-Standard_Boolean IsDegenerated(const Handle(Adaptor3d_CurveOnSurface)& theCurve)
+Standard_Boolean IsDegenerated(const Handle(GeomAdaptor_CurveOnSurface)& theCurve)
 {
   if (theCurve->GetType() == GeomAbs_Circle)
   {
@@ -373,8 +373,8 @@ static void BoundedArc(const TheArc&                 A,
     if (TypeQuad != GeomAbs_OtherSurface) // intersection of boundary curve and quadric surface
     {
       // Exact solution
-      Handle(Adaptor3d_Surface) aSurf = Func.Surface();
-      Adaptor3d_CurveOnSurface  ConS(A, aSurf);
+      Handle(GeomAdaptor_Surface) aSurf = Func.Surface();
+      GeomAdaptor_CurveOnSurface  ConS(A, aSurf);
       TypeConS = ConS.GetType();
 #ifdef OCCT_DEBUG
       Handle(Geom_Curve) CurveConS;
@@ -421,7 +421,7 @@ static void BoundedArc(const TheArc&                 A,
         }
       }
 #endif
-      Handle(Adaptor3d_CurveOnSurface) HConS = new Adaptor3d_CurveOnSurface(ConS);
+      Handle(GeomAdaptor_CurveOnSurface) HConS = new GeomAdaptor_CurveOnSurface(ConS);
       Handle(Geom_Surface)             QuadSurf;
       switch (TypeQuad)
       {

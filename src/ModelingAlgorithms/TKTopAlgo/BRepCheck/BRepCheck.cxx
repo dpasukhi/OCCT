@@ -22,8 +22,8 @@
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Wire.hxx>
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomAbs_CurveType.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 #include <gp_Elips.hxx>
@@ -65,7 +65,7 @@ Standard_Boolean BRepCheck::SelfIntersection(const TopoDS_Wire& W,
 
 //=================================================================================================
 
-Standard_Real BRepCheck::PrecCurve(const Adaptor3d_Curve& aAC3D)
+Standard_Real BRepCheck::PrecCurve(const GeomAdaptor_Curve& aAC3D)
 {
   Standard_Real aXEmax = RealEpsilon();
   //
@@ -98,7 +98,7 @@ Standard_Real BRepCheck::PrecCurve(const Adaptor3d_Curve& aAC3D)
 
 //=================================================================================================
 
-Standard_Real BRepCheck::PrecSurface(const Handle(Adaptor3d_Surface)& aAHSurf)
+Standard_Real BRepCheck::PrecSurface(const Handle(GeomAdaptor_Surface)& aAHSurf)
 {
   Standard_Real aXEmax = RealEpsilon();
   //

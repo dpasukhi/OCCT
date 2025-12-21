@@ -18,6 +18,8 @@
   #define No_Exception
 #endif
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_Box.hxx>
 #include <ElCLib.hxx>
 #include <gp_Lin.hxx>

@@ -16,8 +16,8 @@
 
 #include <IntCurveSurface_ThePolyhedronOfHInter.hxx>
 
-#include <Adaptor3d_HSurfaceTool.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_Array1OfBox.hxx>
 #include <Bnd_Box.hxx>
 #include <gp.hxx>
@@ -34,7 +34,7 @@ namespace PolyUtils = IntCurveSurface_PolyhedronUtils;
 //==================================================================================================
 
 IntCurveSurface_ThePolyhedronOfHInter::IntCurveSurface_ThePolyhedronOfHInter(
-  const Handle(Adaptor3d_Surface)& Surface,
+  const Handle(GeomAdaptor_Surface)& Surface,
   const Standard_Integer           nbdU,
   const Standard_Integer           nbdV,
   const Standard_Real              u1,
@@ -56,7 +56,7 @@ IntCurveSurface_ThePolyhedronOfHInter::IntCurveSurface_ThePolyhedronOfHInter(
 //==================================================================================================
 
 IntCurveSurface_ThePolyhedronOfHInter::IntCurveSurface_ThePolyhedronOfHInter(
-  const Handle(Adaptor3d_Surface)& Surface,
+  const Handle(GeomAdaptor_Surface)& Surface,
   const TColStd_Array1OfReal&      Upars,
   const TColStd_Array1OfReal&      Vpars)
     : nbdeltaU(Upars.Length() - 1),
@@ -80,13 +80,13 @@ void IntCurveSurface_ThePolyhedronOfHInter::Destroy()
 
 //==================================================================================================
 
-void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)& Surface,
+void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(GeomAdaptor_Surface)& Surface,
                                                  const Standard_Real              U0,
                                                  const Standard_Real              V0,
                                                  const Standard_Real              U1,
                                                  const Standard_Real              V1)
 {
-  PolyUtils::InitUniform<Handle(Adaptor3d_Surface), Adaptor3d_HSurfaceTool>(
+  PolyUtils::InitUniform<Handle(GeomAdaptor_Surface), GeomAdaptor_HSurfaceTool>(
     Surface,
     U0,
     V0,
@@ -101,8 +101,8 @@ void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)
     TheBnd);
 
   Standard_Real tol =
-    PolyUtils::ComputeMaxDeflection<Handle(Adaptor3d_Surface),
-                                    Adaptor3d_HSurfaceTool,
+    PolyUtils::ComputeMaxDeflection<Handle(GeomAdaptor_Surface),
+                                    GeomAdaptor_HSurfaceTool,
                                     IntCurveSurface_ThePolyhedronOfHInter>(Surface,
                                                                            *this,
                                                                            NbTriangles());
@@ -110,7 +110,7 @@ void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)
   FillBounding();
 
   TheBorderDeflection =
-    PolyUtils::ComputeMaxBorderDeflection<Handle(Adaptor3d_Surface), Adaptor3d_HSurfaceTool>(
+    PolyUtils::ComputeMaxBorderDeflection<Handle(GeomAdaptor_Surface), GeomAdaptor_HSurfaceTool>(
       Surface,
       U0,
       V0,
@@ -122,11 +122,11 @@ void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)
 
 //==================================================================================================
 
-void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)& Surface,
+void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(GeomAdaptor_Surface)& Surface,
                                                  const TColStd_Array1OfReal&      Upars,
                                                  const TColStd_Array1OfReal&      Vpars)
 {
-  PolyUtils::InitWithParams<Handle(Adaptor3d_Surface), Adaptor3d_HSurfaceTool>(
+  PolyUtils::InitWithParams<Handle(GeomAdaptor_Surface), GeomAdaptor_HSurfaceTool>(
     Surface,
     Upars,
     Vpars,
@@ -139,8 +139,8 @@ void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)
     TheBnd);
 
   Standard_Real tol =
-    PolyUtils::ComputeMaxDeflection<Handle(Adaptor3d_Surface),
-                                    Adaptor3d_HSurfaceTool,
+    PolyUtils::ComputeMaxDeflection<Handle(GeomAdaptor_Surface),
+                                    GeomAdaptor_HSurfaceTool,
                                     IntCurveSurface_ThePolyhedronOfHInter>(Surface,
                                                                            *this,
                                                                            NbTriangles());
@@ -148,7 +148,7 @@ void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)
   FillBounding();
 
   TheBorderDeflection =
-    PolyUtils::ComputeMaxBorderDeflection<Handle(Adaptor3d_Surface), Adaptor3d_HSurfaceTool>(
+    PolyUtils::ComputeMaxBorderDeflection<Handle(GeomAdaptor_Surface), GeomAdaptor_HSurfaceTool>(
       Surface,
       Upars(Upars.Lower()),
       Vpars(Vpars.Lower()),
@@ -161,14 +161,14 @@ void IntCurveSurface_ThePolyhedronOfHInter::Init(const Handle(Adaptor3d_Surface)
 //==================================================================================================
 
 Standard_Real IntCurveSurface_ThePolyhedronOfHInter::DeflectionOnTriangle(
-  const Handle(Adaptor3d_Surface)& Surface,
+  const Handle(GeomAdaptor_Surface)& Surface,
   const Standard_Integer           Triang) const
 {
   Standard_Integer i1, i2, i3;
   Triangle(Triang, i1, i2, i3);
   Standard_Real u1, v1, u2, v2, u3, v3;
   gp_Pnt        P1 = Point(i1, u1, v1), P2 = Point(i2, u2, v2), P3 = Point(i3, u3, v3);
-  return PolyUtils::DeflectionOnTriangle<Handle(Adaptor3d_Surface), Adaptor3d_HSurfaceTool>(Surface,
+  return PolyUtils::DeflectionOnTriangle<Handle(GeomAdaptor_Surface), GeomAdaptor_HSurfaceTool>(Surface,
                                                                                             P1,
                                                                                             P2,
                                                                                             P3,

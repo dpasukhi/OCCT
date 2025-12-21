@@ -23,7 +23,7 @@
 //  Modified by skv - Thu Sep 25 17:42:42 2003 OCC567
 //  modified by ofv Thu Apr  8 14:58:13 2004 fip
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_BoundSortBox.hxx>
 #include <Bnd_Box.hxx>
 #include <Bnd_HArray1OfBox.hxx>
@@ -105,13 +105,13 @@ static Standard_Integer     CheckNextStartPoint(IntPolyh_SectionLine&         Se
                                                 IntPolyh_StartPoint&          SP,
                                                 const Standard_Boolean        Prepend = Standard_False);
 
-static Standard_Boolean IsDegenerated(const Handle(Adaptor3d_Surface)& aS,
+static Standard_Boolean IsDegenerated(const Handle(GeomAdaptor_Surface)& aS,
                                       const Standard_Integer           aIndex,
                                       const Standard_Real              aTol2,
                                       Standard_Real&                   aDegX);
 static void             DegeneratedIndex(const TColStd_Array1OfReal&      Xpars,
                                          const Standard_Integer           aNbX,
-                                         const Handle(Adaptor3d_Surface)& aS,
+                                         const Handle(GeomAdaptor_Surface)& aS,
                                          const Standard_Integer           aIsoDirection,
                                          Standard_Integer&                aI1,
                                          Standard_Integer&                aI2);
@@ -249,8 +249,8 @@ static void GetInterferingTriangles(IntPolyh_ArrayOfTriangles&                  
 
 //=================================================================================================
 
-IntPolyh_MaillageAffinage::IntPolyh_MaillageAffinage(const Handle(Adaptor3d_Surface)& Surface1,
-                                                     const Handle(Adaptor3d_Surface)& Surface2,
+IntPolyh_MaillageAffinage::IntPolyh_MaillageAffinage(const Handle(GeomAdaptor_Surface)& Surface1,
+                                                     const Handle(GeomAdaptor_Surface)& Surface2,
                                                      const Standard_Integer)
     : MaSurface1(Surface1),
       MaSurface2(Surface2),
@@ -268,10 +268,10 @@ IntPolyh_MaillageAffinage::IntPolyh_MaillageAffinage(const Handle(Adaptor3d_Surf
 
 //=================================================================================================
 
-IntPolyh_MaillageAffinage::IntPolyh_MaillageAffinage(const Handle(Adaptor3d_Surface)& Surface1,
+IntPolyh_MaillageAffinage::IntPolyh_MaillageAffinage(const Handle(GeomAdaptor_Surface)& Surface1,
                                                      const Standard_Integer           NbSU1,
                                                      const Standard_Integer           NbSV1,
-                                                     const Handle(Adaptor3d_Surface)& Surface2,
+                                                     const Handle(GeomAdaptor_Surface)& Surface2,
                                                      const Standard_Integer           NbSU2,
                                                      const Standard_Integer           NbSV2,
                                                      const Standard_Integer)
@@ -357,7 +357,7 @@ void IntPolyh_MaillageAffinage::FillArrayOfPnt(const Standard_Integer      SurfI
   aNbU                               = (SurfID == 1) ? NbSamplesU1 : NbSamplesU2;
   aNbV                               = (SurfID == 1) ? NbSamplesV1 : NbSamplesV2;
   Bnd_Box&                   aBox    = (SurfID == 1) ? MyBox1 : MyBox2;
-  Handle(Adaptor3d_Surface)& aS      = (SurfID == 1) ? MaSurface1 : MaSurface2;
+  Handle(GeomAdaptor_Surface)& aS      = (SurfID == 1) ? MaSurface1 : MaSurface2;
   IntPolyh_ArrayOfPoints&    TPoints = (SurfID == 1) ? TPoints1 : TPoints2;
   //
   aJD1 = 0;
@@ -415,7 +415,7 @@ void IntPolyh_MaillageAffinage::FillArrayOfPnt(const Standard_Integer           
                                                const TColStd_Array1OfReal&        theVPars,
                                                const Standard_Real                theDeflTol)
 {
-  Handle(Adaptor3d_Surface) aS      = (SurfID == 1) ? MaSurface1 : MaSurface2;
+  Handle(GeomAdaptor_Surface) aS      = (SurfID == 1) ? MaSurface1 : MaSurface2;
   IntPolyh_ArrayOfPoints&   TPoints = (SurfID == 1) ? TPoints1 : TPoints2;
   Standard_Integer          aNbU    = (SurfID == 1) ? NbSamplesU1 : NbSamplesU2;
   Standard_Integer          aNbV    = (SurfID == 1) ? NbSamplesV1 : NbSamplesV2;
@@ -478,7 +478,7 @@ void IntPolyh_MaillageAffinage::FillArrayOfPnt(const Standard_Integer      SurfI
                                                const TColStd_Array1OfReal& Vpars,
                                                const Standard_Real*        theDeflTol)
 {
-  Handle(Adaptor3d_Surface) aS = (SurfID == 1) ? MaSurface1 : MaSurface2;
+  Handle(GeomAdaptor_Surface) aS = (SurfID == 1) ? MaSurface1 : MaSurface2;
   // Compute the tolerance
   Standard_Real aTol =
     theDeflTol != NULL ? *theDeflTol : IntPolyh_Tools::ComputeDeflection(aS, Upars, Vpars);
@@ -1025,7 +1025,7 @@ void IntPolyh_MaillageAffinage::LocalSurfaceRefinement(const Standard_Integer Su
 //=======================================================================
 void IntPolyh_MaillageAffinage::ComputeDeflections(const Standard_Integer SurfID)
 {
-  Handle(Adaptor3d_Surface)  aSurface   = (SurfID == 1) ? MaSurface1 : MaSurface2;
+  Handle(GeomAdaptor_Surface)  aSurface   = (SurfID == 1) ? MaSurface1 : MaSurface2;
   IntPolyh_ArrayOfPoints&    TPoints    = (SurfID == 1) ? TPoints1 : TPoints2;
   IntPolyh_ArrayOfTriangles& TTriangles = (SurfID == 1) ? TTriangles1 : TTriangles2;
   Standard_Real&             FlecheMin  = (SurfID == 1) ? FlecheMin1 : FlecheMin2;
@@ -1050,12 +1050,12 @@ void IntPolyh_MaillageAffinage::ComputeDeflections(const Standard_Integer SurfID
 // function : TrianglesDeflectionsRefinement
 // purpose  : Refinement of the triangles depending on the deflection
 //=======================================================================
-static void TrianglesDeflectionsRefinement(const Handle(Adaptor3d_Surface)& theS1,
+static void TrianglesDeflectionsRefinement(const Handle(GeomAdaptor_Surface)& theS1,
                                            IntPolyh_ArrayOfTriangles&       theTriangles1,
                                            IntPolyh_ArrayOfEdges&           theEdges1,
                                            IntPolyh_ArrayOfPoints&          thePoints1,
                                            const Standard_Real              theFlecheCritique1,
-                                           const Handle(Adaptor3d_Surface)& theS2,
+                                           const Handle(GeomAdaptor_Surface)& theS2,
                                            IntPolyh_ArrayOfTriangles&       theTriangles2,
                                            IntPolyh_ArrayOfEdges&           theEdges2,
                                            IntPolyh_ArrayOfPoints&          thePoints2,
@@ -1128,7 +1128,7 @@ static void TrianglesDeflectionsRefinement(const Handle(Adaptor3d_Surface)& theS
 // purpose  : Refinement of the large triangles in case one surface is
 //           much smaller then the other.
 //=======================================================================
-static void LargeTrianglesDeflectionsRefinement(const Handle(Adaptor3d_Surface)& theS,
+static void LargeTrianglesDeflectionsRefinement(const Handle(GeomAdaptor_Surface)& theS,
                                                 IntPolyh_ArrayOfTriangles&       theTriangles,
                                                 IntPolyh_ArrayOfEdges&           theEdges,
                                                 IntPolyh_ArrayOfPoints&          thePoints,
@@ -3474,7 +3474,7 @@ Standard_Real IntPolyh_MaillageAffinage::GetMaxDeflection(const Standard_Integer
 
 void DegeneratedIndex(const TColStd_Array1OfReal&      aXpars,
                       const Standard_Integer           aNbX,
-                      const Handle(Adaptor3d_Surface)& aS,
+                      const Handle(GeomAdaptor_Surface)& aS,
                       const Standard_Integer           aIsoDirection,
                       Standard_Integer&                aI1,
                       Standard_Integer&                aI2)
@@ -3529,7 +3529,7 @@ void DegeneratedIndex(const TColStd_Array1OfReal&      aXpars,
 
 //=================================================================================================
 
-Standard_Boolean IsDegenerated(const Handle(Adaptor3d_Surface)& aS,
+Standard_Boolean IsDegenerated(const Handle(GeomAdaptor_Surface)& aS,
                                const Standard_Integer           aIndex,
                                const Standard_Real              aTol2,
                                Standard_Real&                   aDegX)

@@ -17,6 +17,7 @@
 #ifndef _Extrema_ExtSS_HeaderFile
 #define _Extrema_ExtSS_HeaderFile
 
+#include <GeomAdaptor_Surface.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 
@@ -25,7 +26,6 @@
 #include <TColStd_SequenceOfReal.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 #include <Standard_Integer.hxx>
-class Adaptor3d_Surface;
 class Extrema_POnSurf;
 
 //! It calculates all the extremum distances
@@ -39,14 +39,14 @@ public:
   Standard_EXPORT Extrema_ExtSS();
 
   //! It calculates all the distances between S1 and S2.
-  Standard_EXPORT Extrema_ExtSS(const Adaptor3d_Surface& S1,
-                                const Adaptor3d_Surface& S2,
+  Standard_EXPORT Extrema_ExtSS(const GeomAdaptor_Surface& S1,
+                                const GeomAdaptor_Surface& S2,
                                 const Standard_Real      TolS1,
                                 const Standard_Real      TolS2);
 
   //! It calculates all the distances between S1 and S2.
-  Standard_EXPORT Extrema_ExtSS(const Adaptor3d_Surface& S1,
-                                const Adaptor3d_Surface& S2,
+  Standard_EXPORT Extrema_ExtSS(const GeomAdaptor_Surface& S1,
+                                const GeomAdaptor_Surface& S2,
                                 const Standard_Real      Uinf1,
                                 const Standard_Real      Usup1,
                                 const Standard_Real      Vinf1,
@@ -59,7 +59,7 @@ public:
                                 const Standard_Real      TolS2);
 
   //! Initializes the fields of the algorithm.
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S2,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S2,
                                   const Standard_Real      Uinf2,
                                   const Standard_Real      Usup2,
                                   const Standard_Real      Vinf2,
@@ -69,7 +69,7 @@ public:
   //! Computes the distances.
   //! An exception is raised if the fields have not been
   //! initialized.
-  Standard_EXPORT void Perform(const Adaptor3d_Surface& S1,
+  Standard_EXPORT void Perform(const GeomAdaptor_Surface& S1,
                                const Standard_Real      Uinf1,
                                const Standard_Real      Usup1,
                                const Standard_Real      Vinf1,
@@ -94,7 +94,7 @@ public:
                               Extrema_POnSurf&       P2) const;
 
 private:
-  const Adaptor3d_Surface*  myS2;
+  const GeomAdaptor_Surface*  myS2;
   Standard_Boolean          myDone;
   Standard_Boolean          myIsPar;
   Extrema_ExtElSS           myExtElSS;

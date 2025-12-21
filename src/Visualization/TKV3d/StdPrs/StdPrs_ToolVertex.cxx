@@ -13,6 +13,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
 #include <BRep_Tool.hxx>
 #include <gp_Pnt.hxx>
 #include <StdPrs_ToolVertex.hxx>

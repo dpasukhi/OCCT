@@ -16,7 +16,8 @@
 #ifndef _Extrema_GlobOptFuncCS_HeaderFile
 #define _Extrema_GlobOptFuncCS_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <math_Matrix.hxx>
 #include <math_Vector.hxx>
 #include <math_MultipleVarFunctionWithHessian.hxx>
@@ -27,7 +28,7 @@ class Extrema_GlobOptFuncCS : public math_MultipleVarFunctionWithHessian
 {
 public:
   //! Curve and surface should exist during all the lifetime of Extrema_GlobOptFuncCS.
-  Standard_EXPORT Extrema_GlobOptFuncCS(const Adaptor3d_Curve* C, const Adaptor3d_Surface* S);
+  Standard_EXPORT Extrema_GlobOptFuncCS(const GeomAdaptor_Curve* C, const GeomAdaptor_Surface* S);
 
   Standard_EXPORT virtual Standard_Integer NbVariables() const;
 
@@ -58,8 +59,8 @@ private:
 
   Extrema_GlobOptFuncCS& operator=(const Extrema_GlobOptFuncCS& theOther);
 
-  const Adaptor3d_Curve*   myC;
-  const Adaptor3d_Surface* myS;
+  const GeomAdaptor_Curve*   myC;
+  const GeomAdaptor_Surface* myS;
 };
 
 #endif

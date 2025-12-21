@@ -17,6 +17,7 @@
 #ifndef _IntCurvesFace_ShapeIntersector_HeaderFile
 #define _IntCurvesFace_ShapeIntersector_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -30,8 +31,6 @@
 #include <IntCurveSurface_TransitionOnCurve.hxx>
 #include <IntCurvesFace_Intersector.hxx>
 #include <TopAbs_State.hxx>
-
-class Adaptor3d_Curve;
 class TopoDS_Shape;
 class gp_Lin;
 class gp_Pnt;
@@ -70,7 +69,7 @@ public:
 
   //! same method for a HCurve from Adaptor3d.
   //! PInf an PSup can also be -INF and +INF.
-  Standard_EXPORT void Perform(const Handle(Adaptor3d_Curve)& HCu,
+  Standard_EXPORT void Perform(const Handle(GeomAdaptor_Curve)& HCu,
                                const Standard_Real            PInf,
                                const Standard_Real            PSup);
 

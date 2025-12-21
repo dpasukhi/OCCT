@@ -17,7 +17,7 @@
 #ifndef _IntPolyh_Triangle_HeaderFile
 #define _IntPolyh_Triangle_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Bnd_Box.hxx>
 #include <IntPolyh_ArrayOfPoints.hxx>
 #include <IntPolyh_ArrayOfTriangles.hxx>
@@ -181,7 +181,7 @@ public:
   }
 
   //! Computes the deflection for the triangle
-  Standard_EXPORT Standard_Real ComputeDeflection(const Handle(Adaptor3d_Surface)& theSurface,
+  Standard_EXPORT Standard_Real ComputeDeflection(const Handle(GeomAdaptor_Surface)& theSurface,
                                                   const IntPolyh_ArrayOfPoints&    thePoints);
 
   //! Gets the adjacent triangle
@@ -191,7 +191,7 @@ public:
 
   //! Splits the triangle on two to decrease its deflection
   Standard_EXPORT void MiddleRefinement(const Standard_Integer           theTriangleNumber,
-                                        const Handle(Adaptor3d_Surface)& theSurface,
+                                        const Handle(GeomAdaptor_Surface)& theSurface,
                                         IntPolyh_ArrayOfPoints&          TPoints,
                                         IntPolyh_ArrayOfTriangles&       TTriangles,
                                         IntPolyh_ArrayOfEdges&           TEdges);
@@ -201,7 +201,7 @@ public:
   Standard_EXPORT void MultipleMiddleRefinement(const Standard_Real              theRefineCriterion,
                                                 const Bnd_Box&                   theBox,
                                                 const Standard_Integer           theTriangleNumber,
-                                                const Handle(Adaptor3d_Surface)& theSurface,
+                                                const Handle(GeomAdaptor_Surface)& theSurface,
                                                 IntPolyh_ArrayOfPoints&          TPoints,
                                                 IntPolyh_ArrayOfTriangles&       TTriangles,
                                                 IntPolyh_ArrayOfEdges&           TEdges);

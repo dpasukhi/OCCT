@@ -25,11 +25,11 @@
 #include <TColgp_Array1OfPnt.hxx>
 #include <TColgp_SequenceOfPnt2d.hxx>
 #include <TColgp_SequenceOfPnt.hxx>
-class Geom_Curve;
-class gp_Pnt;
-class Adaptor3d_Curve;
-class Geom2d_Curve;
 class Bnd_Box2d;
+class Geom_Curve;
+class Geom2d_Curve;
+class GeomAdaptor_Curve;
+class gp_Pnt;
 class gp_XYZ;
 
 //! Analyzing tool for 2d or 3d curve.
@@ -64,7 +64,7 @@ public:
   //!
   //! Returned value is the distance between the given point and
   //! computed one.
-  Standard_EXPORT Standard_Real Project(const Adaptor3d_Curve& C3D,
+  Standard_EXPORT Standard_Real Project(const GeomAdaptor_Curve& C3D,
                                         const gp_Pnt&          P3D,
                                         const Standard_Real    preci,
                                         gp_Pnt&                proj,
@@ -86,7 +86,7 @@ public:
                                         const Standard_Real       cl,
                                         const Standard_Boolean AdjustToEnds = Standard_True) const;
 
-  Standard_EXPORT Standard_Real ProjectAct(const Adaptor3d_Curve& C3D,
+  Standard_EXPORT Standard_Real ProjectAct(const GeomAdaptor_Curve& C3D,
                                            const gp_Pnt&          P3D,
                                            const Standard_Real    preci,
                                            gp_Pnt&                proj,
@@ -112,7 +112,7 @@ public:
   //! <paramPrev> is taken as the first approximation of solution.
   //! If Newton algorithm fails the method Project() is used.
   Standard_EXPORT Standard_Real NextProject(const Standard_Real    paramPrev,
-                                            const Adaptor3d_Curve& C3D,
+                                            const GeomAdaptor_Curve& C3D,
                                             const gp_Pnt&          P3D,
                                             const Standard_Real    preci,
                                             gp_Pnt&                proj,

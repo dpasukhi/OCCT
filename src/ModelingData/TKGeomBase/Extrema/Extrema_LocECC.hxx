@@ -17,14 +17,14 @@
 #ifndef _Extrema_LocECC_HeaderFile
 #define _Extrema_LocECC_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Extrema_CCLocFOfLocECC.hxx>
 #include <Extrema_CurveTool.hxx>
 #include <Extrema_GenLocateExtCC.hxx>
 #include <Extrema_POnCurv.hxx>
 
 //! Type alias for 3D curve-curve local extremum locator.
-using Extrema_LocECC = Extrema_GenLocateExtCC<Adaptor3d_Curve,
+using Extrema_LocECC = Extrema_GenLocateExtCC<GeomAdaptor_Curve,
                                               Extrema_CurveTool,
                                               Extrema_POnCurv,
                                               Extrema_CCLocFOfLocECC>;

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_CurvPointFuncInv.hxx>
 #include <Blend_FuncInv.hxx>
 #include <BRepBlend_Line.hxx>
@@ -328,8 +328,8 @@ static Standard_Boolean YaUnVoisin(const Handle(ChFiDS_Spine)& Spine,
 
 void ChFi3d_Builder::Trunc(const Handle(ChFiDS_SurfData)&   SD,
                            const Handle(ChFiDS_Spine)&      Spine,
-                           const Handle(Adaptor3d_Surface)& S1,
-                           const Handle(Adaptor3d_Surface)& S2,
+                           const Handle(GeomAdaptor_Surface)& S1,
+                           const Handle(GeomAdaptor_Surface)& S2,
                            const Standard_Integer           iedge,
                            const Standard_Boolean           isfirst,
                            const Standard_Integer           cntlFiOnS)
@@ -690,10 +690,10 @@ Standard_Boolean ChFi3d_Builder::SplitKPart(const Handle(ChFiDS_SurfData)&     D
                                             ChFiDS_SequenceOfSurfData&         SetData,
                                             const Handle(ChFiDS_Spine)&        Spine,
                                             const Standard_Integer             Iedge,
-                                            const Handle(Adaptor3d_Surface)&   S1,
-                                            const Handle(Adaptor3d_TopolTool)& I1,
-                                            const Handle(Adaptor3d_Surface)&   S2,
-                                            const Handle(Adaptor3d_TopolTool)& I2,
+                                            const Handle(GeomAdaptor_Surface)&   S1,
+                                            const Handle(GeomAdaptor_TopolTool)& I1,
+                                            const Handle(GeomAdaptor_Surface)&   S2,
+                                            const Handle(GeomAdaptor_TopolTool)& I2,
                                             Standard_Boolean&                  intf,
                                             Standard_Boolean&                  intl)
 {

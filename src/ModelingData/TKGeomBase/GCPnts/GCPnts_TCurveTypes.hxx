@@ -14,8 +14,8 @@
 #ifndef _GCPnts_TCurveTypes_HeaderFile
 #define _GCPnts_TCurveTypes_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom2d_BezierCurve.hxx>
@@ -31,7 +31,7 @@ struct GCPnts_TCurveTypes
 
 //! Auxiliary tool to resolve 3D curve classes.
 template <>
-struct GCPnts_TCurveTypes<Adaptor3d_Curve>
+struct GCPnts_TCurveTypes<GeomAdaptor_Curve>
 {
   typedef gp_Pnt                Point;
   typedef Geom_BezierCurve      BezierCurve;
@@ -42,7 +42,7 @@ struct GCPnts_TCurveTypes<Adaptor3d_Curve>
 
 //! Auxiliary tool to resolve 2D curve classes.
 template <>
-struct GCPnts_TCurveTypes<Adaptor2d_Curve2d>
+struct GCPnts_TCurveTypes<Geom2dAdaptor_Curve>
 {
   typedef gp_Pnt2d                Point;
   typedef Geom2d_BezierCurve      BezierCurve;

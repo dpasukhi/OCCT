@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GCPnts_QuasiUniformDeflection.hxx>
 #include <GeomFill.hxx>
 #include <GeomFill_CircularBlendFunc.hxx>
@@ -112,9 +112,9 @@ static void GeomFillFusInt(const TColStd_Array1OfReal& I1,
   }
 }
 
-GeomFill_CircularBlendFunc::GeomFill_CircularBlendFunc(const Handle(Adaptor3d_Curve)& Path,
-                                                       const Handle(Adaptor3d_Curve)& Curve1,
-                                                       const Handle(Adaptor3d_Curve)& Curve2,
+GeomFill_CircularBlendFunc::GeomFill_CircularBlendFunc(const Handle(GeomAdaptor_Curve)& Path,
+                                                       const Handle(GeomAdaptor_Curve)& Curve1,
+                                                       const Handle(GeomAdaptor_Curve)& Curve2,
                                                        const Standard_Real            Radius,
                                                        const Standard_Boolean         Polynomial)
     : maxang(RealFirst()),
@@ -149,7 +149,7 @@ void GeomFill_CircularBlendFunc::Discret()
   Standard_Real           TLast  = myPath->LastParameter(), T;
   Standard_Integer        ii;
   Standard_Real           L1, L2, L;
-  Handle(Adaptor3d_Curve) C;
+  Handle(GeomAdaptor_Curve) C;
   gp_Pnt                  P1, P2, P3, Center;
   gp_Vec                  DCenter;
 

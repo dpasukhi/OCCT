@@ -31,7 +31,7 @@ namespace IntCurveSurface_PolygonUtils
 //! Initialize polygon with uniform parameter sampling.
 //! Samples theNbPntIn points along the curve from theBinf to theBsup with equal parameter spacing.
 //! Computes the bounding box and estimates the maximum deflection.
-//! @tparam CurveType Type of curve (e.g., Handle(Adaptor3d_Curve) or gp_Lin)
+//! @tparam CurveType Type of curve (e.g., Handle(GeomAdaptor_Curve) or gp_Lin)
 //! @tparam CurveTool Tool class providing curve operations (D0, Value, FirstParameter, etc.)
 //! @param[in]     theCurve       The curve to discretize
 //! @param[in]     theBinf        First parameter value
@@ -89,7 +89,7 @@ void InitUniform(const CurveType&    theCurve,
 
 //! Initialize polygon with explicit parameter array.
 //! Samples points at the specified parameter values and stores them for later lookup.
-//! @tparam CurveType Type of curve (e.g., Handle(Adaptor3d_Curve) or gp_Lin)
+//! @tparam CurveType Type of curve (e.g., Handle(GeomAdaptor_Curve) or gp_Lin)
 //! @tparam CurveTool Tool class providing curve operations
 //! @param[in]     theCurve       The curve to discretize
 //! @param[in]     theUpars       Array of parameter values

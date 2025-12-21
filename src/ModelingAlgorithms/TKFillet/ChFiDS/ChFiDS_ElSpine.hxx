@@ -25,7 +25,7 @@
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <TColgp_SequenceOfAx1.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_Integer.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -41,17 +41,17 @@ class gp_Parab;
 class Geom_BezierCurve;
 class Geom_BSplineCurve;
 
-DEFINE_STANDARD_HANDLE(ChFiDS_ElSpine, Adaptor3d_Curve)
+DEFINE_STANDARD_HANDLE(ChFiDS_ElSpine, GeomAdaptor_Curve)
 
 //! Elementary Spine for cheminements and approximations.
-class ChFiDS_ElSpine : public Adaptor3d_Curve
+class ChFiDS_ElSpine : public GeomAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(ChFiDS_ElSpine, Adaptor3d_Curve)
+  DEFINE_STANDARD_RTTIEXT(ChFiDS_ElSpine, GeomAdaptor_Curve)
 public:
   Standard_EXPORT ChFiDS_ElSpine();
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   Standard_EXPORT virtual Standard_Real FirstParameter() const Standard_OVERRIDE;
 
@@ -71,7 +71,7 @@ public:
   //! Returns a curve equivalent of <me> between
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) Trim(const Standard_Real First,
                                                        const Standard_Real Last,
                                                        const Standard_Real Tol) const
     Standard_OVERRIDE;

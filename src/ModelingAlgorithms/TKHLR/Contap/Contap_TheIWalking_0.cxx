@@ -22,8 +22,8 @@
 #include <IntSurf_PathPointTool.hxx>
 #include <IntSurf_InteriorPoint.hxx>
 #include <IntSurf_InteriorPointTool.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
 #include <Contap_SurfFunction.hxx>
 #include <Contap_TheIWLineOfTheIWalking.hxx>
 #include <Contap_SequenceOfIWLineOfTheIWalking.hxx>
@@ -41,10 +41,10 @@
 #define ThePointOfLoopTool_hxx <IntSurf_InteriorPointTool.hxx>
 #define ThePOLIterator IntSurf_SequenceOfInteriorPoint
 #define ThePOLIterator_hxx <IntSurf_SequenceOfInteriorPoint.hxx>
-#define ThePSurface Handle(Adaptor3d_Surface)
-#define ThePSurface_hxx <Adaptor3d_Surface.hxx>
-#define ThePSurfaceTool Adaptor3d_HSurfaceTool
-#define ThePSurfaceTool_hxx <Adaptor3d_HSurfaceTool.hxx>
+#define ThePSurface Handle(GeomAdaptor_Surface)
+#define ThePSurface_hxx <GeomAdaptor_Surface.hxx>
+#define ThePSurfaceTool GeomAdaptor_HSurfaceTool
+#define ThePSurfaceTool_hxx <GeomAdaptor_HSurfaceTool.hxx>
 #define TheIWFunction Contap_SurfFunction
 #define TheIWFunction_hxx <Contap_SurfFunction.hxx>
 #define IntWalk_TheIWLine Contap_TheIWLineOfTheIWalking

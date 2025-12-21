@@ -23,9 +23,9 @@
 
 #include <IntSurf_PntOn2S.hxx>
 #include <IntSurf_Transition.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 class gp_Pnt;
 
 //! Definition of an intersection point between two surfaces.
@@ -71,7 +71,7 @@ public:
   //! first patch, otherwise the point is on the domain of the
   //! second surface.
   Standard_EXPORT void SetVertex(const Standard_Boolean           OnFirst,
-                                 const Handle(Adaptor3d_HVertex)& V);
+                                 const Handle(GeomAdaptor_HVertex)& V);
 
   //! Sets the values of a point which is on one of the domain,
   //! when both surfaces are implicit ones.
@@ -79,7 +79,7 @@ public:
   //! first patch, otherwise the point is on the domain of the
   //! second surface.
   Standard_EXPORT void SetArc(const Standard_Boolean           OnFirst,
-                              const Handle(Adaptor2d_Curve2d)& A,
+                              const Handle(Geom2dAdaptor_Curve)& A,
                               const Standard_Real              Param,
                               const IntSurf_Transition&        TLine,
                               const IntSurf_Transition&        TArc);
@@ -128,13 +128,13 @@ public:
   //! on the domain of the first patch, i-e when the function
   //! IsVertexOnS1 returns True.
   //! Otherwise, an exception is raised.
-  const Handle(Adaptor3d_HVertex)& VertexOnS1() const;
+  const Handle(GeomAdaptor_HVertex)& VertexOnS1() const;
 
   //! Returns the arc of restriction containing the
   //! vertex.
   //! The exception DomainError is raised if
   //! IsOnDomS1 returns False.
-  const Handle(Adaptor2d_Curve2d)& ArcOnS1() const;
+  const Handle(Geom2dAdaptor_Curve)& ArcOnS1() const;
 
   //! Returns the transition of the point on the
   //! intersection line with the arc on S1.
@@ -167,13 +167,13 @@ public:
   //! on the domain of the second patch, i-e when the function
   //! IsVertexOnS2 returns True.
   //! Otherwise, an exception is raised.
-  const Handle(Adaptor3d_HVertex)& VertexOnS2() const;
+  const Handle(GeomAdaptor_HVertex)& VertexOnS2() const;
 
   //! Returns the arc of restriction containing the
   //! vertex.
   //! The exception DomainError is raised if
   //! IsOnDomS2 returns False.
-  const Handle(Adaptor2d_Curve2d)& ArcOnS2() const;
+  const Handle(Geom2dAdaptor_Curve)& ArcOnS2() const;
 
   //! Returns the transition of the point on the
   //! intersection line with the arc on S2.
@@ -218,15 +218,15 @@ private:
 
   Standard_Boolean          onS1;
   Standard_Boolean          vtxonS1;
-  Handle(Adaptor3d_HVertex) vS1;
-  Handle(Adaptor2d_Curve2d) arcS1;
+  Handle(GeomAdaptor_HVertex) vS1;
+  Handle(Geom2dAdaptor_Curve) arcS1;
   IntSurf_Transition        traline1;
   IntSurf_Transition        tra1;
   Standard_Real             prm1;
   Standard_Boolean          onS2;
   Standard_Boolean          vtxonS2;
-  Handle(Adaptor3d_HVertex) vS2;
-  Handle(Adaptor2d_Curve2d) arcS2;
+  Handle(GeomAdaptor_HVertex) vS2;
+  Handle(Geom2dAdaptor_Curve) arcS2;
   IntSurf_Transition        traline2;
   IntSurf_Transition        tra2;
   Standard_Real             prm2;

@@ -17,7 +17,7 @@
 #ifndef _GeomInt_TheImpPrmSvSurfacesOfWLApprox_HeaderFile
 #define _GeomInt_TheImpPrmSvSurfacesOfWLApprox_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec2d.hxx>
@@ -25,7 +25,7 @@
 #include <GeomInt_TheZerImpFuncOfTheImpPrmSvSurfacesOfWLApprox.hxx>
 #include <ApproxInt_SvSurfaces.hxx>
 
-class Adaptor3d_HSurfaceTool;
+class GeomAdaptor_HSurfaceTool;
 class IntSurf_Quadric;
 class IntSurf_QuadricTool;
 class IntPatch_WLine;
@@ -36,11 +36,11 @@ class GeomInt_TheImpPrmSvSurfacesOfWLApprox : public ApproxInt_SvSurfaces
 public:
   DEFINE_STANDARD_ALLOC
 
-  Standard_EXPORT GeomInt_TheImpPrmSvSurfacesOfWLApprox(const Handle(Adaptor3d_Surface)& Surf1,
+  Standard_EXPORT GeomInt_TheImpPrmSvSurfacesOfWLApprox(const Handle(GeomAdaptor_Surface)& Surf1,
                                                         const IntSurf_Quadric&           Surf2);
 
   Standard_EXPORT GeomInt_TheImpPrmSvSurfacesOfWLApprox(const IntSurf_Quadric&           Surf1,
-                                                        const Handle(Adaptor3d_Surface)& Surf2);
+                                                        const Handle(GeomAdaptor_Surface)& Surf2);
 
   //! returns True if Tg,Tguv1 Tguv2 can be computed.
   Standard_EXPORT Standard_Boolean Compute(Standard_Real& u1,

@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Blend_FuncInv.hxx>
 #include <BRepBlend_Line.hxx>
 #include <BRepLib_MakeFace.hxx>
@@ -305,7 +305,7 @@ static Standard_Boolean BonVoisin(const gp_Pnt&                Point,
 
 static Standard_Boolean Projection(Extrema_ExtPC&         PExt,
                                    const gp_Pnt&          P,
-                                   const Adaptor3d_Curve& C,
+                                   const GeomAdaptor_Curve& C,
                                    Standard_Real&         W,
                                    Standard_Real          Tol)
 {
@@ -616,12 +616,12 @@ void ChFi3d_Builder::CallPerformSurf(Handle(ChFiDS_Stripe)&             Stripe,
                                      const Handle(BRepAdaptor_Surface)& HS3,
                                      const gp_Pnt2d&                    pp1,
                                      const gp_Pnt2d&                    pp3,
-                                     const Handle(Adaptor3d_TopolTool)& It1,
+                                     const Handle(GeomAdaptor_TopolTool)& It1,
                                      const Handle(BRepAdaptor_Surface)& HS2,
                                      const Handle(BRepAdaptor_Surface)& HS4,
                                      const gp_Pnt2d&                    pp2,
                                      const gp_Pnt2d&                    pp4,
-                                     const Handle(Adaptor3d_TopolTool)& It2,
+                                     const Handle(GeomAdaptor_TopolTool)& It2,
                                      const Standard_Real                MaxStep,
                                      const Standard_Real                Fleche,
                                      const Standard_Real /*TolGuide*/,
@@ -642,8 +642,8 @@ void ChFi3d_Builder::CallPerformSurf(Handle(ChFiDS_Stripe)&             Stripe,
   HSon1 = HS1;
   HSon2 = HS2;
   // Definition of the domain of path It1, It2
-  It1->Initialize((const Handle(Adaptor3d_Surface)&)HSon1);
-  It2->Initialize((const Handle(Adaptor3d_Surface)&)HSon2);
+  It1->Initialize((const Handle(GeomAdaptor_Surface)&)HSon1);
+  It2->Initialize((const Handle(GeomAdaptor_Surface)&)HSon2);
 
   TopAbs_Orientation Or1   = HS1->Face().Orientation();
   TopAbs_Orientation Or2   = HS2->Face().Orientation();
@@ -716,7 +716,7 @@ void ChFi3d_Builder::CallPerformSurf(Handle(ChFiDS_Stripe)&             Stripe,
     if (!HS3.IsNull())
     {
       HSon1 = HS3;
-      It1->Initialize((const Handle(Adaptor3d_Surface)&)HS3);
+      It1->Initialize((const Handle(GeomAdaptor_Surface)&)HS3);
       Or1       = HS3->Face().Orientation();
       Soldep(1) = pp3.X();
       Soldep(2) = pp3.Y();
@@ -725,7 +725,7 @@ void ChFi3d_Builder::CallPerformSurf(Handle(ChFiDS_Stripe)&             Stripe,
     else if (!HS4.IsNull())
     {
       HSon2 = HS4;
-      It2->Initialize((const Handle(Adaptor3d_Surface)&)HS4);
+      It2->Initialize((const Handle(GeomAdaptor_Surface)&)HS4);
       Or2       = HS4->Face().Orientation();
       Soldep(3) = pp4.X();
       Soldep(4) = pp4.Y();
@@ -933,7 +933,7 @@ void ChFi3d_Builder::StartSol(const Handle(ChFiDS_Stripe)&      Stripe,
     f1forward.Orientation(TopAbs_FORWARD);
     f2forward.Orientation(TopAbs_FORWARD);
     PC = getCurveOnSurface(cured, f1forward);
-    I1->Initialize((const Handle(Adaptor3d_Surface)&)HS1);
+    I1->Initialize((const Handle(GeomAdaptor_Surface)&)HS1);
     PC->D1(woned, P1, derive);
     // There are points on the border, and internal points are found
     if (derive.Magnitude() > Precision::PConfusion())
@@ -962,7 +962,7 @@ void ChFi3d_Builder::StartSol(const Handle(ChFiDS_Stripe)&      Stripe,
       cured.Orientation(TopAbs_REVERSED);
     PC                                     = getCurveOnSurface(cured, f2forward);
     P2                                     = PC->Value(woned);
-    const Handle(Adaptor3d_Surface)& HSon2 = HS2; // to avoid ambiguity
+    const Handle(GeomAdaptor_Surface)& HSon2 = HS2; // to avoid ambiguity
     I2->Initialize(HSon2);
 
     SolDep(1)                    = P1.X();
@@ -1006,8 +1006,8 @@ void ChFi3d_Builder::StartSol(const Handle(ChFiDS_Stripe)&      Stripe,
     P1                                     = PC->Value(woned);
     PC                                     = getCurveOnSurface(cured, f2forward);
     P2                                     = PC->Value(woned);
-    const Handle(Adaptor3d_Surface)& HSon1 = HS1; // to avoid ambiguity
-    const Handle(Adaptor3d_Surface)& HSon2 = HS2; // to avoid ambiguity
+    const Handle(GeomAdaptor_Surface)& HSon1 = HS1; // to avoid ambiguity
+    const Handle(GeomAdaptor_Surface)& HSon2 = HS2; // to avoid ambiguity
     I1->Initialize(HSon1);
     I2->Initialize(HSon2);
     SolDep(1)                    = P1.X();
@@ -1051,8 +1051,8 @@ void ChFi3d_Builder::StartSol(const Handle(ChFiDS_Stripe)&      Stripe,
                                    Stripe->OrientationOnFace1(),
                                    Stripe->OrientationOnFace2(),
                                    RC);
-          const Handle(Adaptor3d_Surface)& HSon1new = HS1; // to avoid ambiguity
-          const Handle(Adaptor3d_Surface)& HSon2new = HS2; // to avoid ambiguity
+          const Handle(GeomAdaptor_Surface)& HSon1new = HS1; // to avoid ambiguity
+          const Handle(GeomAdaptor_Surface)& HSon2new = HS2; // to avoid ambiguity
           I1->Initialize(HSon1new);
           I2->Initialize(HSon2new);
           if (PerformFirstSection(Spine, HGuide, Choix, HS1, HS2, I1, I2, w, SolDep, Pos1, Pos2))
@@ -2416,8 +2416,8 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine(const Handle(ChFiDS_ElSpine)&    
     }
 
     // Definition of the domain of patch It1, It2
-    const Handle(Adaptor3d_Surface)& HSon1 = HS1; // to avoid ambiguity
-    const Handle(Adaptor3d_Surface)& HSon2 = HS2; // to avoid ambiguity
+    const Handle(GeomAdaptor_Surface)& HSon1 = HS1; // to avoid ambiguity
+    const Handle(GeomAdaptor_Surface)& HSon2 = HS2; // to avoid ambiguity
     It1->Initialize(HSon1);
     It2->Initialize(HSon2);
 
@@ -2662,8 +2662,8 @@ void ChFi3d_Builder::PerformSetOfSurfOnElSpine(const Handle(ChFiDS_ElSpine)&    
     }
     else
     {
-      const Handle(Adaptor3d_TopolTool)& aTT1 = It1; // to avoid ambiguity
-      const Handle(Adaptor3d_TopolTool)& aTT2 = It2; // to avoid ambiguity
+      const Handle(GeomAdaptor_TopolTool)& aTT1 = It1; // to avoid ambiguity
+      const Handle(GeomAdaptor_TopolTool)& aTT2 = It2; // to avoid ambiguity
       CallPerformSurf(Stripe,
                       Simul,
                       SeqSD,
@@ -2890,8 +2890,8 @@ void ChFi3d_Builder::PerformSetOfKPart(Handle(ChFiDS_Stripe)& Stripe, const Stan
       Or1  = HS1->Face().Orientation();
       Or2  = HS2->Face().Orientation();
       ChFi3d::NextSide(Or1, Or2, RefOr1, RefOr2, RefChoix);
-      const Handle(Adaptor3d_Surface)& HSon1 = HS1; // to avoid ambiguity
-      const Handle(Adaptor3d_Surface)& HSon2 = HS2; // to avoid ambiguity
+      const Handle(GeomAdaptor_Surface)& HSon1 = HS1; // to avoid ambiguity
+      const Handle(GeomAdaptor_Surface)& HSon2 = HS2; // to avoid ambiguity
       It1->Initialize(HSon1);
       It2->Initialize(HSon2);
 

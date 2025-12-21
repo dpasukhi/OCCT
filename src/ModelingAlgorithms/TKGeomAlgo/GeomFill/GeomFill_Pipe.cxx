@@ -24,8 +24,8 @@
 
 #include <GeomFill_Pipe.hxx>
 
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Approx_SweepApproximation.hxx>
 #include <ElCLib.hxx>
 #include <Geom2dAdaptor_Curve.hxx>
@@ -306,9 +306,9 @@ GeomFill_Pipe::GeomFill_Pipe(const Handle(Geom_Curve)& Path,
 
 //=================================================================================================
 
-GeomFill_Pipe::GeomFill_Pipe(const Handle(Adaptor3d_Curve)& Path,
-                             const Handle(Adaptor3d_Curve)& Curve1,
-                             const Handle(Adaptor3d_Curve)& Curve2,
+GeomFill_Pipe::GeomFill_Pipe(const Handle(GeomAdaptor_Curve)& Path,
+                             const Handle(GeomAdaptor_Curve)& Curve1,
+                             const Handle(GeomAdaptor_Curve)& Curve2,
                              const Standard_Real            Radius)
     : myStatus(GeomFill_PipeNotOk),
       myExchUV(Standard_False),
@@ -326,7 +326,7 @@ GeomFill_Pipe::GeomFill_Pipe(const Handle(Adaptor3d_Curve)& Path,
 //=======================================================================
 
 GeomFill_Pipe::GeomFill_Pipe(const Handle(Geom_Curve)&      Path,
-                             const Handle(Adaptor3d_Curve)& Guide,
+                             const Handle(GeomAdaptor_Curve)& Guide,
                              const Handle(Geom_Curve)&      FirstSect,
                              const Standard_Boolean         byACR,
                              const Standard_Boolean         rotat)
@@ -348,7 +348,7 @@ GeomFill_Pipe::GeomFill_Pipe(const Handle(Geom_Curve)&      Path,
 //=======================================================================
 
 void GeomFill_Pipe::Init(const Handle(Geom_Curve)&      Path,
-                         const Handle(Adaptor3d_Curve)& Guide,
+                         const Handle(GeomAdaptor_Curve)& Guide,
                          const Handle(Geom_Curve)&      FirstSect,
                          const Standard_Boolean         byACR,
                          const Standard_Boolean         rotat)
@@ -576,8 +576,8 @@ void GeomFill_Pipe::Init(const Handle(Geom2d_Curve)& Path,
 {
   Handle(Geom_Curve)            Sect;
   Handle(GeomFill_TrihedronLaw) TLaw = new (GeomFill_Darboux)();
-  myAdpPath                          = new Adaptor3d_CurveOnSurface(
-    Adaptor3d_CurveOnSurface(new Geom2dAdaptor_Curve(Path), new GeomAdaptor_Surface(Support)));
+  myAdpPath                          = new GeomAdaptor_CurveOnSurface(
+    GeomAdaptor_CurveOnSurface(new Geom2dAdaptor_Curve(Path), new GeomAdaptor_Surface(Support)));
 
   myLoc = new (GeomFill_CurveAndTrihedron)(TLaw);
   myLoc->SetCurve(myAdpPath);
@@ -750,9 +750,9 @@ void GeomFill_Pipe::Init(const Handle(Geom_Curve)& Path,
 
 //=================================================================================================
 
-void GeomFill_Pipe::Init(const Handle(Adaptor3d_Curve)& Path,
-                         const Handle(Adaptor3d_Curve)& Curve1,
-                         const Handle(Adaptor3d_Curve)& Curve2,
+void GeomFill_Pipe::Init(const Handle(GeomAdaptor_Curve)& Path,
+                         const Handle(GeomAdaptor_Curve)& Curve1,
+                         const Handle(GeomAdaptor_Curve)& Curve2,
                          const Standard_Real            Radius)
 {
   myType         = 4;

@@ -17,11 +17,10 @@
 #ifndef _BndLib_Add2dCurve_HeaderFile
 #define _BndLib_Add2dCurve_HeaderFile
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
-
-class Adaptor2d_Curve2d;
 class Bnd_Box2d;
 class Geom2d_Curve;
 
@@ -60,7 +59,7 @@ public:
   //! -   a Geom_Hyperbola,
   //! and P1 and P2 are either two negative infinite real
   //! numbers, or two positive infinite real numbers.
-  Standard_EXPORT static void Add(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT static void Add(const Geom2dAdaptor_Curve& C,
                                   const Standard_Real      Tol,
                                   Bnd_Box2d&               B);
 
@@ -92,7 +91,7 @@ public:
   //! -   a Geom_Hyperbola,
   //! and P1 and P2 are either two negative infinite real
   //! numbers, or two positive infinite real numbers.
-  Standard_EXPORT static void Add(const Adaptor2d_Curve2d& C,
+  Standard_EXPORT static void Add(const Geom2dAdaptor_Curve& C,
                                   const Standard_Real      U1,
                                   const Standard_Real      U2,
                                   const Standard_Real      Tol,

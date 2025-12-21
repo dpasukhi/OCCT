@@ -15,9 +15,9 @@
 #ifndef IntCurveSurface_Inter_PXX
 #define IntCurveSurface_Inter_PXX
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <Bnd_BoundSortBox.hxx>
 #include <Bnd_Box.hxx>
 #include <ElCLib.hxx>
@@ -477,9 +477,9 @@ void InternalPerformPolygonBounds(const CurveType&        theCurve,
     }
     else
     {
-      Handle(Adaptor3d_Surface) aS         = SurfaceTool::UTrim(theSurface, theU1, theU2, 1.e-9);
+      Handle(GeomAdaptor_Surface) aS         = SurfaceTool::UTrim(theSurface, theU1, theU2, 1.e-9);
       aS                                   = aS->VTrim(theV1, theV2, 1.e-9);
-      Handle(Adaptor3d_TopolTool) aTopTool = new Adaptor3d_TopolTool(aS);
+      Handle(GeomAdaptor_TopolTool) aTopTool = new GeomAdaptor_TopolTool(aS);
       Standard_Real               defl     = 0.1;
       aTopTool->SamplePnts(defl, 10, 10);
 

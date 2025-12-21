@@ -14,7 +14,7 @@
 
 #include <IntSurf.hxx>
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <IntSurf_Transition.hxx>
 #include <Precision.hxx>
 #include <gp_Vec.hxx>
@@ -100,8 +100,8 @@ void IntSurf::MakeTransition(const gp_Vec&       TgFirst,
 
 //=================================================================================================
 
-void IntSurf::SetPeriod(const Handle(Adaptor3d_Surface)& theFirstSurf,
-                        const Handle(Adaptor3d_Surface)& theSecondSurf,
+void IntSurf::SetPeriod(const Handle(GeomAdaptor_Surface)& theFirstSurf,
+                        const Handle(GeomAdaptor_Surface)& theSecondSurf,
                         Standard_Real                    theArrOfPeriod[4])
 {
   theArrOfPeriod[0] = theFirstSurf->IsUPeriodic() ? theFirstSurf->UPeriod() : 0.0;

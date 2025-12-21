@@ -17,9 +17,11 @@
 #ifndef _ProjLib_ProjectOnSurface_HeaderFile
 #define _ProjLib_ProjectOnSurface_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <Standard_Handle.hxx>
 
 class Geom_BSplineCurve;
+class GeomAdaptor_Curve;
+class GeomAdaptor_Surface;
 
 //! Project a curve on a surface. The result
 //! (a 3D Curve) will be an approximation
@@ -32,24 +34,24 @@ public:
   Standard_EXPORT ProjLib_ProjectOnSurface();
 
   //! Create a projector normally to the surface <S>.
-  Standard_EXPORT ProjLib_ProjectOnSurface(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT ProjLib_ProjectOnSurface(const Handle(GeomAdaptor_Surface)& S);
 
   Standard_EXPORT virtual ~ProjLib_ProjectOnSurface();
 
   //! Set the Surface to <S>.
   //! To compute the projection, you have to Load the Curve.
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT void Load(const Handle(GeomAdaptor_Surface)& S);
 
   //! Compute the projection of the curve <C> on the Surface.
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Curve)& C, const Standard_Real Tolerance);
+  Standard_EXPORT void Load(const Handle(GeomAdaptor_Curve)& C, const Standard_Real Tolerance);
 
   Standard_Boolean IsDone() const { return myIsDone; }
 
   Standard_EXPORT Handle(Geom_BSplineCurve) BSpline() const;
 
 private:
-  Handle(Adaptor3d_Curve)   myCurve;
-  Handle(Adaptor3d_Surface) mySurface;
+  Handle(GeomAdaptor_Curve)   myCurve;
+  Handle(GeomAdaptor_Surface) mySurface;
   Standard_Real             myTolerance;
   Standard_Boolean          myIsDone;
   Handle(Geom_BSplineCurve) myResult;

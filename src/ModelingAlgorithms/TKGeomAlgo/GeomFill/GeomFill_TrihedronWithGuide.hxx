@@ -19,6 +19,8 @@
 
 #include <Standard.hxx>
 
+class GeomAdaptor_Curve;
+
 #include <GeomFill_TrihedronLaw.hxx>
 #include <Standard_Real.hxx>
 
@@ -30,7 +32,7 @@ class GeomFill_TrihedronWithGuide : public GeomFill_TrihedronLaw
 {
 
 public:
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) Guide() const = 0;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) Guide() const = 0;
 
   Standard_EXPORT virtual void Origine(const Standard_Real Param1, const Standard_Real Param2) = 0;
 
@@ -41,8 +43,8 @@ public:
   DEFINE_STANDARD_RTTIEXT(GeomFill_TrihedronWithGuide, GeomFill_TrihedronLaw)
 
 protected:
-  Handle(Adaptor3d_Curve) myGuide;
-  Handle(Adaptor3d_Curve) myTrimG;
+  Handle(GeomAdaptor_Curve) myGuide;
+  Handle(GeomAdaptor_Curve) myTrimG;
   gp_Pnt                  myCurPointOnGuide;
 
 private:

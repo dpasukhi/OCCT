@@ -17,7 +17,7 @@
 // Great zoom leads to non-coincidence of
 // a point and non-infinite lines passing through this point:
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
@@ -35,7 +35,7 @@
 
 //=================================================================================================
 
-static void FindLimits(const Adaptor3d_Curve& aCurve,
+static void FindLimits(const GeomAdaptor_Curve& aCurve,
                        const Standard_Real    aLimit,
                        Standard_Real&         First,
                        Standard_Real&         Last)
@@ -85,7 +85,7 @@ static void FindLimits(const Adaptor3d_Curve& aCurve,
 
 //=================================================================================================
 
-static void DrawCurve(const Adaptor3d_Curve&         aCurve,
+static void DrawCurve(const GeomAdaptor_Curve&         aCurve,
                       const Handle(Graphic3d_Group)& aGroup,
                       const Standard_Integer         NbP,
                       const Standard_Real            U1,
@@ -145,7 +145,7 @@ static Standard_Boolean MatchCurve(const Standard_Real    X,
                                    const Standard_Real    Y,
                                    const Standard_Real    Z,
                                    const Standard_Real    aDistance,
-                                   const Adaptor3d_Curve& aCurve,
+                                   const GeomAdaptor_Curve& aCurve,
                                    const Standard_Real    TheDeflection,
                                    const Standard_Integer NbP,
                                    const Standard_Real    U1,
@@ -210,7 +210,7 @@ static Standard_Boolean MatchCurve(const Standard_Real    X,
 //=================================================================================================
 
 void StdPrs_Curve::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                       const Adaptor3d_Curve&            aCurve,
+                       const GeomAdaptor_Curve&            aCurve,
                        const Handle(Prs3d_Drawer)&       aDrawer,
                        const Standard_Boolean            drawCurve)
 {
@@ -239,7 +239,7 @@ void StdPrs_Curve::Add(const Handle(Prs3d_Presentation)& aPresentation,
 //=================================================================================================
 
 void StdPrs_Curve::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                       const Adaptor3d_Curve&            aCurve,
+                       const GeomAdaptor_Curve&            aCurve,
                        const Handle(Prs3d_Drawer)&       aDrawer,
                        TColgp_SequenceOfPnt&             Points,
                        const Standard_Boolean            drawCurve)
@@ -254,7 +254,7 @@ void StdPrs_Curve::Add(const Handle(Prs3d_Presentation)& aPresentation,
 //=================================================================================================
 
 void StdPrs_Curve::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                       const Adaptor3d_Curve&            aCurve,
+                       const GeomAdaptor_Curve&            aCurve,
                        const Standard_Real               U1,
                        const Standard_Real               U2,
                        TColgp_SequenceOfPnt&             Points,
@@ -267,7 +267,7 @@ void StdPrs_Curve::Add(const Handle(Prs3d_Presentation)& aPresentation,
 //=================================================================================================
 
 void StdPrs_Curve::Add(const Handle(Prs3d_Presentation)& aPresentation,
-                       const Adaptor3d_Curve&            aCurve,
+                       const GeomAdaptor_Curve&            aCurve,
                        const Standard_Real               U1,
                        const Standard_Real               U2,
                        const Handle(Prs3d_Drawer)&       aDrawer,
@@ -306,7 +306,7 @@ Standard_Boolean StdPrs_Curve::Match(const Standard_Real         X,
                                      const Standard_Real         Y,
                                      const Standard_Real         Z,
                                      const Standard_Real         aDistance,
-                                     const Adaptor3d_Curve&      aCurve,
+                                     const GeomAdaptor_Curve&      aCurve,
                                      const Handle(Prs3d_Drawer)& aDrawer)
 {
   Standard_Real V1, V2;
@@ -330,7 +330,7 @@ Standard_Boolean StdPrs_Curve::Match(const Standard_Real    X,
                                      const Standard_Real    Y,
                                      const Standard_Real    Z,
                                      const Standard_Real    aDistance,
-                                     const Adaptor3d_Curve& aCurve,
+                                     const GeomAdaptor_Curve& aCurve,
                                      const Standard_Real    aDeflection,
                                      const Standard_Real    aLimit,
                                      const Standard_Integer NbPoints)
@@ -347,7 +347,7 @@ Standard_Boolean StdPrs_Curve::Match(const Standard_Real         X,
                                      const Standard_Real         Y,
                                      const Standard_Real         Z,
                                      const Standard_Real         aDistance,
-                                     const Adaptor3d_Curve&      aCurve,
+                                     const GeomAdaptor_Curve&      aCurve,
                                      const Standard_Real         U1,
                                      const Standard_Real         U2,
                                      const Handle(Prs3d_Drawer)& aDrawer)
@@ -377,7 +377,7 @@ Standard_Boolean StdPrs_Curve::Match(const Standard_Real    X,
                                      const Standard_Real    Y,
                                      const Standard_Real    Z,
                                      const Standard_Real    aDistance,
-                                     const Adaptor3d_Curve& aCurve,
+                                     const GeomAdaptor_Curve& aCurve,
                                      const Standard_Real    U1,
                                      const Standard_Real    U2,
                                      const Standard_Real    aDeflection,

@@ -17,11 +17,11 @@
 #ifndef _Extrema_GenExtCS_HeaderFile
 #define _Extrema_GenExtCS_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Extrema_FuncExtCS.hxx>
 #include <TColgp_HArray2OfPnt.hxx>
 
-class Adaptor3d_Curve;
-class Adaptor3d_Surface;
 class Extrema_POnCurv;
 class Extrema_POnSurf;
 
@@ -46,8 +46,8 @@ public:
   //! surfaces.
   //! NbU and NbV are used to locate the close points on the
   //! surface and NbT on the curve to find the zeros.
-  Standard_EXPORT Extrema_GenExtCS(const Adaptor3d_Curve&   C,
-                                   const Adaptor3d_Surface& S,
+  Standard_EXPORT Extrema_GenExtCS(const GeomAdaptor_Curve&   C,
+                                   const GeomAdaptor_Surface& S,
                                    const Standard_Integer   NbT,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
@@ -61,8 +61,8 @@ public:
   //! surface.
   //! NbT,NbU and NbV are used to locate the close points
   //! to find the zeros.
-  Standard_EXPORT Extrema_GenExtCS(const Adaptor3d_Curve&   C,
-                                   const Adaptor3d_Surface& S,
+  Standard_EXPORT Extrema_GenExtCS(const GeomAdaptor_Curve&   C,
+                                   const GeomAdaptor_Surface& S,
                                    const Standard_Integer   NbT,
                                    const Standard_Integer   NbU,
                                    const Standard_Integer   NbV,
@@ -75,12 +75,12 @@ public:
                                    const Standard_Real      Tol1,
                                    const Standard_Real      Tol2);
 
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      Tol2);
 
-  Standard_EXPORT void Initialize(const Adaptor3d_Surface& S,
+  Standard_EXPORT void Initialize(const GeomAdaptor_Surface& S,
                                   const Standard_Integer   NbU,
                                   const Standard_Integer   NbV,
                                   const Standard_Real      Umin,
@@ -92,14 +92,14 @@ public:
   //! the algorithm is done with S
   //! An exception is raised if the fields have not
   //! been initialized.
-  Standard_EXPORT void Perform(const Adaptor3d_Curve& C,
+  Standard_EXPORT void Perform(const GeomAdaptor_Curve& C,
                                const Standard_Integer NbT,
                                const Standard_Real    Tol1);
 
   //! the algorithm is done with C
   //! An exception is raised if the fields have not
   //! been initialized.
-  Standard_EXPORT void Perform(const Adaptor3d_Curve& C,
+  Standard_EXPORT void Perform(const GeomAdaptor_Curve& C,
                                const Standard_Integer NbT,
                                const Standard_Real    tmin,
                                const Standard_Real    tsup,
@@ -121,19 +121,19 @@ public:
   Standard_EXPORT const Extrema_POnSurf& PointOnSurface(const Standard_Integer N) const;
 
 private:
-  Standard_EXPORT void GlobMinGenCS(const Adaptor3d_Curve& theC,
+  Standard_EXPORT void GlobMinGenCS(const GeomAdaptor_Curve& theC,
                                     const Standard_Integer theNbParticles,
                                     const math_Vector&     theTUVinf,
                                     const math_Vector&     theTUVsup,
                                     math_Vector&           theTUV);
 
-  Standard_EXPORT void GlobMinConicS(const Adaptor3d_Curve& theC,
+  Standard_EXPORT void GlobMinConicS(const GeomAdaptor_Curve& theC,
                                      const Standard_Integer theNbParticles,
                                      const math_Vector&     theTUVinf,
                                      const math_Vector&     theTUVsup,
                                      math_Vector&           theTUV);
 
-  Standard_EXPORT void GlobMinCQuadric(const Adaptor3d_Curve& theC,
+  Standard_EXPORT void GlobMinCQuadric(const GeomAdaptor_Curve& theC,
                                        const Standard_Integer theNbParticles,
                                        const math_Vector&     theTUVinf,
                                        const math_Vector&     theTUVsup,
@@ -158,7 +158,7 @@ private:
   Standard_Real               mytol1;
   Standard_Real               mytol2;
   Extrema_FuncExtCS           myF;
-  const Adaptor3d_Surface*    myS;
+  const GeomAdaptor_Surface*    myS;
   Handle(TColgp_HArray2OfPnt) mySurfPnts;
 };
 

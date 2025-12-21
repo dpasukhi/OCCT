@@ -17,8 +17,8 @@
 // modified by Edward AGAPOV (eap) Tue Jan 22 12:29:55 2002
 // modified by Oleg FEDYAED  (ofv) Fri Nov 29 16:08:02 2002
 
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
 #include <IntPatch_InterferencePolyhedron.hxx>
@@ -45,8 +45,8 @@ static void SectionPointToParameters(const Intf_SectionPoint&   Sp,
                                      Standard_Real&             u2,
                                      Standard_Real&             v2);
 
-static void AdjustOnPeriodic(const Handle(Adaptor3d_Surface)& Surf1,
-                             const Handle(Adaptor3d_Surface)& Surf2,
+static void AdjustOnPeriodic(const Handle(GeomAdaptor_Surface)& Surf1,
+                             const Handle(GeomAdaptor_Surface)& Surf2,
                              IntPatch_SequenceOfLine&         aSLin);
 
 static IntSurf_PntOn2S MakeNewPoint(const IntSurf_PntOn2S& replacePnt,
@@ -61,8 +61,8 @@ static void AddWLine(IntPatch_SequenceOfLine&      theLines,
                      const Handle(IntPatch_WLine)& theWLine,
                      const Standard_Real           Deflection);
 
-static void SeveralWlinesProcessing(const Handle(Adaptor3d_Surface)& theSurf1,
-                                    const Handle(Adaptor3d_Surface)& theSurf2,
+static void SeveralWlinesProcessing(const Handle(GeomAdaptor_Surface)& theSurf1,
+                                    const Handle(GeomAdaptor_Surface)& theSurf2,
                                     const IntPatch_SequenceOfLine&   theSLin,
                                     const Standard_Real* const       thePeriodsArr,
                                     const IntSurf_TypeTrans          theTrans1,
@@ -298,8 +298,8 @@ IntPatch_PrmPrmIntersection::IntPatch_PrmPrmIntersection()
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
                                           const Standard_Real                TolTangency,
                                           const Standard_Real                Epsilon,
                                           const Standard_Real                Deflection,
@@ -311,11 +311,11 @@ void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
                                           const IntPatch_Polyhedron&         Poly1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   Surf2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   Surf2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                TolTangency,
                                           const Standard_Real                Epsilon,
                                           const Standard_Real                Deflection,
@@ -327,11 +327,11 @@ void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   Surf2,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   Surf2,
                                           const IntPatch_Polyhedron&         Poly2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                TolTangency,
                                           const Standard_Real                Epsilon,
                                           const Standard_Real                Deflection,
@@ -343,12 +343,12 @@ void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
                                           const IntPatch_Polyhedron&         Poly1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   Surf2,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   Surf2,
                                           const IntPatch_Polyhedron&         Poly2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                TolTangency,
                                           const Standard_Real                Epsilon,
                                           const Standard_Real                Deflection,
@@ -864,9 +864,9 @@ void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
                                           const IntPatch_Polyhedron&         Poly1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
                                           const Standard_Real                TolTangency,
                                           const Standard_Real                Epsilon,
                                           const Standard_Real                Deflection,
@@ -1381,8 +1381,8 @@ void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 //=================================================================================================
 
 Handle(IntPatch_Line) IntPatch_PrmPrmIntersection::NewLine(
-  const Handle(Adaptor3d_Surface)& Surf1,
-  const Handle(Adaptor3d_Surface)& Surf2,
+  const Handle(GeomAdaptor_Surface)& Surf1,
+  const Handle(GeomAdaptor_Surface)& Surf2,
   const Standard_Integer           NumLine,
   const Standard_Integer           Low,
   const Standard_Integer           High,
@@ -1711,10 +1711,10 @@ void IntPatch_PrmPrmIntersection::Remplit(const Standard_Integer              a,
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   Surf2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   Surf2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                TolTangency,
                                           const Standard_Real                Epsilon,
                                           const Standard_Real                Deflection,
@@ -2035,10 +2035,10 @@ void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   Surf2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   Surf2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                U1Depart,
                                           const Standard_Real                V1Depart,
                                           const Standard_Real                U2Depart,
@@ -2185,8 +2185,8 @@ void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Sur
 
 //=================================================================================================
 
-void AdjustOnPeriodic(const Handle(Adaptor3d_Surface)& Surf1,
-                      const Handle(Adaptor3d_Surface)& Surf2,
+void AdjustOnPeriodic(const Handle(GeomAdaptor_Surface)& Surf1,
+                      const Handle(GeomAdaptor_Surface)& Surf2,
                       IntPatch_SequenceOfLine&         aSLin)
 {
   Standard_Boolean bIsPeriodic[4], bModified, bIsNull, bIsPeriod;
@@ -2340,10 +2340,10 @@ IntSurf_PntOn2S MakeNewPoint(const IntSurf_PntOn2S& replacePnt,
 
 //=================================================================================================
 
-void IntPatch_PrmPrmIntersection::Perform(const Handle(Adaptor3d_Surface)&   Surf1,
-                                          const Handle(Adaptor3d_TopolTool)& D1,
-                                          const Handle(Adaptor3d_Surface)&   Surf2,
-                                          const Handle(Adaptor3d_TopolTool)& D2,
+void IntPatch_PrmPrmIntersection::Perform(const Handle(GeomAdaptor_Surface)&   Surf1,
+                                          const Handle(GeomAdaptor_TopolTool)& D1,
+                                          const Handle(GeomAdaptor_Surface)&   Surf2,
+                                          const Handle(GeomAdaptor_TopolTool)& D2,
                                           const Standard_Real                TolTangency,
                                           const Standard_Real                Epsilon,
                                           const Standard_Real                Deflection,
@@ -3312,10 +3312,10 @@ private:
 //=================================================================================================
 
 void IntPatch_PrmPrmIntersection::PointDepart(Handle(IntSurf_LineOn2S)&        LineOn2S,
-                                              const Handle(Adaptor3d_Surface)& S1,
+                                              const Handle(GeomAdaptor_Surface)& S1,
                                               const Standard_Integer           SU_1,
                                               const Standard_Integer           SV_1,
-                                              const Handle(Adaptor3d_Surface)& S2,
+                                              const Handle(GeomAdaptor_Surface)& S2,
                                               const Standard_Integer           SU_2,
                                               const Standard_Integer           SV_2) const
 {

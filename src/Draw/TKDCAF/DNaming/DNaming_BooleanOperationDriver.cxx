@@ -196,7 +196,7 @@ static TopAbs_ShapeEnum ShapeType(const TopoDS_Shape& theShape)
 static Standard_Boolean IsValidSurfType(const TopoDS_Face& theFace)
 {
   BRepAdaptor_Surface        anAdapt(theFace);
-  Handle(Adaptor3d_Curve)    aBasisCurve;
+  Handle(GeomAdaptor_Curve)    aBasisCurve;
   const GeomAbs_SurfaceType& aType = anAdapt.GetType();
   if (aType == GeomAbs_Sphere)
     return Standard_True;

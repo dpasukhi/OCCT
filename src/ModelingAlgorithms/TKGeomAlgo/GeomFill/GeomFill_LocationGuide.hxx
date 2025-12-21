@@ -30,6 +30,7 @@
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColgp_HArray1OfPnt2d.hxx>
+class GeomAdaptor_Curve;
 class GeomFill_TrihedronWithGuide;
 class GeomFill_SectionLaw;
 class gp_Vec;
@@ -56,10 +57,10 @@ public:
 
   //! calculating poles on a surface (courbe guide / the surface of rotation in points myNbPts)
   //! @return Standard_True
-  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(Adaptor3d_Curve)& C)
+  Standard_EXPORT virtual Standard_Boolean SetCurve(const Handle(GeomAdaptor_Curve)& C)
     Standard_OVERRIDE;
 
-  Standard_EXPORT virtual const Handle(Adaptor3d_Curve)& GetCurve() const Standard_OVERRIDE;
+  Standard_EXPORT virtual const Handle(GeomAdaptor_Curve)& GetCurve() const Standard_OVERRIDE;
 
   Standard_EXPORT virtual void SetTrsf(const gp_Mat& Transfo) Standard_OVERRIDE;
 
@@ -188,7 +189,7 @@ public:
 
   Standard_EXPORT Handle(Geom_Curve) Section() const;
 
-  Standard_EXPORT Handle(Adaptor3d_Curve) Guide() const;
+  Standard_EXPORT Handle(GeomAdaptor_Curve) Guide() const;
 
   Standard_EXPORT void SetOrigine(const Standard_Real Param1, const Standard_Real Param2);
 
@@ -207,9 +208,9 @@ private:
 
   Handle(GeomFill_TrihedronWithGuide) myLaw;
   Handle(GeomFill_SectionLaw)         mySec;
-  Handle(Adaptor3d_Curve)             myCurve;
-  Handle(Adaptor3d_Curve)             myGuide;
-  Handle(Adaptor3d_Curve)             myTrimmed;
+  Handle(GeomAdaptor_Curve)             myCurve;
+  Handle(GeomAdaptor_Curve)             myGuide;
+  Handle(GeomAdaptor_Curve)             myTrimmed;
   Standard_Integer                    myNbPts;
   Standard_Boolean                    rotation;
   Standard_Real                       OrigParam1;

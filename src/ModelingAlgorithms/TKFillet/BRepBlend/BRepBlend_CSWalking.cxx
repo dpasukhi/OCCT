@@ -14,12 +14,12 @@
 
 #include <BRepBlend_CSWalking.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_HSurfaceTool.hxx>
-#include <Adaptor3d_HVertex.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_TopolTool.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_HSurfaceTool.hxx>
+#include <GeomAdaptor_HVertex.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 #include <BRepBlend_BlendTool.hxx>
 #include <BRepBlend_Extremity.hxx>
 #include <BRepBlend_HCurve2dTool.hxx>
@@ -55,14 +55,14 @@ extern Standard_Boolean Blend_GettraceDRAWSECT();
 
 // Pour debug : visualisation de la section
 
-static void Drawsect(const Handle(Adaptor3d_Surface)& surf,
-                     const Handle(Adaptor3d_Curve)&   curv,
+static void Drawsect(const Handle(GeomAdaptor_Surface)& surf,
+                     const Handle(GeomAdaptor_Curve)&   curv,
                      const Standard_Real              param,
                      Blend_CSFunction&                Func)
 {
   gp_Pnt2d      p2d = Func.Pnt2d();
   Standard_Real pc  = Func.ParameterOnC();
-  Blend_Point   BP(Adaptor3d_HSurfaceTool::Value(surf, p2d.X(), p2d.Y()),
+  Blend_Point   BP(GeomAdaptor_HSurfaceTool::Value(surf, p2d.X(), p2d.Y()),
                  BRepBlend_HCurveTool::Value(curv, pc),
                  param,
                  p2d.X(),
@@ -93,9 +93,9 @@ static void Drawsect(const Handle(Adaptor3d_Surface)& surf,
 
 #endif
 
-BRepBlend_CSWalking::BRepBlend_CSWalking(const Handle(Adaptor3d_Curve)&     Curv,
-                                         const Handle(Adaptor3d_Surface)&   Surf,
-                                         const Handle(Adaptor3d_TopolTool)& Domain)
+BRepBlend_CSWalking::BRepBlend_CSWalking(const Handle(GeomAdaptor_Curve)&     Curv,
+                                         const Handle(GeomAdaptor_Surface)&   Surf,
+                                         const Handle(GeomAdaptor_TopolTool)& Domain)
     : done(Standard_False),
       surf(Surf),
       curv(Curv)
@@ -161,9 +161,9 @@ void BRepBlend_CSWalking::Perform(Blend_CSFunction& Func,
     }
     rsnld.Root(sol);
 
-    //    situ1 = Adaptor3d_TopolTool::Classify(surf1,gp_Pnt2d(sol(1),sol(2)),
+    //    situ1 = GeomAdaptor_TopolTool::Classify(surf1,gp_Pnt2d(sol(1),sol(2)),
     //				   std::max(tolerance(1),tolerance(2)));
-    //    situ2 = Adaptor3d_TopolTool::Classify(surf2,gp_Pnt2d(sol(3),sol(4)),
+    //    situ2 = GeomAdaptor_TopolTool::Classify(surf2,gp_Pnt2d(sol(3),sol(4)),
     //				   std::max(tolerance(3),tolerance(4)));
     /*
 situ = domain->Classify(gp_Pnt2d(sol(1),sol(2)),
@@ -434,8 +434,8 @@ Blend_Status BRepBlend_CSWalking::CheckDeflectionOnSurf(const gp_Pnt&   Psurf,
 
   prevP  = previousP.PointOnS();
   prevTg = previousP.TangentOnS();
-  tolu   = Adaptor3d_HSurfaceTool::UResolution(surf, tolpoint3d);
-  tolv   = Adaptor3d_HSurfaceTool::VResolution(surf, tolpoint3d);
+  tolu   = GeomAdaptor_HSurfaceTool::UResolution(surf, tolpoint3d);
+  tolv   = GeomAdaptor_HSurfaceTool::VResolution(surf, tolpoint3d);
 
   gp_Vec Corde(prevP, Psurf);
   Norme     = Corde.SquareMagnitude();
@@ -601,7 +601,7 @@ Standard_Boolean BRepBlend_CSWalking::Recadre(Blend_FuncInv& FuncInv,
                       math_Vector& solrst,
                       Standard_Integer& Indexsol,
                       Standard_Boolean& IsVtx,
-                      Handle(Adaptor3d_HVertex)& Vtx)
+                      Handle(GeomAdaptor_HVertex)& Vtx)
 
 {
   Standard_Integer nbarc;
@@ -610,7 +610,7 @@ Standard_Boolean BRepBlend_CSWalking::Recadre(Blend_FuncInv& FuncInv,
   gp_Pnt2d pt2d;
   math_Vector toler(1,4),infb(1,4),supb(1,4),valsol(1,4);
 
-  Handle(Adaptor3d_TopolTool) Iter;
+  Handle(GeomAdaptor_TopolTool) Iter;
   TopAbs_State situ;
 
   yamin = Standard_False;
@@ -656,8 +656,8 @@ Standard_Boolean BRepBlend_CSWalking::Recadre(Blend_FuncInv& FuncInv,
     Iter->Next();
   }
 
-  Handle(Adaptor2d_Curve2d) thearc = Iter->Value();
-  Handle(Adaptor2d_Curve2d) thecur;
+  Handle(Geom2dAdaptor_Curve) thearc = Iter->Value();
+  Handle(Geom2dAdaptor_Curve) thecur;
   if (OnFirst) {
     thecur = BRepBlend_BlendTool::CurveOnSurf(thearc,surf1);
   }
@@ -699,12 +699,12 @@ Standard_Boolean BRepBlend_CSWalking::Recadre(Blend_FuncInv& FuncInv,
   if (FuncInv.IsSolution(solrst,tolesp)) {
 
 //    if (OnFirst) {
-//      situ = Adaptor3d_TopolTool::Classify(surf2,gp_Pnt2d(solrst(3),solrst(4)),
+//      situ = GeomAdaptor_TopolTool::Classify(surf2,gp_Pnt2d(solrst(3),solrst(4)),
 //				    std::max(toler(3),toler(4)));
 //
 //    }
 //    else {
-//      situ = Adaptor3d_TopolTool::Classify(surf1,gp_Pnt2d(solrst(3),solrst(4)),
+//      situ = GeomAdaptor_TopolTool::Classify(surf1,gp_Pnt2d(solrst(3),solrst(4)),
 //				    std::max(toler(3),toler(4)));
 //    }
 
@@ -749,7 +749,7 @@ Standard_Boolean BRepBlend_CSWalking::Recadre(Blend_FuncInv& FuncInv,
 
 */
 
-void BRepBlend_CSWalking::Transition(const Handle(Adaptor2d_Curve2d)& A,
+void BRepBlend_CSWalking::Transition(const Handle(Geom2dAdaptor_Curve)& A,
                                      const Standard_Real              Param,
                                      IntSurf_Transition&              TLine,
                                      IntSurf_Transition&              TArc)
@@ -761,7 +761,7 @@ void BRepBlend_CSWalking::Transition(const Handle(Adaptor2d_Curve2d)& A,
   gp_Vec d1u, d1v, normale, tgrst;
 
   BRepBlend_HCurve2dTool::D1(A, Param, p2d, dp2d);
-  Adaptor3d_HSurfaceTool::D1(surf, p2d.X(), p2d.Y(), pbid, d1u, d1v);
+  GeomAdaptor_HSurfaceTool::D1(surf, p2d.X(), p2d.Y(), pbid, d1u, d1v);
 
   tgrst.SetLinearForm(dp2d.X(), d1u, dp2d.Y(), d1v);
   normale = d1u.Crossed(d1v);
@@ -773,12 +773,12 @@ void BRepBlend_CSWalking::MakeExtremity(BRepBlend_Extremity&             Extrem,
                                         const Standard_Integer           Index,
                                         const Standard_Real              Param,
                                         const Standard_Boolean           IsVtx,
-                                        const Handle(Adaptor3d_HVertex)& Vtx)
+                                        const Handle(GeomAdaptor_HVertex)& Vtx)
 {
   IntSurf_Transition          Tline, Tarc;
   Standard_Real               prm, U, V;
   Standard_Integer            nbarc;
-  Handle(Adaptor3d_TopolTool) Iter;
+  Handle(GeomAdaptor_TopolTool) Iter;
 
   //  Extrem.SetValue(previousP.PointOnS(),sol(1),sol(2),tolesp);
   previousP.ParametersOnS(U, V);
@@ -804,14 +804,14 @@ void BRepBlend_CSWalking::MakeExtremity(BRepBlend_Extremity&             Extrem,
     Extrem.SetVertex(Vtx);
     while (Iter->More())
     {
-      Handle(Adaptor2d_Curve2d) arc = Iter->Value();
+      Handle(Geom2dAdaptor_Curve) arc = Iter->Value();
       if (nbarc != Index)
       {
         Iter->Initialize(arc);
         Iter->InitVertexIterator();
         while (Iter->MoreVertex())
         {
-          //	  if (Adaptor3d_TopolTool::Identical(Vtx,Iter.Vertex())) {
+          //	  if (GeomAdaptor_TopolTool::Identical(Vtx,Iter.Vertex())) {
           if (Iter->Identical(Vtx, Iter->Vertex()))
           {
             prm = BRepBlend_BlendTool::Parameter(Vtx, arc);
@@ -853,7 +853,7 @@ void BRepBlend_CSWalking::InternalPerform(Blend_CSFunction& Func,
   //  math_Vector solrst(1,3);
   math_Vector tolerance(1, Nbvar), infbound(1, Nbvar), supbound(1, Nbvar), parinit(1, Nbvar);
   math_Vector solrst(1, Nbvar);
-  Handle(Adaptor3d_HVertex) Vtx;
+  Handle(GeomAdaptor_HVertex) Vtx;
   BRepBlend_Extremity       Exts, Extc;
 
   // IntSurf_Transition Tline,Tarc;
@@ -884,9 +884,9 @@ void BRepBlend_CSWalking::InternalPerform(Blend_CSFunction& Func,
     {
       rsnld.Root(sol);
 
-      //      situ1 = Adaptor3d_TopolTool::Classify(surf1,gp_Pnt2d(sol(1),sol(2)),
+      //      situ1 = GeomAdaptor_TopolTool::Classify(surf1,gp_Pnt2d(sol(1),sol(2)),
       //				     std::max(tolerance(1),tolerance(2)));
-      //      situ2 = Adaptor3d_TopolTool::Classify(surf2,gp_Pnt2d(sol(3),sol(4)),
+      //      situ2 = GeomAdaptor_TopolTool::Classify(surf2,gp_Pnt2d(sol(3),sol(4)),
       //				     std::max(tolerance(3),tolerance(4)));
       /*
         situ = domain->Classify(gp_Pnt2d(sol(1),sol(2)),

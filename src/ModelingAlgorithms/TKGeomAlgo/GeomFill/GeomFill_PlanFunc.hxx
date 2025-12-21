@@ -25,6 +25,7 @@
 #include <gp_Pnt.hxx>
 #include <math_FunctionWithDerivative.hxx>
 
+class GeomAdaptor_Curve;
 class gp_Vec;
 
 class GeomFill_PlanFunc : public math_FunctionWithDerivative
@@ -34,7 +35,7 @@ public:
 
   Standard_EXPORT GeomFill_PlanFunc(const gp_Pnt&                  P,
                                     const gp_Vec&                  V,
-                                    const Handle(Adaptor3d_Curve)& C);
+                                    const Handle(GeomAdaptor_Curve)& C);
 
   //! computes the value <F>of the function for the variable <X>.
   //! Returns True if the calculation were successfully done,
@@ -82,7 +83,7 @@ private:
   gp_XYZ                  myVec;
   gp_XYZ                  V;
   gp_Pnt                  G;
-  Handle(Adaptor3d_Curve) myCurve;
+  Handle(GeomAdaptor_Curve) myCurve;
 };
 
 #endif // _GeomFill_PlanFunc_HeaderFile

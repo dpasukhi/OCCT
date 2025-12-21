@@ -688,8 +688,8 @@ void IntTools_FaceFace::ComputeTolReached3d(const Standard_Boolean theToRunParal
 //=================================================================================================
 
 void IntTools_FaceFace::MakeCurve(const Standard_Integer             Index,
-                                  const Handle(Adaptor3d_TopolTool)& dom1,
-                                  const Handle(Adaptor3d_TopolTool)& dom2,
+                                  const Handle(GeomAdaptor_TopolTool)& dom1,
+                                  const Handle(GeomAdaptor_TopolTool)& dom2,
                                   const Standard_Real                theToler)
 {
   Standard_Boolean      bDone, rejectSurface, reApprox, bAvoidLineConstructor;

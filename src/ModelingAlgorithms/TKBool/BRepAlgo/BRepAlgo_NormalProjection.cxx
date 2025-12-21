@@ -14,7 +14,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Approx_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRepAdaptor_Curve.hxx>
@@ -244,7 +244,7 @@ void BRepAlgo_NormalProjection::Build()
       gp_Pnt           P;
       Standard_Real    UIso, VIso;
 
-      Handle(Adaptor2d_Curve2d) HPCur;
+      Handle(Geom2dAdaptor_Curve) HPCur;
       Handle(Geom2d_Curve)      PCur2d; // Only for isoparametric projection
 
       for (k = 1; k <= HProjector->NbCurves(); k++)
@@ -604,7 +604,7 @@ const TopTools_ListOfShape& BRepAlgo_NormalProjection::Generated(const TopoDS_Sh
 
 //=================================================================================================
 
-Standard_Boolean BRepAlgo_NormalProjection::IsElementary(const Adaptor3d_Curve& C) const
+Standard_Boolean BRepAlgo_NormalProjection::IsElementary(const GeomAdaptor_Curve& C) const
 {
   GeomAbs_CurveType type;
   type = C.GetType();

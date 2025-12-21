@@ -12,6 +12,8 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Blend_Point.hxx>
 #include <BlendFunc.hxx>
 #include <BlendFunc_Chamfer.hxx>
@@ -26,9 +28,9 @@
 
 //=================================================================================================
 
-BlendFunc_GenChamfer::BlendFunc_GenChamfer(const Handle(Adaptor3d_Surface)& S1,
-                                           const Handle(Adaptor3d_Surface)& S2,
-                                           const Handle(Adaptor3d_Curve)&   CG)
+BlendFunc_GenChamfer::BlendFunc_GenChamfer(const Handle(GeomAdaptor_Surface)& S1,
+                                           const Handle(GeomAdaptor_Surface)& S2,
+                                           const Handle(GeomAdaptor_Curve)&   CG)
     : surf1(S1),
       surf2(S2),
       curv(CG),

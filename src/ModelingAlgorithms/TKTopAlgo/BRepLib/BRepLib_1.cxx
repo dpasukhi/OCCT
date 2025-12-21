@@ -28,7 +28,7 @@
 //           point on the curve that is an intersection with the sphere with
 //           center theVertPnt and radius theTol.
 //=======================================================================
-static Standard_Boolean findNearestValidPoint(const Adaptor3d_Curve& theCurve,
+static Standard_Boolean findNearestValidPoint(const GeomAdaptor_Curve& theCurve,
                                               const Standard_Real    theFirst,
                                               const Standard_Real    theLast,
                                               const Standard_Boolean isFirst,
@@ -150,7 +150,7 @@ static Standard_Boolean findNearestValidPoint(const Adaptor3d_Curve& theCurve,
 
 //=================================================================================================
 
-Standard_Boolean BRepLib::FindValidRange(const Adaptor3d_Curve& theCurve,
+Standard_Boolean BRepLib::FindValidRange(const GeomAdaptor_Curve& theCurve,
                                          const Standard_Real    theTolE,
                                          const Standard_Real    theParV1,
                                          const gp_Pnt&          thePntV1,

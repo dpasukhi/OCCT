@@ -17,11 +17,11 @@
 #ifndef _BRepAdaptor_Curve_HeaderFile
 #define _BRepAdaptor_Curve_HeaderFile
 
-#include <Adaptor3d_CurveOnSurface.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
 #include <gp_Trsf.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <TopoDS_Edge.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard_Real.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_Integer.hxx>
@@ -29,7 +29,7 @@
 #include <GeomAbs_CurveType.hxx>
 
 class TopoDS_Face;
-class Adaptor3d_CurveOnSurface;
+class GeomAdaptor_CurveOnSurface;
 class gp_Pnt;
 class gp_Vec;
 class gp_Lin;
@@ -41,7 +41,7 @@ class Geom_BezierCurve;
 class Geom_BSplineCurve;
 class Geom_OffsetCurve;
 
-DEFINE_STANDARD_HANDLE(BRepAdaptor_Curve, Adaptor3d_Curve)
+DEFINE_STANDARD_HANDLE(BRepAdaptor_Curve, GeomAdaptor_Curve)
 
 //! The Curve from BRepAdaptor allows to use an Edge
 //! of the BRep topology like a 3D curve.
@@ -55,9 +55,9 @@ DEFINE_STANDARD_HANDLE(BRepAdaptor_Curve, Adaptor3d_Curve)
 //! surface is used. It is possible to enforce using a
 //! curve on surface by creating or initialising with
 //! an Edge and a Face.
-class BRepAdaptor_Curve : public Adaptor3d_Curve
+class BRepAdaptor_Curve : public GeomAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(BRepAdaptor_Curve, Adaptor3d_Curve)
+  DEFINE_STANDARD_RTTIEXT(BRepAdaptor_Curve, GeomAdaptor_Curve)
 public:
   //! Creates an undefined Curve with no Edge loaded.
   Standard_EXPORT BRepAdaptor_Curve();
@@ -73,7 +73,7 @@ public:
   Standard_EXPORT BRepAdaptor_Curve(const TopoDS_Edge& E, const TopoDS_Face& F);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   //! Reset currently loaded curve (undone Load()).
   Standard_EXPORT void Reset();
@@ -104,7 +104,7 @@ public:
   Standard_EXPORT const GeomAdaptor_Curve& Curve() const;
 
   //! Returns the CurveOnSurface of the edge.
-  Standard_EXPORT const Adaptor3d_CurveOnSurface& CurveOnSurface() const;
+  Standard_EXPORT const GeomAdaptor_CurveOnSurface& CurveOnSurface() const;
 
   //! Returns the edge.
   Standard_EXPORT const TopoDS_Edge& Edge() const;
@@ -134,7 +134,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(GeomAdaptor_Curve) Trim(const Standard_Real First,
                                                const Standard_Real Last,
                                                const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -221,7 +221,7 @@ public:
 private:
   gp_Trsf                          myTrsf;
   GeomAdaptor_Curve                myCurve;
-  Handle(Adaptor3d_CurveOnSurface) myConSurf;
+  Handle(GeomAdaptor_CurveOnSurface) myConSurf;
   TopoDS_Edge                      myEdge;
 };
 

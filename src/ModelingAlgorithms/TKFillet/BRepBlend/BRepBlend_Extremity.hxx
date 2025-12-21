@@ -27,7 +27,7 @@
 #include <Standard_Real.hxx>
 #include <Standard_Boolean.hxx>
 #include <Standard_Integer.hxx>
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 class IntSurf_Transition;
 class BRepBlend_PointOnRst;
 
@@ -52,7 +52,7 @@ public:
                                       const Standard_Real              V,
                                       const Standard_Real              Param,
                                       const Standard_Real              Tol,
-                                      const Handle(Adaptor3d_HVertex)& Vtx);
+                                      const Handle(GeomAdaptor_HVertex)& Vtx);
 
   //! Creates an extremity on a curve
   Standard_EXPORT BRepBlend_Extremity(const gp_Pnt&       P,
@@ -74,7 +74,7 @@ public:
                                 const Standard_Real              V,
                                 const Standard_Real              Param,
                                 const Standard_Real              Tol,
-                                const Handle(Adaptor3d_HVertex)& Vtx);
+                                const Handle(GeomAdaptor_HVertex)& Vtx);
 
   //! Set the values for an extremity on curve.
   Standard_EXPORT void SetValue(const gp_Pnt&       P,
@@ -101,11 +101,11 @@ public:
   Standard_Real Tolerance() const;
 
   //! Set the values for an extremity on a curve.
-  Standard_EXPORT void SetVertex(const Handle(Adaptor3d_HVertex)& V);
+  Standard_EXPORT void SetVertex(const Handle(GeomAdaptor_HVertex)& V);
 
   //! Sets the values of a point which is on the arc
   //! A, at parameter Param.
-  Standard_EXPORT void AddArc(const Handle(Adaptor2d_Curve2d)& A,
+  Standard_EXPORT void AddArc(const Handle(Geom2dAdaptor_Curve)& A,
                               const Standard_Real              Param,
                               const IntSurf_Transition&        TLine,
                               const IntSurf_Transition&        TArc);
@@ -119,7 +119,7 @@ public:
   Standard_Boolean IsVertex() const;
 
   //! Returns the vertex when IsVertex returns Standard_True.
-  const Handle(Adaptor3d_HVertex)& Vertex() const;
+  const Handle(GeomAdaptor_HVertex)& Vertex() const;
 
   //! Returns the number of arc containing the extremity.
   //! If the method returns 0, the point is inside the
@@ -138,7 +138,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_HVertex)      vtx;
+  Handle(GeomAdaptor_HVertex)      vtx;
   BRepBlend_SequenceOfPointOnRst seqpt;
   gp_Pnt                         pt;
   gp_Vec                         tang;

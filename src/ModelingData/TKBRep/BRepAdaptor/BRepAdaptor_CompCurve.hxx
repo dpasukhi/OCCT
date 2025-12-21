@@ -27,7 +27,7 @@
 #include <TColStd_HArray1OfReal.hxx>
 #include <Standard_Integer.hxx>
 #include <Standard_Boolean.hxx>
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <GeomAbs_CurveType.hxx>
@@ -43,7 +43,7 @@ class gp_Parab;
 class Geom_BezierCurve;
 class Geom_BSplineCurve;
 
-DEFINE_STANDARD_HANDLE(BRepAdaptor_CompCurve, Adaptor3d_Curve)
+DEFINE_STANDARD_HANDLE(BRepAdaptor_CompCurve, GeomAdaptor_Curve)
 
 //! The Curve from BRepAdaptor allows to use a Wire
 //! of the BRep topology like a 3D curve.
@@ -55,9 +55,9 @@ DEFINE_STANDARD_HANDLE(BRepAdaptor_CompCurve, Adaptor3d_Curve)
 //!
 //! BRepAdaptor_CompCurve can only work on valid wires where all edges are
 //! connected to each other to make a chain.
-class BRepAdaptor_CompCurve : public Adaptor3d_Curve
+class BRepAdaptor_CompCurve : public GeomAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(BRepAdaptor_CompCurve, Adaptor3d_Curve)
+  DEFINE_STANDARD_RTTIEXT(BRepAdaptor_CompCurve, GeomAdaptor_Curve)
 public:
   //! Creates an undefined Curve with no Wire loaded.
   Standard_EXPORT BRepAdaptor_CompCurve();
@@ -74,7 +74,7 @@ public:
                                         const Standard_Real    Tol);
 
   //! Shallow copy of adaptor.
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   //! Sets the wire <W>.
   Standard_EXPORT void Initialize(const TopoDS_Wire&     W,
@@ -116,7 +116,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(GeomAdaptor_Curve) Trim(const Standard_Real First,
                                                const Standard_Real Last,
                                                const Standard_Real Tol) const Standard_OVERRIDE;
 

@@ -16,13 +16,13 @@
 
 #include <Geom2dConvert_PPoint.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <Precision.hxx>
 
 //=================================================================================================
 
 Geom2dConvert_PPoint::Geom2dConvert_PPoint(const Standard_Real      theParameter,
-                                           const Adaptor2d_Curve2d& theAdaptor)
+                                           const Geom2dAdaptor_Curve& theAdaptor)
     : myParameter(theParameter)
 {
   theAdaptor.D1(theParameter, myPoint, myD1);

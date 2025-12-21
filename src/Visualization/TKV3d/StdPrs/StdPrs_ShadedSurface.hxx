@@ -17,10 +17,9 @@
 #ifndef _StdPrs_ShadedSurface_HeaderFile
 #define _StdPrs_ShadedSurface_HeaderFile
 
+#include <GeomAdaptor_Surface.hxx>
 #include <Prs3d_Root.hxx>
 #include <Prs3d_Drawer.hxx>
-
-class Adaptor3d_Surface;
 
 //! Computes the shading presentation of surfaces.
 //! Draws a surface by drawing the isoparametric curves with respect to
@@ -37,7 +36,7 @@ public:
   //! The surface object from Adaptor3d provides data
   //! from a Geom surface in order to use the surface in an algorithm.
   Standard_EXPORT static void Add(const Handle(Prs3d_Presentation)& aPresentation,
-                                  const Adaptor3d_Surface&          aSurface,
+                                  const GeomAdaptor_Surface&          aSurface,
                                   const Handle(Prs3d_Drawer)&       aDrawer);
 
 protected:

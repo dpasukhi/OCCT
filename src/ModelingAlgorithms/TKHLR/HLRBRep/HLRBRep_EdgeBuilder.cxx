@@ -18,6 +18,8 @@
   #define No_Exception
 #endif
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <HLRAlgo_Intersection.hxx>
 #include <HLRBRep_AreaLimit.hxx>
 #include <HLRBRep_EdgeBuilder.hxx>

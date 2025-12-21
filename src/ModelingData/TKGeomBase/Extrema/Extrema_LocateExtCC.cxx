@@ -14,15 +14,15 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Extrema_LocateExtCC.hxx>
 #include <Extrema_LocECC.hxx>
 #include <Extrema_POnCurv.hxx>
 #include <Precision.hxx>
 #include <StdFail_NotDone.hxx>
 
-Extrema_LocateExtCC::Extrema_LocateExtCC(const Adaptor3d_Curve& C1,
-                                         const Adaptor3d_Curve& C2,
+Extrema_LocateExtCC::Extrema_LocateExtCC(const GeomAdaptor_Curve& C1,
+                                         const GeomAdaptor_Curve& C2,
                                          const Standard_Real    U0,
                                          const Standard_Real    V0)
     : mySqDist(RealLast())

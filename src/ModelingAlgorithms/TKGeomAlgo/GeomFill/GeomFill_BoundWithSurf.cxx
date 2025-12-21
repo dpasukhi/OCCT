@@ -14,11 +14,12 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomFill_BoundWithSurf.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
-#include <Adaptor3d_CurveOnSurface.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_CurveOnSurface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
@@ -32,7 +33,7 @@ IMPLEMENT_STANDARD_RTTIEXT(GeomFill_BoundWithSurf, GeomFill_Boundary)
 
 //=================================================================================================
 
-GeomFill_BoundWithSurf::GeomFill_BoundWithSurf(const Adaptor3d_CurveOnSurface& CurveOnSurf,
+GeomFill_BoundWithSurf::GeomFill_BoundWithSurf(const GeomAdaptor_CurveOnSurface& CurveOnSurf,
                                                const Standard_Real             Tol3d,
                                                const Standard_Real             Tolang)
     : GeomFill_Boundary(Tol3d, Tolang),
@@ -76,8 +77,8 @@ gp_Vec GeomFill_BoundWithSurf::Norm(const Standard_Real U) const
   if (!HasNormals())
     throw Standard_Failure("BoundWithSurf Norm : pas de contrainte");
 
-  //  Handle(Adaptor3d_Surface)& S = myConS.GetSurface();
-  //  Handle(Adaptor2d_Curve2d)& C2d = myConS.GetCurve();
+  //  Handle(GeomAdaptor_Surface)& S = myConS.GetSurface();
+  //  Handle(Geom2dAdaptor_Curve)& C2d = myConS.GetCurve();
   Standard_Real x, y;
   Standard_Real w = U;
   if (!myPar.IsNull())
@@ -97,8 +98,8 @@ void GeomFill_BoundWithSurf::D1Norm(const Standard_Real U, gp_Vec& N, gp_Vec& DN
 {
   if (!HasNormals())
     throw Standard_Failure("BoundWithSurf Norm : pas de contrainte");
-  //  Handle(Adaptor3d_Surface)& S = myConS.GetSurface();
-  //  Handle(Adaptor2d_Curve2d)& C2d = myConS.GetCurve();
+  //  Handle(GeomAdaptor_Surface)& S = myConS.GetSurface();
+  //  Handle(Geom2dAdaptor_Curve)& C2d = myConS.GetCurve();
   gp_Pnt2d      P2d;
   gp_Vec2d      V2d;
   Standard_Real x, y, dx, dy;
