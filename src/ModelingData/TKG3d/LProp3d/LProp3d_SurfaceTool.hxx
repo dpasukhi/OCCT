@@ -16,7 +16,7 @@
 #ifndef _LProp3d_SurfaceTool_HeaderFile
 #define _LProp3d_SurfaceTool_HeaderFile
 
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Surface.hxx>
 
 class LProp3d_SurfaceTool
 {
@@ -25,14 +25,14 @@ public:
 
   //! Computes the point <P> of parameter <U> and <V> on the
   //! HSurface <S>.
-  Standard_EXPORT static void Value(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void Value(const Handle(GeomAdaptor_Surface)& S,
                                     const Standard_Real              U,
                                     const Standard_Real              V,
                                     gp_Pnt&                          P);
 
   //! Computes the point <P> and first derivative <D1*> of
   //! parameter <U> and <V> on the HSurface <S>.
-  Standard_EXPORT static void D1(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void D1(const Handle(GeomAdaptor_Surface)& S,
                                  const Standard_Real              U,
                                  const Standard_Real              V,
                                  gp_Pnt&                          P,
@@ -41,7 +41,7 @@ public:
 
   //! Computes the point <P>, the first derivative <D1*> and second
   //! derivative <D2*> of parameter <U> and <V> on the HSurface <S>.
-  Standard_EXPORT static void D2(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void D2(const Handle(GeomAdaptor_Surface)& S,
                                  const Standard_Real              U,
                                  const Standard_Real              V,
                                  gp_Pnt&                          P,
@@ -51,7 +51,7 @@ public:
                                  gp_Vec&                          D2V,
                                  gp_Vec&                          DUV);
 
-  Standard_EXPORT static gp_Vec DN(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static gp_Vec DN(const Handle(GeomAdaptor_Surface)& S,
                                    const Standard_Real              U,
                                    const Standard_Real              V,
                                    const Standard_Integer           IU,
@@ -60,10 +60,10 @@ public:
   //! returns the order of continuity of the HSurface <S>.
   //! returns 1 : first derivative only is computable
   //! returns 2 : first and second derivative only are computable.
-  Standard_EXPORT static Standard_Integer Continuity(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT static Standard_Integer Continuity(const Handle(GeomAdaptor_Surface)& S);
 
   //! returns the bounds of the HSurface.
-  Standard_EXPORT static void Bounds(const Handle(Adaptor3d_Surface)& S,
+  Standard_EXPORT static void Bounds(const Handle(GeomAdaptor_Surface)& S,
                                      Standard_Real&                   U1,
                                      Standard_Real&                   V1,
                                      Standard_Real&                   U2,

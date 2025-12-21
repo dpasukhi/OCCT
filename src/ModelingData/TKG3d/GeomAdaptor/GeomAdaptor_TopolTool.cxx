@@ -11,11 +11,11 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_TopolTool.hxx>
+#include <GeomAdaptor_TopolTool.hxx>
 
-#include <Adaptor2d_Line2d.hxx>
-#include <Adaptor3d_Surface.hxx>
-#include <Adaptor3d_HVertex.hxx>
+#include <Geom2dAdaptor_Line2d.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <GeomAdaptor_HVertex.hxx>
 #include <GeomAdaptor_Surface.hxx>
 #include <gp_Cone.hxx>
 #include <gp_Pnt.hxx>
@@ -26,11 +26,11 @@
 #include <Standard_NotImplemented.hxx>
 #include <Standard_Type.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(Adaptor3d_TopolTool, Standard_Transient)
+IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_TopolTool, Standard_Transient)
 
 #define myInfinite Precision::Infinite()
 
-Adaptor3d_TopolTool::Adaptor3d_TopolTool()
+GeomAdaptor_TopolTool::GeomAdaptor_TopolTool()
     : myNbSamplesU(-1),
       myNbSamplesV(-1),
       nbRestr(0),
@@ -44,20 +44,20 @@ Adaptor3d_TopolTool::Adaptor3d_TopolTool()
 {
 }
 
-Adaptor3d_TopolTool::Adaptor3d_TopolTool(const Handle(Adaptor3d_Surface)& S)
+GeomAdaptor_TopolTool::GeomAdaptor_TopolTool(const Handle(GeomAdaptor_Surface)& S)
 {
   Initialize(S);
 }
 
-void Adaptor3d_TopolTool::Initialize()
+void GeomAdaptor_TopolTool::Initialize()
 {
-  throw Standard_NotImplemented("Adaptor3d_TopolTool::Initialize ()");
+  throw Standard_NotImplemented("GeomAdaptor_TopolTool::Initialize ()");
 }
 
-void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
+void GeomAdaptor_TopolTool::Initialize(const Handle(GeomAdaptor_Surface)& S)
 {
   Standard_Real pinf, psup, deltap;
-  // Adaptor2d_Line2d  * Line2dPtr ;
+  // Geom2dAdaptor_Line2d  * Line2dPtr ;
 
   myNbSamplesU = -1;
   Uinf         = S->FirstUParameter(); // where UIntervalFirst ??
@@ -91,10 +91,10 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(0.,Vinf),gp_Dir2d(gp_Dir2d::D::X),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(0., Vinf), gp_Dir2d(gp_Dir2d::D::X), pinf, psup));
+    // Line2dPtr = new Geom2dAdaptor_Line2d(gp_Pnt2d(0.,Vinf),gp_Dir2d(gp_Dir2d::D::X),pinf,psup);
+    // myRestr[nbRestr] = new Geom2dAdaptor_Line2d(*Line2dPtr);
+    myRestr[nbRestr] = new Geom2dAdaptor_Line2d(
+      Geom2dAdaptor_Line2d(gp_Pnt2d(0., Vinf), gp_Dir2d(gp_Dir2d::D::X), pinf, psup));
     nbRestr++;
   }
 
@@ -117,10 +117,10 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(Usup,0.),gp_Dir2d(gp_Dir2d::D::Y),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(Usup, 0.), gp_Dir2d(gp_Dir2d::D::Y), pinf, psup));
+    // Line2dPtr = new Geom2dAdaptor_Line2d(gp_Pnt2d(Usup,0.),gp_Dir2d(gp_Dir2d::D::Y),pinf,psup);
+    // myRestr[nbRestr] = new Geom2dAdaptor_Line2d(*Line2dPtr);
+    myRestr[nbRestr] = new Geom2dAdaptor_Line2d(
+      Geom2dAdaptor_Line2d(gp_Pnt2d(Usup, 0.), gp_Dir2d(gp_Dir2d::D::Y), pinf, psup));
     nbRestr++;
   }
 
@@ -143,10 +143,10 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(0.,Vsup),gp_Dir2d(gp_Dir2d::D::NX),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(0., Vsup), gp_Dir2d(gp_Dir2d::D::NX), pinf, psup));
+    // Line2dPtr = new Geom2dAdaptor_Line2d(gp_Pnt2d(0.,Vsup),gp_Dir2d(gp_Dir2d::D::NX),pinf,psup);
+    // myRestr[nbRestr] = new Geom2dAdaptor_Line2d(*Line2dPtr);
+    myRestr[nbRestr] = new Geom2dAdaptor_Line2d(
+      Geom2dAdaptor_Line2d(gp_Pnt2d(0., Vsup), gp_Dir2d(gp_Dir2d::D::NX), pinf, psup));
     nbRestr++;
   }
 
@@ -169,10 +169,10 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(Uinf,0.),gp_Dir2d(gp_Dir2d::D::NY),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
-    myRestr[nbRestr] = new Adaptor2d_Line2d(
-      Adaptor2d_Line2d(gp_Pnt2d(Uinf, 0.), gp_Dir2d(gp_Dir2d::D::NY), pinf, psup));
+    // Line2dPtr = new Geom2dAdaptor_Line2d(gp_Pnt2d(Uinf,0.),gp_Dir2d(gp_Dir2d::D::NY),pinf,psup);
+    // myRestr[nbRestr] = new Geom2dAdaptor_Line2d(*Line2dPtr);
+    myRestr[nbRestr] = new Geom2dAdaptor_Line2d(
+      Geom2dAdaptor_Line2d(gp_Pnt2d(Uinf, 0.), gp_Dir2d(gp_Dir2d::D::NY), pinf, psup));
     nbRestr++;
   }
 
@@ -200,25 +200,25 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor3d_Surface)& S)
       psup = myInfinite;
     }
 
-    // Line2dPtr = new Adaptor2d_Line2d(gp_Pnt2d(U,V),gp_Dir2d(gp_Dir2d::D::X),pinf,psup);
-    // myRestr[nbRestr] = new Adaptor2d_Line2d(*Line2dPtr);
+    // Line2dPtr = new Geom2dAdaptor_Line2d(gp_Pnt2d(U,V),gp_Dir2d(gp_Dir2d::D::X),pinf,psup);
+    // myRestr[nbRestr] = new Geom2dAdaptor_Line2d(*Line2dPtr);
     myRestr[nbRestr] =
-      new Adaptor2d_Line2d(Adaptor2d_Line2d(gp_Pnt2d(U, V), gp_Dir2d(gp_Dir2d::D::X), pinf, psup));
+      new Geom2dAdaptor_Line2d(Geom2dAdaptor_Line2d(gp_Pnt2d(U, V), gp_Dir2d(gp_Dir2d::D::X), pinf, psup));
     nbRestr++;
   }
 }
 
-void Adaptor3d_TopolTool::Init()
+void GeomAdaptor_TopolTool::Init()
 {
   idRestr = 0;
 }
 
-Standard_Boolean Adaptor3d_TopolTool::More()
+Standard_Boolean GeomAdaptor_TopolTool::More()
 {
   return (idRestr < nbRestr);
 }
 
-Handle(Adaptor2d_Curve2d) Adaptor3d_TopolTool::Value()
+Handle(Geom2dAdaptor_Curve) GeomAdaptor_TopolTool::Value()
 {
   if (idRestr >= nbRestr)
   {
@@ -227,12 +227,12 @@ Handle(Adaptor2d_Curve2d) Adaptor3d_TopolTool::Value()
   return myRestr[idRestr];
 }
 
-void Adaptor3d_TopolTool::Next()
+void GeomAdaptor_TopolTool::Next()
 {
   idRestr++;
 }
 
-void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor2d_Curve2d)& C)
+void GeomAdaptor_TopolTool::Initialize(const Handle(Geom2dAdaptor_Curve)& C)
 {
   nbVtx = 0;
   idVtx = 0;
@@ -242,28 +242,28 @@ void Adaptor3d_TopolTool::Initialize(const Handle(Adaptor2d_Curve2d)& C)
   //  if (!Precision::IsNegativeInfinite(theUinf)) {
   if (theUinf > -myInfinite)
   {
-    myVtx[nbVtx] = new Adaptor3d_HVertex(C->Value(theUinf), TopAbs_FORWARD, 1.e-8);
+    myVtx[nbVtx] = new GeomAdaptor_HVertex(C->Value(theUinf), TopAbs_FORWARD, 1.e-8);
     nbVtx++;
   }
   //  if (!Precision::IsPositiveInfinite(theUsup)) {
   if (theUsup < myInfinite)
   {
-    myVtx[nbVtx] = new Adaptor3d_HVertex(C->Value(theUsup), TopAbs_REVERSED, 1.e-8);
+    myVtx[nbVtx] = new GeomAdaptor_HVertex(C->Value(theUsup), TopAbs_REVERSED, 1.e-8);
     nbVtx++;
   }
 }
 
-void Adaptor3d_TopolTool::InitVertexIterator()
+void GeomAdaptor_TopolTool::InitVertexIterator()
 {
   idVtx = 0;
 }
 
-Standard_Boolean Adaptor3d_TopolTool::MoreVertex()
+Standard_Boolean GeomAdaptor_TopolTool::MoreVertex()
 {
   return (idVtx < nbVtx);
 }
 
-Handle(Adaptor3d_HVertex) Adaptor3d_TopolTool::Vertex()
+Handle(GeomAdaptor_HVertex) GeomAdaptor_TopolTool::Vertex()
 {
   if (idVtx >= nbVtx)
   {
@@ -272,12 +272,12 @@ Handle(Adaptor3d_HVertex) Adaptor3d_TopolTool::Vertex()
   return myVtx[idVtx];
 }
 
-void Adaptor3d_TopolTool::NextVertex()
+void GeomAdaptor_TopolTool::NextVertex()
 {
   idVtx++;
 }
 
-TopAbs_State Adaptor3d_TopolTool::Classify(const gp_Pnt2d&     P,
+TopAbs_State GeomAdaptor_TopolTool::Classify(const gp_Pnt2d&     P,
                                            const Standard_Real Tol,
                                            const Standard_Boolean)
 //					 const Standard_Boolean RecadreOnPeriodic)
@@ -442,7 +442,7 @@ TopAbs_State Adaptor3d_TopolTool::Classify(const gp_Pnt2d&     P,
   }
 }
 
-Standard_Boolean Adaptor3d_TopolTool::IsThePointOn(const gp_Pnt2d&     P,
+Standard_Boolean GeomAdaptor_TopolTool::IsThePointOn(const gp_Pnt2d&     P,
                                                    const Standard_Real Tol,
                                                    const Standard_Boolean)
 //					     const Standard_Boolean RecadreOnPeriodic)
@@ -607,18 +607,18 @@ Standard_Boolean Adaptor3d_TopolTool::IsThePointOn(const gp_Pnt2d&     P,
   }
 }
 
-TopAbs_Orientation Adaptor3d_TopolTool::Orientation(const Handle(Adaptor2d_Curve2d)&)
+TopAbs_Orientation GeomAdaptor_TopolTool::Orientation(const Handle(Geom2dAdaptor_Curve)&)
 {
   return TopAbs_FORWARD;
 }
 
-TopAbs_Orientation Adaptor3d_TopolTool::Orientation(const Handle(Adaptor3d_HVertex)& V)
+TopAbs_Orientation GeomAdaptor_TopolTool::Orientation(const Handle(GeomAdaptor_HVertex)& V)
 {
   return V->Orientation();
 }
 
-Standard_Boolean Adaptor3d_TopolTool::Identical(const Handle(Adaptor3d_HVertex)& V1,
-                                                const Handle(Adaptor3d_HVertex)& V2)
+Standard_Boolean GeomAdaptor_TopolTool::Identical(const Handle(GeomAdaptor_HVertex)& V1,
+                                                const Handle(GeomAdaptor_HVertex)& V2)
 {
   return V1->IsSame(V2);
 }
@@ -750,7 +750,7 @@ static void Analyse(const TColgp_Array2OfPnt& array2,
   myNbSamplesU = nbch + 5;
 }
 
-void Adaptor3d_TopolTool::ComputeSamplePoints()
+void GeomAdaptor_TopolTool::ComputeSamplePoints()
 {
   const Standard_Integer aMaxNbSample = 50;
 
@@ -893,7 +893,7 @@ void Adaptor3d_TopolTool::ComputeSamplePoints()
   myNbSamplesV = nbsv;
 }
 
-Standard_Integer Adaptor3d_TopolTool::NbSamplesU()
+Standard_Integer GeomAdaptor_TopolTool::NbSamplesU()
 {
   if (myNbSamplesU < 0)
   {
@@ -902,7 +902,7 @@ Standard_Integer Adaptor3d_TopolTool::NbSamplesU()
   return (myNbSamplesU);
 }
 
-Standard_Integer Adaptor3d_TopolTool::NbSamplesV()
+Standard_Integer GeomAdaptor_TopolTool::NbSamplesV()
 {
   if (myNbSamplesU < 0)
   {
@@ -911,7 +911,7 @@ Standard_Integer Adaptor3d_TopolTool::NbSamplesV()
   return (myNbSamplesV);
 }
 
-Standard_Integer Adaptor3d_TopolTool::NbSamples()
+Standard_Integer GeomAdaptor_TopolTool::NbSamples()
 {
   if (myNbSamplesU < 0)
   {
@@ -920,17 +920,17 @@ Standard_Integer Adaptor3d_TopolTool::NbSamples()
   return (myNbSamplesU * myNbSamplesV);
 }
 
-void Adaptor3d_TopolTool::UParameters(TColStd_Array1OfReal& theArray) const
+void GeomAdaptor_TopolTool::UParameters(TColStd_Array1OfReal& theArray) const
 {
   theArray = myUPars->Array1();
 }
 
-void Adaptor3d_TopolTool::VParameters(TColStd_Array1OfReal& theArray) const
+void GeomAdaptor_TopolTool::VParameters(TColStd_Array1OfReal& theArray) const
 {
   theArray = myVPars->Array1();
 }
 
-void Adaptor3d_TopolTool::SamplePoint(const Standard_Integer i, gp_Pnt2d& P2d, gp_Pnt& P3d)
+void GeomAdaptor_TopolTool::SamplePoint(const Standard_Integer i, gp_Pnt2d& P2d, gp_Pnt& P3d)
 {
   Standard_Integer iu, iv;
   Standard_Real    u, v;
@@ -955,7 +955,7 @@ void Adaptor3d_TopolTool::SamplePoint(const Standard_Integer i, gp_Pnt2d& P2d, g
   P3d = myS->Value(u, v);
 }
 
-Standard_Boolean Adaptor3d_TopolTool::DomainIsInfinite()
+Standard_Boolean GeomAdaptor_TopolTool::DomainIsInfinite()
 {
   if (Precision::IsNegativeInfinite(Uinf))
     return (Standard_True);
@@ -970,42 +970,42 @@ Standard_Boolean Adaptor3d_TopolTool::DomainIsInfinite()
 
 //=================================================================================================
 
-Standard_Address Adaptor3d_TopolTool::Edge() const
+Standard_Address GeomAdaptor_TopolTool::Edge() const
 {
   return NULL;
 }
 
 //=================================================================================================
 
-Standard_Boolean Adaptor3d_TopolTool::Has3d() const
+Standard_Boolean GeomAdaptor_TopolTool::Has3d() const
 {
   return Standard_False;
 }
 
 //=================================================================================================
 
-Standard_Real Adaptor3d_TopolTool::Tol3d(const Handle(Adaptor2d_Curve2d)&) const
+Standard_Real GeomAdaptor_TopolTool::Tol3d(const Handle(Geom2dAdaptor_Curve)&) const
 {
-  throw Standard_DomainError("Adaptor3d_TopolTool: has no 3d representation");
+  throw Standard_DomainError("GeomAdaptor_TopolTool: has no 3d representation");
 }
 
 //=================================================================================================
 
-Standard_Real Adaptor3d_TopolTool::Tol3d(const Handle(Adaptor3d_HVertex)&) const
+Standard_Real GeomAdaptor_TopolTool::Tol3d(const Handle(GeomAdaptor_HVertex)&) const
 {
-  throw Standard_DomainError("Adaptor3d_TopolTool: has no 3d representation");
+  throw Standard_DomainError("GeomAdaptor_TopolTool: has no 3d representation");
 }
 
 //=================================================================================================
 
-gp_Pnt Adaptor3d_TopolTool::Pnt(const Handle(Adaptor3d_HVertex)&) const
+gp_Pnt GeomAdaptor_TopolTool::Pnt(const Handle(GeomAdaptor_HVertex)&) const
 {
-  throw Standard_DomainError("Adaptor3d_TopolTool: has no 3d representation");
+  throw Standard_DomainError("GeomAdaptor_TopolTool: has no 3d representation");
 }
 
 //=================================================================================================
 
-void Adaptor3d_TopolTool::SamplePnts(const Standard_Real    theDefl,
+void GeomAdaptor_TopolTool::SamplePnts(const Standard_Real    theDefl,
                                      const Standard_Integer theNUmin,
                                      const Standard_Integer theNVmin)
 {
@@ -1124,7 +1124,7 @@ void Adaptor3d_TopolTool::SamplePnts(const Standard_Real    theDefl,
 
 //=================================================================================================
 
-void Adaptor3d_TopolTool::BSplSamplePnts(const Standard_Real    theDefl,
+void GeomAdaptor_TopolTool::BSplSamplePnts(const Standard_Real    theDefl,
                                          const Standard_Integer theNUmin,
                                          const Standard_Integer theNVmin)
 {
@@ -1599,7 +1599,7 @@ void Adaptor3d_TopolTool::BSplSamplePnts(const Standard_Real    theDefl,
 
 //=================================================================================================
 
-Standard_Boolean Adaptor3d_TopolTool::IsUniformSampling() const
+Standard_Boolean GeomAdaptor_TopolTool::IsUniformSampling() const
 {
   GeomAbs_SurfaceType typS = myS->GetType();
 
@@ -1612,7 +1612,7 @@ Standard_Boolean Adaptor3d_TopolTool::IsUniformSampling() const
 // function : GetConeApexParam
 // purpose  : Computes the cone's apex parameters
 //=======================================================================
-void Adaptor3d_TopolTool::GetConeApexParam(const gp_Cone& theC,
+void GeomAdaptor_TopolTool::GetConeApexParam(const gp_Cone& theC,
                                            Standard_Real& theU,
                                            Standard_Real& theV)
 {

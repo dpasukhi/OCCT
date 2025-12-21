@@ -17,14 +17,14 @@
 #ifndef _GeomAdaptor_HeaderFile
 #define _GeomAdaptor_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
 
 class Geom_Curve;
-class Adaptor3d_Curve;
 class Geom_Surface;
-class Adaptor3d_Surface;
 
 //! this package contains the geometric definition of
 //! curve and surface necessary to use algorithms.
@@ -37,13 +37,13 @@ public:
   //! handled by reference.
   //! Build a Geom_Curve using the information from the
   //! Curve from Adaptor3d
-  Standard_EXPORT static Handle(Geom_Curve) MakeCurve(const Adaptor3d_Curve& C);
+  Standard_EXPORT static Handle(Geom_Curve) MakeCurve(const GeomAdaptor_Curve& C);
 
   //! Build a Geom_Surface using the information from the Surface from Adaptor3d
   //! @param theS - Surface adaptor to convert.
   //! @param theTrimFlag - True if perform trim surface values by adaptor and false otherwise.
   Standard_EXPORT static Handle(Geom_Surface) MakeSurface(
-    const Adaptor3d_Surface& theS,
+    const GeomAdaptor_Surface& theS,
     const Standard_Boolean   theTrimFlag = Standard_True);
 };
 

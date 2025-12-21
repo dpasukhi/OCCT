@@ -5,7 +5,6 @@ set(OCCT_TKG3d_LIST_OF_PACKAGES
   GeomAdaptor
   AdvApprox
   GeomLProp
-  Adaptor3d
   LProp3d
   TopAbs
   GProp

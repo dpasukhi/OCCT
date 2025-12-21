@@ -14,10 +14,10 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _Adaptor2d_OffsetCurve_HeaderFile
-#define _Adaptor2d_OffsetCurve_HeaderFile
+#ifndef _Geom2dAdaptor_OffsetCurve_HeaderFile
+#define _Geom2dAdaptor_OffsetCurve_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAbs_CurveType.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_Integer.hxx>
@@ -34,33 +34,33 @@ class Geom2d_BezierCurve;
 class Geom2d_BSplineCurve;
 
 //! Defines an Offset curve (algorithmic 2d curve).
-class Adaptor2d_OffsetCurve : public Adaptor2d_Curve2d
+class Geom2dAdaptor_OffsetCurve : public Geom2dAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(Adaptor2d_OffsetCurve, Adaptor2d_Curve2d)
+  DEFINE_STANDARD_RTTIEXT(Geom2dAdaptor_OffsetCurve, Geom2dAdaptor_Curve)
 public:
   //! The Offset is set to 0.
-  Standard_EXPORT Adaptor2d_OffsetCurve();
+  Standard_EXPORT Geom2dAdaptor_OffsetCurve();
 
   //! The curve is loaded. The Offset is set to 0.
-  Standard_EXPORT Adaptor2d_OffsetCurve(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT Geom2dAdaptor_OffsetCurve(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Creates an OffsetCurve curve.
   //! The Offset is set to Offset.
-  Standard_EXPORT Adaptor2d_OffsetCurve(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT Geom2dAdaptor_OffsetCurve(const Handle(Geom2dAdaptor_Curve)& C,
                                         const Standard_Real              Offset);
 
   //! Create an Offset curve.
   //! WFirst,WLast define the bounds of the Offset curve.
-  Standard_EXPORT Adaptor2d_OffsetCurve(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT Geom2dAdaptor_OffsetCurve(const Handle(Geom2dAdaptor_Curve)& C,
                                         const Standard_Real              Offset,
                                         const Standard_Real              WFirst,
                                         const Standard_Real              WLast);
 
   //! Shallow copy of adaptor.
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   //! Changes the curve. The Offset is reset to 0.
-  Standard_EXPORT void Load(const Handle(Adaptor2d_Curve2d)& S);
+  Standard_EXPORT void Load(const Handle(Geom2dAdaptor_Curve)& S);
 
   //! Changes the Offset on the current Curve.
   Standard_EXPORT void Load(const Standard_Real Offset);
@@ -70,7 +70,7 @@ public:
                             const Standard_Real WFirst,
                             const Standard_Real WLast);
 
-  const Handle(Adaptor2d_Curve2d)& Curve() const { return myCurve; }
+  const Handle(Geom2dAdaptor_Curve)& Curve() const { return myCurve; }
 
   Standard_Real Offset() const { return myOffset; }
 
@@ -97,7 +97,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(Geom2dAdaptor_Curve) Trim(const Standard_Real First,
                                                  const Standard_Real Last,
                                                  const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -180,12 +180,12 @@ public:
   Standard_EXPORT Standard_Integer NbSamples() const Standard_OVERRIDE;
 
 private:
-  Handle(Adaptor2d_Curve2d) myCurve;
+  Handle(Geom2dAdaptor_Curve) myCurve;
   Standard_Real             myOffset;
   Standard_Real             myFirst;
   Standard_Real             myLast;
 };
 
-DEFINE_STANDARD_HANDLE(Adaptor2d_OffsetCurve, Adaptor2d_Curve2d)
+DEFINE_STANDARD_HANDLE(Geom2dAdaptor_OffsetCurve, Geom2dAdaptor_Curve)
 
-#endif // _Adaptor2d_OffsetCurve_HeaderFile
+#endif // _Geom2dAdaptor_OffsetCurve_HeaderFile

@@ -14,14 +14,14 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_InterFunc.hxx>
+#include <GeomAdaptor_InterFunc.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <gp_Vec2d.hxx>
 #include <Standard_ConstructionError.hxx>
 
-Adaptor3d_InterFunc::Adaptor3d_InterFunc(const Handle(Adaptor2d_Curve2d)& C,
+GeomAdaptor_InterFunc::GeomAdaptor_InterFunc(const Handle(Geom2dAdaptor_Curve)& C,
                                          const Standard_Real              FixVal,
                                          const Standard_Integer           Fix)
     : myCurve2d(C),
@@ -32,7 +32,7 @@ Adaptor3d_InterFunc::Adaptor3d_InterFunc(const Handle(Adaptor2d_Curve2d)& C,
     throw Standard_ConstructionError();
 }
 
-Standard_Boolean Adaptor3d_InterFunc::Value(const Standard_Real X, Standard_Real& F)
+Standard_Boolean GeomAdaptor_InterFunc::Value(const Standard_Real X, Standard_Real& F)
 {
   gp_Pnt2d C;
   myCurve2d->D0(X, C);
@@ -44,13 +44,13 @@ Standard_Boolean Adaptor3d_InterFunc::Value(const Standard_Real X, Standard_Real
   return Standard_True;
 }
 
-Standard_Boolean Adaptor3d_InterFunc::Derivative(const Standard_Real X, Standard_Real& D)
+Standard_Boolean GeomAdaptor_InterFunc::Derivative(const Standard_Real X, Standard_Real& D)
 {
   Standard_Real F;
   return Values(X, F, D);
 }
 
-Standard_Boolean Adaptor3d_InterFunc::Values(const Standard_Real X,
+Standard_Boolean GeomAdaptor_InterFunc::Values(const Standard_Real X,
                                              Standard_Real&      F,
                                              Standard_Real&      D)
 {

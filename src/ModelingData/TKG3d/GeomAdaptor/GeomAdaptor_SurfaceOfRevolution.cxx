@@ -16,9 +16,12 @@
 
 #include <GeomAdaptor_SurfaceOfRevolution.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <Standard_NoSuchObject.hxx>
+#include <Standard_NotImplemented.hxx>
+
+#include <cmath>
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_SurfaceOfRevolution, GeomAdaptor_Surface)
 
@@ -31,7 +34,7 @@ GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution()
 
 //=================================================================================================
 
-GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(Adaptor3d_Curve)& C)
+GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(GeomAdaptor_Curve)& C)
     : myHaveAxis(Standard_False)
 {
   Load(C);
@@ -39,7 +42,7 @@ GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(Ad
 
 //=================================================================================================
 
-GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(Adaptor3d_Curve)& C,
+GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(GeomAdaptor_Curve)& C,
                                                                  const gp_Ax1&                  V)
     : myHaveAxis(Standard_False)
 {
@@ -49,7 +52,7 @@ GeomAdaptor_SurfaceOfRevolution::GeomAdaptor_SurfaceOfRevolution(const Handle(Ad
 
 //=================================================================================================
 
-Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::ShallowCopy() const
+Handle(GeomAdaptor_Surface) GeomAdaptor_SurfaceOfRevolution::ShallowCopy() const
 {
   Handle(GeomAdaptor_SurfaceOfRevolution) aCopy = new GeomAdaptor_SurfaceOfRevolution();
 
@@ -61,30 +64,15 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::ShallowCopy() const
   aCopy->myHaveAxis = myHaveAxis;
   aCopy->myAxeRev   = myAxeRev;
 
-  aCopy->mySurface     = mySurface;
-  aCopy->myUFirst      = myUFirst;
-  aCopy->myULast       = myULast;
-  aCopy->myVFirst      = myVFirst;
-  aCopy->myVLast       = myVLast;
-  aCopy->myTolU        = myTolU;
-  aCopy->myTolV        = myTolV;
-  aCopy->mySurfaceType = mySurfaceType;
-
-  // Copy surface data variant
-  if (auto* aRevData = std::get_if<GeomAdaptor_Surface::RevolutionData>(&mySurfaceData))
-  {
-    GeomAdaptor_Surface::RevolutionData aNewData;
-    aNewData.BasisCurve  = aRevData->BasisCurve->ShallowCopy();
-    aNewData.Axis        = aRevData->Axis;
-    aCopy->mySurfaceData = aNewData;
-  }
+  // Copy core (which handles surface data internally)
+  aCopy->Core() = Core();
 
   return aCopy;
 }
 
 //=================================================================================================
 
-void GeomAdaptor_SurfaceOfRevolution::Load(const Handle(Adaptor3d_Curve)& C)
+void GeomAdaptor_SurfaceOfRevolution::Load(const Handle(GeomAdaptor_Curve)& C)
 {
   myBasisCurve = C;
   if (myHaveAxis)
@@ -97,14 +85,6 @@ void GeomAdaptor_SurfaceOfRevolution::Load(const gp_Ax1& V)
 {
   myHaveAxis = Standard_True;
   myAxis     = V;
-
-  mySurfaceType = GeomAbs_SurfaceOfRevolution;
-
-  // Populate revolution surface data for fast evaluation
-  GeomAdaptor_Surface::RevolutionData aRevData;
-  aRevData.BasisCurve = myBasisCurve;
-  aRevData.Axis       = myAxis;
-  mySurfaceData       = aRevData;
 
   // Eval myAxeRev : axe of revolution ( Determination de Ox).
   gp_Pnt           P, Q;
@@ -165,7 +145,7 @@ void GeomAdaptor_SurfaceOfRevolution::Load(const gp_Ax1& V)
     if (Ratio >= 100)
     {
       throw Standard_ConstructionError(
-        "Adaptor3d_SurfaceOfRevolution : Axe and meridian are confused");
+        "GeomAdaptor_SurfaceOfRevolution : Axe and meridian are confused");
     }
     Ox = ((Oz ^ gp_Vec(PP.XYZ() - O.XYZ())) ^ Oz);
   }
@@ -265,7 +245,7 @@ void GeomAdaptor_SurfaceOfRevolution::VIntervals(TColStd_Array1OfReal& T,
 
 //=================================================================================================
 
-Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::UTrim(const Standard_Real First,
+Handle(GeomAdaptor_Surface) GeomAdaptor_SurfaceOfRevolution::UTrim(const Standard_Real First,
                                                                  const Standard_Real Last,
                                                                  const Standard_Real Tol) const
 {
@@ -284,11 +264,11 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::UTrim(const Standard_
 
 //=================================================================================================
 
-Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfRevolution::VTrim(const Standard_Real First,
+Handle(GeomAdaptor_Surface) GeomAdaptor_SurfaceOfRevolution::VTrim(const Standard_Real First,
                                                                  const Standard_Real Last,
                                                                  const Standard_Real Tol) const
 {
-  Handle(Adaptor3d_Curve)                 HC = BasisCurve()->Trim(First, Last, Tol);
+  Handle(GeomAdaptor_Curve)                 HC = BasisCurve()->Trim(First, Last, Tol);
   Handle(GeomAdaptor_SurfaceOfRevolution) HR =
     new GeomAdaptor_SurfaceOfRevolution(GeomAdaptor_SurfaceOfRevolution(HC, myAxis));
   return HR;
@@ -582,7 +562,265 @@ const gp_Ax3& GeomAdaptor_SurfaceOfRevolution::Axis() const
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) GeomAdaptor_SurfaceOfRevolution::BasisCurve() const
+Handle(GeomAdaptor_Curve) GeomAdaptor_SurfaceOfRevolution::BasisCurve() const
 {
   return myBasisCurve;
+}
+
+//=================================================================================================
+
+gp_Pnt GeomAdaptor_SurfaceOfRevolution::Value(const Standard_Real U, const Standard_Real V) const
+{
+  gp_Pnt aP;
+  D0(U, V, aP);
+  return aP;
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfRevolution::D0(const Standard_Real U,
+                                         const Standard_Real V,
+                                         gp_Pnt&             P) const
+{
+  // Get point on curve
+  gp_Pnt aPOnCurve = myBasisCurve->Value(V);
+
+  // Rotate around axis
+  const gp_XYZ& aO  = myAxeRev.Location().XYZ();
+  const gp_XYZ& aX  = myAxeRev.XDirection().XYZ();
+  const gp_XYZ& aY  = myAxeRev.YDirection().XYZ();
+  const gp_XYZ& aZ  = myAxeRev.Direction().XYZ();
+  gp_XYZ        aV  = aPOnCurve.XYZ() - aO;
+  double        aXr = aV.Dot(aX);
+  double        aYr = aV.Dot(aY);
+  double        aZr = aV.Dot(aZ);
+  double        aCos = std::cos(U);
+  double        aSin = std::sin(U);
+  double        aXn  = aXr * aCos - aYr * aSin;
+  double        aYn  = aXr * aSin + aYr * aCos;
+  P.SetXYZ(aO + aXn * aX + aYn * aY + aZr * aZ);
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfRevolution::D1(const Standard_Real U,
+                                         const Standard_Real V,
+                                         gp_Pnt&             P,
+                                         gp_Vec&             D1U,
+                                         gp_Vec&             D1V) const
+{
+  // Get point and first derivative on curve
+  gp_Pnt aPOnCurve;
+  gp_Vec aD1Curve;
+  myBasisCurve->D1(V, aPOnCurve, aD1Curve);
+
+  const gp_XYZ& aO  = myAxeRev.Location().XYZ();
+  const gp_XYZ& aX  = myAxeRev.XDirection().XYZ();
+  const gp_XYZ& aY  = myAxeRev.YDirection().XYZ();
+  const gp_XYZ& aZ  = myAxeRev.Direction().XYZ();
+  gp_XYZ        aRel = aPOnCurve.XYZ() - aO;
+  double        aXr = aRel.Dot(aX);
+  double        aYr = aRel.Dot(aY);
+  double        aZr = aRel.Dot(aZ);
+  double        aCos = std::cos(U);
+  double        aSin = std::sin(U);
+  double        aXn  = aXr * aCos - aYr * aSin;
+  double        aYn  = aXr * aSin + aYr * aCos;
+  P.SetXYZ(aO + aXn * aX + aYn * aY + aZr * aZ);
+
+  // D1U = dS/du: derivative of rotation
+  // dXn/du = -Xr*sin - Yr*cos, dYn/du = Xr*cos - Yr*sin
+  double aD1UX = -aXr * aSin - aYr * aCos;
+  double aD1UY = aXr * aCos - aYr * aSin;
+  D1U.SetXYZ(aD1UX * aX + aD1UY * aY);
+
+  // D1V = dS/dv: derivative through curve
+  double aDXr = aD1Curve.XYZ().Dot(aX);
+  double aDYr = aD1Curve.XYZ().Dot(aY);
+  double aDZr = aD1Curve.XYZ().Dot(aZ);
+  double aD1VX = aDXr * aCos - aDYr * aSin;
+  double aD1VY = aDXr * aSin + aDYr * aCos;
+  D1V.SetXYZ(aD1VX * aX + aD1VY * aY + aDZr * aZ);
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfRevolution::D2(const Standard_Real U,
+                                         const Standard_Real V,
+                                         gp_Pnt&             P,
+                                         gp_Vec&             D1U,
+                                         gp_Vec&             D1V,
+                                         gp_Vec&             D2U,
+                                         gp_Vec&             D2V,
+                                         gp_Vec&             D2UV) const
+{
+  // Get point and first two derivatives on curve
+  gp_Pnt aPOnCurve;
+  gp_Vec aD1Curve, aD2Curve;
+  myBasisCurve->D2(V, aPOnCurve, aD1Curve, aD2Curve);
+
+  const gp_XYZ& aO  = myAxeRev.Location().XYZ();
+  const gp_XYZ& aX  = myAxeRev.XDirection().XYZ();
+  const gp_XYZ& aY  = myAxeRev.YDirection().XYZ();
+  const gp_XYZ& aZ  = myAxeRev.Direction().XYZ();
+  gp_XYZ        aRel = aPOnCurve.XYZ() - aO;
+  double        aXr = aRel.Dot(aX);
+  double        aYr = aRel.Dot(aY);
+  double        aZr = aRel.Dot(aZ);
+  double        aCos = std::cos(U);
+  double        aSin = std::sin(U);
+  double        aXn  = aXr * aCos - aYr * aSin;
+  double        aYn  = aXr * aSin + aYr * aCos;
+  P.SetXYZ(aO + aXn * aX + aYn * aY + aZr * aZ);
+
+  // D1U
+  double aD1UX = -aXr * aSin - aYr * aCos;
+  double aD1UY = aXr * aCos - aYr * aSin;
+  D1U.SetXYZ(aD1UX * aX + aD1UY * aY);
+
+  // D1V
+  double aDXr = aD1Curve.XYZ().Dot(aX);
+  double aDYr = aD1Curve.XYZ().Dot(aY);
+  double aDZr = aD1Curve.XYZ().Dot(aZ);
+  double aD1VX = aDXr * aCos - aDYr * aSin;
+  double aD1VY = aDXr * aSin + aDYr * aCos;
+  D1V.SetXYZ(aD1VX * aX + aD1VY * aY + aDZr * aZ);
+
+  // D2U = d2S/du2 = -Xn*X - Yn*Y = -aXn*X - aYn*Y
+  D2U.SetXYZ(-aXn * aX - aYn * aY);
+
+  // D2V = d2S/dv2: second derivative through curve
+  double aD2Xr = aD2Curve.XYZ().Dot(aX);
+  double aD2Yr = aD2Curve.XYZ().Dot(aY);
+  double aD2Zr = aD2Curve.XYZ().Dot(aZ);
+  double aD2VX = aD2Xr * aCos - aD2Yr * aSin;
+  double aD2VY = aD2Xr * aSin + aD2Yr * aCos;
+  D2V.SetXYZ(aD2VX * aX + aD2VY * aY + aD2Zr * aZ);
+
+  // D2UV = d2S/dudv
+  double aD2UVX = -aDXr * aSin - aDYr * aCos;
+  double aD2UVY = aDXr * aCos - aDYr * aSin;
+  D2UV.SetXYZ(aD2UVX * aX + aD2UVY * aY);
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfRevolution::D3(const Standard_Real U,
+                                         const Standard_Real V,
+                                         gp_Pnt&             P,
+                                         gp_Vec&             D1U,
+                                         gp_Vec&             D1V,
+                                         gp_Vec&             D2U,
+                                         gp_Vec&             D2V,
+                                         gp_Vec&             D2UV,
+                                         gp_Vec&             D3U,
+                                         gp_Vec&             D3V,
+                                         gp_Vec&             D3UUV,
+                                         gp_Vec&             D3UVV) const
+{
+  // Get point and first three derivatives on curve
+  gp_Pnt aPOnCurve;
+  gp_Vec aD1Curve, aD2Curve, aD3Curve;
+  myBasisCurve->D3(V, aPOnCurve, aD1Curve, aD2Curve, aD3Curve);
+
+  const gp_XYZ& aO  = myAxeRev.Location().XYZ();
+  const gp_XYZ& aX  = myAxeRev.XDirection().XYZ();
+  const gp_XYZ& aY  = myAxeRev.YDirection().XYZ();
+  const gp_XYZ& aZ  = myAxeRev.Direction().XYZ();
+  gp_XYZ        aRel = aPOnCurve.XYZ() - aO;
+  double        aXr = aRel.Dot(aX);
+  double        aYr = aRel.Dot(aY);
+  double        aZr = aRel.Dot(aZ);
+  double        aCos = std::cos(U);
+  double        aSin = std::sin(U);
+  double        aXn  = aXr * aCos - aYr * aSin;
+  double        aYn  = aXr * aSin + aYr * aCos;
+  P.SetXYZ(aO + aXn * aX + aYn * aY + aZr * aZ);
+
+  // D1U
+  double aD1UX = -aXr * aSin - aYr * aCos;
+  double aD1UY = aXr * aCos - aYr * aSin;
+  D1U.SetXYZ(aD1UX * aX + aD1UY * aY);
+
+  // D1V
+  double aDXr = aD1Curve.XYZ().Dot(aX);
+  double aDYr = aD1Curve.XYZ().Dot(aY);
+  double aDZr = aD1Curve.XYZ().Dot(aZ);
+  double aD1VX = aDXr * aCos - aDYr * aSin;
+  double aD1VY = aDXr * aSin + aDYr * aCos;
+  D1V.SetXYZ(aD1VX * aX + aD1VY * aY + aDZr * aZ);
+
+  // D2U
+  D2U.SetXYZ(-aXn * aX - aYn * aY);
+
+  // D2V
+  double aD2Xr = aD2Curve.XYZ().Dot(aX);
+  double aD2Yr = aD2Curve.XYZ().Dot(aY);
+  double aD2Zr = aD2Curve.XYZ().Dot(aZ);
+  double aD2VX = aD2Xr * aCos - aD2Yr * aSin;
+  double aD2VY = aD2Xr * aSin + aD2Yr * aCos;
+  D2V.SetXYZ(aD2VX * aX + aD2VY * aY + aD2Zr * aZ);
+
+  // D2UV
+  double aD2UVX = -aDXr * aSin - aDYr * aCos;
+  double aD2UVY = aDXr * aCos - aDYr * aSin;
+  D2UV.SetXYZ(aD2UVX * aX + aD2UVY * aY);
+
+  // D3U = d3S/du3 = -D1U
+  D3U.SetXYZ(-aD1UX * aX - aD1UY * aY);
+
+  // D3V
+  double aD3Xr = aD3Curve.XYZ().Dot(aX);
+  double aD3Yr = aD3Curve.XYZ().Dot(aY);
+  double aD3Zr = aD3Curve.XYZ().Dot(aZ);
+  double aD3VX = aD3Xr * aCos - aD3Yr * aSin;
+  double aD3VY = aD3Xr * aSin + aD3Yr * aCos;
+  D3V.SetXYZ(aD3VX * aX + aD3VY * aY + aD3Zr * aZ);
+
+  // D3UUV = d3S/du2dv = -D1V (XY part only)
+  D3UUV.SetXYZ(-aD1VX * aX - aD1VY * aY);
+
+  // D3UVV = d3S/dudv2
+  double aD3UVVX = -aD2Xr * aSin - aD2Yr * aCos;
+  double aD3UVVY = aD2Xr * aCos - aD2Yr * aSin;
+  D3UVV.SetXYZ(aD3UVVX * aX + aD3UVVY * aY);
+}
+
+//=================================================================================================
+
+gp_Vec GeomAdaptor_SurfaceOfRevolution::DN(const Standard_Real    U,
+                                           const Standard_Real    V,
+                                           const Standard_Integer Nu,
+                                           const Standard_Integer Nv) const
+{
+  // General DN is complex for revolution surfaces.
+  // For now, handle common cases and use finite differences for others.
+  if (Nu + Nv <= 3)
+  {
+    gp_Pnt aP;
+    gp_Vec aD1U, aD1V, aD2U, aD2V, aD2UV, aD3U, aD3V, aD3UUV, aD3UVV;
+    if (Nu + Nv == 1)
+    {
+      D1(U, V, aP, aD1U, aD1V);
+      return (Nu == 1) ? aD1U : aD1V;
+    }
+    else if (Nu + Nv == 2)
+    {
+      D2(U, V, aP, aD1U, aD1V, aD2U, aD2V, aD2UV);
+      if (Nu == 2) return aD2U;
+      if (Nv == 2) return aD2V;
+      return aD2UV;
+    }
+    else // Nu + Nv == 3
+    {
+      D3(U, V, aP, aD1U, aD1V, aD2U, aD2V, aD2UV, aD3U, aD3V, aD3UUV, aD3UVV);
+      if (Nu == 3) return aD3U;
+      if (Nv == 3) return aD3V;
+      if (Nu == 2) return aD3UUV;
+      return aD3UVV;
+    }
+  }
+
+  // For higher orders, throw (or could implement using finite differences)
+  throw Standard_NotImplemented("GeomAdaptor_SurfaceOfRevolution::DN for high orders");
 }

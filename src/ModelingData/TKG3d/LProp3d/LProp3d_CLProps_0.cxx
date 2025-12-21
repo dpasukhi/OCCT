@@ -15,7 +15,7 @@
 
 #include <LProp3d_CLProps.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <LProp_BadContinuity.hxx>
 #include <Standard_DomainError.hxx>
 #include <Standard_OutOfRange.hxx>
@@ -25,8 +25,8 @@
 #include <gp_Dir.hxx>
 #include <LProp3d_CurveTool.hxx>
 
-#define Curve Handle(Adaptor3d_Curve)
-#define Curve_hxx <Adaptor3d_Curve.hxx>
+#define Curve Handle(GeomAdaptor_Curve)
+#define Curve_hxx <GeomAdaptor_Curve.hxx>
 #define Vec gp_Vec
 #define Vec_hxx <gp_Vec.hxx>
 #define Pnt gp_Pnt

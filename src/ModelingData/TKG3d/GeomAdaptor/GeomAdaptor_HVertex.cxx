@@ -11,22 +11,22 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor3d_HVertex.hxx>
+#include <GeomAdaptor_HVertex.hxx>
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <ElCLib.hxx>
 #include <gp_Pnt2d.hxx>
 #include <Precision.hxx>
 #include <Standard_Type.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(Adaptor3d_HVertex, Standard_Transient)
+IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_HVertex, Standard_Transient)
 
-Adaptor3d_HVertex::Adaptor3d_HVertex()
+GeomAdaptor_HVertex::GeomAdaptor_HVertex()
     : myTol(0.0)
 {
 }
 
-Adaptor3d_HVertex::Adaptor3d_HVertex(const gp_Pnt2d&          P,
+GeomAdaptor_HVertex::GeomAdaptor_HVertex(const gp_Pnt2d&          P,
                                      const TopAbs_Orientation Or,
                                      const Standard_Real      Resolution)
     : myPnt(P),
@@ -35,27 +35,27 @@ Adaptor3d_HVertex::Adaptor3d_HVertex(const gp_Pnt2d&          P,
 {
 }
 
-gp_Pnt2d Adaptor3d_HVertex::Value()
+gp_Pnt2d GeomAdaptor_HVertex::Value()
 {
   return myPnt;
 }
 
-Standard_Real Adaptor3d_HVertex::Parameter(const Handle(Adaptor2d_Curve2d)& C)
+Standard_Real GeomAdaptor_HVertex::Parameter(const Handle(Geom2dAdaptor_Curve)& C)
 {
   return ElCLib::Parameter(C->Line(), myPnt);
 }
 
-Standard_Real Adaptor3d_HVertex::Resolution(const Handle(Adaptor2d_Curve2d)&)
+Standard_Real GeomAdaptor_HVertex::Resolution(const Handle(Geom2dAdaptor_Curve)&)
 {
   return myTol;
 }
 
-TopAbs_Orientation Adaptor3d_HVertex::Orientation()
+TopAbs_Orientation GeomAdaptor_HVertex::Orientation()
 {
   return myOri;
 }
 
-Standard_Boolean Adaptor3d_HVertex::IsSame(const Handle(Adaptor3d_HVertex)& Other)
+Standard_Boolean GeomAdaptor_HVertex::IsSame(const Handle(GeomAdaptor_HVertex)& Other)
 {
   return (myPnt.Distance(Other->Value()) <= Precision::Confusion());
 }

@@ -14,44 +14,44 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _Adaptor3d_TopolTool_HeaderFile
-#define _Adaptor3d_TopolTool_HeaderFile
+#ifndef _GeomAdaptor_TopolTool_HeaderFile
+#define _GeomAdaptor_TopolTool_HeaderFile
 
-#include <Adaptor2d_Line2d.hxx>
-#include <Adaptor3d_HVertex.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <Geom2dAdaptor_Line2d.hxx>
+#include <GeomAdaptor_HVertex.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <TColStd_HArray1OfReal.hxx>
 #include <TopAbs_State.hxx>
 #include <TopAbs_Orientation.hxx>
 
-class Adaptor3d_HVertex;
+class GeomAdaptor_HVertex;
 
-DEFINE_STANDARD_HANDLE(Adaptor3d_TopolTool, Standard_Transient)
+DEFINE_STANDARD_HANDLE(GeomAdaptor_TopolTool, Standard_Transient)
 
 //! This class provides a default topological tool,
 //! based on the Umin,Vmin,Umax,Vmax of an HSurface from Adaptor3d.
 //! All methods and fields may be redefined when inheriting from this class.
 //! This class is used to instantiate algorithms as Intersection, outlines,...
-class Adaptor3d_TopolTool : public Standard_Transient
+class GeomAdaptor_TopolTool : public Standard_Transient
 {
 
 public:
-  Standard_EXPORT Adaptor3d_TopolTool();
+  Standard_EXPORT GeomAdaptor_TopolTool();
 
-  Standard_EXPORT Adaptor3d_TopolTool(const Handle(Adaptor3d_Surface)& Surface);
+  Standard_EXPORT GeomAdaptor_TopolTool(const Handle(GeomAdaptor_Surface)& Surface);
 
   Standard_EXPORT virtual void Initialize();
 
-  Standard_EXPORT virtual void Initialize(const Handle(Adaptor3d_Surface)& S);
+  Standard_EXPORT virtual void Initialize(const Handle(GeomAdaptor_Surface)& S);
 
-  Standard_EXPORT virtual void Initialize(const Handle(Adaptor2d_Curve2d)& Curve);
+  Standard_EXPORT virtual void Initialize(const Handle(Geom2dAdaptor_Curve)& Curve);
 
   Standard_EXPORT virtual void Init();
 
   Standard_EXPORT virtual Standard_Boolean More();
 
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) Value();
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) Value();
 
   Standard_EXPORT virtual void Next();
 
@@ -59,7 +59,7 @@ public:
 
   Standard_EXPORT virtual Standard_Boolean MoreVertex();
 
-  Standard_EXPORT virtual Handle(Adaptor3d_HVertex) Vertex();
+  Standard_EXPORT virtual Handle(GeomAdaptor_HVertex) Vertex();
 
   Standard_EXPORT virtual void NextVertex();
 
@@ -78,32 +78,32 @@ public:
   //! a "real" limit of the surface.
   //! If the orientation is INTERNAL or EXTERNAL, the arc is
   //! considered as an arc on the surface.
-  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Returns the orientation of the vertex V.
   //! The vertex has been found with an exploration on
   //! a given arc. The orientation is the orientation
   //! of the vertex on this arc.
-  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(Adaptor3d_HVertex)& V);
+  Standard_EXPORT virtual TopAbs_Orientation Orientation(const Handle(GeomAdaptor_HVertex)& V);
 
   //! Returns True if the vertices V1 and V2 are identical.
   //! This method does not take the orientation of the
   //! vertices in account.
-  Standard_EXPORT virtual Standard_Boolean Identical(const Handle(Adaptor3d_HVertex)& V1,
-                                                     const Handle(Adaptor3d_HVertex)& V2);
+  Standard_EXPORT virtual Standard_Boolean Identical(const Handle(GeomAdaptor_HVertex)& V1,
+                                                     const Handle(GeomAdaptor_HVertex)& V2);
 
   //! answers if arcs and vertices may have 3d representations,
   //! so that we could use Tol3d and Pnt methods.
   Standard_EXPORT virtual Standard_Boolean Has3d() const;
 
   //! returns 3d tolerance of the arc C
-  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Adaptor2d_Curve2d)& C) const;
+  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Geom2dAdaptor_Curve)& C) const;
 
   //! returns 3d tolerance of the vertex V
-  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(Adaptor3d_HVertex)& V) const;
+  Standard_EXPORT virtual Standard_Real Tol3d(const Handle(GeomAdaptor_HVertex)& V) const;
 
   //! returns 3d point of the vertex V
-  Standard_EXPORT virtual gp_Pnt Pnt(const Handle(Adaptor3d_HVertex)& V) const;
+  Standard_EXPORT virtual gp_Pnt Pnt(const Handle(GeomAdaptor_HVertex)& V) const;
 
   Standard_EXPORT virtual void ComputeSamplePoints();
 
@@ -162,10 +162,10 @@ public:
                                                Standard_Real& theU,
                                                Standard_Real& theV);
 
-  DEFINE_STANDARD_RTTIEXT(Adaptor3d_TopolTool, Standard_Transient)
+  DEFINE_STANDARD_RTTIEXT(GeomAdaptor_TopolTool, Standard_Transient)
 
 protected:
-  Handle(Adaptor3d_Surface)     myS;
+  Handle(GeomAdaptor_Surface)     myS;
   Standard_Integer              myNbSamplesU;
   Standard_Integer              myNbSamplesV;
   Handle(TColStd_HArray1OfReal) myUPars;
@@ -178,10 +178,10 @@ private:
   Standard_Real             Usup;
   Standard_Real             Vinf;
   Standard_Real             Vsup;
-  Handle(Adaptor2d_Line2d)  myRestr[4];
+  Handle(Geom2dAdaptor_Line2d)  myRestr[4];
   Standard_Integer          nbVtx;
   Standard_Integer          idVtx;
-  Handle(Adaptor3d_HVertex) myVtx[2];
+  Handle(GeomAdaptor_HVertex) myVtx[2];
 };
 
-#endif // _Adaptor3d_TopolTool_HeaderFile
+#endif // _GeomAdaptor_TopolTool_HeaderFile

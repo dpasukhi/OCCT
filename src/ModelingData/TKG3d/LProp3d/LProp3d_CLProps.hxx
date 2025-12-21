@@ -16,7 +16,7 @@
 #ifndef _LProp3d_CLProps_HeaderFile
 #define _LProp3d_CLProps_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Dir.hxx>
@@ -45,14 +45,14 @@ public:
   //! only the tangent, N should be equal to 1.
   //! <Resolution> is the linear tolerance (it is used to test
   //! if a vector is null).
-  Standard_EXPORT LProp3d_CLProps(const Handle(Adaptor3d_Curve)& C,
+  Standard_EXPORT LProp3d_CLProps(const Handle(GeomAdaptor_Curve)& C,
                                   const Standard_Integer         N,
                                   const Standard_Real            Resolution);
 
   //! Same as previous constructor but here the parameter is
   //! set to the value <U>.
   //! All the computations done will be related to <C> and <U>.
-  Standard_EXPORT LProp3d_CLProps(const Handle(Adaptor3d_Curve)& C,
+  Standard_EXPORT LProp3d_CLProps(const Handle(GeomAdaptor_Curve)& C,
                                   const Standard_Real            U,
                                   const Standard_Integer         N,
                                   const Standard_Real            Resolution);
@@ -71,7 +71,7 @@ public:
 
   //! Initializes the local properties of the curve
   //! for the new curve.
-  Standard_EXPORT void SetCurve(const Handle(Adaptor3d_Curve)& C);
+  Standard_EXPORT void SetCurve(const Handle(GeomAdaptor_Curve)& C);
 
   //! Returns the Point.
   Standard_EXPORT const gp_Pnt& Value() const;
@@ -107,7 +107,7 @@ public:
 
 protected:
 private:
-  Handle(Adaptor3d_Curve) myCurve;
+  Handle(GeomAdaptor_Curve) myCurve;
   Standard_Real           myU;
   Standard_Integer        myDerOrder;
   Standard_Real           myCN;

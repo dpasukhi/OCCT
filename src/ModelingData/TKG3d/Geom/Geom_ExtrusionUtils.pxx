@@ -23,7 +23,7 @@
 //!
 //! This file provides template functions for evaluating points and derivatives
 //! on linear extrusion surfaces. The functions are templated to work with both
-//! Geom_Curve (for Geom_SurfaceOfLinearExtrusion) and Adaptor3d_Curve
+//! Geom_Curve (for Geom_SurfaceOfLinearExtrusion) and GeomAdaptor_Curve
 //! (for GeomAdaptor_SurfaceOfLinearExtrusion).
 //!
 //! Extrusion surface: P(U,V) = C(U) + V * Direction

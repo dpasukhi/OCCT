@@ -16,8 +16,8 @@
 
 #include <GeomAdaptor.hxx>
 
-#include <Adaptor3d_Curve.hxx>
-#include <Adaptor3d_Surface.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomAbs_SurfaceType.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BezierSurface.hxx>
@@ -42,7 +42,7 @@
 
 //=================================================================================================
 
-Handle(Geom_Curve) GeomAdaptor::MakeCurve(const Adaptor3d_Curve& HC)
+Handle(Geom_Curve) GeomAdaptor::MakeCurve(const GeomAdaptor_Curve& HC)
 {
   Handle(Geom_Curve) C;
 
@@ -93,7 +93,7 @@ Handle(Geom_Curve) GeomAdaptor::MakeCurve(const Adaptor3d_Curve& HC)
 
 //=================================================================================================
 
-Handle(Geom_Surface) GeomAdaptor::MakeSurface(const Adaptor3d_Surface& HS,
+Handle(Geom_Surface) GeomAdaptor::MakeSurface(const GeomAdaptor_Surface& HS,
                                               const Standard_Boolean   theTrimFlag)
 {
   Handle(Geom_Surface) S;

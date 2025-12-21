@@ -14,26 +14,25 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _Adaptor3d_InterFunc_HeaderFile
-#define _Adaptor3d_InterFunc_HeaderFile
+#ifndef _GeomAdaptor_InterFunc_HeaderFile
+#define _GeomAdaptor_InterFunc_HeaderFile
 
+#include <Geom2dAdaptor_Curve.hxx>
 #include <math_FunctionWithDerivative.hxx>
-
-class Adaptor2d_Curve2d;
 
 //! Used to find the points U(t) = U0 or V(t) = V0 in
 //! order to determine the Cn discontinuities of an
 //! Adpator_CurveOnSurface relatively to the
 //! discontinuities of the surface. Used to
 //! find the roots of the functions
-class Adaptor3d_InterFunc : public math_FunctionWithDerivative
+class GeomAdaptor_InterFunc : public math_FunctionWithDerivative
 {
 public:
   DEFINE_STANDARD_ALLOC
 
   //! build the function U(t)=FixVal if Fix =1 or
   //! V(t)=FixVal if Fix=2
-  Standard_EXPORT Adaptor3d_InterFunc(const Handle(Adaptor2d_Curve2d)& C,
+  Standard_EXPORT GeomAdaptor_InterFunc(const Handle(Geom2dAdaptor_Curve)& C,
                                       const Standard_Real              FixVal,
                                       const Standard_Integer           Fix);
 
@@ -57,9 +56,9 @@ public:
                                           Standard_Real&      D);
 
 private:
-  Handle(Adaptor2d_Curve2d) myCurve2d;
+  Handle(Geom2dAdaptor_Curve) myCurve2d;
   Standard_Real             myFixVal;
   Standard_Integer          myFix;
 };
 
-#endif // _Adaptor3d_InterFunc_HeaderFile
+#endif // _GeomAdaptor_InterFunc_HeaderFile

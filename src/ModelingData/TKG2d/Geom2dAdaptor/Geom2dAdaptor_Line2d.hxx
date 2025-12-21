@@ -14,14 +14,14 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _Adaptor2d_Line2d_HeaderFile
-#define _Adaptor2d_Line2d_HeaderFile
+#ifndef _Geom2dAdaptor_Line2d_HeaderFile
+#define _Geom2dAdaptor_Line2d_HeaderFile
 
 #include <Standard.hxx>
 #include <Standard_DefineAlloc.hxx>
 
 #include <Standard_Real.hxx>
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <GeomAbs_Shape.hxx>
 #include <Standard_Integer.hxx>
 #include <TColStd_Array1OfReal.hxx>
@@ -40,19 +40,19 @@ class Geom2d_BSplineCurve;
 
 //! Use by the TopolTool to trim a surface.
 
-class Adaptor2d_Line2d : public Adaptor2d_Curve2d
+class Geom2dAdaptor_Line2d : public Geom2dAdaptor_Curve
 {
-  DEFINE_STANDARD_RTTIEXT(Adaptor2d_Line2d, Adaptor2d_Curve2d)
+  DEFINE_STANDARD_RTTIEXT(Geom2dAdaptor_Line2d, Geom2dAdaptor_Curve)
 public:
-  Standard_EXPORT Adaptor2d_Line2d();
+  Standard_EXPORT Geom2dAdaptor_Line2d();
 
-  Standard_EXPORT Adaptor2d_Line2d(const gp_Pnt2d&     P,
+  Standard_EXPORT Geom2dAdaptor_Line2d(const gp_Pnt2d&     P,
                                    const gp_Dir2d&     D,
                                    const Standard_Real UFirst,
                                    const Standard_Real ULast);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor2d_Curve2d) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Geom2dAdaptor_Curve) ShallowCopy() const Standard_OVERRIDE;
 
   Standard_EXPORT void Load(const gp_Lin2d& L);
 
@@ -83,7 +83,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor2d_Curve2d) Trim(const Standard_Real First,
+  Standard_EXPORT Handle(Geom2dAdaptor_Curve) Trim(const Standard_Real First,
                                                  const Standard_Real Last,
                                                  const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -145,6 +145,6 @@ private:
   gp_Ax2d       myAx2d;
 };
 
-DEFINE_STANDARD_HANDLE(Adaptor2d_Line2d, Adaptor2d_Curve2d)
+DEFINE_STANDARD_HANDLE(Geom2dAdaptor_Line2d, Geom2dAdaptor_Curve)
 
-#endif // _Adaptor2d_Line2d_HeaderFile
+#endif // _Geom2dAdaptor_Line2d_HeaderFile

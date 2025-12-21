@@ -17,268 +17,186 @@
 #ifndef _GeomAdaptor_Curve_HeaderFile
 #define _GeomAdaptor_Curve_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
-#include <BSplCLib_Cache.hxx>
-#include <Geom_Curve.hxx>
+#include <GeomAdaptor_CurveCore.hxx>
+#include <GeomAbs_CurveType.hxx>
 #include <GeomAbs_Shape.hxx>
-#include <gp_Dir.hxx>
-#include <Precision.hxx>
-#include <Standard_NullObject.hxx>
-#include <Standard_ConstructionError.hxx>
+#include <Standard_Transient.hxx>
+#include <TColStd_Array1OfReal.hxx>
 
-#include <variant>
-
+class Geom_BezierCurve;
 class Geom_BSplineCurve;
+class Geom_OffsetCurve;
+class gp_Circ;
+class gp_Elips;
+class gp_Hypr;
+class gp_Lin;
+class gp_Parab;
+class gp_Pnt;
+class gp_Vec;
 
-DEFINE_STANDARD_HANDLE(GeomAdaptor_Curve, Adaptor3d_Curve)
+DEFINE_STANDARD_HANDLE(GeomAdaptor_Curve, Standard_Transient)
 
 //! This class provides an interface between the services provided by any
 //! curve from the package Geom and those required of the curve by algorithms which use it.
 //! Creation of the loaded curve the curve is C1 by piece.
 //!
+//! This is the base class for 3D curve adaptors in OCCT. Derived classes include:
+//! - BRepAdaptor_Curve for curves from topological edges
+//! - GeomAdaptor_CurveOnSurface for curves lying on surfaces
+//! - GeomAdaptor_IsoCurve for iso-parametric curves on surfaces
+//!
+//! Internally delegates all evaluation to GeomAdaptor_CurveCore for efficient
+//! non-virtual dispatch. The Core class handles caching for BSpline/Bezier curves
+//! and supports optional coordinate transformation.
+//!
 //! Polynomial coefficients of BSpline curves used for their evaluation are
 //! cached for better performance. Therefore these evaluations are not
 //! thread-safe and parallel evaluations need to be prevented.
-class GeomAdaptor_Curve : public Adaptor3d_Curve
+class GeomAdaptor_Curve : public Standard_Transient
 {
-  DEFINE_STANDARD_RTTIEXT(GeomAdaptor_Curve, Adaptor3d_Curve)
+  DEFINE_STANDARD_RTTIEXT(GeomAdaptor_Curve, Standard_Transient)
 public:
-  //! Internal structure for offset curve evaluation data.
-  struct OffsetData
-  {
-    Handle(GeomAdaptor_Curve) BasisAdaptor; //!< Adaptor for basis curve
-    double                    Offset = 0.0; //!< Offset distance
-    gp_Dir                    Direction;    //!< Offset direction
-  };
 
-  //! Internal structure for Bezier curve cache data.
-  struct BezierData
-  {
-    mutable Handle(BSplCLib_Cache) Cache; //!< Cached data for evaluation
-  };
+  //! Default constructor.
+  GeomAdaptor_Curve() {}
 
-  //! Internal structure for BSpline curve cache data.
-  struct BSplineData
-  {
-    Handle(Geom_BSplineCurve)      Curve; //!< BSpline curve to prevent downcasts
-    mutable Handle(BSplCLib_Cache) Cache; //!< Cached data for evaluation
-  };
-
-  //! Variant type for curve-specific evaluation data.
-  using CurveDataVariant = std::variant<std::monostate, OffsetData, BezierData, BSplineData>;
-
-public:
-  GeomAdaptor_Curve()
-      : myTypeCurve(GeomAbs_OtherCurve),
-        myFirst(0.0),
-        myLast(0.0)
+  //! Constructor with curve.
+  GeomAdaptor_Curve(const Handle(Geom_Curve)& theCurve)
+      : myCore(theCurve)
   {
   }
 
-  GeomAdaptor_Curve(const Handle(Geom_Curve)& theCurve) { Load(theCurve); }
-
-  //! Standard_ConstructionError is raised if theUFirst > theULast + Precision::PConfusion()
+  //! Constructor with curve and parameter bounds.
+  //! @throw Standard_ConstructionError if theUFirst > theULast + Precision::PConfusion()
   GeomAdaptor_Curve(const Handle(Geom_Curve)& theCurve,
                     const Standard_Real       theUFirst,
                     const Standard_Real       theULast)
+      : myCore(theCurve, theUFirst, theULast)
   {
-    Load(theCurve, theUFirst, theULast);
   }
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor3d_Curve) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) ShallowCopy() const;
 
   //! Reset currently loaded curve (undone Load()).
-  Standard_EXPORT void Reset();
+  void Reset() { myCore.Reset(); }
 
-  void Load(const Handle(Geom_Curve)& theCurve)
-  {
-    if (theCurve.IsNull())
-    {
-      throw Standard_NullObject();
-    }
-    load(theCurve, theCurve->FirstParameter(), theCurve->LastParameter());
-  }
+  //! Load a curve.
+  //! @throw Standard_NullObject if theCurve is null
+  void Load(const Handle(Geom_Curve)& theCurve) { myCore.Load(theCurve); }
 
-  //! Standard_ConstructionError is raised if theUFirst > theULast + Precision::PConfusion()
+  //! Load a curve with parameter bounds.
+  //! @throw Standard_NullObject if theCurve is null
+  //! @throw Standard_ConstructionError if theUFirst > theULast + Precision::PConfusion()
   void Load(const Handle(Geom_Curve)& theCurve,
             const Standard_Real       theUFirst,
             const Standard_Real       theULast)
   {
-    if (theCurve.IsNull())
-    {
-      throw Standard_NullObject();
-    }
-    if (theUFirst > theULast + Precision::Confusion())
-    {
-      throw Standard_ConstructionError();
-    }
-    load(theCurve, theUFirst, theULast);
+    myCore.Load(theCurve, theUFirst, theULast);
   }
 
-  //! Provides a curve inherited from Hcurve from Adaptor.
-  //! This is inherited to provide easy to use constructors.
-  const Handle(Geom_Curve)& Curve() const { return myCurve; }
+  //! Returns the underlying curve.
+  const Handle(Geom_Curve)& Curve() const { return myCore.Curve(); }
 
-  virtual Standard_Real FirstParameter() const Standard_OVERRIDE { return myFirst; }
+  virtual Standard_Real FirstParameter() const { return myCore.FirstParameter(); }
 
-  virtual Standard_Real LastParameter() const Standard_OVERRIDE { return myLast; }
+  virtual Standard_Real LastParameter() const { return myCore.LastParameter(); }
 
-  Standard_EXPORT GeomAbs_Shape Continuity() const Standard_OVERRIDE;
+  Standard_EXPORT virtual GeomAbs_Shape Continuity() const;
 
-  //! Returns the number of intervals for continuity
-  //! <S>. May be one if Continuity(me) >= <S>
-  Standard_EXPORT Standard_Integer NbIntervals(const GeomAbs_Shape S) const Standard_OVERRIDE;
+  //! Returns the number of intervals for continuity <S>.
+  //! May be one if Continuity(me) >= <S>
+  Standard_EXPORT virtual Standard_Integer NbIntervals(const GeomAbs_Shape S) const;
 
-  //! Stores in <T> the parameters bounding the intervals
-  //! of continuity <S>.
-  //!
-  //! The array must provide enough room to accommodate
-  //! for the parameters. i.e. T.Length() > NbIntervals()
-  Standard_EXPORT void Intervals(TColStd_Array1OfReal& T,
-                                 const GeomAbs_Shape   S) const Standard_OVERRIDE;
+  //! Stores in <T> the parameters bounding the intervals of continuity <S>.
+  //! The array must provide enough room to accommodate for the parameters,
+  //! i.e. T.Length() > NbIntervals()
+  Standard_EXPORT virtual void Intervals(TColStd_Array1OfReal& T, const GeomAbs_Shape S) const;
 
-  //! Returns a curve equivalent of <me> between
-  //! parameters <First> and <Last>. <Tol> is used to
-  //! test for 3d points confusion.
-  //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Curve) Trim(const Standard_Real First,
-                                               const Standard_Real Last,
-                                               const Standard_Real Tol) const Standard_OVERRIDE;
+  //! Returns a curve equivalent of <me> between parameters <First> and <Last>.
+  //! <Tol> is used to test for 3d points confusion.
+  Standard_EXPORT virtual Handle(GeomAdaptor_Curve) Trim(const Standard_Real First,
+                                                         const Standard_Real Last,
+                                                         const Standard_Real Tol) const;
 
-  Standard_EXPORT Standard_Boolean IsClosed() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Boolean IsClosed() const;
 
-  Standard_EXPORT Standard_Boolean IsPeriodic() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Boolean IsPeriodic() const;
 
-  Standard_EXPORT Standard_Real Period() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Real Period() const;
 
   //! Computes the point of parameter U on the curve
-  Standard_EXPORT gp_Pnt Value(const Standard_Real U) const Standard_OVERRIDE;
+  Standard_EXPORT virtual gp_Pnt Value(const Standard_Real U) const;
 
   //! Computes the point of parameter U.
-  Standard_EXPORT void D0(const Standard_Real U, gp_Pnt& P) const Standard_OVERRIDE;
+  Standard_EXPORT virtual void D0(const Standard_Real U, gp_Pnt& P) const;
 
-  //! Computes the point of parameter U on the curve
-  //! with its first derivative.
-  //!
-  //! Warning : On the specific case of BSplineCurve:
-  //! if the curve is cut in interval of continuity at least C1, the
-  //! derivatives are computed on the current interval.
-  //! else the derivatives are computed on the basis curve.
-  Standard_EXPORT void D1(const Standard_Real U, gp_Pnt& P, gp_Vec& V) const Standard_OVERRIDE;
+  //! Computes the point of parameter U on the curve with its first derivative.
+  Standard_EXPORT virtual void D1(const Standard_Real U, gp_Pnt& P, gp_Vec& V) const;
 
-  //! Returns the point P of parameter U, the first and second
-  //! derivatives V1 and V2.
-  //!
-  //! Warning : On the specific case of BSplineCurve:
-  //! if the curve is cut in interval of continuity at least C2, the
-  //! derivatives are computed on the current interval.
-  //! else the derivatives are computed on the basis curve.
-  Standard_EXPORT void D2(const Standard_Real U,
-                          gp_Pnt&             P,
-                          gp_Vec&             V1,
-                          gp_Vec&             V2) const Standard_OVERRIDE;
+  //! Returns the point P of parameter U, the first and second derivatives V1 and V2.
+  Standard_EXPORT virtual void D2(const Standard_Real U,
+                                  gp_Pnt&             P,
+                                  gp_Vec&             V1,
+                                  gp_Vec&             V2) const;
 
-  //! Returns the point P of parameter U, the first, the second
-  //! and the third derivative.
-  //!
-  //! Warning : On the specific case of BSplineCurve:
-  //! if the curve is cut in interval of continuity at least C3, the
-  //! derivatives are computed on the current interval.
-  //! else the derivatives are computed on the basis curve.
-  Standard_EXPORT void D3(const Standard_Real U,
-                          gp_Pnt&             P,
-                          gp_Vec&             V1,
-                          gp_Vec&             V2,
-                          gp_Vec&             V3) const Standard_OVERRIDE;
+  //! Returns the point P of parameter U, the first, the second and the third derivative.
+  Standard_EXPORT virtual void D3(const Standard_Real U,
+                                  gp_Pnt&             P,
+                                  gp_Vec&             V1,
+                                  gp_Vec&             V2,
+                                  gp_Vec&             V3) const;
 
-  //! The returned vector gives the value of the derivative for the
-  //! order of derivation N.
-  //! Warning : On the specific case of BSplineCurve:
-  //! if the curve is cut in interval of continuity CN, the
-  //! derivatives are computed on the current interval.
-  //! else the derivatives are computed on the basis curve.
-  //! Raised if N < 1.
-  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
-                            const Standard_Integer N) const Standard_OVERRIDE;
+  //! The returned vector gives the value of the derivative for the order of derivation N.
+  //! @throw Standard_OutOfRange if N < 1
+  Standard_EXPORT virtual gp_Vec DN(const Standard_Real U, const Standard_Integer N) const;
 
-  //! returns the parametric resolution
-  Standard_EXPORT Standard_Real Resolution(const Standard_Real R3d) const Standard_OVERRIDE;
+  //! Returns the parametric resolution
+  Standard_EXPORT virtual Standard_Real Resolution(const Standard_Real R3d) const;
 
-  virtual GeomAbs_CurveType GetType() const Standard_OVERRIDE { return myTypeCurve; }
+  virtual GeomAbs_CurveType GetType() const { return myCore.GetType(); }
 
-  Standard_EXPORT gp_Lin Line() const Standard_OVERRIDE;
+  Standard_EXPORT virtual gp_Lin Line() const;
 
-  Standard_EXPORT gp_Circ Circle() const Standard_OVERRIDE;
+  Standard_EXPORT virtual gp_Circ Circle() const;
 
-  Standard_EXPORT gp_Elips Ellipse() const Standard_OVERRIDE;
+  Standard_EXPORT virtual gp_Elips Ellipse() const;
 
-  Standard_EXPORT gp_Hypr Hyperbola() const Standard_OVERRIDE;
+  Standard_EXPORT virtual gp_Hypr Hyperbola() const;
 
-  Standard_EXPORT gp_Parab Parabola() const Standard_OVERRIDE;
+  Standard_EXPORT virtual gp_Parab Parabola() const;
 
-  //! this should NEVER make a copy
-  //! of the underlying curve to read
-  //! the relevant information
-  Standard_EXPORT Standard_Integer Degree() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Integer Degree() const;
 
-  //! this should NEVER make a copy
-  //! of the underlying curve to read
-  //! the relevant information
-  Standard_EXPORT Standard_Boolean IsRational() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Boolean IsRational() const;
 
-  //! this should NEVER make a copy
-  //! of the underlying curve to read
-  //! the relevant information
-  Standard_EXPORT Standard_Integer NbPoles() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Integer NbPoles() const;
 
-  //! this should NEVER make a copy
-  //! of the underlying curve to read
-  //! the relevant information
-  Standard_EXPORT Standard_Integer NbKnots() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Standard_Integer NbKnots() const;
 
-  //! this will NOT make a copy of the
-  //! Bezier Curve : If you want to modify
-  //! the Curve please make a copy yourself
-  //! Also it will NOT trim the surface to
-  //! myFirst/Last.
-  Standard_EXPORT Handle(Geom_BezierCurve) Bezier() const Standard_OVERRIDE;
+  //! This will NOT make a copy of the Bezier Curve.
+  //! If you want to modify the Curve please make a copy yourself.
+  //! Also it will NOT trim the surface to myFirst/Last.
+  Standard_EXPORT virtual Handle(Geom_BezierCurve) Bezier() const;
 
-  //! this will NOT make a copy of the
-  //! BSpline Curve : If you want to modify
-  //! the Curve please make a copy yourself
-  //! Also it will NOT trim the surface to
-  //! myFirst/Last.
-  Standard_EXPORT Handle(Geom_BSplineCurve) BSpline() const Standard_OVERRIDE;
+  //! This will NOT make a copy of the BSpline Curve.
+  //! If you want to modify the Curve please make a copy yourself.
+  //! Also it will NOT trim the surface to myFirst/Last.
+  Standard_EXPORT virtual Handle(Geom_BSplineCurve) BSpline() const;
 
-  Standard_EXPORT Handle(Geom_OffsetCurve) OffsetCurve() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(Geom_OffsetCurve) OffsetCurve() const;
+
+  //! Returns the internal Core object for direct access.
+  //! Use with caution - modifications affect this adaptor.
+  GeomAdaptor_CurveCore& Core() { return myCore; }
+
+  //! Returns the internal Core object (const version).
+  const GeomAdaptor_CurveCore& Core() const { return myCore; }
 
   friend class GeomAdaptor_Surface;
 
 private:
-  Standard_EXPORT GeomAbs_Shape LocalContinuity(const Standard_Real U1,
-                                                const Standard_Real U2) const;
-
-  Standard_EXPORT void load(const Handle(Geom_Curve)& C,
-                            const Standard_Real       UFirst,
-                            const Standard_Real       ULast);
-
-  //! Check theU relates to start or finish point of B-spline curve and return indices of span the
-  //! point is located
-  Standard_Boolean IsBoundary(const Standard_Real theU,
-                              Standard_Integer&   theSpanStart,
-                              Standard_Integer&   theSpanFinish) const;
-
-  //! Rebuilds B-spline cache
-  //! \param theParameter the value on the knot axis which identifies the caching span
-  void RebuildCache(const Standard_Real theParameter) const;
-
-private:
-  Handle(Geom_Curve) myCurve;
-  GeomAbs_CurveType  myTypeCurve;
-  Standard_Real      myFirst;
-  Standard_Real      myLast;
-  CurveDataVariant myCurveData; ///< Curve-specific evaluation data (BSpline, Bezier, offset, etc.)
+  GeomAdaptor_CurveCore myCore; //!< Core evaluation implementation
 };
 
 #endif // _GeomAdaptor_Curve_HeaderFile

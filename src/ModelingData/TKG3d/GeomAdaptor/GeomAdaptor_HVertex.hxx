@@ -14,38 +14,38 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _Adaptor3d_HVertex_HeaderFile
-#define _Adaptor3d_HVertex_HeaderFile
+#ifndef _GeomAdaptor_HVertex_HeaderFile
+#define _GeomAdaptor_HVertex_HeaderFile
 
-#include <Adaptor2d_Curve2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
 #include <gp_Pnt2d.hxx>
 #include <TopAbs_Orientation.hxx>
 
-class Adaptor3d_HVertex;
-DEFINE_STANDARD_HANDLE(Adaptor3d_HVertex, Standard_Transient)
+class GeomAdaptor_HVertex;
+DEFINE_STANDARD_HANDLE(GeomAdaptor_HVertex, Standard_Transient)
 
-class Adaptor3d_HVertex : public Standard_Transient
+class GeomAdaptor_HVertex : public Standard_Transient
 {
 
 public:
-  Standard_EXPORT Adaptor3d_HVertex();
+  Standard_EXPORT GeomAdaptor_HVertex();
 
-  Standard_EXPORT Adaptor3d_HVertex(const gp_Pnt2d&          P,
+  Standard_EXPORT GeomAdaptor_HVertex(const gp_Pnt2d&          P,
                                     const TopAbs_Orientation Ori,
                                     const Standard_Real      Resolution);
 
   Standard_EXPORT virtual gp_Pnt2d Value();
 
-  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT virtual Standard_Real Parameter(const Handle(Geom2dAdaptor_Curve)& C);
 
   //! Parametric resolution (2d).
-  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Adaptor2d_Curve2d)& C);
+  Standard_EXPORT virtual Standard_Real Resolution(const Handle(Geom2dAdaptor_Curve)& C);
 
   Standard_EXPORT virtual TopAbs_Orientation Orientation();
 
-  Standard_EXPORT virtual Standard_Boolean IsSame(const Handle(Adaptor3d_HVertex)& Other);
+  Standard_EXPORT virtual Standard_Boolean IsSame(const Handle(GeomAdaptor_HVertex)& Other);
 
-  DEFINE_STANDARD_RTTIEXT(Adaptor3d_HVertex, Standard_Transient)
+  DEFINE_STANDARD_RTTIEXT(GeomAdaptor_HVertex, Standard_Transient)
 
 protected:
 private:
@@ -54,4 +54,4 @@ private:
   TopAbs_Orientation myOri;
 };
 
-#endif // _Adaptor3d_HVertex_HeaderFile
+#endif // _GeomAdaptor_HVertex_HeaderFile

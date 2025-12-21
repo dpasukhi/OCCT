@@ -17,6 +17,8 @@
 #ifndef _GeomAdaptor_SurfaceOfRevolution_HeaderFile
 #define _GeomAdaptor_SurfaceOfRevolution_HeaderFile
 
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAdaptor_Surface.hxx>
 #include <GeomAdaptor_Surface.hxx>
 
 class gp_Pln;
@@ -52,17 +54,17 @@ public:
   Standard_EXPORT GeomAdaptor_SurfaceOfRevolution();
 
   //! The Curve is loaded.
-  Standard_EXPORT GeomAdaptor_SurfaceOfRevolution(const Handle(Adaptor3d_Curve)& C);
+  Standard_EXPORT GeomAdaptor_SurfaceOfRevolution(const Handle(GeomAdaptor_Curve)& C);
 
   //! The Curve and the Direction are loaded.
-  Standard_EXPORT GeomAdaptor_SurfaceOfRevolution(const Handle(Adaptor3d_Curve)& C,
+  Standard_EXPORT GeomAdaptor_SurfaceOfRevolution(const Handle(GeomAdaptor_Curve)& C,
                                                   const gp_Ax1&                  V);
 
   //! Shallow copy of adaptor
-  Standard_EXPORT virtual Handle(Adaptor3d_Surface) ShallowCopy() const Standard_OVERRIDE;
+  Standard_EXPORT virtual Handle(GeomAdaptor_Surface) ShallowCopy() const Standard_OVERRIDE;
 
   //! Changes the Curve
-  Standard_EXPORT void Load(const Handle(Adaptor3d_Curve)& C);
+  Standard_EXPORT void Load(const Handle(GeomAdaptor_Curve)& C);
 
   //! Changes the Direction
   Standard_EXPORT void Load(const gp_Ax1& V);
@@ -105,7 +107,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Surface) UTrim(const Standard_Real First,
+  Standard_EXPORT Handle(GeomAdaptor_Surface) UTrim(const Standard_Real First,
                                                   const Standard_Real Last,
                                                   const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -113,7 +115,7 @@ public:
   //! parameters <First> and <Last>. <Tol> is used to
   //! test for 3d points confusion.
   //! If <First> >= <Last>
-  Standard_EXPORT Handle(Adaptor3d_Surface) VTrim(const Standard_Real First,
+  Standard_EXPORT Handle(GeomAdaptor_Surface) VTrim(const Standard_Real First,
                                                   const Standard_Real Last,
                                                   const Standard_Real Tol) const Standard_OVERRIDE;
 
@@ -171,10 +173,55 @@ public:
 
   Standard_EXPORT const gp_Ax3& Axis() const;
 
-  Standard_EXPORT Handle(Adaptor3d_Curve) BasisCurve() const Standard_OVERRIDE;
+  Standard_EXPORT Handle(GeomAdaptor_Curve) BasisCurve() const Standard_OVERRIDE;
+
+  //! Computes the point of parameters U,V on the surface.
+  Standard_EXPORT gp_Pnt Value(const Standard_Real U, const Standard_Real V) const Standard_OVERRIDE;
+
+  //! Computes the point of parameters U,V on the surface.
+  Standard_EXPORT void D0(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P) const Standard_OVERRIDE;
+
+  //! Computes the point and the first derivatives on the surface.
+  Standard_EXPORT void D1(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V) const Standard_OVERRIDE;
+
+  //! Computes the point, the first and second derivatives on the surface.
+  Standard_EXPORT void D2(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V,
+                          gp_Vec&             D2U,
+                          gp_Vec&             D2V,
+                          gp_Vec&             D2UV) const Standard_OVERRIDE;
+
+  //! Computes the point, the first, second and third derivatives on the surface.
+  Standard_EXPORT void D3(const Standard_Real U,
+                          const Standard_Real V,
+                          gp_Pnt&             P,
+                          gp_Vec&             D1U,
+                          gp_Vec&             D1V,
+                          gp_Vec&             D2U,
+                          gp_Vec&             D2V,
+                          gp_Vec&             D2UV,
+                          gp_Vec&             D3U,
+                          gp_Vec&             D3V,
+                          gp_Vec&             D3UUV,
+                          gp_Vec&             D3UVV) const Standard_OVERRIDE;
+
+  //! Computes the derivative of order Nu in the direction U and Nv in the direction V.
+  Standard_EXPORT gp_Vec DN(const Standard_Real    U,
+                            const Standard_Real    V,
+                            const Standard_Integer Nu,
+                            const Standard_Integer Nv) const Standard_OVERRIDE;
 
 private:
-  Handle(Adaptor3d_Curve) myBasisCurve; ///< revolved curve
+  Handle(GeomAdaptor_Curve) myBasisCurve; ///< revolved curve
   gp_Ax1                  myAxis;       ///< axis of revolution
   Standard_Boolean        myHaveAxis;   ///< whether axis of revolution is initialized
   gp_Ax3                  myAxeRev;     ///< auxiliary trihedron according to the curve position

@@ -11,7 +11,7 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#include <Adaptor2d_Line2d.hxx>
+#include <Geom2dAdaptor_Line2d.hxx>
 
 #include <ElCLib.hxx>
 #include <Geom2d_BezierCurve.hxx>
@@ -28,11 +28,11 @@
 #include <Standard_NoSuchObject.hxx>
 #include <Standard_OutOfRange.hxx>
 
-IMPLEMENT_STANDARD_RTTIEXT(Adaptor2d_Line2d, Adaptor2d_Curve2d)
+IMPLEMENT_STANDARD_RTTIEXT(Geom2dAdaptor_Line2d, Geom2dAdaptor_Curve)
 
 //=================================================================================================
 
-Adaptor2d_Line2d::Adaptor2d_Line2d()
+Geom2dAdaptor_Line2d::Geom2dAdaptor_Line2d()
     : myUfirst(0.0),
       myUlast(0.0)
 {
@@ -40,7 +40,7 @@ Adaptor2d_Line2d::Adaptor2d_Line2d()
 
 //=================================================================================================
 
-Adaptor2d_Line2d::Adaptor2d_Line2d(const gp_Pnt2d&     P,
+Geom2dAdaptor_Line2d::Geom2dAdaptor_Line2d(const gp_Pnt2d&     P,
                                    const gp_Dir2d&     D,
                                    const Standard_Real UFirst,
                                    const Standard_Real ULast)
@@ -52,9 +52,9 @@ Adaptor2d_Line2d::Adaptor2d_Line2d(const gp_Pnt2d&     P,
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) Adaptor2d_Line2d::ShallowCopy() const
+Handle(Geom2dAdaptor_Curve) Geom2dAdaptor_Line2d::ShallowCopy() const
 {
-  Handle(Adaptor2d_Line2d) aCopy = new Adaptor2d_Line2d();
+  Handle(Geom2dAdaptor_Line2d) aCopy = new Geom2dAdaptor_Line2d();
 
   aCopy->myUfirst = myUfirst;
   aCopy->myUlast  = myUlast;
@@ -65,7 +65,7 @@ Handle(Adaptor2d_Curve2d) Adaptor2d_Line2d::ShallowCopy() const
 
 //=================================================================================================
 
-void Adaptor2d_Line2d::Load(const gp_Lin2d& L)
+void Geom2dAdaptor_Line2d::Load(const gp_Lin2d& L)
 {
   myAx2d   = L.Position();
   myUfirst = -Precision::Infinite();
@@ -74,7 +74,7 @@ void Adaptor2d_Line2d::Load(const gp_Lin2d& L)
 
 //=================================================================================================
 
-void Adaptor2d_Line2d::Load(const gp_Lin2d& L, const Standard_Real Fi, const Standard_Real La)
+void Geom2dAdaptor_Line2d::Load(const gp_Lin2d& L, const Standard_Real Fi, const Standard_Real La)
 {
   myAx2d   = L.Position();
   myUfirst = Fi;
@@ -83,36 +83,36 @@ void Adaptor2d_Line2d::Load(const gp_Lin2d& L, const Standard_Real Fi, const Sta
 
 //=================================================================================================
 
-Standard_Real Adaptor2d_Line2d::FirstParameter() const
+Standard_Real Geom2dAdaptor_Line2d::FirstParameter() const
 {
   return myUfirst;
 }
 
 //=================================================================================================
 
-Standard_Real Adaptor2d_Line2d::LastParameter() const
+Standard_Real Geom2dAdaptor_Line2d::LastParameter() const
 {
   return myUlast;
 }
 
 //=================================================================================================
 
-GeomAbs_Shape Adaptor2d_Line2d::Continuity() const
+GeomAbs_Shape Geom2dAdaptor_Line2d::Continuity() const
 {
   return GeomAbs_CN;
 }
 
 //=================================================================================================
 
-// Standard_Integer Adaptor2d_Line2d::NbIntervals(const GeomAbs_Shape S) const
-Standard_Integer Adaptor2d_Line2d::NbIntervals(const GeomAbs_Shape) const
+// Standard_Integer Geom2dAdaptor_Line2d::NbIntervals(const GeomAbs_Shape S) const
+Standard_Integer Geom2dAdaptor_Line2d::NbIntervals(const GeomAbs_Shape) const
 {
   return 1;
 }
 
 //=================================================================================================
 
-void Adaptor2d_Line2d::Intervals(TColStd_Array1OfReal& T,
+void Geom2dAdaptor_Line2d::Intervals(TColStd_Array1OfReal& T,
                                  //			       const GeomAbs_Shape S) const
                                  const GeomAbs_Shape) const
 {
@@ -122,60 +122,60 @@ void Adaptor2d_Line2d::Intervals(TColStd_Array1OfReal& T,
 
 //=================================================================================================
 
-Handle(Adaptor2d_Curve2d) Adaptor2d_Line2d::Trim(const Standard_Real First,
+Handle(Geom2dAdaptor_Curve) Geom2dAdaptor_Line2d::Trim(const Standard_Real First,
                                                  const Standard_Real Last,
                                                  const Standard_Real) const
 {
-  Handle(Adaptor2d_Line2d) HL = new Adaptor2d_Line2d();
+  Handle(Geom2dAdaptor_Line2d) HL = new Geom2dAdaptor_Line2d();
   HL->Load(gp_Lin2d(myAx2d), First, Last);
   return HL;
 }
 
 //=================================================================================================
 
-Standard_Boolean Adaptor2d_Line2d::IsClosed() const
+Standard_Boolean Geom2dAdaptor_Line2d::IsClosed() const
 {
   return Standard_False;
 }
 
 //=================================================================================================
 
-Standard_Boolean Adaptor2d_Line2d::IsPeriodic() const
+Standard_Boolean Geom2dAdaptor_Line2d::IsPeriodic() const
 {
   return Standard_False;
 }
 
 //=================================================================================================
 
-Standard_Real Adaptor2d_Line2d::Period() const
+Standard_Real Geom2dAdaptor_Line2d::Period() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-gp_Pnt2d Adaptor2d_Line2d::Value(const Standard_Real X) const
+gp_Pnt2d Geom2dAdaptor_Line2d::Value(const Standard_Real X) const
 {
   return ElCLib::LineValue(X, myAx2d);
 }
 
 //=================================================================================================
 
-void Adaptor2d_Line2d::D0(const Standard_Real X, gp_Pnt2d& P) const
+void Geom2dAdaptor_Line2d::D0(const Standard_Real X, gp_Pnt2d& P) const
 {
   P = ElCLib::LineValue(X, myAx2d);
 }
 
 //=================================================================================================
 
-void Adaptor2d_Line2d::D1(const Standard_Real X, gp_Pnt2d& P, gp_Vec2d& V) const
+void Geom2dAdaptor_Line2d::D1(const Standard_Real X, gp_Pnt2d& P, gp_Vec2d& V) const
 {
   ElCLib::LineD1(X, myAx2d, P, V);
 }
 
 //=================================================================================================
 
-void Adaptor2d_Line2d::D2(const Standard_Real X, gp_Pnt2d& P, gp_Vec2d& V1, gp_Vec2d& V2) const
+void Geom2dAdaptor_Line2d::D2(const Standard_Real X, gp_Pnt2d& P, gp_Vec2d& V1, gp_Vec2d& V2) const
 {
   ElCLib::LineD1(X, myAx2d, P, V1);
   V2.SetCoord(0., 0.);
@@ -183,7 +183,7 @@ void Adaptor2d_Line2d::D2(const Standard_Real X, gp_Pnt2d& P, gp_Vec2d& V1, gp_V
 
 //=================================================================================================
 
-void Adaptor2d_Line2d::D3(const Standard_Real X,
+void Geom2dAdaptor_Line2d::D3(const Standard_Real X,
                           gp_Pnt2d&           P,
                           gp_Vec2d&           V1,
                           gp_Vec2d&           V2,
@@ -196,8 +196,8 @@ void Adaptor2d_Line2d::D3(const Standard_Real X,
 
 //=================================================================================================
 
-// gp_Vec2d Adaptor2d_Line2d::DN(const Standard_Real U, const Standard_Integer N) const
-gp_Vec2d Adaptor2d_Line2d::DN(const Standard_Real, const Standard_Integer N) const
+// gp_Vec2d Geom2dAdaptor_Line2d::DN(const Standard_Real U, const Standard_Integer N) const
+gp_Vec2d Geom2dAdaptor_Line2d::DN(const Standard_Real, const Standard_Integer N) const
 {
   if (N <= 0)
   {
@@ -212,91 +212,91 @@ gp_Vec2d Adaptor2d_Line2d::DN(const Standard_Real, const Standard_Integer N) con
 
 //=================================================================================================
 
-Standard_Real Adaptor2d_Line2d::Resolution(const Standard_Real R3d) const
+Standard_Real Geom2dAdaptor_Line2d::Resolution(const Standard_Real R3d) const
 {
   return R3d; // nul !!!!
 }
 
 //=================================================================================================
 
-GeomAbs_CurveType Adaptor2d_Line2d::GetType() const
+GeomAbs_CurveType Geom2dAdaptor_Line2d::GetType() const
 {
   return GeomAbs_Line;
 }
 
 //=================================================================================================
 
-gp_Lin2d Adaptor2d_Line2d::Line() const
+gp_Lin2d Geom2dAdaptor_Line2d::Line() const
 {
   return gp_Lin2d(myAx2d);
 }
 
 //=================================================================================================
 
-gp_Circ2d Adaptor2d_Line2d::Circle() const
+gp_Circ2d Geom2dAdaptor_Line2d::Circle() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-gp_Elips2d Adaptor2d_Line2d::Ellipse() const
+gp_Elips2d Geom2dAdaptor_Line2d::Ellipse() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-gp_Hypr2d Adaptor2d_Line2d::Hyperbola() const
+gp_Hypr2d Geom2dAdaptor_Line2d::Hyperbola() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-gp_Parab2d Adaptor2d_Line2d::Parabola() const
+gp_Parab2d Geom2dAdaptor_Line2d::Parabola() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-Standard_Integer Adaptor2d_Line2d::Degree() const
+Standard_Integer Geom2dAdaptor_Line2d::Degree() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-Standard_Boolean Adaptor2d_Line2d::IsRational() const
+Standard_Boolean Geom2dAdaptor_Line2d::IsRational() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-Standard_Integer Adaptor2d_Line2d::NbPoles() const
+Standard_Integer Geom2dAdaptor_Line2d::NbPoles() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-Standard_Integer Adaptor2d_Line2d::NbKnots() const
+Standard_Integer Geom2dAdaptor_Line2d::NbKnots() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-Handle(Geom2d_BezierCurve) Adaptor2d_Line2d::Bezier() const
+Handle(Geom2d_BezierCurve) Geom2dAdaptor_Line2d::Bezier() const
 {
   throw Standard_NoSuchObject();
 }
 
 //=================================================================================================
 
-Handle(Geom2d_BSplineCurve) Adaptor2d_Line2d::BSpline() const
+Handle(Geom2d_BSplineCurve) Geom2dAdaptor_Line2d::BSpline() const
 {
   throw Standard_NoSuchObject();
 }

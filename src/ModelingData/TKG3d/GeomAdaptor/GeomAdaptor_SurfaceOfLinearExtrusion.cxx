@@ -16,7 +16,7 @@
 
 #include <GeomAdaptor_SurfaceOfLinearExtrusion.hxx>
 
-#include <Adaptor3d_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <gp_Ax3.hxx>
 #include <Standard_NoSuchObject.hxx>
@@ -33,7 +33,7 @@ GeomAdaptor_SurfaceOfLinearExtrusion::GeomAdaptor_SurfaceOfLinearExtrusion()
 //=================================================================================================
 
 GeomAdaptor_SurfaceOfLinearExtrusion::GeomAdaptor_SurfaceOfLinearExtrusion(
-  const Handle(Adaptor3d_Curve)& C)
+  const Handle(GeomAdaptor_Curve)& C)
     : myHaveDir(Standard_False)
 {
   Load(C);
@@ -42,7 +42,7 @@ GeomAdaptor_SurfaceOfLinearExtrusion::GeomAdaptor_SurfaceOfLinearExtrusion(
 //=================================================================================================
 
 GeomAdaptor_SurfaceOfLinearExtrusion::GeomAdaptor_SurfaceOfLinearExtrusion(
-  const Handle(Adaptor3d_Curve)& C,
+  const Handle(GeomAdaptor_Curve)& C,
   const gp_Dir&                  V)
     : myHaveDir(Standard_False)
 {
@@ -52,7 +52,7 @@ GeomAdaptor_SurfaceOfLinearExtrusion::GeomAdaptor_SurfaceOfLinearExtrusion(
 
 //=================================================================================================
 
-Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::ShallowCopy() const
+Handle(GeomAdaptor_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::ShallowCopy() const
 {
   Handle(GeomAdaptor_SurfaceOfLinearExtrusion) aCopy = new GeomAdaptor_SurfaceOfLinearExtrusion();
 
@@ -63,30 +63,15 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::ShallowCopy() co
   aCopy->myDirection = myDirection;
   aCopy->myHaveDir   = myHaveDir;
 
-  aCopy->mySurface     = mySurface;
-  aCopy->myUFirst      = myUFirst;
-  aCopy->myULast       = myULast;
-  aCopy->myVFirst      = myVFirst;
-  aCopy->myVLast       = myVLast;
-  aCopy->myTolU        = myTolU;
-  aCopy->myTolV        = myTolV;
-  aCopy->mySurfaceType = mySurfaceType;
-
-  // Copy surface data variant
-  if (auto* anExtData = std::get_if<GeomAdaptor_Surface::ExtrusionData>(&mySurfaceData))
-  {
-    GeomAdaptor_Surface::ExtrusionData aNewData;
-    aNewData.BasisCurve  = anExtData->BasisCurve->ShallowCopy();
-    aNewData.Direction   = anExtData->Direction;
-    aCopy->mySurfaceData = aNewData;
-  }
+  // Copy core (which handles surface data internally)
+  aCopy->Core() = Core();
 
   return aCopy;
 }
 
 //=================================================================================================
 
-void GeomAdaptor_SurfaceOfLinearExtrusion::Load(const Handle(Adaptor3d_Curve)& C)
+void GeomAdaptor_SurfaceOfLinearExtrusion::Load(const Handle(GeomAdaptor_Curve)& C)
 {
   myBasisCurve = C;
   if (myHaveDir)
@@ -99,14 +84,6 @@ void GeomAdaptor_SurfaceOfLinearExtrusion::Load(const gp_Dir& V)
 {
   myHaveDir   = Standard_True;
   myDirection = V;
-
-  mySurfaceType = GeomAbs_SurfaceOfExtrusion;
-
-  // Populate extrusion surface data for fast evaluation
-  GeomAdaptor_Surface::ExtrusionData anExtData;
-  anExtData.BasisCurve = myBasisCurve;
-  anExtData.Direction  = myDirection.XYZ();
-  mySurfaceData        = anExtData;
 }
 
 //=================================================================================================
@@ -184,11 +161,11 @@ void GeomAdaptor_SurfaceOfLinearExtrusion::VIntervals(TColStd_Array1OfReal& T,
 
 //=================================================================================================
 
-Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::VTrim(const Standard_Real First,
+Handle(GeomAdaptor_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::VTrim(const Standard_Real First,
                                                                       const Standard_Real Last,
                                                                       const Standard_Real Tol) const
 {
-  Handle(Adaptor3d_Curve)                      HC = BasisCurve()->Trim(First, Last, Tol);
+  Handle(GeomAdaptor_Curve)                      HC = BasisCurve()->Trim(First, Last, Tol);
   Handle(GeomAdaptor_SurfaceOfLinearExtrusion) HR =
     new GeomAdaptor_SurfaceOfLinearExtrusion(GeomAdaptor_SurfaceOfLinearExtrusion(HC, myDirection));
   return HR;
@@ -196,7 +173,7 @@ Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::VTrim(const Stan
 
 //=================================================================================================
 
-Handle(Adaptor3d_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::UTrim(const Standard_Real,
+Handle(GeomAdaptor_Surface) GeomAdaptor_SurfaceOfLinearExtrusion::UTrim(const Standard_Real,
                                                                       const Standard_Real,
                                                                       const Standard_Real) const
 {
@@ -448,7 +425,119 @@ gp_Dir GeomAdaptor_SurfaceOfLinearExtrusion::Direction() const
 
 //=================================================================================================
 
-Handle(Adaptor3d_Curve) GeomAdaptor_SurfaceOfLinearExtrusion::BasisCurve() const
+Handle(GeomAdaptor_Curve) GeomAdaptor_SurfaceOfLinearExtrusion::BasisCurve() const
 {
   return myBasisCurve;
+}
+
+//=================================================================================================
+
+gp_Pnt GeomAdaptor_SurfaceOfLinearExtrusion::Value(const Standard_Real U, const Standard_Real V) const
+{
+  gp_Pnt aP;
+  D0(U, V, aP);
+  return aP;
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D0(const Standard_Real U,
+                                              const Standard_Real V,
+                                              gp_Pnt&             P) const
+{
+  // S(u,v) = C(u) + v * Direction
+  myBasisCurve->D0(U, P);
+  P.SetXYZ(P.XYZ() + V * myDirection.XYZ());
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D1(const Standard_Real U,
+                                              const Standard_Real V,
+                                              gp_Pnt&             P,
+                                              gp_Vec&             D1U,
+                                              gp_Vec&             D1V) const
+{
+  // S(u,v) = C(u) + v * Direction
+  // D1U = C'(u)
+  // D1V = Direction
+  myBasisCurve->D1(U, P, D1U);
+  P.SetXYZ(P.XYZ() + V * myDirection.XYZ());
+  D1V.SetXYZ(myDirection.XYZ());
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D2(const Standard_Real U,
+                                              const Standard_Real V,
+                                              gp_Pnt&             P,
+                                              gp_Vec&             D1U,
+                                              gp_Vec&             D1V,
+                                              gp_Vec&             D2U,
+                                              gp_Vec&             D2V,
+                                              gp_Vec&             D2UV) const
+{
+  // S(u,v) = C(u) + v * Direction
+  // D2U = C''(u), D2V = 0, D2UV = 0
+  myBasisCurve->D2(U, P, D1U, D2U);
+  P.SetXYZ(P.XYZ() + V * myDirection.XYZ());
+  D1V.SetXYZ(myDirection.XYZ());
+  D2V  = gp_Vec(0., 0., 0.);
+  D2UV = gp_Vec(0., 0., 0.);
+}
+
+//=================================================================================================
+
+void GeomAdaptor_SurfaceOfLinearExtrusion::D3(const Standard_Real U,
+                                              const Standard_Real V,
+                                              gp_Pnt&             P,
+                                              gp_Vec&             D1U,
+                                              gp_Vec&             D1V,
+                                              gp_Vec&             D2U,
+                                              gp_Vec&             D2V,
+                                              gp_Vec&             D2UV,
+                                              gp_Vec&             D3U,
+                                              gp_Vec&             D3V,
+                                              gp_Vec&             D3UUV,
+                                              gp_Vec&             D3UVV) const
+{
+  // S(u,v) = C(u) + v * Direction
+  // D3U = C'''(u), all other third derivatives are 0
+  myBasisCurve->D3(U, P, D1U, D2U, D3U);
+  P.SetXYZ(P.XYZ() + V * myDirection.XYZ());
+  D1V   = gp_Vec(myDirection.XYZ());
+  D2V   = gp_Vec(0., 0., 0.);
+  D2UV  = gp_Vec(0., 0., 0.);
+  D3V   = gp_Vec(0., 0., 0.);
+  D3UUV = gp_Vec(0., 0., 0.);
+  D3UVV = gp_Vec(0., 0., 0.);
+}
+
+//=================================================================================================
+
+gp_Vec GeomAdaptor_SurfaceOfLinearExtrusion::DN(const Standard_Real    U,
+                                                const Standard_Real    V,
+                                                const Standard_Integer Nu,
+                                                const Standard_Integer Nv) const
+{
+  (void)V; // V parameter doesn't affect derivatives
+  if (Nu == 0 && Nv == 1)
+  {
+    return gp_Vec(myDirection);
+  }
+  else if (Nv >= 2)
+  {
+    // All derivatives of order >= 2 in V direction are 0
+    return gp_Vec(0., 0., 0.);
+  }
+  else if (Nv == 1)
+  {
+    // Mixed derivatives with Nv=1 and Nu>=1 are 0
+    return gp_Vec(0., 0., 0.);
+  }
+  else
+  {
+    // Nv == 0, pure U derivatives
+    return myBasisCurve->DN(U, Nu);
+  }
 }

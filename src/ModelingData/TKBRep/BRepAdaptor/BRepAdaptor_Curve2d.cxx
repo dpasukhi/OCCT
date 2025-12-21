@@ -38,13 +38,9 @@ Handle(Adaptor2d_Curve2d) BRepAdaptor_Curve2d::ShallowCopy() const
 {
   Handle(BRepAdaptor_Curve2d) aCopy = new BRepAdaptor_Curve2d();
 
-  aCopy->myCurve     = myCurve;
-  aCopy->myTypeCurve = myTypeCurve;
-  aCopy->myFirst     = myFirst;
-  aCopy->myLast      = myLast;
-  aCopy->myCurveData = myCurveData; // Copy variant (cache will be rebuilt on demand)
-  aCopy->myEdge      = myEdge;
-  aCopy->myFace      = myFace;
+  aCopy->Core() = Core();  // Copy Core (uses Core's copy assignment)
+  aCopy->myEdge = myEdge;
+  aCopy->myFace = myFace;
 
   return aCopy;
 }
