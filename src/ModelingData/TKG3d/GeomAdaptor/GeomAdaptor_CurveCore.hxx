@@ -36,6 +36,7 @@
 #include <Standard_ConstructionError.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
+#include <cmath>
 #include <memory>
 #include <optional>
 #include <variant>
@@ -50,7 +51,12 @@ class Geom2dAdaptor_CurveCore;
 //! It is designed for stack allocation and value semantics, serving as the main
 //! implementation body for GeomAdaptor_Curve.
 //!
-//! The class supports multiple modifier types through a variant:
+//! The evaluation pipeline consists of three stages:
+//! 1. Parameter modification (pre-evaluation): ParameterModifier transforms input parameter
+//! 2. Curve evaluation: EvaluationVariant determines how the curve is evaluated
+//! 3. Result modification (post-evaluation): gp_Trsf and PostProcessor transform outputs
+//!
+//! The class supports multiple evaluation types through EvaluationVariant:
 //! - OffsetData: For offset curves
 //! - CurveOnSurfaceData: For curves defined by 2D curve on 3D surface
 //! - IsoCurveData: For iso-parametric curves on surfaces
@@ -58,8 +64,8 @@ class Geom2dAdaptor_CurveCore;
 //! - BezierData: For cached Bezier evaluation
 //! - BSplineData: For cached B-spline evaluation
 //!
-//! Transformation (gp_Trsf) is stored separately and applied AFTER the modifier,
-//! allowing combination of any modifier with transformation.
+//! Transformation (gp_Trsf) is stored separately and applied AFTER evaluation,
+//! allowing combination of any evaluation type with transformation.
 //!
 //! Polynomial coefficients of BSpline curves used for their evaluation are
 //! cached for better performance. Therefore these evaluations are not
@@ -122,6 +128,40 @@ public:
                                          PiecewiseData,
                                          BezierData,
                                          BSplineData>;
+
+  // === Parameter Modifiers (pre-evaluation) ===
+
+  //! Linear parameter transformation: evaluatedU = Scale * inputU + Offset
+  struct LinearParameterModifier
+  {
+    double Scale  = 1.0;  //!< Scale factor for parameter
+    double Offset = 0.0;  //!< Offset added after scaling
+  };
+
+  //! Periodic parameter adjustment with custom bounds.
+  struct PeriodicParameterModifier
+  {
+    double Period      = 0.0;    //!< Period value
+    double FirstParam  = 0.0;    //!< First parameter of periodic range
+  };
+
+  //! Variant type for parameter modification (applied before evaluation).
+  using ParameterModifier = std::variant<std::monostate,
+                                         LinearParameterModifier,
+                                         PeriodicParameterModifier>;
+
+  // === Post-Processors (post-evaluation) ===
+
+  //! Scale derivatives by a factor (for reparametrized curves).
+  //! D1 *= Scale, D2 *= Scale^2, D3 *= Scale^3
+  struct DerivativeScaleModifier
+  {
+    double Scale = 1.0;  //!< Derivative scale factor
+  };
+
+  //! Variant type for post-processing (applied after transformation).
+  using PostProcessor = std::variant<std::monostate,
+                                     DerivativeScaleModifier>;
 
 public:
   //! Default constructor. Creates an empty core with no curve loaded.
@@ -209,6 +249,51 @@ public:
   //! @return the current transformation
   //! @throw Standard_NoSuchObject if no transformation is set
   Standard_EXPORT const gp_Trsf& Transformation() const;
+
+  // === Parameter Modifier ===
+
+  //! Set linear parameter modifier.
+  //! @param[in] theScale scale factor for parameter
+  //! @param[in] theOffset offset added after scaling
+  void SetLinearParameterModifier(double theScale, double theOffset = 0.0)
+  {
+    myParamModifier = LinearParameterModifier{theScale, theOffset};
+  }
+
+  //! Set periodic parameter modifier.
+  //! @param[in] thePeriod period value
+  //! @param[in] theFirstParam first parameter of periodic range
+  void SetPeriodicParameterModifier(double thePeriod, double theFirstParam = 0.0)
+  {
+    myParamModifier = PeriodicParameterModifier{thePeriod, theFirstParam};
+  }
+
+  //! Clear the parameter modifier.
+  void ClearParameterModifier() { myParamModifier = std::monostate{}; }
+
+  //! Check if parameter modifier is set.
+  bool HasParameterModifier() const { return !std::holds_alternative<std::monostate>(myParamModifier); }
+
+  //! Get the parameter modifier variant.
+  const ParameterModifier& GetParameterModifier() const { return myParamModifier; }
+
+  // === Post-Processor ===
+
+  //! Set derivative scale modifier.
+  //! @param[in] theScale scale factor for derivatives
+  void SetDerivativeScaleModifier(double theScale)
+  {
+    myPostProcessor = DerivativeScaleModifier{theScale};
+  }
+
+  //! Clear the post-processor.
+  void ClearPostProcessor() { myPostProcessor = std::monostate{}; }
+
+  //! Check if post-processor is set.
+  bool HasPostProcessor() const { return !std::holds_alternative<std::monostate>(myPostProcessor); }
+
+  //! Get the post-processor variant.
+  const PostProcessor& GetPostProcessor() const { return myPostProcessor; }
 
   // === Curve access ===
 
@@ -337,6 +422,34 @@ public:
   //! Returns the period (for periodic curves).
   Standard_EXPORT double Period() const;
 
+  // === Evaluation Variant Setters ===
+
+  //! Configure as curve-on-surface evaluation.
+  //! The curve will be evaluated by computing 2D point on Curve2d,
+  //! then evaluating the 3D surface at that (U,V) location.
+  //! @param[in] theCurve2d 2D parametric curve on surface
+  //! @param[in] theSurface 3D surface
+  Standard_EXPORT void SetCurveOnSurface(const Geom2dAdaptor_CurveCore& theCurve2d,
+                                         const GeomAdaptor_SurfaceCore& theSurface);
+
+  //! Configure as iso-parametric curve evaluation.
+  //! The curve will be evaluated by fixing one surface parameter.
+  //! @param[in] theSurface base surface
+  //! @param[in] theIsoType whether to fix U or V
+  //! @param[in] theParameter fixed parameter value
+  Standard_EXPORT void SetIsoCurve(const GeomAdaptor_SurfaceCore& theSurface,
+                                   GeomAbs_IsoType                theIsoType,
+                                   double                         theParameter);
+
+  //! Clear evaluation variant data.
+  Standard_EXPORT void ClearEvaluationData();
+
+  //! Check if curve-on-surface evaluation is set.
+  bool IsCurveOnSurface() const { return std::holds_alternative<CurveOnSurfaceData>(myEvalData); }
+
+  //! Check if iso-curve evaluation is set.
+  bool IsIsoCurve() const { return std::holds_alternative<IsoCurveData>(myEvalData); }
+
   // === Evaluation data access ===
 
   //! Returns the evaluation data variant.
@@ -365,6 +478,28 @@ private:
   //! @return true if at boundary
   bool isBoundary(double theU, int& theSpanStart, int& theSpanFinish) const;
 
+  //! Apply parameter modifier (if set).
+  //! @param[in] theU input parameter
+  //! @return modified parameter
+  double applyParamModifier(double theU) const
+  {
+    if (const auto* aLinear = std::get_if<LinearParameterModifier>(&myParamModifier))
+    {
+      return aLinear->Scale * theU + aLinear->Offset;
+    }
+    else if (const auto* aPeriodic = std::get_if<PeriodicParameterModifier>(&myParamModifier))
+    {
+      // Normalize parameter to periodic range
+      double aU = theU - aPeriodic->FirstParam;
+      if (aPeriodic->Period > 0.0)
+      {
+        aU = aU - aPeriodic->Period * std::floor(aU / aPeriodic->Period);
+      }
+      return aU + aPeriodic->FirstParam;
+    }
+    return theU;
+  }
+
   //! Apply transformation to point (if set).
   void applyTransform(gp_Pnt& theP) const
   {
@@ -383,13 +518,31 @@ private:
     }
   }
 
+  //! Apply post-processor to derivative (if set).
+  //! @param[in,out] theV derivative vector
+  //! @param[in] theOrder derivative order (1, 2, 3, ...)
+  void applyPostProcessor(gp_Vec& theV, int theOrder) const
+  {
+    if (const auto* aDerivScale = std::get_if<DerivativeScaleModifier>(&myPostProcessor))
+    {
+      double aScale = aDerivScale->Scale;
+      for (int i = 1; i < theOrder; ++i)
+      {
+        aScale *= aDerivScale->Scale;
+      }
+      theV *= aScale;
+    }
+  }
+
 private:
-  Handle(Geom_Curve)     myCurve;      //!< The underlying geometry curve
-  GeomAbs_CurveType      myTypeCurve;  //!< Curve type for fast dispatch
-  double                 myFirst;      //!< First parameter bound
-  double                 myLast;       //!< Last parameter bound
-  EvaluationVariant      myEvalData;   //!< Curve-specific evaluation data (cache or alternative representation)
-  std::optional<gp_Trsf> myTrsf;       //!< Optional transformation modifier
+  Handle(Geom_Curve)     myCurve;          //!< The underlying geometry curve
+  GeomAbs_CurveType      myTypeCurve;      //!< Curve type for fast dispatch
+  double                 myFirst;          //!< First parameter bound
+  double                 myLast;           //!< Last parameter bound
+  ParameterModifier      myParamModifier;  //!< Parameter modification (pre-evaluation)
+  EvaluationVariant      myEvalData;       //!< Curve-specific evaluation data (cache or alternative representation)
+  std::optional<gp_Trsf> myTrsf;           //!< Optional transformation modifier (post-evaluation)
+  PostProcessor          myPostProcessor;  //!< Result modification (post-transformation)
 };
 
 #endif // _GeomAdaptor_CurveCore_HeaderFile

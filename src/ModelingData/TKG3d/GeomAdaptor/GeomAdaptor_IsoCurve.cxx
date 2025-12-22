@@ -202,6 +202,9 @@ void GeomAdaptor_IsoCurve::Load(const GeomAbs_IsoType Iso,
                              myLast);
     }
   }
+
+  // Configure Core with IsoCurve evaluation data
+  Core().SetIsoCurve(mySurface->Core(), myIso, myParameter);
 }
 
 //=================================================================================================
@@ -358,159 +361,8 @@ Standard_Real GeomAdaptor_IsoCurve::Period() const
 }
 
 //=================================================================================================
-
-gp_Pnt GeomAdaptor_IsoCurve::Value(const Standard_Real T) const
-{
-  switch (myIso)
-  {
-
-    case GeomAbs_IsoU:
-      return mySurface->Value(myParameter, T);
-
-    case GeomAbs_IsoV:
-      return mySurface->Value(T, myParameter);
-
-    case GeomAbs_NoneIso: {
-      throw Standard_NoSuchObject("GeomAdaptor_IsoCurve:NoneIso");
-      break;
-    }
-  }
-  // portage WNT
-  return gp_Pnt();
-}
-
-//=================================================================================================
-
-void GeomAdaptor_IsoCurve::D0(const Standard_Real T, gp_Pnt& P) const
-{
-  switch (myIso)
-  {
-
-    case GeomAbs_IsoU:
-      mySurface->D0(myParameter, T, P);
-      break;
-
-    case GeomAbs_IsoV:
-      mySurface->D0(T, myParameter, P);
-      break;
-
-    case GeomAbs_NoneIso:
-      throw Standard_NoSuchObject("GeomAdaptor_IsoCurve:NoneIso");
-      break;
-  }
-}
-
-//=================================================================================================
-
-void GeomAdaptor_IsoCurve::D1(const Standard_Real T, gp_Pnt& P, gp_Vec& V) const
-{
-  gp_Vec dummy;
-  switch (myIso)
-  {
-
-    case GeomAbs_IsoU:
-      mySurface->D1(myParameter, T, P, dummy, V);
-      break;
-
-    case GeomAbs_IsoV:
-      mySurface->D1(T, myParameter, P, V, dummy);
-      break;
-
-    case GeomAbs_NoneIso:
-      throw Standard_NoSuchObject("GeomAdaptor_IsoCurve:NoneIso");
-      break;
-  }
-}
-
-//=================================================================================================
-
-void GeomAdaptor_IsoCurve::D2(const Standard_Real T, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2) const
-{
-  gp_Vec dummy1, dummy2, dummy3;
-  switch (myIso)
-  {
-
-    case GeomAbs_IsoU:
-      mySurface->D2(myParameter, T, P, dummy1, V1, dummy2, V2, dummy3);
-      break;
-    case GeomAbs_IsoV:
-      mySurface->D2(T, myParameter, P, V1, dummy1, V2, dummy2, dummy3);
-      break;
-    case GeomAbs_NoneIso:
-      throw Standard_NoSuchObject("GeomAdaptor_IsoCurve:NoneIso");
-      break;
-  }
-}
-
-//=================================================================================================
-
-void GeomAdaptor_IsoCurve::D3(const Standard_Real T,
-                            gp_Pnt&             P,
-                            gp_Vec&             V1,
-                            gp_Vec&             V2,
-                            gp_Vec&             V3) const
-{
-  gp_Vec dummy[6];
-  switch (myIso)
-  {
-
-    case GeomAbs_IsoU:
-      mySurface->D3(myParameter,
-                    T,
-                    P,
-                    dummy[0],
-                    V1,
-                    dummy[1],
-                    V2,
-                    dummy[2],
-                    dummy[3],
-                    V3,
-                    dummy[4],
-                    dummy[5]);
-      break;
-
-    case GeomAbs_IsoV:
-      mySurface->D3(T,
-                    myParameter,
-                    P,
-                    V1,
-                    dummy[0],
-                    V2,
-                    dummy[1],
-                    dummy[2],
-                    V3,
-                    dummy[3],
-                    dummy[4],
-                    dummy[5]);
-      break;
-
-    case GeomAbs_NoneIso:
-      throw Standard_NoSuchObject("GeomAdaptor_IsoCurve:NoneIso");
-      break;
-  }
-}
-
-//=================================================================================================
-
-gp_Vec GeomAdaptor_IsoCurve::DN(const Standard_Real T, const Standard_Integer N) const
-{
-  switch (myIso)
-  {
-
-    case GeomAbs_IsoU:
-      return mySurface->DN(myParameter, T, 0, N);
-    case GeomAbs_IsoV:
-      return mySurface->DN(T, myParameter, N, 0);
-    case GeomAbs_NoneIso: {
-      throw Standard_NoSuchObject("GeomAdaptor_IsoCurve:NoneIso");
-      break;
-    }
-  }
-
-  // portage WNT
-  return gp_Vec();
-}
-
+// D0-DN methods are inherited from GeomAdaptor_Curve and delegate to Core.
+// The Core is configured with IsoCurveData at Load() time.
 //=================================================================================================
 
 Standard_Real GeomAdaptor_IsoCurve::Resolution(const Standard_Real R3D) const

@@ -86,7 +86,9 @@ Geom2dAdaptor_CurveCore::Geom2dAdaptor_CurveCore(const Geom2dAdaptor_CurveCore& 
       myTypeCurve(theOther.myTypeCurve),
       myFirst(theOther.myFirst),
       myLast(theOther.myLast),
-      myTrsf(theOther.myTrsf)
+      myTrsf(theOther.myTrsf),
+      myParamModifier(theOther.myParamModifier),
+      myPostProcessor(theOther.myPostProcessor)
 {
   // Deep copy evaluation data based on variant type
   if (const auto* anOffsetData = std::get_if<OffsetData>(&theOther.myEvalData))
@@ -127,7 +129,9 @@ Geom2dAdaptor_CurveCore::Geom2dAdaptor_CurveCore(Geom2dAdaptor_CurveCore&& theOt
       myFirst(theOther.myFirst),
       myLast(theOther.myLast),
       myEvalData(std::move(theOther.myEvalData)),
-      myTrsf(std::move(theOther.myTrsf))
+      myTrsf(std::move(theOther.myTrsf)),
+      myParamModifier(std::move(theOther.myParamModifier)),
+      myPostProcessor(std::move(theOther.myPostProcessor))
 {
 }
 
@@ -138,11 +142,13 @@ Geom2dAdaptor_CurveCore& Geom2dAdaptor_CurveCore::operator=(
 {
   if (this != &theOther)
   {
-    myCurve     = theOther.myCurve;
-    myTypeCurve = theOther.myTypeCurve;
-    myFirst     = theOther.myFirst;
-    myLast      = theOther.myLast;
-    myTrsf      = theOther.myTrsf;
+    myCurve         = theOther.myCurve;
+    myTypeCurve     = theOther.myTypeCurve;
+    myFirst         = theOther.myFirst;
+    myLast          = theOther.myLast;
+    myTrsf          = theOther.myTrsf;
+    myParamModifier = theOther.myParamModifier;
+    myPostProcessor = theOther.myPostProcessor;
 
     // Deep copy evaluation data
     if (const auto* anOffsetData = std::get_if<OffsetData>(&theOther.myEvalData))
@@ -187,12 +193,14 @@ Geom2dAdaptor_CurveCore& Geom2dAdaptor_CurveCore::operator=(
 {
   if (this != &theOther)
   {
-    myCurve     = std::move(theOther.myCurve);
-    myTypeCurve = theOther.myTypeCurve;
-    myFirst     = theOther.myFirst;
-    myLast      = theOther.myLast;
-    myEvalData  = std::move(theOther.myEvalData);
-    myTrsf      = std::move(theOther.myTrsf);
+    myCurve         = std::move(theOther.myCurve);
+    myTypeCurve     = theOther.myTypeCurve;
+    myFirst         = theOther.myFirst;
+    myLast          = theOther.myLast;
+    myEvalData      = std::move(theOther.myEvalData);
+    myTrsf          = std::move(theOther.myTrsf);
+    myParamModifier = std::move(theOther.myParamModifier);
+    myPostProcessor = std::move(theOther.myPostProcessor);
   }
   return *this;
 }
@@ -202,10 +210,12 @@ Geom2dAdaptor_CurveCore& Geom2dAdaptor_CurveCore::operator=(
 void Geom2dAdaptor_CurveCore::Reset()
 {
   myCurve.Nullify();
-  myTypeCurve = GeomAbs_OtherCurve;
+  myTypeCurve     = GeomAbs_OtherCurve;
   myFirst = myLast = 0.0;
-  myEvalData = std::monostate{};
+  myEvalData      = std::monostate{};
   myTrsf.reset();
+  myParamModifier = std::monostate{};
+  myPostProcessor = std::monostate{};
 }
 
 //==================================================================================================
@@ -669,35 +679,38 @@ gp_Pnt2d Geom2dAdaptor_CurveCore::Value(double theU) const
 
 void Geom2dAdaptor_CurveCore::D0(double theU, gp_Pnt2d& theP) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  const double aU = applyParamModifier(theU);
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve: {
       auto& aBezierData = std::get<BezierData>(myEvalData);
-      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(theU))
-        rebuildCache(theU);
-      aBezierData.Cache->D0(theU, theP);
+      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(aU))
+        rebuildCache(aU);
+      aBezierData.Cache->D0(aU, theP);
       break;
     }
 
     case GeomAbs_BSplineCurve: {
       auto& aBSplineData = std::get<BSplineData>(myEvalData);
       int   aStart = 0, aFinish = 0;
-      if (isBoundary(theU, aStart, aFinish))
+      if (isBoundary(aU, aStart, aFinish))
       {
-        aBSplineData.Curve->LocalD0(theU, aStart, aFinish, theP);
+        aBSplineData.Curve->LocalD0(aU, aStart, aFinish, theP);
       }
       else
       {
-        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(theU))
-          rebuildCache(theU);
-        aBSplineData.Cache->D0(theU, theP);
+        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(aU))
+          rebuildCache(aU);
+        aBSplineData.Cache->D0(aU, theP);
       }
       break;
     }
 
     case GeomAbs_OffsetCurve: {
       const auto& anOffsetData = std::get<OffsetData>(myEvalData);
-      if (!Geom2d_OffsetCurveUtils::EvaluateD0(theU,
+      if (!Geom2d_OffsetCurveUtils::EvaluateD0(aU,
                                                anOffsetData.BasisCore.get(),
                                                anOffsetData.Offset,
                                                theP))
@@ -708,7 +721,7 @@ void Geom2dAdaptor_CurveCore::D0(double theU, gp_Pnt2d& theP) const
     }
 
     default:
-      myCurve->D0(theU, theP);
+      myCurve->D0(aU, theP);
   }
   applyTransform(theP);
 }
@@ -717,35 +730,38 @@ void Geom2dAdaptor_CurveCore::D0(double theU, gp_Pnt2d& theP) const
 
 void Geom2dAdaptor_CurveCore::D1(double theU, gp_Pnt2d& theP, gp_Vec2d& theV) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  const double aU = applyParamModifier(theU);
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve: {
       auto& aBezierData = std::get<BezierData>(myEvalData);
-      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(theU))
-        rebuildCache(theU);
-      aBezierData.Cache->D1(theU, theP, theV);
+      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(aU))
+        rebuildCache(aU);
+      aBezierData.Cache->D1(aU, theP, theV);
       break;
     }
 
     case GeomAbs_BSplineCurve: {
       auto& aBSplineData = std::get<BSplineData>(myEvalData);
       int   aStart = 0, aFinish = 0;
-      if (isBoundary(theU, aStart, aFinish))
+      if (isBoundary(aU, aStart, aFinish))
       {
-        aBSplineData.Curve->LocalD1(theU, aStart, aFinish, theP, theV);
+        aBSplineData.Curve->LocalD1(aU, aStart, aFinish, theP, theV);
       }
       else
       {
-        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(theU))
-          rebuildCache(theU);
-        aBSplineData.Cache->D1(theU, theP, theV);
+        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(aU))
+          rebuildCache(aU);
+        aBSplineData.Cache->D1(aU, theP, theV);
       }
       break;
     }
 
     case GeomAbs_OffsetCurve: {
       const auto& anOffsetData = std::get<OffsetData>(myEvalData);
-      if (!Geom2d_OffsetCurveUtils::EvaluateD1(theU,
+      if (!Geom2d_OffsetCurveUtils::EvaluateD1(aU,
                                                anOffsetData.BasisCore.get(),
                                                anOffsetData.Offset,
                                                theP,
@@ -757,45 +773,49 @@ void Geom2dAdaptor_CurveCore::D1(double theU, gp_Pnt2d& theP, gp_Vec2d& theV) co
     }
 
     default:
-      myCurve->D1(theU, theP, theV);
+      myCurve->D1(aU, theP, theV);
   }
   applyTransform(theP);
   applyTransform(theV);
+  applyPostProcessor(theV, 1);
 }
 
 //==================================================================================================
 
 void Geom2dAdaptor_CurveCore::D2(double theU, gp_Pnt2d& theP, gp_Vec2d& theV1, gp_Vec2d& theV2) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  const double aU = applyParamModifier(theU);
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve: {
       auto& aBezierData = std::get<BezierData>(myEvalData);
-      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(theU))
-        rebuildCache(theU);
-      aBezierData.Cache->D2(theU, theP, theV1, theV2);
+      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(aU))
+        rebuildCache(aU);
+      aBezierData.Cache->D2(aU, theP, theV1, theV2);
       break;
     }
 
     case GeomAbs_BSplineCurve: {
       auto& aBSplineData = std::get<BSplineData>(myEvalData);
       int   aStart = 0, aFinish = 0;
-      if (isBoundary(theU, aStart, aFinish))
+      if (isBoundary(aU, aStart, aFinish))
       {
-        aBSplineData.Curve->LocalD2(theU, aStart, aFinish, theP, theV1, theV2);
+        aBSplineData.Curve->LocalD2(aU, aStart, aFinish, theP, theV1, theV2);
       }
       else
       {
-        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(theU))
-          rebuildCache(theU);
-        aBSplineData.Cache->D2(theU, theP, theV1, theV2);
+        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(aU))
+          rebuildCache(aU);
+        aBSplineData.Cache->D2(aU, theP, theV1, theV2);
       }
       break;
     }
 
     case GeomAbs_OffsetCurve: {
       const auto& anOffsetData = std::get<OffsetData>(myEvalData);
-      if (!Geom2d_OffsetCurveUtils::EvaluateD2(theU,
+      if (!Geom2d_OffsetCurveUtils::EvaluateD2(aU,
                                                anOffsetData.BasisCore.get(),
                                                anOffsetData.Offset,
                                                theP,
@@ -808,11 +828,13 @@ void Geom2dAdaptor_CurveCore::D2(double theU, gp_Pnt2d& theP, gp_Vec2d& theV1, g
     }
 
     default:
-      myCurve->D2(theU, theP, theV1, theV2);
+      myCurve->D2(aU, theP, theV1, theV2);
   }
   applyTransform(theP);
   applyTransform(theV1);
   applyTransform(theV2);
+  applyPostProcessor(theV1, 1);
+  applyPostProcessor(theV2, 2);
 }
 
 //==================================================================================================
@@ -823,35 +845,38 @@ void Geom2dAdaptor_CurveCore::D3(double    theU,
                                  gp_Vec2d& theV2,
                                  gp_Vec2d& theV3) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  const double aU = applyParamModifier(theU);
+
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve: {
       auto& aBezierData = std::get<BezierData>(myEvalData);
-      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(theU))
-        rebuildCache(theU);
-      aBezierData.Cache->D3(theU, theP, theV1, theV2, theV3);
+      if (aBezierData.Cache.IsNull() || !aBezierData.Cache->IsCacheValid(aU))
+        rebuildCache(aU);
+      aBezierData.Cache->D3(aU, theP, theV1, theV2, theV3);
       break;
     }
 
     case GeomAbs_BSplineCurve: {
       auto& aBSplineData = std::get<BSplineData>(myEvalData);
       int   aStart = 0, aFinish = 0;
-      if (isBoundary(theU, aStart, aFinish))
+      if (isBoundary(aU, aStart, aFinish))
       {
-        aBSplineData.Curve->LocalD3(theU, aStart, aFinish, theP, theV1, theV2, theV3);
+        aBSplineData.Curve->LocalD3(aU, aStart, aFinish, theP, theV1, theV2, theV3);
       }
       else
       {
-        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(theU))
-          rebuildCache(theU);
-        aBSplineData.Cache->D3(theU, theP, theV1, theV2, theV3);
+        if (aBSplineData.Cache.IsNull() || !aBSplineData.Cache->IsCacheValid(aU))
+          rebuildCache(aU);
+        aBSplineData.Cache->D3(aU, theP, theV1, theV2, theV3);
       }
       break;
     }
 
     case GeomAbs_OffsetCurve: {
       const auto& anOffsetData = std::get<OffsetData>(myEvalData);
-      if (!Geom2d_OffsetCurveUtils::EvaluateD3(theU,
+      if (!Geom2d_OffsetCurveUtils::EvaluateD3(aU,
                                                anOffsetData.BasisCore.get(),
                                                anOffsetData.Offset,
                                                theP,
@@ -865,34 +890,40 @@ void Geom2dAdaptor_CurveCore::D3(double    theU,
     }
 
     default:
-      myCurve->D3(theU, theP, theV1, theV2, theV3);
+      myCurve->D3(aU, theP, theV1, theV2, theV3);
   }
   applyTransform(theP);
   applyTransform(theV1);
   applyTransform(theV2);
   applyTransform(theV3);
+  applyPostProcessor(theV1, 1);
+  applyPostProcessor(theV2, 2);
+  applyPostProcessor(theV3, 3);
 }
 
 //==================================================================================================
 
 gp_Vec2d Geom2dAdaptor_CurveCore::DN(double theU, int theN) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  const double aU = applyParamModifier(theU);
+
   gp_Vec2d aResult;
   switch (myTypeCurve)
   {
     case GeomAbs_BezierCurve:
-      aResult = myCurve->DN(theU, theN);
+      aResult = myCurve->DN(aU, theN);
       break;
 
     case GeomAbs_BSplineCurve: {
       int aStart = 0, aFinish = 0;
-      if (isBoundary(theU, aStart, aFinish))
+      if (isBoundary(aU, aStart, aFinish))
       {
-        aResult = std::get<BSplineData>(myEvalData).Curve->LocalDN(theU, aStart, aFinish, theN);
+        aResult = std::get<BSplineData>(myEvalData).Curve->LocalDN(aU, aStart, aFinish, theN);
       }
       else
       {
-        aResult = myCurve->DN(theU, theN);
+        aResult = myCurve->DN(aU, theN);
       }
       break;
     }
@@ -901,7 +932,7 @@ gp_Vec2d Geom2dAdaptor_CurveCore::DN(double theU, int theN) const
       Standard_RangeError_Raise_if(theN < 1, "Geom2dAdaptor_CurveCore::DN(): N < 1");
 
       const auto& anOffsetData = std::get<OffsetData>(myEvalData);
-      if (!Geom2d_OffsetCurveUtils::EvaluateDN(theU,
+      if (!Geom2d_OffsetCurveUtils::EvaluateDN(aU,
                                                anOffsetData.BasisCore.get(),
                                                anOffsetData.Offset,
                                                theN,
@@ -918,9 +949,10 @@ gp_Vec2d Geom2dAdaptor_CurveCore::DN(double theU, int theN) const
     }
 
     default:
-      aResult = myCurve->DN(theU, theN);
+      aResult = myCurve->DN(aU, theN);
   }
   applyTransform(aResult);
+  applyPostProcessor(aResult, theN);
   return aResult;
 }
 

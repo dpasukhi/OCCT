@@ -443,7 +443,9 @@ GeomAdaptor_SurfaceCore::GeomAdaptor_SurfaceCore(const GeomAdaptor_SurfaceCore& 
       myVLast(theOther.myVLast),
       myTolU(theOther.myTolU),
       myTolV(theOther.myTolV),
-      myTrsf(theOther.myTrsf)
+      myParamModifier(theOther.myParamModifier),
+      myTrsf(theOther.myTrsf),
+      myPostProcessor(theOther.myPostProcessor)
 {
   // Deep copy evaluation data based on variant type
   if (const auto* aBSplineData = std::get_if<BSplineData>(&theOther.myEvalData))
@@ -505,8 +507,10 @@ GeomAdaptor_SurfaceCore::GeomAdaptor_SurfaceCore(GeomAdaptor_SurfaceCore&& theOt
       myVLast(theOther.myVLast),
       myTolU(theOther.myTolU),
       myTolV(theOther.myTolV),
+      myParamModifier(std::move(theOther.myParamModifier)),
       myEvalData(std::move(theOther.myEvalData)),
-      myTrsf(std::move(theOther.myTrsf))
+      myTrsf(std::move(theOther.myTrsf)),
+      myPostProcessor(std::move(theOther.myPostProcessor))
 {
   theOther.mySurfaceType = GeomAbs_OtherSurface;
   theOther.myUFirst = theOther.myULast = theOther.myVFirst = theOther.myVLast = 0.0;
@@ -540,8 +544,10 @@ GeomAdaptor_SurfaceCore& GeomAdaptor_SurfaceCore::operator=(
     myVLast                = theOther.myVLast;
     myTolU                 = theOther.myTolU;
     myTolV                 = theOther.myTolV;
+    myParamModifier        = std::move(theOther.myParamModifier);
     myEvalData             = std::move(theOther.myEvalData);
     myTrsf                 = std::move(theOther.myTrsf);
+    myPostProcessor        = std::move(theOther.myPostProcessor);
     theOther.mySurfaceType = GeomAbs_OtherSurface;
     theOther.myUFirst = theOther.myULast = theOther.myVFirst = theOther.myVLast = 0.0;
     theOther.myTolU = theOther.myTolV = 0.0;
@@ -554,11 +560,13 @@ GeomAdaptor_SurfaceCore& GeomAdaptor_SurfaceCore::operator=(
 void GeomAdaptor_SurfaceCore::Reset()
 {
   mySurface.Nullify();
-  mySurfaceType = GeomAbs_OtherSurface;
+  mySurfaceType   = GeomAbs_OtherSurface;
   myUFirst = myULast = myVFirst = myVLast = 0.0;
   myTolU = myTolV = 0.0;
+  myParamModifier = std::monostate{};
   myEvalData      = std::monostate{};
   myTrsf.reset();
+  myPostProcessor = std::monostate{};
 }
 
 //==================================================================================================
@@ -1251,44 +1259,48 @@ gp_Pnt GeomAdaptor_SurfaceCore::Value(double theU, double theV) const
 
 void GeomAdaptor_SurfaceCore::D0(double theU, double theV, gp_Pnt& theP) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  double aU = theU, aV = theV;
+  applyParamModifier(aU, aV);
+
   switch (mySurfaceType)
   {
     case GeomAbs_BezierSurface: {
       auto& aCache = std::get<BezierData>(myEvalData).Cache;
-      if (aCache.IsNull() || !aCache->IsCacheValid(theU, theV))
-        rebuildCache(theU, theV);
-      aCache->D0(theU, theV, theP);
+      if (aCache.IsNull() || !aCache->IsCacheValid(aU, aV))
+        rebuildCache(aU, aV);
+      aCache->D0(aU, aV, theP);
       break;
     }
 
     case GeomAbs_BSplineSurface: {
       auto& aCache = std::get<BSplineData>(myEvalData).Cache;
-      if (aCache.IsNull() || !aCache->IsCacheValid(theU, theV))
-        rebuildCache(theU, theV);
-      aCache->D0(theU, theV, theP);
+      if (aCache.IsNull() || !aCache->IsCacheValid(aU, aV))
+        rebuildCache(aU, aV);
+      aCache->D0(aU, aV, theP);
       break;
     }
 
     case GeomAbs_SurfaceOfExtrusion: {
       const auto& anExtData = std::get<ExtrusionData>(myEvalData);
-      Geom_ExtrusionUtils::D0(theU, theV, *anExtData.BasisCurve, anExtData.Direction, theP);
+      Geom_ExtrusionUtils::D0(aU, aV, *anExtData.BasisCurve, anExtData.Direction, theP);
       break;
     }
 
     case GeomAbs_SurfaceOfRevolution: {
       const auto& aRevData = std::get<RevolutionData>(myEvalData);
-      Geom_RevolutionUtils::D0(theU, theV, *aRevData.BasisCurve, aRevData.Axis, theP);
+      Geom_RevolutionUtils::D0(aU, aV, *aRevData.BasisCurve, aRevData.Axis, theP);
       break;
     }
 
     case GeomAbs_OffsetSurface: {
       const auto& anOffData = std::get<OffsetData>(myEvalData);
-      offsetD0(theU, theV, anOffData, theP);
+      offsetD0(aU, aV, anOffData, theP);
       break;
     }
 
     default:
-      mySurface->D0(theU, theV, theP);
+      mySurface->D0(aU, aV, theP);
   }
 
   applyTransform(theP);
@@ -1302,24 +1314,28 @@ void GeomAdaptor_SurfaceCore::D1(double   theU,
                                  gp_Vec&  theD1U,
                                  gp_Vec&  theD1V) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  double aU = theU, aV = theV;
+  applyParamModifier(aU, aV);
+
   int    Ideb, Ifin, IVdeb, IVfin, USide = 0, VSide = 0;
-  double u = theU, v = theV;
-  if (std::abs(theU - myUFirst) <= myTolU)
+  double u = aU, v = aV;
+  if (std::abs(aU - myUFirst) <= myTolU)
   {
     USide = 1;
     u     = myUFirst;
   }
-  else if (std::abs(theU - myULast) <= myTolU)
+  else if (std::abs(aU - myULast) <= myTolU)
   {
     USide = -1;
     u     = myULast;
   }
-  if (std::abs(theV - myVFirst) <= myTolV)
+  if (std::abs(aV - myVFirst) <= myTolV)
   {
     VSide = 1;
     v     = myVFirst;
   }
-  else if (std::abs(theV - myVLast) <= myTolV)
+  else if (std::abs(aV - myVLast) <= myTolV)
   {
     VSide = -1;
     v     = myVLast;
@@ -1329,9 +1345,9 @@ void GeomAdaptor_SurfaceCore::D1(double   theU,
   {
     case GeomAbs_BezierSurface: {
       auto& aCache = std::get<BezierData>(myEvalData).Cache;
-      if (aCache.IsNull() || !aCache->IsCacheValid(theU, theV))
-        rebuildCache(theU, theV);
-      aCache->D1(theU, theV, theP, theD1U, theD1V);
+      if (aCache.IsNull() || !aCache->IsCacheValid(aU, aV))
+        rebuildCache(aU, aV);
+      aCache->D1(aU, aV, theP, theD1U, theD1V);
       break;
     }
 
@@ -1342,9 +1358,9 @@ void GeomAdaptor_SurfaceCore::D1(double   theU,
         aBSpl->LocalD1(u, v, Ideb, Ifin, IVdeb, IVfin, theP, theD1U, theD1V);
       else
       {
-        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(theU, theV))
-          rebuildCache(theU, theV);
-        aBSplData.Cache->D1(theU, theV, theP, theD1U, theD1V);
+        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(aU, aV))
+          rebuildCache(aU, aV);
+        aBSplData.Cache->D1(aU, aV, theP, theD1U, theD1V);
       }
       break;
     }
@@ -1374,6 +1390,8 @@ void GeomAdaptor_SurfaceCore::D1(double   theU,
   applyTransform(theP);
   applyTransform(theD1U);
   applyTransform(theD1V);
+  applyPostProcessorU(theD1U, 1);
+  applyPostProcessorV(theD1V, 1);
 }
 
 //==================================================================================================
@@ -1387,24 +1405,28 @@ void GeomAdaptor_SurfaceCore::D2(double   theU,
                                  gp_Vec&  theD2V,
                                  gp_Vec&  theD2UV) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  double aU = theU, aV = theV;
+  applyParamModifier(aU, aV);
+
   int    Ideb, Ifin, IVdeb, IVfin, USide = 0, VSide = 0;
-  double u = theU, v = theV;
-  if (std::abs(theU - myUFirst) <= myTolU)
+  double u = aU, v = aV;
+  if (std::abs(aU - myUFirst) <= myTolU)
   {
     USide = 1;
     u     = myUFirst;
   }
-  else if (std::abs(theU - myULast) <= myTolU)
+  else if (std::abs(aU - myULast) <= myTolU)
   {
     USide = -1;
     u     = myULast;
   }
-  if (std::abs(theV - myVFirst) <= myTolV)
+  if (std::abs(aV - myVFirst) <= myTolV)
   {
     VSide = 1;
     v     = myVFirst;
   }
-  else if (std::abs(theV - myVLast) <= myTolV)
+  else if (std::abs(aV - myVLast) <= myTolV)
   {
     VSide = -1;
     v     = myVLast;
@@ -1414,9 +1436,9 @@ void GeomAdaptor_SurfaceCore::D2(double   theU,
   {
     case GeomAbs_BezierSurface: {
       auto& aCache = std::get<BezierData>(myEvalData).Cache;
-      if (aCache.IsNull() || !aCache->IsCacheValid(theU, theV))
-        rebuildCache(theU, theV);
-      aCache->D2(theU, theV, theP, theD1U, theD1V, theD2U, theD2V, theD2UV);
+      if (aCache.IsNull() || !aCache->IsCacheValid(aU, aV))
+        rebuildCache(aU, aV);
+      aCache->D2(aU, aV, theP, theD1U, theD1V, theD2U, theD2V, theD2UV);
       break;
     }
 
@@ -1427,9 +1449,9 @@ void GeomAdaptor_SurfaceCore::D2(double   theU,
         aBSpl->LocalD2(u, v, Ideb, Ifin, IVdeb, IVfin, theP, theD1U, theD1V, theD2U, theD2V, theD2UV);
       else
       {
-        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(theU, theV))
-          rebuildCache(theU, theV);
-        aBSplData.Cache->D2(theU, theV, theP, theD1U, theD1V, theD2U, theD2V, theD2UV);
+        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(aU, aV))
+          rebuildCache(aU, aV);
+        aBSplData.Cache->D2(aU, aV, theP, theD1U, theD1V, theD2U, theD2V, theD2UV);
       }
       break;
     }
@@ -1480,6 +1502,11 @@ void GeomAdaptor_SurfaceCore::D2(double   theU,
   applyTransform(theD2U);
   applyTransform(theD2V);
   applyTransform(theD2UV);
+  applyPostProcessorU(theD1U, 1);
+  applyPostProcessorV(theD1V, 1);
+  applyPostProcessorU(theD2U, 2);
+  applyPostProcessorV(theD2V, 2);
+  applyPostProcessorUV(theD2UV, 1, 1);
 }
 
 //==================================================================================================
@@ -1497,24 +1524,28 @@ void GeomAdaptor_SurfaceCore::D3(double   theU,
                                  gp_Vec&  theD3UUV,
                                  gp_Vec&  theD3UVV) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  double aU = theU, aV = theV;
+  applyParamModifier(aU, aV);
+
   int    Ideb, Ifin, IVdeb, IVfin, USide = 0, VSide = 0;
-  double u = theU, v = theV;
-  if (std::abs(theU - myUFirst) <= myTolU)
+  double u = aU, v = aV;
+  if (std::abs(aU - myUFirst) <= myTolU)
   {
     USide = 1;
     u     = myUFirst;
   }
-  else if (std::abs(theU - myULast) <= myTolU)
+  else if (std::abs(aU - myULast) <= myTolU)
   {
     USide = -1;
     u     = myULast;
   }
-  if (std::abs(theV - myVFirst) <= myTolV)
+  if (std::abs(aV - myVFirst) <= myTolV)
   {
     VSide = 1;
     v     = myVFirst;
   }
-  else if (std::abs(theV - myVLast) <= myTolV)
+  else if (std::abs(aV - myVLast) <= myTolV)
   {
     VSide = -1;
     v     = myVLast;
@@ -1609,30 +1640,43 @@ void GeomAdaptor_SurfaceCore::D3(double   theU,
   applyTransform(theD3V);
   applyTransform(theD3UUV);
   applyTransform(theD3UVV);
+  applyPostProcessorU(theD1U, 1);
+  applyPostProcessorV(theD1V, 1);
+  applyPostProcessorU(theD2U, 2);
+  applyPostProcessorV(theD2V, 2);
+  applyPostProcessorUV(theD2UV, 1, 1);
+  applyPostProcessorU(theD3U, 3);
+  applyPostProcessorV(theD3V, 3);
+  applyPostProcessorUV(theD3UUV, 2, 1);
+  applyPostProcessorUV(theD3UVV, 1, 2);
 }
 
 //==================================================================================================
 
 gp_Vec GeomAdaptor_SurfaceCore::DN(double theU, double theV, int theNu, int theNv) const
 {
+  // Apply parameter modifier (pre-evaluation)
+  double aU = theU, aV = theV;
+  applyParamModifier(aU, aV);
+
   int    Ideb, Ifin, IVdeb, IVfin, USide = 0, VSide = 0;
-  double u = theU, v = theV;
-  if (std::abs(theU - myUFirst) <= myTolU)
+  double u = aU, v = aV;
+  if (std::abs(aU - myUFirst) <= myTolU)
   {
     USide = 1;
     u     = myUFirst;
   }
-  else if (std::abs(theU - myULast) <= myTolU)
+  else if (std::abs(aU - myULast) <= myTolU)
   {
     USide = -1;
     u     = myULast;
   }
-  if (std::abs(theV - myVFirst) <= myTolV)
+  if (std::abs(aV - myVFirst) <= myTolV)
   {
     VSide = 1;
     v     = myVFirst;
   }
-  else if (std::abs(theV - myVLast) <= myTolV)
+  else if (std::abs(aV - myVLast) <= myTolV)
   {
     VSide = -1;
     v     = myVLast;
@@ -1679,6 +1723,7 @@ gp_Vec GeomAdaptor_SurfaceCore::DN(double theU, double theV, int theNu, int theN
   }
 
   applyTransform(aResult);
+  applyPostProcessorUV(aResult, theNu, theNv);
   return aResult;
 }
 

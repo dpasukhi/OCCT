@@ -24,6 +24,8 @@
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
+#include <Geom_Circle.hxx>
+#include <Geom_Line.hxx>
 #include <Geom_OffsetSurface.hxx>
 #include <Geom_SurfaceOfRevolution.hxx>
 #include <gp_Ax22d.hxx>
@@ -96,45 +98,6 @@ static gp_Hypr to3d(const gp_Pln& Pl, const gp_Hypr2d& H)
 static gp_Parab to3d(const gp_Pln& Pl, const gp_Parab2d& P)
 {
   return gp_Parab(to3d(Pl, P.Axis()), P.Focal());
-}
-
-static gp_Vec SetLinearForm(const gp_Vec2d& DW,
-                            const gp_Vec2d& D2W,
-                            const gp_Vec2d& D3W,
-                            const gp_Vec&   D1U,
-                            const gp_Vec&   D1V,
-                            const gp_Vec&   D2U,
-                            const gp_Vec&   D2V,
-                            const gp_Vec&   D2UV,
-                            const gp_Vec&   D3U,
-                            const gp_Vec&   D3V,
-                            const gp_Vec&   D3UUV,
-                            const gp_Vec&   D3UVV)
-{
-  gp_Vec V31, V32, V33, V34, V3;
-  V31.SetLinearForm(DW.X(), D1U, D2W.X() * DW.X(), D2U, D2W.X() * DW.Y(), D2UV);
-  V31.SetLinearForm(D3W.Y(), D1V, D2W.Y() * DW.X(), D2UV, D2W.Y() * DW.Y(), D2V, V31);
-  V32.SetLinearForm(DW.X() * DW.X() * DW.Y(), D3UUV, DW.X() * DW.Y() * DW.Y(), D3UVV);
-  V32.SetLinearForm(D2W.X() * DW.Y() + DW.X() * D2W.Y(),
-                    D2UV,
-                    DW.X() * DW.Y() * DW.Y(),
-                    D3UVV,
-                    V32);
-  V33.SetLinearForm(2 * D2W.X() * DW.X(),
-                    D2U,
-                    DW.X() * DW.X() * DW.X(),
-                    D3U,
-                    DW.X() * DW.X() * DW.Y(),
-                    D3UUV);
-
-  V34.SetLinearForm(2 * D2W.Y() * DW.Y(),
-                    D2V,
-                    DW.Y() * DW.Y() * DW.X(),
-                    D3UVV,
-                    DW.Y() * DW.Y() * DW.Y(),
-                    D3V);
-  V3.SetLinearForm(1, V31, 2, V32, 1, V33, V34);
-  return V3;
 }
 
 //=======================================================================
@@ -954,6 +917,25 @@ void GeomAdaptor_CurveOnSurface::Load(const Handle(Geom2dAdaptor_Curve)& C)
   {
     EvalFirstLastSurf();
   }
+
+  // Configure Core based on curve type determined by EvalKPart()
+  if (myType == GeomAbs_Line)
+  {
+    // For Line, load the precomputed 3D line into Core
+    Handle(Geom_Line) aGeomLine = new Geom_Line(myLin);
+    Core().Load(aGeomLine, myCurve->FirstParameter(), myCurve->LastParameter());
+  }
+  else if (myType == GeomAbs_Circle)
+  {
+    // For Circle, load the precomputed 3D circle into Core
+    Handle(Geom_Circle) aGeomCircle = new Geom_Circle(myCirc);
+    Core().Load(aGeomCircle, myCurve->FirstParameter(), myCurve->LastParameter());
+  }
+  else
+  {
+    // For generic curve-on-surface, configure Core with CurveOnSurface evaluation
+    Core().SetCurveOnSurface(myCurve->Core(), mySurface->Core());
+  }
 }
 
 //=================================================================================================
@@ -1148,208 +1130,8 @@ Standard_Real GeomAdaptor_CurveOnSurface::Period() const
 }
 
 //=================================================================================================
-
-gp_Pnt GeomAdaptor_CurveOnSurface::Value(const Standard_Real U) const
-{
-  gp_Pnt   P;
-  gp_Pnt2d Puv;
-
-  if (myType == GeomAbs_Line)
-    P = ElCLib::Value(U, myLin);
-  else if (myType == GeomAbs_Circle)
-    P = ElCLib::Value(U, myCirc);
-  else
-  {
-    myCurve->D0(U, Puv);
-    mySurface->D0(Puv.X(), Puv.Y(), P);
-  }
-
-  return P;
-}
-
-//=================================================================================================
-
-void GeomAdaptor_CurveOnSurface::D0(const Standard_Real U, gp_Pnt& P) const
-{
-  gp_Pnt2d Puv;
-
-  if (myType == GeomAbs_Line)
-    P = ElCLib::Value(U, myLin);
-  else if (myType == GeomAbs_Circle)
-    P = ElCLib::Value(U, myCirc);
-  else
-  {
-    myCurve->D0(U, Puv);
-    mySurface->D0(Puv.X(), Puv.Y(), P);
-  }
-}
-
-//=================================================================================================
-
-void GeomAdaptor_CurveOnSurface::D1(const Standard_Real U, gp_Pnt& P, gp_Vec& V) const
-{
-  gp_Pnt2d Puv;
-  gp_Vec2d Duv;
-  gp_Vec   D1U, D1V;
-
-  Standard_Real FP = myCurve->FirstParameter();
-  Standard_Real LP = myCurve->LastParameter();
-
-  constexpr Standard_Real Tol = Precision::PConfusion() / 10;
-  if ((std::abs(U - FP) < Tol) && (!myFirstSurf.IsNull()))
-  {
-    myCurve->D1(U, Puv, Duv);
-    myFirstSurf->D1(Puv.X(), Puv.Y(), P, D1U, D1V);
-    V.SetLinearForm(Duv.X(), D1U, Duv.Y(), D1V);
-  }
-  else if ((std::abs(U - LP) < Tol) && (!myLastSurf.IsNull()))
-  {
-    myCurve->D1(U, Puv, Duv);
-    myLastSurf->D1(Puv.X(), Puv.Y(), P, D1U, D1V);
-    V.SetLinearForm(Duv.X(), D1U, Duv.Y(), D1V);
-  }
-  else if (myType == GeomAbs_Line)
-    ElCLib::D1(U, myLin, P, V);
-  else if (myType == GeomAbs_Circle)
-    ElCLib::D1(U, myCirc, P, V);
-  else
-  {
-    myCurve->D1(U, Puv, Duv);
-    mySurface->D1(Puv.X(), Puv.Y(), P, D1U, D1V);
-    V.SetLinearForm(Duv.X(), D1U, Duv.Y(), D1V);
-  }
-}
-
-//=================================================================================================
-
-void GeomAdaptor_CurveOnSurface::D2(const Standard_Real U, gp_Pnt& P, gp_Vec& V1, gp_Vec& V2) const
-{
-  gp_Pnt2d UV;
-  gp_Vec2d DW, D2W;
-  gp_Vec   D1U, D1V, D2U, D2V, D2UV;
-
-  Standard_Real FP = myCurve->FirstParameter();
-  Standard_Real LP = myCurve->LastParameter();
-
-  constexpr Standard_Real Tol = Precision::PConfusion() / 10;
-  if ((std::abs(U - FP) < Tol) && (!myFirstSurf.IsNull()))
-  {
-    myCurve->D2(U, UV, DW, D2W);
-    myFirstSurf->D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
-
-    V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
-    V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2. * DW.X() * DW.Y(), D2UV);
-    V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
-  }
-  else if ((std::abs(U - LP) < Tol) && (!myLastSurf.IsNull()))
-  {
-    myCurve->D2(U, UV, DW, D2W);
-    myLastSurf->D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
-
-    V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
-    V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2. * DW.X() * DW.Y(), D2UV);
-    V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
-  }
-  else if (myType == GeomAbs_Line)
-  {
-    ElCLib::D1(U, myLin, P, V1);
-    V2.SetCoord(0., 0., 0.);
-  }
-  else if (myType == GeomAbs_Circle)
-    ElCLib::D2(U, myCirc, P, V1, V2);
-  else
-  {
-    myCurve->D2(U, UV, DW, D2W);
-    mySurface->D2(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV);
-
-    V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
-    V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2. * DW.X() * DW.Y(), D2UV);
-    V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
-  }
-}
-
-//=================================================================================================
-
-void GeomAdaptor_CurveOnSurface::D3(const Standard_Real U,
-                                  gp_Pnt&             P,
-                                  gp_Vec&             V1,
-                                  gp_Vec&             V2,
-                                  gp_Vec&             V3) const
-{
-
-  constexpr Standard_Real Tol = Precision::PConfusion() / 10;
-  gp_Pnt2d                UV;
-  gp_Vec2d                DW, D2W, D3W;
-  gp_Vec                  D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV;
-
-  Standard_Real FP = myCurve->FirstParameter();
-  Standard_Real LP = myCurve->LastParameter();
-
-  if ((std::abs(U - FP) < Tol) && (!myFirstSurf.IsNull()))
-  {
-    myCurve->D3(U, UV, DW, D2W, D3W);
-    myFirstSurf->D3(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-    V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
-    V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2. * DW.X() * DW.Y(), D2UV);
-    V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
-    V3 = SetLinearForm(DW, D2W, D3W, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-  }
-  else
-
-    if ((std::abs(U - LP) < Tol) && (!myLastSurf.IsNull()))
-  {
-    myCurve->D3(U, UV, DW, D2W, D3W);
-    myLastSurf->D3(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-    V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
-
-    V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2. * DW.X() * DW.Y(), D2UV);
-    V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
-    V3 = SetLinearForm(DW, D2W, D3W, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-  }
-  else if (myType == GeomAbs_Line)
-  {
-    ElCLib::D1(U, myLin, P, V1);
-    V2.SetCoord(0., 0., 0.);
-    V3.SetCoord(0., 0., 0.);
-  }
-  else if (myType == GeomAbs_Circle)
-    ElCLib::D3(U, myCirc, P, V1, V2, V3);
-  else
-  {
-    myCurve->D3(U, UV, DW, D2W, D3W);
-    mySurface->D3(UV.X(), UV.Y(), P, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-    V1.SetLinearForm(DW.X(), D1U, DW.Y(), D1V);
-
-    V2.SetLinearForm(D2W.X(), D1U, D2W.Y(), D1V, 2. * DW.X() * DW.Y(), D2UV);
-    V2.SetLinearForm(DW.X() * DW.X(), D2U, DW.Y() * DW.Y(), D2V, V2);
-    V3 = SetLinearForm(DW, D2W, D3W, D1U, D1V, D2U, D2V, D2UV, D3U, D3V, D3UUV, D3UVV);
-  }
-}
-
-//=================================================================================================
-
-gp_Vec GeomAdaptor_CurveOnSurface::DN(const Standard_Real U, const Standard_Integer N) const
-{
-  gp_Pnt P;
-  gp_Vec V1, V2, V;
-  switch (N)
-  {
-    case 1:
-      D1(U, P, V);
-      break;
-    case 2:
-      D2(U, P, V1, V);
-      break;
-    case 3:
-      D3(U, P, V1, V2, V);
-      break;
-    default:
-      throw Standard_NotImplemented("GeomAdaptor_CurveOnSurface:DN");
-      break;
-  }
-  return V;
-}
-
+// D0-DN methods are inherited from GeomAdaptor_Curve and delegate to Core.
+// The Core is configured with CurveOnSurfaceData at Load() time.
 //=================================================================================================
 
 Standard_Real GeomAdaptor_CurveOnSurface::Resolution(const Standard_Real R3d) const

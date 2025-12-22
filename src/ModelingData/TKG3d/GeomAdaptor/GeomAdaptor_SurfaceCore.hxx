@@ -37,6 +37,7 @@
 #include <Standard_NullObject.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <variant>
@@ -50,15 +51,20 @@ class GeomAdaptor_CurveCore;
 //! It is designed for stack allocation and value semantics, serving as the main
 //! implementation body for GeomAdaptor_Surface.
 //!
-//! The class supports multiple modifier types through a variant:
+//! The evaluation pipeline consists of three stages:
+//! 1. Parameter modification (pre-evaluation): ParameterModifier transforms input parameters
+//! 2. Surface evaluation: EvaluationVariant determines how the surface is evaluated
+//! 3. Result modification (post-evaluation): gp_Trsf and PostProcessor transform outputs
+//!
+//! The class supports multiple evaluation types through EvaluationVariant:
 //! - OffsetData: For offset surfaces
 //! - ExtrusionData: For surfaces of linear extrusion
 //! - RevolutionData: For surfaces of revolution
 //! - BezierData: For cached Bezier evaluation
 //! - BSplineData: For cached B-spline evaluation
 //!
-//! Transformation (gp_Trsf) is stored separately and applied AFTER the modifier,
-//! allowing combination of any modifier with transformation.
+//! Transformation (gp_Trsf) is stored separately and applied AFTER evaluation,
+//! allowing combination of any evaluation type with transformation.
 //!
 //! Polynomial coefficients of BSpline surfaces used for their evaluation are
 //! cached for better performance. Therefore these evaluations are not
@@ -111,6 +117,42 @@ public:
                                          RevolutionData,
                                          BezierData,
                                          BSplineData>;
+
+  // === Parameter Modifiers (pre-evaluation) ===
+
+  //! Linear parameter transformation for both U and V.
+  //! evaluatedU = ScaleU * inputU + OffsetU
+  //! evaluatedV = ScaleV * inputV + OffsetV
+  struct LinearParameterModifier
+  {
+    double ScaleU  = 1.0;  //!< Scale factor for U parameter
+    double OffsetU = 0.0;  //!< Offset added after scaling U
+    double ScaleV  = 1.0;  //!< Scale factor for V parameter
+    double OffsetV = 0.0;  //!< Offset added after scaling V
+  };
+
+  //! Swap U and V parameters.
+  struct SwapUVModifier
+  {
+  };
+
+  //! Variant type for parameter modification (applied before evaluation).
+  using ParameterModifier = std::variant<std::monostate,
+                                         LinearParameterModifier,
+                                         SwapUVModifier>;
+
+  // === Post-Processors (post-evaluation) ===
+
+  //! Scale derivatives by factors (for reparametrized surfaces).
+  struct DerivativeScaleModifier
+  {
+    double ScaleU = 1.0;  //!< Derivative scale factor for U
+    double ScaleV = 1.0;  //!< Derivative scale factor for V
+  };
+
+  //! Variant type for post-processing (applied after transformation).
+  using PostProcessor = std::variant<std::monostate,
+                                     DerivativeScaleModifier>;
 
 public:
   //! Default constructor. Creates an empty core with no surface loaded.
@@ -212,6 +254,52 @@ public:
   //! @return the current transformation
   //! @throw Standard_NoSuchObject if no transformation is set
   Standard_EXPORT const gp_Trsf& Transformation() const;
+
+  // === Parameter Modifier ===
+
+  //! Set linear parameter modifier.
+  //! @param[in] theScaleU scale factor for U parameter
+  //! @param[in] theOffsetU offset added after scaling U
+  //! @param[in] theScaleV scale factor for V parameter
+  //! @param[in] theOffsetV offset added after scaling V
+  void SetLinearParameterModifier(double theScaleU,
+                                  double theOffsetU,
+                                  double theScaleV,
+                                  double theOffsetV)
+  {
+    myParamModifier = LinearParameterModifier{theScaleU, theOffsetU, theScaleV, theOffsetV};
+  }
+
+  //! Set swap UV modifier.
+  void SetSwapUVModifier() { myParamModifier = SwapUVModifier{}; }
+
+  //! Clear the parameter modifier.
+  void ClearParameterModifier() { myParamModifier = std::monostate{}; }
+
+  //! Check if parameter modifier is set.
+  bool HasParameterModifier() const { return !std::holds_alternative<std::monostate>(myParamModifier); }
+
+  //! Get the parameter modifier variant.
+  const ParameterModifier& GetParameterModifier() const { return myParamModifier; }
+
+  // === Post-Processor ===
+
+  //! Set derivative scale modifier.
+  //! @param[in] theScaleU scale factor for U derivatives
+  //! @param[in] theScaleV scale factor for V derivatives
+  void SetDerivativeScaleModifier(double theScaleU, double theScaleV)
+  {
+    myPostProcessor = DerivativeScaleModifier{theScaleU, theScaleV};
+  }
+
+  //! Clear the post-processor.
+  void ClearPostProcessor() { myPostProcessor = std::monostate{}; }
+
+  //! Check if post-processor is set.
+  bool HasPostProcessor() const { return !std::holds_alternative<std::monostate>(myPostProcessor); }
+
+  //! Get the post-processor variant.
+  const PostProcessor& GetPostProcessor() const { return myPostProcessor; }
 
   // === Surface access ===
 
@@ -482,17 +570,88 @@ private:
     }
   }
 
+  //! Apply parameter modifier (if set).
+  //! @param[in,out] theU U parameter (modified in place)
+  //! @param[in,out] theV V parameter (modified in place)
+  void applyParamModifier(double& theU, double& theV) const
+  {
+    if (const auto* aLinear = std::get_if<LinearParameterModifier>(&myParamModifier))
+    {
+      theU = aLinear->ScaleU * theU + aLinear->OffsetU;
+      theV = aLinear->ScaleV * theV + aLinear->OffsetV;
+    }
+    else if (std::holds_alternative<SwapUVModifier>(myParamModifier))
+    {
+      std::swap(theU, theV);
+    }
+  }
+
+  //! Apply post-processor to U derivative (if set).
+  //! @param[in,out] theV derivative vector
+  //! @param[in] theOrderU derivative order in U
+  void applyPostProcessorU(gp_Vec& theV, int theOrderU) const
+  {
+    if (const auto* aDerivScale = std::get_if<DerivativeScaleModifier>(&myPostProcessor))
+    {
+      double aScale = 1.0;
+      for (int i = 0; i < theOrderU; ++i)
+      {
+        aScale *= aDerivScale->ScaleU;
+      }
+      theV *= aScale;
+    }
+  }
+
+  //! Apply post-processor to V derivative (if set).
+  //! @param[in,out] theV derivative vector
+  //! @param[in] theOrderV derivative order in V
+  void applyPostProcessorV(gp_Vec& theV, int theOrderV) const
+  {
+    if (const auto* aDerivScale = std::get_if<DerivativeScaleModifier>(&myPostProcessor))
+    {
+      double aScale = 1.0;
+      for (int i = 0; i < theOrderV; ++i)
+      {
+        aScale *= aDerivScale->ScaleV;
+      }
+      theV *= aScale;
+    }
+  }
+
+  //! Apply post-processor to mixed derivative (if set).
+  //! @param[in,out] theV derivative vector
+  //! @param[in] theOrderU derivative order in U
+  //! @param[in] theOrderV derivative order in V
+  void applyPostProcessorUV(gp_Vec& theV, int theOrderU, int theOrderV) const
+  {
+    if (const auto* aDerivScale = std::get_if<DerivativeScaleModifier>(&myPostProcessor))
+    {
+      double aScale = 1.0;
+      for (int i = 0; i < theOrderU; ++i)
+      {
+        aScale *= aDerivScale->ScaleU;
+      }
+      for (int i = 0; i < theOrderV; ++i)
+      {
+        aScale *= aDerivScale->ScaleV;
+      }
+      theV *= aScale;
+    }
+  }
+
 private:
-  Handle(Geom_Surface)     mySurface;      //!< The underlying geometry surface
-  GeomAbs_SurfaceType      mySurfaceType;  //!< Surface type for fast dispatch
-  double                   myUFirst;       //!< First U parameter bound
-  double                   myULast;        //!< Last U parameter bound
-  double                   myVFirst;       //!< First V parameter bound
-  double                   myVLast;        //!< Last V parameter bound
-  double                   myTolU;         //!< U tolerance for boundary detection
-  double                   myTolV;         //!< V tolerance for boundary detection
-  EvaluationVariant        myEvalData;     //!< Surface-specific evaluation data (cache or alternative representation)
-  std::optional<gp_Trsf>   myTrsf;         //!< Optional transformation modifier
+  Handle(Geom_Surface)     mySurface;        //!< The underlying geometry surface
+  GeomAbs_SurfaceType      mySurfaceType;    //!< Surface type for fast dispatch
+  double                   myUFirst;         //!< First U parameter bound
+  double                   myULast;          //!< Last U parameter bound
+  double                   myVFirst;         //!< First V parameter bound
+  double                   myVLast;          //!< Last V parameter bound
+  double                   myTolU;           //!< U tolerance for boundary detection
+  double                   myTolV;           //!< V tolerance for boundary detection
+  ParameterModifier        myParamModifier;  //!< Parameter modification (pre-evaluation)
+  EvaluationVariant        myEvalData;       //!< Surface-specific evaluation data (cache or alternative representation)
+  std::optional<gp_Trsf>   myTrsf;           //!< Optional transformation modifier (post-evaluation)
+  PostProcessor            myPostProcessor;  //!< Result modification (post-transformation)
 };
 
 #endif // _GeomAdaptor_SurfaceCore_HeaderFile

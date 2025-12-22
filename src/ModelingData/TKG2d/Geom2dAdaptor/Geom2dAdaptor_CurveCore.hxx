@@ -34,6 +34,7 @@
 #include <Standard_NullObject.hxx>
 #include <TColStd_Array1OfReal.hxx>
 
+#include <cmath>
 #include <memory>
 #include <optional>
 #include <variant>
@@ -45,14 +46,19 @@
 //! It is designed for stack allocation and value semantics, serving as the main
 //! implementation body for Geom2dAdaptor_Curve.
 //!
-//! The class supports multiple modifier types through a variant:
+//! The evaluation pipeline consists of three stages:
+//! 1. Parameter modification (pre-evaluation): ParameterModifier transforms input parameter
+//! 2. Curve evaluation: EvaluationVariant determines how the curve is evaluated
+//! 3. Result modification (post-evaluation): gp_Trsf2d and PostProcessor transform outputs
+//!
+//! The class supports multiple evaluation types through EvaluationVariant:
 //! - OffsetData: For offset curves
 //! - PiecewiseData: For composite curves
 //! - BezierData: For cached Bezier evaluation
 //! - BSplineData: For cached B-spline evaluation
 //!
-//! Transformation (gp_Trsf2d) is stored separately and applied AFTER the modifier,
-//! allowing combination of any modifier with transformation.
+//! Transformation (gp_Trsf2d) is stored separately and applied AFTER evaluation,
+//! allowing combination of any evaluation type with transformation.
 //!
 //! Polynomial coefficients of BSpline curves used for their evaluation are
 //! cached for better performance. Therefore these evaluations are not
@@ -94,6 +100,42 @@ public:
                                          PiecewiseData,
                                          BezierData,
                                          BSplineData>;
+
+  // === Parameter Modifiers (pre-evaluation) ===
+
+  //! Linear parameter transformation: result = Scale * input + Offset.
+  //! Used for reparametrization (e.g., BRepAdaptor trimmed curves).
+  struct LinearParameterModifier
+  {
+    double Scale  = 1.0;  //!< Scale factor for parameter
+    double Offset = 0.0;  //!< Offset added after scaling
+  };
+
+  //! Periodic parameter normalization.
+  //! Brings parameter into [FirstParam, FirstParam + Period) range.
+  struct PeriodicParameterModifier
+  {
+    double Period     = 0.0;  //!< Period value
+    double FirstParam = 0.0;  //!< First parameter of periodic range
+  };
+
+  //! Variant for pre-evaluation parameter transformation.
+  using ParameterModifier = std::variant<std::monostate,
+                                         LinearParameterModifier,
+                                         PeriodicParameterModifier>;
+
+  // === Post-Processors (post-evaluation) ===
+
+  //! Derivative scaling for chain rule application.
+  //! Scales derivatives based on parameter transformation.
+  struct DerivativeScaleModifier
+  {
+    double Scale = 1.0;  //!< Derivative scale factor (applied as Scale^N for Nth derivative)
+  };
+
+  //! Variant for post-evaluation result modification.
+  using PostProcessor = std::variant<std::monostate,
+                                     DerivativeScaleModifier>;
 
 public:
   //! Default constructor. Creates an empty core with no curve loaded.
@@ -181,6 +223,55 @@ public:
   //! @return the current transformation
   //! @throw Standard_NoSuchObject if no transformation is set
   Standard_EXPORT const gp_Trsf2d& Transformation() const;
+
+  // === Parameter Modifier ===
+
+  //! Set linear parameter modifier: result = Scale * input + Offset.
+  //! @param[in] theScale scale factor for parameter
+  //! @param[in] theOffset offset added after scaling
+  void SetLinearParameterModifier(double theScale, double theOffset)
+  {
+    myParamModifier = LinearParameterModifier{theScale, theOffset};
+  }
+
+  //! Set periodic parameter modifier.
+  //! @param[in] thePeriod period value
+  //! @param[in] theFirstParam first parameter of periodic range
+  void SetPeriodicParameterModifier(double thePeriod, double theFirstParam)
+  {
+    myParamModifier = PeriodicParameterModifier{thePeriod, theFirstParam};
+  }
+
+  //! Clear the parameter modifier.
+  void ClearParameterModifier() { myParamModifier = std::monostate{}; }
+
+  //! Check if parameter modifier is set.
+  //! @return true if parameter modifier is active
+  bool HasParameterModifier() const { return !std::holds_alternative<std::monostate>(myParamModifier); }
+
+  //! Get the parameter modifier variant.
+  //! @return reference to parameter modifier variant
+  const ParameterModifier& GetParameterModifier() const { return myParamModifier; }
+
+  // === Post-Processor ===
+
+  //! Set derivative scale modifier.
+  //! @param[in] theScale scale factor for derivatives (applied as Scale^N for Nth derivative)
+  void SetDerivativeScaleModifier(double theScale)
+  {
+    myPostProcessor = DerivativeScaleModifier{theScale};
+  }
+
+  //! Clear the post-processor.
+  void ClearPostProcessor() { myPostProcessor = std::monostate{}; }
+
+  //! Check if post-processor is set.
+  //! @return true if post-processor is active
+  bool HasPostProcessor() const { return !std::holds_alternative<std::monostate>(myPostProcessor); }
+
+  //! Get the post-processor variant.
+  //! @return reference to post-processor variant
+  const PostProcessor& GetPostProcessor() const { return myPostProcessor; }
 
   // === Curve access ===
 
@@ -355,13 +446,52 @@ private:
     }
   }
 
+  //! Apply parameter modifier (if set).
+  //! @param[in] theU input parameter
+  //! @return transformed parameter
+  double applyParamModifier(double theU) const
+  {
+    if (const auto* aLinear = std::get_if<LinearParameterModifier>(&myParamModifier))
+    {
+      return aLinear->Scale * theU + aLinear->Offset;
+    }
+    else if (const auto* aPeriodic = std::get_if<PeriodicParameterModifier>(&myParamModifier))
+    {
+      double aU = theU - aPeriodic->FirstParam;
+      if (aPeriodic->Period > 0.0)
+      {
+        aU = aU - aPeriodic->Period * std::floor(aU / aPeriodic->Period);
+      }
+      return aU + aPeriodic->FirstParam;
+    }
+    return theU;
+  }
+
+  //! Apply post-processor to derivative vector (if set).
+  //! @param[in,out] theV derivative vector to modify
+  //! @param[in] theOrder derivative order (1, 2, 3, ...)
+  void applyPostProcessor(gp_Vec2d& theV, int theOrder) const
+  {
+    if (const auto* aDerivScale = std::get_if<DerivativeScaleModifier>(&myPostProcessor))
+    {
+      double aScale = aDerivScale->Scale;
+      for (int i = 1; i < theOrder; ++i)
+      {
+        aScale *= aDerivScale->Scale;
+      }
+      theV *= aScale;
+    }
+  }
+
 private:
-  Handle(Geom2d_Curve)       myCurve;      //!< The underlying 2D geometry curve
-  GeomAbs_CurveType          myTypeCurve;  //!< Curve type for fast dispatch
-  double                     myFirst;      //!< First parameter bound
-  double                     myLast;       //!< Last parameter bound
-  EvaluationVariant          myEvalData;   //!< Curve-specific evaluation data (cache or alternative representation)
-  std::optional<gp_Trsf2d>   myTrsf;       //!< Optional 2D transformation modifier
+  Handle(Geom2d_Curve)       myCurve;          //!< The underlying 2D geometry curve
+  GeomAbs_CurveType          myTypeCurve;      //!< Curve type for fast dispatch
+  double                     myFirst;          //!< First parameter bound
+  double                     myLast;           //!< Last parameter bound
+  EvaluationVariant          myEvalData;       //!< Curve-specific evaluation data (cache or alternative representation)
+  std::optional<gp_Trsf2d>   myTrsf;           //!< Optional 2D transformation modifier
+  ParameterModifier          myParamModifier;  //!< Parameter modification (pre-evaluation)
+  PostProcessor              myPostProcessor;  //!< Result modification (post-transformation)
 };
 
 #endif // _Geom2dAdaptor_CurveCore_HeaderFile
