@@ -16,26 +16,14 @@
 
 #include <BiTgte_CurveOnEdge.hxx>
 
-#include <GeomAdaptor_Curve.hxx>
 #include <BRep_Tool.hxx>
-#include <Geom_BezierCurve.hxx>
-#include <Geom_BSplineCurve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <GeomAPI_ProjectPointOnCurve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_TrimmedCurve.hxx>
-#include <GeomAPI_ProjectPointOnCurve.hxx>
-#include <gp_Circ.hxx>
-#include <gp_Elips.hxx>
-#include <gp_Hypr.hxx>
-#include <gp_Lin.hxx>
-#include <gp_Parab.hxx>
-#include <gp_Pnt.hxx>
-#include <gp_Vec.hxx>
 #include <Precision.hxx>
 #include <Standard_NoSuchObject.hxx>
-#include <Standard_NotImplemented.hxx>
-#include <TopoDS_Edge.hxx>
-
-IMPLEMENT_STANDARD_RTTIEXT(BiTgte_CurveOnEdge, GeomAdaptor_Curve)
+#include <gp_Pnt.hxx>
 
 //=================================================================================================
 
@@ -56,25 +44,9 @@ BiTgte_CurveOnEdge::BiTgte_CurveOnEdge(const TopoDS_Edge& theEonF, const TopoDS_
 
 //=================================================================================================
 
-Handle(GeomAdaptor_Curve) BiTgte_CurveOnEdge::ShallowCopy() const
-{
-  Handle(BiTgte_CurveOnEdge) aCopy = new BiTgte_CurveOnEdge();
-
-  aCopy->myEdge = myEdge;
-  aCopy->myEonF = myEonF;
-  aCopy->myCurv = myCurv;
-  aCopy->myConF = myConF;
-  aCopy->myType = myType;
-  aCopy->myCirc = myCirc;
-
-  return aCopy;
-}
-
-//=================================================================================================
-
 void BiTgte_CurveOnEdge::Init(const TopoDS_Edge& EonF, const TopoDS_Edge& Edge)
 {
-  Standard_Real f, l;
+  double f, l;
 
   myEdge = Edge;
   myCurv = BRep_Tool::Curve(myEdge, f, l);
@@ -84,7 +56,7 @@ void BiTgte_CurveOnEdge::Init(const TopoDS_Edge& EonF, const TopoDS_Edge& Edge)
   myConF = BRep_Tool::Curve(myEonF, f, l);
   myConF = new Geom_TrimmedCurve(myConF, f, l);
 
-  // peut on generer un cercle de rayon nul
+  // Check if we can generate a zero-radius circle
   GeomAdaptor_Curve Curv(myCurv);
   GeomAdaptor_Curve ConF(myConF);
 
@@ -103,121 +75,26 @@ void BiTgte_CurveOnEdge::Init(const TopoDS_Edge& EonF, const TopoDS_Edge& Edge)
 
 //=================================================================================================
 
-Standard_Real BiTgte_CurveOnEdge::FirstParameter() const
+double BiTgte_CurveOnEdge::FirstParameter() const
 {
   return myConF->FirstParameter();
 }
 
 //=================================================================================================
 
-Standard_Real BiTgte_CurveOnEdge::LastParameter() const
+double BiTgte_CurveOnEdge::LastParameter() const
 {
   return myConF->LastParameter();
 }
 
 //=================================================================================================
 
-GeomAbs_Shape BiTgte_CurveOnEdge::Continuity() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Integer BiTgte_CurveOnEdge::NbIntervals(const GeomAbs_Shape) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-void BiTgte_CurveOnEdge::Intervals(TColStd_Array1OfReal&, const GeomAbs_Shape) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Handle(GeomAdaptor_Curve) BiTgte_CurveOnEdge::Trim(const Standard_Real,
-                                                 const Standard_Real,
-                                                 const Standard_Real) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Boolean BiTgte_CurveOnEdge::IsClosed() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Boolean BiTgte_CurveOnEdge::IsPeriodic() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Real BiTgte_CurveOnEdge::Period() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-gp_Pnt BiTgte_CurveOnEdge::Value(const Standard_Real U) const
-{
-  gp_Pnt P;
-  D0(U, P);
-  return P;
-}
-
-//=================================================================================================
-
-void BiTgte_CurveOnEdge::D0(const Standard_Real U, gp_Pnt& P) const
+gp_Pnt BiTgte_CurveOnEdge::Value(double U) const
 {
   GeomAPI_ProjectPointOnCurve Projector;
-  P = myConF->Value(U);
+  gp_Pnt                      P = myConF->Value(U);
   Projector.Init(P, myCurv);
-  P = Projector.NearestPoint();
-}
-
-//=================================================================================================
-
-void BiTgte_CurveOnEdge::D1(const Standard_Real, gp_Pnt&, gp_Vec&) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-void BiTgte_CurveOnEdge::D2(const Standard_Real, gp_Pnt&, gp_Vec&, gp_Vec&) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-void BiTgte_CurveOnEdge::D3(const Standard_Real, gp_Pnt&, gp_Vec&, gp_Vec&, gp_Vec&) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-gp_Vec BiTgte_CurveOnEdge::DN(const Standard_Real, const Standard_Integer) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Real BiTgte_CurveOnEdge::Resolution(const Standard_Real) const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
+  return Projector.NearestPoint();
 }
 
 //=================================================================================================
@@ -225,13 +102,6 @@ Standard_Real BiTgte_CurveOnEdge::Resolution(const Standard_Real) const
 GeomAbs_CurveType BiTgte_CurveOnEdge::GetType() const
 {
   return myType;
-}
-
-//=================================================================================================
-
-gp_Lin BiTgte_CurveOnEdge::Line() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
 }
 
 //=================================================================================================
@@ -244,67 +114,4 @@ gp_Circ BiTgte_CurveOnEdge::Circle() const
   }
 
   return myCirc;
-}
-
-//=================================================================================================
-
-gp_Elips BiTgte_CurveOnEdge::Ellipse() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-gp_Hypr BiTgte_CurveOnEdge::Hyperbola() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-gp_Parab BiTgte_CurveOnEdge::Parabola() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Integer BiTgte_CurveOnEdge::Degree() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Boolean BiTgte_CurveOnEdge::IsRational() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Integer BiTgte_CurveOnEdge::NbPoles() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Standard_Integer BiTgte_CurveOnEdge::NbKnots() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Handle(Geom_BezierCurve) BiTgte_CurveOnEdge::Bezier() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
-}
-
-//=================================================================================================
-
-Handle(Geom_BSplineCurve) BiTgte_CurveOnEdge::BSpline() const
-{
-  throw Standard_NotImplemented("BiTgte_CurveOnEdge");
 }
