@@ -39,13 +39,22 @@
         : SequenceType_(theOther)                                                                  \
     {                                                                                              \
     }                                                                                              \
-    const SequenceType_& Sequence() const noexcept { return *this; }                               \
-    void                 Append(const typename SequenceType_::value_type& theItem)                 \
+    const SequenceType_& Sequence() const noexcept                                                 \
+    {                                                                                              \
+      return *this;                                                                                \
+    }                                                                                              \
+    void Append(const typename SequenceType_::value_type& theItem)                                 \
     {                                                                                              \
       SequenceType_::Append(theItem);                                                              \
     }                                                                                              \
-    void           Append(SequenceType_& theSequence) { SequenceType_::Append(theSequence); }      \
-    SequenceType_& ChangeSequence() noexcept { return *this; }                                     \
+    void Append(SequenceType_& theSequence)                                                        \
+    {                                                                                              \
+      SequenceType_::Append(theSequence);                                                          \
+    }                                                                                              \
+    SequenceType_& ChangeSequence() noexcept                                                       \
+    {                                                                                              \
+      return *this;                                                                                \
+    }                                                                                              \
     template <class T>                                                                             \
     void Append(const Handle(T)& theOther,                                                         \
                 typename std::enable_if<std::is_base_of<HClassName, T>::value>::type* = 0)         \

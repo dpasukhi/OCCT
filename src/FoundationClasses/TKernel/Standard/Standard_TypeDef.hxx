@@ -85,8 +85,7 @@ typedef char Standard_Character
   [[deprecated("Standard_Character is deprecated, use char directly")]];
 
 //! @deprecated Use 'uint8_t' directly instead.
-typedef uint8_t Standard_Byte
-  [[deprecated("Standard_Byte is deprecated, use uint8_t directly")]];
+typedef uint8_t Standard_Byte [[deprecated("Standard_Byte is deprecated, use uint8_t directly")]];
 
 //! @deprecated Use 'void*' directly instead.
 typedef void* Standard_Address [[deprecated("Standard_Address is deprecated, use void* directly")]];
@@ -99,8 +98,7 @@ typedef std::time_t Standard_Time
   [[deprecated("Standard_Time is deprecated, use std::time_t directly")]];
 
 //! @deprecated Use 'char' directly instead.
-typedef char Standard_Utf8Char
-  [[deprecated("Standard_Utf8Char is deprecated, use char directly")]];
+typedef char Standard_Utf8Char [[deprecated("Standard_Utf8Char is deprecated, use char directly")]];
 
 //! @deprecated Use 'unsigned char' directly instead.
 typedef unsigned char Standard_Utf8UChar

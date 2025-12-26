@@ -58,8 +58,14 @@
         : Array1Type_(theOther)                                                                    \
     {                                                                                              \
     }                                                                                              \
-    const Array1Type_& Array1() const noexcept { return *this; }                                   \
-    Array1Type_&       ChangeArray1() noexcept { return *this; }                                   \
+    const Array1Type_& Array1() const noexcept                                                     \
+    {                                                                                              \
+      return *this;                                                                                \
+    }                                                                                              \
+    Array1Type_& ChangeArray1() noexcept                                                           \
+    {                                                                                              \
+      return *this;                                                                                \
+    }                                                                                              \
     DEFINE_STANDARD_RTTI_INLINE(HClassName, Standard_Transient)                                    \
   };                                                                                               \
   DEFINE_STANDARD_HANDLE(HClassName, Standard_Transient)
