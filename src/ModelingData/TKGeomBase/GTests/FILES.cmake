@@ -45,6 +45,7 @@ set(OCCT_TKGeomBase_GTests_FILES
   ExtremaSS_SphereSphere_Test.cxx
   ExtremaSS_SphereTorus_Test.cxx
   ExtremaSS_TorusTorus_Test.cxx
+  ExtremaSS_Performance_Test.cxx
   GeomConvert_CompCurveToBSplineCurve_Test.cxx
   IntAna_IntQuadQuad_Test.cxx
 )
