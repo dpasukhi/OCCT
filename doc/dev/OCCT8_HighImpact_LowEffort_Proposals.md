@@ -18,7 +18,7 @@ current roadmap. Each is selected for maximum value-to-effort ratio.
 
 | #  | Proposal | Effort | Impact |
 |----|----------|--------|--------|
-| 1  | Eliminate `DEFINE_STANDARD_ALLOC` macro | Low | Very High |
+| 1  | Modernize `DEFINE_STANDARD_ALLOC` — Replace Macro with Inherited Base | Low | Very High |
 | 2  | GPU ID-Buffer Selection (Color Picking) | Medium | Very High |
 | 3  | Scoped Enum (`enum class`) Migration | Low | High |
 | 4  | CMake Presets + Sanitizer / Fuzz-Testing Targets | Low | High |
@@ -28,89 +28,138 @@ current roadmap. Each is selected for maximum value-to-effort ratio.
 
 ---
 
-## 1. Eliminate `DEFINE_STANDARD_ALLOC` Macro
+## 1. Modernize `DEFINE_STANDARD_ALLOC` — Replace Macro with Inherited Base
 
 **Effort: Low** | **Impact: Very High**
 
+### Context
+
+`DEFINE_STANDARD_ALLOC` (`Standard_DefineAlloc.hxx:54-64`) injects per-class
+`operator new`/`operator delete` that redirect to `Standard::Allocate()` /
+`Standard::Free()`. This guarantees that **all** OCCT heap allocations route
+through the configured memory manager backend:
+
+- **FLEXIBLE** (`Standard_MMgrOpt`): 3-tier pool allocator — small blocks
+  (<=200 bytes) get O(1) bump-pointer allocation from page-aligned pools,
+  medium blocks use cached free-lists, large blocks go to mmap.
+- **TBB**: Intel's `scalable_malloc` with per-thread caches.
+- **JEMALLOC**: Facebook's jemalloc with arena-based allocation.
+- **NATIVE**: System `calloc`/`free`.
+
+This is a deliberate architectural guarantee. A `gp_Pnt` (24 bytes) allocated
+on the heap hits the FLEXIBLE allocator's Tier 1 fast path — a pointer bump
+with no syscall. The macro ensures this for every OCCT type, whether it
+inherits from `Standard_Transient` or not.
+
 ### Problem
 
-The `DEFINE_STANDARD_ALLOC` macro (`Standard_DefineAlloc.hxx:54-64`) injects
-per-class `operator new`/`operator delete` overrides that redirect to
-`Standard::Allocate()` / `Standard::Free()`. It appears in virtually every
-class in the codebase — including trivially copyable value types like `gp_Pnt`
-(`gp_Pnt.hxx:34`) where it is semantically meaningless noise.
+The *mechanism* is sound, but the *implementation* as a copy-pasted macro has
+costs:
 
-The macro also includes dead workarounds for Borland C++ and Sun Studio <= 5.3,
-compilers that no modern CI will ever target.
+1. **Repetition without enforcement:** The macro must be manually placed in
+   every class. If forgotten, the class silently falls back to system malloc.
+   There is no compile-time check.
+2. **Dead compiler guards:** Borland C++ (`__BORLANDC__`) and
+   Sun Studio <= 5.3 (`__SUNPRO_CC <= 0x530`) workarounds in
+   `Standard_DefineAlloc.hxx:21-51` are unreachable dead code.
+3. **Inheritance redundancy:** `Standard_Transient` already carries the macro
+   (`Standard_Transient.hxx:47`). In C++, class-specific `operator new/delete`
+   **is inherited** by derived classes. The macro in every derived Transient
+   class is redundant — it produces identical code that the base already
+   provides.
+4. **Interferes with tooling:** Per-class `operator new` can shadow
+   AddressSanitizer's allocator interception and prevents
+   `std::make_shared<T>()` from using its single-allocation optimization.
 
 ### Why It's High Impact
 
-- **Code noise reduction:** Removing a macro from thousands of class
-  definitions massively improves readability.
-- **Simplifies value types:** Types like `gp_Pnt`, `gp_Vec`, `gp_Dir`,
-  `gp_XYZ` are `constexpr`-constructible POD-like types. They should not carry
-  custom allocation operators. This enables compilers to treat them as truly
-  trivial where applicable.
-- **Enables standard tooling:** Custom `operator new` interferes with
-  AddressSanitizer's allocator replacement, `std::make_shared` optimization,
-  and allocator-aware containers.
+- **Preserves the allocator guarantee** while eliminating thousands of
+  redundant macro invocations.
+- **Adds compile-time enforcement** — currently impossible with the macro
+  approach.
+- **Simplifies contributor onboarding** — one less "magic macro" to learn.
 
 ### Technical Approach
 
-1. **For non-`Standard_Transient` value types** (gp_*, TColgp_*, Bnd_Box,
-   etc.): Remove `DEFINE_STANDARD_ALLOC` entirely. These types should use
-   the global allocator (which can be jemalloc/TBB at the process level).
+**A. For `Standard_Transient`-derived types (~2,443 classes):**
 
-2. **For `Standard_Transient`-derived types**: The memory manager override can
-   be handled once in `Standard_Transient::operator new/delete` via
-   inheritance, eliminating the need for the macro in every derived class.
-
-3. **For the `USE_MMGR_TYPE` CMake option**: Switch to a global
-   `operator new`/`delete` replacement strategy (the same approach jemalloc
-   and TBB already support natively via `LD_PRELOAD` or link-time injection).
-
-4. **Remove `STANDARD_ALIGNED` macro** — replaced by C++11 `alignas()`.
-
-5. **Remove all Borland/SunPro compiler guards** in `Standard_DefineAlloc.hxx`.
-
-### Migration Path
+`Standard_Transient` already defines `operator new/delete` via the macro.
+Since C++ inherits class-specific allocation operators, every derived class
+gets the OCCT allocator automatically. The macro in derived classes is
+redundant and can be removed.
 
 ```cpp
-// BEFORE (every class, everywhere):
-class gp_Pnt {
-public:
-  DEFINE_STANDARD_ALLOC    // <-- noise
-  constexpr gp_Pnt() = default;
-  ...
-};
-
-// AFTER:
-class gp_Pnt {
-public:
-  constexpr gp_Pnt() = default;
-  ...
-};
-```
-
-For `Standard_Transient` hierarchy, the override lives in the base:
-
-```cpp
+// Standard_Transient (keeps its operator new/delete, no macro needed either):
 class Standard_Transient {
 public:
-  // Single point of memory manager integration
-  static void* operator new(std::size_t sz);
-  static void  operator delete(void* ptr) noexcept;
-  ...
+  void* operator new(std::size_t sz)   { return Standard::Allocate(sz); }
+  void  operator delete(void* p)       { Standard::Free(p); }
+  void* operator new[](std::size_t sz) { return Standard::Allocate(sz); }
+  void  operator delete[](void* p)     { Standard::Free(p); }
+  // ...
 };
-// All derived classes inherit this automatically — no macro needed.
+
+// ALL derived classes — no macro, allocation inherited:
+class Geom_Surface : public Standard_Transient {
+  // operator new/delete inherited from Standard_Transient
+};
 ```
+
+**B. For non-Transient value types (gp_Pnt, gp_Vec, Bnd_Box, etc.):**
+
+Introduce a zero-overhead base class that carries the allocator override:
+
+```cpp
+// New lightweight base — no virtual table, no members, zero runtime cost
+// (Empty Base Optimization guarantees sizeof impact is 0)
+struct Standard_Allocated {
+  void* operator new(std::size_t sz)   { return Standard::Allocate(sz); }
+  void  operator delete(void* p)       { Standard::Free(p); }
+  void* operator new[](std::size_t sz) { return Standard::Allocate(sz); }
+  void  operator delete[](void* p)     { Standard::Free(p); }
+};
+
+// Value types inherit the guarantee without a macro:
+class gp_Pnt : public Standard_Allocated {
+public:
+  constexpr gp_Pnt() = default;
+  constexpr gp_Pnt(double x, double y, double z) : coord(x, y, z) {}
+  // ...
+};
+```
+
+`Standard_Allocated` has no virtual functions and no data members. Under EBO
+(Empty Base Optimization, mandatory in C++), `sizeof(gp_Pnt)` remains
+unchanged at 24 bytes (3 doubles). The allocator guarantee is preserved, and
+`constexpr` constructibility is unaffected.
+
+**C. Compile-time enforcement (new, not possible with macros):**
+
+A static assertion or clang-tidy check can verify that every OCCT class either
+inherits from `Standard_Transient` or `Standard_Allocated`, ensuring no class
+accidentally uses system malloc. This is impossible with the macro approach
+where omission is silent.
+
+**D. Clean up `Standard_DefineAlloc.hxx`:**
+
+- Remove Borland/SunPro dead code paths (lines 21-51, 67-75).
+- `DEFINE_STANDARD_ALLOC` can be retained as an empty macro during a
+  transition period, then removed.
+- `STANDARD_ALIGNED(N, T, V)` replaced by `alignas(N) T V` (Proposal #5).
 
 ### Risks
 
-- Low. This is a mechanical transformation. The `USE_MMGR_TYPE` feature is
-  preserved by moving the override to the base class or using global
-  replacement. A `static_assert` or compile-time check can verify no class
-  accidentally reintroduces custom allocation.
+- **Low for Transient-derived types:** Removing a redundant macro from
+  classes that already inherit `operator new/delete` is a no-op at the
+  binary level.
+- **Low for value types:** `Standard_Allocated` is an empty base — EBO
+  guarantees zero size overhead. `constexpr` and trivial-copyability are
+  preserved. The only constraint is that types needing the guarantee must
+  inherit from it (or `Standard_Transient`), which is enforced at
+  compile-time.
+- **FLEXIBLE allocator path preserved:** `Standard::Allocate()` dispatch
+  is unchanged. Pool allocation for small blocks, free-list caching for
+  medium blocks, and mmap for large blocks all work exactly as before.
 
 ---
 
@@ -629,7 +678,7 @@ struct BRep_CompactShape {
 
 | # | Proposal | Effort | Impact | Key Benefit |
 |---|----------|--------|--------|-------------|
-| 1 | Eliminate `DEFINE_STANDARD_ALLOC` | Low | Very High | Remove ~2000+ macro instances, simplify every class |
+| 1 | Modernize `DEFINE_STANDARD_ALLOC` | Low | Very High | Replace macro with `Standard_Allocated` base + inheritance; preserve allocator guarantee, add compile-time enforcement |
 | 2 | GPU ID-Buffer Selection | Medium | Very High | O(1) interactive picking for million-triangle scenes |
 | 3 | `enum class` Migration | Low | High | Type safety across 441 enum definitions |
 | 4 | CMake Presets + Sanitizers + Fuzzing | Low | High | CI quality, parser robustness, reproducible builds |
