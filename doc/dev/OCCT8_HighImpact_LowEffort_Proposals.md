@@ -20,7 +20,7 @@ emphasis on core data structures and geometry evaluation paths.
 
 | #  | Proposal | Module | Effort | Impact |
 |----|----------|--------|--------|--------|
-| 1  | `TopoDS_TShape` children: pool-allocated list nodes for cache locality | Modeling Data | Low | High |
+| 1  | `GeomAdaptor_Curve`: extend `std::variant` dispatch to all elementary types | Modeling Data | Low | Very High |
 | 2  | `Geom_BSplineCurve/Surface`: consolidate 5 Handle arrays into single allocation | Modeling Data | Medium | Very High |
 | 3  | `BRep_TEdge` curve representations: tagged union replacing virtual `Is*()` dispatch | Modeling Data | Medium | Very High |
 | 4  | Scoped Enum (`enum class`) migration | Foundation + Modeling | Low | High |
@@ -30,119 +30,134 @@ emphasis on core data structures and geometry evaluation paths.
 
 ---
 
-## 1. `TopoDS_TShape` Children: Pool-Allocated List Nodes for Cache Locality
+## 1. `GeomAdaptor_Curve`: Eliminate Virtual Dispatch for Elementary Curves
 
-**Effort: Low** | **Impact: High**
+**Effort: Low** | **Impact: Very High**
 
 ### Problem
 
-`TopoDS_TShape` stores its child shapes in a linked list
-(`TopoDS_TShape.hxx:185`):
+`GeomAdaptor_Curve` already uses `std::variant` to avoid virtual dispatch
+for BSpline, Bezier, and Offset curves (`GeomAdaptor_Curve.hxx:66`):
 
 ```cpp
-NCollection_List<TopoDS_Shape> myShapes; // Child shapes stored in a list
+using CurveDataVariant = std::variant<std::monostate, OffsetData, BezierData, BSplineData>;
 ```
 
-Every topological iteration in OCCT — `TopoDS_Iterator`, `TopExp_Explorer`,
-`BRepTools`, boolean preprocessing, mesh generation, STEP export — walks this
-linked list. Each `Next()` call chases a pointer to a separately allocated list
-node scattered across the heap.
-
-### Why Not a Vector?
-
-A contiguous vector (e.g., `NCollection_Vector`) was already tested and
-found impractical. The `NCollection_List` API is load-bearing:
-
-- **`TopoDS_Builder::Remove()`** (91 call sites): linear search then
-  O(1) iterator-based removal. With a vector, this becomes an O(n) element
-  shift that breaks iterator stability.
-- **Middle insertion / reordering**: some algorithms rely on inserting
-  elements relative to existing iterators, which vectors cannot do
-  without invalidating all iterators.
-- **`BRep_Builder`** similarly removes curve representations from
-  `NCollection_List` via iterator (`lcr.Remove(itcr)`).
-
-The linked-list structure is fundamentally correct for the mutation pattern.
-The problem is **allocation locality**, not the data structure itself.
-
-### Technical Approach: Node Pool Allocator
-
-Keep `NCollection_List<TopoDS_Shape>` but allocate list nodes from a
-per-shape (or global) contiguous pool, so nodes created together are
-physically adjacent in memory:
-
-**Option A: Pool allocator for NCollection_List (preferred):**
-
-`NCollection_List` already accepts an allocator parameter
-(`NCollection_BaseAllocator`). Provide a block pool allocator that
-allocates list nodes from contiguous pages:
+But the 5 **elementary analytical curve types** — Line, Circle, Ellipse,
+Hyperbola, Parabola — all fall through to **virtual dispatch** in the
+`default` case (`GeomAdaptor_Curve.cxx:652-653`):
 
 ```cpp
-class TopoDS_TShape : public Standard_Transient {
-private:
-  // Pool allocator ensures list nodes for this shape's children
-  // are allocated from a contiguous memory block
-  NCollection_List<TopoDS_Shape> myShapes;  // uses pool allocator
-  uint16_t myState;
-};
-```
-
-The key insight: list nodes allocated from a pool during shape construction
-(which is sequential) end up physically contiguous. Iteration over children
-then benefits from spatial locality even though the data structure is a
-linked list.
-
-**Option B: `std::pmr::list` with monotonic buffer (C++17):**
-
-If the NCollection→STL migration (already on the roadmap) proceeds first:
-
-```cpp
-class TopoDS_TShape : public Standard_Transient {
-private:
-  std::pmr::monotonic_buffer_resource myPool;
-  std::pmr::list<TopoDS_Shape> myShapes{&myPool};
-  uint16_t myState;
-};
-```
-
-`monotonic_buffer_resource` allocates from a contiguous block.
-Nodes are physically adjacent in allocation order. Deallocation is
-a single free of the entire pool (efficient for shapes that are
-constructed then read many times).
-
-**Option C: Hybrid approach — read-only compaction:**
-
-After construction is complete, compact the list into a contiguous
-read-only snapshot. This preserves the mutable list for algorithms
-that need `Remove()`, while giving iteration-heavy paths a fast
-contiguous view:
-
-```cpp
-class TopoDS_TShape : public Standard_Transient {
-private:
-  NCollection_List<TopoDS_Shape> myShapes;  // mutable, for construction
-  mutable std::vector<TopoDS_Shape> myCompacted;  // read-only cache
-  mutable bool myCompactValid = false;
-
-  const auto& CompactChildren() const {
-    if (!myCompactValid) {
-      myCompacted.assign(myShapes.begin(), myShapes.end());
-      myCompactValid = true;
-    }
-    return myCompacted;
+void GeomAdaptor_Curve::D0(const double U, gp_Pnt& P) const
+{
+  switch (myTypeCurve) {
+    case GeomAbs_BezierCurve:  { /* cached eval */ break; }
+    case GeomAbs_BSplineCurve: { /* cached eval */ break; }
+    case GeomAbs_OffsetCurve:  { /* direct eval */ break; }
+    default:
+      myCurve->D0(U, P);  // ← VIRTUAL CALL for Line, Circle, etc.
   }
-};
+}
 ```
+
+The virtual call dispatches to trivial implementations. For example,
+`Geom_Line::D0` (`Geom_Line.cxx:170-172`) is just:
+
+```cpp
+void Geom_Line::D0(const double U, gp_Pnt& P) const {
+  P = ElCLib::LineValue(U, pos);  // 3 multiply-adds, ~6 FLOPs
+}
+```
+
+`ElCLib::LineValue` (`ElCLib.cxx:153-158`) is:
+```cpp
+return gp_Pnt(U * ZDir.X() + PLoc.X(),
+              U * ZDir.Y() + PLoc.Y(),
+              U * ZDir.Z() + PLoc.Z());
+```
+
+For a ~6-FLOP computation, the virtual dispatch overhead (vtable load +
+indirect branch + possible misprediction) is proportionally very large.
+The same applies to `Geom_Circle::D0` (sin/cos + a few multiplies) and
+the other conics.
+
+### Why It's Very High Impact
+
+- **Lines and circles dominate real geometry.** In most CAD models, 30-60%
+  of edges are lines or circular arcs. These are the curves evaluated most
+  often during meshing, intersection, and display.
+- **The type is already known.** `myTypeCurve` is set at `Load()` time.
+  The adaptor already dispatches on it — the `default` fallback simply
+  doesn't use this information for elementary types.
+- **Same pattern as BSpline/Bezier.** The existing `case GeomAbs_BSplineCurve`
+  avoids virtual dispatch by using cached data directly. The same idea
+  applies to elementary curves, just without needing a cache (since their
+  evaluation is analytical).
+
+### Technical Approach
+
+Add explicit `case` branches for the 5 elementary types, calling `ElCLib`
+directly with a `static_cast` (safe because `myTypeCurve` was set from the
+actual type in `load()`):
+
+```cpp
+void GeomAdaptor_Curve::D0(const double U, gp_Pnt& P) const
+{
+  switch (myTypeCurve)
+  {
+    case GeomAbs_Line: {
+      const auto* L = static_cast<const Geom_Line*>(myCurve.get());
+      P = ElCLib::LineValue(U, L->Position());
+      break;
+    }
+    case GeomAbs_Circle: {
+      const auto* C = static_cast<const Geom_Circle*>(myCurve.get());
+      P = ElCLib::CircleValue(U, C->Position(), C->Radius());
+      break;
+    }
+    case GeomAbs_Ellipse: {
+      const auto* E = static_cast<const Geom_Ellipse*>(myCurve.get());
+      P = ElCLib::EllipseValue(U, E->Position(), E->MajorRadius(), E->MinorRadius());
+      break;
+    }
+    case GeomAbs_Hyperbola: {
+      const auto* H = static_cast<const Geom_Hyperbola*>(myCurve.get());
+      P = ElCLib::HyperbolaValue(U, H->Position(), H->MajorRadius(), H->MinorRadius());
+      break;
+    }
+    case GeomAbs_Parabola: {
+      const auto* Pb = static_cast<const Geom_Parabola*>(myCurve.get());
+      P = ElCLib::ParabolaValue(U, Pb->Position(), Pb->Focal());
+      break;
+    }
+
+    case GeomAbs_BezierCurve:  { /* existing cached path */ break; }
+    case GeomAbs_BSplineCurve: { /* existing cached path */ break; }
+    case GeomAbs_OffsetCurve:  { /* existing direct path */ break; }
+
+    default:
+      myCurve->D0(U, P);  // only GeomAbs_OtherCurve reaches here
+  }
+}
+```
+
+The same pattern applies to `D1`, `D2`, `D3`, and `DN` methods, using
+`ElCLib::LineD1`, `ElCLib::CircleD1`, etc.
+
+**Scope:** The same optimization applies to `GeomAdaptor_Surface` (planes,
+cylinders, cones, spheres, tori fall through to virtual dispatch).
+Also to `Geom2dAdaptor_Curve` for the 2D analogues.
 
 ### Risks
 
-- **Option A** is the lowest-risk: same data structure, same API, only the
-  allocator changes. Requires plumbing a pool allocator through construction.
-- **Option B** depends on the NCollection→STL migration timeline.
-- **Option C** adds memory overhead (duplicated children). The invalidation
-  logic on `Modified()` must be watertight — `TopoDS_TShape::Modified()`
-  already clears the Checked flag (line 104-108), so adding compaction
-  invalidation there is natural.
+- **Very low.** The `static_cast` is safe because `myTypeCurve` is
+  determined from `Geom_Curve::DynamicType()` in `load()` — it
+  matches the actual type. This is the same pattern already used
+  throughout `BRep_Tool` (e.g., `BRep_Tool.cxx:78`).
+- No data structure changes. No new members. Just expanding the
+  existing switch with cases that were already implicitly handled.
+- The `default` path remains for `GeomAbs_OtherCurve` (user-defined
+  or exotic curves), so extensibility is preserved.
 
 ---
 
@@ -687,7 +702,7 @@ for (const auto& pt : points) {
 
 | # | Proposal | Module | Effort | Impact | Key Benefit |
 |---|----------|--------|--------|--------|-------------|
-| 1 | TShape children → pool-allocated nodes | Modeling Data | Low | High | Improve cache locality in topology iteration without changing list API |
+| 1 | GeomAdaptor: devirtualize elementary curves | Modeling Data | Low | Very High | Eliminate virtual dispatch for Line/Circle/Ellipse evaluation (~60% of real geometry) |
 | 2 | BSpline single-allocation layout | Modeling Data | Medium | Very High | 5 scattered Handle arrays → 1 contiguous buffer for the dominant curve type |
 | 3 | BRep_TEdge variant curve reps | Modeling Data | Medium | Very High | Remove virtual `Is*()` dispatch + linked list in `BRep_Tool` hot path |
 | 4 | `enum class` migration | Foundation + Modeling | Low | High | Type safety across 441 enum definitions |
@@ -706,10 +721,10 @@ for (const auto& pt : points) {
 2. **Proposal 6** (Low effort, infrastructure) — set up sanitizers before
    large refactoring to catch regressions early.
 
-3. **Proposal 1** (Low effort, high impact) — pool-allocated list nodes
-   improve cache locality without changing the list API. The linked-list
-   structure must be preserved for `TopoDS_Builder::Remove()` (91 call
-   sites) and iterator-based insertion.
+3. **Proposal 1** (Low effort, very high impact) — devirtualize elementary
+   curve evaluation in `GeomAdaptor_Curve`. Lines and circles are 30-60%
+   of real geometry; eliminating virtual dispatch for a ~6-FLOP computation
+   is a large proportional win. Same pattern extends to `GeomAdaptor_Surface`.
 
 4. **Proposal 7** (Low effort, developer experience) — small additions to
    well-understood `gp_*` types. Can be done incrementally.
