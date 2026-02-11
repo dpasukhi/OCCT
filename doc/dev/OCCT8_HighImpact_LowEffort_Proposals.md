@@ -20,7 +20,7 @@ emphasis on core data structures and geometry evaluation paths.
 
 | #  | Proposal | Module | Effort | Impact |
 |----|----------|--------|--------|--------|
-| 1  | `TopoDS_TShape` children: linked list to contiguous small vector | Modeling Data | Low | Very High |
+| 1  | `TopoDS_TShape` children: pool-allocated list nodes for cache locality | Modeling Data | Low | High |
 | 2  | `Geom_BSplineCurve/Surface`: consolidate 5 Handle arrays into single allocation | Modeling Data | Medium | Very High |
 | 3  | `BRep_TEdge` curve representations: tagged union replacing virtual `Is*()` dispatch | Modeling Data | Medium | Very High |
 | 4  | Scoped Enum (`enum class`) migration | Foundation + Modeling | Low | High |
@@ -30,9 +30,9 @@ emphasis on core data structures and geometry evaluation paths.
 
 ---
 
-## 1. `TopoDS_TShape` Children: Linked List → Contiguous Small Vector
+## 1. `TopoDS_TShape` Children: Pool-Allocated List Nodes for Cache Locality
 
-**Effort: Low** | **Impact: Very High**
+**Effort: Low** | **Impact: High**
 
 ### Problem
 
@@ -46,101 +46,103 @@ NCollection_List<TopoDS_Shape> myShapes; // Child shapes stored in a list
 Every topological iteration in OCCT — `TopoDS_Iterator`, `TopExp_Explorer`,
 `BRepTools`, boolean preprocessing, mesh generation, STEP export — walks this
 linked list. Each `Next()` call chases a pointer to a separately allocated list
-node. For a model with 100K faces, each face's wire iterator, each wire's edge
-iterator, all chase per-node heap allocations scattered across memory.
+node scattered across the heap.
 
-**The real-world child count distribution is heavily skewed small:**
+### Why Not a Vector?
 
-| Parent type | Typical children | Maximum common |
-|-------------|-----------------|----------------|
-| Vertex      | 0               | 0              |
-| Edge        | 0-2 (vertices)  | 2              |
-| Wire        | 3-50 (edges)    | ~200           |
-| Face        | 1-3 (wires)     | ~10            |
-| Shell       | 1-N (faces)     | N              |
-| Solid       | 1-2 (shells)    | ~4             |
-| Compound    | N               | N              |
+A contiguous vector (e.g., `NCollection_Vector`) was already tested and
+found impractical. The `NCollection_List` API is load-bearing:
 
-For edges, faces, and solids — the vast majority of topology — child counts
-are under 8. A linked list is the worst possible data structure for this
-distribution: O(n) allocation overhead, zero cache locality, and pointer
-chasing for every element.
+- **`TopoDS_Builder::Remove()`** (91 call sites): linear search then
+  O(1) iterator-based removal. With a vector, this becomes an O(n) element
+  shift that breaks iterator stability.
+- **Middle insertion / reordering**: some algorithms rely on inserting
+  elements relative to existing iterators, which vectors cannot do
+  without invalidating all iterators.
+- **`BRep_Builder`** similarly removes curve representations from
+  `NCollection_List` via iterator (`lcr.Remove(itcr)`).
 
-### Why It's Very High Impact
+The linked-list structure is fundamentally correct for the mutation pattern.
+The problem is **allocation locality**, not the data structure itself.
 
-- **Every topology iteration in the entire kernel gets faster.** This is not
-  a niche optimization; `TopoDS_Iterator` is in the critical path of
-  virtually every OCCT algorithm.
-- **Cache locality:** Contiguous storage means iterating 2-8 children hits
-  a single cache line instead of N random heap locations.
-- **Reduced allocation count:** For a 100K-face model, this eliminates
-  hundreds of thousands of individual list-node heap allocations.
+### Technical Approach: Node Pool Allocator
 
-### Technical Approach
+Keep `NCollection_List<TopoDS_Shape>` but allocate list nodes from a
+per-shape (or global) contiguous pool, so nodes created together are
+physically adjacent in memory:
 
-Replace `NCollection_List<TopoDS_Shape>` with a small-buffer-optimized
-contiguous container. Two options:
+**Option A: Pool allocator for NCollection_List (preferred):**
 
-**Option A: Inline small vector (preferred for <=8 elements):**
+`NCollection_List` already accepts an allocator parameter
+(`NCollection_BaseAllocator`). Provide a block pool allocator that
+allocates list nodes from contiguous pages:
 
 ```cpp
-// In TopoDS_TShape.hxx:
-// Small-buffer vector: inline storage for up to N children,
-// heap fallback for larger counts.
-template<typename T, size_t N>
-class SmallVector {
-  alignas(T) std::byte myInline[N * sizeof(T)];
-  T*     myData = reinterpret_cast<T*>(myInline);
-  size_t mySize = 0;
-  size_t myCapacity = N;
-  // ... standard vector interface
-};
-
 class TopoDS_TShape : public Standard_Transient {
 private:
-  SmallVector<TopoDS_Shape, 4> myShapes;  // Inline for ≤4 children
+  // Pool allocator ensures list nodes for this shape's children
+  // are allocated from a contiguous memory block
+  NCollection_List<TopoDS_Shape> myShapes;  // uses pool allocator
   uint16_t myState;
 };
 ```
 
-With `sizeof(TopoDS_Shape) ≈ 40` bytes (handle + Location + orientation),
-inline storage for 4 children adds ~160 bytes to `TopoDS_TShape`. This is
-acceptable since `TShape` objects are already heap-allocated via handles
-and are far fewer than the shapes that reference them.
+The key insight: list nodes allocated from a pool during shape construction
+(which is sequential) end up physically contiguous. Iteration over children
+then benefits from spatial locality even though the data structure is a
+linked list.
 
-**Option B: NCollection_DynamicArray (already exists):**
+**Option B: `std::pmr::list` with monotonic buffer (C++17):**
+
+If the NCollection→STL migration (already on the roadmap) proceeds first:
 
 ```cpp
-NCollection_DynamicArray<TopoDS_Shape> myShapes;  // std::vector-like
+class TopoDS_TShape : public Standard_Transient {
+private:
+  std::pmr::monotonic_buffer_resource myPool;
+  std::pmr::list<TopoDS_Shape> myShapes{&myPool};
+  uint16_t myState;
+};
 ```
 
-This gives contiguous storage without inline buffer. Simpler to implement
-but requires one heap allocation even for small child counts.
+`monotonic_buffer_resource` allocates from a contiguous block.
+Nodes are physically adjacent in allocation order. Deallocation is
+a single free of the entire pool (efficient for shapes that are
+constructed then read many times).
 
-**`TopoDS_Iterator` adaptation:**
+**Option C: Hybrid approach — read-only compaction:**
+
+After construction is complete, compact the list into a contiguous
+read-only snapshot. This preserves the mutable list for algorithms
+that need `Remove()`, while giving iteration-heavy paths a fast
+contiguous view:
 
 ```cpp
-// Current (linked list iteration):
-class TopoDS_Iterator {
-  NCollection_List<TopoDS_Shape>::Iterator myIterator;
-};
+class TopoDS_TShape : public Standard_Transient {
+private:
+  NCollection_List<TopoDS_Shape> myShapes;  // mutable, for construction
+  mutable std::vector<TopoDS_Shape> myCompacted;  // read-only cache
+  mutable bool myCompactValid = false;
 
-// After (index-based iteration):
-class TopoDS_Iterator {
-  const SmallVector<TopoDS_Shape, 4>* myChildren;
-  size_t myIndex;
+  const auto& CompactChildren() const {
+    if (!myCompactValid) {
+      myCompacted.assign(myShapes.begin(), myShapes.end());
+      myCompactValid = true;
+    }
+    return myCompacted;
+  }
 };
 ```
 
 ### Risks
 
-- **Low.** `TopoDS_TShape::myShapes` is accessed only through
-  `TopoDS_Iterator` and `TopoDS_Builder` (both `friend class`, line 159-160).
-  The change is encapsulated — no external code directly accesses the list.
-- Insertion order must be preserved (shapes are ordered by construction).
-  A vector preserves insertion order naturally.
-- `TopoDS_Builder::Remove()` exists but is rarely called in hot paths.
-  For the small counts involved, a linear shift is fast.
+- **Option A** is the lowest-risk: same data structure, same API, only the
+  allocator changes. Requires plumbing a pool allocator through construction.
+- **Option B** depends on the NCollection→STL migration timeline.
+- **Option C** adds memory overhead (duplicated children). The invalidation
+  logic on `Modified()` must be watertight — `TopoDS_TShape::Modified()`
+  already clears the Checked flag (line 104-108), so adding compaction
+  invalidation there is natural.
 
 ---
 
@@ -685,7 +687,7 @@ for (const auto& pt : points) {
 
 | # | Proposal | Module | Effort | Impact | Key Benefit |
 |---|----------|--------|--------|--------|-------------|
-| 1 | TShape children → small vector | Modeling Data | Low | Very High | Eliminate linked-list pointer chasing in every topology iteration |
+| 1 | TShape children → pool-allocated nodes | Modeling Data | Low | High | Improve cache locality in topology iteration without changing list API |
 | 2 | BSpline single-allocation layout | Modeling Data | Medium | Very High | 5 scattered Handle arrays → 1 contiguous buffer for the dominant curve type |
 | 3 | BRep_TEdge variant curve reps | Modeling Data | Medium | Very High | Remove virtual `Is*()` dispatch + linked list in `BRep_Tool` hot path |
 | 4 | `enum class` migration | Foundation + Modeling | Low | High | Type safety across 441 enum definitions |
@@ -704,9 +706,10 @@ for (const auto& pt : points) {
 2. **Proposal 6** (Low effort, infrastructure) — set up sanitizers before
    large refactoring to catch regressions early.
 
-3. **Proposal 1** (Low effort, very high impact) — the single most
-   impactful change for topology iteration performance. Contained within
-   `TopoDS_TShape` + `TopoDS_Iterator` + `TopoDS_Builder`.
+3. **Proposal 1** (Low effort, high impact) — pool-allocated list nodes
+   improve cache locality without changing the list API. The linked-list
+   structure must be preserved for `TopoDS_Builder::Remove()` (91 call
+   sites) and iterator-based insertion.
 
 4. **Proposal 7** (Low effort, developer experience) — small additions to
    well-understood `gp_*` types. Can be done incrementally.
