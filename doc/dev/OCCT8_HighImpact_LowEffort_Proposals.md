@@ -3,9 +3,11 @@
 **Status:** RFC (Request for Comments)
 **Target Release:** OCCT 8.0.0
 **Baseline Assumptions:** C++17 minimum, ABI/API breakage permitted
+**Focus:** Foundation Classes (TKernel, TKMath) and Modeling Data (TKBRep, TKG3d)
 
 This document proposes 7 specific architectural changes that are **not** on the
-current roadmap. Each is selected for maximum value-to-effort ratio.
+current roadmap. Each is selected for maximum value-to-effort ratio, with
+emphasis on core data structures and geometry evaluation paths.
 
 > **Already on the roadmap (not covered here):**
 > Robust Geometric Predicates, Geom_Ellipsoid/Paraboloid (AP242),
@@ -16,234 +18,388 @@ current roadmap. Each is selected for maximum value-to-effort ratio.
 
 ## Table of Contents
 
-| #  | Proposal | Effort | Impact |
-|----|----------|--------|--------|
-| 1  | Modernize `DEFINE_STANDARD_ALLOC` — Replace Macro with Inherited Base | Low | Very High |
-| 2  | GPU ID-Buffer Selection (Color Picking) | Medium | Very High |
-| 3  | Scoped Enum (`enum class`) Migration | Low | High |
-| 4  | CMake Presets + Sanitizer / Fuzz-Testing Targets | Low | High |
-| 5  | Replace `STANDARD_ALIGNED` and Dead Compiler Guards | Low | High |
-| 6  | `std::string_view` at API Boundaries | Medium | High |
-| 7  | Flat Indexed BRep Representation for Large Assemblies | Medium | Very High |
+| #  | Proposal | Module | Effort | Impact |
+|----|----------|--------|--------|--------|
+| 1  | `TopoDS_TShape` children: linked list to contiguous small vector | Modeling Data | Low | Very High |
+| 2  | `Geom_BSplineCurve/Surface`: consolidate 5 Handle arrays into single allocation | Modeling Data | Medium | Very High |
+| 3  | `BRep_TEdge` curve representations: tagged union replacing virtual `Is*()` dispatch | Modeling Data | Medium | Very High |
+| 4  | Scoped Enum (`enum class`) migration | Foundation + Modeling | Low | High |
+| 5  | `STANDARD_ALIGNED` → `alignas` + dead compiler guard removal | Foundation Classes | Low | High |
+| 6  | CMake Presets + Sanitizer / Fuzz-Testing targets | Build System | Low | High |
+| 7  | `std::span` views + structured bindings for gp_* types | Foundation Classes | Low | High |
 
 ---
 
-## 1. Modernize `DEFINE_STANDARD_ALLOC` — Replace Macro with Inherited Base
+## 1. `TopoDS_TShape` Children: Linked List → Contiguous Small Vector
 
 **Effort: Low** | **Impact: Very High**
 
-### Context
-
-`DEFINE_STANDARD_ALLOC` (`Standard_DefineAlloc.hxx:54-64`) injects per-class
-`operator new`/`operator delete` that redirect to `Standard::Allocate()` /
-`Standard::Free()`. This guarantees that **all** OCCT heap allocations route
-through the configured memory manager backend:
-
-- **FLEXIBLE** (`Standard_MMgrOpt`): 3-tier pool allocator — small blocks
-  (<=200 bytes) get O(1) bump-pointer allocation from page-aligned pools,
-  medium blocks use cached free-lists, large blocks go to mmap.
-- **TBB**: Intel's `scalable_malloc` with per-thread caches.
-- **JEMALLOC**: Facebook's jemalloc with arena-based allocation.
-- **NATIVE**: System `calloc`/`free`.
-
-This is a deliberate architectural guarantee. A `gp_Pnt` (24 bytes) allocated
-on the heap hits the FLEXIBLE allocator's Tier 1 fast path — a pointer bump
-with no syscall. The macro ensures this for every OCCT type, whether it
-inherits from `Standard_Transient` or not.
-
 ### Problem
 
-The *mechanism* is sound, but the *implementation* as a copy-pasted macro has
-costs:
+`TopoDS_TShape` stores its child shapes in a linked list
+(`TopoDS_TShape.hxx:185`):
 
-1. **Repetition without enforcement:** The macro must be manually placed in
-   every class. If forgotten, the class silently falls back to system malloc.
-   There is no compile-time check.
-2. **Dead compiler guards:** Borland C++ (`__BORLANDC__`) and
-   Sun Studio <= 5.3 (`__SUNPRO_CC <= 0x530`) workarounds in
-   `Standard_DefineAlloc.hxx:21-51` are unreachable dead code.
-3. **Inheritance redundancy:** `Standard_Transient` already carries the macro
-   (`Standard_Transient.hxx:47`). In C++, class-specific `operator new/delete`
-   **is inherited** by derived classes. The macro in every derived Transient
-   class is redundant — it produces identical code that the base already
-   provides.
-4. **Interferes with tooling:** Per-class `operator new` can shadow
-   AddressSanitizer's allocator interception and prevents
-   `std::make_shared<T>()` from using its single-allocation optimization.
+```cpp
+NCollection_List<TopoDS_Shape> myShapes; // Child shapes stored in a list
+```
 
-### Why It's High Impact
+Every topological iteration in OCCT — `TopoDS_Iterator`, `TopExp_Explorer`,
+`BRepTools`, boolean preprocessing, mesh generation, STEP export — walks this
+linked list. Each `Next()` call chases a pointer to a separately allocated list
+node. For a model with 100K faces, each face's wire iterator, each wire's edge
+iterator, all chase per-node heap allocations scattered across memory.
 
-- **Preserves the allocator guarantee** while eliminating thousands of
-  redundant macro invocations.
-- **Adds compile-time enforcement** — currently impossible with the macro
-  approach.
-- **Simplifies contributor onboarding** — one less "magic macro" to learn.
+**The real-world child count distribution is heavily skewed small:**
+
+| Parent type | Typical children | Maximum common |
+|-------------|-----------------|----------------|
+| Vertex      | 0               | 0              |
+| Edge        | 0-2 (vertices)  | 2              |
+| Wire        | 3-50 (edges)    | ~200           |
+| Face        | 1-3 (wires)     | ~10            |
+| Shell       | 1-N (faces)     | N              |
+| Solid       | 1-2 (shells)    | ~4             |
+| Compound    | N               | N              |
+
+For edges, faces, and solids — the vast majority of topology — child counts
+are under 8. A linked list is the worst possible data structure for this
+distribution: O(n) allocation overhead, zero cache locality, and pointer
+chasing for every element.
+
+### Why It's Very High Impact
+
+- **Every topology iteration in the entire kernel gets faster.** This is not
+  a niche optimization; `TopoDS_Iterator` is in the critical path of
+  virtually every OCCT algorithm.
+- **Cache locality:** Contiguous storage means iterating 2-8 children hits
+  a single cache line instead of N random heap locations.
+- **Reduced allocation count:** For a 100K-face model, this eliminates
+  hundreds of thousands of individual list-node heap allocations.
 
 ### Technical Approach
 
-**A. For `Standard_Transient`-derived types (~2,443 classes):**
+Replace `NCollection_List<TopoDS_Shape>` with a small-buffer-optimized
+contiguous container. Two options:
 
-`Standard_Transient` already defines `operator new/delete` via the macro.
-Since C++ inherits class-specific allocation operators, every derived class
-gets the OCCT allocator automatically. The macro in derived classes is
-redundant and can be removed.
+**Option A: Inline small vector (preferred for <=8 elements):**
 
 ```cpp
-// Standard_Transient (keeps its operator new/delete, no macro needed either):
-class Standard_Transient {
-public:
-  void* operator new(std::size_t sz)   { return Standard::Allocate(sz); }
-  void  operator delete(void* p)       { Standard::Free(p); }
-  void* operator new[](std::size_t sz) { return Standard::Allocate(sz); }
-  void  operator delete[](void* p)     { Standard::Free(p); }
-  // ...
+// In TopoDS_TShape.hxx:
+// Small-buffer vector: inline storage for up to N children,
+// heap fallback for larger counts.
+template<typename T, size_t N>
+class SmallVector {
+  alignas(T) std::byte myInline[N * sizeof(T)];
+  T*     myData = reinterpret_cast<T*>(myInline);
+  size_t mySize = 0;
+  size_t myCapacity = N;
+  // ... standard vector interface
 };
 
-// ALL derived classes — no macro, allocation inherited:
-class Geom_Surface : public Standard_Transient {
-  // operator new/delete inherited from Standard_Transient
+class TopoDS_TShape : public Standard_Transient {
+private:
+  SmallVector<TopoDS_Shape, 4> myShapes;  // Inline for ≤4 children
+  uint16_t myState;
 };
 ```
 
-**B. For non-Transient value types (gp_Pnt, gp_Vec, Bnd_Box, etc.):**
+With `sizeof(TopoDS_Shape) ≈ 40` bytes (handle + Location + orientation),
+inline storage for 4 children adds ~160 bytes to `TopoDS_TShape`. This is
+acceptable since `TShape` objects are already heap-allocated via handles
+and are far fewer than the shapes that reference them.
 
-Introduce a zero-overhead base class that carries the allocator override:
+**Option B: NCollection_DynamicArray (already exists):**
 
 ```cpp
-// New lightweight base — no virtual table, no members, zero runtime cost
-// (Empty Base Optimization guarantees sizeof impact is 0)
-struct Standard_Allocated {
-  void* operator new(std::size_t sz)   { return Standard::Allocate(sz); }
-  void  operator delete(void* p)       { Standard::Free(p); }
-  void* operator new[](std::size_t sz) { return Standard::Allocate(sz); }
-  void  operator delete[](void* p)     { Standard::Free(p); }
-};
-
-// Value types inherit the guarantee without a macro:
-class gp_Pnt : public Standard_Allocated {
-public:
-  constexpr gp_Pnt() = default;
-  constexpr gp_Pnt(double x, double y, double z) : coord(x, y, z) {}
-  // ...
-};
+NCollection_DynamicArray<TopoDS_Shape> myShapes;  // std::vector-like
 ```
 
-`Standard_Allocated` has no virtual functions and no data members. Under EBO
-(Empty Base Optimization, mandatory in C++), `sizeof(gp_Pnt)` remains
-unchanged at 24 bytes (3 doubles). The allocator guarantee is preserved, and
-`constexpr` constructibility is unaffected.
+This gives contiguous storage without inline buffer. Simpler to implement
+but requires one heap allocation even for small child counts.
 
-**C. Compile-time enforcement (new, not possible with macros):**
+**`TopoDS_Iterator` adaptation:**
 
-A static assertion or clang-tidy check can verify that every OCCT class either
-inherits from `Standard_Transient` or `Standard_Allocated`, ensuring no class
-accidentally uses system malloc. This is impossible with the macro approach
-where omission is silent.
+```cpp
+// Current (linked list iteration):
+class TopoDS_Iterator {
+  NCollection_List<TopoDS_Shape>::Iterator myIterator;
+};
 
-**D. Clean up `Standard_DefineAlloc.hxx`:**
-
-- Remove Borland/SunPro dead code paths (lines 21-51, 67-75).
-- `DEFINE_STANDARD_ALLOC` can be retained as an empty macro during a
-  transition period, then removed.
-- `STANDARD_ALIGNED(N, T, V)` replaced by `alignas(N) T V` (Proposal #5).
+// After (index-based iteration):
+class TopoDS_Iterator {
+  const SmallVector<TopoDS_Shape, 4>* myChildren;
+  size_t myIndex;
+};
+```
 
 ### Risks
 
-- **Low for Transient-derived types:** Removing a redundant macro from
-  classes that already inherit `operator new/delete` is a no-op at the
-  binary level.
-- **Low for value types:** `Standard_Allocated` is an empty base — EBO
-  guarantees zero size overhead. `constexpr` and trivial-copyability are
-  preserved. The only constraint is that types needing the guarantee must
-  inherit from it (or `Standard_Transient`), which is enforced at
-  compile-time.
-- **FLEXIBLE allocator path preserved:** `Standard::Allocate()` dispatch
-  is unchanged. Pool allocation for small blocks, free-list caching for
-  medium blocks, and mmap for large blocks all work exactly as before.
+- **Low.** `TopoDS_TShape::myShapes` is accessed only through
+  `TopoDS_Iterator` and `TopoDS_Builder` (both `friend class`, line 159-160).
+  The change is encapsulated — no external code directly accesses the list.
+- Insertion order must be preserved (shapes are ordered by construction).
+  A vector preserves insertion order naturally.
+- `TopoDS_Builder::Remove()` exists but is rarely called in hot paths.
+  For the small counts involved, a linear shift is fast.
 
 ---
 
-## 2. GPU ID-Buffer Selection (Color Picking)
+## 2. `Geom_BSplineCurve/Surface`: Consolidate 5 Handle Arrays
 
 **Effort: Medium** | **Impact: Very High**
 
 ### Problem
 
-All selection in OCCT is currently CPU-based: BVH traversal in
-`SelectMgr_SelectingVolumeManager` with frustum overlap tests on every
-`Select3D_SensitiveEntity`. For scenes with millions of triangles, point-click
-selection becomes a bottleneck, especially on-demand interactive picking.
+`Geom_BSplineCurve` stores its data in 5 separately heap-allocated arrays
+(`Geom_BSplineCurve.hxx:830-834`):
 
-There is no GPU-accelerated selection path (confirmed: no `OpenGl_Selection`,
-no compute-shader picking, no depth/ID readback in `TKOpenGl`).
+```cpp
+occ::handle<NCollection_HArray1<gp_Pnt>> poles;       // 3D control points
+occ::handle<NCollection_HArray1<double>> weights;      // rational weights
+occ::handle<NCollection_HArray1<double>> flatknots;    // expanded knot vector
+occ::handle<NCollection_HArray1<double>> knots;        // distinct knots
+occ::handle<NCollection_HArray1<int>>    mults;         // knot multiplicities
+```
 
-### Why It's High Impact
+Each `occ::handle<NCollection_HArray1<T>>` is a **separate heap allocation**
+with its own reference count and vtable. During BSpline evaluation — the
+innermost loop of curve/surface processing — the algorithm accesses `poles[i]`,
+`weights[i]`, and `flatknots` from three different memory regions.
 
-- **O(1) pick under cursor** instead of O(n log n) BVH traversal.
-- **Scales to arbitrarily complex scenes** — rendering is already GPU-bound;
-  ID pass adds negligible overhead.
-- **Industry standard:** Every modern CAD viewer (Hoops, VTK, Three.js) uses
-  GPU picking for interactive selection. Its absence is a visible competitive
-  gap.
+`Geom_BSplineSurface` has the same pattern with even more arrays (poles as a
+2D array, plus U/V knots, U/V multiplicities, U/V flat knots).
+
+### Why It's Very High Impact
+
+- **BSpline is the dominant curve type in real CAD models.** STEP files from
+  automotive and aerospace are >90% BSpline curves and surfaces.
+- **Evaluation is the #1 hot path.** Meshing, intersection, projection, and
+  display all evaluate BSplines millions of times per operation.
+- **5 Handle indirections per curve × millions of curves = measurable
+  cache pressure.** Consolidating into a single contiguous buffer turns
+  5 scattered memory regions into 1 sequential access.
 
 ### Technical Approach
 
-1. **Offscreen FBO with integer color attachment**: Allocate an
-   `OpenGl_FrameBuffer` with `GL_R32UI` (or `GL_RG32UI` for sub-element IDs)
-   as a color attachment and a depth attachment.
+Allocate a single contiguous buffer and use `std::span` views for each
+logical array:
 
-2. **ID encoding shader**: A minimal fragment shader that writes a packed
-   `(objectID, triangleID)` pair. Object IDs come from
-   `SelectMgr_SelectableObject::GlobalSelectionId()` (already assigned).
-   Triangle/element IDs are passed via a uniform or vertex attribute.
+```cpp
+class Geom_BSplineCurve : public Geom_BoundedCurve {
+private:
+  // Single allocation for all data
+  std::vector<std::byte> myData;
 
-3. **Readback**: On pick, call `glReadPixels` for a 1x1 (or small NxN for
-   proximity tolerance) region. Decode the ID, map back to the
-   `SelectMgr_EntityOwner`.
+  // Views into the contiguous buffer (no ownership, no allocation)
+  std::span<gp_Pnt> myPoles;
+  std::span<double>  myWeights;      // empty span if non-rational
+  std::span<double>  myFlatKnots;
+  std::span<double>  myKnots;
+  std::span<int>     myMults;
 
-4. **Integration point**: Add `OpenGl_View::SelectByIdBuffer()` as an
-   alternative path in `SelectMgr_ViewerSelector::Pick()`. The BVH path
-   remains available for rubber-band / polyline selection where GPU picking
-   is less natural.
+  bool   myRational;
+  bool   myPeriodic;
+  int    myDeg;
+  // ...
 
-5. **Sub-element selection**: For face/edge/vertex level selection (common in
-   CAD), encode the sub-element mode in the upper bits of the ID. The
-   `Select3D_SensitivePrimitiveArray` patch size mechanism
-   (`Select3D_SensitivePrimitiveArray.hxx:39-43`) can directly map to GPU
-   sub-triangle IDs.
+  void AllocateData(int nbPoles, int nbKnots, int nbFlatKnots, bool rational);
+};
+```
 
-### Architecture Sketch
+**`AllocateData()`** computes the total buffer size, allocates once, and
+assigns each `std::span` to point at the appropriate offset:
 
 ```
-User Click (x, y)
-       │
-       ▼
-┌──────────────────────┐
-│ OpenGl_View          │
-│  ├─ Render ID pass   │ ← Offscreen FBO, ID shader
-│  ├─ glReadPixels     │ ← 1x1 readback at (x,y)
-│  └─ Decode ID        │
-└──────────┬───────────┘
-           │ (objectID, subElementID)
-           ▼
-┌──────────────────────┐
-│ SelectMgr            │
-│  └─ Map ID → Owner   │ ← O(1) hash lookup
-└──────────────────────┘
+[ poles (nbPoles × 24 bytes) | weights (nbPoles × 8 bytes, if rational) |
+  flatknots (nbFlatKnots × 8 bytes) | knots (nbKnots × 8 bytes) |
+  mults (nbKnots × 4 bytes) ]
+```
+
+**Alignment:** `gp_Pnt` is 8-byte aligned (3 doubles). The buffer is
+`alignas(8)` which satisfies all element types.
+
+**For `Geom_BSplineSurface`:** Same pattern with a 2D pole grid stored
+row-major in the contiguous buffer.
+
+### Migration Path
+
+Internal code accesses poles/knots through member functions like `Pole(i)`,
+`Knot(i)`, `Weight(i)`. These accessors change from dereferencing a Handle
+to indexing a span — the public API is unchanged:
+
+```cpp
+// Before:
+const gp_Pnt& Pole(int Index) const {
+  return poles->Value(Index);   // Handle dereference + bounds check
+}
+
+// After:
+const gp_Pnt& Pole(int Index) const {
+  return myPoles[Index - 1];    // Direct span access
+}
 ```
 
 ### Risks
 
-- Requires OpenGL 3.0+ (integer textures) — but OCCT already targets 3.3+
-  core profile.
-- `glReadPixels` has a GPU-CPU sync cost on the first call. Mitigated by
-  async PBO readback or by deferring the decode to the next frame.
-- Does not replace BVH selection for non-interactive queries (ray casting,
-  proximity analysis). Both paths coexist.
+- **Sharing semantics change:** Currently, `poles` can be shared between
+  curves via reference counting (e.g., after `Copy()`). With a single buffer,
+  sharing requires copying the entire buffer or using `std::shared_ptr<>`.
+  In practice, BSpline data is rarely shared — `Copy()` already deep-copies.
+- Serialization (`BinTools`) reads/writes each array separately. The
+  serialization code needs to write from spans instead of Handle arrays —
+  a straightforward change.
 
 ---
 
-## 3. Scoped Enum (`enum class`) Migration
+## 3. `BRep_TEdge`: Tagged Union for Curve Representations
+
+**Effort: Medium** | **Impact: Very High**
+
+### Problem
+
+Each `BRep_TEdge` stores its curve representations in a linked list of
+polymorphic Handle objects (`BRep_TEdge.hxx:81`):
+
+```cpp
+NCollection_List<occ::handle<BRep_CurveRepresentation>> myCurves;
+```
+
+`BRep_CurveRepresentation` has **10 virtual `Is*()` type-checking methods**
+(`BRep_CurveRepresentation.hxx:40-90`):
+
+```cpp
+virtual bool IsCurve3D() const;
+virtual bool IsCurveOnSurface() const;
+virtual bool IsRegularity() const;
+virtual bool IsCurveOnClosedSurface() const;
+virtual bool IsPolygon3D() const;
+virtual bool IsPolygonOnTriangulation() const;
+// ... and more
+```
+
+`BRep_Tool` — **the most-called API in the entire BRep system** — iterates
+this linked list on every geometry access, calling virtual type-checking
+methods on each element (`BRep_Tool.cxx:166-190`):
+
+```cpp
+NCollection_List<occ::handle<BRep_CurveRepresentation>>::Iterator itcr(TE->Curves());
+while (itcr.More()) {
+  const occ::handle<BRep_CurveRepresentation>& cr = itcr.Value();
+  if (cr->IsCurve3D()) {                    // virtual call
+    const BRep_Curve3D* GC = static_cast<const BRep_Curve3D*>(cr.get());
+    // ...
+  }
+  itcr.Next();                               // linked list pointer chase
+}
+```
+
+There are **7 concrete leaf types** in the `BRep_CurveRepresentation`
+hierarchy:
+`BRep_Curve3D`, `BRep_CurveOnSurface`, `BRep_CurveOnClosedSurface`,
+`BRep_CurveOn2Surfaces`, `BRep_Polygon3D`, `BRep_PolygonOnSurface`,
+`BRep_PolygonOnClosedSurface`, `BRep_PolygonOnTriangulation`,
+`BRep_PolygonOnClosedTriangulation`.
+
+This is: **linked list** (bad cache locality) + **virtual dispatch for type
+identification** (branch misprediction) + **Handle indirection per
+element** (pointer chasing), in the most frequently called code path.
+
+### Why It's Very High Impact
+
+- **`BRep_Tool::Curve()`, `BRep_Tool::Surface()`, `BRep_Tool::Pnt()` are
+  called millions of times** per meshing/boolean/export operation.
+- Eliminating linked-list traversal + virtual dispatch in favor of a tagged
+  union with linear scan over a contiguous array is a fundamental data-access
+  improvement.
+- A typical edge has 1-4 curve representations (one 3D curve + 1-2 pcurves
+  + optional polygon). This is a perfect fit for a small inline vector.
+
+### Technical Approach
+
+**Step 1: Define a variant for curve representation types.**
+
+```cpp
+// Tagged union of all concrete representation types
+using BRep_CurveRepVariant = std::variant<
+  BRep_Curve3D,
+  BRep_CurveOnSurface,
+  BRep_CurveOnClosedSurface,
+  BRep_CurveOn2Surfaces,
+  BRep_Polygon3D,
+  BRep_PolygonOnSurface,
+  BRep_PolygonOnClosedSurface,
+  BRep_PolygonOnTriangulation,
+  BRep_PolygonOnClosedTriangulation
+>;
+```
+
+**Step 2: Replace linked list with small vector of variants.**
+
+```cpp
+class BRep_TEdge : public TopoDS_TShape {
+private:
+  SmallVector<BRep_CurveRepVariant, 3> myCurves;  // Inline for ≤3 reps
+  double myTolerance;
+};
+```
+
+**Step 3: Replace virtual `Is*()` dispatch with `std::visit`.**
+
+```cpp
+// Before (virtual dispatch over linked list):
+for (auto it = TE->Curves().begin(); it != TE->Curves().end(); ++it) {
+  if ((*it)->IsCurve3D()) {
+    auto* GC = static_cast<const BRep_Curve3D*>(it->get());
+    return GC->Curve3D();
+  }
+}
+
+// After (std::visit over contiguous variant array):
+for (const auto& rep : TE->Curves()) {
+  if (auto* c3d = std::get_if<BRep_Curve3D>(&rep)) {
+    return c3d->Curve3D();
+  }
+}
+```
+
+Or with `std::visit` for exhaustive handling:
+
+```cpp
+for (const auto& rep : TE->Curves()) {
+  std::visit(overloaded{
+    [&](const BRep_Curve3D& c)          { /* handle 3D curve */ },
+    [&](const BRep_CurveOnSurface& c)   { /* handle pcurve */ },
+    [](const auto&)                      { /* skip others */ }
+  }, rep);
+}
+```
+
+### Variant vs Polymorphism Tradeoffs
+
+| Aspect | Current (Handle + virtual) | Proposed (variant) |
+|--------|---------------------------|-------------------|
+| Type check | Virtual call (`IsCurve3D()`) | Index comparison (0-cost) |
+| Memory layout | Linked list + heap per repr | Contiguous inline array |
+| Per-element overhead | ~40 bytes (Handle + vtable + refcount) | 0 (value storage) |
+| Exhaustiveness | Silent if `Is*()` check forgotten | Compiler-enforced with `std::visit` |
+
+### Risks
+
+- **Medium effort:** The 7 concrete `BRep_CurveRepresentation` types vary
+  in size. The variant will be sized to the largest alternative. Measure
+  the actual sizes to ensure the inline storage overhead is acceptable.
+- `BRep_CurveRepresentation` types currently inherit from
+  `Standard_Transient` (reference counted). Moving them to value types
+  inside a variant requires ensuring no external code holds `Handle<>`
+  references to individual curve representations. If this is a concern,
+  the variant can store non-Transient value copies of the same data.
+- `GeomAdaptor_Curve` already uses `std::variant` internally
+  (`GeomAdaptor_Curve.hxx:40-66`), demonstrating the pattern is viable
+  in OCCT.
+
+---
+
+## 4. Scoped Enum (`enum class`) Migration
 
 **Effort: Low** | **Impact: High**
 
@@ -251,230 +407,90 @@ User Click (x, y)
 
 OCCT has **441 files** with old-style C `enum` declarations versus **only 4**
 using `enum class`. This is the single largest C++ modernization gap in the
-codebase.
+Foundation Classes and Modeling Data modules.
 
 Old-style enums pollute the enclosing namespace, allow implicit integer
-conversions, and create name collisions. Example from
-`TDataXtd_ConstraintEnum.hxx`:
+conversions, and create name collisions. Critical examples from the core
+modules:
 
 ```cpp
-enum TDataXtd_ConstraintEnum {
-  TDataXtd_RADIUS,
-  TDataXtd_DIAMETER,
-  TDataXtd_MINOR_RADIUS,
-  // ... 26 values, all in global scope
-};
-```
-
-### Why It's High Impact
-
-- **Type safety:** Prevents a `TopAbs_ShapeEnum` from being silently compared
-  with a `GeomAbs_CurveType`. These bugs are real and subtle.
-- **Namespace cleanliness:** Every enum value currently pollutes the containing
-  namespace. With `enum class`, values are scoped.
-- **IDE support:** Better autocomplete, refactoring, and static analysis.
-- **Since OCCT 8.0 breaks API:** This is the once-in-a-decade window to do
-  this migration.
-
-### Technical Approach
-
-1. **Automated migration with clang-tidy**: The
-   `modernize-use-using` and custom AST matchers can convert `enum` to
-   `enum class` and update all usage sites in a single pass.
-
-2. **Explicit underlying type**: Specify `enum class Foo : int` (or
-   `: uint8_t` where range allows) to control serialization width. This is
-   important for binary persistence (`BinTools`) compatibility.
-
-3. **Serialization compatibility**: Binary format readers/writers already use
-   `Standard_Integer` for enum I/O. Adding a `static_cast` at the
-   serialization boundary is sufficient.
-
-4. **Phased approach** (if preferred):
-   - Phase 1: Core math/geometry enums (`TopAbs_ShapeEnum`, `GeomAbs_*`,
-     `BRepBuilderAPI_*`) — most impactful, most referenced.
-   - Phase 2: Visualization enums (`Graphic3d_*`, `AIS_*`, `V3d_*`).
-   - Phase 3: Data exchange enums (`StepData_*`, `IGESData_*`).
-
-### Migration Example
-
-```cpp
-// BEFORE:
+// TopAbs_ShapeEnum — used in every topology operation
 enum TopAbs_ShapeEnum {
-  TopAbs_COMPOUND,
-  TopAbs_COMPSOLID,
-  TopAbs_SOLID,
-  // ...
+  TopAbs_COMPOUND, TopAbs_COMPSOLID, TopAbs_SOLID, TopAbs_SHELL,
+  TopAbs_FACE, TopAbs_WIRE, TopAbs_EDGE, TopAbs_VERTEX, TopAbs_SHAPE
 };
 
-// AFTER:
-enum class TopAbs_ShapeEnum : int {
-  COMPOUND,
-  COMPSOLID,
-  SOLID,
-  // ...
+// GeomAbs_CurveType — used in every geometry adaptor dispatch
+enum GeomAbs_CurveType {
+  GeomAbs_Line, GeomAbs_Circle, GeomAbs_Ellipse, GeomAbs_Hyperbola,
+  GeomAbs_Parabola, GeomAbs_BezierCurve, GeomAbs_BSplineCurve,
+  GeomAbs_OffsetCurve, GeomAbs_OtherCurve
 };
-// Usage: TopAbs_ShapeEnum::COMPOUND
 ```
 
-### Compatibility Utilities
-
-For downstream code, provide a temporary header with `using` aliases or
-a migration guide. Since 8.0 breaks API, the old names do not need to be
-preserved indefinitely.
-
-### Risks
-
-- Large number of files touched (441+). But the transformation is mechanical
-  and verifiable by the compiler — every missed usage site becomes a compile
-  error, not a silent runtime bug.
-
----
-
-## 4. CMake Presets + Sanitizer / Fuzz-Testing Targets
-
-**Effort: Low** | **Impact: High**
-
-### Problem
-
-The current `CMakeLists.txt` targets CMake 3.10 (`CMakeLists.txt:1`) and has no
-built-in support for:
-
-- **CMake Presets** (`CMakePresets.json`, requires 3.21+) for reproducible
-  build configurations.
-- **AddressSanitizer / UndefinedBehaviorSanitizer** integration.
-- **Fuzz testing** for geometry file parsers (STEP, IGES, STL, OBJ, glTF).
-
-STEP/IGES parsers process untrusted input from external files. The
-`std::hash<gp_Pnt>` specialization (`gp_Pnt.hxx:221-234`) uses a union
-type-punning trick that is technically UB in C++. These are exactly the
-kinds of issues sanitizers and fuzzers catch.
+Nothing prevents `TopAbs_SOLID == GeomAbs_Parabola` from compiling.
 
 ### Why It's High Impact
 
-- **Reproducible CI**: CMake Presets give every contributor identical build
-  configurations. No more "it works on my machine."
-- **Memory safety**: ASAN catches heap buffer overflows in mesh processing
-  (Poly_Triangulation, BRep I/O) that are invisible to unit tests.
-- **Stability of file parsers**: STEP and IGES parsers handle complex grammars
-  on untrusted input. Fuzzing finds edge cases that manual tests miss. This
-  directly prevents CVEs.
-- **Minimal implementation cost**: These are purely build-system additions.
-  No source code changes required.
+- **Type safety in the topology/geometry core:** Prevents silent
+  cross-enum comparisons that currently compile without warning.
+- **Since OCCT 8.0 breaks API:** This is the once-in-a-decade window.
+- **Mechanical transformation:** clang-tidy can automate the migration.
+  Every missed usage site becomes a compile error, not a runtime bug.
 
 ### Technical Approach
 
-1. **Bump minimum CMake to 3.16** (already required for PCH, line 214).
-   Recommend 3.21+ for Presets support.
-
-2. **Add `CMakePresets.json`**:
-
-```json
-{
-  "version": 6,
-  "configurePresets": [
-    {
-      "name": "dev-debug",
-      "displayName": "Developer Debug",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "BUILD_CPP_STANDARD": "C++17",
-        "BUILD_WITH_DEBUG": "ON",
-        "BUILD_GTEST": "ON"
-      }
-    },
-    {
-      "name": "dev-asan",
-      "displayName": "Debug + AddressSanitizer",
-      "inherits": "dev-debug",
-      "binaryDir": "${sourceDir}/build/asan",
-      "cacheVariables": {
-        "CMAKE_CXX_FLAGS": "-fsanitize=address,undefined -fno-omit-frame-pointer",
-        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address,undefined"
-      }
-    },
-    {
-      "name": "release",
-      "displayName": "Production Release",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "BUILD_OPT_PROFILE": "Production"
-      }
-    }
-  ]
-}
-```
-
-3. **Add fuzz targets** for file parsers:
-
-```cmake
-# adm/cmake/occt_fuzz.cmake
-if (BUILD_FUZZ_TARGETS)
-  add_executable(fuzz_step_reader fuzz/fuzz_step_reader.cpp)
-  target_link_libraries(fuzz_step_reader TKDESTEP TKernel TKMath)
-  target_compile_options(fuzz_step_reader PRIVATE -fsanitize=fuzzer)
-  target_link_options(fuzz_step_reader PRIVATE -fsanitize=fuzzer)
-endif()
-```
-
-Fuzz harnesses are small (< 50 lines each). A STEP reader fuzz harness:
+1. **Specify explicit underlying type** for serialization compatibility:
 
 ```cpp
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  std::string input(reinterpret_cast<const char*>(data), size);
-  std::istringstream stream(input);
-  STEPControl_Reader reader;
-  reader.ReadStream("fuzz.step", stream);
-  return 0;
-}
+enum class TopAbs_ShapeEnum : int {
+  COMPOUND, COMPSOLID, SOLID, SHELL,
+  FACE, WIRE, EDGE, VERTEX, SHAPE
+};
 ```
 
-4. **CI integration**: Add a GitHub Actions / GitLab CI job that runs
-   ASAN/UBSAN on the test suite. This catches regressions immediately.
+2. **Phased approach by module:**
+   - Phase 1: `TopAbs_*`, `GeomAbs_*`, `BRep_*` (Foundation/Modeling core)
+   - Phase 2: `Graphic3d_*`, `AIS_*` (Visualization)
+   - Phase 3: `StepData_*`, `IGESData_*` (Data Exchange)
+
+3. **Note:** `TopoDS_TShape` already uses a scoped `enum BitLayout : uint16_t`
+   (`TopoDS_TShape.hxx:69-82`) — the pattern is proven in the codebase.
 
 ### Risks
 
-- None for the Presets or sanitizer integration — purely additive.
-- Fuzzing may find real bugs that need fixing. This is a feature.
+- Large number of files touched (441+), but the compiler enforces
+  correctness — every missed usage site is a compile error.
 
 ---
 
-## 5. Replace `STANDARD_ALIGNED` and Remove Dead Compiler Guards
+## 5. `STANDARD_ALIGNED` → `alignas` + Dead Compiler Guard Removal
 
 **Effort: Low** | **Impact: High**
 
 ### Problem
 
-`Standard_DefineAlloc.hxx:77-91` defines a `STANDARD_ALIGNED` macro with
-platform-specific `__declspec(align())` and `__attribute__((aligned()))`.
-C++11 introduced `alignas()` which works on all compilers OCCT supports.
+`Standard_DefineAlloc.hxx` contains:
 
-The same file contains dead code paths for:
-- Borland C++ (`__BORLANDC__`) — discontinued in 2009.
-- Sun Studio <= 5.3 (`__SUNPRO_CC <= 0x530`) — released in 2003.
-- Sun Studio <= 4.2 (`__SUNPRO_CC <= 0x420`) — released ~2000.
+1. **`STANDARD_ALIGNED` macro** (lines 77-91): Platform-specific alignment
+   using `__declspec(align())` and `__attribute__((aligned()))`. Superseded
+   by C++11 `alignas()`.
 
-These guards appear throughout the codebase and add cognitive load and
-maintenance burden for compilers that no one has tested against in over 15
-years.
+2. **Dead compiler guards** for:
+   - Borland C++ (`__BORLANDC__`, lines 38-43) — discontinued 2009.
+   - Sun Studio <= 5.3 (`__SUNPRO_CC <= 0x530`, lines 21-33) — released 2003.
+   - Sun Studio <= 4.2 (`__SUNPRO_CC <= 0x420`, lines 67-75) — released ~2000.
+
+These compilers cannot build C++17 code. The guards are dead code that adds
+cognitive load for every developer who reads the file.
 
 ### Why It's High Impact
 
-- **Reduces macro surface area**: Every eliminated macro is one less thing to
-  debug, document, and maintain.
-- **Modern C++ credibility**: Dead Borland/SunPro guards signal stale code to
-  new contributors and potential adopters.
-- **Enables further cleanup**: Once `STANDARD_ALIGNED` is gone, `alignas()`
-  can be used directly in data structures like `NCollection_AliasedArray`
-  (currently uses 16-byte template alignment parameter).
+- Reduces the macro surface area in one of the most-included headers.
+- Removes misleading code paths that suggest these compilers are supported.
+- `alignas()` is cleaner and IDE-friendly (syntax highlighting, jump-to-def).
 
 ### Technical Approach
-
-1. **Replace all `STANDARD_ALIGNED(N, T, V)` with `alignas(N) T V`:**
 
 ```cpp
 // BEFORE:
@@ -484,223 +500,217 @@ static const STANDARD_ALIGNED(8, char, THE_ARRAY)[] = {0xFF, ...};
 alignas(8) static const char THE_ARRAY[] = {0xFF, ...};
 ```
 
-2. **Delete all `#if defined(__BORLANDC__)` and `__SUNPRO_CC` guards.**
-
-3. **Delete `WORKAROUND_SUNPRO_NEW_PLACEMENT` block** (lines 67-75).
-
-4. **Audit remaining platform macros** across the codebase for similar
-   dead-compiler paths.
+Delete all `__BORLANDC__` and `__SUNPRO_CC` guarded code paths.
+Delete `WORKAROUND_SUNPRO_NEW_PLACEMENT` block.
+Simplify `DEFINE_STANDARD_ALLOC_ARRAY` and `DEFINE_STANDARD_ALLOC_PLACEMENT`
+by removing the dead branches — only the standard C++ path remains.
 
 ### Risks
 
-- Near zero. These compilers cannot build modern C++17 code. The guards are
-  unreachable.
+- Near zero. These compilers cannot build C++17 code.
 
 ---
 
-## 6. `std::string_view` at Public API Boundaries
+## 6. CMake Presets + Sanitizer / Fuzz-Testing Targets
 
-**Effort: Medium** | **Impact: High**
+**Effort: Low** | **Impact: High**
 
 ### Problem
 
-OCCT's public API extensively uses `const TCollection_AsciiString&` for string
-parameters. This forces callers to construct an `TCollection_AsciiString`
-(which heap-allocates) even when passing a string literal or a `std::string`.
+The build system (`CMakeLists.txt:1`) targets CMake 3.10 (but already
+requires 3.16 for PCH at line 214) and has no built-in support for:
 
-`TCollection_AsciiString` already accepts `std::string_view` in its constructor
-(`TCollection_AsciiString.hxx:58-87`), so the type can interoperate. But the
-API boundary forces the allocation.
+- **CMake Presets** (`CMakePresets.json`, CMake 3.21+) for reproducible builds.
+- **AddressSanitizer / UBSanitizer** integration.
+- **Fuzz testing** for geometry file parsers (STEP, IGES, STL, glTF).
+
+The Foundation Classes contain code with sanitizer-detectable issues. For
+example, `std::hash<gp_Pnt>` (`gp_Pnt.hxx:221-234`) uses union type-punning
+(double→int reinterpretation) which is technically undefined behavior in C++.
 
 ### Why It's High Impact
 
-- **Zero-copy string passing**: `std::string_view` avoids heap allocation for
-  read-only parameters. This matters in hot paths like STEP file parsing
-  where thousands of entity names are compared.
-- **Interoperability**: `std::string_view` works with `std::string`, C string
-  literals, `std::string_view`, and `TCollection_AsciiString` (which is
-  contiguous and null-terminated). This eliminates a common friction point
-  for users integrating OCCT with other C++ libraries.
-- **Reduced header coupling**: Functions taking `std::string_view` don't need
-  to include `TCollection_AsciiString.hxx`.
+- **Reproducible CI:** CMake Presets give every contributor identical build
+  configurations across platforms.
+- **Memory safety:** ASAN catches buffer overflows in mesh processing
+  (`Poly_Triangulation`, BRep I/O) invisible to unit tests.
+- **Parser robustness:** STEP/IGES parsers process untrusted external input.
+  Fuzzing finds crash-inducing edge cases that manual tests miss.
 
 ### Technical Approach
 
-1. **Identify read-only string parameters** in public APIs: functions that
-   take `const TCollection_AsciiString&` but only read the string content
-   (compare, search, hash, output).
+1. **Bump minimum CMake to 3.16** (already effectively required for PCH).
 
-2. **Replace with `std::string_view`** at the signature level:
+2. **Add `CMakePresets.json`** with presets: `dev-debug`, `dev-asan`,
+   `dev-ubsan`, `release`, `release-lto`.
 
-```cpp
-// BEFORE:
-class StepData_StepModel {
-  Handle(Standard_Transient) EntityByName(
-    const TCollection_AsciiString& theName) const;
-};
+3. **Add fuzz harnesses** (< 50 lines each) for STEP/IGES/STL readers.
 
-// AFTER:
-class StepData_StepModel {
-  Handle(Standard_Transient) EntityByName(std::string_view theName) const;
-};
-```
-
-3. **Add `std::string_view` conversion** to `TCollection_AsciiString`:
-
-```cpp
-class TCollection_AsciiString {
-public:
-  // Implicit conversion to string_view (zero-cost, no allocation)
-  operator std::string_view() const noexcept {
-    return std::string_view(ToCString(), Length());
-  }
-};
-```
-
-This makes existing code that passes `TCollection_AsciiString` to the
-new `string_view` APIs work without changes.
-
-4. **Keep `TCollection_AsciiString` for owned strings**: Don't replace
-   member variables or return types — those need ownership semantics.
-   Only change read-only input parameters.
+4. **CI integration:** ASAN/UBSAN test job catches regressions immediately.
 
 ### Risks
 
-- Moderate scope: many API functions to audit. But the change is mechanical
-  and the compiler catches mismatches.
-- `std::string_view` is not null-terminated. Functions that pass to C APIs
-  (e.g., `fopen()`) need a small `std::string` intermediate. This is already
-  the case for `TCollection_ExtendedString` which is UTF-16.
+- Purely additive build-system changes. No source code modifications.
+- Fuzzing may find real bugs. This is the point.
 
 ---
 
-## 7. Flat Indexed BRep Representation for Large Assemblies
+## 7. `std::span` Views + Structured Bindings for `gp_*` Types
 
-**Effort: Medium** | **Impact: Very High**
+**Effort: Low** | **Impact: High**
 
 ### Problem
 
-The BRep representation uses a deep tree of handle-linked objects:
-`TopoDS_Shape` → `TopoDS_TShape` (handle) → sub-shapes (list of handles) →
-geometry (handles to `Geom_Curve`, `Geom_Surface`) → etc.
+The `gp_*` value types (`gp_Pnt`, `gp_Vec`, `gp_Dir`, `gp_XYZ`) are already
+well-modernized with `constexpr`, `[[nodiscard]]`, and operator overloads.
+But two C++17 opportunities remain unused:
 
-For a typical automotive assembly with 100K+ faces, this creates:
-- **Millions of small heap allocations** (one per TShape, per curve, per
-  surface, per PCurve, per Location, per Representation).
-- **Poor cache locality**: traversing the B-Rep graph chases pointers across
-  the heap.
-- **High overhead for serialization**: each handle is a separate
-  reference-counted object that must be serialized individually.
+**A. No `std::span` support for array views.**
 
-### Why It's Very High Impact
+Code that passes geometry arrays currently requires concrete container types:
 
-- **Massive speedup for model traversal**: Boolean operations, mesh generation,
-  and STEP export iterate over the B-Rep graph repeatedly. Flat indexed layout
-  with contiguous memory turns pointer-chasing into sequential array access.
-- **Reduced memory footprint**: Eliminates per-object refcount overhead
-  (~24 bytes per `Standard_Transient` including vtable + refcount + padding)
-  for millions of internal geometry objects.
-- **Parallel-friendly**: Flat arrays with indices are trivially parallelizable
-  and SIMD-friendly, unlike pointer-based graphs.
+```cpp
+void ProcessPoints(const NCollection_Array1<gp_Pnt>& points);
+void ProcessPoints(const std::vector<gp_Pnt>& points);
+// Two overloads for the same operation
+```
+
+**B. No structured bindings support.**
+
+```cpp
+gp_Pnt p(1.0, 2.0, 3.0);
+auto [x, y, z] = p;  // Does not compile — no tuple protocol
+```
+
+Extracting coordinates requires verbose getter calls:
+```cpp
+double x = p.X(), y = p.Y(), z = p.Z();
+```
+
+### Why It's High Impact
+
+- **`std::span<const gp_Pnt>`** unifies all contiguous array types under a
+  single non-owning view. Algorithms accept any contiguous source
+  (`NCollection_Array1`, `std::vector`, raw pointer + size, `Poly_ArrayOfNodes`)
+  without templates or overloads.
+- **Structured bindings** make geometry code dramatically more readable.
+  In algorithms that compute with coordinates (distances, intersections,
+  projections), `auto [x, y, z]` reduces noise significantly.
 
 ### Technical Approach
 
-Create an **alternate flat representation** (`BRep_IndexedMesh` or
-`BRep_CompactShape`) that coexists with the existing handle-based BRep.
-It is constructed from a `TopoDS_Shape` and used where performance matters.
-
-1. **Geometry pool**: All curves, surfaces, and locations are stored in typed
-   contiguous arrays. References become 32-bit indices:
+**A. `std::span` for array-accepting APIs:**
 
 ```cpp
-struct BRep_CompactShape {
-  // Geometry pools (contiguous, cache-friendly)
-  std::vector<Geom_Line>          lines;
-  std::vector<Geom_Circle>        circles;
-  std::vector<Geom_BSplineCurve>  bsplineCurves;
-  std::vector<Geom_Plane>         planes;
-  std::vector<Geom_BSplineSurface> bsplineSurfaces;
-  // ... one vector per concrete geometry type
+// Single signature accepts any contiguous source:
+void ProcessPoints(std::span<const gp_Pnt> points);
 
-  // Topology (indexed)
-  struct Face {
-    uint32_t surfaceType;    // discriminator
-    uint32_t surfaceIndex;   // index into the appropriate pool
-    uint32_t firstEdge;      // index into edges array
-    uint16_t edgeCount;
-    uint8_t  orientation;
-  };
+// Callers:
+NCollection_Array1<gp_Pnt> arr(1, 100);
+ProcessPoints(std::span(arr.begin(), arr.end()));
 
-  struct Edge {
-    uint32_t curveType;
-    uint32_t curveIndex;
-    uint32_t startVertex;    // index into vertices array
-    uint32_t endVertex;
-    double   firstParam;
-    double   lastParam;
-  };
+std::vector<gp_Pnt> vec;
+ProcessPoints(vec);  // implicit conversion
+```
 
-  struct Vertex {
-    gp_Pnt   point;
-    double   tolerance;
-  };
+`NCollection_Array1` already provides `begin()`/`end()` with random-access
+iterators (`NCollection_Array1.hxx:73-80`), so `std::span` construction works
+directly.
 
-  std::vector<Face>    faces;
-  std::vector<Edge>    edges;
-  std::vector<Vertex>  vertices;
+For `Poly_ArrayOfNodes` (which has a configurable stride and float/double
+precision), a `std::span`-like accessor method can expose the underlying
+contiguous memory:
+
+```cpp
+class Poly_ArrayOfNodes {
+public:
+  template<typename T>
+  std::span<const T> Span() const;  // Returns view of the raw data
 };
 ```
 
-2. **Construction**: A builder traverses the existing `TopoDS_Shape`,
-   deduplicates shared geometry (edges shared by faces, vertices shared by
-   edges), and populates the flat arrays. This is a one-time O(n) pass.
+**B. Structured bindings via tuple protocol for `gp_XYZ`:**
 
-3. **Usage**: Algorithms that traverse the BRep (meshing, boolean
-   preprocessing, healing, STEP export) can accept `BRep_CompactShape`
-   as input. The main benefit is in hot inner loops.
+```cpp
+// In gp_XYZ.hxx — add tuple protocol:
+namespace std {
+  template<> struct tuple_size<gp_XYZ> : integral_constant<size_t, 3> {};
+  template<size_t I> struct tuple_element<I, gp_XYZ> { using type = double; };
+}
 
-4. **Coexistence**: The existing `TopoDS_Shape` API remains unchanged. The
-   flat representation is opt-in, constructed when needed, and discarded
-   after use. No migration required.
+template<size_t I>
+constexpr double get(const gp_XYZ& xyz) noexcept {
+  if constexpr (I == 0) return xyz.X();
+  else if constexpr (I == 1) return xyz.Y();
+  else return xyz.Z();
+}
+
+// For gp_Pnt, gp_Vec, gp_Dir — delegate to their XYZ():
+namespace std {
+  template<> struct tuple_size<gp_Pnt> : integral_constant<size_t, 3> {};
+  template<size_t I> struct tuple_element<I, gp_Pnt> { using type = double; };
+}
+
+template<size_t I>
+constexpr double get(const gp_Pnt& p) noexcept { return get<I>(p.XYZ()); }
+```
+
+**Usage:**
+
+```cpp
+gp_Pnt p(1.0, 2.0, 3.0);
+auto [x, y, z] = p;  // x=1.0, y=2.0, z=3.0
+
+// In algorithm code:
+for (const auto& pt : points) {
+  auto [px, py, pz] = pt;
+  // ... compute with px, py, pz directly
+}
+```
 
 ### Risks
 
-- Medium implementation effort: requires a builder, accessor API, and
-  adaptation of key algorithms.
-- Does not replace the existing BRep for editing (adding/removing faces).
-  It is a read-optimized snapshot.
-- Shared sub-shape semantics (e.g., same edge in two faces with different
-  orientations) must be encoded carefully in the index scheme.
+- **Structured bindings:** Adding `std::tuple_size` and `get<>()` for a type
+  is a non-breaking addition. It doesn't change the type's layout, size, or
+  existing API. The only risk is name collision if `get()` is defined
+  elsewhere — use a dedicated namespace or friend function to avoid this.
+- **`std::span`:** Requires C++20 for `std::span` itself. For C++17, use a
+  lightweight `tcb::span` polyfill or OCCT's own `NCollection_Span` if one
+  exists. Alternatively, define API signatures using iterator pairs or
+  `(const T* data, size_t count)`.
 
 ---
 
 ## Summary Matrix
 
-| # | Proposal | Effort | Impact | Key Benefit |
-|---|----------|--------|--------|-------------|
-| 1 | Modernize `DEFINE_STANDARD_ALLOC` | Low | Very High | Replace macro with `Standard_Allocated` base + inheritance; preserve allocator guarantee, add compile-time enforcement |
-| 2 | GPU ID-Buffer Selection | Medium | Very High | O(1) interactive picking for million-triangle scenes |
-| 3 | `enum class` Migration | Low | High | Type safety across 441 enum definitions |
-| 4 | CMake Presets + Sanitizers + Fuzzing | Low | High | CI quality, parser robustness, reproducible builds |
-| 5 | Remove Dead Compiler Guards & Macros | Low | High | Eliminate dead Borland/SunPro code, replace `STANDARD_ALIGNED` with `alignas()` |
-| 6 | `std::string_view` API Boundaries | Medium | High | Zero-copy string passing, reduced coupling |
-| 7 | Flat Indexed BRep Representation | Medium | Very High | Cache-friendly traversal, reduced memory for 100K+ face assemblies |
+| # | Proposal | Module | Effort | Impact | Key Benefit |
+|---|----------|--------|--------|--------|-------------|
+| 1 | TShape children → small vector | Modeling Data | Low | Very High | Eliminate linked-list pointer chasing in every topology iteration |
+| 2 | BSpline single-allocation layout | Modeling Data | Medium | Very High | 5 scattered Handle arrays → 1 contiguous buffer for the dominant curve type |
+| 3 | BRep_TEdge variant curve reps | Modeling Data | Medium | Very High | Remove virtual `Is*()` dispatch + linked list in `BRep_Tool` hot path |
+| 4 | `enum class` migration | Foundation + Modeling | Low | High | Type safety across 441 enum definitions |
+| 5 | `alignas` + dead guard removal | Foundation Classes | Low | High | Clean dead Borland/SunPro code, replace `STANDARD_ALIGNED` macro |
+| 6 | CMake Presets + Sanitizers + Fuzzing | Build System | Low | High | Reproducible builds, parser robustness, memory safety CI |
+| 7 | `std::span` + structured bindings | Foundation Classes | Low | High | Unified array views, `auto [x, y, z] = point` syntax |
 
 ---
 
 ## Recommended Priority Order
 
-1. **Proposals 1, 3, 5** (Low effort, mechanical) — do first. They clean up
-   the codebase and make subsequent work easier. Proposal 1 alone touches
-   the most files but is the most straightforward.
+1. **Proposals 4, 5** (Low effort, mechanical cleanup) — do first. They
+   clean up Foundation Classes and make subsequent work in Modeling Data
+   easier.
 
-2. **Proposal 4** (Low effort, infrastructure) — enables catching bugs
-   introduced by the other changes. Set up sanitizers before large
-   refactoring.
+2. **Proposal 6** (Low effort, infrastructure) — set up sanitizers before
+   large refactoring to catch regressions early.
 
-3. **Proposal 6** (Medium effort, API quality) — do alongside the API-breaking
-   enum migration since both touch public headers.
+3. **Proposal 1** (Low effort, very high impact) — the single most
+   impactful change for topology iteration performance. Contained within
+   `TopoDS_TShape` + `TopoDS_Iterator` + `TopoDS_Builder`.
 
-4. **Proposals 2 and 7** (Medium effort, performance) — these are the biggest
-   performance wins and can be developed independently by separate
-   contributors.
+4. **Proposal 7** (Low effort, developer experience) — small additions to
+   well-understood `gp_*` types. Can be done incrementally.
+
+5. **Proposals 2 and 3** (Medium effort, very high impact) — the biggest
+   Modeling Data performance wins. Can be developed independently by
+   separate contributors.
