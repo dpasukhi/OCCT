@@ -263,14 +263,30 @@ public:
   //! Non-throwing point evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<gp_Pnt> EvalD0(double U) const final;
 
+  //! Non-throwing point evaluation with predicted parameter.
+  //! For B-spline curves this hint is used to decide if cache rebuild is beneficial.
+  [[nodiscard]] Standard_EXPORT std::optional<gp_Pnt> EvalD0(double U, double U2) const;
+
   //! Non-throwing D1 evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<Geom_Curve::ResD1> EvalD1(double U) const final;
+
+  //! Non-throwing D1 evaluation with predicted parameter.
+  //! For B-spline curves this hint is used to decide if cache rebuild is beneficial.
+  [[nodiscard]] Standard_EXPORT std::optional<Geom_Curve::ResD1> EvalD1(double U, double U2) const;
 
   //! Non-throwing D2 evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<Geom_Curve::ResD2> EvalD2(double U) const final;
 
+  //! Non-throwing D2 evaluation with predicted parameter.
+  //! For B-spline curves this hint is used to decide if cache rebuild is beneficial.
+  [[nodiscard]] Standard_EXPORT std::optional<Geom_Curve::ResD2> EvalD2(double U, double U2) const;
+
   //! Non-throwing D3 evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<Geom_Curve::ResD3> EvalD3(double U) const final;
+
+  //! Non-throwing D3 evaluation with predicted parameter.
+  //! For B-spline curves this hint is used to decide if cache rebuild is beneficial.
+  [[nodiscard]] Standard_EXPORT std::optional<Geom_Curve::ResD3> EvalD3(double U, double U2) const;
 
   //! Non-throwing DN evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<gp_Vec> EvalDN(double U, int N) const final;
@@ -291,6 +307,18 @@ private:
   //! Rebuilds B-spline cache
   //! \param theParameter the value on the knot axis which identifies the caching span
   void RebuildCache(const double theParameter) const;
+
+  //! Returns true if cache should be used for theU, false when local evaluation is preferred.
+  //! \param theData B-spline-specific evaluation data
+  //! \param theU current parameter
+  //! \param theU2 predicted parameter
+  //! \param theSpanStart [out] span start for local evaluation when cache is skipped
+  //! \param theSpanFinish [out] span finish for local evaluation when cache is skipped
+  bool useBSplineCache(const BSplineData& theData,
+                       const double       theU,
+                       const double       theU2,
+                       int&               theSpanStart,
+                       int&               theSpanFinish) const;
 
 private:
   occ::handle<Geom_Curve> myCurve;

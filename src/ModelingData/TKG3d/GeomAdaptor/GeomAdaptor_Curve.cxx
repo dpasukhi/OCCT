@@ -61,6 +61,114 @@ static const double PosTol = Precision::PConfusion() / 2;
 
 IMPLEMENT_STANDARD_RTTIEXT(GeomAdaptor_Curve, Adaptor3d_Curve)
 
+namespace
+{
+
+//=================================================================================================
+
+void normalizeSpan(const int theSide,
+                   const int theStart,
+                   const int theFinish,
+                   int&      theOutStart,
+                   int&      theOutFinish,
+                   const int theFirstKnotIndex,
+                   const int theLastKnotIndex)
+{
+  if (theStart != theFinish) // not a knot
+  {
+    if (theStart < theFirstKnotIndex)
+    {
+      theOutStart  = theFirstKnotIndex;
+      theOutFinish = theFirstKnotIndex + 1;
+    }
+    else if (theFinish > theLastKnotIndex)
+    {
+      theOutStart  = theLastKnotIndex - 1;
+      theOutFinish = theLastKnotIndex;
+    }
+    else if (theStart >= (theLastKnotIndex - 1))
+    {
+      theOutStart  = theLastKnotIndex - 1;
+      theOutFinish = theLastKnotIndex;
+    }
+    else if (theFinish <= theFirstKnotIndex + 1)
+    {
+      theOutStart  = theFirstKnotIndex;
+      theOutFinish = theFirstKnotIndex + 1;
+    }
+    else if (theStart > theFinish)
+    {
+      theOutStart  = theFinish - 1;
+      theOutFinish = theFinish;
+    }
+    else
+    {
+      theOutStart  = theStart;
+      theOutFinish = theFinish;
+    }
+  }
+  else
+  {
+    if (theStart <= theFirstKnotIndex)
+    {
+      theOutStart  = theFirstKnotIndex;
+      theOutFinish = theFirstKnotIndex + 1;
+    } // first knot
+    else if (theFinish >= theLastKnotIndex)
+    {
+      theOutStart  = theLastKnotIndex - 1;
+      theOutFinish = theLastKnotIndex;
+    } // last knot
+    else if (theSide == -1)
+    {
+      theOutStart  = theStart - 1;
+      theOutFinish = theFinish;
+    }
+    else
+    {
+      theOutStart  = theStart;
+      theOutFinish = theFinish + 1;
+    }
+  }
+}
+
+//=================================================================================================
+
+void locateCurveSpan(const occ::handle<Geom_BSplineCurve>& theCurve,
+                     const double                          theParameter,
+                     int&                                  theSpanStart,
+                     int&                                  theSpanFinish)
+{
+  int aStart  = 0;
+  int aFinish = 0;
+  theCurve->LocateU(theParameter, PosTol, aStart, aFinish, false);
+  normalizeSpan(0,
+                aStart,
+                aFinish,
+                theSpanStart,
+                theSpanFinish,
+                theCurve->FirstUKnotIndex(),
+                theCurve->LastUKnotIndex());
+}
+
+//=================================================================================================
+
+bool isSameCurveSpan(const occ::handle<Geom_BSplineCurve>& theCurve,
+                     const double                          theU,
+                     const double                          theU2,
+                     int&                                  theSpanStart,
+                     int&                                  theSpanFinish)
+{
+  locateCurveSpan(theCurve, theU, theSpanStart, theSpanFinish);
+
+  int aSpanStart2  = 0;
+  int aSpanFinish2 = 0;
+  locateCurveSpan(theCurve, theU2, aSpanStart2, aSpanFinish2);
+  return theSpanStart == aSpanStart2 && theSpanFinish == aSpanFinish2;
+}
+
+} // namespace
+
 //=================================================================================================
 
 occ::handle<Adaptor3d_Curve> GeomAdaptor_Curve::ShallowCopy() const
@@ -582,6 +690,35 @@ void GeomAdaptor_Curve::RebuildCache(const double theParameter) const
 
 //=================================================================================================
 
+bool GeomAdaptor_Curve::useBSplineCache(const BSplineData& theData,
+                                        const double       theU,
+                                        const double       theU2,
+                                        int&               theSpanStart,
+                                        int&               theSpanFinish) const
+{
+  if (!theData.Cache.IsNull() && theData.Cache->IsCacheValid(theU))
+  {
+    return true;
+  }
+
+  // Default path (no prediction): avoid extra span lookup and rebuild directly.
+  if (theU == theU2)
+  {
+    RebuildCache(theU);
+    return true;
+  }
+
+  if (!isSameCurveSpan(theData.Curve, theU, theU2, theSpanStart, theSpanFinish))
+  {
+    return false;
+  }
+
+  RebuildCache(theU);
+  return true;
+}
+
+//=================================================================================================
+
 bool GeomAdaptor_Curve::IsBoundary(const double theU, int& theSpanStart, int& theSpanFinish) const
 {
   const auto* aBSplData = std::get_if<BSplineData>(&myCurveData);
@@ -664,19 +801,7 @@ std::optional<gp_Pnt> GeomAdaptor_Curve::EvalD0(double U) const
     }
 
     case GeomAbs_BSplineCurve: {
-      int   aStart = 0, aFinish = 0;
-      auto& aBSplData = std::get<BSplineData>(myCurveData);
-      if (IsBoundary(U, aStart, aFinish))
-      {
-        aBSplData.Curve->LocalD0(U, aStart, aFinish, P);
-      }
-      else
-      {
-        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(U))
-          RebuildCache(U);
-        aBSplData.Cache->D0(U, P);
-      }
-      return P;
+      return EvalD0(U, U);
     }
 
     case GeomAbs_OffsetCurve: {
@@ -695,6 +820,36 @@ std::optional<gp_Pnt> GeomAdaptor_Curve::EvalD0(double U) const
     default:
       return myCurve->EvalD0(U);
   }
+}
+
+//=================================================================================================
+
+std::optional<gp_Pnt> GeomAdaptor_Curve::EvalD0(double U, double U2) const
+{
+  if (myTypeCurve != GeomAbs_BSplineCurve)
+  {
+    return EvalD0(U);
+  }
+
+  gp_Pnt                                P;
+  int                                   aStart    = 0;
+  int                                   aFinish   = 0;
+  const BSplineData&                    aBSplData = std::get<BSplineData>(myCurveData);
+  const occ::handle<Geom_BSplineCurve>& aBSpl     = aBSplData.Curve;
+  if (IsBoundary(U, aStart, aFinish))
+  {
+    aBSpl->LocalD0(U, aStart, aFinish, P);
+    return P;
+  }
+
+  if (!useBSplineCache(aBSplData, U, U2, aStart, aFinish))
+  {
+    aBSpl->LocalD0(U, aStart, aFinish, P);
+    return P;
+  }
+
+  aBSplData.Cache->D0(U, P);
+  return P;
 }
 
 //=================================================================================================
@@ -744,19 +899,7 @@ std::optional<Geom_Curve::ResD1> GeomAdaptor_Curve::EvalD1(double U) const
     }
 
     case GeomAbs_BSplineCurve: {
-      int   aStart = 0, aFinish = 0;
-      auto& aBSplData = std::get<BSplineData>(myCurveData);
-      if (IsBoundary(U, aStart, aFinish))
-      {
-        aBSplData.Curve->LocalD1(U, aStart, aFinish, aResult.Point, aResult.D1);
-      }
-      else
-      {
-        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(U))
-          RebuildCache(U);
-        aBSplData.Cache->D1(U, aResult.Point, aResult.D1);
-      }
-      return aResult;
+      return EvalD1(U, U);
     }
 
     case GeomAbs_OffsetCurve: {
@@ -776,6 +919,36 @@ std::optional<Geom_Curve::ResD1> GeomAdaptor_Curve::EvalD1(double U) const
     default:
       return myCurve->EvalD1(U);
   }
+}
+
+//=================================================================================================
+
+std::optional<Geom_Curve::ResD1> GeomAdaptor_Curve::EvalD1(double U, double U2) const
+{
+  if (myTypeCurve != GeomAbs_BSplineCurve)
+  {
+    return EvalD1(U);
+  }
+
+  Geom_Curve::ResD1                     aResult;
+  int                                   aStart    = 0;
+  int                                   aFinish   = 0;
+  const BSplineData&                    aBSplData = std::get<BSplineData>(myCurveData);
+  const occ::handle<Geom_BSplineCurve>& aBSpl     = aBSplData.Curve;
+  if (IsBoundary(U, aStart, aFinish))
+  {
+    aBSpl->LocalD1(U, aStart, aFinish, aResult.Point, aResult.D1);
+    return aResult;
+  }
+
+  if (!useBSplineCache(aBSplData, U, U2, aStart, aFinish))
+  {
+    aBSpl->LocalD1(U, aStart, aFinish, aResult.Point, aResult.D1);
+    return aResult;
+  }
+
+  aBSplData.Cache->D1(U, aResult.Point, aResult.D1);
+  return aResult;
 }
 
 //=================================================================================================
@@ -827,19 +1000,7 @@ std::optional<Geom_Curve::ResD2> GeomAdaptor_Curve::EvalD2(double U) const
     }
 
     case GeomAbs_BSplineCurve: {
-      int   aStart = 0, aFinish = 0;
-      auto& aBSplData = std::get<BSplineData>(myCurveData);
-      if (IsBoundary(U, aStart, aFinish))
-      {
-        aBSplData.Curve->LocalD2(U, aStart, aFinish, aResult.Point, aResult.D1, aResult.D2);
-      }
-      else
-      {
-        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(U))
-          RebuildCache(U);
-        aBSplData.Cache->D2(U, aResult.Point, aResult.D1, aResult.D2);
-      }
-      return aResult;
+      return EvalD2(U, U);
     }
 
     case GeomAbs_OffsetCurve: {
@@ -860,6 +1021,36 @@ std::optional<Geom_Curve::ResD2> GeomAdaptor_Curve::EvalD2(double U) const
     default:
       return myCurve->EvalD2(U);
   }
+}
+
+//=================================================================================================
+
+std::optional<Geom_Curve::ResD2> GeomAdaptor_Curve::EvalD2(double U, double U2) const
+{
+  if (myTypeCurve != GeomAbs_BSplineCurve)
+  {
+    return EvalD2(U);
+  }
+
+  Geom_Curve::ResD2                     aResult;
+  int                                   aStart    = 0;
+  int                                   aFinish   = 0;
+  const BSplineData&                    aBSplData = std::get<BSplineData>(myCurveData);
+  const occ::handle<Geom_BSplineCurve>& aBSpl     = aBSplData.Curve;
+  if (IsBoundary(U, aStart, aFinish))
+  {
+    aBSpl->LocalD2(U, aStart, aFinish, aResult.Point, aResult.D1, aResult.D2);
+    return aResult;
+  }
+
+  if (!useBSplineCache(aBSplData, U, U2, aStart, aFinish))
+  {
+    aBSpl->LocalD2(U, aStart, aFinish, aResult.Point, aResult.D1, aResult.D2);
+    return aResult;
+  }
+
+  aBSplData.Cache->D2(U, aResult.Point, aResult.D1, aResult.D2);
+  return aResult;
 }
 
 //=================================================================================================
@@ -929,20 +1120,7 @@ std::optional<Geom_Curve::ResD3> GeomAdaptor_Curve::EvalD3(double U) const
     }
 
     case GeomAbs_BSplineCurve: {
-      int   aStart = 0, aFinish = 0;
-      auto& aBSplData = std::get<BSplineData>(myCurveData);
-      if (IsBoundary(U, aStart, aFinish))
-      {
-        aBSplData.Curve
-          ->LocalD3(U, aStart, aFinish, aResult.Point, aResult.D1, aResult.D2, aResult.D3);
-      }
-      else
-      {
-        if (aBSplData.Cache.IsNull() || !aBSplData.Cache->IsCacheValid(U))
-          RebuildCache(U);
-        aBSplData.Cache->D3(U, aResult.Point, aResult.D1, aResult.D2, aResult.D3);
-      }
-      return aResult;
+      return EvalD3(U, U);
     }
 
     case GeomAbs_OffsetCurve: {
@@ -964,6 +1142,36 @@ std::optional<Geom_Curve::ResD3> GeomAdaptor_Curve::EvalD3(double U) const
     default:
       return myCurve->EvalD3(U);
   }
+}
+
+//=================================================================================================
+
+std::optional<Geom_Curve::ResD3> GeomAdaptor_Curve::EvalD3(double U, double U2) const
+{
+  if (myTypeCurve != GeomAbs_BSplineCurve)
+  {
+    return EvalD3(U);
+  }
+
+  Geom_Curve::ResD3                     aResult;
+  int                                   aStart    = 0;
+  int                                   aFinish   = 0;
+  const BSplineData&                    aBSplData = std::get<BSplineData>(myCurveData);
+  const occ::handle<Geom_BSplineCurve>& aBSpl     = aBSplData.Curve;
+  if (IsBoundary(U, aStart, aFinish))
+  {
+    aBSpl->LocalD3(U, aStart, aFinish, aResult.Point, aResult.D1, aResult.D2, aResult.D3);
+    return aResult;
+  }
+
+  if (!useBSplineCache(aBSplData, U, U2, aStart, aFinish))
+  {
+    aBSpl->LocalD3(U, aStart, aFinish, aResult.Point, aResult.D1, aResult.D2, aResult.D3);
+    return aResult;
+  }
+
+  aBSplData.Cache->D3(U, aResult.Point, aResult.D1, aResult.D2, aResult.D3);
+  return aResult;
 }
 
 //=================================================================================================

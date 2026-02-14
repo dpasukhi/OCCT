@@ -310,13 +310,34 @@ public:
   //! Non-throwing point evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<gp_Pnt> EvalD0(double U, double V) const final;
 
+  //! Non-throwing point evaluation with predicted parameters.
+  //! For B-spline surfaces this hint is used to decide if cache rebuild is beneficial.
+  [[nodiscard]] Standard_EXPORT std::optional<gp_Pnt> EvalD0(double U,
+                                                             double V,
+                                                             double U2,
+                                                             double V2) const;
+
   //! Non-throwing D1 evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<Geom_Surface::ResD1> EvalD1(double U,
                                                                           double V) const final;
 
+  //! Non-throwing D1 evaluation with predicted parameters.
+  //! For B-spline surfaces this hint is used to decide if cache rebuild is beneficial.
+  [[nodiscard]] Standard_EXPORT std::optional<Geom_Surface::ResD1> EvalD1(double U,
+                                                                          double V,
+                                                                          double U2,
+                                                                          double V2) const;
+
   //! Non-throwing D2 evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<Geom_Surface::ResD2> EvalD2(double U,
                                                                           double V) const final;
+
+  //! Non-throwing D2 evaluation with predicted parameters.
+  //! For B-spline surfaces this hint is used to decide if cache rebuild is beneficial.
+  [[nodiscard]] Standard_EXPORT std::optional<Geom_Surface::ResD2> EvalD2(double U,
+                                                                          double V,
+                                                                          double U2,
+                                                                          double V2) const;
 
   //! Non-throwing D3 evaluation. Returns std::nullopt on failure.
   [[nodiscard]] Standard_EXPORT std::optional<Geom_Surface::ResD3> EvalD3(double U,

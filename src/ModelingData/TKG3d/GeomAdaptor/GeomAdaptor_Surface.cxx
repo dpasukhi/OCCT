@@ -1057,6 +1057,37 @@ std::optional<gp_Pnt> GeomAdaptor_Surface::EvalD0(double U, double V) const
 
 //=================================================================================================
 
+std::optional<gp_Pnt> GeomAdaptor_Surface::EvalD0(double U, double V, double U2, double V2) const
+{
+  if (mySurfaceType != GeomAbs_BSplineSurface)
+  {
+    return EvalD0(U, V);
+  }
+
+  gp_Pnt                                  P;
+  const BSplineData&                      aBSplData = std::get<BSplineData>(mySurfaceData);
+  const occ::handle<Geom_BSplineSurface>& aBSpl     = aBSplData.Surface;
+  const bool isCacheValid = !aBSplData.Cache.IsNull() && aBSplData.Cache->IsCacheValid(U, V);
+  if (!isCacheValid)
+  {
+    int aUDeb = 0, aUFin = 0, aVDeb = 0, aVFin = 0;
+    int aUDeb2 = 0, aUFin2 = 0, aVDeb2 = 0, aVFin2 = 0;
+    IfUVBound(U, V, aUDeb, aUFin, aVDeb, aVFin, 0, 0);
+    IfUVBound(U2, V2, aUDeb2, aUFin2, aVDeb2, aVFin2, 0, 0);
+    if (aUDeb != aUDeb2 || aUFin != aUFin2 || aVDeb != aVDeb2 || aVFin != aVFin2)
+    {
+      aBSpl->LocalD0(U, V, aUDeb, aUFin, aVDeb, aVFin, P);
+      return P;
+    }
+    RebuildCache(U, V);
+  }
+
+  aBSplData.Cache->D0(U, V, P);
+  return P;
+}
+
+//=================================================================================================
+
 void GeomAdaptor_Surface::D1(const double U,
                              const double V,
                              gp_Pnt&      P,
@@ -1179,6 +1210,69 @@ std::optional<Geom_Surface::ResD1> GeomAdaptor_Surface::EvalD1(double U, double 
     default:
       return mySurface->EvalD1(u, v);
   }
+}
+
+//=================================================================================================
+
+std::optional<Geom_Surface::ResD1> GeomAdaptor_Surface::EvalD1(double U,
+                                                               double V,
+                                                               double U2,
+                                                               double V2) const
+{
+  if (mySurfaceType != GeomAbs_BSplineSurface)
+  {
+    return EvalD1(U, V);
+  }
+
+  Geom_Surface::ResD1 aResult;
+  int                 Ideb = 0, Ifin = 0, IVdeb = 0, IVfin = 0, USide = 0, VSide = 0;
+  double              u = U, v = V;
+  if (std::abs(U - myUFirst) <= myTolU)
+  {
+    USide = 1;
+    u     = myUFirst;
+  }
+  else if (std::abs(U - myULast) <= myTolU)
+  {
+    USide = -1;
+    u     = myULast;
+  }
+  if (std::abs(V - myVFirst) <= myTolV)
+  {
+    VSide = 1;
+    v     = myVFirst;
+  }
+  else if (std::abs(V - myVLast) <= myTolV)
+  {
+    VSide = -1;
+    v     = myVLast;
+  }
+
+  const BSplineData&                      aBSplData = std::get<BSplineData>(mySurfaceData);
+  const occ::handle<Geom_BSplineSurface>& aBSpl     = aBSplData.Surface;
+  if ((USide != 0 || VSide != 0) && IfUVBound(u, v, Ideb, Ifin, IVdeb, IVfin, USide, VSide))
+  {
+    aBSpl->LocalD1(u, v, Ideb, Ifin, IVdeb, IVfin, aResult.Point, aResult.D1U, aResult.D1V);
+    return aResult;
+  }
+
+  const bool isCacheValid = !aBSplData.Cache.IsNull() && aBSplData.Cache->IsCacheValid(U, V);
+  if (!isCacheValid)
+  {
+    int aUDeb = 0, aUFin = 0, aVDeb = 0, aVFin = 0;
+    int aUDeb2 = 0, aUFin2 = 0, aVDeb2 = 0, aVFin2 = 0;
+    IfUVBound(U, V, aUDeb, aUFin, aVDeb, aVFin, 0, 0);
+    IfUVBound(U2, V2, aUDeb2, aUFin2, aVDeb2, aVFin2, 0, 0);
+    if (aUDeb != aUDeb2 || aUFin != aUFin2 || aVDeb != aVDeb2 || aVFin != aVFin2)
+    {
+      aBSpl->LocalD1(U, V, aUDeb, aUFin, aVDeb, aVFin, aResult.Point, aResult.D1U, aResult.D1V);
+      return aResult;
+    }
+    RebuildCache(U, V);
+  }
+
+  aBSplData.Cache->D1(U, V, aResult.Point, aResult.D1U, aResult.D1V);
+  return aResult;
 }
 
 //=================================================================================================
@@ -1374,6 +1468,92 @@ std::optional<Geom_Surface::ResD2> GeomAdaptor_Surface::EvalD2(double U, double 
     default:
       return mySurface->EvalD2(u, v);
   }
+}
+
+//=================================================================================================
+
+std::optional<Geom_Surface::ResD2> GeomAdaptor_Surface::EvalD2(double U,
+                                                               double V,
+                                                               double U2,
+                                                               double V2) const
+{
+  if (mySurfaceType != GeomAbs_BSplineSurface)
+  {
+    return EvalD2(U, V);
+  }
+
+  Geom_Surface::ResD2 aResult;
+  int                 Ideb = 0, Ifin = 0, IVdeb = 0, IVfin = 0, USide = 0, VSide = 0;
+  double              u = U, v = V;
+  if (std::abs(U - myUFirst) <= myTolU)
+  {
+    USide = 1;
+    u     = myUFirst;
+  }
+  else if (std::abs(U - myULast) <= myTolU)
+  {
+    USide = -1;
+    u     = myULast;
+  }
+  if (std::abs(V - myVFirst) <= myTolV)
+  {
+    VSide = 1;
+    v     = myVFirst;
+  }
+  else if (std::abs(V - myVLast) <= myTolV)
+  {
+    VSide = -1;
+    v     = myVLast;
+  }
+
+  const BSplineData&                      aBSplData = std::get<BSplineData>(mySurfaceData);
+  const occ::handle<Geom_BSplineSurface>& aBSpl     = aBSplData.Surface;
+  if ((USide != 0 || VSide != 0) && IfUVBound(u, v, Ideb, Ifin, IVdeb, IVfin, USide, VSide))
+  {
+    aBSpl->LocalD2(u,
+                   v,
+                   Ideb,
+                   Ifin,
+                   IVdeb,
+                   IVfin,
+                   aResult.Point,
+                   aResult.D1U,
+                   aResult.D1V,
+                   aResult.D2U,
+                   aResult.D2V,
+                   aResult.D2UV);
+    return aResult;
+  }
+
+  const bool isCacheValid = !aBSplData.Cache.IsNull() && aBSplData.Cache->IsCacheValid(U, V);
+  if (!isCacheValid)
+  {
+    int aUDeb = 0, aUFin = 0, aVDeb = 0, aVFin = 0;
+    int aUDeb2 = 0, aUFin2 = 0, aVDeb2 = 0, aVFin2 = 0;
+    IfUVBound(U, V, aUDeb, aUFin, aVDeb, aVFin, 0, 0);
+    IfUVBound(U2, V2, aUDeb2, aUFin2, aVDeb2, aVFin2, 0, 0);
+    if (aUDeb != aUDeb2 || aUFin != aUFin2 || aVDeb != aVDeb2 || aVFin != aVFin2)
+    {
+      aBSpl->LocalD2(U,
+                     V,
+                     aUDeb,
+                     aUFin,
+                     aVDeb,
+                     aVFin,
+                     aResult.Point,
+                     aResult.D1U,
+                     aResult.D1V,
+                     aResult.D2U,
+                     aResult.D2V,
+                     aResult.D2UV);
+      return aResult;
+    }
+    RebuildCache(U, V);
+  }
+
+  aBSplData.Cache
+    ->D2(U, V, aResult.Point, aResult.D1U, aResult.D1V, aResult.D2U, aResult.D2V, aResult.D2UV);
+  return aResult;
 }
 
 //=================================================================================================

@@ -13,10 +13,12 @@
 
 #include <gtest/gtest.h>
 
+#include <Geom_BSplineCurve.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Line.hxx>
 #include <Geom_TrimmedCurve.hxx>
+#include <NCollection_Array1.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
@@ -46,6 +48,35 @@ protected:
   occ::handle<Geom_Line>   myLine;
   occ::handle<Geom_Circle> myCircle;
 };
+
+//==================================================================================================
+
+namespace
+{
+
+occ::handle<Geom_BSplineCurve> createMultiSpanCurve()
+{
+  NCollection_Array1<gp_Pnt> aPoles(1, 5);
+  aPoles(1) = gp_Pnt(0.0, 0.0, 0.0);
+  aPoles(2) = gp_Pnt(1.0, 1.5, 0.0);
+  aPoles(3) = gp_Pnt(2.0, 0.0, 0.0);
+  aPoles(4) = gp_Pnt(3.0, -1.5, 0.0);
+  aPoles(5) = gp_Pnt(4.0, 0.0, 0.0);
+
+  NCollection_Array1<double> aKnots(1, 3);
+  aKnots(1) = 0.0;
+  aKnots(2) = 1.0;
+  aKnots(3) = 2.0;
+
+  NCollection_Array1<int> aMults(1, 3);
+  aMults(1) = 3;
+  aMults(2) = 2;
+  aMults(3) = 3;
+
+  return new Geom_BSplineCurve(aPoles, aKnots, aMults, 2);
+}
+
+} // namespace
 
 //==================================================================================================
 
@@ -285,4 +316,86 @@ TEST_F(GeomAdaptor_Curve_Test, Constructor_WithValidRange_Success)
   EXPECT_DOUBLE_EQ(anAdaptor.FirstParameter(), aFirst);
   EXPECT_DOUBLE_EQ(anAdaptor.LastParameter(), aLast);
   EXPECT_EQ(anAdaptor.GetType(), GeomAbs_Circle);
+}
+
+//==================================================================================================
+
+TEST(GeomAdaptor_Curve_EvalPredictionTest, BSplineCurve_SameSpanPrediction_MatchesBaseline)
+{
+  const occ::handle<Geom_BSplineCurve> aCurve = createMultiSpanCurve();
+  GeomAdaptor_Curve                    anAdaptor(aCurve);
+
+  const double aU  = 0.35;
+  const double aU2 = 0.75; // same span [0, 1]
+
+  const std::optional<gp_Pnt> aD0Base = anAdaptor.EvalD0(aU);
+  const std::optional<gp_Pnt> aD0Pred = anAdaptor.EvalD0(aU, aU2);
+  ASSERT_TRUE(aD0Base.has_value());
+  ASSERT_TRUE(aD0Pred.has_value());
+  EXPECT_NEAR(aD0Base->Distance(*aD0Pred), 0.0, Precision::Confusion());
+
+  const std::optional<Geom_Curve::ResD1> aD1Base = anAdaptor.EvalD1(aU);
+  const std::optional<Geom_Curve::ResD1> aD1Pred = anAdaptor.EvalD1(aU, aU2);
+  ASSERT_TRUE(aD1Base.has_value());
+  ASSERT_TRUE(aD1Pred.has_value());
+  EXPECT_NEAR(aD1Base->Point.Distance(aD1Pred->Point), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD1Base->D1 - aD1Pred->D1).Magnitude(), 0.0, Precision::Confusion());
+
+  const std::optional<Geom_Curve::ResD2> aD2Base = anAdaptor.EvalD2(aU);
+  const std::optional<Geom_Curve::ResD2> aD2Pred = anAdaptor.EvalD2(aU, aU2);
+  ASSERT_TRUE(aD2Base.has_value());
+  ASSERT_TRUE(aD2Pred.has_value());
+  EXPECT_NEAR(aD2Base->Point.Distance(aD2Pred->Point), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD2Base->D1 - aD2Pred->D1).Magnitude(), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD2Base->D2 - aD2Pred->D2).Magnitude(), 0.0, Precision::Confusion());
+
+  const std::optional<Geom_Curve::ResD3> aD3Base = anAdaptor.EvalD3(aU);
+  const std::optional<Geom_Curve::ResD3> aD3Pred = anAdaptor.EvalD3(aU, aU2);
+  ASSERT_TRUE(aD3Base.has_value());
+  ASSERT_TRUE(aD3Pred.has_value());
+  EXPECT_NEAR(aD3Base->Point.Distance(aD3Pred->Point), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD3Base->D1 - aD3Pred->D1).Magnitude(), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD3Base->D2 - aD3Pred->D2).Magnitude(), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD3Base->D3 - aD3Pred->D3).Magnitude(), 0.0, Precision::Confusion());
+}
+
+//==================================================================================================
+
+TEST(GeomAdaptor_Curve_EvalPredictionTest, BSplineCurve_DifferentSpanPrediction_MatchesBaseline)
+{
+  const occ::handle<Geom_BSplineCurve> aCurve = createMultiSpanCurve();
+  GeomAdaptor_Curve                    anAdaptor(aCurve);
+
+  const double aU  = 0.35;
+  const double aU2 = 1.45; // different span
+
+  const std::optional<gp_Pnt> aD0Base = anAdaptor.EvalD0(aU);
+  const std::optional<gp_Pnt> aD0Pred = anAdaptor.EvalD0(aU, aU2);
+  ASSERT_TRUE(aD0Base.has_value());
+  ASSERT_TRUE(aD0Pred.has_value());
+  EXPECT_NEAR(aD0Base->Distance(*aD0Pred), 0.0, Precision::Confusion());
+
+  const std::optional<Geom_Curve::ResD1> aD1Base = anAdaptor.EvalD1(aU);
+  const std::optional<Geom_Curve::ResD1> aD1Pred = anAdaptor.EvalD1(aU, aU2);
+  ASSERT_TRUE(aD1Base.has_value());
+  ASSERT_TRUE(aD1Pred.has_value());
+  EXPECT_NEAR(aD1Base->Point.Distance(aD1Pred->Point), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD1Base->D1 - aD1Pred->D1).Magnitude(), 0.0, Precision::Confusion());
+
+  const std::optional<Geom_Curve::ResD2> aD2Base = anAdaptor.EvalD2(aU);
+  const std::optional<Geom_Curve::ResD2> aD2Pred = anAdaptor.EvalD2(aU, aU2);
+  ASSERT_TRUE(aD2Base.has_value());
+  ASSERT_TRUE(aD2Pred.has_value());
+  EXPECT_NEAR(aD2Base->Point.Distance(aD2Pred->Point), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD2Base->D1 - aD2Pred->D1).Magnitude(), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD2Base->D2 - aD2Pred->D2).Magnitude(), 0.0, Precision::Confusion());
+
+  const std::optional<Geom_Curve::ResD3> aD3Base = anAdaptor.EvalD3(aU);
+  const std::optional<Geom_Curve::ResD3> aD3Pred = anAdaptor.EvalD3(aU, aU2);
+  ASSERT_TRUE(aD3Base.has_value());
+  ASSERT_TRUE(aD3Pred.has_value());
+  EXPECT_NEAR(aD3Base->Point.Distance(aD3Pred->Point), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD3Base->D1 - aD3Pred->D1).Magnitude(), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD3Base->D2 - aD3Pred->D2).Magnitude(), 0.0, Precision::Confusion());
+  EXPECT_NEAR((aD3Base->D3 - aD3Pred->D3).Magnitude(), 0.0, Precision::Confusion());
 }
