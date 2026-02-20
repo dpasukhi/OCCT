@@ -56,7 +56,8 @@ public:
     myWiresSegments->ChangeValue(theWireIndex)   = aSegments;
     myWiresBndBoxTree->ChangeValue(theWireIndex) = aBndBoxTree;
 
-    IMeshData::BndBox2dTreeFiller aBndBoxTreeFiller(*aBndBoxTree, aTmpAlloc);
+    occ::handle<NCollection_IncAllocator> aTmpFillAlloc = new NCollection_IncAllocator();
+    IMeshData::BndBox2dTreeFiller         aBndBoxTreeFiller(*aBndBoxTree, aTmpFillAlloc);
 
     for (int aEdgeIt = 0; aEdgeIt < aDWire->EdgesNb(); ++aEdgeIt)
     {
@@ -150,8 +151,8 @@ public:
 
     if (aIntStatus == BRepMesh_GeomTool::Cross)
     {
-      const double aAngle = mySegmentDir
-                              .Angle(gp_Vec2d(aSegment.Point1->XY(), aSegment.Point2->XY()));
+      const double aAngle =
+        mySegmentDir.Angle(gp_Vec2d(aSegment.Point1->XY(), aSegment.Point2->XY()));
 
       if (std::abs(aAngle) < MaxTangentAngle)
       {

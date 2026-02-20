@@ -46,6 +46,9 @@
 #include <Standard_Real.hxx>
 #include <TopAbs_ShapeEnum.hxx>
 #include <TopoDS_Shape.hxx>
+
+#include <utility>
+
 class IntTools_Context;
 class BOPDS_PaveBlock;
 class gp_Pnt;

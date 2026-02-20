@@ -15,6 +15,7 @@
 #include <BOPTools_Set.hxx>
 #include <BRep_Tool.hxx>
 #include <TopExp_Explorer.hxx>
+#include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
 #include <TopoDS_Shape.hxx>
 #include <TopTools_ShapeMapHasher.hxx>
@@ -25,7 +26,8 @@ static size_t NormalizedIds(const size_t aId, const int aDiv);
 //=================================================================================================
 
 BOPTools_Set::BOPTools_Set()
-    : myAllocator(NCollection_BaseAllocator::CommonBaseAllocator())
+    : myAllocator(NCollection_BaseAllocator::CommonBaseAllocator()),
+      myShapes(256, myAllocator)
 {
   myNbShapes = 0;
   mySum      = 0;
@@ -35,7 +37,8 @@ BOPTools_Set::BOPTools_Set()
 //=================================================================================================
 
 BOPTools_Set::BOPTools_Set(const occ::handle<NCollection_BaseAllocator>& theAllocator)
-    : myAllocator(theAllocator)
+    : myAllocator(theAllocator),
+      myShapes(256, myAllocator)
 {
   myNbShapes = 0;
   mySum      = 0;
@@ -143,7 +146,7 @@ void BOPTools_Set::Add(const TopoDS_Shape& theS, const TopAbs_ShapeEnum theType)
     const TopoDS_Shape& aSx = aExp.Current();
     if (theType == TopAbs_EDGE)
     {
-      const TopoDS_Edge& aEx = *((TopoDS_Edge*)&aSx);
+      const TopoDS_Edge& aEx = TopoDS::Edge(aSx);
       if (BRep_Tool::Degenerated(aEx))
       {
         continue;
