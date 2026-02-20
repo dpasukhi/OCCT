@@ -46,17 +46,16 @@ public:
   {
     const IMeshData::IWireHandle& aDWire = myDFace->GetWire(theWireIndex);
 
-    occ::handle<NCollection_IncAllocator> aTmpAlloc1 = new NCollection_IncAllocator();
+    occ::handle<NCollection_IncAllocator> aTmpAlloc = new NCollection_IncAllocator();
 
     Handle(BRepMesh_FaceChecker::Segments) aSegments =
-      new BRepMesh_FaceChecker::Segments(aDWire->EdgesNb(), aTmpAlloc1);
-    Handle(IMeshData::BndBox2dTree) aBndBoxTree = new IMeshData::BndBox2dTree(aTmpAlloc1);
+      new BRepMesh_FaceChecker::Segments(aDWire->EdgesNb(), aTmpAlloc);
+    Handle(IMeshData::BndBox2dTree) aBndBoxTree = new IMeshData::BndBox2dTree(aTmpAlloc);
 
     myWiresSegments->ChangeValue(theWireIndex)   = aSegments;
     myWiresBndBoxTree->ChangeValue(theWireIndex) = aBndBoxTree;
 
-    occ::handle<NCollection_IncAllocator> aTmpAlloc2 = new NCollection_IncAllocator();
-    IMeshData::BndBox2dTreeFiller         aBndBoxTreeFiller(*aBndBoxTree, aTmpAlloc2);
+    IMeshData::BndBox2dTreeFiller aBndBoxTreeFiller(*aBndBoxTree, aTmpAlloc);
 
     for (int aEdgeIt = 0; aEdgeIt < aDWire->EdgesNb(); ++aEdgeIt)
     {

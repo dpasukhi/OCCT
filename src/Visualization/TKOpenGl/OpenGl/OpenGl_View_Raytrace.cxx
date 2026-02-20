@@ -1158,54 +1158,54 @@ bool OpenGl_View::ShaderSource::LoadFromStrings(const TCollection_AsciiString* t
 TCollection_AsciiString OpenGl_View::generateShaderPrefix(
   const occ::handle<OpenGl_Context>& theGlContext) const
 {
-  TCollection_AsciiString aPrefixString = TCollection_AsciiString("#define STACK_SIZE ")
-                                          + TCollection_AsciiString(myRaytraceParameters.StackSize)
-                                          + "\n" + TCollection_AsciiString("#define NB_BOUNCES ")
-                                          + TCollection_AsciiString(myRaytraceParameters.NbBounces);
+  TCollection_AsciiString aPrefixString("#define STACK_SIZE ");
+  aPrefixString += TCollection_AsciiString(myRaytraceParameters.StackSize);
+  aPrefixString += "\n#define NB_BOUNCES ";
+  aPrefixString += TCollection_AsciiString(myRaytraceParameters.NbBounces);
 
   if (myRaytraceParameters.IsZeroToOneDepth)
   {
-    aPrefixString += TCollection_AsciiString("\n#define THE_ZERO_TO_ONE_DEPTH");
+    aPrefixString += "\n#define THE_ZERO_TO_ONE_DEPTH";
   }
 
   if (myRaytraceParameters.TransparentShadows)
   {
-    aPrefixString += TCollection_AsciiString("\n#define TRANSPARENT_SHADOWS");
+    aPrefixString += "\n#define TRANSPARENT_SHADOWS";
   }
   if (!theGlContext->ToRenderSRGB())
   {
-    aPrefixString += TCollection_AsciiString("\n#define THE_SHIFT_sRGB");
+    aPrefixString += "\n#define THE_SHIFT_sRGB";
   }
 
   // If OpenGL driver supports bindless textures and texturing
   // is actually used, activate texturing in ray-tracing mode
   if (myRaytraceParameters.UseBindlessTextures && theGlContext->arbTexBindless != nullptr)
   {
-    aPrefixString += TCollection_AsciiString("\n#define USE_TEXTURES")
-                     + TCollection_AsciiString("\n#define MAX_TEX_NUMBER ")
-                     + TCollection_AsciiString(OpenGl_RaytraceGeometry::MAX_TEX_NUMBER);
+    aPrefixString += "\n#define USE_TEXTURES";
+    aPrefixString += "\n#define MAX_TEX_NUMBER ";
+    aPrefixString += TCollection_AsciiString(OpenGl_RaytraceGeometry::MAX_TEX_NUMBER);
   }
 
   if (myRaytraceParameters.GlobalIllumination) // path tracing activated
   {
-    aPrefixString += TCollection_AsciiString("\n#define PATH_TRACING");
+    aPrefixString += "\n#define PATH_TRACING";
 
     if (myRaytraceParameters.AdaptiveScreenSampling) // adaptive screen sampling requested
     {
       if (theGlContext->IsGlGreaterEqual(4, 4))
       {
-        aPrefixString += TCollection_AsciiString("\n#define ADAPTIVE_SAMPLING");
+        aPrefixString += "\n#define ADAPTIVE_SAMPLING";
         if (myRaytraceParameters.AdaptiveScreenSamplingAtomic
             && theGlContext->CheckExtension("GL_NV_shader_atomic_float"))
         {
-          aPrefixString += TCollection_AsciiString("\n#define ADAPTIVE_SAMPLING_ATOMIC");
+          aPrefixString += "\n#define ADAPTIVE_SAMPLING_ATOMIC";
         }
       }
     }
 
     if (myRaytraceParameters.TwoSidedBsdfModels) // two-sided BSDFs requested
     {
-      aPrefixString += TCollection_AsciiString("\n#define TWO_SIDED_BXDF");
+      aPrefixString += "\n#define TWO_SIDED_BXDF";
     }
 
     switch (myRaytraceParameters.ToneMappingMethod)
@@ -1213,24 +1213,24 @@ TCollection_AsciiString OpenGl_View::generateShaderPrefix(
       case Graphic3d_ToneMappingMethod_Disabled:
         break;
       case Graphic3d_ToneMappingMethod_Filmic:
-        aPrefixString += TCollection_AsciiString("\n#define TONE_MAPPING_FILMIC");
+        aPrefixString += "\n#define TONE_MAPPING_FILMIC";
         break;
     }
   }
 
   if (myRaytraceParameters.ToIgnoreNormalMap)
   {
-    aPrefixString += TCollection_AsciiString("\n#define IGNORE_NORMAL_MAP");
+    aPrefixString += "\n#define IGNORE_NORMAL_MAP";
   }
 
   if (myRaytraceParameters.CubemapForBack)
   {
-    aPrefixString += TCollection_AsciiString("\n#define BACKGROUND_CUBEMAP");
+    aPrefixString += "\n#define BACKGROUND_CUBEMAP";
   }
 
   if (myRaytraceParameters.DepthOfField)
   {
-    aPrefixString += TCollection_AsciiString("\n#define DEPTH_OF_FIELD");
+    aPrefixString += "\n#define DEPTH_OF_FIELD";
   }
 
   return aPrefixString;
