@@ -14,10 +14,11 @@
 // commercial license or contractual agreement.
 
 #include <BRepMesh_FaceChecker.hxx>
-#include <IMeshData_Wire.hxx>
-#include <IMeshData_Edge.hxx>
-#include <OSD_Parallel.hxx>
 #include <BRepMesh_GeomTool.hxx>
+#include <gp_Vec2d.hxx>
+#include <IMeshData_Edge.hxx>
+#include <IMeshData_Wire.hxx>
+#include <OSD_Parallel.hxx>
 
 IMPLEMENT_STANDARD_RTTIEXT(BRepMesh_FaceChecker, Standard_Transient)
 
@@ -121,6 +122,7 @@ public:
 
     mySelfSegmentIndex = theSelfSegmentIndex;
     mySegment          = theSegment;
+    mySegmentDir       = gp_Vec2d(mySegment->Point1->XY(), mySegment->Point2->XY());
 
     myBox.SetVoid();
     myBox.Add(*mySegment->Point1);
@@ -148,7 +150,7 @@ public:
 
     if (aIntStatus == BRepMesh_GeomTool::Cross)
     {
-      const double aAngle = gp_Vec2d(mySegment->Point1->XY(), mySegment->Point2->XY())
+      const double aAngle = mySegmentDir
                               .Angle(gp_Vec2d(aSegment.Point1->XY(), aSegment.Point2->XY()));
 
       if (std::abs(aAngle) < MaxTangentAngle)
@@ -196,6 +198,7 @@ private:
   int                                    mySelfSegmentIndex;
   Handle(BRepMesh_FaceChecker::Segments) mySegments;
   const BRepMesh_FaceChecker::Segment*   mySegment;
+  gp_Vec2d                               mySegmentDir;
   Bnd_Box2d                              myBox;
   IMeshData::VectorOfInteger             myIndices;
 };
