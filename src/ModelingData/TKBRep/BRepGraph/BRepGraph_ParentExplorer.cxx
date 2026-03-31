@@ -178,54 +178,6 @@ TopAbs_Orientation BRepGraph_ParentExplorer::Orientation() const
 
 //=================================================================================================
 
-BRepGraph_TopologyPath BRepGraph_ParentExplorer::CurrentPath(
-  const occ::handle<NCollection_BaseAllocator>& theAllocator) const
-{
-  if (!myHasMore || myCurrentFrame < 0)
-  {
-    return BRepGraph_TopologyPath();
-  }
-
-  BRepGraph_TopologyPath aPath(myStack[myStackTop].Node, theAllocator);
-  for (int aFrameIdx = myStackTop; aFrameIdx > myCurrentFrame; --aFrameIdx)
-  {
-    if (myStack[aFrameIdx].StepToChild >= 0)
-    {
-      aPath.pushStep(myStack[aFrameIdx].StepToChild);
-    }
-  }
-  return aPath;
-}
-
-//=================================================================================================
-
-BRepGraph_TopologyPath BRepGraph_ParentExplorer::CurrentLeafPath(
-  const occ::handle<NCollection_BaseAllocator>& theAllocator) const
-{
-  if (!myHasMore || myStackTop < 0)
-  {
-    return BRepGraph_TopologyPath();
-  }
-
-  const int aRootFrame = branchRootFrame();
-  if (aRootFrame < 0)
-  {
-    return BRepGraph_TopologyPath();
-  }
-
-  BRepGraph_TopologyPath aPath(myStack[aRootFrame].Node, theAllocator);
-  for (int aFrameIdx = aRootFrame; aFrameIdx > 0; --aFrameIdx)
-  {
-    if (myStack[aFrameIdx].StepToChild >= 0)
-    {
-      aPath.pushStep(myStack[aFrameIdx].StepToChild);
-    }
-  }
-  return aPath;
-}
-
-//=================================================================================================
-
 const TopLoc_Location& BRepGraph_ParentExplorer::LeafLocation() const
 {
   static const TopLoc_Location THE_EMPTY_LOCATION;

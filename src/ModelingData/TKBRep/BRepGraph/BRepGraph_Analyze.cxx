@@ -14,6 +14,7 @@
 #include <BRepGraph_Analyze.hxx>
 
 #include <BRepGraph.hxx>
+#include <BRepGraph_ChildExplorer.hxx>
 #include <BRepGraph_Data.hxx>
 #include <BRepGraph_RefsView.hxx>
 #include <BRepGraph_TopoView.hxx>
@@ -65,16 +66,14 @@ NCollection_Vector<std::pair<BRepGraph_EdgeId, BRepGraph_FaceId>> BRepGraph_Anal
   NCollection_Vector<std::pair<BRepGraph_EdgeId, BRepGraph_FaceId>> aResult =
     NCollection_Vector<std::pair<BRepGraph_EdgeId, BRepGraph_FaceId>>(THE_ANALYZE_RESULT_BLOCK_SIZE);
 
-  const occ::handle<NCollection_BaseAllocator> anAllocator;
-
   for (int aFaceDefIdx = 0; aFaceDefIdx < aDefs.NbFaces(); ++aFaceDefIdx)
   {
     const BRepGraph_FaceId aFaceId(aFaceDefIdx);
 
-    const NCollection_Vector<BRepGraph_EdgeId> anEdges = aDefs.Faces().Edges(aFaceId, anAllocator);
-    for (int anEdgeIdx = 0; anEdgeIdx < anEdges.Length(); ++anEdgeIdx)
+    for (BRepGraph_ChildExplorer anExp(theGraph, aFaceId, BRepGraph_NodeId::Kind::Edge);
+         anExp.More(); anExp.Next())
     {
-      const BRepGraph_EdgeId       anEdgeDefId = anEdges.Value(anEdgeIdx);
+      const BRepGraph_EdgeId       anEdgeDefId(anExp.Current().Index);
       const BRepGraphInc::EdgeDef& anEdge      = aDefs.Edges().Definition(anEdgeDefId);
       if (anEdge.IsDegenerate)
         continue;
