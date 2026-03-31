@@ -59,17 +59,6 @@ const occ::handle<BRepGraph_CacheKind>& testUserAttrKind()
   return THE_KIND;
 }
 
-template <class theIdType>
-static void expectSameSequence(const NCollection_Vector<theIdType>& theLeft,
-                               const NCollection_Vector<theIdType>& theRight)
-{
-  ASSERT_EQ(theLeft.Length(), theRight.Length());
-  for (int i = 0; i < theLeft.Length(); ++i)
-  {
-    EXPECT_EQ(theLeft.Value(i), theRight.Value(i));
-  }
-}
-
 template <class theRefIdType, class theRefFn>
 static int countActiveRefs(const NCollection_Vector<theRefIdType>& theRefIds,
                            const theRefFn&                          theRefAccess)
