@@ -17,4 +17,5 @@ set(OCCT_TKDESTEP_GTests_FILES
     StepToTopoDS_TranslateFace_Test.cxx
     StepTransientReplacements_Test.cxx
     STEPCAFControl_Controller_Test.cxx
+    StepShapeFixRegression_Test.cxx
 )

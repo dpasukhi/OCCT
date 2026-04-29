@@ -648,28 +648,11 @@ bool ShapeFix_Edge::FixVertexTolerance(const TopoDS_Edge& edge, const TopoDS_Fac
   if (!Context().IsNull())
   {
     const TopoDS_Shape& aShape = Context()->Apply(edge);
-    if (aShape.IsNull())
+    if (aShape.IsNull() || aShape.ShapeType() != TopAbs_EDGE)
     {
       return false;
     }
-    if (aShape.ShapeType() == TopAbs_EDGE)
-    {
-      anEdgeCopy = TopoDS::Edge(aShape);
-    }
-    else
-    {
-      // Apply may return a compound when the input edge was previously split
-      // (e.g. by FixSelfIntersection); fix tolerance on every contained edge.
-      bool aResult = false;
-      for (TopExp_Explorer anExp(aShape, TopAbs_EDGE); anExp.More(); anExp.Next())
-      {
-        if (FixVertexTolerance(TopoDS::Edge(anExp.Current()), face))
-        {
-          aResult = true;
-        }
-      }
-      return aResult;
-    }
+    anEdgeCopy = TopoDS::Edge(aShape);
   }
 
   double toler1, toler2;
@@ -711,26 +694,11 @@ bool ShapeFix_Edge::FixVertexTolerance(const TopoDS_Edge& edge)
   if (!Context().IsNull())
   {
     const TopoDS_Shape& aShape = Context()->Apply(edge);
-    if (aShape.IsNull())
+    if (aShape.IsNull() || aShape.ShapeType() != TopAbs_EDGE)
     {
       return false;
     }
-    if (aShape.ShapeType() == TopAbs_EDGE)
-    {
-      anEdgeCopy = TopoDS::Edge(aShape);
-    }
-    else
-    {
-      bool aResult = false;
-      for (TopExp_Explorer anExp(aShape, TopAbs_EDGE); anExp.More(); anExp.Next())
-      {
-        if (FixVertexTolerance(TopoDS::Edge(anExp.Current())))
-        {
-          aResult = true;
-        }
-      }
-      return aResult;
-    }
+    anEdgeCopy = TopoDS::Edge(aShape);
   }
   double toler1, toler2;
   if (!sae.CheckVertexTolerance(anEdgeCopy, toler1, toler2))
