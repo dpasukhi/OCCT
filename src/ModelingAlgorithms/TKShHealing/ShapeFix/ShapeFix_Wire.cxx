@@ -562,16 +562,31 @@ bool ShapeFix_Wire::FixConnected(const double prec)
     return false;
   }
 
-  int stop = (myClosedMode ? 0 : 1);
-  for (int i = NbEdges(); i > stop; i--)
+  const int                         aStop     = (myClosedMode ? 0 : 1);
+  occ::handle<ShapeExtend_WireData> aWireSBWD = WireData();
+  for (int aI = NbEdges(); aI > aStop; aI--)
   {
-    // Call without UpdateWire to avoid O(n^2) behavior in the loop
-    FixConnected(i, prec, false);
+    FixConnected(aI, prec, false);
     myStatusConnected |= myLastFixStatus;
+    // Refresh the edge that the next iteration will analyze as n1.
+    if (Context().IsNull() || aI - 1 <= aStop)
+    {
+      continue;
+    }
+    const int aN1Next = (aI - 1 > 1) ? aI - 2 : aWireSBWD->NbEdges();
+    if (aN1Next == aI || aN1Next == aI - 1)
+    {
+      continue;
+    }
+    const TopoDS_Edge  aEPrev   = aWireSBWD->Edge(aN1Next);
+    const TopoDS_Shape aRefresh = Context()->Apply(aEPrev);
+    if (aRefresh.IsNull() || aRefresh.IsSame(aEPrev) || aRefresh.ShapeType() != TopAbs_EDGE)
+    {
+      continue;
+    }
+    aWireSBWD->Set(TopoDS::Edge(aRefresh), aN1Next);
   }
 
-  // Update wire once after all connections are fixed
-  // Using Value() in UpdateWire() prevents edge explosion from replacement chains
   if (!Context().IsNull())
   {
     UpdateWire();
@@ -4280,11 +4295,9 @@ void ShapeFix_Wire::UpdateWire()
   occ::handle<ShapeExtend_WireData> sbwd = WireData();
   for (int i = 1; i <= sbwd->NbEdges(); i++)
   {
-    TopoDS_Edge E = sbwd->Edge(i);
-    // ValueLeaf follows the replacement chain without descending into sub-shapes,
-    // so a previously-split edge is not re-expanded on subsequent Perform() passes.
-    TopoDS_Shape S = Context()->ValueLeaf(E);
-    if (!S.IsNull() && S.IsEqual(E))
+    TopoDS_Edge  E = sbwd->Edge(i);
+    TopoDS_Shape S = Context()->Apply(E);
+    if (S == E)
     {
       continue;
     }
