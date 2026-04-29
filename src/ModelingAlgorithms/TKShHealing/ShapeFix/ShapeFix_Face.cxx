@@ -294,7 +294,11 @@ static bool SplitWire(const TopoDS_Face&                  face,
         occ::handle<Geom2d_Curve> curve2 = BRep_Tool::CurveOnSurface(E2, face, a2, b2);
         if (curve1.IsNull() || curve2.IsNull())
         {
-          continue;
+          // Topological closure already established (V1.IsSame(V0)); when the 2D
+          // verification cannot be performed due to missing pcurves, accept the
+          // wire as closed rather than continuing to collect more edges.
+          aResWires.Append(sewd1->Wire());
+          break;
         }
 
         gp_Pnt2d v0, v1;
