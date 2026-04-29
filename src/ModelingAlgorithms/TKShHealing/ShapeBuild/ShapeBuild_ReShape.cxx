@@ -229,9 +229,12 @@ TopoDS_Shape ShapeBuild_ReShape::applyImpl(const TopoDS_Shape&                  
   bool aConsLoc = ModeConsiderLocation();
   if ((aConsLoc && !aNewShape.IsPartner(theShape)) || (!aConsLoc && !aNewShape.IsSame(theShape)))
   {
-    theInFlight.Add(theShape.TShape());
-    TopoDS_Shape aRes = applyImpl(aNewShape, theUntil, theInFlight);
-    theInFlight.Remove(theShape.TShape());
+    const bool   anOwnsInFlight = theInFlight.Add(theShape.TShape());
+    TopoDS_Shape aRes           = applyImpl(aNewShape, theUntil, theInFlight);
+    if (anOwnsInFlight)
+    {
+      theInFlight.Remove(theShape.TShape());
+    }
     myStatus |= ShapeExtend::EncodeStatus(ShapeExtend_DONE1);
     return aRes;
   }
@@ -255,7 +258,7 @@ TopoDS_Shape ShapeBuild_ReShape::applyImpl(const TopoDS_Shape&                  
   int  aLocStatus = myStatus;
 
   // Apply recorded modifications to subshapes
-  theInFlight.Add(theShape.TShape());
+  const bool anOwnsInFlight = theInFlight.Add(theShape.TShape());
   for (TopoDS_Iterator anIt(theShape, false); anIt.More(); anIt.Next())
   {
     const TopoDS_Shape& aSh = anIt.Value();
@@ -298,7 +301,10 @@ TopoDS_Shape ShapeBuild_ReShape::applyImpl(const TopoDS_Shape&                  
       aLocStatus |= ShapeExtend::EncodeStatus(ShapeExtend_FAIL1);
     }
   }
-  theInFlight.Remove(theShape.TShape());
+  if (anOwnsInFlight)
+  {
+    theInFlight.Remove(theShape.TShape());
+  }
   if (!aModif)
   {
     return theShape;

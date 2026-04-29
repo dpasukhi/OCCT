@@ -514,9 +514,12 @@ TopoDS_Shape BRepTools_ReShape::applyImpl(const TopoDS_Shape&                   
   if ((myConsiderLocation && !newsh.IsPartner(shape))
       || (!myConsiderLocation && !newsh.IsSame(shape)))
   {
-    theInFlight.Add(shape.TShape());
-    TopoDS_Shape res = applyImpl(newsh, until, theInFlight);
-    theInFlight.Remove(shape.TShape());
+    const bool   anOwnsInFlight = theInFlight.Add(shape.TShape());
+    TopoDS_Shape res            = applyImpl(newsh, until, theInFlight);
+    if (anOwnsInFlight)
+    {
+      theInFlight.Remove(shape.TShape());
+    }
     myStatus |= EncodeStatus(1); // ShapeExtend::EncodeStatus ( ShapeExtend_DONE1 );
     return res;
   }
@@ -555,8 +558,8 @@ TopoDS_Shape BRepTools_ReShape::applyImpl(const TopoDS_Shape&                   
   int  locStatus = myStatus;
 
   // apply recorded modifications to subshapes
-  bool isEmpty = true;
-  theInFlight.Add(shape.TShape());
+  bool       isEmpty        = true;
+  const bool anOwnsInFlight = theInFlight.Add(shape.TShape());
   for (TopoDS_Iterator it(shape, false); it.More(); it.Next())
   {
     const TopoDS_Shape& sh = it.Value();
@@ -597,7 +600,10 @@ TopoDS_Shape BRepTools_ReShape::applyImpl(const TopoDS_Shape&                   
 }
     // clang-format on
   }
-  theInFlight.Remove(shape.TShape());
+  if (anOwnsInFlight)
+  {
+    theInFlight.Remove(shape.TShape());
+  }
   if (!modif)
   {
     return shape;
