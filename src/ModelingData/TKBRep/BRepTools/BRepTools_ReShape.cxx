@@ -200,25 +200,11 @@ void BRepTools_ReShape::replace(const TopoDS_Shape&    ashape,
     std::cout << "Warning: BRepTools_ReShape::Replace: shape already recorded" << std::endl;
 #endif
 
-  // Reject the canonical direct cycle A -> B + B -> A: if Value(newshape) is
-  // shape itself, recording shape -> newshape would close a 2-cycle in the map.
-  // Longer cycles (A -> B -> C -> A) are not rejected here because the TShape-keyed
-  // Value() lookup cannot distinguish a true cycle from a legitimate replacement
-  // whose newshape happens to alias an earlier-stage TShape (common in IGES/STEP
-  // sewing). The DFS in-flight guard inside Apply()/applyImpl() prevents stack
-  // overflow at traversal time regardless of cycle length.
-  if (theKind != TReplacementKind_Remove && !newshape.IsNull() && !newshape.IsPartner(shape))
-  {
-    const TopoDS_Shape aValueOfNew = Value(newshape);
-    if (!aValueOfNew.IsNull() && aValueOfNew.IsPartner(shape))
-    {
-#ifdef OCCT_DEBUG
-      std::cout << "Warning: BRepTools_ReShape::Replace: direct cycle rejected" << std::endl;
-#endif
-      return;
-    }
-  }
-
+  // Cycle handling: cycles in the replacement map (A -> B -> A or longer) are
+  // accepted at insertion time. The DFS in-flight guard inside Apply()/applyImpl()
+  // breaks any cycle at traversal time, returning the immediate Value() instead
+  // of recursing. Rejecting at insertion time over-rejects in IGES/STEP healing
+  // pipelines where shapes legitimately alias earlier-stage TShapes.
   myShapeToReplacement.Bind(shape, TReplacement(newshape, theKind));
   myNewShapes.Add(newshape);
 }

@@ -565,13 +565,10 @@ bool ShapeFix_Wire::FixConnected(const double prec)
   int stop = (myClosedMode ? 0 : 1);
   for (int i = NbEdges(); i > stop; i--)
   {
-    // Call without UpdateWire to avoid O(n^2) behavior in the loop
     FixConnected(i, prec, false);
     myStatusConnected |= myLastFixStatus;
   }
 
-  // Update wire once after all connections are fixed
-  // Using Value() in UpdateWire() prevents edge explosion from replacement chains
   if (!Context().IsNull())
   {
     UpdateWire();

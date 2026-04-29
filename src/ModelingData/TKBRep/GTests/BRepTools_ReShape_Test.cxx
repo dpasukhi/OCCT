@@ -78,20 +78,23 @@ TEST(BRepTools_ReShapeTest, ValueLeaf_ChainEndingInRemoveReturnsNull)
   EXPECT_TRUE(aReShape.ValueLeaf(aA).IsNull());
 }
 
-// A direct A->B then B->A would close a cycle in the replacement map.
-// The second Replace() must be rejected; the first stays intact.
-TEST(BRepTools_ReShapeTest, Replace_RejectsDirectCycle)
+// A direct A->B then B->A creates a cycle in the replacement map; both bindings
+// are recorded, and the DFS in-flight guard inside Apply() handles termination.
+TEST(BRepTools_ReShapeTest, Replace_DirectCycleHandledByApply)
 {
   const TopoDS_Vertex aA = MakeVertex(0, 0, 0);
   const TopoDS_Vertex aB = MakeVertex(1, 0, 0);
 
   BRepTools_ReShape aReShape;
   aReShape.Replace(aA, aB);
-  aReShape.Replace(aB, aA); // would create A -> B -> A
+  aReShape.Replace(aB, aA);
 
-  EXPECT_TRUE(aReShape.Value(aA).IsSame(aB)) << "First replacement must remain in effect";
-  EXPECT_TRUE(aReShape.Value(aB).IsSame(aB)) << "Cyclic second replacement must have been rejected";
-  EXPECT_TRUE(aReShape.ValueLeaf(aA).IsSame(aB)) << "Chain must terminate, not loop";
+  EXPECT_TRUE(aReShape.Value(aA).IsSame(aB));
+  EXPECT_TRUE(aReShape.Value(aB).IsSame(aA));
+
+  // Apply() must terminate (DFS in-flight guard) and return a defined shape.
+  const TopoDS_Shape aResult = aReShape.Apply(aA);
+  EXPECT_FALSE(aResult.IsNull()) << "Apply must terminate via the DFS guard";
 }
 
 // Longer cycles A -> B -> C -> A are accepted at Replace() time and broken at
