@@ -465,18 +465,20 @@ TopoDS_Shape BRepTools_ReShape::applyImpl(const TopoDS_Shape&                   
     return newsh;
   }
 
-  // DFS cycle guard: if shape is already being processed further up the call
-  // stack, its replacement must be a compound that transitively contains it.
-  // Return the direct replacement without descending to break the cycle.
-  if (theInFlight.Contains(shape.TShape()))
-  {
-    return newsh;
-  }
-
   // if shape replaced, apply modifications to the result recursively
   if ((myConsiderLocation && !newsh.IsPartner(shape))
       || (!myConsiderLocation && !newsh.IsSame(shape)))
   {
+    // DFS cycle guard: only fire when this TShape is already being processed
+    // higher up the call stack AND it is being replaced again. That signals a
+    // replacement-chain cycle (A -> B -> ... -> A). For non-replaced subshapes
+    // that merely share TShape with an ancestor (e.g. an edge appearing twice
+    // in a wire with opposite orientations after a split), fall through to
+    // normal subshape iteration so their own replacements are applied.
+    if (theInFlight.Contains(shape.TShape()))
+    {
+      return newsh;
+    }
     theInFlight.Add(shape.TShape());
     TopoDS_Shape res = applyImpl(newsh, until, theInFlight);
     theInFlight.Remove(shape.TShape());

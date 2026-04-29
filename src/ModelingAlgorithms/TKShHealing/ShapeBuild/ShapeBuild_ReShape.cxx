@@ -217,18 +217,20 @@ TopoDS_Shape ShapeBuild_ReShape::applyImpl(const TopoDS_Shape&                  
     return aNewShape;
   }
 
-  // DFS cycle guard: if theShape is already being processed further up the call
-  // stack, its replacement must be a compound that transitively contains it.
-  // Return the direct replacement without descending to break the cycle.
-  if (theInFlight.Contains(theShape.TShape()))
-  {
-    return aNewShape;
-  }
-
   // If shape was replaced, apply modifications to the result recursively.
-  bool aConsLoc = ModeConsiderLocation();
+  const bool aConsLoc = ModeConsiderLocation();
   if ((aConsLoc && !aNewShape.IsPartner(theShape)) || (!aConsLoc && !aNewShape.IsSame(theShape)))
   {
+    // DFS cycle guard: only fire when this TShape is already being processed
+    // higher up the call stack AND is being replaced again. That signals a
+    // replacement-chain cycle. Subshapes that merely share TShape with an
+    // ancestor (e.g. shared sub-shapes across orientations) without their own
+    // replacement should fall through to normal subshape iteration so their
+    // own subshape modifications are applied.
+    if (theInFlight.Contains(theShape.TShape()))
+    {
+      return aNewShape;
+    }
     theInFlight.Add(theShape.TShape());
     TopoDS_Shape aRes = applyImpl(aNewShape, theUntil, theInFlight);
     theInFlight.Remove(theShape.TShape());
