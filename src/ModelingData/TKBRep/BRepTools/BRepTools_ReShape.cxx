@@ -200,43 +200,20 @@ void BRepTools_ReShape::replace(const TopoDS_Shape&    ashape,
     std::cout << "Warning: BRepTools_ReShape::Replace: shape already recorded" << std::endl;
 #endif
 
-  // Reject replacements that would introduce a cycle into the replacement chain,
-  // e.g. A -> ... -> X -> A. Walk forward from newshape via Value(); if the walk
-  // ever lands on shape itself, record only an identity (effectively no-op) to
-  // avoid forming a cycle that would later deadlock Apply()/ValueLeaf().
+  // Reject the canonical direct cycle A -> B + B -> A: if Value(newshape) is
+  // shape itself, recording shape -> newshape would close a 2-cycle in the map.
+  // Longer cycles (A -> B -> C -> A) are not rejected here because the TShape-keyed
+  // Value() lookup cannot distinguish a true cycle from a legitimate replacement
+  // whose newshape happens to alias an earlier-stage TShape (common in IGES/STEP
+  // sewing). The DFS in-flight guard inside Apply()/applyImpl() prevents stack
+  // overflow at traversal time regardless of cycle length.
   if (theKind != TReplacementKind_Remove && !newshape.IsNull() && !newshape.IsPartner(shape))
   {
-    // Reject replacements that would close a cycle in the map. Walk forward from
-    // newshape via Value(); if the chain ever lands back on shape's underlying TShape
-    // (any orientation, any location), abort. Key by the TShape handle to mirror the
-    // identity the map itself uses once orientation/location are normalized away.
-    TopoDS_Shape                                aProbe = newshape;
-    NCollection_Map<occ::handle<TopoDS_TShape>> aSeen;
-    aSeen.Add(shape.TShape());
-    aSeen.Add(aProbe.TShape());
-    bool aCycle = false;
-    for (;;)
-    {
-      const TopoDS_Shape aNext = Value(aProbe);
-      if (aNext.IsNull() || aNext.IsSame(aProbe))
-      {
-        break;
-      }
-      if (aNext.IsPartner(shape))
-      {
-        aCycle = true;
-        break;
-      }
-      if (!aSeen.Add(aNext.TShape()))
-      {
-        break; // existing cycle in data - not ours to introduce, bail
-      }
-      aProbe = aNext;
-    }
-    if (aCycle)
+    const TopoDS_Shape aValueOfNew = Value(newshape);
+    if (!aValueOfNew.IsNull() && aValueOfNew.IsPartner(shape))
     {
 #ifdef OCCT_DEBUG
-      std::cout << "Warning: BRepTools_ReShape::Replace: cycle rejected" << std::endl;
+      std::cout << "Warning: BRepTools_ReShape::Replace: direct cycle rejected" << std::endl;
 #endif
       return;
     }

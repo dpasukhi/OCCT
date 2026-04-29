@@ -94,8 +94,11 @@ TEST(BRepTools_ReShapeTest, Replace_RejectsDirectCycle)
   EXPECT_TRUE(aReShape.ValueLeaf(aA).IsSame(aB)) << "Chain must terminate, not loop";
 }
 
-// A longer cycle A -> B -> C -> A must also be rejected at the closing edge.
-TEST(BRepTools_ReShapeTest, Replace_RejectsLongerCycle)
+// Longer cycles A -> B -> C -> A are accepted at Replace() time and broken at
+// traversal time by the DFS in-flight guard inside Apply(). This avoids
+// over-rejection in IGES/STEP healing pipelines where shapes legitimately
+// alias TShapes across stages.
+TEST(BRepTools_ReShapeTest, Replace_LongerCycleHandledByApply)
 {
   const TopoDS_Vertex aA = MakeVertex(0, 0, 0);
   const TopoDS_Vertex aB = MakeVertex(1, 0, 0);
@@ -104,10 +107,15 @@ TEST(BRepTools_ReShapeTest, Replace_RejectsLongerCycle)
   BRepTools_ReShape aReShape;
   aReShape.Replace(aA, aB);
   aReShape.Replace(aB, aC);
-  aReShape.Replace(aC, aA); // would create A -> B -> C -> A
+  aReShape.Replace(aC, aA);
 
-  EXPECT_TRUE(aReShape.ValueLeaf(aA).IsSame(aC)) << "Chain terminates at C; no cycle formed";
-  EXPECT_TRUE(aReShape.Value(aC).IsSame(aC)) << "Closing replacement was rejected";
+  EXPECT_TRUE(aReShape.Value(aA).IsSame(aB));
+  EXPECT_TRUE(aReShape.Value(aB).IsSame(aC));
+  EXPECT_TRUE(aReShape.Value(aC).IsSame(aA));
+
+  // Apply() must terminate (DFS in-flight guard) and return a defined shape.
+  const TopoDS_Shape aResult = aReShape.Apply(aA);
+  EXPECT_FALSE(aResult.IsNull()) << "Apply must terminate via the DFS guard";
 }
 
 // Apply() must not stack-overflow when a shape's replacement is a compound that
