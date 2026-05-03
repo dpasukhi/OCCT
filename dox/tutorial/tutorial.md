@@ -20,7 +20,7 @@ To illustrate the use of classes provided in the 3D geometric modeling toolkits,
 
 @figure{/tutorial/images/tutorial_image001.png,"",240} height=350px
 
-In the tutorial we will create, step-by-step, a function that will model a bottle as shown above. You will find the complete source code of this tutorial, including the very function *MakeBottle* in the distribution of Open CASCADE Technology. The function body is provided in the file samples/qt/Tutorial/src/MakeBottle.cxx.
+In the tutorial we will create, step-by-step, a function that will model a bottle as shown above. You will find the complete source code of this tutorial in the appendix below.
 
 @subsection OCCT_TUTORIAL_SUB1_3 Model Specifications
 
@@ -50,7 +50,7 @@ This modeling requires four steps:
 
 To create the bottle's profile, you first create characteristic points with their coordinates as shown below in the (XOY) plane. These points will be the supports that define the geometry of the profile.
 
-@figure{tutorial/images/tutorial_image003.svg,"",466}
+@figure{/tutorial/images/tutorial_image003.svg,"",466}
 
 There are two classes to describe a 3D Cartesian point from its X, Y and Z coordinates in Open CASCADE Technology:
 
@@ -96,6 +96,7 @@ This is because the *GC* provides two algorithm classes which are exactly what i
 Both of these classes return a *Geom_TrimmedCurve* manipulated by handle. This entity represents a base curve (line or circle, in our case), limited between two of its parameter values. For example, circle C is parameterized between 0 and 2PI. If you need to create a quarter of a circle, you create a *Geom_TrimmedCurve* on C limited between 0 and M_PI/2.
 
 ~~~~{.cpp}
+    // For production code, prefer the explicit IsDone()/Value() pattern shown below.
     occ::handle<Geom_TrimmedCurve> aArcOfCircle = GC_MakeArcOfCircle(aPnt2,aPnt3,aPnt4);
     occ::handle<Geom_TrimmedCurve> aSegment1    = GC_MakeSegment(aPnt1, aPnt2);
     occ::handle<Geom_TrimmedCurve> aSegment2    = GC_MakeSegment(aPnt4, aPnt5);
@@ -106,7 +107,7 @@ All *GC* classes provide a casting method to obtain a result automatically with 
 ~~~~{.cpp}
     GC_MakeSegment mkSeg (aPnt1, aPnt2);
     occ::handle<Geom_TrimmedCurve> aSegment1;
-    if(mkSegment.IsDone()){
+    if(mkSeg.IsDone()){
         aSegment1 = mkSeg.Value();
     }
     else {
@@ -144,6 +145,8 @@ Referring to the previous table, to build the profile, you will create:
 However, the *TopoDS* package provides only the data structure of the topological entities. Algorithm classes available to compute standard topological objects can be found in the *BRepBuilderAPI* package.
 To create an edge, you use the BRepBuilderAPI_MakeEdge class with the previously computed curves:
 
+**Note:** In production code, `IsDone()` should be checked on all builder operations before accessing their results. The tutorial omits these checks for brevity.
+
 ~~~~{.cpp}
     TopoDS_Edge anEdge1 = BRepBuilderAPI_MakeEdge(aSegment1);
     TopoDS_Edge anEdge2 = BRepBuilderAPI_MakeEdge(aArcOfCircle);
@@ -153,8 +156,8 @@ To create an edge, you use the BRepBuilderAPI_MakeEdge class with the previously
 In Open CASCADE Technology, you can create edges in several ways. One possibility is to create an edge directly from two points, in which case the underlying geometry of this edge is a line, bounded by two vertices being automatically computed from the two input points. For example, anEdge1 and anEdge3 could have been computed in a simpler way:
 
 ~~~~{.cpp}
-    TopoDS_Edge anEdge1 = BRepBuilderAPI_MakeEdge(aPnt1, aPnt3);
-    TopoDS_Edge anEdge2 = BRepBuilderAPI_MakeEdge(aPnt4, aPnt5);
+    TopoDS_Edge anEdge1 = BRepBuilderAPI_MakeEdge(aPnt1, aPnt2);
+    TopoDS_Edge anEdge3 = BRepBuilderAPI_MakeEdge(aPnt4, aPnt5);
 ~~~~
 
 To connect the edges, you need to create a wire with the *BRepBuilderAPI_MakeWire* class. There are two ways of building a wire with this class:
@@ -437,7 +440,7 @@ DynamicType returns the real type of the object, but you need to compare it with
 To compare a given type with the type you seek, use the *STANDARD_TYPE* macro, which returns the type of a class:
 
 ~~~~{.cpp}
-    if(aSurface->DynamicType() == STANDARD_TYPE(Geom_Plane)){
+    if(!aSurface.IsNull() && aSurface->DynamicType() == STANDARD_TYPE(Geom_Plane)){
     }
 ~~~~
 
@@ -457,17 +460,22 @@ Remember that the goal of all these conversions is to find the highest face of t
 You can easily find the plane whose origin is the biggest in Z knowing that the location of the plane is given with the *Geom_Plane::Location* method. For example:
 
 ~~~~{.cpp}
-    gp_Pnt aPnt = aPlane->Location();
-    double aZ = aPnt.Z();
-    if(aZ > zMax){
-        zMax = aZ;
-        faceToRemove = aFace;
+    if (!aPlane.IsNull())
+    {
+      gp_Pnt aPnt = aPlane->Location();
+      double aZ = aPnt.Z();
+      if(aZ > zMax){
+          zMax = aZ;
+          faceToRemove = aFace;
+      }
     }
 ~~~~
 
 You have now found the top face of the neck. Your final step before creating the hollowed solid is to put this face in a list. Since more than one face can be removed from the initial solid, the *BRepOffsetAPI_MakeThickSolid* constructor takes a list of faces as arguments.
 Open CASCADE Technology provides many collections for different kinds of objects: see *TColGeom* package for collections of objects from *Geom* package, *TColgp* package for collections of objects from gp package, etc.
 The collection for shapes can be found in the *TopTools* package. As *BRepOffsetAPI_MakeThickSolid* requires a list, use the *TopTools_ListOfShape* class.
+
+@note In OCCT 8.0.0 the package-level `TCol*` typedefs are deprecated. Prefer `NCollection_*<T>` directly -- see the @ref upgrade_occt800 "Upgrade to OCCT 8.0.0".
 
 ~~~~{.cpp}
     NCollection_List<TopoDS_Shape> facesToRemove;
@@ -700,13 +708,13 @@ Congratulations! Your bottle is complete. Here is the result snapshot of the Tut
 @figure{/tutorial/images/tutorial_image019.png,"",320} height=450px
 
 We hope that this tutorial has provided you with a feel for the industrial strength power of Open CASCADE Technology.
-If you want to know more and develop major projects using Open CASCADE Technology, we invite you to study our training, support, and consulting services on our site at https://www.opencascade.com/content/technology-support. Our professional services can maximize the power of your Open CASCADE Technology applications.
+If you want to know more and develop major projects using Open CASCADE Technology, we invite you to study our training, support, and consulting services on our site at https://www.opencascade.com/content/technology-support (commercial product page, URL may change). Our professional services can maximize the power of your Open CASCADE Technology applications.
 
 
 @section sec6 Appendix
 
 
-Complete definition of MakeBottle function (defined in the file src/MakeBottle.cxx of the Tutorial):
+Complete definition of MakeBottle function:
 
 ~~~~{.cpp}
     TopoDS_Shape MakeBottle(const double myWidth, const double myHeight,
@@ -772,7 +780,16 @@ Complete definition of MakeBottle function (defined in the file src/MakeBottle.c
         BRepPrimAPI_MakeCylinder MKCylinder(neckAx2, myNeckRadius, myNeckHeight);
         TopoDS_Shape myNeck = MKCylinder.Shape();
 
-        myBody = BRepAlgoAPI_Fuse(myBody, myNeck);
+        BRepAlgoAPI_Fuse aFuser(myBody, myNeck);
+        if (aFuser.IsDone())
+        {
+          myBody = aFuser.Shape();
+        }
+        else
+        {
+          // Fuse failed; proceed with unmodified myBody.
+          // In production code, report the error and handle the failure appropriately.
+        }
 
         // Body : Create a Hollowed Solid
         TopoDS_Face   faceToRemove;
@@ -782,13 +799,16 @@ Complete definition of MakeBottle function (defined in the file src/MakeBottle.c
             TopoDS_Face aFace = TopoDS::Face(aFaceExplorer.Current());
             // Check if <aFace> is the top face of the bottle's neck 
             occ::handle<Geom_Surface> aSurface = BRep_Tool::Surface(aFace);
-            if(aSurface->DynamicType() == STANDARD_TYPE(Geom_Plane)){
+            if(!aSurface.IsNull() && aSurface->DynamicType() == STANDARD_TYPE(Geom_Plane)){
                 occ::handle<Geom_Plane> aPlane = occ::down_cast<Geom_Plane>(aSurface);
-                gp_Pnt aPnt = aPlane->Location();
-                double aZ   = aPnt.Z();
-                if(aZ > zMax){
-                    zMax = aZ;
-                    faceToRemove = aFace;
+                if (!aPlane.IsNull())
+                {
+                  gp_Pnt aPnt = aPlane->Location();
+                  double aZ   = aPnt.Z();
+                  if(aZ > zMax){
+                      zMax = aZ;
+                      faceToRemove = aFace;
+                  }
                 }
             }
         }
@@ -846,4 +866,3 @@ Complete definition of MakeBottle function (defined in the file src/MakeBottle.c
         return aRes;
     }
 ~~~~
-
