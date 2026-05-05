@@ -14,6 +14,8 @@
 #include <BRepGraph_EditorView.hxx>
 #include <BRepGraph.hxx>
 #include <BRepGraph_Data.hxx>
+#include <BRepGraph_ReverseIterator.hxx>
+#include <BRepGraph_TopoView.hxx>
 
 #include <Standard_ProgramError.hxx>
 
@@ -282,6 +284,40 @@ BRepGraph_MutGuard<BRepGraphInc::EdgeDef> BRepGraph::EditorView::EdgeOps::Mut(
   BRepGraphInc_Storage& aStorage = myGraph->myData->myIncStorage;
   validateMutableNodeId(aStorage, BRepGraph_NodeId(theEdge));
   return BRepGraph_MutGuard<BRepGraphInc::EdgeDef>(myGraph, &aStorage.ChangeEdge(theEdge), theEdge);
+}
+
+//==================================================================================================
+
+bool BRepGraph::EditorView::EdgeOps::IsSeamOnFace(const BRepGraph_EdgeId theEdge,
+                                                  const BRepGraph_FaceId theFace) const
+{
+  if (!theEdge.IsValid() || !theFace.IsValid())
+  {
+    return false;
+  }
+  bool               hasOrientation = false;
+  TopAbs_Orientation anOrientation  = TopAbs_FORWARD;
+  for (BRepGraph_CoEdgesOfEdge anIt(*myGraph, myGraph->Topo().Edges().CoEdges(theEdge));
+       anIt.More();
+       anIt.Next())
+  {
+    const BRepGraphInc::CoEdgeDef& aCoEdge = anIt.Definition();
+    if (aCoEdge.FaceDefId != theFace)
+    {
+      continue;
+    }
+    if (!hasOrientation)
+    {
+      anOrientation  = aCoEdge.Orientation;
+      hasOrientation = true;
+      continue;
+    }
+    if (aCoEdge.Orientation != anOrientation)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 //==================================================================================================

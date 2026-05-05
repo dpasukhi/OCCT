@@ -135,8 +135,8 @@ struct EdgeDef : public BaseDef
 //!
 //! Each coedge represents one edge-face binding with its parametric curve.
 //! Wires reference coedges rather than edges directly.
-//! For seam edges, two coedges exist on the same face with opposite Orientation,
-//! linked by SeamPairId.
+//! Seam edges produce two coedges on the same face with opposite Orientation;
+//! the seam relation is queryable via BRepGraph_Tool::CoEdge::SeamPair.
 struct CoEdgeDef : public BaseDef
 {
   using TypeId = BRepGraph_CoEdgeId;
@@ -149,13 +149,8 @@ struct CoEdgeDef : public BaseDef
   BRepGraph_Curve2DRepId Curve2DRepId;
   double                 ParamFirst = 0.0;
   double                 ParamLast  = 0.0;
-  GeomAbs_Shape          Continuity = GeomAbs_C0; //!< Geometric continuity across face pairs
-  gp_Pnt2d               UV1;                     //!< UV at ParamFirst
-  gp_Pnt2d               UV2;                     //!< UV at ParamLast
-
-  //! Seam pairing: typed id of the paired coedge (invalid if non-seam).
-  BRepGraph_CoEdgeId SeamPairId;
-  GeomAbs_Shape      SeamContinuity = GeomAbs_C0; //!< Continuity between seam pair
+  gp_Pnt2d               UV1; //!< UV at ParamFirst
+  gp_Pnt2d               UV2; //!< UV at ParamLast
 
   //! Typed representation id into Storage::myPolygons2D (invalid if no polygon-on-surface).
   BRepGraph_Polygon2DRepId Polygon2DRepId;

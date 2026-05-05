@@ -314,6 +314,27 @@ public:
     [[nodiscard]] Standard_EXPORT BRepGraph_MutGuard<BRepGraphInc::EdgeDef> Mut(
       const BRepGraph_EdgeId theEdge);
 
+    //! Returns true iff the edge appears as a seam on the given face (two CoEdges
+    //! of theEdge share theFace).
+    //! @param[in] theEdge typed edge definition identifier
+    //! @param[in] theFace typed face definition identifier
+    //! @return true if the edge is a seam on the given face
+    [[nodiscard]] Standard_EXPORT bool IsSeamOnFace(const BRepGraph_EdgeId theEdge,
+                                                    const BRepGraph_FaceId theFace) const;
+
+    //! Set the geometric regularity (C^k) for an edge across a pair of faces in
+    //! BRepGraph_LayerRegularity. theFace1 == theFace2 sets the seam continuity
+    //! across the closed-surface seam line. Requires the layer to be registered.
+    //! @param[in] theEdge       typed edge definition identifier
+    //! @param[in] theFace1      first face (or seam face when theFace2 == theFace1)
+    //! @param[in] theFace2      second face
+    //! @param[in] theContinuity continuity (GeomAbs_Shape)
+    //! @return true if written; false if the layer is not registered
+    Standard_EXPORT bool SetRegularity(const BRepGraph_EdgeId theEdge,
+                                       const BRepGraph_FaceId theFace1,
+                                       const BRepGraph_FaceId theFace2,
+                                       const GeomAbs_Shape    theContinuity);
+
     //! Set the tolerance of an edge definition and fire immediate notification.
     //! @param[in] theEdge      typed edge definition identifier
     //! @param[in] theTolerance new tolerance value
@@ -488,17 +509,9 @@ public:
                                   const gp_Pnt2d&                              theUV1,
                                   const gp_Pnt2d&                              theUV2);
 
-    //! Set the geometric continuity of a coedge definition.
-    Standard_EXPORT void SetContinuity(const BRepGraph_CoEdgeId theCoEdge,
-                                       const GeomAbs_Shape      theContinuity);
-    Standard_EXPORT void SetContinuity(BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-                                       const GeomAbs_Shape                          theContinuity);
-
-    //! Set the seam-pair continuity of a coedge definition.
-    Standard_EXPORT void SetSeamContinuity(const BRepGraph_CoEdgeId theCoEdge,
-                                           const GeomAbs_Shape      theContinuity);
-    Standard_EXPORT void SetSeamContinuity(BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-                                           const GeomAbs_Shape theContinuity);
+    //! Continuity is a property of (Edge, Face1, Face2) and lives in
+    //! BRepGraph_LayerRegularity. Use EditorView::EdgeOps::SetRegularity to write,
+    //! BRepGraph_Tool::Edge::Continuity to read.
 
     //! Set the Curve2DRep id bound to a coedge (invalid id clears the binding).
     Standard_EXPORT void SetCurve2DRepId(const BRepGraph_CoEdgeId     theCoEdge,
@@ -524,10 +537,9 @@ public:
     Standard_EXPORT void ClearPCurveBinding(BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut);
 
     //! Set the seam-pair id linking two coedges of a seam edge (invalid breaks the link).
-    Standard_EXPORT void SetSeamPairId(const BRepGraph_CoEdgeId theCoEdge,
-                                       const BRepGraph_CoEdgeId theSeamPairId);
-    Standard_EXPORT void SetSeamPairId(BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-                                       const BRepGraph_CoEdgeId                     theSeamPairId);
+    // To establish seam-ness, ensure two CoEdges exist on the same (Edge, Face)
+    // with opposite orientations; the seam relation is then queryable via
+    // BRepGraph_Tool::CoEdge::SeamPair.
 
     //! Rewire a coedge to a different parent edge (rebinds EdgeToCoEdges, EdgeToWires,
     //! EdgeToFaces). Caller maintains reverse indices.

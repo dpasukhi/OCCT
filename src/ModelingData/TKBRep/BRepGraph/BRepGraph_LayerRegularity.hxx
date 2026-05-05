@@ -20,7 +20,25 @@
 #include <NCollection_DataMap.hxx>
 #include <NCollection_DynamicArray.hxx>
 
-//! @brief Stores edge continuity records between adjacent face pairs.
+//! @brief Persistent edge-continuity store, keyed by (edge, F1, F2).
+//!
+//! Each entry holds the geometric continuity (C^k / G^k) across the face pair
+//! at a given edge. F1 == F2 represents seam continuity across a closed
+//! surface's seam line; F1 != F2 represents inter-face regularity. The schema
+//! mirrors classical BRep_Tool::Continuity(edge, F1, F2).
+//!
+//! ## Lifetime policy
+//! The layer is **persistent metadata**: stored values survive arbitrary
+//! mutations to the referenced edges and faces. Only the following events
+//! discard data:
+//!   - OnNodeRemoved(edge|face) - the referenced node is gone; entries naming
+//!     it are dropped (or migrated when a replacement is provided).
+//!   - OnCompact - ids are remapped; entries pointing to removed nodes drop.
+//!   - InvalidateAll() / Clear() - explicit caller request.
+//! In particular, this layer does NOT subscribe to OnNodeModified: a tolerance
+//! bump or NaturalRestriction toggle leaves stored continuity intact. Callers
+//! that change the underlying geometry are responsible for refreshing affected
+//! entries (typically via SetRegularity, removeRegularity, or InvalidateAll).
 class BRepGraph_LayerRegularity : public BRepGraph_Layer
 {
 public:
@@ -62,15 +80,18 @@ public:
                                      const BRepGraph_FaceId theFace2,
                                      const GeomAbs_Shape    theContinuity);
 
+  //! Copy all regularity entries from one edge to another.
+  Standard_EXPORT void CopyRegularities(const BRepGraph_EdgeId theSourceEdge,
+                                        const BRepGraph_EdgeId theTargetEdge);
+
+  //! Remove all regularity entries bound to the edge.
+  Standard_EXPORT void RemoveRegularities(const BRepGraph_EdgeId theEdge) noexcept;
+
   Standard_EXPORT const TCollection_AsciiString& Name() const override;
-  [[nodiscard]] Standard_EXPORT int              SubscribedKinds() const override;
-  Standard_EXPORT void OnNodeModified(const BRepGraph_NodeId theNode) noexcept override;
-  Standard_EXPORT void OnNodesModified(
-    const NCollection_DynamicArray<BRepGraph_NodeId>& theModifiedNodes) noexcept override;
-  Standard_EXPORT void OnNodeRemoved(const BRepGraph_NodeId theNode,
-                                     const BRepGraph_NodeId theReplacement) noexcept override;
-  Standard_EXPORT void OnCompact(
-    const NCollection_DataMap<BRepGraph_NodeId, BRepGraph_NodeId>& theRemapMap) noexcept override;
+  Standard_EXPORT void                           OnNodeRemoved(const BRepGraph_NodeId theNode,
+                                                               const BRepGraph_NodeId theReplacement) noexcept override;
+  Standard_EXPORT void                           OnCompact(
+                              const NCollection_DataMap<BRepGraph_NodeId, BRepGraph_NodeId>& theRemapMap) noexcept override;
   Standard_EXPORT void InvalidateAll() noexcept override;
   Standard_EXPORT void Clear() noexcept override;
 

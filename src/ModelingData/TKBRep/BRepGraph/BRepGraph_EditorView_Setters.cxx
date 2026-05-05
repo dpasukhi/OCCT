@@ -13,6 +13,7 @@
 
 #include <BRepGraph_EditorView.hxx>
 #include <BRepGraph_Data.hxx>
+#include <BRepGraph_LayerRegularity.hxx>
 #include <BRepGraphInc_ReverseIndex.hxx>
 #include <BRepGraphInc_Storage.hxx>
 #include <Geom_Surface.hxx>
@@ -92,6 +93,24 @@ void BRepGraph::EditorView::EdgeOps::SetTolerance(BRepGraph_MutGuard<BRepGraphIn
                                                   double theTolerance)
 {
   theMut.Internal().Tolerance = theTolerance;
+}
+
+//=================================================================================================
+
+bool BRepGraph::EditorView::EdgeOps::SetRegularity(const BRepGraph_EdgeId theEdge,
+                                                   const BRepGraph_FaceId theFace1,
+                                                   const BRepGraph_FaceId theFace2,
+                                                   const GeomAbs_Shape    theContinuity)
+{
+  const occ::handle<BRepGraph_LayerRegularity> aLayer =
+    myGraph->LayerRegistry().FindLayer<BRepGraph_LayerRegularity>();
+  if (aLayer.IsNull())
+  {
+    return false;
+  }
+  aLayer->SetRegularity(theEdge, theFace1, theFace2, theContinuity);
+  myGraph->markModified(theEdge);
+  return true;
 }
 
 //=================================================================================================
@@ -521,42 +540,6 @@ void BRepGraph::EditorView::CoEdgeOps::SetUVBox(BRepGraph_MutGuard<BRepGraphInc:
 
 //=================================================================================================
 
-void BRepGraph::EditorView::CoEdgeOps::SetContinuity(const BRepGraph_CoEdgeId theCoEdge,
-                                                     const GeomAbs_Shape      theContinuity)
-{
-  myGraph->myData->myIncStorage.ChangeCoEdge(theCoEdge).Continuity = theContinuity;
-  myGraph->markModified(theCoEdge);
-}
-
-//=================================================================================================
-
-void BRepGraph::EditorView::CoEdgeOps::SetContinuity(
-  BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-  const GeomAbs_Shape                          theContinuity)
-{
-  theMut.Internal().Continuity = theContinuity;
-}
-
-//=================================================================================================
-
-void BRepGraph::EditorView::CoEdgeOps::SetSeamContinuity(const BRepGraph_CoEdgeId theCoEdge,
-                                                         const GeomAbs_Shape      theContinuity)
-{
-  myGraph->myData->myIncStorage.ChangeCoEdge(theCoEdge).SeamContinuity = theContinuity;
-  myGraph->markModified(theCoEdge);
-}
-
-//=================================================================================================
-
-void BRepGraph::EditorView::CoEdgeOps::SetSeamContinuity(
-  BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-  const GeomAbs_Shape                          theContinuity)
-{
-  theMut.Internal().SeamContinuity = theContinuity;
-}
-
-//=================================================================================================
-
 void BRepGraph::EditorView::CoEdgeOps::SetCurve2DRepId(const BRepGraph_CoEdgeId     theCoEdge,
                                                        const BRepGraph_Curve2DRepId theRep)
 {
@@ -618,7 +601,6 @@ void BRepGraph::EditorView::CoEdgeOps::ClearPCurveBinding(const BRepGraph_CoEdge
   aDef.Curve2DRepId             = BRepGraph_Curve2DRepId();
   aDef.ParamFirst               = 0.0;
   aDef.ParamLast                = 0.0;
-  aDef.Continuity               = GeomAbs_C0;
   aDef.UV1                      = gp_Pnt2d();
   aDef.UV2                      = gp_Pnt2d();
   myGraph->markModified(theCoEdge);
@@ -632,7 +614,6 @@ void BRepGraph::EditorView::CoEdgeOps::ClearPCurveBinding(
   theMut.Internal().Curve2DRepId = BRepGraph_Curve2DRepId();
   theMut.Internal().ParamFirst   = 0.0;
   theMut.Internal().ParamLast    = 0.0;
-  theMut.Internal().Continuity   = GeomAbs_C0;
   theMut.Internal().UV1          = gp_Pnt2d();
   theMut.Internal().UV2          = gp_Pnt2d();
 }
@@ -760,24 +741,6 @@ void BRepGraph::EditorView::EdgeOps::SetIsClosed(BRepGraph_MutGuard<BRepGraphInc
                                                  const bool theIsClosed)
 {
   theMut.Internal().IsClosed = theIsClosed;
-}
-
-//=================================================================================================
-
-void BRepGraph::EditorView::CoEdgeOps::SetSeamPairId(const BRepGraph_CoEdgeId theCoEdge,
-                                                     const BRepGraph_CoEdgeId theSeamPairId)
-{
-  myGraph->myData->myIncStorage.ChangeCoEdge(theCoEdge).SeamPairId = theSeamPairId;
-  myGraph->markModified(theCoEdge);
-}
-
-//=================================================================================================
-
-void BRepGraph::EditorView::CoEdgeOps::SetSeamPairId(
-  BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-  const BRepGraph_CoEdgeId                     theSeamPairId)
-{
-  theMut.Internal().SeamPairId = theSeamPairId;
 }
 
 //=================================================================================================

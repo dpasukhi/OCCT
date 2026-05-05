@@ -660,11 +660,10 @@ BRepGraph_Compact::Result BRepGraph_Compact::Perform(BRepGraph& theGraph, const 
                                                anOldCoEdge.ParamFirst,
                                                anOldCoEdge.ParamLast);
 
-    aNewGraph.Editor().CoEdges().SetContinuity(aNewCoEdge, anOldCoEdge.Continuity);
-
     aNewGraph.Editor().CoEdges().SetUVBox(aNewCoEdge, anOldCoEdge.UV1, anOldCoEdge.UV2);
 
-    aNewGraph.Editor().CoEdges().SetSeamContinuity(aNewCoEdge, anOldCoEdge.SeamContinuity);
+    // Continuity (inter-face and seam) lives in BRepGraph_LayerRegularity and
+    // is migrated by the layer's own remapping hooks; nothing to copy here.
 
     // If the owning face was removed, keep the coedge as free-wire usage only.
     // Drop face-bound parametric payload (PCurve/UV/continuity) to avoid stale
@@ -691,33 +690,6 @@ BRepGraph_Compact::Result BRepGraph_Compact::Perform(BRepGraph& theGraph, const 
         }
       }
     }
-  }
-
-  // Remap seam-pair links after all coedges have their new ids.
-  for (BRepGraph_Iterator<BRepGraphInc::CoEdgeDef> anIt(theGraph); anIt.More(); anIt.Next())
-  {
-    const BRepGraph_CoEdgeId  anOldCoEdgeId = anIt.CurrentId();
-    const BRepGraph_CoEdgeId* aNewCoEdgeId  = aCoEdgeMap.Seek(anOldCoEdgeId);
-    if (aNewCoEdgeId == nullptr)
-    {
-      continue;
-    }
-
-    const BRepGraphInc::CoEdgeDef& anOldCoEdge = anIt.Current();
-    if (!anOldCoEdge.SeamPairId.IsValid())
-    {
-      continue;
-    }
-
-    const BRepGraph_CoEdgeId* aNewSeamPairId = aCoEdgeMap.Seek(anOldCoEdge.SeamPairId);
-    if (aNewSeamPairId == nullptr)
-    {
-      continue;
-    }
-
-    BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef> aNewCoEdge =
-      aNewGraph.Editor().CoEdges().Mut(*aNewCoEdgeId);
-    aNewGraph.Editor().CoEdges().SetSeamPairId(aNewCoEdge, *aNewSeamPairId);
   }
 
   // Shells.

@@ -129,13 +129,6 @@ const TCollection_AsciiString& BRepGraph_LayerRegularity::Name() const
 
 //=================================================================================================
 
-int BRepGraph_LayerRegularity::SubscribedKinds() const
-{
-  return KindBit(BRepGraph_NodeId::Kind::Edge) | KindBit(BRepGraph_NodeId::Kind::Face);
-}
-
-//=================================================================================================
-
 const BRepGraph_LayerRegularity::EdgeRegularities* BRepGraph_LayerRegularity::FindEdgeRegularities(
   const BRepGraph_EdgeId theEdge) const
 {
@@ -271,6 +264,36 @@ void BRepGraph_LayerRegularity::SetRegularity(const BRepGraph_EdgeId theEdge,
   anEntry.Continuity       = theContinuity;
   bindFaceToEdge(aFace1, theEdge);
   bindFaceToEdge(aFace2, theEdge);
+}
+
+//=================================================================================================
+
+void BRepGraph_LayerRegularity::CopyRegularities(const BRepGraph_EdgeId theSourceEdge,
+                                                 const BRepGraph_EdgeId theTargetEdge)
+{
+  if (theSourceEdge == theTargetEdge)
+  {
+    return;
+  }
+
+  const EdgeRegularities* aSourceRegularities = myEdgeRegularities.Seek(theSourceEdge);
+  if (aSourceRegularities == nullptr)
+  {
+    return;
+  }
+
+  const EdgeRegularities aSnapshot = *aSourceRegularities;
+  for (const RegularityEntry& anEntry : aSnapshot.Entries)
+  {
+    SetRegularity(theTargetEdge, anEntry.FaceEntity1, anEntry.FaceEntity2, anEntry.Continuity);
+  }
+}
+
+//=================================================================================================
+
+void BRepGraph_LayerRegularity::RemoveRegularities(const BRepGraph_EdgeId theEdge) noexcept
+{
+  removeEdgeBindings(theEdge);
 }
 
 //=================================================================================================
@@ -441,34 +464,6 @@ void BRepGraph_LayerRegularity::migrateFaceBindings(const BRepGraph_FaceId theOl
         anEntry.FaceEntity2 == theOldFace ? theNewFace : anEntry.FaceEntity2;
       SetRegularity(aEdgeId, aFace1, aFace2, anEntry.Continuity);
     }
-  }
-}
-
-//=================================================================================================
-
-void BRepGraph_LayerRegularity::OnNodeModified(const BRepGraph_NodeId theNode) noexcept
-{
-  switch (theNode.NodeKind)
-  {
-    case BRepGraph_NodeId::Kind::Edge:
-      removeEdgeBindings(BRepGraph_EdgeId(theNode));
-      break;
-    case BRepGraph_NodeId::Kind::Face:
-      invalidateFaceBindings(BRepGraph_FaceId(theNode));
-      break;
-    default:
-      break;
-  }
-}
-
-//=================================================================================================
-
-void BRepGraph_LayerRegularity::OnNodesModified(
-  const NCollection_DynamicArray<BRepGraph_NodeId>& theModifiedNodes) noexcept
-{
-  for (const BRepGraph_NodeId& aModifiedNode : theModifiedNodes)
-  {
-    OnNodeModified(aModifiedNode);
   }
 }
 

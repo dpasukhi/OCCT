@@ -538,8 +538,7 @@ void initSubCoEdgeEntity(BRepGraphInc::CoEdgeDef&     theCE,
                          const TopAbs_Orientation     theOrientation,
                          const BRepGraph_Curve2DRepId theCurve2DRepId,
                          const double                 theParamFirst,
-                         const double                 theParamLast,
-                         const GeomAbs_Shape          theContinuity)
+                         const double                 theParamLast)
 {
   theCE.EdgeDefId    = theEdgeId;
   theCE.FaceDefId    = theFaceId;
@@ -547,7 +546,6 @@ void initSubCoEdgeEntity(BRepGraphInc::CoEdgeDef&     theCE,
   theCE.Curve2DRepId = theCurve2DRepId;
   theCE.ParamFirst   = theParamFirst;
   theCE.ParamLast    = theParamLast;
-  theCE.Continuity   = theContinuity;
 }
 
 } // namespace
@@ -2210,14 +2208,11 @@ void BRepGraph::EditorView::EdgeOps::Split(const BRepGraph_EdgeId   theEdgeEntit
   myGraph->allocateUID(theSubA);
   myGraph->allocateUID(theSubB);
 
-  // Rebuild CoEdge incidence in a single coherent pass. The previous two-pass
-  // design (one wire walk, one reverse-index walk) produced incomplete SubB
-  // CoEdges under wire membership, orphan PCurve-bearing CoEdges off-wire, and
-  // did not preserve SeamPairId linkage between new sub-pairs. The unified
-  // pass below: snapshots all original CoEdges (forward + seam partners),
-  // allocates two fully-initialised CoEdges per original, rebuilds SeamPairId
-  // on the new pairs, rebuilds wire CoEdgeRefIds, and retires each original
-  // CoEdge with a reverse-index unbind.
+  // Rebuild CoEdge incidence in a single pass: snapshot all CoEdges of the
+  // original edge, allocate two fully-initialised CoEdges per original, rebuild
+  // wire CoEdgeRefIds, retire each original via reverse-index unbind. The seam
+  // relation re-emerges automatically from the resulting (Edge, Face, Orientation)
+  // tuples (see BRepGraph_Tool::CoEdge::SeamPair).
   NCollection_DynamicArray<BRepGraph_FaceId> aOrigFaces;
   {
     BRepGraphInc_Storage&      aStorage = myGraph->myData->myIncStorage;
@@ -2272,9 +2267,7 @@ void BRepGraph::EditorView::EdgeOps::Split(const BRepGraph_EdgeId   theEdgeEntit
                             aOld.Orientation,
                             aOld.Curve2DRepId,
                             aOld.ParamFirst,
-                            aPCSplit,
-                            aOld.Continuity);
-        aNewACE.SeamContinuity = aOld.SeamContinuity;
+                            aPCSplit);
         // UV at the split-point end is left default (0,0); callers needing
         // the exact point should evaluate the Curve2DRep at aPCSplit.
         aNewACE.UV1               = aOld.UV1;
@@ -2292,9 +2285,7 @@ void BRepGraph::EditorView::EdgeOps::Split(const BRepGraph_EdgeId   theEdgeEntit
                             aOld.Orientation,
                             aOld.Curve2DRepId,
                             aPCSplit,
-                            aOld.ParamLast,
-                            aOld.Continuity);
-        aNewBCE.SeamContinuity = aOld.SeamContinuity;
+                            aOld.ParamLast);
         // UV at the split-point start is left default (0,0) - see aNewACE.
         aNewBCE.UV2               = aOld.UV2;
         aNewBCE.Polygon2DRepId    = aOld.Polygon2DRepId;
@@ -2311,28 +2302,7 @@ void BRepGraph::EditorView::EdgeOps::Split(const BRepGraph_EdgeId   theEdgeEntit
       }
     }
 
-    // Step 3: re-establish SeamPairId linkage on new pairs. If the old
-    // partner CoEdge is also in our map (true for intra-edge seam pairs),
-    // wire SubA<->partnerSubA and SubB<->partnerSubB; otherwise leave the
-    // new CoEdges unpaired - an orphan SeamPairId would point into a dead
-    // slot.
-    for (uint32_t i = 0; i < aNbOrig; ++i)
-    {
-      const BRepGraph_CoEdgeId aOldId       = anOrigCoEdgeIds.Value(static_cast<size_t>(i));
-      const BRepGraph_CoEdgeId aOldSeamPair = aStorage.CoEdge(aOldId).SeamPairId;
-      if (!aOldSeamPair.IsValid() || !aIdxOf.IsBound(aOldSeamPair))
-      {
-        continue;
-      }
-      int aJ = -1;
-      aIdxOf.Find(aOldSeamPair, aJ);
-      aStorage.ChangeCoEdge(aNewACoEdgeIds.Value(static_cast<size_t>(i))).SeamPairId =
-        aNewACoEdgeIds.Value(aJ);
-      aStorage.ChangeCoEdge(aNewBCoEdgeIds.Value(static_cast<size_t>(i))).SeamPairId =
-        aNewBCoEdgeIds.Value(aJ);
-    }
-
-    // Step 4: rebuild wire CoEdgeRefIds (snapshot-before-mutate). For each
+    // Step 3: rebuild wire CoEdgeRefIds (snapshot-before-mutate). For each
     // wire containing the original edge, rebind its existing CoEdgeRef to
     // the new SubA-CE in place and insert a fresh CoEdgeRef for SubB-CE
     // immediately after. Track insertion offset so that subsequent inserts
@@ -2405,7 +2375,7 @@ void BRepGraph::EditorView::EdgeOps::Split(const BRepGraph_EdgeId   theEdgeEntit
       }
     }
 
-    // Step 5: retire the original CoEdges and rebuild the Edge->CoEdge
+    // Step 4: retire the original CoEdges and rebuild the Edge->CoEdge
     // reverse index so CoEdgesOfEdge(theSubA/B) resolves to the new pair.
     for (uint32_t i = 0; i < aNbOrig; ++i)
     {
@@ -2418,7 +2388,7 @@ void BRepGraph::EditorView::EdgeOps::Split(const BRepGraph_EdgeId   theEdgeEntit
       aRevIdx.BindEdgeToCoEdge(theSubB, aNewB);
     }
 
-    // Step 6: retire the original edge's vertex refs. Their ParentId
+    // Step 5: retire the original edge's vertex refs. Their ParentId
     // points at the about-to-be-removed edge; leaving them live would
     // trip the "Orphan VertexRef: ParentId is not a live Edge" Audit
     // rule. Internal vertex refs are dropped rather than reparented to
@@ -2449,6 +2419,15 @@ void BRepGraph::EditorView::EdgeOps::Split(const BRepGraph_EdgeId   theEdgeEntit
           aStorage.MarkRemovedRef(anIntRef);
         }
       }
+    }
+
+    const occ::handle<BRepGraph_LayerRegularity> aRegularityLayer =
+      myGraph->LayerRegistry().FindLayer<BRepGraph_LayerRegularity>();
+    if (!aRegularityLayer.IsNull())
+    {
+      aRegularityLayer->CopyRegularities(theEdgeEntity, theSubA);
+      aRegularityLayer->CopyRegularities(theEdgeEntity, theSubB);
+      aRegularityLayer->RemoveRegularities(theEdgeEntity);
     }
 
     // Mark original edge as removed.
