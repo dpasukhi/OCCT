@@ -5045,9 +5045,12 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
   double                   aNewArcStart = 0.0, aNewArcEnd = 0.0;
   Quantity_Color           aNewColor, aNewTenthColor;
   bool hasOrigin = false, hasStep = false, hasRotAngle = false, hasSize = false, hasRadius = false,
-       hasZOffset                   = false;
-  bool                   isInfinite = false, hasInfOff = false, hasScale = false, hasArc = false;
-  bool                   hasColor = false, hasTenthColor = false;
+       hasZOffset = false;
+  bool isGpuGrid = false, hasGridOff = false, hasScale = false, hasArc = false;
+  bool hasColor = false, hasTenthColor = false;
+  // Tracks whether any GPU-grid-only option was passed; used to warn when
+  // such options are silently ignored on the CPU path.
+  bool                   hasGpuOnlyOpt = false;
   Aspect_GridParams      aGridParams;
   ViewerTest_AutoUpdater anUpdateTool(ViewerTest::GetAISContext(), aView);
   for (int anArgIter = 1; anArgIter < theArgNb; ++anArgIter)
@@ -5070,9 +5073,9 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
       {
         aType = Aspect_GT_Circular;
       }
-      else if (anArgNext == "inf" || anArgNext == "infinite")
+      else if (anArgNext == "gpu" || anArgNext == "shader")
       {
-        isInfinite = true;
+        isGpuGrid = true;
       }
       else
       {
@@ -5155,6 +5158,9 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
     }
     else if (anArgIter + 3 < theArgNb && (anArg == "-color"))
     {
+      // Colors feed both backends through different sinks: aGridParams here
+      // for the GPU path, and Aspect_Grid::SetColors at the end of this
+      // function for the CPU path (so V3d_Viewer::syncViews picks them up).
       hasColor  = true;
       aNewColor = Quantity_Color(Draw::Atof(theArgVec[anArgIter + 1]),
                                  Draw::Atof(theArgVec[anArgIter + 2]),
@@ -5175,27 +5181,36 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
     }
     else if (anArgIter + 1 < theArgNb && anArg == "-scale")
     {
-      hasScale = true;
+      hasScale      = true;
+      hasGpuOnlyOpt = true;
       aGridParams.SetScale(Draw::Atof(theArgVec[++anArgIter]));
     }
     else if (anArgIter + 1 < theArgNb && (anArg == "-linethickness" || anArg == "-thickness"))
     {
+      hasGpuOnlyOpt = true;
       aGridParams.SetLineThickness(Draw::Atof(theArgVec[++anArgIter]));
     }
     else if (anArgIter + 1 < theArgNb && anArg == "-background")
     {
+      hasGpuOnlyOpt  = true;
       const int aVal = Draw::Atoi(theArgVec[++anArgIter]);
       aGridParams.SetIsBackground(aVal != 0);
     }
     else if (anArgIter + 1 < theArgNb && anArg == "-drawaxis")
     {
+      hasGpuOnlyOpt  = true;
       const int aVal = Draw::Atoi(theArgVec[++anArgIter]);
       aGridParams.SetIsDrawAxis(aVal != 0);
     }
-    else if (anArgIter + 1 < theArgNb && (anArg == "-inf" || anArg == "-infinity"))
+    else if (anArgIter + 1 < theArgNb && (anArg == "-viewadaptive" || anArg == "-adaptive"))
     {
+      hasGpuOnlyOpt  = true;
       const int aVal = Draw::Atoi(theArgVec[++anArgIter]);
-      aGridParams.SetIsInfinity(aVal != 0);
+      aGridParams.SetIsViewAdaptive(aVal != 0);
+    }
+    else if (anArg == "-gpu" || anArg == "-shader")
+    {
+      isGpuGrid = true;
     }
     else if (anArgIter + 2 < theArgNb && anArg == "-arc")
     {
@@ -5224,7 +5239,7 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
     }
     else if (anArg == "off")
     {
-      hasInfOff = true;
+      hasGridOff = true;
     }
     else
     {
@@ -5233,30 +5248,40 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
     }
   }
 
-  if (isInfinite && hasInfOff)
+  if (isGpuGrid && hasGridOff)
   {
-    Message::SendFail("Syntax error: 'off' cannot be combined with '-type inf'");
+    Message::SendFail("Syntax error: 'off' cannot be combined with GPU grid display");
     return 1;
   }
 
-  if (isInfinite || hasInfOff)
+  // GPU-only options (-scale, -lineThickness, -background, -drawAxis,
+  // -viewAdaptive) are stored on Aspect_GridParams and consumed only by the
+  // shader path. Silently ignoring them on the CPU path leaves the user
+  // wondering why nothing changed; warn explicitly.
+  if (hasGpuOnlyOpt && !isGpuGrid && !hasGridOff)
   {
-    if (hasInfOff)
+    Message::SendWarning("vgrid: -scale / -lineThickness / -background / -drawAxis / "
+                         "-viewAdaptive are GPU-grid only; pass -gpu (or -type gpu) to apply.");
+  }
+
+  if (isGpuGrid || hasGridOff)
+  {
+    if (hasGridOff)
     {
       aView->GridErase();
     }
-    if (isInfinite)
+    if (isGpuGrid)
     {
-      // An infinite grid needs a real Aspect_Grid to back snap selection, so we
+      // The shader grid keeps a real Aspect_Grid to back snap selection, so we
       // route through ActivateGrid(rect|circ) first and override the display
-      // with the inf-specific params afterwards. Decide the shape from aType
-      // (user explicitly asked) or from the presence of circular-only options.
-      const bool   isInfCircular = aType == Aspect_GT_Circular || hasRadius || hasArc;
+      // with shader-specific params afterwards. Decide the shape from aType
+      // or from the presence of circular-only options.
+      const bool   isGpuCircular = aType == Aspect_GT_Circular || hasRadius || hasArc;
       const double anOrigX       = hasOrigin ? aNewOriginXY.x() : 0.0;
       const double anOrigY       = hasOrigin ? aNewOriginXY.y() : 0.0;
       const double aRotAngle     = hasRotAngle ? aNewRotAngle : 0.0;
 
-      if (isInfCircular)
+      if (isGpuCircular)
       {
         // Radial step + angular divisions. `-step R N` supplies both; otherwise
         // use sensible defaults that keep snap consistent with the visible grid.
@@ -5290,7 +5315,7 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
       }
       else
       {
-        // Rectangular infinite grid. Derive step from explicit -step or from the
+        // Rectangular shader grid. Derive step from explicit -step or from the
         // Aspect_GridParams scale; fall back to 1 world unit so the default is
         // immediately useful (Aspect_GridParams::Scale defaults to 0.01 which
         // would give step 100 - too coarse for typical scenes).
@@ -5323,7 +5348,7 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
       aGridParams.SetOrigin(gp_Pnt(aOriginOffset));
       aGridParams.SetDrawMode(aMode);
       aGridParams.SetRotationAngle(aRotAngle);
-      if (hasSize && !isInfCircular)
+      if (hasSize && !isGpuCircular)
       {
         aGridParams.SetSizeX(aNewSizeXY.x());
         aGridParams.SetSizeY(aNewSizeXY.y());
@@ -5338,7 +5363,7 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
       }
       aView->GridDisplay(aGridParams);
     }
-    if (hasInfOff && !isInfinite)
+    if (hasGridOff && !isGpuGrid)
     {
       // plain 'vgrid off' still deactivates the classical grid
       aViewer->DeactivateGrid();
@@ -5451,8 +5476,8 @@ static int VGrid(Draw_Interpretor& /*theDI*/, int theArgNb, const char** theArgV
     }
   }
   // Apply -color / -tenthColor to the active grid so V3d syncViews picks
-  // them up on the next display. Raw -type inf users still drive these
-  // through aGridParams directly (set earlier in the parser loop).
+  // them up on the next display. GPU-grid display drives these through
+  // aGridParams directly (set earlier in the parser loop).
   if (hasColor || hasTenthColor)
   {
     if (occ::handle<Aspect_Grid> aGrid = aViewer->Grid(true))
@@ -14254,21 +14279,21 @@ vlayerline x1 y1 x2 y2 [linewidth=0.5] [linetype=0] [transparency=1.0]
 )" /* [vlayerline] */);
 
   addCmd("vgrid", VGrid, /* [vgrid] */ R"(
-vgrid [off] [-type {rect|circ|inf}] [-mode {line|point}] [-origin X Y] [-rotAngle Angle] [-zoffset DZ]
+vgrid [off] [-type {rect|circ|gpu|shader}] [-gpu] [-mode {line|point}] [-origin X Y] [-rotAngle Angle] [-zoffset DZ]
       [-step X Y] [-size DX DY]
       [-step StepRadius NbDivisions] [-radius Radius] [-arc AngleStart AngleEnd]
       [-color R G B] [-tenthColor R G B] [-scale N] [-lineThickness T]
-      [-background {0|1}] [-drawAxis {0|1}] [-inf {0|1}]
+      [-background {0|1}] [-drawAxis {0|1}] [-viewAdaptive {0|1}]
 Two render backends are available:
   - '-type rect' / '-type circ' (default) draws the legacy CPU grid into a
     bounded Graphic3d_Structure shared by every active view.
-  - '-type inf' activates the shader-rendered infinite (or bounded) grid on
-    the active view; combine with '-size DX DY' for a rectangle, '-radius R'
-    for a disc, '-arc S E' for a wedge.
+  - '-type gpu' / '-gpu' activates the shader-rendered grid on the active view.
+    Without '-size' or '-radius' it is unbounded; combine with '-size DX DY'
+    for a rectangle, '-radius R' for a disc, '-arc S E' for a wedge.
 '-color', '-tenthColor' apply to both backends. '-scale', '-lineThickness',
-'-background', '-drawAxis', '-inf {0|1}' are inf-mode only. Switching to
-'-type inf' hides the CPU grid in the viewer; switching back to a non-inf
-type erases the shader grid in the active view. 'off' deactivates whichever
+'-background', '-drawAxis', '-viewAdaptive {0|1}' are GPU-grid only. Switching
+to GPU-grid display hides the CPU grid in the viewer; switching back to a CPU
+grid type erases the shader grid in the active view. 'off' deactivates whichever
 grid is currently visible.
 )" /* [vgrid] */);
 

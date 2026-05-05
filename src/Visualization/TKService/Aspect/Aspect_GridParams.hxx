@@ -22,7 +22,7 @@
 #include <Quantity_Color.hxx>
 #include <gp_Pnt.hxx>
 
-//! Shader grid appearance (color, scale, bounds, arc, draw mode, background / inf flags).
+//! Shader grid appearance (color, scale, bounds, arc, draw mode, background / adaptive flags).
 //! Consumed only by the GPU path: V3d_View::GridDisplay -> OpenGl_View::renderGrid.
 //! No effect on the CPU path (V3d_Viewer::ActivateGrid). Snap math is independent and
 //! lives on Aspect_RectangularGrid / Aspect_CircularGrid.
@@ -55,7 +55,7 @@ public:
         myDrawMode(Aspect_GDM_Lines),
         myIsBackground(false),
         myIsDrawAxis(true),
-        myIsInfinity(false)
+        myIsViewAdaptive(false)
   {
   }
 
@@ -226,12 +226,14 @@ public:
   //! Set axis coloring on/off.
   void SetIsDrawAxis(const bool theIsDrawAxis) { myIsDrawAxis = theIsDrawAxis; }
 
-  //! Return TRUE if the scale adapts to camera zoom to keep an apparent grid density.
-  bool IsInfinity() const { return myIsInfinity; }
+  //! Return TRUE if grid spacing and visible extents adapt to the camera view.
+  bool IsViewAdaptive() const { return myIsViewAdaptive; }
 
-  //! Set camera-adaptive scale on/off. When enabled, Scale() is ignored in favour
-  //! of a derived value based on camera distance.
-  void SetIsInfinity(const bool theIsInfinity) { myIsInfinity = theIsInfinity; }
+  //! Set view-adaptive grid on/off. When enabled, renderer derives temporary
+  //! cell spacing and bounds from the current camera. The inverse of ScaleY()
+  //! (or Scale() when ScaleY() is zero) is used as the target number of cells
+  //! across the view height.
+  void SetIsViewAdaptive(const bool theIsViewAdaptive) { myIsViewAdaptive = theIsViewAdaptive; }
 
 private:
   Quantity_Color      myColor;
@@ -254,7 +256,7 @@ private:
   Aspect_GridDrawMode myDrawMode;
   bool                myIsBackground;
   bool                myIsDrawAxis;
-  bool                myIsInfinity;
+  bool                myIsViewAdaptive;
 };
 
 #endif // _Aspect_GridParams_HeaderFile
