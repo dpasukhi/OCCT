@@ -17,7 +17,7 @@
 #define OpenGl_ShaderProgram_HeaderFile
 
 #include <NCollection_DataMap.hxx>
-#include <NCollection_Sequence.hxx>
+#include <NCollection_LinearVector.hxx>
 #include <TCollection_AsciiString.hxx>
 
 #include <Graphic3d_ShaderProgram.hxx>
@@ -100,7 +100,8 @@ struct OpenGl_SetterInterface
   //! Sets user-defined uniform variable to specified program.
   virtual void Set(const occ::handle<OpenGl_Context>&           theCtx,
                    const occ::handle<Graphic3d_ShaderVariable>& theVariable,
-                   OpenGl_ShaderProgram*                        theProgram) = 0;
+                   OpenGl_ShaderProgram*                        theProgram,
+                   GLint                                        theLocation) = 0;
 
   //! Destructor
   virtual ~OpenGl_SetterInterface() = default;
@@ -123,7 +124,8 @@ public:
   //! Sets user-defined uniform variable to specified program.
   void Set(const occ::handle<OpenGl_Context>&           theCtx,
            const occ::handle<Graphic3d_ShaderVariable>& theVariable,
-           OpenGl_ShaderProgram*                        theProgram) const;
+           OpenGl_ShaderProgram*                        theProgram,
+           GLint                                        theLocation) const;
 
 private:
   //! List of variable setters.
@@ -245,8 +247,8 @@ public:
 
   //! Initializes program object with the list of shader objects.
   Standard_EXPORT bool Initialize(
-    const occ::handle<OpenGl_Context>&                               theCtx,
-    const NCollection_Sequence<occ::handle<Graphic3d_ShaderObject>>& theShaders);
+    const occ::handle<OpenGl_Context>&                                   theCtx,
+    const NCollection_LinearVector<occ::handle<Graphic3d_ShaderObject>>& theShaders);
 
   //! Links the program object.
   //! @param theCtx bound OpenGL context
@@ -640,8 +642,8 @@ protected:
 
 protected:
   GLuint myProgramID; //!< Handle of OpenGL shader program
-  NCollection_Sequence<occ::handle<OpenGl_ShaderObject>>
-    myShaderObjects;                                //!< List of attached shader objects
+  NCollection_LinearVector<occ::handle<OpenGl_ShaderObject>>
+    myShaderObjects;                                //!< attached shader objects in attachment order
                                                     // clang-format off
   occ::handle<Graphic3d_ShaderProgram> myProxy;         //!< Proxy shader program (from application layer)
   int                myShareCount;    //!< program users count, initialized with 1 (already shared by one user)
@@ -661,6 +663,10 @@ protected:
 
   //! Stores locations of OCCT state uniform variables.
   OpenGl_ShaderUniformLocation myStateLocations[OpenGl_OCCT_NUMBER_OF_STATE_VARIABLES];
+
+  //! Cached locations of GLSL uniform variables by name.
+  mutable NCollection_DataMap<TCollection_AsciiString, OpenGl_ShaderUniformLocation>
+    myUniformLocations;
 };
 
 template <class T>
@@ -668,9 +674,10 @@ struct OpenGl_VariableSetter : public OpenGl_SetterInterface
 {
   void Set(const occ::handle<OpenGl_Context>&           theCtx,
            const occ::handle<Graphic3d_ShaderVariable>& theVariable,
-           OpenGl_ShaderProgram*                        theProgram) override
+           OpenGl_ShaderProgram*                        theProgram,
+           GLint                                        theLocation) override
   {
-    theProgram->SetUniform(theCtx, theVariable->Name().ToCString(), theVariable->Value()->As<T>());
+    theProgram->SetUniform(theCtx, theLocation, theVariable->Value()->As<T>());
   }
 };
 

@@ -25,6 +25,7 @@
 #include <Graphic3d_DiagnosticInfo.hxx>
 #include <Graphic3d_GraduatedTrihedron.hxx>
 #include <Standard_Transient.hxx>
+#include <NCollection_LinearVector.hxx>
 #include <NCollection_Map.hxx>
 #include <NCollection_Shared.hxx>
 #include <Graphic3d_RenderingParams.hxx>
@@ -38,6 +39,7 @@
 #include <Graphic3d_TypeOfVisualization.hxx>
 #include <NCollection_Vec3.hxx>
 #include <Standard_TypeDef.hxx>
+#include <Graphic3d_Layer.hxx>
 #include <Graphic3d_ZLayerId.hxx>
 #include <Graphic3d_ZLayerSettings.hxx>
 #include <Image_PixMap.hxx>
@@ -324,8 +326,8 @@ public:
   //! First layer ID is Graphic3d_ZLayerId_Default, last ID is ZLayerMax().
   virtual int ZLayerMax() const = 0;
 
-  //! Returns the list of layers.
-  virtual const NCollection_List<occ::handle<Graphic3d_Layer>>& Layers() const = 0;
+  //! Returns the list of layers in render order.
+  virtual const NCollection_LinearVector<occ::handle<Graphic3d_Layer>>& Layers() const = 0;
 
   //! Returns layer with given ID or NULL if undefined.
   virtual occ::handle<Graphic3d_Layer> Layer(const Graphic3d_ZLayerId theLayerId) const = 0;
