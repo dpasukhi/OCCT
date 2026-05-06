@@ -764,6 +764,53 @@ void GetNextVertex(const TopoDS_Vertex& aV, const TopoDS_Edge& aE, TopoDS_Vertex
 }
 
 //=================================================================================================
+// Builds a normalized 2D direction representing the local orientation of a PCurve at parameter
+// theTAnchor. The primary input is theFD, a finite-difference vector previously computed by the
+// caller (typically aPV1-aPV or aPV-aPV1 between two D0 evaluations). When theFD is degenerate
+// (zero or near-zero magnitude — which can happen if the PCurve parameter range collapsed under
+// a large fuzzy value, or when the PCurve is locally constant), the function falls back to the
+// curve's analytic first derivative at theTAnchor, oriented to match the FD convention via
+// theTOther (the parameter the FD steps toward) and theFDFromOtherToAnchor (true iff theFD is
+// aPAnchor-aPOther; false iff theFD is aPOther-aPAnchor).
+// Returns true on success and writes the normalized direction into theOutDir; returns false if
+// even the analytic tangent is degenerate, in which case theOutDir is left untouched.
+static bool ComputeSafeDir2d(const Geom2dAdaptor_Curve& theGAC2D,
+                             const gp_Vec2d&            theFD,
+                             const double               theTAnchor,
+                             const double               theTOther,
+                             const bool                 theFDFromOtherToAnchor,
+                             gp_Dir2d&                  theOutDir)
+{
+  if (theFD.SquareMagnitude() > gp::Resolution())
+  {
+    theOutDir = gp_Dir2d(theFD);
+    return true;
+  }
+  gp_Pnt2d aDummy;
+  gp_Vec2d aD1;
+  theGAC2D.D1(theTAnchor, aDummy, aD1);
+  if (aD1.SquareMagnitude() <= gp::Resolution())
+  {
+    return false;
+  }
+  // D1 points toward increasing parameter. Match the FD convention:
+  //   FD = aPOther - aPAnchor (theFDFromOtherToAnchor = false): sign = sign(theTOther - theTAnchor)
+  //   FD = aPAnchor - aPOther (theFDFromOtherToAnchor = true):  sign = sign(theTAnchor - theTOther)
+  const bool bForward =
+    theFDFromOtherToAnchor ? (theTAnchor > theTOther) : (theTOther > theTAnchor);
+  if (!bForward)
+  {
+    aD1.Reverse();
+  }
+  if (aD1.SquareMagnitude() <= gp::Resolution())
+  {
+    return false;
+  }
+  theOutDir = gp_Dir2d(aD1);
+  return true;
+}
+
+//=================================================================================================
 
 double Angle2D(const TopoDS_Vertex&                 aV,
                const TopoDS_Edge&                   anEdge,
@@ -833,7 +880,11 @@ double Angle2D(const TopoDS_Vertex&                 aV,
   //
   aV2D = bIsIN ? gp_Vec2d(aPV1, aPV) : gp_Vec2d(aPV, aPV1);
   //
-  gp_Dir2d aDir2D(aV2D);
+  gp_Dir2d aDir2D;
+  if (!ComputeSafeDir2d(aGAC2D, aV2D, aTV, aTV1, bIsIN, aDir2D))
+  {
+    return 0.;
+  }
   anAngle = Angle(aDir2D);
   //
   return anAngle;
@@ -1110,7 +1161,11 @@ bool RefineAngle2D(const TopoDS_Vertex&                 aV,
       aT = aT1max + aCf * dT;
       aGAC1.D0(aT, aP);
       gp_Vec2d aV2D(aPV, aP);
-      gp_Dir2d aDir2D(aV2D);
+      gp_Dir2d aDir2D;
+      if (!ComputeSafeDir2d(aGAC1, aV2D, aTV, aT, /*theFDFromOtherToAnchor*/ false, aDir2D))
+      {
+        continue;
+      }
       //
       aAngle     = Angle(aDir2D);
       double aDA = ClockWiseAngle(aA2, aAngle);
