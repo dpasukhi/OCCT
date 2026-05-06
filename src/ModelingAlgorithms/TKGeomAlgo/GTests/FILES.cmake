@@ -3,6 +3,7 @@ set(OCCT_TKGeomAlgo_GTests_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 
 set(OCCT_TKGeomAlgo_GTests_FILES
   Geom2dAPI_InterCurveCurve_Test.cxx
+  Geom2dAPI_InterCurveCurve_TrimAtIntersection_Test.cxx
   Geom2dAPI_Interpolate_Test.cxx
   Geom2dAPI_PointsToBSpline_Test.cxx
   GeomFill_BSplineCurves_Test.cxx
