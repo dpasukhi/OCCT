@@ -26,6 +26,10 @@
 #include <NCollection_IndexedIterator.hxx>
 
 #include <algorithm>
+#include <cstring>
+#include <memory>
+#include <type_traits>
+#include <utility>
 
 //! The class NCollection_Array1 represents unidimensional arrays of fixed size known at run time.
 //! The range of the index is user defined.
@@ -232,21 +236,37 @@ public:
   //! Upper bound
   int Upper() const noexcept { return myLowerBound + static_cast<int>(mySize) - 1; }
 
-  //! Copies data of theOther array to this.
-  //! This array should be pre-allocated and have the same length as theOther;
-  //! otherwise exception Standard_DimensionMismatch is thrown.
+  //! Replaces this array by a copy of theOther array.
+  //! Bounds and length are copied from theOther.
+  //! When this array wraps an external (non-owned) buffer:
+  //!  - if theOther has the same length, values are copied in place into the
+  //!    external buffer and ownership is unchanged;
+  //!  - if theOther has a different length, this array detaches from the
+  //!    external buffer and allocates a fresh owned buffer.
+  //! Use CopyValues() to preserve this array's bounds.
   NCollection_Array1& Assign(const NCollection_Array1& theOther)
   {
     if (&theOther == this)
     {
       return *this;
     }
-    Standard_DimensionMismatch_Raise_if(mySize != theOther.mySize, "NCollection_Array1::operator=");
-    for (size_t anInd = 0; anInd < mySize; anInd++)
+    assign(theOther.myPointer, theOther.mySize, theOther.myLowerBound);
+    return *this;
+  }
+
+  //! Copies values from theOther array without changing this array bounds.
+  //! This array should be pre-allocated and have the same length as theOther;
+  //! otherwise exception Standard_DimensionMismatch is thrown.
+  NCollection_Array1& CopyValues(const NCollection_Array1& theOther)
+  {
+    if (&theOther == this)
     {
-      myPointer[anInd] = theOther.myPointer[anInd];
+      return *this;
     }
-    // Current implementation disable changing bounds by assigning
+    Standard_DimensionMismatch_Raise_if(mySize != theOther.mySize,
+                                        "NCollection_Array1::CopyValues");
+    const size_t aCommonSize = (std::min)(mySize, theOther.mySize);
+    copyAssign(myPointer, theOther.myPointer, aCommonSize);
     return *this;
   }
 
@@ -422,6 +442,15 @@ protected:
         destroy(myPointer, 0, mySize);
     }
     myLowerBound = theNewLower;
+    if (theNewSize == 0)
+    {
+      if (myIsOwner)
+        myAllocator.deallocate(aPrevPtr, mySize);
+      myPointer = nullptr;
+      mySize    = 0;
+      myIsOwner = false;
+      return;
+    }
     if (theToCopyData)
     {
       const size_t aMinSize = (std::min)(theNewSize, mySize);
@@ -500,11 +529,79 @@ protected:
     }
   }
 
-  void copyConstruct(const pointer theFrom, const size_t theCount)
+  void assign(const const_pointer theFrom, const size_t theSize, const int theLower)
+  {
+    if (theSize == mySize)
+    {
+      copyAssign(myPointer, theFrom, theSize);
+      myLowerBound = theLower;
+      return;
+    }
+    pointer aNewPointer = nullptr;
+    if (theSize != 0)
+    {
+      aNewPointer = myAllocator.allocate(theSize);
+      copyConstruct(aNewPointer, theFrom, theSize);
+    }
+
+    if (myIsOwner)
+    {
+      destroy(myPointer, 0, mySize);
+      myAllocator.deallocate(myPointer, mySize);
+    }
+    myLowerBound = theLower;
+    mySize       = theSize;
+    myPointer    = aNewPointer;
+    myIsOwner    = theSize != 0;
+  }
+
+  template <typename U = TheItemType>
+  typename std::enable_if<std::is_trivially_copyable<U>::value, void>::type copyAssign(
+    pointer       theTarget,
+    const_pointer theFrom,
+    const size_t  theCount)
+  {
+    if (theCount != 0)
+    {
+      std::memmove(theTarget, theFrom, theCount * sizeof(TheItemType));
+    }
+  }
+
+  template <typename U = TheItemType>
+  typename std::enable_if<!std::is_trivially_copyable<U>::value, void>::type copyAssign(
+    pointer       theTarget,
+    const_pointer theFrom,
+    const size_t  theCount)
   {
     for (size_t anInd = 0; anInd < theCount; anInd++)
     {
-      myAllocator.construct(myPointer + anInd, theFrom[anInd]);
+      theTarget[anInd] = theFrom[anInd];
+    }
+  }
+
+  void copyConstruct(const pointer theFrom, const size_t theCount)
+  {
+    copyConstruct(myPointer, theFrom, theCount);
+  }
+
+  template <typename U = TheItemType>
+  typename std::enable_if<std::is_trivially_copyable<U>::value, void>::type copyConstruct(
+    pointer       theTarget,
+    const_pointer theFrom,
+    const size_t  theCount)
+  {
+    std::uninitialized_copy_n(theFrom, theCount, theTarget);
+  }
+
+  template <typename U = TheItemType>
+  typename std::enable_if<!std::is_trivially_copyable<U>::value, void>::type copyConstruct(
+    pointer       theTarget,
+    const_pointer theFrom,
+    const size_t  theCount)
+  {
+    for (size_t anInd = 0; anInd < theCount; anInd++)
+    {
+      myAllocator.construct(theTarget + anInd, theFrom[anInd]);
     }
   }
 

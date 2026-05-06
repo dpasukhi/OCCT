@@ -205,21 +205,21 @@ Geom_BSplineSurface::Geom_BSplineSurface(const NCollection_Array2<gp_Pnt>& Poles
   // copy arrays
 
   myPoles.Resize(1, Poles.ColLength(), 1, Poles.RowLength(), false);
-  myPoles.Assign(Poles);
+  myPoles.CopyValues(Poles);
 
   myWeights = BSplSLib::UnitWeights(Poles.ColLength(), Poles.RowLength());
 
   myUKnots.Resize(1, UKnots.Length(), false);
-  myUKnots.Assign(UKnots);
+  myUKnots.CopyValues(UKnots);
 
   myUMults.Resize(1, UMults.Length(), false);
-  myUMults.Assign(UMults);
+  myUMults.CopyValues(UMults);
 
   myVKnots.Resize(1, VKnots.Length(), false);
-  myVKnots.Assign(VKnots);
+  myVKnots.CopyValues(VKnots);
 
   myVMults.Resize(1, VMults.Length(), false);
-  myVMults.Assign(VMults);
+  myVMults.CopyValues(VMults);
 
   updateUKnots();
   updateVKnots();
@@ -284,12 +284,12 @@ Geom_BSplineSurface::Geom_BSplineSurface(const NCollection_Array2<gp_Pnt>& Poles
   // copy arrays
 
   myPoles.Resize(1, Poles.ColLength(), 1, Poles.RowLength(), false);
-  myPoles.Assign(Poles);
+  myPoles.CopyValues(Poles);
 
   if (myURational || myVRational)
   {
     myWeights.Resize(1, Poles.ColLength(), 1, Poles.RowLength(), false);
-    myWeights.Assign(Weights);
+    myWeights.CopyValues(Weights);
   }
   else
   {
@@ -297,16 +297,16 @@ Geom_BSplineSurface::Geom_BSplineSurface(const NCollection_Array2<gp_Pnt>& Poles
   }
 
   myUKnots.Resize(1, UKnots.Length(), false);
-  myUKnots.Assign(UKnots);
+  myUKnots.CopyValues(UKnots);
 
   myUMults.Resize(1, UMults.Length(), false);
-  myUMults.Assign(UMults);
+  myUMults.CopyValues(UMults);
 
   myVKnots.Resize(1, VKnots.Length(), false);
-  myVKnots.Assign(VKnots);
+  myVKnots.CopyValues(VKnots);
 
   myVMults.Resize(1, VMults.Length(), false);
-  myVMults.Assign(VMults);
+  myVMults.CopyValues(VMults);
 
   updateUKnots();
   updateVKnots();
