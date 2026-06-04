@@ -3883,6 +3883,25 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
     return false;
   }
 
+  gp_Pnt aGridOrigin;
+  gp_XYZ aGridX, aGridY, aGridN;
+  shaderGridFrame(myGridParams, myGridPlane, aGridOrigin, aGridX, aGridY, aGridN);
+
+  occ::handle<Graphic3d_Camera> aGridCamera = new Graphic3d_Camera(aCamera);
+  Bnd_Box                       aBnd        = MinMaxValues(true);
+  if (aBnd.IsVoid() || aBnd.IsOut(aGridOrigin))
+  {
+    addShaderGridZFitBounds(aBnd,
+                            myGridParams,
+                            aGridOrigin,
+                            aGridX,
+                            aGridY,
+                            aGridN,
+                            aGridCamera,
+                            aGridCamera->Scale());
+    aGridCamera->ZFitAll(1.0, aBnd, aBnd);
+  }
+
   int aWidth = 0, aHeight = 0;
   Window()->Size(aWidth, aHeight);
   if (aWidth <= 0 || aHeight <= 0)
@@ -3892,9 +3911,9 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
 
   const double aNdcX   = 2.0 * double(theX) / double(aWidth) - 1.0;
   const double aNdcY   = 2.0 * double(aHeight - 1 - theY) / double(aHeight) - 1.0;
-  const double aNearZ  = aCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
-  const gp_Pnt aNearP  = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, aNearZ));
-  const gp_Pnt aFarP   = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, 1.0));
+  const double aNearZ  = aGridCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
+  const gp_Pnt aNearP  = aGridCamera->UnProject(gp_Pnt(aNdcX, aNdcY, aNearZ));
+  const gp_Pnt aFarP   = aGridCamera->UnProject(gp_Pnt(aNdcX, aNdcY, 1.0));
   gp_XYZ       aRay    = aFarP.XYZ() - aNearP.XYZ();
   const double aRayMod = aRay.Modulus();
   if (aRayMod <= Precision::Confusion())
@@ -3902,10 +3921,6 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
     return false;
   }
   aRay /= aRayMod;
-
-  gp_Pnt aGridOrigin;
-  gp_XYZ aGridX, aGridY, aGridN;
-  shaderGridFrame(myGridParams, myGridPlane, aGridOrigin, aGridX, aGridY, aGridN);
 
   const double aDenom = aGridN.Dot(aRay);
   if (std::abs(aDenom) <= Precision::Angular())
@@ -4177,6 +4192,8 @@ void OpenGl_View::renderGrid()
       double aMaxLocalY      = 0.0;
       double aMaxLocalRadius = 0.0;
       bool   aHasBounds      = false;
+      int    aNbCornerHits   = 0;
+      int    aNbCorners      = 0;
       if (aViewport != nullptr)
       {
         const float                   aWinMinX   = float(aViewport[0]);
@@ -4185,13 +4202,22 @@ void OpenGl_View::renderGrid()
         const float                   aWinMaxY   = float(aViewport[1] + aViewport[3]);
         const float                   aWinMidX   = (aWinMinX + aWinMaxX) * 0.5f;
         const float                   aWinMidY   = (aWinMinY + aWinMaxY) * 0.5f;
-        const NCollection_Vec2<float> aSamples[] = {NCollection_Vec2<float>(aWinMinX, aWinMinY),
-                                                    NCollection_Vec2<float>(aWinMaxX, aWinMinY),
-                                                    NCollection_Vec2<float>(aWinMinX, aWinMaxY),
-                                                    NCollection_Vec2<float>(aWinMaxX, aWinMaxY),
-                                                    NCollection_Vec2<float>(aWinMidX, aWinMidY)};
-        for (const NCollection_Vec2<float>& aSample : aSamples)
+        const NCollection_Vec2<float> aCornerSamples[] = {
+          NCollection_Vec2<float>(aWinMinX, aWinMinY),
+          NCollection_Vec2<float>(aWinMaxX, aWinMinY),
+          NCollection_Vec2<float>(aWinMinX, aWinMaxY),
+          NCollection_Vec2<float>(aWinMaxX, aWinMaxY)};
+        aNbCorners = int(sizeof(aCornerSamples) / sizeof(aCornerSamples[0]));
+        const NCollection_Vec2<float> aCenterSample(aWinMidX, aWinMidY);
+        const NCollection_Vec2<float>* aSamples[] = {&aCornerSamples[0],
+                                                     &aCornerSamples[1],
+                                                     &aCornerSamples[2],
+                                                     &aCornerSamples[3],
+                                                     &aCenterSample};
+        for (int aSampleIter = 0; aSampleIter < int(sizeof(aSamples) / sizeof(aSamples[0]));
+             ++aSampleIter)
         {
+          const NCollection_Vec2<float>& aSample = *aSamples[aSampleIter];
           double aLocalX = 0.0, aLocalY = 0.0;
           if (!unprojectGridPointToPlaneLocal(aContext,
                                               aViewport,
@@ -4205,6 +4231,10 @@ void OpenGl_View::renderGrid()
                                               aLocalY))
           {
             continue;
+          }
+          if (aSampleIter < aNbCorners)
+          {
+            ++aNbCornerHits;
           }
           const double aHitR = std::sqrt(aLocalX * aLocalX + aLocalY * aLocalY);
           if (!aHasBounds)
@@ -4227,14 +4257,15 @@ void OpenGl_View::renderGrid()
         }
       }
 
+      const bool hasCompleteViewBounds = aHasBounds && aNbCornerHits == aNbCorners;
       if (myGridParams.IsCircular())
       {
-        if (aHasBounds)
+        if (hasCompleteViewBounds)
         {
           aRadius = std::max(aRadius, float(aMaxLocalRadius));
         }
       }
-      else if (aHasBounds)
+      else if (hasCompleteViewBounds)
       {
         aHalfX = std::max(aHalfX, float(std::max(std::abs(aMinLocalX), std::abs(aMaxLocalX))));
         aHalfY = std::max(aHalfY, float(std::max(std::abs(aMinLocalY), std::abs(aMaxLocalY))));
