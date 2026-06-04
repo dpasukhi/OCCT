@@ -183,8 +183,8 @@ public:
   //! Return signed plane-normal offset applied at render time.
   double ZOffset() const { return myZOffset; }
 
-  //! Set signed plane-normal offset applied at render time (display only;
-  //! snap math stays on the unshifted plane).
+  //! Set signed plane-normal offset applied at shader render time.
+  //! Legacy CPU-grid snap remains independent from shader-grid echo.
   void SetZOffset(const double theOffset) { myZOffset = theOffset; }
 
   //! Return arc start angle (radians). Meaningful only when IsArc() is true.
@@ -229,10 +229,8 @@ public:
   //! Return TRUE if grid spacing and visible extents adapt to the camera view.
   bool IsViewAdaptive() const { return myIsViewAdaptive; }
 
-  //! Set view-adaptive grid on/off. When enabled, renderer derives temporary
-  //! cell spacing and bounds from the current camera. The inverse of ScaleY()
-  //! (or Scale() when ScaleY() is zero) is used as the target number of cells
-  //! across the view height.
+  //! Set view-adaptive grid on/off. When enabled, shader renderer keeps the
+  //! screen-space grid step stable by scaling the cell spacing with camera zoom.
   void SetIsViewAdaptive(const bool theIsViewAdaptive) { myIsViewAdaptive = theIsViewAdaptive; }
 
 private:
