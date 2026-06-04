@@ -2193,6 +2193,8 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     Graphic3d_ShaderObject::ShaderVariable("float uAngularScale", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("int uDrawMode", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
+    Graphic3d_ShaderObject::ShaderVariable("float uNdcNear", Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("vec2 uStableRefLocal", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("int uHasStableRef", Graphic3d_TOS_FRAGMENT));
@@ -2286,7 +2288,7 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     // Unproject per-pixel from vNdc (linearly interpolated NDC.xy) to avoid the
     // nonlinearity of the perspective divide when ray endpoints are passed as
     // varyings. Each fragment reconstructs its own Near/Far world points.
-    EOL "  vec3 aNearPoint = unproject (vNdc.x, vNdc.y, -1.0);" EOL
+    EOL "  vec3 aNearPoint = unproject (vNdc.x, vNdc.y, uNdcNear);" EOL
     "  vec3 aFarPoint  = unproject (vNdc.x, vNdc.y,  1.0);" EOL "  vec3 aHit;" EOL "  float aT;" EOL
     "  if (!intersectPlane (aNearPoint, aFarPoint, aHit, aT)) { discard; }" EOL
     "  if (uIsBackground == 0 && aT < 0.0) { discard; }"

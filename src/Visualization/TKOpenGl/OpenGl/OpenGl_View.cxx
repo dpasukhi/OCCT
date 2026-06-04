@@ -78,66 +78,6 @@ static bool checkWasFailedFbo(const occ::handle<OpenGl_FrameBuffer>& theFboToChe
                            theFboRef->NbSamples());
 }
 
-//! Unproject window-space (theWinX, theWinY) to a near/far ray, intersect the
-//! grid plane, express the hit in plane-local (X, Y). Returns FALSE if the
-//! unprojection fails or the ray is near-parallel to the plane.
-static bool unprojectGridPointToPlaneLocal(const occ::handle<OpenGl_Context>& theCtx,
-                                           const int*                         theViewport,
-                                           const float                        theWinX,
-                                           const float                        theWinY,
-                                           const NCollection_Vec3<float>&     thePlaneN,
-                                           const NCollection_Vec3<float>&     thePlaneOriginV,
-                                           const NCollection_Vec3<float>&     thePlaneX,
-                                           const NCollection_Vec3<float>&     thePlaneY,
-                                           double&                            theOutLocalX,
-                                           double&                            theOutLocalY)
-{
-  if (theViewport == nullptr)
-  {
-    return false;
-  }
-  float aNearX = 0.0f, aNearY = 0.0f, aNearZ = 0.0f;
-  float aFarX = 0.0f, aFarY = 0.0f, aFarZ = 0.0f;
-  if (!Graphic3d_TransformUtils::UnProject<float>(theWinX,
-                                                  theWinY,
-                                                  0.0f,
-                                                  theCtx->WorldViewState.Current(),
-                                                  theCtx->ProjectionState.Current(),
-                                                  theViewport,
-                                                  aNearX,
-                                                  aNearY,
-                                                  aNearZ))
-  {
-    return false;
-  }
-  if (!Graphic3d_TransformUtils::UnProject<float>(theWinX,
-                                                  theWinY,
-                                                  1.0f,
-                                                  theCtx->WorldViewState.Current(),
-                                                  theCtx->ProjectionState.Current(),
-                                                  theViewport,
-                                                  aFarX,
-                                                  aFarY,
-                                                  aFarZ))
-  {
-    return false;
-  }
-  const NCollection_Vec3<float> aNearP(aNearX, aNearY, aNearZ);
-  const NCollection_Vec3<float> aFarP(aFarX, aFarY, aFarZ);
-  const NCollection_Vec3<float> aDir   = aFarP - aNearP;
-  const float                   aDenom = thePlaneN.Dot(aDir);
-  if (std::abs(aDenom) <= 1.0e-6f)
-  {
-    return false;
-  }
-  const float                   aT      = thePlaneN.Dot(thePlaneOriginV - aNearP) / aDenom;
-  const NCollection_Vec3<float> aHit    = aNearP + aDir * aT;
-  const NCollection_Vec3<float> aLocal3 = aHit - thePlaneOriginV;
-  theOutLocalX                          = double(aLocal3.Dot(thePlaneX));
-  theOutLocalY                          = double(aLocal3.Dot(thePlaneY));
-  return true;
-}
-
 //! Return grid plane frame used by the shader path.
 static void shaderGridFrame(const Aspect_GridParams& theParams,
                             const gp_Ax3&            thePlane,
@@ -158,6 +98,40 @@ static void shaderGridFrame(const Aspect_GridParams& theParams,
   const gp_Pnt& aPlaneLoc     = thePlane.Location();
   theOrigin.SetXYZ(aPlaneLoc.XYZ() + aRawX * anOriginLocal.X() + aRawY * anOriginLocal.Y()
                    + theN * (anOriginLocal.Z() + theParams.ZOffset()));
+}
+
+//! Intersect camera NDC ray with the shader grid plane and return plane-local coordinates.
+static bool intersectCameraNdcWithGridPlane(const occ::handle<Graphic3d_Camera>& theCamera,
+                                            const double                         theNdcX,
+                                            const double                         theNdcY,
+                                            const gp_Pnt&                        thePlaneOrigin,
+                                            const gp_XYZ&                        thePlaneX,
+                                            const gp_XYZ&                        thePlaneY,
+                                            const gp_XYZ&                        thePlaneN,
+                                            double&                              theLocalX,
+                                            double&                              theLocalY)
+{
+  if (theCamera.IsNull())
+  {
+    return false;
+  }
+
+  const double aNearZ = theCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
+  const gp_Pnt aNearP = theCamera->UnProject(gp_Pnt(theNdcX, theNdcY, aNearZ));
+  const gp_Pnt aFarP  = theCamera->UnProject(gp_Pnt(theNdcX, theNdcY, 1.0));
+  const gp_XYZ aRay   = aFarP.XYZ() - aNearP.XYZ();
+  const double aDenom = thePlaneN.Dot(aRay);
+  if (std::abs(aDenom) <= Precision::Angular())
+  {
+    return false;
+  }
+
+  const double aT      = thePlaneN.Dot(thePlaneOrigin.XYZ() - aNearP.XYZ()) / aDenom;
+  const gp_XYZ aHit    = aNearP.XYZ() + aRay * aT;
+  const gp_XYZ aLocal3 = aHit - thePlaneOrigin.XYZ();
+  theLocalX            = aLocal3.Dot(thePlaneX);
+  theLocalY            = aLocal3.Dot(thePlaneY);
+  return true;
 }
 
 //! Return shader grid scales for current camera.
@@ -4131,9 +4105,11 @@ void OpenGl_View::renderGrid()
       myGridParams.IsCircular() ? double(myGridParams.AngularDivisions()) / M_PI : 0.0;
     aProg->SetUniform(aContext, "uAngularScale", GLfloat(aAngularScale));
     aProg->SetUniform(aContext, "uDrawMode", myGridParams.DrawMode() == Aspect_GDM_Points ? 1 : 0);
+    aProg->SetUniform(aContext,
+                      "uNdcNear",
+                      GLfloat(aCamera->IsZeroToOneDepth() ? 0.0f : -1.0f));
 
-    // Plane basis used for both the view-adaptive bounds search and the final
-    // shader uniforms.
+    // Plane basis used by the shader for per-fragment ray/plane hits and local grid coordinates.
     //  - In-plane rotation rotates X/Y around the plane normal. Sign matches
     //    V3d_View::SetGrid's Trsf2 so snap (V3d_View::Compute) and the drawn
     //    grid use the same basis: gridX = cos*planeX - sin*planeY,
@@ -4152,103 +4128,10 @@ void OpenGl_View::renderGrid()
                                            (float)aYRotated.Y(),
                                            (float)aYRotated.Z());
 
-    const int* aViewport = aContext->Viewport();
-
     // Bounded work area (HalfSizeX, HalfSizeY, Radius). 0 = unbounded along that axis.
     float aHalfX  = myGridParams.SizeX() > 0.0 ? float(myGridParams.SizeX() * 0.5) : 0.0f;
     float aHalfY  = myGridParams.SizeY() > 0.0 ? float(myGridParams.SizeY() * 0.5) : 0.0f;
     float aRadius = myGridParams.Radius() > 0.0 ? float(myGridParams.Radius()) : 0.0f;
-    if (myGridParams.IsViewAdaptive())
-    {
-      // Derive a tight world-space bound from the visible region: unproject
-      // the four viewport corners + center to the grid plane and enclose
-      // their plane-local extents. The center sample is a safety net when
-      // a corner ray is near-parallel to the plane and gets rejected.
-      double aMinLocalX      = 0.0;
-      double aMaxLocalX      = 0.0;
-      double aMinLocalY      = 0.0;
-      double aMaxLocalY      = 0.0;
-      double aMaxLocalRadius = 0.0;
-      bool   aHasBounds      = false;
-      int    aNbCornerHits   = 0;
-      int    aNbCorners      = 0;
-      if (aViewport != nullptr)
-      {
-        const float                   aWinMinX   = float(aViewport[0]);
-        const float                   aWinMinY   = float(aViewport[1]);
-        const float                   aWinMaxX   = float(aViewport[0] + aViewport[2]);
-        const float                   aWinMaxY   = float(aViewport[1] + aViewport[3]);
-        const float                   aWinMidX   = (aWinMinX + aWinMaxX) * 0.5f;
-        const float                   aWinMidY   = (aWinMinY + aWinMaxY) * 0.5f;
-        const NCollection_Vec2<float> aCornerSamples[] = {
-          NCollection_Vec2<float>(aWinMinX, aWinMinY),
-          NCollection_Vec2<float>(aWinMaxX, aWinMinY),
-          NCollection_Vec2<float>(aWinMinX, aWinMaxY),
-          NCollection_Vec2<float>(aWinMaxX, aWinMaxY)};
-        aNbCorners = int(sizeof(aCornerSamples) / sizeof(aCornerSamples[0]));
-        const NCollection_Vec2<float> aCenterSample(aWinMidX, aWinMidY);
-        const NCollection_Vec2<float>* aSamples[] = {&aCornerSamples[0],
-                                                     &aCornerSamples[1],
-                                                     &aCornerSamples[2],
-                                                     &aCornerSamples[3],
-                                                     &aCenterSample};
-        for (int aSampleIter = 0; aSampleIter < int(sizeof(aSamples) / sizeof(aSamples[0]));
-             ++aSampleIter)
-        {
-          const NCollection_Vec2<float>& aSample = *aSamples[aSampleIter];
-          double aLocalX = 0.0, aLocalY = 0.0;
-          if (!unprojectGridPointToPlaneLocal(aContext,
-                                              aViewport,
-                                              aSample.x(),
-                                              aSample.y(),
-                                              aPlaneNV,
-                                              aPlaneOriginV,
-                                              aPlaneXV,
-                                              aPlaneYV,
-                                              aLocalX,
-                                              aLocalY))
-          {
-            continue;
-          }
-          if (aSampleIter < aNbCorners)
-          {
-            ++aNbCornerHits;
-          }
-          const double aHitR = std::sqrt(aLocalX * aLocalX + aLocalY * aLocalY);
-          if (!aHasBounds)
-          {
-            aMinLocalX      = aLocalX;
-            aMaxLocalX      = aLocalX;
-            aMinLocalY      = aLocalY;
-            aMaxLocalY      = aLocalY;
-            aMaxLocalRadius = aHitR;
-            aHasBounds      = true;
-          }
-          else
-          {
-            aMinLocalX      = std::min(aMinLocalX, aLocalX);
-            aMaxLocalX      = std::max(aMaxLocalX, aLocalX);
-            aMinLocalY      = std::min(aMinLocalY, aLocalY);
-            aMaxLocalY      = std::max(aMaxLocalY, aLocalY);
-            aMaxLocalRadius = std::max(aMaxLocalRadius, aHitR);
-          }
-        }
-      }
-
-      const bool hasCompleteViewBounds = aHasBounds && aNbCornerHits == aNbCorners;
-      if (myGridParams.IsCircular())
-      {
-        if (hasCompleteViewBounds)
-        {
-          aRadius = std::max(aRadius, float(aMaxLocalRadius));
-        }
-      }
-      else if (hasCompleteViewBounds)
-      {
-        aHalfX = std::max(aHalfX, float(std::max(std::abs(aMinLocalX), std::abs(aMaxLocalX))));
-        aHalfY = std::max(aHalfY, float(std::max(std::abs(aMinLocalY), std::abs(aMaxLocalY))));
-      }
-    }
     aProg->SetUniform(aContext, "uBounds", NCollection_Vec3<float>(aHalfX, aHalfY, aRadius));
     aProg->SetUniform(aContext,
                       "uIsBoundFade",
@@ -4268,21 +4151,18 @@ void OpenGl_View::renderGrid()
     // without re-running extra unproject/intersection work for every fragment.
     int                     aHasStableRef = 0;
     NCollection_Vec2<float> aStableRefLocal(0.0f, 0.0f);
-    if (!myGridParams.IsCircular() && aViewport != nullptr)
+    if (!myGridParams.IsCircular())
     {
-      const float aWinX   = float(aViewport[0]) + float(aViewport[2]) * 0.5f;
-      const float aWinY   = float(aViewport[1]) + float(aViewport[3]) * 0.5f;
-      double      aLocalX = 0.0, aLocalY = 0.0;
-      if (unprojectGridPointToPlaneLocal(aContext,
-                                         aViewport,
-                                         aWinX,
-                                         aWinY,
-                                         aPlaneNV,
-                                         aPlaneOriginV,
-                                         aPlaneXV,
-                                         aPlaneYV,
-                                         aLocalX,
-                                         aLocalY))
+      double aLocalX = 0.0, aLocalY = 0.0;
+      if (intersectCameraNdcWithGridPlane(aCamera,
+                                          0.0,
+                                          0.0,
+                                          aPlaneOrigin,
+                                          aXRotated,
+                                          aYRotated,
+                                          aNDir,
+                                          aLocalX,
+                                          aLocalY))
       {
         aStableRefLocal.SetValues(float(aLocalX), float(aLocalY));
         aHasStableRef = 1;

@@ -2432,7 +2432,9 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
 
   if (!myGL.ZoomActions.IsEmpty())
   {
-    bool toUpdateMoveToAfterZoom = false;
+    bool                  toUpdateMoveToAfterZoom = false;
+    NCollection_Vec2<int> aMoveToAfterZoom =
+      HasPreviousMoveTo() ? PreviousMoveTo() : LastMousePosition();
     for (NCollection_Sequence<Aspect_ScrollDelta>::Iterator aZoomIter(myGL.ZoomActions);
          aZoomIter.More();
          aZoomIter.Next())
@@ -2448,6 +2450,10 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
       if (!myToAllowZooming)
       {
         continue;
+      }
+      if (aZoomParams.HasPoint())
+      {
+        aMoveToAfterZoom = aZoomParams.Point;
       }
 
       if (!theView->Camera()->IsOrthographic())
@@ -2475,12 +2481,10 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
       toUpdateMoveToAfterZoom = true;
     }
     myGL.ZoomActions.Clear();
-    if (toUpdateMoveToAfterZoom && theView->IsGridActive() && theView->Viewer()->GridEcho()
-        && HasPreviousMoveTo())
+    if (toUpdateMoveToAfterZoom && theView->IsGridActive() && theView->Viewer()->GridEcho())
     {
-      const NCollection_Vec2<int> aMoveToPnt = PreviousMoveTo();
       ResetPreviousMoveTo();
-      contextLazyMoveTo(theCtx, theView, aMoveToPnt);
+      contextLazyMoveTo(theCtx, theView, aMoveToAfterZoom);
     }
   }
 }
