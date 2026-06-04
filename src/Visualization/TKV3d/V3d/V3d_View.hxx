@@ -680,6 +680,13 @@ public:
                                      const int         Yp,
                                      Graphic3d_Vertex& theGridPoint) const;
 
+  //! Converts the projected point into the nearest visible grid point and echo display point.
+  //! The echo display point is suitable only for displaying the grid echo marker.
+  Standard_EXPORT bool ConvertToGridEcho(const int         Xp,
+                                         const int         Yp,
+                                         Graphic3d_Vertex& theGridPoint,
+                                         Graphic3d_Vertex& theEchoPoint) const;
+
   //! Converts the point into the nearest grid point
   //! and display the grid marker.
   Standard_EXPORT void ConvertToGrid(const double X,

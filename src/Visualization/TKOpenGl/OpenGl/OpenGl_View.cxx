@@ -139,20 +139,22 @@ static bool shaderGridPlaneLocalHit(const occ::handle<Graphic3d_Camera>& theCame
   const double aNearZ = theCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
   const gp_Pnt aNearP = theCamera->UnProject(gp_Pnt(theNdcX, theNdcY, aNearZ));
   const gp_Pnt aFarP  = theCamera->UnProject(gp_Pnt(theNdcX, theNdcY, 1.0));
-  const gp_XYZ aRay   = aFarP.XYZ() - aNearP.XYZ();
+  const bool   isPerspective = !theCamera->IsOrthographic();
+  const gp_Pnt aRayOriginP   = isPerspective ? theCamera->Eye() : aNearP;
+  const gp_XYZ aRay          = aFarP.XYZ() - aRayOriginP.XYZ();
   const double aDenom = thePlaneN.Dot(aRay);
   if (std::abs(aDenom) <= Precision::Angular())
   {
     return false;
   }
 
-  const double aT = thePlaneN.Dot(thePlaneOrigin.XYZ() - aNearP.XYZ()) / aDenom;
-  if (theToRejectBehind && aT < 0.0)
+  const double aT = thePlaneN.Dot(thePlaneOrigin.XYZ() - aRayOriginP.XYZ()) / aDenom;
+  if (theToRejectBehind && isPerspective && aT < 0.0)
   {
     return false;
   }
 
-  const gp_XYZ aHit    = aNearP.XYZ() + aRay * aT;
+  const gp_XYZ aHit    = aRayOriginP.XYZ() + aRay * aT;
   const gp_XYZ aLocal3 = aHit - thePlaneOrigin.XYZ();
   theLocalX            = aLocal3.Dot(thePlaneX);
   theLocalY            = aLocal3.Dot(thePlaneY);
@@ -229,6 +231,15 @@ static NCollection_Vec3<float> shaderGridViewDirection(const NCollection_Mat4<fl
                                      0.0f);
   const NCollection_Vec4<float> aView = theWorldView * aDir;
   return NCollection_Vec3<float>(aView.x(), aView.y(), aView.z());
+}
+
+//! Return a world-space point suitable for drawing a 3D echo marker at the snapped point projection.
+static gp_Pnt shaderGridEchoDisplayPoint(const occ::handle<Graphic3d_Camera>& theCamera,
+                                         const gp_XYZ&                        theSnapped)
+{
+  const gp_Pnt aProjSnapped = theCamera->Project(gp_Pnt(theSnapped));
+  const gp_Pnt aProjCenter  = theCamera->Project(theCamera->Center());
+  return theCamera->UnProject(gp_Pnt(aProjSnapped.X(), aProjSnapped.Y(), aProjCenter.Z()));
 }
 
 static bool isShaderGridPointInBounds(const Aspect_GridParams& theParams,
@@ -3915,6 +3926,17 @@ void OpenGl_View::GridErase()
 
 bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Vertex& thePoint) const
 {
+  Graphic3d_Vertex aDisplayPoint;
+  return ShaderGridEcho(theX, theY, thePoint, aDisplayPoint);
+}
+
+//=================================================================================================
+
+bool OpenGl_View::ShaderGridEcho(const int         theX,
+                                 const int         theY,
+                                 Graphic3d_Vertex& thePoint,
+                                 Graphic3d_Vertex& theDisplayPoint) const
+{
   if (!myToShowGrid || myGridParams.DrawMode() == Aspect_GDM_None || myGridParams.IsBackground()
       || Window().IsNull())
   {
@@ -4037,6 +4059,8 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
         return false;
       }
       thePoint.SetCoord(aSnapped.X(), aSnapped.Y(), aSnapped.Z());
+      const gp_Pnt aDisplayP = shaderGridEchoDisplayPoint(aCamera, aSnapped);
+      theDisplayPoint.SetCoord(aDisplayP.X(), aDisplayP.Y(), aDisplayP.Z());
       return true;
     }
 
@@ -4073,6 +4097,8 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
         return false;
       }
       thePoint.SetCoord(aSnapped.X(), aSnapped.Y(), aSnapped.Z());
+      const gp_Pnt aDisplayP = shaderGridEchoDisplayPoint(aCamera, aSnapped);
+      theDisplayPoint.SetCoord(aDisplayP.X(), aDisplayP.Y(), aDisplayP.Z());
       return true;
     }
 
@@ -4086,6 +4112,8 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
   }
 
   thePoint.SetCoord(aSnapped.X(), aSnapped.Y(), aSnapped.Z());
+  const gp_Pnt aDisplayP = shaderGridEchoDisplayPoint(aCamera, aSnapped);
+  theDisplayPoint.SetCoord(aDisplayP.X(), aDisplayP.Y(), aDisplayP.Z());
   return true;
 }
 

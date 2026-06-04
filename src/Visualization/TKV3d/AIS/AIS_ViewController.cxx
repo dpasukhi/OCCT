@@ -2885,10 +2885,10 @@ void AIS_ViewController::contextLazyMoveTo(const occ::handle<AIS_InteractiveCont
   {
     if (aNewPicked.IsNull())
     {
-      Graphic3d_Vertex aGridPoint;
-      if (theView->ConvertToGrid(thePnt.x(), thePnt.y(), aGridPoint))
+      Graphic3d_Vertex aGridPoint, anEchoPoint;
+      if (theView->ConvertToGridEcho(thePnt.x(), thePnt.y(), aGridPoint, anEchoPoint))
       {
-        theView->Viewer()->ShowGridEcho(theView, aGridPoint);
+        theView->Viewer()->ShowGridEcho(theView, anEchoPoint);
       }
       else
       {

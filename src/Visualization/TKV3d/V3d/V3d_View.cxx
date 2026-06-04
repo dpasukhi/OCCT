@@ -1826,6 +1826,27 @@ bool V3d_View::ConvertToGrid(const int         theXp,
 
 //=================================================================================================
 
+bool V3d_View::ConvertToGridEcho(const int         theXp,
+                                 const int         theYp,
+                                 Graphic3d_Vertex& theGridPoint,
+                                 Graphic3d_Vertex& theEchoPoint) const
+{
+  if (myShaderGridActive)
+  {
+    return myView->ShaderGridEcho(theXp, theYp, theGridPoint, theEchoPoint);
+  }
+
+  if (!ConvertToGrid(theXp, theYp, theGridPoint))
+  {
+    return false;
+  }
+
+  theEchoPoint = theGridPoint;
+  return true;
+}
+
+//=================================================================================================
+
 void V3d_View::ConvertToGrid(const double theX,
                              const double theY,
                              const double theZ,

@@ -465,6 +465,23 @@ public:
     return false;
   }
 
+  //! Return snapped point and display point for the shader-rendered grid under the window pixel.
+  //! The snapped point is the geometric grid point in world coordinates.
+  //! The display point is a clip-safe proxy projected to the same window position for echo marker
+  //! presentation; it should not be used as the geometric snap result.
+  virtual bool ShaderGridEcho(const int         theX,
+                              const int         theY,
+                              Graphic3d_Vertex& thePoint,
+                              Graphic3d_Vertex& theDisplayPoint) const
+  {
+    if (!ShaderGridEcho(theX, theY, thePoint))
+    {
+      return false;
+    }
+    theDisplayPoint = thePoint;
+    return true;
+  }
+
   //! Returns environment texture set for the view.
   const occ::handle<Graphic3d_TextureEnv>& TextureEnv() const { return myTextureEnvData; }
 
