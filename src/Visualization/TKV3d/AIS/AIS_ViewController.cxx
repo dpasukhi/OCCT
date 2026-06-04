@@ -2432,6 +2432,7 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
 
   if (!myGL.ZoomActions.IsEmpty())
   {
+    bool toUpdateMoveToAfterZoom = false;
     for (NCollection_Sequence<Aspect_ScrollDelta>::Iterator aZoomIter(myGL.ZoomActions);
          aZoomIter.More();
          aZoomIter.Next())
@@ -2456,6 +2457,7 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
             && PickPoint(aPnt, theCtx, theView, aZoomParams.Point, myToStickToRayOnZoom))
         {
           handleZoom(theView, aZoomParams, &aPnt);
+          toUpdateMoveToAfterZoom = true;
           continue;
         }
 
@@ -2465,12 +2467,21 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
         {
           aZoomParams.ResetPoint(); // do not pretend to zoom at 'nothing'
           handleZoom(theView, aZoomParams, &aPnt);
+          toUpdateMoveToAfterZoom = true;
           continue;
         }
       }
       handleZoom(theView, aZoomParams, nullptr);
+      toUpdateMoveToAfterZoom = true;
     }
     myGL.ZoomActions.Clear();
+    if (toUpdateMoveToAfterZoom && theView->IsGridActive() && theView->Viewer()->GridEcho()
+        && HasPreviousMoveTo())
+    {
+      const NCollection_Vec2<int> aMoveToPnt = PreviousMoveTo();
+      ResetPreviousMoveTo();
+      contextLazyMoveTo(theCtx, theView, aMoveToPnt);
+    }
   }
 }
 
@@ -2866,13 +2877,19 @@ void AIS_ViewController::contextLazyMoveTo(const occ::handle<AIS_InteractiveCont
 
   occ::handle<SelectMgr_EntityOwner> aNewPicked = theCtx->DetectedOwner();
 
-  if (theView->Viewer()->IsGridActive() && theView->Viewer()->GridEcho())
+  if (theView->IsGridActive() && theView->Viewer()->GridEcho())
   {
     if (aNewPicked.IsNull())
     {
-      NCollection_Vec3<double> aPnt3d;
-      theView->ConvertToGrid(thePnt.x(), thePnt.y(), aPnt3d[0], aPnt3d[1], aPnt3d[2]);
-      theView->Viewer()->ShowGridEcho(theView, Graphic3d_Vertex(aPnt3d[0], aPnt3d[1], aPnt3d[2]));
+      Graphic3d_Vertex aGridPoint;
+      if (theView->ConvertToGrid(thePnt.x(), thePnt.y(), aGridPoint))
+      {
+        theView->Viewer()->ShowGridEcho(theView, aGridPoint);
+      }
+      else
+      {
+        theView->Viewer()->HideGridEcho(theView);
+      }
       theView->InvalidateImmediate();
     }
     else

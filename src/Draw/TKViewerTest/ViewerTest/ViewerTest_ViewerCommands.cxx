@@ -6568,8 +6568,7 @@ static int VMoveTo(Draw_Interpretor& theDI, int theNbArgs, const char** theArgVe
         return 1;
       }
 
-      const bool toEchoGrid =
-        aContext->CurrentViewer()->IsGridActive() && aContext->CurrentViewer()->GridEcho();
+      const bool toEchoGrid = aView->IsGridActive() && aContext->CurrentViewer()->GridEcho();
       if (toEchoGrid)
       {
         aContext->CurrentViewer()->HideGridEcho(aView);

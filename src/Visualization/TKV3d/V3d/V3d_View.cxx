@@ -1785,21 +1785,29 @@ void V3d_View::ConvertToGrid(const int theXp,
                              double&   theYg,
                              double&   theZg) const
 {
+  Graphic3d_Vertex aGridPoint;
+  if (ConvertToGrid(theXp, theYp, aGridPoint))
+  {
+    aGridPoint.Coord(theXg, theYg, theZg);
+    return;
+  }
+
+  NCollection_Vec3<double> anXYZ;
+  Convert(theXp, theYp, anXYZ.x(), anXYZ.y(), anXYZ.z());
+  theXg = anXYZ.x();
+  theYg = anXYZ.y();
+  theZg = anXYZ.z();
+}
+
+//=================================================================================================
+
+bool V3d_View::ConvertToGrid(const int         theXp,
+                             const int         theYp,
+                             Graphic3d_Vertex& theGridPoint) const
+{
   if (myShaderGridActive)
   {
-    Graphic3d_Vertex aShaderGridPoint;
-    if (myView->ShaderGridEcho(theXp, theYp, aShaderGridPoint))
-    {
-      aShaderGridPoint.Coord(theXg, theYg, theZg);
-      return;
-    }
-
-    NCollection_Vec3<double> anXYZ;
-    Convert(theXp, theYp, anXYZ.x(), anXYZ.y(), anXYZ.z());
-    theXg = anXYZ.x();
-    theYg = anXYZ.y();
-    theZg = anXYZ.z();
-    return;
+    return myView->ShaderGridEcho(theXp, theYp, theGridPoint);
   }
 
   NCollection_Vec3<double> anXYZ;
@@ -1809,13 +1817,11 @@ void V3d_View::ConvertToGrid(const int theXp,
   aVrp.SetCoord(anXYZ.x(), anXYZ.y(), anXYZ.z());
   if (MyViewer->IsGridActive())
   {
-    Graphic3d_Vertex aNewVrp = Compute(aVrp);
-    aNewVrp.Coord(theXg, theYg, theZg);
+    theGridPoint = Compute(aVrp);
+    return true;
   }
-  else
-  {
-    aVrp.Coord(theXg, theYg, theZg);
-  }
+
+  return false;
 }
 
 //=================================================================================================

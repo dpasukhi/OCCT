@@ -36,6 +36,7 @@ class Aspect_Window;
 class Graphic3d_Group;
 class Graphic3d_Structure;
 class Graphic3d_TextureEnv;
+class Graphic3d_Vertex;
 
 //! Defines the application object VIEW for the
 //! VIEWER application.
@@ -671,6 +672,14 @@ public:
                                      double&   Yg,
                                      double&   Zg) const;
 
+  //! Converts the projected point into the nearest visible grid point.
+  //! @return TRUE when an active grid accepts the point; FALSE otherwise.
+  //! Unlike the double-output overload, this method has no unproject fallback
+  //! and is intended for grid echo / snap-hit callers.
+  Standard_EXPORT bool ConvertToGrid(const int         Xp,
+                                     const int         Yp,
+                                     Graphic3d_Vertex& theGridPoint) const;
+
   //! Converts the point into the nearest grid point
   //! and display the grid marker.
   Standard_EXPORT void ConvertToGrid(const double X,
@@ -919,6 +928,9 @@ public: //! @name Viewer grid plumbing
   //! Activates / deactivates snap on this view.
   //! @param[in] aFlag true to enable snap, false to disable
   Standard_EXPORT void SetGridActivity(const bool aFlag);
+
+  //! Return TRUE if either viewer-managed grid or per-view shader grid is active.
+  bool IsGridActive() const { return MyViewer->IsGridActive() || myShaderGridActive; }
 
 public: //! @name Shader grid
   //! Per-view immediate-mode shader grid; supports unbounded extents, AA, background,

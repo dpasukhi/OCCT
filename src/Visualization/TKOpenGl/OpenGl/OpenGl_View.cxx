@@ -4043,9 +4043,9 @@ void OpenGl_View::renderGrid()
   gp_XYZ aXRotated, aYRotated, aNDir;
   shaderGridFrame(myGridParams, myGridPlane, aPlaneOrigin, aXRotated, aYRotated, aNDir);
 
-  Bnd_Box aBnd = MinMaxValues(true);
   if (myGridParams.IsBackground())
   {
+    Bnd_Box aBnd = MinMaxValues(true);
     addShaderGridZFitBounds(aBnd,
                             myGridParams,
                             aPlaneOrigin,
@@ -4055,6 +4055,9 @@ void OpenGl_View::renderGrid()
                             aCamera,
                             aCamera->Scale());
     aCamera->ZFitAll(1.0, aBnd, aBnd);
+  }
+  if (myGridParams.IsBackground())
+  {
     aCamera->SetProjectionType(Graphic3d_Camera::Projection_Orthographic);
   }
 
@@ -4082,7 +4085,7 @@ void OpenGl_View::renderGrid()
 
   aContext->core11fwd->glEnable(GL_DEPTH_TEST);
   aContext->core11fwd->glDepthFunc(GL_LESS);
-  aContext->core11fwd->glDepthMask(GL_TRUE);
+  aContext->core11fwd->glDepthMask(GL_FALSE);
   aContext->core11fwd->glEnable(GL_BLEND);
   aContext->core11fwd->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   // The clip-space full-screen quad winds CW; if back-face culling is on
@@ -4303,7 +4306,11 @@ void OpenGl_View::renderGrid()
   aContext->ApplyWorldViewMatrix();
   aContext->ApplyProjectionMatrix();
 
-  if (wasDepthTest == GL_FALSE)
+  if (wasDepthTest == GL_TRUE)
+  {
+    aContext->core11fwd->glEnable(GL_DEPTH_TEST);
+  }
+  else
   {
     aContext->core11fwd->glDisable(GL_DEPTH_TEST);
   }
