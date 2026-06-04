@@ -238,8 +238,8 @@ static gp_Pnt shaderGridEchoDisplayPoint(const occ::handle<Graphic3d_Camera>& th
                                          const gp_XYZ&                        theSnapped)
 {
   const gp_Pnt aProjSnapped = theCamera->Project(gp_Pnt(theSnapped));
-  const gp_Pnt aProjCenter  = theCamera->Project(theCamera->Center());
-  return theCamera->UnProject(gp_Pnt(aProjSnapped.X(), aProjSnapped.Y(), aProjCenter.Z()));
+  const double aDisplayZ    = theCamera->IsZeroToOneDepth() ? 0.5 : 0.0;
+  return theCamera->UnProject(gp_Pnt(aProjSnapped.X(), aProjSnapped.Y(), aDisplayZ));
 }
 
 static bool isShaderGridPointInBounds(const Aspect_GridParams& theParams,

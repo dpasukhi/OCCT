@@ -2430,14 +2430,6 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
                        myNavigationMode == AIS_NavigationMode_FirstPersonFlight);
   }
 
-  if (myHasHlrOnBeforeRotation && !myGL.OrbitRotation.ToStart && !myGL.OrbitRotation.ToRotate
-      && !myGL.ViewRotation.ToStart && !myGL.ViewRotation.ToRotate)
-  {
-    myHasHlrOnBeforeRotation = false;
-    theView->SetComputedMode(true);
-    theView->Invalidate();
-  }
-
   if (!myGL.ZoomActions.IsEmpty())
   {
     bool                  toUpdateMoveToAfterZoom = false;
