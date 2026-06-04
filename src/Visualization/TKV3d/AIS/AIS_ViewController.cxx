@@ -2880,10 +2880,14 @@ void AIS_ViewController::contextLazyMoveTo(const occ::handle<AIS_InteractiveCont
   theView->Camera()->SetZRange(aZNear, aZFar);
 
   occ::handle<SelectMgr_EntityOwner> aNewPicked = theCtx->DetectedOwner();
+  const bool isGridEchoBlocked =
+    !aNewPicked.IsNull()
+    && aNewPicked->Selectable() != myAnchorPointPrs1
+    && aNewPicked->Selectable() != myAnchorPointPrs2;
 
   if (theView->IsGridActive() && theView->Viewer()->GridEcho())
   {
-    if (aNewPicked.IsNull())
+    if (!isGridEchoBlocked)
     {
       Graphic3d_Vertex aGridPoint, anEchoPoint;
       if (theView->ConvertToGridEcho(thePnt.x(), thePnt.y(), aGridPoint, anEchoPoint))
