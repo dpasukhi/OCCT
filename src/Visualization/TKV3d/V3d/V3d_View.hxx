@@ -939,6 +939,9 @@ public: //! @name Viewer grid plumbing
   //! Return TRUE if either viewer-managed grid or per-view shader grid is active.
   bool IsGridActive() const { return MyViewer->IsGridActive() || myShaderGridActive; }
 
+  //! Return TRUE if the per-view shader grid is active.
+  bool IsShaderGridActive() const { return myShaderGridActive; }
+
 public: //! @name Shader grid
   //! Per-view immediate-mode shader grid; supports unbounded extents, AA, background,
   //! circular grids, arc range and view-adaptive spacing.
