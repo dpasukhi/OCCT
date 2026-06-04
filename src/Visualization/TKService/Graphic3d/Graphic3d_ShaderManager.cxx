@@ -2224,14 +2224,25 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     TCollection_AsciiString()
     + EOL
     // A grid period smaller than two pixels cannot be represented as stable separated lines.
-    // Reject unresolved samples before antialiasing creates a false horizon band.
+    // Render a coarser phase-aligned level instead of aliasing or dropping the grid.
     "const float GRID_MIN_RESOLVABLE_PERIOD_PX = 2.0;" EOL
+    EOL
+    "float gridLodFactor (float thePixelWidth)" EOL
+    "{" EOL
+    "  if (!(thePixelWidth > 0.0)) { return 1.0; }" EOL
+    "  float aLod = max (0.0, ceil (log2 (thePixelWidth * GRID_MIN_RESOLVABLE_PERIOD_PX)));" EOL
+    "  return exp2 (aLod);" EOL
+    "}" EOL
+
     EOL
     "float gridLine1d (float theCoord, float theShift, float theScale, float theThickness)" EOL
     "{" EOL
-    "  float aCoord = (theCoord - theShift) * theScale;" EOL
-    "  float aPixelWidth = fwidth (aCoord);" EOL
-    "  if (!(aPixelWidth * GRID_MIN_RESOLVABLE_PERIOD_PX < 1.0)) { return 0.0; }" EOL
+    "  float aBaseCoord = (theCoord - theShift) * theScale;" EOL
+    "  float aBasePixelWidth = fwidth (aBaseCoord);" EOL
+    "  if (!(aBasePixelWidth >= 0.0)) { return 0.0; }" EOL
+    "  float aLodFactor = gridLodFactor (aBasePixelWidth);" EOL
+    "  float aCoord = aBaseCoord / aLodFactor;" EOL
+    "  float aPixelWidth = aBasePixelWidth / aLodFactor;" EOL
     "  float aDist  = abs (fract (aCoord + 0.5) - 0.5);" EOL
     "  float aWidth = max (aPixelWidth, theThickness);" EOL
     "  if (aWidth == 0.0) { return 0.0; }" EOL
