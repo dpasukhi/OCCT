@@ -2223,20 +2223,11 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
   TCollection_AsciiString aSrcFrag =
     TCollection_AsciiString()
     + EOL
-    // A grid period smaller than two pixels cannot be represented as stable separated lines.
-    // Use line coverage for minified samples instead of inventing a coarser geometric grid.
-    "const float GRID_MIN_RESOLVABLE_PERIOD_PX = 2.0;" EOL
-
-    EOL
     "float gridLine1d (float theCoord, float theShift, float theScale, float theThickness)" EOL
     "{" EOL
     "  float aCoord = (theCoord - theShift) * theScale;" EOL
     "  float aPixelWidth = fwidth (aCoord);" EOL
     "  if (!(aPixelWidth >= 0.0)) { return 0.0; }" EOL
-    "  if (aPixelWidth * GRID_MIN_RESOLVABLE_PERIOD_PX >= 1.0)" EOL
-    "  {" EOL
-    "    return min (theThickness / aPixelWidth, 1.0);" EOL
-    "  }" EOL
     "  float aDist  = abs (fract (aCoord + 0.5) - 0.5);" EOL
     "  float aWidth = max (aPixelWidth, theThickness);" EOL
     "  if (aWidth == 0.0) { return 0.0; }" EOL
