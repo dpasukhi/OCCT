@@ -2192,6 +2192,8 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     Graphic3d_ShaderObject::ShaderVariable("float uAngularScale", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("int uDrawMode", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
+    Graphic3d_ShaderObject::ShaderVariable("int uIsPerspective", Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("float uNdcNear", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("vec2 uLocalOriginShift", Graphic3d_TOS_FRAGMENT));
@@ -2259,20 +2261,22 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL
     "bool intersectPlaneView (vec3 theNearPoint, vec3 theFarPoint, out vec3 theHit)" EOL
     "{" EOL
-    "  vec3  aDir = theFarPoint - theNearPoint;" EOL
+    "  vec3 aRayOrigin = uIsPerspective != 0 ? vec3 (0.0) : theNearPoint;" EOL
+    "  vec3 aRayTarget = theFarPoint;" EOL
+    "  vec3 aDir = aRayTarget - aRayOrigin;" EOL
     "  float aDenom = dot (uPlaneNView, aDir);" EOL
     "  if (aDenom == 0.0)" EOL
     "  {" EOL
     "    theHit = theNearPoint;" EOL
     "    return false;" EOL
     "  }" EOL
-    "  float aT = dot (uPlaneNView, uPlaneOriginView - theNearPoint) / aDenom;" EOL
-    "  if (aT < 0.0)" EOL
+    "  float aT = dot (uPlaneNView, uPlaneOriginView - aRayOrigin) / aDenom;" EOL
+    "  if (uIsPerspective != 0 && aT < 0.0)" EOL
     "  {" EOL
     "    theHit = theNearPoint;" EOL
     "    return false;" EOL
     "  }" EOL
-    "  theHit = theNearPoint + aT * aDir;" EOL
+    "  theHit = aRayOrigin + aT * aDir;" EOL
     "  return true;" EOL
     "}" EOL
 

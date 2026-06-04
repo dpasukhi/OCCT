@@ -3943,7 +3943,9 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
   const double aNearZ  = aCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
   const gp_Pnt aNearP  = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, aNearZ));
   const gp_Pnt aFarP   = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, 1.0));
-  gp_XYZ       aRay    = aFarP.XYZ() - aNearP.XYZ();
+  const bool   isPerspective = !aCamera->IsOrthographic();
+  const gp_Pnt aRayOriginP   = isPerspective ? aCamera->Eye() : aNearP;
+  gp_XYZ       aRay          = aFarP.XYZ() - aRayOriginP.XYZ();
   const double aRayMod = aRay.Modulus();
   if (aRayMod <= Precision::Confusion())
   {
@@ -3957,13 +3959,13 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
     return false;
   }
 
-  const double aT = aGridN.Dot(aGridOrigin.XYZ() - aNearP.XYZ()) / aDenom;
-  if (aT < 0.0)
+  const double aT = aGridN.Dot(aGridOrigin.XYZ() - aRayOriginP.XYZ()) / aDenom;
+  if (isPerspective && aT < 0.0)
   {
     return false;
   }
 
-  const gp_XYZ aHit    = aNearP.XYZ() + aRay * aT;
+  const gp_XYZ aHit    = aRayOriginP.XYZ() + aRay * aT;
   const gp_XYZ aLocal3 = aHit - aGridOrigin.XYZ();
   double       aLocalX = aLocal3.Dot(aGridX);
   double       aLocalY = aLocal3.Dot(aGridY);
@@ -3980,6 +3982,34 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
   }
 
   gp_XYZ aSnapped = aGridOrigin.XYZ();
+  const bool toSnapByScreen = myGridParams.DrawMode() == Aspect_GDM_Points;
+  double     aBestDist2     = RealLast();
+  bool       hasBestPoint   = false;
+  auto addCandidate = [&](const double theLocalX, const double theLocalY)
+  {
+    if (!isShaderGridPointInBounds(myGridParams, theLocalX, theLocalY))
+    {
+      return;
+    }
+    const gp_XYZ aCandidate = aGridOrigin.XYZ() + aGridX * theLocalX + aGridY * theLocalY;
+    if (isPerspective && aCamera->Direction().XYZ().Dot(aCandidate - aCamera->Eye().XYZ()) <= 0.0)
+    {
+      return;
+    }
+    const gp_Pnt aProj      = aCamera->Project(gp_Pnt(aCandidate));
+    const double aPx        = (aProj.X() + 1.0) * 0.5 * double(aWidth);
+    const double aPy        = double(aHeight - 1) - (aProj.Y() + 1.0) * 0.5 * double(aHeight);
+    const double aDistX     = aPx - double(theX);
+    const double aDistY     = aPy - double(theY);
+    const double aDist2     = aDistX * aDistX + aDistY * aDistY;
+    if (!hasBestPoint || aDist2 < aBestDist2)
+    {
+      hasBestPoint = true;
+      aBestDist2   = aDist2;
+      aSnapped     = aCandidate;
+    }
+  };
+
   if (myGridParams.IsCircular())
   {
     const double aRadius      = std::sqrt(aLocalX * aLocalX + aLocalY * aLocalY);
@@ -3987,6 +4017,29 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
     const double aRadiusStep  = 1.0 / aScaleX;
     const int    aNbDivisions = myGridParams.AngularDivisions();
     const double anAngleStep  = aNbDivisions > 0 ? M_PI / double(aNbDivisions) : M_PI;
+    if (toSnapByScreen)
+    {
+      const double aRadiusIndex = std::floor(aRadius / aRadiusStep);
+      const double anAngleIndex = std::floor(anAngle / anAngleStep);
+      const double aRadii[2]    = {std::max(0.0, aRadiusIndex * aRadiusStep),
+                                   std::max(0.0, (aRadiusIndex + 1.0) * aRadiusStep)};
+      const double anAngles[2]  = {anAngleIndex * anAngleStep, (anAngleIndex + 1.0) * anAngleStep};
+      for (double aCandidateRadius : aRadii)
+      {
+        for (double aCandidateAngle : anAngles)
+        {
+          addCandidate(aCandidateRadius * std::cos(aCandidateAngle),
+                       aCandidateRadius * std::sin(aCandidateAngle));
+        }
+      }
+      if (!hasBestPoint)
+      {
+        return false;
+      }
+      thePoint.SetCoord(aSnapped.X(), aSnapped.Y(), aSnapped.Z());
+      return true;
+    }
+
     const double aSnapRadius  = std::round(aRadius / aRadiusStep) * aRadiusStep;
     const double aSnapAngle   = std::round(anAngle / anAngleStep) * anAngleStep;
     aSnapped +=
@@ -4002,6 +4055,27 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
   {
     const double aStepX = 1.0 / aScaleX;
     const double aStepY = 1.0 / aScaleY;
+    if (toSnapByScreen)
+    {
+      const double anIndexX = std::floor(aLocalX / aStepX);
+      const double anIndexY = std::floor(aLocalY / aStepY);
+      const double aLocalXs[2] = {anIndexX * aStepX, (anIndexX + 1.0) * aStepX};
+      const double aLocalYs[2] = {anIndexY * aStepY, (anIndexY + 1.0) * aStepY};
+      for (double aCandidateX : aLocalXs)
+      {
+        for (double aCandidateY : aLocalYs)
+        {
+          addCandidate(aCandidateX, aCandidateY);
+        }
+      }
+      if (!hasBestPoint)
+      {
+        return false;
+      }
+      thePoint.SetCoord(aSnapped.X(), aSnapped.Y(), aSnapped.Z());
+      return true;
+    }
+
     aLocalX             = std::round(aLocalX / aStepX) * aStepX;
     aLocalY             = std::round(aLocalY / aStepY) * aStepY;
     if (!isShaderGridPointInBounds(myGridParams, aLocalX, aLocalY))
@@ -4173,6 +4247,7 @@ void OpenGl_View::renderGrid()
       myGridParams.IsCircular() ? double(myGridParams.AngularDivisions()) / M_PI : 0.0;
     aProg->SetUniform(aContext, "uAngularScale", GLfloat(aAngularScale));
     aProg->SetUniform(aContext, "uDrawMode", myGridParams.DrawMode() == Aspect_GDM_Points ? 1 : 0);
+    aProg->SetUniform(aContext, "uIsPerspective", aCamera->IsOrthographic() ? 0 : 1);
     aProg->SetUniform(aContext,
                       "uNdcNear",
                       GLfloat(aCamera->IsZeroToOneDepth() ? 0.0f : -1.0f));
