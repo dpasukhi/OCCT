@@ -2224,25 +2224,19 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     TCollection_AsciiString()
     + EOL
     // A grid period smaller than two pixels cannot be represented as stable separated lines.
-    // Render a coarser phase-aligned level instead of aliasing or dropping the grid.
+    // Use line coverage for minified samples instead of inventing a coarser geometric grid.
     "const float GRID_MIN_RESOLVABLE_PERIOD_PX = 2.0;" EOL
-    EOL
-    "float gridLodFactor (float thePixelWidth)" EOL
-    "{" EOL
-    "  if (!(thePixelWidth > 0.0)) { return 1.0; }" EOL
-    "  float aLod = max (0.0, ceil (log2 (thePixelWidth * GRID_MIN_RESOLVABLE_PERIOD_PX)));" EOL
-    "  return exp2 (aLod);" EOL
-    "}" EOL
 
     EOL
     "float gridLine1d (float theCoord, float theShift, float theScale, float theThickness)" EOL
     "{" EOL
-    "  float aBaseCoord = (theCoord - theShift) * theScale;" EOL
-    "  float aBasePixelWidth = fwidth (aBaseCoord);" EOL
-    "  if (!(aBasePixelWidth >= 0.0)) { return 0.0; }" EOL
-    "  float aLodFactor = gridLodFactor (aBasePixelWidth);" EOL
-    "  float aCoord = aBaseCoord / aLodFactor;" EOL
-    "  float aPixelWidth = aBasePixelWidth / aLodFactor;" EOL
+    "  float aCoord = (theCoord - theShift) * theScale;" EOL
+    "  float aPixelWidth = fwidth (aCoord);" EOL
+    "  if (!(aPixelWidth >= 0.0)) { return 0.0; }" EOL
+    "  if (aPixelWidth * GRID_MIN_RESOLVABLE_PERIOD_PX >= 1.0)" EOL
+    "  {" EOL
+    "    return min (theThickness / aPixelWidth, 1.0);" EOL
+    "  }" EOL
     "  float aDist  = abs (fract (aCoord + 0.5) - 0.5);" EOL
     "  float aWidth = max (aPixelWidth, theThickness);" EOL
     "  if (aWidth == 0.0) { return 0.0; }" EOL
@@ -2316,26 +2310,25 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     // Bounded work area. Rectangular, radial and angular clipping can be mixed.
     EOL "  float aR = length (aLocal);" EOL "  float aA = atan (aLocal.y, aLocal.x);" EOL
     "  float aBoundFade = 1.0;" EOL "  if (uBounds.z > 0.0)" EOL "  {" EOL
-    "    float aFwBR = fwidth (aR);" EOL "    if (aR > uBounds.z + aFwBR) { discard; }" EOL
+    "    float aFwBR = fwidth (aR);" EOL "    if (aR > uBounds.z) { discard; }" EOL
     "    if (uIsBoundFade != 0)" EOL "    {" EOL
-    "      aBoundFade *= 1.0 - smoothstep (uBounds.z - aFwBR, uBounds.z + aFwBR, aR);" EOL
+    "      aBoundFade *= 1.0 - smoothstep (uBounds.z - aFwBR, uBounds.z, aR);" EOL
     "    }" EOL "  }" EOL "  if (uArcBounded != 0)" EOL "  {" EOL
     "    float aSpan = uArcRange.y - uArcRange.x;" EOL
     "    if (aSpan < 0.0) { aSpan += GRID_TWO_PI; }" EOL "    float aDelta = aA - uArcRange.x;" EOL
     "    if (aDelta < 0.0) { aDelta += GRID_TWO_PI; }" EOL
     "    if (aDelta > aSpan) { discard; }" EOL "  }" EOL "  if (uBounds.x > 0.0)" EOL "  {" EOL
-    // Extend the hard discard and smoothstep range by fwidth so the rectangular
-    // boundary gets sub-pixel AA (one screen-pixel transition) instead of a
-    // hard binary staircase at the clipping edge.
+    // Keep the bounded area geometrically strict; fwidth is used only for the
+    // optional fade inside the boundary, never to expand the valid area.
     "    float aFwBX = fwidth (abs (aLocal.x));" EOL
-    "    if (abs (aLocal.x) > uBounds.x + aFwBX) { discard; }" EOL "    if (uIsBoundFade != 0)" EOL
+    "    if (abs (aLocal.x) > uBounds.x) { discard; }" EOL "    if (uIsBoundFade != 0)" EOL
     "    {" EOL
-    "      aBoundFade *= 1.0 - smoothstep (uBounds.x - aFwBX, uBounds.x + aFwBX, abs "
+    "      aBoundFade *= 1.0 - smoothstep (uBounds.x - aFwBX, uBounds.x, abs "
     "(aLocal.x));" EOL "    }" EOL "  }" EOL "  if (uBounds.y > 0.0)" EOL "  {" EOL
     "    float aFwBY = fwidth (abs (aLocal.y));" EOL
-    "    if (abs (aLocal.y) > uBounds.y + aFwBY) { discard; }" EOL "    if (uIsBoundFade != 0)" EOL
+    "    if (abs (aLocal.y) > uBounds.y) { discard; }" EOL "    if (uIsBoundFade != 0)" EOL
     "    {" EOL
-    "      aBoundFade *= 1.0 - smoothstep (uBounds.y - aFwBY, uBounds.y + aFwBY, abs "
+    "      aBoundFade *= 1.0 - smoothstep (uBounds.y - aFwBY, uBounds.y, abs "
     "(aLocal.y));" EOL "    }" EOL "  }"
 
     // Grid coordinates depend on uGridType: 0=rectangular (X/Y), 1=circular (radius/angle).
