@@ -2157,11 +2157,7 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
 
   Graphic3d_ShaderObject::ShaderVariableList aUniforms, aStageInOuts;
   // Pass only NDC.xy to the fragment. Near/Far world points are computed
-  // per-pixel because the perspective-divide that unproject() performs is
-  // nonlinear in NDC, and linearly interpolating the resulting world-space
-  // points across the full-screen quad produces wrong rays along the
-  // diagonal seam between the two triangles (visible as empty triangular
-  // dead zones at oblique camera angles).
+  // per-pixel because perspective unprojection is nonlinear in NDC.
   aStageInOuts.Append(
     Graphic3d_ShaderObject::ShaderVariable("vec2 vNdc",
                                            Graphic3d_TOS_VERTEX | Graphic3d_TOS_FRAGMENT));
@@ -2181,8 +2177,6 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     Graphic3d_ShaderObject::ShaderVariable("float uAccentAngularScale", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("int uIsDrawAxis", Graphic3d_TOS_FRAGMENT));
-  aUniforms.Append(
-    Graphic3d_ShaderObject::ShaderVariable("int uIsBackground", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("vec3 uPlaneOrigin", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("vec3 uPlaneX", Graphic3d_TOS_FRAGMENT));
@@ -2204,49 +2198,37 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
 
   TCollection_AsciiString aSrcVert =
     TCollection_AsciiString()
-    + EOL "const vec3 gridPlane[6] = vec3[] (" EOL
-          "  vec3( 1.0,  1.0, 0.0), vec3(-1.0, -1.0, 0.0), vec3(-1.0,  1.0, 0.0)," EOL
-          "  vec3(-1.0, -1.0, 0.0), vec3( 1.0,  1.0, 0.0), vec3( 1.0, -1.0, 0.0));"
+    + EOL "const vec2 gridPlane[3] = vec2[] (" EOL
+          "  vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));"
 
-    EOL "void main()" EOL "{" EOL "  vec3 aVertex = gridPlane[gl_VertexID];" EOL
-          "  vNdc        = aVertex.xy;" EOL "  gl_Position = vec4 (aVertex, 1.0);" EOL "}";
+    EOL "void main()" EOL "{" EOL "  vec2 aVertex = gridPlane[gl_VertexID];" EOL
+          "  vNdc        = aVertex;" EOL "  gl_Position = vec4 (aVertex, 0.0, 1.0);" EOL "}";
 
   TCollection_AsciiString aSrcFrag =
     TCollection_AsciiString()
     + EOL
-    "vec4 gridLines2d (vec2 theUV, vec2 theAxisUV, vec3 theColor, vec2 theScale," EOL
+    "float gridLine1d (float theCoord, float theScale, float theThickness)" EOL "{" EOL
+    "  float aCoord = theCoord * theScale;" EOL
+    "  float aDist  = abs (fract (aCoord + 0.5) - 0.5);" EOL
+    "  float aWidth = max (fwidth (aCoord), theThickness);" EOL
+    "  return 1.0 - min (aDist / aWidth, 1.0);" EOL "}"
+
+    EOL "vec4 gridLines2d (vec2 theUV, vec2 theAxisUV, vec3 theColor, vec2 theScale," EOL
     "                  bool theIsDrawAxis, float theThickness)" EOL "{" EOL
-    "  vec2 aCoord      = theUV * theScale;" EOL "  vec2 aFwidth     = fwidth (aCoord);" EOL
-    "  vec2 aDerivative = max (aFwidth, vec2 (theThickness));" EOL
-    "  vec2 aGrid       = abs (fract (aCoord - 0.5) - 0.5) / aDerivative;" EOL
-    // Per-axis Nyquist fade: when more than ~1.5 grid cells map to a pixel in a given
-    // direction, that set of lines fades to zero instead of smearing into a bright band.
-    // Lines mode (uDrawMode!=1): bright when either axis shows a line -> max of per-axis alphas.
-    // Points mode (uDrawMode==1): bright only at intersections -> product of per-axis alphas.
-    EOL "  vec2  aNyq    = vec2 (1.0) - smoothstep (vec2 (1.0), vec2 (2.0), aFwidth);" EOL
-    "  float aAlphaX = (1.0 - min (aGrid.x, 1.0)) * aNyq.x;" EOL
-    "  float aAlphaY = (1.0 - min (aGrid.y, 1.0)) * aNyq.y;" EOL
+    "  float aAlphaX = gridLine1d (theUV.x, theScale.x, theThickness);" EOL
+    "  float aAlphaY = gridLine1d (theUV.y, theScale.y, theThickness);" EOL
     "  float aAlpha  = uDrawMode == 1 ? aAlphaX * aAlphaY : max (aAlphaX, aAlphaY);" EOL
-    "  float aMinY   = min (aDerivative.y, 1.0);" EOL
-    "  float aMinX   = min (aDerivative.x, 1.0);" EOL
     "  vec4  aColor  = vec4 (theColor, aAlpha);" EOL
-    // Axis colouring in lines mode only; a "point" has no axis direction.
-    EOL "  if (uIsDrawAxis != 0 && theIsDrawAxis && uDrawMode != 1)" EOL "  {" EOL
-    "    vec2 aAxisCoord = theAxisUV * theScale;" EOL
-    "    bool isYAxis = abs (aAxisCoord.x) < aMinX;" EOL
-    "    bool isXAxis = abs (aAxisCoord.y) < aMinY;" EOL
-    "    if      (isXAxis && isYAxis) { aColor.xyz = vec3 (0.0, 0.0, 1.0); }" EOL
-    "    else if (isXAxis)            { aColor.xyz = vec3 (1.0, 0.0, 0.0); }" EOL
-    "    else if (isYAxis)            { aColor.xyz = vec3 (0.0, 1.0, 0.0); }" EOL "  }" EOL
-    "  return aColor;" EOL "}"
+    "  if (uIsDrawAxis != 0 && theIsDrawAxis && uDrawMode != 1)" EOL "  {" EOL
+    "    float anAxisX = gridLine1d (theAxisUV.y, 1.0, theThickness);" EOL
+    "    float anAxisY = gridLine1d (theAxisUV.x, 1.0, theThickness);" EOL
+    "    if      (anAxisX > 0.0 && anAxisY > 0.0) { aColor.xyz = vec3 (0.0, 0.0, 1.0); }" EOL
+    "    else if (anAxisX > 0.0)                  { aColor.xyz = vec3 (1.0, 0.0, 0.0); }" EOL
+    "    else if (anAxisY > 0.0)                  { aColor.xyz = vec3 (0.0, 1.0, 0.0); }" EOL
+    "  }" EOL "  return aColor;" EOL "}"
 
     EOL "vec4 gridLines1d (float theCoord, float theScale, vec3 theColor, float theThickness)" EOL
-    "{" EOL "  float aCoord      = theCoord * theScale;" EOL
-    "  float aFwidth     = fwidth (aCoord);" EOL
-    "  float aDerivative = max (aFwidth, theThickness);" EOL
-    "  float aGrid       = abs (fract (aCoord - 0.5) - 0.5) / aDerivative;" EOL
-    "  float aNyq        = 1.0 - smoothstep (1.0, 2.0, aFwidth);" EOL
-    "  return vec4 (theColor, (1.0 - min (aGrid, 1.0)) * aNyq);" EOL "}"
+    "{" EOL "  return vec4 (theColor, gridLine1d (theCoord, theScale, theThickness));" EOL "}"
 
     EOL "vec4 overlayGrid (vec4 theBase, vec4 theAccent)" EOL "{" EOL
     "  return theAccent.a >= theBase.a ? theAccent : theBase;" EOL "}"
@@ -2256,29 +2238,19 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "               * occProjectionMatrixInverse * vec4 (theX, theY, theZ, 1.0);" EOL
     "  return aUnproj.xyz / aUnproj.w;" EOL "}"
 
-    // sin(angle) threshold for "ray parallel to plane" - ~5.7e-5 deg.
-    EOL "const float GRID_PARALLEL_EPS = 1e-6;"
-
     EOL
     "bool intersectPlane (vec3 theNearPoint, vec3 theFarPoint, out vec3 theHit, out float theT)" EOL
     "{" EOL "  vec3  aDir    = theFarPoint - theNearPoint;" EOL
-    "  float aDenomN = dot (uPlaneN, normalize (aDir));" EOL
-    "  if (abs (aDenomN) < GRID_PARALLEL_EPS)" EOL "  {" EOL "    theHit = theNearPoint;" EOL
-    "    theT = 0.0;" EOL "    return false;" EOL "  }" EOL
     "  float aDenom = dot (uPlaneN, aDir);" EOL
+    "  if (aDenom == 0.0)" EOL "  {" EOL "    theHit = theNearPoint;" EOL
+    "    theT = 0.0;" EOL "    return false;" EOL "  }" EOL
     "  theT = dot (uPlaneN, uPlaneOrigin - theNearPoint) / aDenom;" EOL
     "  theHit = theNearPoint + theT * aDir;" EOL "  return true;" EOL "}" EOL
-
-    EOL "float computeDepth (vec3 thePos)" EOL "{" EOL
-    "  mat4 aMVP  = occProjectionMatrix * occWorldViewMatrix * occModelWorldMatrix;" EOL
-    "  vec4 aClip = aMVP * vec4 (thePos, 1.0);" EOL "  return aClip.z / aClip.w;" EOL "}"
 
     // Fade-band width (as a fraction of bound) applied inside the bound edge.
     // Narrow smoothstep softens rectangular/disc cuts; angular cut stays hard.
     EOL "const float GRID_FADE_BAND = 0.95;"
-    // Keep gl_FragDepth strictly less than 1.0 so the grid never lands exactly
-    // on the far plane (some drivers cull there).
-    EOL "const float GRID_DEPTH_EPS = 1e-5;" EOL "const float GRID_TWO_PI = 6.28318530718;"
+    EOL "const float GRID_TWO_PI = 6.28318530718;"
 
     EOL "void main()" EOL "{"
     // Unproject per-pixel from vNdc (linearly interpolated NDC.xy) to avoid the
@@ -2287,7 +2259,7 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL "  vec3 aNearPoint = unproject (vNdc.x, vNdc.y, uNdcNear);" EOL
     "  vec3 aFarPoint  = unproject (vNdc.x, vNdc.y,  1.0);" EOL "  vec3 aHit;" EOL "  float aT;" EOL
     "  if (!intersectPlane (aNearPoint, aFarPoint, aHit, aT)) { discard; }" EOL
-    "  if (uIsBackground == 0 && aT < 0.0) { discard; }"
+    "  if (aT < 0.0) { discard; }"
     // Plane-local 2D coords, origin-centered to tame fp precision at large world offsets.
     EOL "  vec3  aLocal3  = aHit - uPlaneOrigin;" EOL
     "  vec2  aLocal   = vec2 (dot (aLocal3, uPlaneX), dot (aLocal3, uPlaneY));"
@@ -2345,17 +2317,10 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "      else if (abs (aAxisUv.x) < aDerivAxis.x)" EOL "      {" EOL
     "        aColor = vec4 (0.0, 1.0, 0.0, 1.0);" EOL "      }" EOL "    }" EOL "  }"
 
-    EOL "  float aDepth = computeDepth (aHit);" EOL "  float aFar   = gl_DepthRange.far;" EOL
-    "  float aNear  = gl_DepthRange.near;" EOL
-    "  aDepth       = ((aFar - aNear) * aDepth + aNear + aFar) * 0.5;" EOL
-    "  if (uIsBackground == 0) { aDepth = clamp (aDepth, 0.0, 1.0); }" EOL
-    "  if (aColor.a == 0.0) { discard; }"
-
-    EOL "  float aMaxDepth = 1.0 - GRID_DEPTH_EPS;" EOL
-    "  gl_FragDepth = uIsBackground != 0 ? aMaxDepth : min (aDepth, aMaxDepth);" EOL
+    EOL "  if (aColor.a == 0.0) { discard; }" EOL
     "  aColor.a *= aBoundFade;" EOL "  occFragColor = aColor;" EOL "}";
 
-  // Requires gl_VertexID (GL 3.0/ES 3.0+), fwidth, gl_FragDepth.
+  // Requires gl_VertexID (GL 3.0/ES 3.0+) and fwidth.
   if (myGapi == Aspect_GraphicsLibrary_OpenGL)
   {
     aProgSrc->SetHeader(IsGapiGreaterEqual(3, 2) ? "#version 150" : "#version 130");

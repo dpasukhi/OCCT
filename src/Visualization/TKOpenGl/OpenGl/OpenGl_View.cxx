@@ -3919,7 +3919,7 @@ void OpenGl_View::renderGrid()
   }
   if (aContext->core30 == nullptr)
   {
-    // The shader grid requires GL 3.0+ / GLES 3.0+ (VAO + gl_VertexID + gl_FragDepth).
+    // The shader grid requires GL 3.0+ / GLES 3.0+ (VAO + gl_VertexID).
     // Warn once per process so the caller knows why the grid isn't drawn; snap
     // math still works. The process scope avoids per-view state bloat - a stray
     // missed warning on a second view is less costly than a data member.
@@ -3970,9 +3970,6 @@ void OpenGl_View::renderGrid()
   aContext->core11fwd->glGetIntegerv(GL_BLEND_DST_RGB, &aPrevBlendDstRgb);
   aContext->core11fwd->glGetIntegerv(GL_BLEND_SRC_ALPHA, &aPrevBlendSrcA);
   aContext->core11fwd->glGetIntegerv(GL_BLEND_DST_ALPHA, &aPrevBlendDstA);
-  const bool hasDepthClamp = aContext->arbDepthClamp;
-  const bool wasDepthClamp =
-    hasDepthClamp && aContext->core11fwd->glIsEnabled(GL_DEPTH_CLAMP) == GL_TRUE;
   const occ::handle<OpenGl_ShaderProgram> aPrevProgram = aContext->ActiveProgram();
 
   const double                       aZNearKeep = aCamera->ZNear();
@@ -4023,8 +4020,7 @@ void OpenGl_View::renderGrid()
   }
   aContext->ApplyWorldViewMatrix();
 
-  aContext->core11fwd->glEnable(GL_DEPTH_TEST);
-  aContext->core11fwd->glDepthFunc(GL_LESS);
+  aContext->core11fwd->glDisable(GL_DEPTH_TEST);
   aContext->core11fwd->glDepthMask(GL_FALSE);
   aContext->core11fwd->glEnable(GL_BLEND);
   aContext->core11fwd->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -4033,11 +4029,6 @@ void OpenGl_View::renderGrid()
   // is culled and the grid silently vanishes. Disable culling for the draw
   // call and restore at the end.
   aContext->core11fwd->glDisable(GL_CULL_FACE);
-  if (hasDepthClamp && !wasDepthClamp)
-  {
-    aContext->core11fwd->glEnable(GL_DEPTH_CLAMP);
-  }
-
   aContext->core30->glBindVertexArray(myGridVao);
 
   double aScaleX = 0.0, aScaleY = 0.0;
@@ -4064,7 +4055,6 @@ void OpenGl_View::renderGrid()
     aProg->SetUniform(aContext, "uAccentScaleY", GLfloat(myGridParams.AccentScaleY()));
     aProg->SetUniform(aContext, "uAccentAngularScale", GLfloat(myGridParams.AccentAngularScale()));
     aProg->SetUniform(aContext, "uIsDrawAxis", myGridParams.IsDrawAxis() ? 1 : 0);
-    aProg->SetUniform(aContext, "uIsBackground", myGridParams.IsBackground() ? 1 : 0);
     aProg->SetUniform(aContext, "uGridType", myGridParams.IsCircular() ? 1 : 0);
     // Angular spokes per radian: N spokes in 180 deg = N / pi spokes per radian.
     const double aAngularScale =
@@ -4114,7 +4104,7 @@ void OpenGl_View::renderGrid()
 
     aProg->SetUniform(aContext, "uPlaneN", aPlaneNV);
 
-    aContext->core11fwd->glDrawArrays(GL_TRIANGLES, 0, 6);
+    aContext->core11fwd->glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 
   aContext->BindProgram(aPrevProgram);
@@ -4149,9 +4139,5 @@ void OpenGl_View::renderGrid()
   if (wasCullFace == GL_TRUE)
   {
     aContext->core11fwd->glEnable(GL_CULL_FACE);
-  }
-  if (hasDepthClamp && !wasDepthClamp)
-  {
-    aContext->core11fwd->glDisable(GL_DEPTH_CLAMP);
   }
 }
