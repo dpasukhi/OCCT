@@ -2194,10 +2194,6 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("int uDrawMode", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("float uNdcNear", Graphic3d_TOS_FRAGMENT));
-  aUniforms.Append(
-    Graphic3d_ShaderObject::ShaderVariable("vec2 uStableRefLocal", Graphic3d_TOS_FRAGMENT));
-  aUniforms.Append(
-    Graphic3d_ShaderObject::ShaderVariable("int uHasStableRef", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("vec3 uBounds", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("int uIsBoundFade", Graphic3d_TOS_FRAGMENT));
@@ -2322,34 +2318,17 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "(aLocal.y));" EOL "    }" EOL "  }"
 
     // Grid coordinates depend on uGridType: 0=rectangular (X/Y), 1=circular (radius/angle).
-    // For rectangular grid, rebase UVs around a per-frame stable reference
-    // (same for all fragments in the frame) to keep fract() arguments small.
-    EOL "  vec2 aStableLocal = aLocal;" EOL "  if (uGridType == 0)" EOL "  {" EOL
-    "    if (uHasStableRef != 0)" EOL "    {" EOL
-    "      vec2 aScaleSafe = abs (vec2 (uScaleX, uScaleY));" EOL
-    "      vec2 aShift = vec2 (0.0);" EOL "      if (aScaleSafe.x > 0.0)" EOL "      {" EOL
-    "        aShift.x = floor (uStableRefLocal.x * aScaleSafe.x) / aScaleSafe.x;" EOL "      }" EOL
-    "      if (aScaleSafe.y > 0.0)" EOL "      {" EOL
-    "        aShift.y = floor (uStableRefLocal.y * aScaleSafe.y) / aScaleSafe.y;" EOL "      }" EOL
-    "      aStableLocal = aLocal - aShift;" EOL "    }" EOL "  }" EOL "  vec2 aGridUv;" EOL
-    "  vec2 aScale;" EOL "  vec2 aAxisUv;" EOL "  if (uGridType == 1)" EOL "  {" EOL
+    EOL "  vec2 aGridUv;" EOL "  vec2 aScale;" EOL "  vec2 aAxisUv;" EOL
+    "  if (uGridType == 1)" EOL "  {" EOL
     "    aGridUv = vec2 (aR, aA);" EOL "    aScale  = vec2 (uScaleX, uAngularScale);" EOL
-    "    aAxisUv = aLocal;" EOL "  }" EOL "  else" EOL "  {" EOL "    aGridUv = aStableLocal;" EOL
+    "    aAxisUv = aLocal;" EOL "  }" EOL "  else" EOL "  {" EOL "    aGridUv = aLocal;" EOL
     "    aScale  = vec2 (uScaleX, uScaleY);" EOL "    aAxisUv = aLocal;" EOL "  }" EOL
     "  vec4 aColor = gridLines2d (aGridUv, aAxisUv, uColor, aScale, uGridType == 0, "
     "uThickness);" EOL "  if (uDrawMode != 1)" EOL "  {" EOL "    if (uGridType == 0)" EOL
     "    {" EOL "      if (uAccentScaleX > 0.0)" EOL "      {" EOL
-    "        float aAccX = aLocal.x;" EOL "        if (uHasStableRef != 0)" EOL "        {" EOL
-    "          float aScaleAccX = abs (uAccentScaleX);" EOL
-    "          float aShiftAccX = floor (uStableRefLocal.x * aScaleAccX) / aScaleAccX;" EOL
-    "          aAccX -= aShiftAccX;" EOL "        }" EOL
-    "        aColor = overlayGrid (aColor, gridLines1d (aAccX, uAccentScaleX, uAccentColor, "
+    "        aColor = overlayGrid (aColor, gridLines1d (aLocal.x, uAccentScaleX, uAccentColor, "
     "uThickness));" EOL "      }" EOL "      if (uAccentScaleY > 0.0)" EOL "      {" EOL
-    "        float aAccY = aLocal.y;" EOL "        if (uHasStableRef != 0)" EOL "        {" EOL
-    "          float aScaleAccY = abs (uAccentScaleY);" EOL
-    "          float aShiftAccY = floor (uStableRefLocal.y * aScaleAccY) / aScaleAccY;" EOL
-    "          aAccY -= aShiftAccY;" EOL "        }" EOL
-    "        aColor = overlayGrid (aColor, gridLines1d (aAccY, uAccentScaleY, uAccentColor, "
+    "        aColor = overlayGrid (aColor, gridLines1d (aLocal.y, uAccentScaleY, uAccentColor, "
     "uThickness));" EOL "      }" EOL "    }" EOL "    else" EOL "    {" EOL
     "      if (uAccentScaleX > 0.0)" EOL "      {" EOL
     "        aColor = overlayGrid (aColor, gridLines1d (aR, uAccentScaleX, uAccentColor, "

@@ -100,40 +100,6 @@ static void shaderGridFrame(const Aspect_GridParams& theParams,
                    + theN * (anOriginLocal.Z() + theParams.ZOffset()));
 }
 
-//! Intersect camera NDC ray with the shader grid plane and return plane-local coordinates.
-static bool intersectCameraNdcWithGridPlane(const occ::handle<Graphic3d_Camera>& theCamera,
-                                            const double                         theNdcX,
-                                            const double                         theNdcY,
-                                            const gp_Pnt&                        thePlaneOrigin,
-                                            const gp_XYZ&                        thePlaneX,
-                                            const gp_XYZ&                        thePlaneY,
-                                            const gp_XYZ&                        thePlaneN,
-                                            double&                              theLocalX,
-                                            double&                              theLocalY)
-{
-  if (theCamera.IsNull())
-  {
-    return false;
-  }
-
-  const double aNearZ = theCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
-  const gp_Pnt aNearP = theCamera->UnProject(gp_Pnt(theNdcX, theNdcY, aNearZ));
-  const gp_Pnt aFarP  = theCamera->UnProject(gp_Pnt(theNdcX, theNdcY, 1.0));
-  const gp_XYZ aRay   = aFarP.XYZ() - aNearP.XYZ();
-  const double aDenom = thePlaneN.Dot(aRay);
-  if (std::abs(aDenom) <= Precision::Angular())
-  {
-    return false;
-  }
-
-  const double aT      = thePlaneN.Dot(thePlaneOrigin.XYZ() - aNearP.XYZ()) / aDenom;
-  const gp_XYZ aHit    = aNearP.XYZ() + aRay * aT;
-  const gp_XYZ aLocal3 = aHit - thePlaneOrigin.XYZ();
-  theLocalX            = aLocal3.Dot(thePlaneX);
-  theLocalY            = aLocal3.Dot(thePlaneY);
-  return true;
-}
-
 //! Return shader grid scales for current camera.
 static void shaderGridEffectiveScale(const Aspect_GridParams& theParams,
                                      const double             theCurrentCameraScale,
@@ -4146,30 +4112,6 @@ void OpenGl_View::renderGrid()
     aProg->SetUniform(aContext, "uPlaneX", aPlaneXV);
     aProg->SetUniform(aContext, "uPlaneY", aPlaneYV);
 
-    // Stable per-frame rectangular-grid reference point in plane-local
-    // coordinates. Keeps shader fract() arguments bounded at shallow angles
-    // without re-running extra unproject/intersection work for every fragment.
-    int                     aHasStableRef = 0;
-    NCollection_Vec2<float> aStableRefLocal(0.0f, 0.0f);
-    if (!myGridParams.IsCircular())
-    {
-      double aLocalX = 0.0, aLocalY = 0.0;
-      if (intersectCameraNdcWithGridPlane(aCamera,
-                                          0.0,
-                                          0.0,
-                                          aPlaneOrigin,
-                                          aXRotated,
-                                          aYRotated,
-                                          aNDir,
-                                          aLocalX,
-                                          aLocalY))
-      {
-        aStableRefLocal.SetValues(float(aLocalX), float(aLocalY));
-        aHasStableRef = 1;
-      }
-    }
-    aProg->SetUniform(aContext, "uStableRefLocal", aStableRefLocal);
-    aProg->SetUniform(aContext, "uHasStableRef", aHasStableRef);
     aProg->SetUniform(aContext, "uPlaneN", aPlaneNV);
 
     aContext->core11fwd->glDrawArrays(GL_TRIANGLES, 0, 6);
