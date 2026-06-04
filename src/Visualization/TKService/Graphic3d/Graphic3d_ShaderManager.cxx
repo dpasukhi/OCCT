@@ -2289,7 +2289,7 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL "  vec3 aNearPoint = unproject (vNdc.x, vNdc.y, -1.0);" EOL
     "  vec3 aFarPoint  = unproject (vNdc.x, vNdc.y,  1.0);" EOL "  vec3 aHit;" EOL "  float aT;" EOL
     "  if (!intersectPlane (aNearPoint, aFarPoint, aHit, aT)) { discard; }" EOL
-    "  if (uIsBackground == 0 && (aT < 0.0 || aT > 1.0)) { discard; }"
+    "  if (uIsBackground == 0 && aT < 0.0) { discard; }"
     // Plane-local 2D coords, origin-centered to tame fp precision at large world offsets.
     EOL "  vec3  aLocal3  = aHit - uPlaneOrigin;" EOL
     "  vec2  aLocal   = vec2 (dot (aLocal3, uPlaneX), dot (aLocal3, uPlaneY));"
@@ -2320,7 +2320,7 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "(aLocal.y));" EOL "    }" EOL "  }"
 
     // Grid coordinates depend on uGridType: 0=rectangular (X/Y), 1=circular (radius/angle).
-    // For rectangular grid, rebase UVs around a CPU-provided stable reference
+    // For rectangular grid, rebase UVs around a per-frame stable reference
     // (same for all fragments in the frame) to keep fract() arguments small.
     EOL "  vec2 aStableLocal = aLocal;" EOL "  if (uGridType == 0)" EOL "  {" EOL
     "    if (uHasStableRef != 0)" EOL "    {" EOL
@@ -2367,7 +2367,7 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL "  float aDepth = computeDepth (aHit);" EOL "  float aFar   = gl_DepthRange.far;" EOL
     "  float aNear  = gl_DepthRange.near;" EOL
     "  aDepth       = ((aFar - aNear) * aDepth + aNear + aFar) * 0.5;" EOL
-    "  if (uIsBackground == 0 && (aDepth < 0.0 || aDepth > 1.0)) { discard; }" EOL
+    "  if (uIsBackground == 0) { aDepth = clamp (aDepth, 0.0, 1.0); }" EOL
     "  if (aColor.a == 0.0) { discard; }"
 
     EOL "  float aMaxDepth = 1.0 - GRID_DEPTH_EPS;" EOL

@@ -3578,10 +3578,6 @@ void V3d_View::GridDisplay(const Aspect_GridParams& theParams)
 
 void V3d_View::GridDisplay(const Aspect_GridParams& theParams, const gp_Ax3& thePlane)
 {
-  // Mutual exclusion: the CPU grid renders into a viewer-wide Graphic3d_Structure
-  // (visible in every active view), so enabling the per-view shader grid hides the
-  // CPU rendering at the viewer level. Snap geometry (Aspect_*Grid) is left alive
-  // and only the structure is erased; SetGrid / ActivateGrid restores it.
   if (!MyGrid.IsNull() && MyGrid->IsDisplayed())
   {
     MyGrid->Erase();

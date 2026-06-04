@@ -156,9 +156,8 @@ static void shaderGridFrame(const Aspect_GridParams& theParams,
 
   const gp_Pnt& anOriginLocal = theParams.Origin();
   const gp_Pnt& aPlaneLoc     = thePlane.Location();
-  theOrigin.SetCoord(aPlaneLoc.X() + anOriginLocal.X() + theN.X() * theParams.ZOffset(),
-                     aPlaneLoc.Y() + anOriginLocal.Y() + theN.Y() * theParams.ZOffset(),
-                     aPlaneLoc.Z() + anOriginLocal.Z() + theN.Z() * theParams.ZOffset());
+  theOrigin.SetXYZ(aPlaneLoc.XYZ() + aRawX * anOriginLocal.X() + aRawY * anOriginLocal.Y()
+                   + theN * (anOriginLocal.Z() + theParams.ZOffset()));
 }
 
 //! Return shader grid scales for current camera.
@@ -180,9 +179,6 @@ static void shaderGridEffectiveScale(const Aspect_GridParams& theParams,
   theScaleY /= aCurrentScale;
 }
 
-//! Return TRUE if a local shader grid point is within shader echo bounds.
-//! View-adaptive mode derives visual extents from the view, so size/radius are
-//! not hard echo limits there; circular arc range remains semantic.
 static bool isShaderGridPointInBounds(const Aspect_GridParams& theParams,
                                       const double             theLocalX,
                                       const double             theLocalY)
@@ -190,7 +186,7 @@ static bool isShaderGridPointInBounds(const Aspect_GridParams& theParams,
   if (theParams.IsCircular())
   {
     const double aRadius = std::sqrt(theLocalX * theLocalX + theLocalY * theLocalY);
-    if (!theParams.IsViewAdaptive() && theParams.Radius() > 0.0 && aRadius > theParams.Radius())
+    if (theParams.Radius() > 0.0 && aRadius > theParams.Radius())
     {
       return false;
     }
@@ -230,10 +226,6 @@ static bool isShaderGridPointInBounds(const Aspect_GridParams& theParams,
     return true;
   }
 
-  if (theParams.IsViewAdaptive())
-  {
-    return true;
-  }
   return (theParams.SizeX() <= 0.0 || std::abs(theLocalX) <= theParams.SizeX() * 0.5)
          && (theParams.SizeY() <= 0.0 || std::abs(theLocalY) <= theParams.SizeY() * 0.5);
 }
@@ -276,7 +268,7 @@ static void addShaderGridViewRayBounds(Bnd_Box&                             theB
 }
 
 //! Add a finite patch of the shader grid plane to the Z-fit box.
-//! The GPU grid is rendered by ray/plane intersection, not by a structure with
+//! The shader grid is rendered by ray/plane intersection, not by a structure with
 //! own bounds, so empty scenes still need an explicit depth range covering the
 //! plane patch that can become visible.
 static void addShaderGridZFitBounds(Bnd_Box&                             theBox,
@@ -3887,21 +3879,6 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
   gp_XYZ aGridX, aGridY, aGridN;
   shaderGridFrame(myGridParams, myGridPlane, aGridOrigin, aGridX, aGridY, aGridN);
 
-  occ::handle<Graphic3d_Camera> aGridCamera = new Graphic3d_Camera(aCamera);
-  Bnd_Box                       aBnd        = MinMaxValues(true);
-  if (aBnd.IsVoid() || aBnd.IsOut(aGridOrigin))
-  {
-    addShaderGridZFitBounds(aBnd,
-                            myGridParams,
-                            aGridOrigin,
-                            aGridX,
-                            aGridY,
-                            aGridN,
-                            aGridCamera,
-                            aGridCamera->Scale());
-    aGridCamera->ZFitAll(1.0, aBnd, aBnd);
-  }
-
   int aWidth = 0, aHeight = 0;
   Window()->Size(aWidth, aHeight);
   if (aWidth <= 0 || aHeight <= 0)
@@ -3911,9 +3888,9 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
 
   const double aNdcX   = 2.0 * double(theX) / double(aWidth) - 1.0;
   const double aNdcY   = 2.0 * double(aHeight - 1 - theY) / double(aHeight) - 1.0;
-  const double aNearZ  = aGridCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
-  const gp_Pnt aNearP  = aGridCamera->UnProject(gp_Pnt(aNdcX, aNdcY, aNearZ));
-  const gp_Pnt aFarP   = aGridCamera->UnProject(gp_Pnt(aNdcX, aNdcY, 1.0));
+  const double aNearZ  = aCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
+  const gp_Pnt aNearP  = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, aNearZ));
+  const gp_Pnt aFarP   = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, 1.0));
   gp_XYZ       aRay    = aFarP.XYZ() - aNearP.XYZ();
   const double aRayMod = aRay.Modulus();
   if (aRayMod <= Precision::Confusion())
@@ -3929,9 +3906,6 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
   }
 
   const double aT = aGridN.Dot(aGridOrigin.XYZ() - aNearP.XYZ()) / aDenom;
-  // renderGrid() may temporarily expand Z range before drawing the shader grid.
-  // Do not reject a hit beyond the current pre-render far point; reject only
-  // hits behind the near point to keep foreground plane semantics.
   if (aT < 0.0)
   {
     return false;
@@ -3965,6 +3939,12 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
     const double aSnapAngle   = std::round(anAngle / anAngleStep) * anAngleStep;
     aSnapped +=
       aGridX * (aSnapRadius * std::cos(aSnapAngle)) + aGridY * (aSnapRadius * std::sin(aSnapAngle));
+    if (!isShaderGridPointInBounds(myGridParams,
+                                   aSnapRadius * std::cos(aSnapAngle),
+                                   aSnapRadius * std::sin(aSnapAngle)))
+    {
+      return false;
+    }
   }
   else
   {
@@ -3972,6 +3952,10 @@ bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Verte
     const double aStepY = 1.0 / aScaleY;
     aLocalX             = std::round(aLocalX / aStepX) * aStepX;
     aLocalY             = std::round(aLocalY / aStepY) * aStepY;
+    if (!isShaderGridPointInBounds(myGridParams, aLocalX, aLocalY))
+    {
+      return false;
+    }
     aSnapped += aGridX * aLocalX + aGridY * aLocalY;
   }
 
@@ -4051,10 +4035,6 @@ void OpenGl_View::renderGrid()
     hasDepthClamp && aContext->core11fwd->glIsEnabled(GL_DEPTH_CLAMP) == GL_TRUE;
   const occ::handle<OpenGl_ShaderProgram> aPrevProgram = aContext->ActiveProgram();
 
-  // Capture the user-set camera ZRange BEFORE any grid-specific adjustment.
-  // ZFitAll below mutates the camera; the restore block at the end of this
-  // method targets these original values, otherwise vconvert and other APIs
-  // observing ZRange between frames see values inflated by the grid bounds.
   const double                       aZNearKeep = aCamera->ZNear();
   const double                       aZFarKeep  = aCamera->ZFar();
   const Graphic3d_Camera::Projection aProjKeep  = aCamera->ProjectionType();
@@ -4064,7 +4044,7 @@ void OpenGl_View::renderGrid()
   shaderGridFrame(myGridParams, myGridPlane, aPlaneOrigin, aXRotated, aYRotated, aNDir);
 
   Bnd_Box aBnd = MinMaxValues(true);
-  if (myGridParams.IsBackground() || aBnd.IsVoid() || aBnd.IsOut(aPlaneOrigin))
+  if (myGridParams.IsBackground())
   {
     addShaderGridZFitBounds(aBnd,
                             myGridParams,
@@ -4074,12 +4054,7 @@ void OpenGl_View::renderGrid()
                             aNDir,
                             aCamera,
                             aCamera->Scale());
-    // ZFitAll asserts ZFar > ZNear on return (Graphic3d_Camera.cxx:1636),
-    // so no post-hoc SetZRange nudge is needed.
     aCamera->ZFitAll(1.0, aBnd, aBnd);
-  }
-  if (myGridParams.IsBackground())
-  {
     aCamera->SetProjectionType(Graphic3d_Camera::Projection_Orthographic);
   }
 
@@ -4162,7 +4137,7 @@ void OpenGl_View::renderGrid()
     //                              gridY = sin*planeX + cos*planeY.
     //  - ZOffset pushes the displayed plane along its normal to avoid
     //    z-fighting with coplanar geometry. Shader-grid echo uses the same
-    //    displayed plane; the legacy CPU snap path is independent.
+    //    displayed plane.
     const NCollection_Vec3<float> aPlaneNV((float)aNDir.X(), (float)aNDir.Y(), (float)aNDir.Z());
     const NCollection_Vec3<float> aPlaneOriginV((float)aPlaneOrigin.X(),
                                                 (float)aPlaneOrigin.Y(),
