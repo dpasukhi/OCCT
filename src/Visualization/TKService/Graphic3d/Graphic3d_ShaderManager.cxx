@@ -2261,10 +2261,9 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     // sin(angle) threshold for "ray parallel to plane" - ~5.7e-5 deg.
     EOL "const float GRID_PARALLEL_EPS = 1e-6;"
 
-    EOL "bool intersectPlane (vec3 theNearPoint, vec3 theFarPoint, out vec3 theHit, out float theT)"
-        EOL "{"
-        EOL
-    "  vec3  aDir    = theFarPoint - theNearPoint;" EOL
+    EOL
+    "bool intersectPlane (vec3 theNearPoint, vec3 theFarPoint, out vec3 theHit, out float theT)" EOL
+    "{" EOL "  vec3  aDir    = theFarPoint - theNearPoint;" EOL
     "  float aDenomN = dot (uPlaneN, normalize (aDir));" EOL
     "  if (abs (aDenomN) < GRID_PARALLEL_EPS)" EOL "  {" EOL "    theHit = theNearPoint;" EOL
     "    theT = 0.0;" EOL "    return false;" EOL "  }" EOL
@@ -2281,16 +2280,14 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL "const float GRID_FADE_BAND = 0.95;"
     // Keep gl_FragDepth strictly less than 1.0 so the grid never lands exactly
     // on the far plane (some drivers cull there).
-    EOL "const float GRID_DEPTH_EPS = 1e-5;"
-    EOL "const float GRID_TWO_PI = 6.28318530718;"
+    EOL "const float GRID_DEPTH_EPS = 1e-5;" EOL "const float GRID_TWO_PI = 6.28318530718;"
 
     EOL "void main()" EOL "{"
     // Unproject per-pixel from vNdc (linearly interpolated NDC.xy) to avoid the
     // nonlinearity of the perspective divide when ray endpoints are passed as
     // varyings. Each fragment reconstructs its own Near/Far world points.
     EOL "  vec3 aNearPoint = unproject (vNdc.x, vNdc.y, -1.0);" EOL
-    "  vec3 aFarPoint  = unproject (vNdc.x, vNdc.y,  1.0);" EOL "  vec3 aHit;" EOL
-    "  float aT;" EOL
+    "  vec3 aFarPoint  = unproject (vNdc.x, vNdc.y,  1.0);" EOL "  vec3 aHit;" EOL "  float aT;" EOL
     "  if (!intersectPlane (aNearPoint, aFarPoint, aHit, aT)) { discard; }" EOL
     "  if (uIsBackground == 0 && (aT < 0.0 || aT > 1.0)) { discard; }"
     // Plane-local 2D coords, origin-centered to tame fp precision at large world offsets.
@@ -2302,9 +2299,8 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "  float aBoundFade = 1.0;" EOL "  if (uBounds.z > 0.0)" EOL "  {" EOL
     "    float aFwBR = fwidth (aR);" EOL "    if (aR > uBounds.z + aFwBR) { discard; }" EOL
     "    if (uIsBoundFade != 0)" EOL "    {" EOL
-    "      aBoundFade *= 1.0 - smoothstep (GRID_FADE_BAND * uBounds.z, uBounds.z + aFwBR, aR);"
-    EOL "    }" EOL
-    "  }" EOL "  if (uArcBounded != 0)" EOL "  {" EOL
+    "      aBoundFade *= 1.0 - smoothstep (GRID_FADE_BAND * uBounds.z, uBounds.z + aFwBR, aR);" EOL
+    "    }" EOL "  }" EOL "  if (uArcBounded != 0)" EOL "  {" EOL
     "    float aSpan = uArcRange.y - uArcRange.x;" EOL
     "    if (aSpan < 0.0) { aSpan += GRID_TWO_PI; }" EOL "    float aDelta = aA - uArcRange.x;" EOL
     "    if (aDelta < 0.0) { aDelta += GRID_TWO_PI; }" EOL
@@ -2313,13 +2309,13 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     // boundary gets sub-pixel AA (one screen-pixel transition) instead of a
     // hard binary staircase at the clipping edge.
     "    float aFwBX = fwidth (abs (aLocal.x));" EOL
-    "    if (abs (aLocal.x) > uBounds.x + aFwBX) { discard; }" EOL
-    "    if (uIsBoundFade != 0)" EOL "    {" EOL
+    "    if (abs (aLocal.x) > uBounds.x + aFwBX) { discard; }" EOL "    if (uIsBoundFade != 0)" EOL
+    "    {" EOL
     "      aBoundFade *= 1.0 - smoothstep (GRID_FADE_BAND * uBounds.x, uBounds.x + aFwBX, abs "
     "(aLocal.x));" EOL "    }" EOL "  }" EOL "  if (uBounds.y > 0.0)" EOL "  {" EOL
     "    float aFwBY = fwidth (abs (aLocal.y));" EOL
-    "    if (abs (aLocal.y) > uBounds.y + aFwBY) { discard; }" EOL
-    "    if (uIsBoundFade != 0)" EOL "    {" EOL
+    "    if (abs (aLocal.y) > uBounds.y + aFwBY) { discard; }" EOL "    if (uIsBoundFade != 0)" EOL
+    "    {" EOL
     "      aBoundFade *= 1.0 - smoothstep (GRID_FADE_BAND * uBounds.y, uBounds.y + aFwBY, abs "
     "(aLocal.y));" EOL "    }" EOL "  }"
 
@@ -2329,12 +2325,10 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL "  vec2 aStableLocal = aLocal;" EOL "  if (uGridType == 0)" EOL "  {" EOL
     "    if (uHasStableRef != 0)" EOL "    {" EOL
     "      vec2 aScaleSafe = abs (vec2 (uScaleX, uScaleY));" EOL
-    "      vec2 aShift = vec2 (0.0);" EOL
-    "      if (aScaleSafe.x > 0.0)" EOL "      {" EOL
-    "        aShift.x = floor (uStableRefLocal.x * aScaleSafe.x) / aScaleSafe.x;" EOL
-    "      }" EOL "      if (aScaleSafe.y > 0.0)" EOL "      {" EOL
-    "        aShift.y = floor (uStableRefLocal.y * aScaleSafe.y) / aScaleSafe.y;" EOL
-    "      }" EOL
+    "      vec2 aShift = vec2 (0.0);" EOL "      if (aScaleSafe.x > 0.0)" EOL "      {" EOL
+    "        aShift.x = floor (uStableRefLocal.x * aScaleSafe.x) / aScaleSafe.x;" EOL "      }" EOL
+    "      if (aScaleSafe.y > 0.0)" EOL "      {" EOL
+    "        aShift.y = floor (uStableRefLocal.y * aScaleSafe.y) / aScaleSafe.y;" EOL "      }" EOL
     "      aStableLocal = aLocal - aShift;" EOL "    }" EOL "  }" EOL "  vec2 aGridUv;" EOL
     "  vec2 aScale;" EOL "  vec2 aAxisUv;" EOL "  if (uGridType == 1)" EOL "  {" EOL
     "    aGridUv = vec2 (aR, aA);" EOL "    aScale  = vec2 (uScaleX, uAngularScale);" EOL
@@ -2373,8 +2367,8 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL "  float aDepth = computeDepth (aHit);" EOL "  float aFar   = gl_DepthRange.far;" EOL
     "  float aNear  = gl_DepthRange.near;" EOL
     "  aDepth       = ((aFar - aNear) * aDepth + aNear + aFar) * 0.5;" EOL
-    "  if (uIsBackground == 0 && (aDepth < 0.0 || aDepth > 1.0)) { discard; }"
-    EOL "  if (aColor.a == 0.0) { discard; }"
+    "  if (uIsBackground == 0 && (aDepth < 0.0 || aDepth > 1.0)) { discard; }" EOL
+    "  if (aColor.a == 0.0) { discard; }"
 
     EOL "  float aMaxDepth = 1.0 - GRID_DEPTH_EPS;" EOL
     "  gl_FragDepth = uIsBackground != 0 ? aMaxDepth : min (aDepth, aMaxDepth);" EOL

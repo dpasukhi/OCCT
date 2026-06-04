@@ -230,8 +230,8 @@ public:
   Standard_EXPORT void GridErase() override;
 
   //! Return snapped point for the shader-rendered grid under the window pixel.
-  Standard_EXPORT bool ShaderGridEcho(const int theX,
-                                      const int theY,
+  Standard_EXPORT bool ShaderGridEcho(const int         theX,
+                                      const int         theY,
                                       Graphic3d_Vertex& thePoint) const override;
 
   //! Returns number of mipmap levels used in specular IBL map.

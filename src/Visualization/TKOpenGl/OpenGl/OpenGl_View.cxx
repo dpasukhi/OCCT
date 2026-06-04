@@ -239,24 +239,22 @@ static bool isShaderGridPointInBounds(const Aspect_GridParams& theParams,
 }
 
 //! Add visible view-ray hits on the shader grid plane to the Z-fit box.
-static void addShaderGridViewRayBounds(Bnd_Box&                            theBox,
+static void addShaderGridViewRayBounds(Bnd_Box&                             theBox,
                                        const occ::handle<Graphic3d_Camera>& theCamera,
-                                       const gp_Pnt&                       thePlaneOrigin,
-                                       const gp_XYZ&                       thePlaneNormal)
+                                       const gp_Pnt&                        thePlaneOrigin,
+                                       const gp_XYZ&                        thePlaneNormal)
 {
   if (theCamera.IsNull())
   {
     return;
   }
 
-  const double aNearZ = theCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
-  const gp_Pnt aNdcSamples[] = {
-    gp_Pnt(-1.0, -1.0, 0.0),
-    gp_Pnt( 1.0, -1.0, 0.0),
-    gp_Pnt(-1.0,  1.0, 0.0),
-    gp_Pnt( 1.0,  1.0, 0.0),
-    gp_Pnt( 0.0,  0.0, 0.0)
-  };
+  const double aNearZ        = theCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
+  const gp_Pnt aNdcSamples[] = {gp_Pnt(-1.0, -1.0, 0.0),
+                                gp_Pnt(1.0, -1.0, 0.0),
+                                gp_Pnt(-1.0, 1.0, 0.0),
+                                gp_Pnt(1.0, 1.0, 0.0),
+                                gp_Pnt(0.0, 0.0, 0.0)};
   for (const gp_Pnt& aNdcSample : aNdcSamples)
   {
     const gp_Pnt aNearP = theCamera->UnProject(gp_Pnt(aNdcSample.X(), aNdcSample.Y(), aNearZ));
@@ -281,23 +279,23 @@ static void addShaderGridViewRayBounds(Bnd_Box&                            theBo
 //! The GPU grid is rendered by ray/plane intersection, not by a structure with
 //! own bounds, so empty scenes still need an explicit depth range covering the
 //! plane patch that can become visible.
-static void addShaderGridZFitBounds(Bnd_Box&                 theBox,
-                                    const Aspect_GridParams& theParams,
-                                    const gp_Pnt&            thePlaneOrigin,
-                                    const gp_XYZ&            theGridX,
-                                    const gp_XYZ&            theGridY,
-                                    const gp_XYZ&            theGridN,
+static void addShaderGridZFitBounds(Bnd_Box&                             theBox,
+                                    const Aspect_GridParams&             theParams,
+                                    const gp_Pnt&                        thePlaneOrigin,
+                                    const gp_XYZ&                        theGridX,
+                                    const gp_XYZ&                        theGridY,
+                                    const gp_XYZ&                        theGridN,
                                     const occ::handle<Graphic3d_Camera>& theCamera,
-                                    const double             theViewHeight)
+                                    const double                         theViewHeight)
 {
   if (theParams.IsViewAdaptive())
   {
     addShaderGridViewRayBounds(theBox, theCamera, thePlaneOrigin, theGridN);
   }
 
-  double       aHalfX = theParams.SizeX() > 0.0 ? theParams.SizeX() * 0.5 : 0.0;
-  double       aHalfY = theParams.SizeY() > 0.0 ? theParams.SizeY() * 0.5 : 0.0;
-  double       aRadius = theParams.Radius();
+  double aHalfX  = theParams.SizeX() > 0.0 ? theParams.SizeX() * 0.5 : 0.0;
+  double aHalfY  = theParams.SizeY() > 0.0 ? theParams.SizeY() * 0.5 : 0.0;
+  double aRadius = theParams.Radius();
   if (aHalfX <= 0.0 && aHalfY <= 0.0 && aRadius <= 0.0)
   {
     aHalfX  = theViewHeight;
@@ -3843,7 +3841,7 @@ void OpenGl_View::GridDisplay(const Aspect_GridParams& theParams, const gp_Ax3& 
   if (theParams.IsViewAdaptive())
   {
     const occ::handle<Graphic3d_Camera>& aCamera = Camera();
-    const double aReferenceScale =
+    const double                         aReferenceScale =
       !aCamera.IsNull() && aCamera->Scale() > Precision::Confusion() ? aCamera->Scale() : 1.0;
     myGridParams.SetScale(theParams.Scale() * aReferenceScale);
     if (theParams.ScaleY() > 0.0)
@@ -3871,9 +3869,7 @@ void OpenGl_View::GridErase()
 
 //=================================================================================================
 
-bool OpenGl_View::ShaderGridEcho(const int theX,
-                                 const int theY,
-                                 Graphic3d_Vertex& thePoint) const
+bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Vertex& thePoint) const
 {
   if (!myToShowGrid || myGridParams.DrawMode() == Aspect_GDM_None || myGridParams.IsBackground()
       || Window().IsNull())
@@ -3894,12 +3890,12 @@ bool OpenGl_View::ShaderGridEcho(const int theX,
     return false;
   }
 
-  const double aNdcX = 2.0 * double(theX) / double(aWidth) - 1.0;
-  const double aNdcY = 2.0 * double(aHeight - 1 - theY) / double(aHeight) - 1.0;
-  const double aNearZ = aCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
-  const gp_Pnt aNearP = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, aNearZ));
-  const gp_Pnt aFarP  = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, 1.0));
-  gp_XYZ       aRay   = aFarP.XYZ() - aNearP.XYZ();
+  const double aNdcX   = 2.0 * double(theX) / double(aWidth) - 1.0;
+  const double aNdcY   = 2.0 * double(aHeight - 1 - theY) / double(aHeight) - 1.0;
+  const double aNearZ  = aCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
+  const gp_Pnt aNearP  = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, aNearZ));
+  const gp_Pnt aFarP   = aCamera->UnProject(gp_Pnt(aNdcX, aNdcY, 1.0));
+  gp_XYZ       aRay    = aFarP.XYZ() - aNearP.XYZ();
   const double aRayMod = aRay.Modulus();
   if (aRayMod <= Precision::Confusion())
   {
@@ -3952,8 +3948,8 @@ bool OpenGl_View::ShaderGridEcho(const int theX,
     const double anAngleStep  = aNbDivisions > 0 ? M_PI / double(aNbDivisions) : M_PI;
     const double aSnapRadius  = std::round(aRadius / aRadiusStep) * aRadiusStep;
     const double aSnapAngle   = std::round(anAngle / anAngleStep) * anAngleStep;
-    aSnapped += aGridX * (aSnapRadius * std::cos(aSnapAngle))
-                + aGridY * (aSnapRadius * std::sin(aSnapAngle));
+    aSnapped +=
+      aGridX * (aSnapRadius * std::cos(aSnapAngle)) + aGridY * (aSnapRadius * std::sin(aSnapAngle));
   }
   else
   {
@@ -4052,7 +4048,7 @@ void OpenGl_View::renderGrid()
   gp_XYZ aXRotated, aYRotated, aNDir;
   shaderGridFrame(myGridParams, myGridPlane, aPlaneOrigin, aXRotated, aYRotated, aNDir);
 
-  Bnd_Box      aBnd      = MinMaxValues(true);
+  Bnd_Box aBnd = MinMaxValues(true);
   if (myGridParams.IsBackground() || aBnd.IsVoid() || aBnd.IsOut(aPlaneOrigin))
   {
     addShaderGridZFitBounds(aBnd,
