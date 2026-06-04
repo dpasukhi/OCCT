@@ -238,7 +238,13 @@ static gp_Pnt shaderGridEchoDisplayPoint(const occ::handle<Graphic3d_Camera>& th
                                          const gp_XYZ&                        theSnapped)
 {
   const gp_Pnt aProjSnapped = theCamera->Project(gp_Pnt(theSnapped));
-  const double aDisplayZ    = theCamera->IsZeroToOneDepth() ? 0.5 : 0.0;
+  double       aDisplayZ    = aProjSnapped.Z();
+  const double aDepthMin    = theCamera->IsZeroToOneDepth() ? 0.0 : -1.0;
+  const double aDepthMax    = 1.0;
+  if (!(aDisplayZ >= aDepthMin && aDisplayZ <= aDepthMax))
+  {
+    aDisplayZ = aDisplayZ < aDepthMin ? aDepthMin : aDepthMax;
+  }
   return theCamera->UnProject(gp_Pnt(aProjSnapped.X(), aProjSnapped.Y(), aDisplayZ));
 }
 

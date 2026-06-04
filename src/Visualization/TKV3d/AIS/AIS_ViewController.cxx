@@ -2264,11 +2264,22 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
                                              const occ::handle<V3d_View>&               theView,
                                              const AIS_WalkDelta&                       theWalk)
 {
+  const bool hasGridEcho = theView->IsGridActive() && theView->Viewer()->GridEcho();
+  const bool hasShaderGridEcho = hasGridEcho && theView->IsShaderGridActive();
+  NCollection_Vec2<int> aMoveToAfterCamera =
+    HasPreviousMoveTo() ? PreviousMoveTo() : LastMousePosition();
+  bool toUpdateMoveToAfterCamera = hasShaderGridEcho && !theWalk.IsEmpty();
+  bool toHideGridEchoAfterCamera = false;
+  const bool isMouseRotation =
+    (myGL.OrbitRotation.ToRotate || myGL.ViewRotation.ToRotate || myGL.ZRotate.ToRotate)
+    && myToAllowRotation;
+
   // apply view actions
   if (myGL.Orientation.ToSetViewOrient)
   {
     theView->SetProj(myGL.Orientation.ViewOrient);
     myGL.Orientation.ToFitAll = true;
+    toUpdateMoveToAfterCamera = hasShaderGridEcho;
   }
 
   // apply fit all
@@ -2278,6 +2289,7 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
     theView->FitAll(aFitMargin, false);
     theView->Invalidate();
     myGL.Orientation.ToFitAll = false;
+    toUpdateMoveToAfterCamera = hasShaderGridEcho;
   }
 
   NCollection_List<occ::handle<AIS_InteractiveObject>> anObjects;
@@ -2360,6 +2372,14 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
 
     handlePanning(theView);
     handleZRotate(theView);
+    if (hasShaderGridEcho && myGL.Panning.ToPan && myToAllowPanning)
+    {
+      toUpdateMoveToAfterCamera = true;
+    }
+    if (hasShaderGridEcho && myGL.ZRotate.ToRotate && myToAllowRotation)
+    {
+      toHideGridEchoAfterCamera = true;
+    }
   }
 
   if ((myNavigationMode == AIS_NavigationMode_Orbit || myGL.OrbitRotation.ToStart
@@ -2397,6 +2417,10 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
     handleOrbitRotation(theView,
                         aGravPnt,
                         myToLockOrbitZUp || myNavigationMode != AIS_NavigationMode_Orbit);
+    if (hasShaderGridEcho && myGL.OrbitRotation.ToRotate && myToAllowRotation)
+    {
+      toHideGridEchoAfterCamera = isMouseRotation;
+    }
   }
 
   if ((myNavigationMode != AIS_NavigationMode_Orbit || myGL.ViewRotation.ToStart
@@ -2428,13 +2452,14 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
                        theWalk[AIS_WalkRotation_Pitch].Value,
                        aRoll,
                        myNavigationMode == AIS_NavigationMode_FirstPersonFlight);
+    if (hasShaderGridEcho && myGL.ViewRotation.ToRotate && myToAllowRotation)
+    {
+      toHideGridEchoAfterCamera = isMouseRotation;
+    }
   }
 
   if (!myGL.ZoomActions.IsEmpty())
   {
-    bool                  toUpdateMoveToAfterZoom = false;
-    NCollection_Vec2<int> aMoveToAfterZoom =
-      HasPreviousMoveTo() ? PreviousMoveTo() : LastMousePosition();
     for (NCollection_Sequence<Aspect_ScrollDelta>::Iterator aZoomIter(myGL.ZoomActions);
          aZoomIter.More();
          aZoomIter.Next())
@@ -2453,7 +2478,7 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
       }
       if (aZoomParams.HasPoint())
       {
-        aMoveToAfterZoom = aZoomParams.Point;
+        aMoveToAfterCamera = aZoomParams.Point;
       }
 
       if (!theView->Camera()->IsOrthographic())
@@ -2463,7 +2488,7 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
             && PickPoint(aPnt, theCtx, theView, aZoomParams.Point, myToStickToRayOnZoom))
         {
           handleZoom(theView, aZoomParams, &aPnt);
-          toUpdateMoveToAfterZoom = true;
+          toUpdateMoveToAfterCamera = hasGridEcho;
           continue;
         }
 
@@ -2473,18 +2498,31 @@ void AIS_ViewController::handleCameraActions(const occ::handle<AIS_InteractiveCo
         {
           aZoomParams.ResetPoint(); // do not pretend to zoom at 'nothing'
           handleZoom(theView, aZoomParams, &aPnt);
-          toUpdateMoveToAfterZoom = true;
+          toUpdateMoveToAfterCamera = hasGridEcho;
           continue;
         }
       }
       handleZoom(theView, aZoomParams, nullptr);
-      toUpdateMoveToAfterZoom = true;
+      toUpdateMoveToAfterCamera = hasGridEcho;
     }
     myGL.ZoomActions.Clear();
-    if (toUpdateMoveToAfterZoom && theView->IsGridActive() && theView->Viewer()->GridEcho())
+  }
+
+  if (toHideGridEchoAfterCamera)
+  {
+    theView->Viewer()->HideGridEcho(theView);
+    theView->InvalidateImmediate();
+    ResetPreviousMoveTo();
+  }
+  else if (toUpdateMoveToAfterCamera)
+  {
+    int aWidth = 0, aHeight = 0;
+    theView->Window()->Size(aWidth, aHeight);
+    if (aMoveToAfterCamera.x() >= 0 && aMoveToAfterCamera.x() < aWidth
+        && aMoveToAfterCamera.y() >= 0 && aMoveToAfterCamera.y() < aHeight)
     {
       ResetPreviousMoveTo();
-      contextLazyMoveTo(theCtx, theView, aMoveToAfterZoom);
+      contextLazyMoveTo(theCtx, theView, aMoveToAfterCamera);
     }
   }
 }
