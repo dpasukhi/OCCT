@@ -17,7 +17,6 @@
 
 #include <cmath>
 #include <NCollection_LinearVector.hxx>
-#include <NCollection_Mat3.hxx>
 #include <Standard_OutOfMemory.hxx>
 
 #include <Aspect_NeutralWindow.hxx>
@@ -51,11 +50,6 @@
 
 namespace
 {
-//! A 2D projective transform has 8 independent coefficients; h22 is fixed to 1.
-static constexpr int THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS = 8;
-//! Four NDC viewport corners define the projective transform to grid-local coordinates.
-static constexpr int THE_SHADER_GRID_NB_NDC_CORNERS = 4;
-
 //! Format Frame Buffer format for logging messages.
 static TCollection_AsciiString printFboFormat(const occ::handle<OpenGl_FrameBuffer>& theFbo)
 {
@@ -177,169 +171,14 @@ static double shaderGridSnappedLocalShift(const double theLocal, const double th
   return std::round(theLocal / aStep) * aStep;
 }
 
-//! Solve a dense linear system by Gauss elimination with partial pivoting.
-static bool solveShaderGridLinearSystem(
-  double theMatrix[THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS]
-                  [THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS + 1],
-  double theResult[THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS])
-{
-  for (int aCol = 0; aCol < THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS; ++aCol)
-  {
-    int    aPivotRow = aCol;
-    double aPivotAbs = std::abs(theMatrix[aPivotRow][aCol]);
-    for (int aRow = aCol + 1; aRow < THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS; ++aRow)
-    {
-      const double aRowAbs = std::abs(theMatrix[aRow][aCol]);
-      if (aRowAbs > aPivotAbs)
-      {
-        aPivotAbs = aRowAbs;
-        aPivotRow = aRow;
-      }
-    }
-    if (aPivotAbs <= Precision::Confusion())
-    {
-      return false;
-    }
-    if (aPivotRow != aCol)
-    {
-      for (int aK = aCol; aK <= THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS; ++aK)
-      {
-        const double aTmp          = theMatrix[aCol][aK];
-        theMatrix[aCol][aK]        = theMatrix[aPivotRow][aK];
-        theMatrix[aPivotRow][aK]   = aTmp;
-      }
-    }
-
-    const double aPivot = theMatrix[aCol][aCol];
-    for (int aK = aCol; aK <= THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS; ++aK)
-    {
-      theMatrix[aCol][aK] /= aPivot;
-    }
-
-    for (int aRow = 0; aRow < THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS; ++aRow)
-    {
-      if (aRow == aCol)
-      {
-        continue;
-      }
-      const double aFactor = theMatrix[aRow][aCol];
-      if (aFactor == 0.0)
-      {
-        continue;
-      }
-      for (int aK = aCol; aK <= THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS; ++aK)
-      {
-        theMatrix[aRow][aK] -= aFactor * theMatrix[aCol][aK];
-      }
-    }
-  }
-
-  for (int anIdx = 0; anIdx < THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS; ++anIdx)
-  {
-    theResult[anIdx] = theMatrix[anIdx][THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS];
-  }
-  return true;
-}
-
-//! Build projective transform from NDC.xy to plane-local coordinates.
-static bool shaderGridNdcToLocal(const occ::handle<Graphic3d_Camera>& theCamera,
-                                 const gp_Pnt&                        thePlaneOrigin,
-                                 const gp_XYZ&                        thePlaneX,
-                                 const gp_XYZ&                        thePlaneY,
-                                 const gp_XYZ&                        thePlaneN,
-                                 const double                         theShiftX,
-                                 const double                         theShiftY,
-                                 NCollection_Mat3<float>&             theNdcToLocal)
-{
-  const double aSrc[THE_SHADER_GRID_NB_NDC_CORNERS][2] = {
-    {-1.0, -1.0},
-    {1.0, -1.0},
-    {1.0, 1.0},
-    {-1.0, 1.0}};
-  double aDst[THE_SHADER_GRID_NB_NDC_CORNERS][2];
-  for (int aCorner = 0; aCorner < THE_SHADER_GRID_NB_NDC_CORNERS; ++aCorner)
-  {
-    if (!shaderGridPlaneLocalHit(theCamera,
-                                 aSrc[aCorner][0],
-                                 aSrc[aCorner][1],
-                                 thePlaneOrigin,
-                                 thePlaneX,
-                                 thePlaneY,
-                                 thePlaneN,
-                                 aDst[aCorner][0],
-                                 aDst[aCorner][1],
-                                 false))
-    {
-      return false;
-    }
-    aDst[aCorner][0] -= theShiftX;
-    aDst[aCorner][1] -= theShiftY;
-  }
-
-  double aSystem[THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS]
-                [THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS + 1] = {};
-  for (int aCorner = 0; aCorner < THE_SHADER_GRID_NB_NDC_CORNERS; ++aCorner)
-  {
-    enum
-    {
-      H00,
-      H01,
-      H02,
-      H10,
-      H11,
-      H12,
-      H20,
-      H21,
-      RHS = THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS
-    };
-    const double aX = aSrc[aCorner][0];
-    const double aY = aSrc[aCorner][1];
-    const double aU = aDst[aCorner][0];
-    const double aV = aDst[aCorner][1];
-    double*      aRowU = aSystem[2 * aCorner];
-    double*      aRowV = aSystem[2 * aCorner + 1];
-
-    aRowU[H00] = aX;
-    aRowU[H01] = aY;
-    aRowU[H02] = 1.0;
-    aRowU[H20] = -aU * aX;
-    aRowU[H21] = -aU * aY;
-    aRowU[RHS] = aU;
-
-    aRowV[H10] = aX;
-    aRowV[H11] = aY;
-    aRowV[H12] = 1.0;
-    aRowV[H20] = -aV * aX;
-    aRowV[H21] = -aV * aY;
-    aRowV[RHS] = aV;
-  }
-
-  double aH[THE_SHADER_GRID_HOMOGRAPHY_UNKNOWNS] = {};
-  if (!solveShaderGridLinearSystem(aSystem, aH))
-  {
-    return false;
-  }
-
-  theNdcToLocal.SetValue(0, 0, float(aH[0]));
-  theNdcToLocal.SetValue(0, 1, float(aH[1]));
-  theNdcToLocal.SetValue(0, 2, float(aH[2]));
-  theNdcToLocal.SetValue(1, 0, float(aH[3]));
-  theNdcToLocal.SetValue(1, 1, float(aH[4]));
-  theNdcToLocal.SetValue(1, 2, float(aH[5]));
-  theNdcToLocal.SetValue(2, 0, float(aH[6]));
-  theNdcToLocal.SetValue(2, 1, float(aH[7]));
-  theNdcToLocal.SetValue(2, 2, 1.0f);
-  return true;
-}
-
-//! Return the homography denominator sign corresponding to the ray/plane hit in front of camera.
-static bool shaderGridVisibleDenomSign(const occ::handle<Graphic3d_Camera>& theCamera,
-                                       const gp_Pnt&                        thePlaneOrigin,
-                                       const gp_XYZ&                        thePlaneX,
-                                       const gp_XYZ&                        thePlaneY,
-                                       const gp_XYZ&                        thePlaneN,
-                                       const NCollection_Mat3<float>&       theNdcToLocal,
-                                       float&                               theDenomSign)
+//! Pick a visible viewport sample on the shader-grid plane for stable phase rebasing.
+static bool shaderGridReferenceLocal(const occ::handle<Graphic3d_Camera>& theCamera,
+                                     const gp_Pnt&                        thePlaneOrigin,
+                                     const gp_XYZ&                        thePlaneX,
+                                     const gp_XYZ&                        thePlaneY,
+                                     const gp_XYZ&                        thePlaneN,
+                                     double&                              theLocalX,
+                                     double&                              theLocalY)
 {
   const double aSamples[][2] = {{0.0, 0.0},
                                 {-1.0, -1.0},
@@ -352,32 +191,44 @@ static bool shaderGridVisibleDenomSign(const occ::handle<Graphic3d_Camera>& theC
                                 {-1.0, 0.0}};
   for (const double* aSample : aSamples)
   {
-    double aLocalX = 0.0, aLocalY = 0.0;
-    if (!shaderGridPlaneLocalHit(theCamera,
-                                 aSample[0],
-                                 aSample[1],
-                                 thePlaneOrigin,
-                                 thePlaneX,
-                                 thePlaneY,
-                                 thePlaneN,
-                                 aLocalX,
-                                 aLocalY))
+    if (shaderGridPlaneLocalHit(theCamera,
+                                aSample[0],
+                                aSample[1],
+                                thePlaneOrigin,
+                                thePlaneX,
+                                thePlaneY,
+                                thePlaneN,
+                                theLocalX,
+                                theLocalY))
     {
-      continue;
+      return true;
     }
-
-    const double aDenom = double(theNdcToLocal.GetValue(2, 0)) * aSample[0]
-                          + double(theNdcToLocal.GetValue(2, 1)) * aSample[1]
-                          + double(theNdcToLocal.GetValue(2, 2));
-    if (std::abs(aDenom) <= Precision::Confusion())
-    {
-      continue;
-    }
-
-    theDenomSign = aDenom > 0.0 ? 1.0f : -1.0f;
-    return true;
   }
   return false;
+}
+
+//! Transform world-space point by the active world-view matrix.
+static NCollection_Vec3<float> shaderGridViewPoint(const NCollection_Mat4<float>& theWorldView,
+                                                   const gp_Pnt&                  thePoint)
+{
+  const NCollection_Vec4<float> aPoint(float(thePoint.X()),
+                                       float(thePoint.Y()),
+                                       float(thePoint.Z()),
+                                       1.0f);
+  const NCollection_Vec4<float> aView = theWorldView * aPoint;
+  return NCollection_Vec3<float>(aView.x(), aView.y(), aView.z());
+}
+
+//! Transform world-space direction by the active world-view matrix.
+static NCollection_Vec3<float> shaderGridViewDirection(const NCollection_Mat4<float>& theWorldView,
+                                                       const gp_XYZ&                  theDirection)
+{
+  const NCollection_Vec4<float> aDir(float(theDirection.X()),
+                                     float(theDirection.Y()),
+                                     float(theDirection.Z()),
+                                     0.0f);
+  const NCollection_Vec4<float> aView = theWorldView * aDir;
+  return NCollection_Vec3<float>(aView.x(), aView.y(), aView.z());
 }
 
 static bool isShaderGridPointInBounds(const Aspect_GridParams& theParams,
@@ -4322,57 +4173,58 @@ void OpenGl_View::renderGrid()
       myGridParams.IsCircular() ? double(myGridParams.AngularDivisions()) / M_PI : 0.0;
     aProg->SetUniform(aContext, "uAngularScale", GLfloat(aAngularScale));
     aProg->SetUniform(aContext, "uDrawMode", myGridParams.DrawMode() == Aspect_GDM_Points ? 1 : 0);
+    aProg->SetUniform(aContext,
+                      "uNdcNear",
+                      GLfloat(aCamera->IsZeroToOneDepth() ? 0.0f : -1.0f));
 
     NCollection_Vec2<float> aLocalOriginShift(0.0f, 0.0f);
     NCollection_Vec2<float> anAccentLocalOriginShift(0.0f, 0.0f);
-    if (!myGridParams.IsCircular())
+    float                   aRadialOriginShift = 0.0f;
+    float                   anAccentRadialOriginShift = 0.0f;
+    double                  aLocalRefX = 0.0, aLocalRefY = 0.0;
+    if (shaderGridReferenceLocal(aCamera,
+                                 aPlaneOrigin,
+                                 aXRotated,
+                                 aYRotated,
+                                 aNDir,
+                                 aLocalRefX,
+                                 aLocalRefY))
     {
-      double aLocalX = 0.0, aLocalY = 0.0;
-      if (shaderGridPlaneLocalHit(aCamera,
-                                  0.0,
-                                  0.0,
-                                  aPlaneOrigin,
-                                  aXRotated,
-                                  aYRotated,
-                                  aNDir,
-                                  aLocalX,
-                                  aLocalY))
+      if (myGridParams.IsCircular())
       {
-        aLocalOriginShift.SetValues(
-          float(shaderGridSnappedLocalShift(aLocalX, aScaleX)),
-          float(shaderGridSnappedLocalShift(aLocalY, aScaleY)));
+        const double aRadiusRef = std::sqrt(aLocalRefX * aLocalRefX + aLocalRefY * aLocalRefY);
+        aRadialOriginShift = float(shaderGridSnappedLocalShift(aRadiusRef, aScaleX));
+        anAccentRadialOriginShift =
+          myGridParams.AccentScaleX() > Precision::Confusion()
+            ? float(shaderGridSnappedLocalShift(aRadiusRef, myGridParams.AccentScaleX()))
+            : aRadialOriginShift;
+      }
+      else
+      {
+        aLocalOriginShift.SetValues(float(shaderGridSnappedLocalShift(aLocalRefX, aScaleX)),
+                                    float(shaderGridSnappedLocalShift(aLocalRefY, aScaleY)));
         anAccentLocalOriginShift.SetValues(
           myGridParams.AccentScaleX() > Precision::Confusion()
-            ? float(shaderGridSnappedLocalShift(aLocalX, myGridParams.AccentScaleX()))
+            ? float(shaderGridSnappedLocalShift(aLocalRefX, myGridParams.AccentScaleX()))
             : aLocalOriginShift.x(),
           myGridParams.AccentScaleY() > Precision::Confusion()
-            ? float(shaderGridSnappedLocalShift(aLocalY, myGridParams.AccentScaleY()))
+            ? float(shaderGridSnappedLocalShift(aLocalRefY, myGridParams.AccentScaleY()))
             : aLocalOriginShift.y());
       }
     }
-    NCollection_Mat3<float> anNdcToLocal;
-    float                   aLocalDenomSign = 1.0f;
-    const bool              toDrawGrid =
-      aScaleX > Precision::Confusion() && aScaleY > Precision::Confusion()
-      && shaderGridNdcToLocal(aCamera,
-                              aPlaneOrigin,
-                              aXRotated,
-                              aYRotated,
-                              aNDir,
-                              aLocalOriginShift.x(),
-                              aLocalOriginShift.y(),
-                              anNdcToLocal)
-      && shaderGridVisibleDenomSign(aCamera,
-                                    aPlaneOrigin,
-                                    aXRotated,
-                                    aYRotated,
-                                    aNDir,
-                                    anNdcToLocal,
-                                    aLocalDenomSign);
-    aProg->SetUniform(aContext, "uNdcToLocal", anNdcToLocal);
-    aProg->SetUniform(aContext, "uLocalDenomSign", GLfloat(aLocalDenomSign));
+
+    const gp_Pnt aPlaneRef(aPlaneOrigin.XYZ() + aXRotated * double(aLocalOriginShift.x())
+                           + aYRotated * double(aLocalOriginShift.y()));
+    const NCollection_Mat4<float>& aGridWorldView = aContext->WorldViewState.Current();
+    aProg->SetUniform(aContext, "uPlaneOriginView", shaderGridViewPoint(aGridWorldView, aPlaneOrigin));
+    aProg->SetUniform(aContext, "uPlaneRefView", shaderGridViewPoint(aGridWorldView, aPlaneRef));
+    aProg->SetUniform(aContext, "uPlaneXView", shaderGridViewDirection(aGridWorldView, aXRotated));
+    aProg->SetUniform(aContext, "uPlaneYView", shaderGridViewDirection(aGridWorldView, aYRotated));
+    aProg->SetUniform(aContext, "uPlaneNView", shaderGridViewDirection(aGridWorldView, aNDir));
     aProg->SetUniform(aContext, "uLocalOriginShift", aLocalOriginShift);
     aProg->SetUniform(aContext, "uAccentLocalOriginShift", anAccentLocalOriginShift);
+    aProg->SetUniform(aContext, "uRadialOriginShift", GLfloat(aRadialOriginShift));
+    aProg->SetUniform(aContext, "uAccentRadialOriginShift", GLfloat(anAccentRadialOriginShift));
 
     // Bounded work area (HalfSizeX, HalfSizeY, Radius). 0 = unbounded along that axis.
     float aHalfX  = myGridParams.SizeX() > 0.0 ? float(myGridParams.SizeX() * 0.5) : 0.0f;
@@ -4388,7 +4240,7 @@ void OpenGl_View::renderGrid()
       NCollection_Vec2<float>(float(myGridParams.AngleStart()), float(myGridParams.AngleEnd())));
     aProg->SetUniform(aContext, "uArcBounded", myGridParams.IsArc() ? 1 : 0);
 
-    if (toDrawGrid)
+    if (aScaleX > Precision::Confusion() && aScaleY > Precision::Confusion())
     {
       aContext->core11fwd->glDrawArrays(GL_TRIANGLES, 0, 3);
     }

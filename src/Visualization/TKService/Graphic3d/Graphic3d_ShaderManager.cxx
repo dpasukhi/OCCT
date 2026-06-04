@@ -2178,18 +2178,30 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("int uIsDrawAxis", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
-    Graphic3d_ShaderObject::ShaderVariable("mat3 uNdcToLocal", Graphic3d_TOS_FRAGMENT));
+    Graphic3d_ShaderObject::ShaderVariable("vec3 uPlaneOriginView", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
-    Graphic3d_ShaderObject::ShaderVariable("float uLocalDenomSign", Graphic3d_TOS_FRAGMENT));
+    Graphic3d_ShaderObject::ShaderVariable("vec3 uPlaneRefView", Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(
+    Graphic3d_ShaderObject::ShaderVariable("vec3 uPlaneXView", Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(
+    Graphic3d_ShaderObject::ShaderVariable("vec3 uPlaneYView", Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(
+    Graphic3d_ShaderObject::ShaderVariable("vec3 uPlaneNView", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("int uGridType", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("float uAngularScale", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("int uDrawMode", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
+    Graphic3d_ShaderObject::ShaderVariable("float uNdcNear", Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("vec2 uLocalOriginShift", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("vec2 uAccentLocalOriginShift",
                                            Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(
+    Graphic3d_ShaderObject::ShaderVariable("float uRadialOriginShift", Graphic3d_TOS_FRAGMENT));
+  aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("float uAccentRadialOriginShift",
+                                                          Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(Graphic3d_ShaderObject::ShaderVariable("vec3 uBounds", Graphic3d_TOS_FRAGMENT));
   aUniforms.Append(
     Graphic3d_ShaderObject::ShaderVariable("int uIsBoundFade", Graphic3d_TOS_FRAGMENT));
@@ -2214,6 +2226,7 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "  float aCoord = (theCoord - theShift) * theScale;" EOL
     "  float aDist  = abs (fract (aCoord + 0.5) - 0.5);" EOL
     "  float aWidth = max (fwidth (aCoord), theThickness);" EOL
+    "  if (aWidth == 0.0) { return 0.0; }" EOL
     "  return 1.0 - min (aDist / aWidth, 1.0);" EOL "}"
 
     EOL "vec4 gridLines2d (vec2 theUV, vec2 theAxisUV, vec3 theColor, vec2 theScale," EOL
@@ -2239,16 +2252,45 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     EOL "vec4 overlayGrid (vec4 theBase, vec4 theAccent)" EOL "{" EOL
     "  return theAccent.a >= theBase.a ? theAccent : theBase;" EOL "}"
 
+    EOL "vec3 unprojectView (float theX, float theY, float theZ)" EOL "{" EOL
+    "  vec4 aView = occProjectionMatrixInverse * vec4 (theX, theY, theZ, 1.0);" EOL
+    "  return aView.xyz / aView.w;" EOL "}"
+
+    EOL
+    "bool intersectPlaneView (vec3 theNearPoint, vec3 theFarPoint, out vec3 theHit)" EOL
+    "{" EOL
+    "  vec3  aDir = theFarPoint - theNearPoint;" EOL
+    "  float aDenom = dot (uPlaneNView, aDir);" EOL
+    "  if (aDenom == 0.0)" EOL
+    "  {" EOL
+    "    theHit = theNearPoint;" EOL
+    "    return false;" EOL
+    "  }" EOL
+    "  float aT = dot (uPlaneNView, uPlaneOriginView - theNearPoint) / aDenom;" EOL
+    "  if (aT < 0.0)" EOL
+    "  {" EOL
+    "    theHit = theNearPoint;" EOL
+    "    return false;" EOL
+    "  }" EOL
+    "  theHit = theNearPoint + aT * aDir;" EOL
+    "  return true;" EOL
+    "}" EOL
+
     EOL "const float GRID_TWO_PI = 6.28318530718;"
 
     EOL "void main()" EOL "{"
-    // Projective NDC -> plane-local mapping is built on CPU in double precision.
-    // The denominator sign rejects the behind-camera side of the mathematical
-    // plane and prevents the perspective mirrored-grid artifact.
-    EOL "  vec3 aLocalH = uNdcToLocal * vec3 (vNdc, 1.0);" EOL
-    "  if (aLocalH.z * uLocalDenomSign <= 0.0) { discard; }" EOL
-    "  vec2 aLocalGrid = aLocalH.xy / aLocalH.z;" EOL
-    "  vec2 aLocal = aLocalGrid + uLocalOriginShift;"
+    // Intersect in view space: the camera is the numerical origin, so zoom and
+    // world-coordinate magnitude do not destabilize the line phase.
+    EOL "  vec3 aNearPoint = unprojectView (vNdc.x, vNdc.y, uNdcNear);" EOL
+    "  vec3 aFarPoint  = unprojectView (vNdc.x, vNdc.y, 1.0);" EOL
+    "  vec3 aHit;" EOL
+    "  if (!intersectPlaneView (aNearPoint, aFarPoint, aHit)) { discard; }" EOL
+    "  vec3 aLocalAbs3  = aHit - uPlaneOriginView;" EOL
+    "  vec2 aLocal      = vec2 (dot (aLocalAbs3, uPlaneXView), dot (aLocalAbs3, uPlaneYView));"
+    EOL
+    "  vec3 aLocalGrid3 = aHit - uPlaneRefView;" EOL
+    "  vec2 aLocalGrid  = vec2 (dot (aLocalGrid3, uPlaneXView), dot (aLocalGrid3, "
+    "uPlaneYView));"
 
     // Bounded work area. Rectangular, radial and angular clipping can be mixed.
     EOL "  float aR = length (aLocal);" EOL "  float aA = atan (aLocal.y, aLocal.x);" EOL
@@ -2281,7 +2323,8 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "    aGridUv = vec2 (aR, aA);" EOL "    aScale  = vec2 (uScaleX, uAngularScale);" EOL
     "    aAxisUv = aLocal;" EOL "  }" EOL "  else" EOL "  {" EOL "    aGridUv = aLocalGrid;" EOL
     "    aScale  = vec2 (uScaleX, uScaleY);" EOL "    aAxisUv = aLocal;" EOL "  }" EOL
-    "  vec4 aColor = gridLines2d (aGridUv, aAxisUv, uColor, aScale, vec2 (0.0), "
+    "  vec2 aGridShift = uGridType == 1 ? vec2 (uRadialOriginShift, 0.0) : vec2 (0.0);" EOL
+    "  vec4 aColor = gridLines2d (aGridUv, aAxisUv, uColor, aScale, aGridShift, "
     "uGridType == 0, uThickness);" EOL "  if (uDrawMode != 1)" EOL "  {" EOL
     "    if (uGridType == 0)" EOL
     "    {" EOL "      if (uAccentScaleX > 0.0)" EOL "      {" EOL
@@ -2292,8 +2335,9 @@ occ::handle<Graphic3d_ShaderProgram> Graphic3d_ShaderManager::getGridProgram() c
     "uAccentScaleY, uAccentColor, uThickness));" EOL "      }" EOL "    }" EOL "    else" EOL
     "    {" EOL
     "      if (uAccentScaleX > 0.0)" EOL "      {" EOL
-    "        aColor = overlayGrid (aColor, gridLines1d (aR, 0.0, uAccentScaleX, uAccentColor, "
-    "uThickness));" EOL "      }" EOL "      if (uAccentAngularScale > 0.0)" EOL "      {" EOL
+    "        aColor = overlayGrid (aColor, gridLines1d (aR, uAccentRadialOriginShift, "
+    "uAccentScaleX, uAccentColor, uThickness));" EOL "      }" EOL
+    "      if (uAccentAngularScale > 0.0)" EOL "      {" EOL
     "        aColor = overlayGrid (aColor, gridLines1d (aA, 0.0, uAccentAngularScale, "
     "uAccentColor, uThickness));" EOL "      }" EOL "    }" EOL
     // For circular grid, paint X/Y axis lines explicitly using plane-local coords.
