@@ -43,6 +43,7 @@
 #include <OpenGl_Window.hxx>
 #include <OpenGl_Workspace.hxx>
 #include <OSD_Parallel.hxx>
+#include <Precision.hxx>
 #include <Standard_CLocaleSentry.hxx>
 
 #include "../Textures/Textures_EnvLUT.pxx"
@@ -75,66 +76,6 @@ static bool checkWasFailedFbo(const occ::handle<OpenGl_FrameBuffer>& theFboToChe
                            theFboRef->GetVPSizeX(),
                            theFboRef->GetVPSizeY(),
                            theFboRef->NbSamples());
-}
-
-//! Unproject window-space (theWinX, theWinY) to a near/far ray, intersect the
-//! grid plane, express the hit in plane-local (X, Y). Returns FALSE if the
-//! unprojection fails or the ray is near-parallel to the plane.
-static bool unprojectGridPointToPlaneLocal(const occ::handle<OpenGl_Context>& theCtx,
-                                           const int*                         theViewport,
-                                           const float                        theWinX,
-                                           const float                        theWinY,
-                                           const NCollection_Vec3<float>&     thePlaneN,
-                                           const NCollection_Vec3<float>&     thePlaneOriginV,
-                                           const NCollection_Vec3<float>&     thePlaneX,
-                                           const NCollection_Vec3<float>&     thePlaneY,
-                                           double&                            theOutLocalX,
-                                           double&                            theOutLocalY)
-{
-  if (theViewport == nullptr)
-  {
-    return false;
-  }
-  float aNearX = 0.0f, aNearY = 0.0f, aNearZ = 0.0f;
-  float aFarX = 0.0f, aFarY = 0.0f, aFarZ = 0.0f;
-  if (!Graphic3d_TransformUtils::UnProject<float>(theWinX,
-                                                  theWinY,
-                                                  0.0f,
-                                                  theCtx->WorldViewState.Current(),
-                                                  theCtx->ProjectionState.Current(),
-                                                  theViewport,
-                                                  aNearX,
-                                                  aNearY,
-                                                  aNearZ))
-  {
-    return false;
-  }
-  if (!Graphic3d_TransformUtils::UnProject<float>(theWinX,
-                                                  theWinY,
-                                                  1.0f,
-                                                  theCtx->WorldViewState.Current(),
-                                                  theCtx->ProjectionState.Current(),
-                                                  theViewport,
-                                                  aFarX,
-                                                  aFarY,
-                                                  aFarZ))
-  {
-    return false;
-  }
-  const NCollection_Vec3<float> aNearP(aNearX, aNearY, aNearZ);
-  const NCollection_Vec3<float> aFarP(aFarX, aFarY, aFarZ);
-  const NCollection_Vec3<float> aDir   = aFarP - aNearP;
-  const float                   aDenom = thePlaneN.Dot(aDir);
-  if (std::abs(aDenom) <= 1.0e-6f)
-  {
-    return false;
-  }
-  const float                   aT      = thePlaneN.Dot(thePlaneOriginV - aNearP) / aDenom;
-  const NCollection_Vec3<float> aHit    = aNearP + aDir * aT;
-  const NCollection_Vec3<float> aLocal3 = aHit - thePlaneOriginV;
-  theOutLocalX                          = double(aLocal3.Dot(thePlaneX));
-  theOutLocalY                          = double(aLocal3.Dot(thePlaneY));
-  return true;
 }
 
 //! Chooses compatible internal color format for OIT frame buffer.
@@ -201,7 +142,6 @@ OpenGl_View::OpenGl_View(const occ::handle<Graphic3d_StructureManager>& theMgr,
       myCubeMapParams(new OpenGl_Aspects()),
       myColoredQuadParams(new OpenGl_Aspects()),
       myGridVao(0),
-      myToShowGrid(false),
       myPBREnvState(OpenGl_PBREnvState_NONEXISTENT),
       myPBREnvRequest(false),
       // ray-tracing fields initialization
@@ -961,6 +901,15 @@ Bnd_Box OpenGl_View::MinMaxValues(const bool theToIncludeAuxiliary) const
     aBox.Add(aStatsBox);
   }
   return aBox;
+}
+
+//=================================================================================================
+
+void OpenGl_View::ZFitAllBounds(Bnd_Box& thePrimaryBox, Bnd_Box& theGraphicBox) const
+{
+  thePrimaryBox = base_type::MinMaxValues(false);
+  theGraphicBox = MinMaxValues(true);
+  myShaderGrid.AddZFitBounds(theGraphicBox, Camera());
 }
 
 //=================================================================================================
@@ -3635,40 +3584,65 @@ void OpenGl_View::updatePBREnvironment(const occ::handle<OpenGl_Context>& theCtx
 
 void OpenGl_View::GridDisplay(const Aspect_GridParams& theParams, const gp_Ax3& thePlane)
 {
-  // Reference view matrix (for background-mode anchoring) is captured only on
-  // transitions into background mode or into the showing state. Otherwise live
-  // param edits (SetArcRange, SetSize, etc.) while the camera is mid-orbit would
-  // re-snapshot the current view and visually snap the anchored grid.
-  const bool wasShowing    = myToShowGrid;
-  const bool wasBackground = wasShowing && myGridParams.IsBackground();
-  const bool toCapture     = theParams.IsBackground() && (!wasShowing || !wasBackground);
-
-  myGridParams = theParams;
-  myGridPlane  = thePlane;
-  myToShowGrid = true;
-
-  if (toCapture)
+  const occ::handle<OpenGl_Context>& aCtx = myWorkspace->GetGlContext();
+  if (!aCtx.IsNull() && aCtx->core30 == nullptr)
   {
-    const occ::handle<OpenGl_Context>& aCtx = myWorkspace->GetGlContext();
-    if (!aCtx.IsNull())
-    {
-      myGridRefViewMatrix = aCtx->WorldViewState.Current();
-    }
+    myShaderGrid.Erase();
+    Invalidate();
+    return;
   }
+
+  myShaderGrid.Display(theParams, thePlane, Camera(), aCtx);
+  Invalidate();
 }
 
 //=================================================================================================
 
 void OpenGl_View::GridErase()
 {
-  myToShowGrid = false;
+  myShaderGrid.Erase();
+  Invalidate();
+}
+
+//=================================================================================================
+
+bool OpenGl_View::ShaderGridEcho(const int theX, const int theY, Graphic3d_Vertex& thePoint) const
+{
+  Graphic3d_Vertex aDisplayPoint;
+  return ShaderGridEcho(theX, theY, thePoint, aDisplayPoint);
+}
+
+//=================================================================================================
+
+bool OpenGl_View::ShaderGridEcho(const int         theX,
+                                 const int         theY,
+                                 Graphic3d_Vertex& thePoint,
+                                 Graphic3d_Vertex& theDisplayPoint) const
+{
+  if (Window().IsNull())
+  {
+    return false;
+  }
+
+  int aWidth  = 0;
+  int aHeight = 0;
+  Window()->Size(aWidth, aHeight);
+  return myShaderGrid.Echo(Camera(), aWidth, aHeight, theX, theY, thePoint, theDisplayPoint);
+}
+
+//=================================================================================================
+
+bool OpenGl_View::ShaderGridSnapPoint(const Graphic3d_Vertex& thePoint,
+                                      Graphic3d_Vertex&       theGridPoint) const
+{
+  return myShaderGrid.SnapPoint(Camera(), thePoint, theGridPoint);
 }
 
 //=================================================================================================
 
 void OpenGl_View::renderGrid()
 {
-  if (!myToShowGrid || myGridParams.DrawMode() == Aspect_GDM_None)
+  if (!myShaderGrid.IsShown() || myShaderGrid.Params().DrawMode() == Aspect_GDM_None)
   {
     return;
   }
@@ -3680,7 +3654,7 @@ void OpenGl_View::renderGrid()
   }
   if (aContext->core30 == nullptr)
   {
-    // The shader grid requires GL 3.0+ / GLES 3.0+ (VAO + gl_VertexID + gl_FragDepth).
+    // The shader grid requires GL 3.0+ / GLES 3.0+ (VAO + gl_VertexID).
     // Warn once per process so the caller knows why the grid isn't drawn; snap
     // math still works. The process scope avoids per-view state bloat - a stray
     // missed warning on a second view is less costly than a data member.
@@ -3710,7 +3684,7 @@ void OpenGl_View::renderGrid()
     aContext->core30->glGenVertexArrays(1, &myGridVao);
     if (myGridVao == 0)
     {
-      myToShowGrid = false;
+      myShaderGrid.Erase();
       return;
     }
   }
@@ -3731,32 +3705,7 @@ void OpenGl_View::renderGrid()
   aContext->core11fwd->glGetIntegerv(GL_BLEND_DST_RGB, &aPrevBlendDstRgb);
   aContext->core11fwd->glGetIntegerv(GL_BLEND_SRC_ALPHA, &aPrevBlendSrcA);
   aContext->core11fwd->glGetIntegerv(GL_BLEND_DST_ALPHA, &aPrevBlendDstA);
-  const bool hasDepthClamp = aContext->arbDepthClamp;
-  const bool wasDepthClamp =
-    hasDepthClamp && aContext->core11fwd->glIsEnabled(GL_DEPTH_CLAMP) == GL_TRUE;
   const occ::handle<OpenGl_ShaderProgram> aPrevProgram = aContext->ActiveProgram();
-
-  // Capture the user-set camera ZRange BEFORE any grid-specific adjustment.
-  // ZFitAll below mutates the camera; the restore block at the end of this
-  // method targets these original values, otherwise vconvert and other APIs
-  // observing ZRange between frames see values inflated by the grid bounds.
-  const double                       aZNearKeep = aCamera->ZNear();
-  const double                       aZFarKeep  = aCamera->ZFar();
-  const Graphic3d_Camera::Projection aProjKeep  = aCamera->ProjectionType();
-
-  Bnd_Box      aBnd      = MinMaxValues(true);
-  const gp_Pnt aPlaneLoc = myGridPlane.Location();
-  if (myGridParams.IsBackground() || aBnd.IsVoid() || aBnd.IsOut(aPlaneLoc))
-  {
-    aBnd.Add(aPlaneLoc);
-    // ZFitAll asserts ZFar > ZNear on return (Graphic3d_Camera.cxx:1636),
-    // so no post-hoc SetZRange nudge is needed.
-    aCamera->ZFitAll(1.0, aBnd, aBnd);
-  }
-  if (myGridParams.IsBackground())
-  {
-    aCamera->SetProjectionType(Graphic3d_Camera::Projection_Orthographic);
-  }
 
   aContext->ProjectionState.Push();
   aContext->ProjectionState.SetCurrent(aCamera->ProjectionMatrixF());
@@ -3764,25 +3713,12 @@ void OpenGl_View::renderGrid()
 
   const NCollection_Mat4<float> aWorldViewCurrent = aContext->WorldViewState.Current();
   aContext->WorldViewState.Push();
-  if (myGridParams.IsBackground())
-  {
-    // In background mode the grid lives in an unchanging reference frame.
-    // Derive the camera-motion delta from the captured reference view matrix so the
-    // grid stays fixed in world coords during pan/rotate, without exposing
-    // PanningVector / RotationPoint on Graphic3d_Camera.
-    NCollection_Mat4<float> aRefInv;
-    if (!myGridRefViewMatrix.Inverted(aRefInv))
-    {
-      aRefInv.InitIdentity();
-    }
-    NCollection_Mat4<float> aDelta = aWorldViewCurrent * aRefInv;
-    aContext->WorldViewState.SetCurrent(aDelta);
-  }
+  aContext->WorldViewState.SetCurrent(myShaderGrid.DrawWorldView(aWorldViewCurrent));
   aContext->ApplyWorldViewMatrix();
 
   aContext->core11fwd->glEnable(GL_DEPTH_TEST);
-  aContext->core11fwd->glDepthFunc(GL_LESS);
-  aContext->core11fwd->glDepthMask(GL_TRUE);
+  aContext->core11fwd->glDepthFunc(GL_LEQUAL);
+  aContext->core11fwd->glDepthMask(GL_FALSE);
   aContext->core11fwd->glEnable(GL_BLEND);
   aContext->core11fwd->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   // The clip-space full-screen quad winds CW; if back-face culling is on
@@ -3790,238 +3726,28 @@ void OpenGl_View::renderGrid()
   // is culled and the grid silently vanishes. Disable culling for the draw
   // call and restore at the end.
   aContext->core11fwd->glDisable(GL_CULL_FACE);
-  if (hasDepthClamp && !wasDepthClamp)
-  {
-    aContext->core11fwd->glEnable(GL_DEPTH_CLAMP);
-  }
-
   aContext->core30->glBindVertexArray(myGridVao);
-
-  double aScaleX = myGridParams.Scale();
-  double aScaleY = myGridParams.EffectiveScaleY();
-  if (myGridParams.IsViewAdaptive())
-  {
-    const double aTargetCellsY =
-      std::max(1.0, std::min(200.0, aScaleY > 0.0 ? 1.0 / aScaleY : 10.0));
-    const double aViewHeight = std::max(aCamera->Scale(), 1.0e-9);
-    const double aCellSize   = aViewHeight / aTargetCellsY;
-    aScaleX                  = 1.0 / aCellSize;
-    aScaleY                  = aScaleX;
-  }
 
   if (aContext->ShaderManager()->BindGridProgram())
   {
     const occ::handle<OpenGl_ShaderProgram>& aProg = aContext->ActiveProgram();
-
-    aProg->SetUniform(aContext, "uScaleX", GLfloat(aScaleX));
-    aProg->SetUniform(aContext, "uScaleY", GLfloat(aScaleY));
-    aProg->SetUniform(aContext, "uThickness", GLfloat(myGridParams.LineThickness()));
-    aProg->SetUniform(aContext,
-                      "uColor",
-                      NCollection_Vec3<float>((float)myGridParams.Color().Red(),
-                                              (float)myGridParams.Color().Green(),
-                                              (float)myGridParams.Color().Blue()));
-    aProg->SetUniform(aContext,
-                      "uAccentColor",
-                      NCollection_Vec3<float>((float)myGridParams.AccentColor().Red(),
-                                              (float)myGridParams.AccentColor().Green(),
-                                              (float)myGridParams.AccentColor().Blue()));
-    aProg->SetUniform(aContext, "uAccentScaleX", GLfloat(myGridParams.AccentScaleX()));
-    aProg->SetUniform(aContext, "uAccentScaleY", GLfloat(myGridParams.AccentScaleY()));
-    aProg->SetUniform(aContext, "uAccentAngularScale", GLfloat(myGridParams.AccentAngularScale()));
-    aProg->SetUniform(aContext, "uIsDrawAxis", myGridParams.IsDrawAxis() ? 1 : 0);
-    aProg->SetUniform(aContext, "uIsBackground", myGridParams.IsBackground() ? 1 : 0);
-    aProg->SetUniform(aContext, "uGridType", myGridParams.IsCircular() ? 1 : 0);
-    // Angular spokes per radian: N spokes in 180 deg = N / pi spokes per radian.
-    const double aAngularScale =
-      myGridParams.IsCircular() ? double(myGridParams.AngularDivisions()) / M_PI : 0.0;
-    aProg->SetUniform(aContext, "uAngularScale", GLfloat(aAngularScale));
-    aProg->SetUniform(aContext, "uDrawMode", myGridParams.DrawMode() == Aspect_GDM_Points ? 1 : 0);
-
-    // Plane basis used for both the view-adaptive bounds search and the final
-    // shader uniforms.
-    //  - In-plane rotation rotates X/Y around the plane normal. Sign matches
-    //    V3d_View::SetGrid's Trsf2 so snap (V3d_View::Compute) and the drawn
-    //    grid use the same basis: gridX = cos*planeX - sin*planeY,
-    //                              gridY = sin*planeX + cos*planeY.
-    //  - ZOffset pushes the displayed plane along its normal to avoid
-    //    z-fighting with coplanar geometry. Snap math uses the unshifted
-    //    plane, so selection still lands on the true plane.
-    const double aCosA        = std::cos(myGridParams.RotationAngle());
-    const double aSinA        = std::sin(myGridParams.RotationAngle());
-    const gp_Dir aRawX        = myGridPlane.XDirection();
-    const gp_Dir aRawY        = myGridPlane.YDirection();
-    const gp_Dir aNDir        = myGridPlane.Direction();
-    const gp_XYZ aXRotated    = aRawX.XYZ() * aCosA - aRawY.XYZ() * aSinA;
-    const gp_XYZ aYRotated    = aRawX.XYZ() * aSinA + aRawY.XYZ() * aCosA;
-    const double aZOffset     = myGridParams.ZOffset();
-    const gp_Pnt aOriginLocal = myGridParams.Origin();
-    const gp_Pnt aPlaneOrigin(aPlaneLoc.X() + aOriginLocal.X() + aNDir.X() * aZOffset,
-                              aPlaneLoc.Y() + aOriginLocal.Y() + aNDir.Y() * aZOffset,
-                              aPlaneLoc.Z() + aOriginLocal.Z() + aNDir.Z() * aZOffset);
-    const NCollection_Vec3<float> aPlaneNV((float)aNDir.X(), (float)aNDir.Y(), (float)aNDir.Z());
-    const NCollection_Vec3<float> aPlaneOriginV((float)aPlaneOrigin.X(),
-                                                (float)aPlaneOrigin.Y(),
-                                                (float)aPlaneOrigin.Z());
-    const NCollection_Vec3<float> aPlaneXV((float)aXRotated.X(),
-                                           (float)aXRotated.Y(),
-                                           (float)aXRotated.Z());
-    const NCollection_Vec3<float> aPlaneYV((float)aYRotated.X(),
-                                           (float)aYRotated.Y(),
-                                           (float)aYRotated.Z());
-
-    const int* aViewport = aContext->Viewport();
-
-    // Bounded work area (HalfSizeX, HalfSizeY, Radius). 0 = unbounded along that axis.
-    float aHalfX  = myGridParams.SizeX() > 0.0 ? float(myGridParams.SizeX() * 0.5) : 0.0f;
-    float aHalfY  = myGridParams.SizeY() > 0.0 ? float(myGridParams.SizeY() * 0.5) : 0.0f;
-    float aRadius = myGridParams.Radius() > 0.0 ? float(myGridParams.Radius()) : 0.0f;
-    if (myGridParams.IsViewAdaptive())
-    {
-      // Derive a tight world-space bound from the visible region: unproject
-      // the four viewport corners + center to the grid plane and enclose
-      // their plane-local extents. The center sample is a safety net when
-      // a corner ray is near-parallel to the plane and gets rejected.
-      double aMinLocalX      = 0.0;
-      double aMaxLocalX      = 0.0;
-      double aMinLocalY      = 0.0;
-      double aMaxLocalY      = 0.0;
-      double aMaxLocalRadius = 0.0;
-      bool   aHasBounds      = false;
-      if (aViewport != nullptr)
-      {
-        const float                   aWinMinX   = float(aViewport[0]);
-        const float                   aWinMinY   = float(aViewport[1]);
-        const float                   aWinMaxX   = float(aViewport[0] + aViewport[2]);
-        const float                   aWinMaxY   = float(aViewport[1] + aViewport[3]);
-        const float                   aWinMidX   = (aWinMinX + aWinMaxX) * 0.5f;
-        const float                   aWinMidY   = (aWinMinY + aWinMaxY) * 0.5f;
-        const NCollection_Vec2<float> aSamples[] = {NCollection_Vec2<float>(aWinMinX, aWinMinY),
-                                                    NCollection_Vec2<float>(aWinMaxX, aWinMinY),
-                                                    NCollection_Vec2<float>(aWinMinX, aWinMaxY),
-                                                    NCollection_Vec2<float>(aWinMaxX, aWinMaxY),
-                                                    NCollection_Vec2<float>(aWinMidX, aWinMidY)};
-        for (const NCollection_Vec2<float>& aSample : aSamples)
-        {
-          double aLocalX = 0.0, aLocalY = 0.0;
-          if (!unprojectGridPointToPlaneLocal(aContext,
-                                              aViewport,
-                                              aSample.x(),
-                                              aSample.y(),
-                                              aPlaneNV,
-                                              aPlaneOriginV,
-                                              aPlaneXV,
-                                              aPlaneYV,
-                                              aLocalX,
-                                              aLocalY))
-          {
-            continue;
-          }
-          const double aHitR = std::sqrt(aLocalX * aLocalX + aLocalY * aLocalY);
-          if (!aHasBounds)
-          {
-            aMinLocalX      = aLocalX;
-            aMaxLocalX      = aLocalX;
-            aMinLocalY      = aLocalY;
-            aMaxLocalY      = aLocalY;
-            aMaxLocalRadius = aHitR;
-            aHasBounds      = true;
-          }
-          else
-          {
-            aMinLocalX      = std::min(aMinLocalX, aLocalX);
-            aMaxLocalX      = std::max(aMaxLocalX, aLocalX);
-            aMinLocalY      = std::min(aMinLocalY, aLocalY);
-            aMaxLocalY      = std::max(aMaxLocalY, aLocalY);
-            aMaxLocalRadius = std::max(aMaxLocalRadius, aHitR);
-          }
-        }
-      }
-
-      const double aStepX = aScaleX > 0.0 ? 1.0 / aScaleX : 1.0;
-      const double aStepY = aScaleY > 0.0 ? 1.0 / aScaleY : aStepX;
-      if (myGridParams.IsCircular())
-      {
-        const double aPad = std::max(aStepX, aStepY) * 4.0;
-        if (aHasBounds)
-        {
-          aRadius = std::max(aRadius, float(aMaxLocalRadius + aPad));
-        }
-        else
-        {
-          aRadius = std::max(aRadius, float(std::max(aCamera->Scale(), aPad) * 2.0));
-        }
-      }
-      else if (aHasBounds)
-      {
-        const double aPadX = std::max((aMaxLocalX - aMinLocalX) * 0.10, aStepX * 4.0);
-        const double aPadY = std::max((aMaxLocalY - aMinLocalY) * 0.10, aStepY * 4.0);
-        aHalfX =
-          std::max(aHalfX, float(std::max(std::abs(aMinLocalX), std::abs(aMaxLocalX)) + aPadX));
-        aHalfY =
-          std::max(aHalfY, float(std::max(std::abs(aMinLocalY), std::abs(aMaxLocalY)) + aPadY));
-      }
-      else
-      {
-        aHalfX = std::max(aHalfX, float(std::max(aCamera->Scale(), aStepX * 8.0)));
-        aHalfY = std::max(aHalfY, float(std::max(aCamera->Scale(), aStepY * 8.0)));
-      }
-    }
-    aProg->SetUniform(aContext, "uBounds", NCollection_Vec3<float>(aHalfX, aHalfY, aRadius));
-    aProg->SetUniform(
-      aContext,
-      "uArcRange",
-      NCollection_Vec2<float>(float(myGridParams.AngleStart()), float(myGridParams.AngleEnd())));
-    aProg->SetUniform(aContext, "uArcBounded", myGridParams.IsArc() ? 1 : 0);
-
-    aProg->SetUniform(aContext, "uPlaneOrigin", aPlaneOriginV);
-    aProg->SetUniform(aContext, "uPlaneX", aPlaneXV);
-    aProg->SetUniform(aContext, "uPlaneY", aPlaneYV);
-
-    // Stable per-frame rectangular-grid reference point in plane-local
-    // coordinates. Keeps shader fract() arguments bounded at shallow angles
-    // without re-running extra unproject/intersection work for every fragment.
-    int                     aHasStableRef = 0;
-    NCollection_Vec2<float> aStableRefLocal(0.0f, 0.0f);
-    if (!myGridParams.IsCircular() && aViewport != nullptr)
-    {
-      const float aWinX   = float(aViewport[0]) + float(aViewport[2]) * 0.5f;
-      const float aWinY   = float(aViewport[1]) + float(aViewport[3]) * 0.5f;
-      double      aLocalX = 0.0, aLocalY = 0.0;
-      if (unprojectGridPointToPlaneLocal(aContext,
-                                         aViewport,
-                                         aWinX,
-                                         aWinY,
-                                         aPlaneNV,
-                                         aPlaneOriginV,
-                                         aPlaneXV,
-                                         aPlaneYV,
-                                         aLocalX,
-                                         aLocalY))
-      {
-        aStableRefLocal.SetValues(float(aLocalX), float(aLocalY));
-        aHasStableRef = 1;
-      }
-    }
-    aProg->SetUniform(aContext, "uStableRefLocal", aStableRefLocal);
-    aProg->SetUniform(aContext, "uHasStableRef", aHasStableRef);
-    aProg->SetUniform(aContext, "uPlaneN", aPlaneNV);
-
-    aContext->core11fwd->glDrawArrays(GL_TRIANGLES, 0, 6);
+    myShaderGrid.SetUniforms(aContext, aProg, aCamera, aContext->WorldViewState.Current());
+    aContext->core11fwd->glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 
   aContext->BindProgram(aPrevProgram);
   aContext->core30->glBindVertexArray((GLuint)aPrevVao);
-
-  aCamera->SetZRange(aZNearKeep, aZFarKeep);
-  aCamera->SetProjectionType(aProjKeep);
 
   aContext->WorldViewState.Pop();
   aContext->ProjectionState.Pop();
   aContext->ApplyWorldViewMatrix();
   aContext->ApplyProjectionMatrix();
 
-  if (wasDepthTest == GL_FALSE)
+  if (wasDepthTest == GL_TRUE)
+  {
+    aContext->core11fwd->glEnable(GL_DEPTH_TEST);
+  }
+  else
   {
     aContext->core11fwd->glDisable(GL_DEPTH_TEST);
   }
@@ -4038,9 +3764,5 @@ void OpenGl_View::renderGrid()
   if (wasCullFace == GL_TRUE)
   {
     aContext->core11fwd->glEnable(GL_CULL_FACE);
-  }
-  if (hasDepthClamp && !wasDepthClamp)
-  {
-    aContext->core11fwd->glDisable(GL_DEPTH_CLAMP);
   }
 }
