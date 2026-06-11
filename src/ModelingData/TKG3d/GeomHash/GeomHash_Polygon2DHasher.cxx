@@ -19,6 +19,15 @@
 #include <gp_Pnt2d.hxx>
 
 #include <cmath>
+#include <cstdint>
+
+namespace
+{
+std::size_t quantizedHash(const double theValue, const double theFactor) noexcept
+{
+  return opencascade::hash(static_cast<int64_t>(std::round(theValue * theFactor)));
+}
+} // namespace
 
 GeomHash_Polygon2DHasher::GeomHash_Polygon2DHasher(const double theCompTolerance,
                                                    const double theHashTolerance)
@@ -30,15 +39,38 @@ GeomHash_Polygon2DHasher::GeomHash_Polygon2DHasher(const double theCompTolerance
 std::size_t GeomHash_Polygon2DHasher::operator()(
   const occ::handle<Poly_Polygon2D>& thePoly) const noexcept
 {
-  const std::size_t aHashes[1] = {opencascade::hash(thePoly->NbNodes())};
+  if (thePoly.IsNull())
+  {
+    return 0;
+  }
 
-  return opencascade::hashBytes(aHashes, sizeof(aHashes));
+  const double aFactor = 1.0 / HashTolerance;
+
+  size_t aCombined[6] = {};
+  aCombined[0]             = opencascade::hash(thePoly->NbNodes());
+  aCombined[1]             = quantizedHash(thePoly->Deflection(), aFactor);
+
+  if (thePoly->NbNodes() > 0)
+  {
+    const NCollection_Array1<gp_Pnt2d>& aNodes = thePoly->Nodes();
+    aCombined[2]                                   = quantizedHash(aNodes.First().X(), aFactor);
+    aCombined[3]                                   = quantizedHash(aNodes.First().Y(), aFactor);
+    aCombined[4]                                   = quantizedHash(aNodes.Last().X(), aFactor);
+    aCombined[5]                                   = quantizedHash(aNodes.Last().Y(), aFactor);
+  }
+
+  return opencascade::hashBytes(aCombined, sizeof(aCombined));
 }
 
 bool GeomHash_Polygon2DHasher::operator()(
   const occ::handle<Poly_Polygon2D>& thePoly1,
   const occ::handle<Poly_Polygon2D>& thePoly2) const noexcept
 {
+  if (thePoly1.IsNull() || thePoly2.IsNull())
+  {
+    return thePoly1.IsNull() && thePoly2.IsNull();
+  }
+
   if (thePoly1->NbNodes() != thePoly2->NbNodes())
   {
     return false;

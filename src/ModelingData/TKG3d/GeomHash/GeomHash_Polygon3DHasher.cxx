@@ -19,6 +19,15 @@
 #include <gp_Pnt.hxx>
 
 #include <cmath>
+#include <cstdint>
+
+namespace
+{
+std::size_t quantizedHash(const double theValue, const double theFactor) noexcept
+{
+  return opencascade::hash(static_cast<int64_t>(std::round(theValue * theFactor)));
+}
+} // namespace
 
 GeomHash_Polygon3DHasher::GeomHash_Polygon3DHasher(const double theCompTolerance,
                                                    const double theHashTolerance)
@@ -30,16 +39,47 @@ GeomHash_Polygon3DHasher::GeomHash_Polygon3DHasher(const double theCompTolerance
 std::size_t GeomHash_Polygon3DHasher::operator()(
   const occ::handle<Poly_Polygon3D>& thePoly) const noexcept
 {
-  const std::size_t aHashes[2] = {opencascade::hash(thePoly->NbNodes()),
-                                  opencascade::hash(thePoly->HasParameters() ? 1 : 0)};
+  if (thePoly.IsNull())
+  {
+    return 0;
+  }
 
-  return opencascade::hashBytes(aHashes, sizeof(aHashes));
+  const double aFactor = 1.0 / HashTolerance;
+
+  size_t aCombined[11] = {};
+  aCombined[0]              = opencascade::hash(thePoly->NbNodes());
+  aCombined[1]              = opencascade::hash(thePoly->HasParameters() ? 1 : 0);
+  aCombined[2]              = quantizedHash(thePoly->Deflection(), aFactor);
+
+  if (thePoly->NbNodes() > 0)
+  {
+    const NCollection_Array1<gp_Pnt>& aNodes = thePoly->Nodes();
+    aCombined[3]                                 = quantizedHash(aNodes.First().X(), aFactor);
+    aCombined[4]                                 = quantizedHash(aNodes.First().Y(), aFactor);
+    aCombined[5]                                 = quantizedHash(aNodes.First().Z(), aFactor);
+    aCombined[6]                                 = quantizedHash(aNodes.Last().X(), aFactor);
+    aCombined[7]                                 = quantizedHash(aNodes.Last().Y(), aFactor);
+    aCombined[8]                                 = quantizedHash(aNodes.Last().Z(), aFactor);
+    if (thePoly->HasParameters())
+    {
+      const NCollection_Array1<double>& aParams = thePoly->Parameters();
+      aCombined[9]                                  = quantizedHash(aParams.First(), aFactor);
+      aCombined[10]                                 = quantizedHash(aParams.Last(), aFactor);
+    }
+  }
+
+  return opencascade::hashBytes(aCombined, sizeof(aCombined));
 }
 
 bool GeomHash_Polygon3DHasher::operator()(
   const occ::handle<Poly_Polygon3D>& thePoly1,
   const occ::handle<Poly_Polygon3D>& thePoly2) const noexcept
 {
+  if (thePoly1.IsNull() || thePoly2.IsNull())
+  {
+    return thePoly1.IsNull() && thePoly2.IsNull();
+  }
+
   if (thePoly1->NbNodes() != thePoly2->NbNodes())
   {
     return false;

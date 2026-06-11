@@ -86,7 +86,7 @@ public:
 
   public:
     DynamicIterator() noexcept
-        : myArray(nullptr),
+        : myOwner(nullptr),
           myIndex(0),
           myUsedSize(0),
           myInternalSize(1),
@@ -104,7 +104,7 @@ public:
     }
 
     DynamicIterator(const size_t theIndex, const NCollection_DynamicArray& theArray) noexcept
-        : myArray(const_cast<NCollection_DynamicArray&>(theArray).getArray()),
+        : myOwner(&theArray),
           myIndex(theIndex),
           myUsedSize(theArray.myUsedSize),
           myInternalSize(theArray.myInternalSize),
@@ -118,7 +118,7 @@ public:
     }
 
     DynamicIterator(const DynamicIterator<false>& theOther) noexcept
-        : myArray(theOther.myArray),
+        : myOwner(theOther.myOwner),
           myIndex(theOther.myIndex),
           myUsedSize(theOther.myUsedSize),
           myInternalSize(theOther.myInternalSize),
@@ -132,7 +132,7 @@ public:
 
     DynamicIterator& operator=(const DynamicIterator<false>& theOther) noexcept
     {
-      myArray        = theOther.myArray;
+      myOwner        = theOther.myOwner;
       myIndex        = theOther.myIndex;
       myUsedSize     = theOther.myUsedSize;
       myInternalSize = theOther.myInternalSize;
@@ -147,19 +147,19 @@ public:
   public:
     bool operator==(const DynamicIterator& theOther) const noexcept
     {
-      return myArray == theOther.myArray && myIndex == theOther.myIndex;
+      return myOwner == theOther.myOwner && myIndex == theOther.myIndex;
     }
 
     template <bool theOtherIsConstant>
     bool operator==(const DynamicIterator<theOtherIsConstant>& theOther) const noexcept
     {
-      return myArray == theOther.myArray && myIndex == theOther.myIndex;
+      return myOwner == theOther.myOwner && myIndex == theOther.myIndex;
     }
 
     template <bool theOtherIsConstant>
     bool operator!=(const DynamicIterator<theOtherIsConstant>& theOther) const noexcept
     {
-      return myArray != theOther.myArray || myIndex != theOther.myIndex;
+      return myOwner != theOther.myOwner || myIndex != theOther.myIndex;
     }
 
     bool operator!=(const DynamicIterator& theOther) const noexcept { return !(*this == theOther); }
@@ -180,7 +180,7 @@ public:
       else if (myCurrPtr == myBlockEnd)
       {
         ++myBlockIndex;
-        myCurrPtr  = myArray[myBlockIndex];
+        myCurrPtr  = blockStart(myBlockIndex);
         myBlockEnd = myCurrPtr + myInternalSize;
       }
       return *this;
@@ -202,15 +202,15 @@ public:
       }
 
       --myIndex;
-      if (myCurrPtr > myArray[myBlockIndex])
+      if (myCurrPtr > blockStart(myBlockIndex))
       {
         --myCurrPtr;
       }
       else
       {
         --myBlockIndex;
-        myCurrPtr  = myArray[myBlockIndex] + (myInternalSize - 1);
-        myBlockEnd = myArray[myBlockIndex] + myInternalSize;
+        myCurrPtr  = blockStart(myBlockIndex) + (myInternalSize - 1);
+        myBlockEnd = blockStart(myBlockIndex) + myInternalSize;
       }
       return *this;
     }
@@ -280,7 +280,7 @@ public:
     void setIndex(const size_t theIndex) noexcept
     {
       myIndex = theIndex;
-      if (myIndex >= myUsedSize || myArray == nullptr)
+      if (myIndex >= myUsedSize || myOwner == nullptr)
       {
         myCurrPtr    = nullptr;
         myBlockEnd   = nullptr;
@@ -290,20 +290,25 @@ public:
 
       myBlockIndex             = myIndex >> myBlockShift;
       const size_t aLocalIndex = myIndex & myBlockMask;
-      myCurrPtr                = myArray[myBlockIndex] + aLocalIndex;
-      myBlockEnd               = myArray[myBlockIndex] + myInternalSize;
+      myCurrPtr                = blockStart(myBlockIndex) + aLocalIndex;
+      myBlockEnd               = blockStart(myBlockIndex) + myInternalSize;
+    }
+
+    TheItemType* blockStart(const size_t theBlockIndex) const noexcept
+    {
+      return myOwner->getArray()[theBlockIndex];
     }
 
   private:
-    TheItemType** myArray;
-    size_t        myIndex;
-    size_t        myUsedSize;
-    size_t        myInternalSize;
-    size_t        myBlockShift;
-    size_t        myBlockMask;
-    size_t        myBlockIndex;
-    TheItemType*  myCurrPtr;
-    TheItemType*  myBlockEnd;
+    const NCollection_DynamicArray* myOwner;
+    size_t                          myIndex;
+    size_t                          myUsedSize;
+    size_t                          myInternalSize;
+    size_t                          myBlockShift;
+    size_t                          myBlockMask;
+    size_t                          myBlockIndex;
+    TheItemType*                    myCurrPtr;
+    TheItemType*                    myBlockEnd;
   };
 
   using iterator       = DynamicIterator<false>;

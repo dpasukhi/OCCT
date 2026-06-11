@@ -20,6 +20,15 @@
 #include <gp_Pnt2d.hxx>
 
 #include <cmath>
+#include <cstdint>
+
+namespace
+{
+std::size_t quantizedHash(const double theValue, const double theFactor) noexcept
+{
+  return opencascade::hash(static_cast<int64_t>(std::round(theValue * theFactor)));
+}
+} // namespace
 
 GeomHash_TriangulationHasher::GeomHash_TriangulationHasher(const double theCompTolerance,
                                                            const double theHashTolerance)
@@ -31,17 +40,66 @@ GeomHash_TriangulationHasher::GeomHash_TriangulationHasher(const double theCompT
 std::size_t GeomHash_TriangulationHasher::operator()(
   const occ::handle<Poly_Triangulation>& theTri) const noexcept
 {
-  const std::size_t aHashes[3] = {opencascade::hash(theTri->NbNodes()),
-                                  opencascade::hash(theTri->NbTriangles()),
-                                  opencascade::hash(theTri->HasUVNodes() ? 1 : 0)};
+  if (theTri.IsNull())
+  {
+    return 0;
+  }
 
-  return opencascade::hashBytes(aHashes, sizeof(aHashes));
+  const double aFactor = 1.0 / HashTolerance;
+
+  size_t aCombined[20] = {};
+  aCombined[0]              = opencascade::hash(theTri->NbNodes());
+  aCombined[1]              = opencascade::hash(theTri->NbTriangles());
+  aCombined[2]              = opencascade::hash(theTri->HasUVNodes() ? 1 : 0);
+  aCombined[3]              = quantizedHash(theTri->Deflection(), aFactor);
+
+  if (theTri->NbNodes() > 0)
+  {
+    const gp_Pnt& aFirstNode = theTri->Node(1);
+    const gp_Pnt& aLastNode  = theTri->Node(theTri->NbNodes());
+    aCombined[4]                  = quantizedHash(aFirstNode.X(), aFactor);
+    aCombined[5]                  = quantizedHash(aFirstNode.Y(), aFactor);
+    aCombined[6]                  = quantizedHash(aFirstNode.Z(), aFactor);
+    aCombined[7]                  = quantizedHash(aLastNode.X(), aFactor);
+    aCombined[8]                  = quantizedHash(aLastNode.Y(), aFactor);
+    aCombined[9]                  = quantizedHash(aLastNode.Z(), aFactor);
+  }
+
+  if (theTri->NbTriangles() > 0)
+  {
+    int aN1 = 0, aN2 = 0, aN3 = 0;
+    theTri->Triangle(1).Get(aN1, aN2, aN3);
+    aCombined[10] = opencascade::hash(aN1);
+    aCombined[11] = opencascade::hash(aN2);
+    aCombined[12] = opencascade::hash(aN3);
+    theTri->Triangle(theTri->NbTriangles()).Get(aN1, aN2, aN3);
+    aCombined[13] = opencascade::hash(aN1);
+    aCombined[14] = opencascade::hash(aN2);
+    aCombined[15] = opencascade::hash(aN3);
+  }
+
+  if (theTri->HasUVNodes() && theTri->NbNodes() > 0)
+  {
+    const gp_Pnt2d& aFirstUV = theTri->UVNode(1);
+    const gp_Pnt2d& aLastUV  = theTri->UVNode(theTri->NbNodes());
+    aCombined[16]                 = quantizedHash(aFirstUV.X(), aFactor);
+    aCombined[17]                 = quantizedHash(aFirstUV.Y(), aFactor);
+    aCombined[18]                 = quantizedHash(aLastUV.X(), aFactor);
+    aCombined[19]                 = quantizedHash(aLastUV.Y(), aFactor);
+  }
+
+  return opencascade::hashBytes(aCombined, sizeof(aCombined));
 }
 
 bool GeomHash_TriangulationHasher::operator()(
   const occ::handle<Poly_Triangulation>& theTri1,
   const occ::handle<Poly_Triangulation>& theTri2) const noexcept
 {
+  if (theTri1.IsNull() || theTri2.IsNull())
+  {
+    return theTri1.IsNull() && theTri2.IsNull();
+  }
+
   if (theTri1->NbNodes() != theTri2->NbNodes())
   {
     return false;

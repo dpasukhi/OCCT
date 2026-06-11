@@ -71,7 +71,7 @@ TEST(GeomHash_MeshHasherTest, Polygon2D_CloseDeflectionKeepsEqualHash)
 {
   const GeomHash_Polygon2DHasher    aHasher(0.1, 0.01);
   const occ::handle<Poly_Polygon2D> aPoly1 = makePolygon2D(0.004);
-  const occ::handle<Poly_Polygon2D> aPoly2 = makePolygon2D(0.015);
+  const occ::handle<Poly_Polygon2D> aPoly2 = makePolygon2D(0.0044);
 
   ASSERT_TRUE(aHasher(aPoly1, aPoly2));
   EXPECT_EQ(aHasher(aPoly1), aHasher(aPoly2));
@@ -81,7 +81,7 @@ TEST(GeomHash_MeshHasherTest, Polygon3D_CloseDeflectionKeepsEqualHash)
 {
   const GeomHash_Polygon3DHasher    aHasher(0.1, 0.01);
   const occ::handle<Poly_Polygon3D> aPoly1 = makePolygon3D(0.004);
-  const occ::handle<Poly_Polygon3D> aPoly2 = makePolygon3D(0.015);
+  const occ::handle<Poly_Polygon3D> aPoly2 = makePolygon3D(0.0044);
 
   ASSERT_TRUE(aHasher(aPoly1, aPoly2));
   EXPECT_EQ(aHasher(aPoly1), aHasher(aPoly2));
@@ -91,7 +91,7 @@ TEST(GeomHash_MeshHasherTest, PolygonOnTriangulation_CloseDeflectionKeepsEqualHa
 {
   const GeomHash_PolygonOnTriHasher aHasher(0.1, 0.01);
   const PolygonOnTriHashKey         aKey1{makePolygonOnTriangulation(0.004), 7};
-  const PolygonOnTriHashKey         aKey2{makePolygonOnTriangulation(0.015), 7};
+  const PolygonOnTriHashKey         aKey2{makePolygonOnTriangulation(0.0044), 7};
 
   ASSERT_TRUE(aHasher(aKey1, aKey2));
   EXPECT_EQ(aHasher(aKey1), aHasher(aKey2));
@@ -101,8 +101,93 @@ TEST(GeomHash_MeshHasherTest, Triangulation_CloseDeflectionKeepsEqualHash)
 {
   const GeomHash_TriangulationHasher    aHasher(0.1, 0.01);
   const occ::handle<Poly_Triangulation> aTri1 = makeTriangulation(0.004);
-  const occ::handle<Poly_Triangulation> aTri2 = makeTriangulation(0.015);
+  const occ::handle<Poly_Triangulation> aTri2 = makeTriangulation(0.0044);
 
   ASSERT_TRUE(aHasher(aTri1, aTri2));
   EXPECT_EQ(aHasher(aTri1), aHasher(aTri2));
+}
+
+TEST(GeomHash_MeshHasherTest, Polygon2D_DifferentSameCountGeometryChangesHash)
+{
+  const GeomHash_Polygon2DHasher    aHasher(0.1, 0.01);
+  const occ::handle<Poly_Polygon2D> aPoly1 = makePolygon2D(0.004);
+  const occ::handle<Poly_Polygon2D> aPoly2 = makePolygon2D(0.004);
+  aPoly2->ChangeNodes().SetValue(2, gp_Pnt2d(2.0, 0.0));
+
+  EXPECT_FALSE(aHasher(aPoly1, aPoly2));
+  EXPECT_NE(aHasher(aPoly1), aHasher(aPoly2));
+}
+
+TEST(GeomHash_MeshHasherTest, Polygon3D_DifferentSameCountGeometryChangesHash)
+{
+  const GeomHash_Polygon3DHasher    aHasher(0.1, 0.01);
+  const occ::handle<Poly_Polygon3D> aPoly1 = makePolygon3D(0.004);
+  const occ::handle<Poly_Polygon3D> aPoly2 = makePolygon3D(0.004);
+  aPoly2->ChangeNodes().SetValue(2, gp_Pnt(2.0, 0.0, 0.0));
+
+  EXPECT_FALSE(aHasher(aPoly1, aPoly2));
+  EXPECT_NE(aHasher(aPoly1), aHasher(aPoly2));
+}
+
+TEST(GeomHash_MeshHasherTest, PolygonOnTriangulation_DifferentSameCountIndicesChangesHash)
+{
+  const GeomHash_PolygonOnTriHasher aHasher(0.1, 0.01);
+  PolygonOnTriHashKey               aKey1{makePolygonOnTriangulation(0.004), 7};
+  PolygonOnTriHashKey               aKey2{makePolygonOnTriangulation(0.004), 7};
+  aKey2.Poly->SetNode(2, 3);
+
+  EXPECT_FALSE(aHasher(aKey1, aKey2));
+  EXPECT_NE(aHasher(aKey1), aHasher(aKey2));
+}
+
+TEST(GeomHash_MeshHasherTest, Triangulation_DifferentSameCountGeometryChangesHash)
+{
+  const GeomHash_TriangulationHasher    aHasher(0.1, 0.01);
+  const occ::handle<Poly_Triangulation> aTri1 = makeTriangulation(0.004);
+  const occ::handle<Poly_Triangulation> aTri2 = makeTriangulation(0.004);
+  aTri2->SetNode(3, gp_Pnt(0.0, 2.0, 0.0));
+
+  EXPECT_FALSE(aHasher(aTri1, aTri2));
+  EXPECT_NE(aHasher(aTri1), aHasher(aTri2));
+}
+
+TEST(GeomHash_MeshHasherTest, NullHandlesDoNotCrash)
+{
+  const GeomHash_Polygon2DHasher        aPoly2dHasher;
+  const GeomHash_Polygon3DHasher        aPoly3dHasher;
+  const GeomHash_PolygonOnTriHasher     aPolyOnTriHasher;
+  const GeomHash_TriangulationHasher    aTriHasher;
+  occ::handle<Poly_Polygon2D>           aNullPoly2d;
+  occ::handle<Poly_Polygon3D>           aNullPoly3d;
+  occ::handle<Poly_PolygonOnTriangulation> aNullPolyOnTri;
+  occ::handle<Poly_Triangulation>       aNullTri;
+
+  EXPECT_EQ(0u, aPoly2dHasher(aNullPoly2d));
+  EXPECT_TRUE(aPoly2dHasher(aNullPoly2d, aNullPoly2d));
+  EXPECT_FALSE(aPoly2dHasher(aNullPoly2d, makePolygon2D(0.004)));
+
+  EXPECT_EQ(0u, aPoly3dHasher(aNullPoly3d));
+  EXPECT_TRUE(aPoly3dHasher(aNullPoly3d, aNullPoly3d));
+  EXPECT_FALSE(aPoly3dHasher(aNullPoly3d, makePolygon3D(0.004)));
+
+  EXPECT_EQ(0u, aTriHasher(aNullTri));
+  EXPECT_TRUE(aTriHasher(aNullTri, aNullTri));
+  EXPECT_FALSE(aTriHasher(aNullTri, makeTriangulation(0.004)));
+
+  const PolygonOnTriHashKey aNullKey1{aNullPolyOnTri, 7};
+  const PolygonOnTriHashKey aNullKey2{aNullPolyOnTri, 7};
+  const PolygonOnTriHashKey aNullKey3{aNullPolyOnTri, 8};
+  EXPECT_TRUE(aPolyOnTriHasher(aNullKey1, aNullKey2));
+  EXPECT_FALSE(aPolyOnTriHasher(aNullKey1, aNullKey3));
+  EXPECT_FALSE(aPolyOnTriHasher(aNullKey1, PolygonOnTriHashKey{makePolygonOnTriangulation(0.004), 7}));
+}
+
+TEST(GeomHash_MeshHasherTest, HashToleranceAffectsNumericFields)
+{
+  const occ::handle<Poly_Polygon2D> aPoly = makePolygon2D(0.06);
+
+  const GeomHash_Polygon2DHasher aFineHasher(0.1, 0.01);
+  const GeomHash_Polygon2DHasher aCoarseHasher(0.1, 0.1);
+
+  EXPECT_NE(aFineHasher(aPoly), aCoarseHasher(aPoly));
 }

@@ -17,6 +17,15 @@
 #include <Standard_HashUtils.hxx>
 
 #include <cmath>
+#include <cstdint>
+
+namespace
+{
+std::size_t quantizedHash(const double theValue, const double theFactor) noexcept
+{
+  return opencascade::hash(static_cast<int64_t>(std::round(theValue * theFactor)));
+}
+} // namespace
 
 GeomHash_PolygonOnTriHasher::GeomHash_PolygonOnTriHasher(const double theCompTolerance,
                                                          const double theHashTolerance)
@@ -29,11 +38,32 @@ std::size_t GeomHash_PolygonOnTriHasher::operator()(
   const PolygonOnTriHashKey& theKey) const noexcept
 {
   const occ::handle<Poly_PolygonOnTriangulation>& aPoly      = theKey.Poly;
-  const std::size_t                               aHashes[3] = {opencascade::hash(aPoly->NbNodes()),
-                                                                opencascade::hash(aPoly->HasParameters() ? 1 : 0),
-                                                                opencascade::hash(static_cast<int64_t>(theKey.TriRepId))};
+  size_t                                          aCombined[9]     = {};
+  aCombined[0]                                                     = opencascade::hash(static_cast<int64_t>(theKey.TriRepId));
+  if (aPoly.IsNull())
+  {
+    aCombined[1] = opencascade::hash(1);
+    return opencascade::hashBytes(aCombined, sizeof(aCombined));
+  }
 
-  return opencascade::hashBytes(aHashes, sizeof(aHashes));
+  const double aFactor = 1.0 / HashTolerance;
+
+  aCombined[2] = opencascade::hash(aPoly->NbNodes());
+  aCombined[3] = opencascade::hash(aPoly->HasParameters() ? 1 : 0);
+  aCombined[4] = quantizedHash(aPoly->Deflection(), aFactor);
+
+  if (aPoly->NbNodes() > 0)
+  {
+    aCombined[5] = opencascade::hash(aPoly->Node(1));
+    aCombined[6] = opencascade::hash(aPoly->Node(aPoly->NbNodes()));
+    if (aPoly->HasParameters())
+    {
+      aCombined[7] = quantizedHash(aPoly->Parameter(1), aFactor);
+      aCombined[8] = quantizedHash(aPoly->Parameter(aPoly->NbNodes()), aFactor);
+    }
+  }
+
+  return opencascade::hashBytes(aCombined, sizeof(aCombined));
 }
 
 bool GeomHash_PolygonOnTriHasher::operator()(const PolygonOnTriHashKey& theKey1,
@@ -46,6 +76,11 @@ bool GeomHash_PolygonOnTriHasher::operator()(const PolygonOnTriHashKey& theKey1,
   {
     return false;
   }
+  if (aPoly1.IsNull() || aPoly2.IsNull())
+  {
+    return aPoly1.IsNull() && aPoly2.IsNull();
+  }
+
   if (aPoly1->NbNodes() != aPoly2->NbNodes())
   {
     return false;

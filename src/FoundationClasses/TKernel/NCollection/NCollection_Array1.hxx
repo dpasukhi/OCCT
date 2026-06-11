@@ -149,9 +149,12 @@ public:
     construct(0, mySize);
   }
 
+  //! Zero-based constructor from first element reference.
+  //! When theUseBuffer is true, wraps contiguous storage starting at theBegin.
+  //! Otherwise allocates own storage of theSize elements.
   explicit NCollection_Array1(const_reference theBegin,
                               const size_t    theSize,
-                              const bool      theUseBuffer = true)
+                              const bool      theUseBuffer)
       : myLowerBound(0),
         mySize(theSize),
         myPointer(theUseBuffer ? const_cast<pointer>(&theBegin) : nullptr),
