@@ -885,9 +885,9 @@ TEST(NCollection_LinearVectorTest, ToArray1_ReadThrough)
   }
 
   const NCollection_Array1<int> aArr = aVec.ToArray1();
-  for (size_t i = 0; i < 7; ++i)
+  for (int i = 0; i < 7; ++i)
   {
-    EXPECT_EQ(static_cast<int>(i * 11), aArr[i]);
+    EXPECT_EQ(i * 11, aArr[i]);
   }
 }
 
