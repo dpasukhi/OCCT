@@ -149,6 +149,23 @@ public:
     construct(0, mySize);
   }
 
+  explicit NCollection_Array1(const_reference theBegin,
+                              const size_t    theSize,
+                              const bool      theUseBuffer = true)
+      : myLowerBound(0),
+        mySize(theSize),
+        myPointer(theUseBuffer ? const_cast<pointer>(&theBegin) : nullptr),
+        myIsOwner(!theUseBuffer)
+  {
+    if (!myIsOwner)
+    {
+      return;
+    }
+    myPointer = myAllocator.allocate(mySize);
+    myIsOwner = true;
+    construct(0, mySize);
+  }
+
   //! Zero-based constructor: allocates theSize elements with lower bound 0.
   //! Use At()/ChangeAt() or STL iterators for optimal access (no offset subtraction).
   explicit NCollection_Array1(const size_t theSize)
@@ -437,15 +454,21 @@ protected:
     if (myIsOwner)
     {
       if (theToCopyData)
+      {
         destroy(myPointer, theNewSize, mySize);
+      }
       else
+      {
         destroy(myPointer, 0, mySize);
+      }
     }
     myLowerBound = theNewLower;
     if (theNewSize == 0)
     {
       if (myIsOwner)
+      {
         myAllocator.deallocate(aPrevPtr, mySize);
+      }
       myPointer = nullptr;
       mySize    = 0;
       myIsOwner = false;
@@ -468,7 +491,9 @@ protected:
     else
     {
       if (myIsOwner)
+      {
         myAllocator.deallocate(aPrevPtr, mySize);
+      }
       myPointer = myAllocator.allocate(theNewSize);
       construct(0, theNewSize);
     }

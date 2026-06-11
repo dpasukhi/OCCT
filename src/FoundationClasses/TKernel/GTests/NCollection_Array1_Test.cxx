@@ -716,6 +716,17 @@ TEST(NCollection_Array1Test, SizeConstructor_BufferReuse_WritesGoToBuffer)
   }
 }
 
+TEST(NCollection_Array1Test, SizeConstructor_StdVectorBufferReuse)
+{
+  std::vector<int>       aVector = {1, 2, 3, 4};
+  NCollection_Array1<int> anArray(aVector.data(), aVector.size());
+
+  EXPECT_FALSE(anArray.IsDeletable());
+  EXPECT_EQ(aVector.size(), anArray.Size());
+  anArray.ChangeAt(2) = 30;
+  EXPECT_EQ(30, aVector[2]);
+}
+
 TEST(NCollection_Array1Test, SizeConstructor_Resize_Grow)
 {
   NCollection_Array1<int> anArray(static_cast<size_t>(3));

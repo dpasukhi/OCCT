@@ -14,6 +14,19 @@
 #include <NCollection_LocalArray.hxx>
 
 #include <gtest/gtest.h>
+#include <type_traits>
+#include <utility>
+
+template <typename TheArray, typename = void>
+struct HasToArray1 : std::false_type
+{
+};
+
+template <typename TheArray>
+struct HasToArray1<TheArray, std::void_t<decltype(std::declval<TheArray&>().ToArray1())>>
+    : std::true_type
+{
+};
 
 // Test default constructor and initial state
 TEST(NCollection_LocalArrayTest, DefaultConstructor)
@@ -602,4 +615,94 @@ TEST(NCollection_LocalArrayTest, NonTrivial_DestructorCallBalance)
   }
   // Total constructions (ctor + move) must equal total destructions.
   EXPECT_EQ(THE_CTOR_COUNT + THE_MOVE_COUNT, THE_DTOR_COUNT);
+}
+
+// ============ ToArray1 span tests ============
+
+static_assert(HasToArray1<NCollection_LocalArray<int>>::value,
+              "Mutable NCollection_LocalArray should expose mutable Array1 view");
+static_assert(HasToArray1<const NCollection_LocalArray<int>>::value,
+              "Const NCollection_LocalArray should expose read-only Array1 view");
+static_assert(std::is_same_v<decltype(std::declval<NCollection_LocalArray<int>&>().ToArray1()),
+                             NCollection_Array1<int>>,
+              "Mutable NCollection_LocalArray should expose mutable Array1 view");
+static_assert(
+  std::is_same_v<decltype(std::declval<const NCollection_LocalArray<int>&>().ToArray1()),
+                 NCollection_Array1<const int>>,
+  "Const NCollection_LocalArray should expose read-only Array1 view");
+
+// Verify that ToArray1() returns an Array1 sharing the same memory buffer.
+TEST(NCollection_LocalArrayTest, ToArray1_SamePointer)
+{
+  NCollection_LocalArray<int> aSrc(10);
+  for (size_t i = 0; i < 10; ++i)
+  {
+    static_cast<int*>(aSrc)[i] = static_cast<int>(i * 10);
+  }
+
+  NCollection_Array1<int> aArr = aSrc.ToArray1();
+  EXPECT_EQ(10u, aArr.Size());
+
+  // Same memory -- pointer equality
+  EXPECT_EQ(static_cast<int*>(aSrc), &aArr[0]);
+}
+
+// Verify that modifications through ToArray1() are reflected in the source.
+TEST(NCollection_LocalArrayTest, ToArray1_ModifyReflectsInSource)
+{
+  NCollection_LocalArray<int> aSrc(5);
+  for (size_t i = 0; i < 5; ++i)
+  {
+    static_cast<int*>(aSrc)[i] = static_cast<int>(i);
+  }
+
+  NCollection_Array1<int> aArr = aSrc.ToArray1();
+  aArr[0] = 99;
+  aArr[4] = 77;
+
+  EXPECT_EQ(99, static_cast<int*>(aSrc)[0]);
+  EXPECT_EQ(1, static_cast<int*>(aSrc)[1]);
+  EXPECT_EQ(77, static_cast<int*>(aSrc)[4]);
+}
+
+// Verify that ToArray1() on an empty LocalArray produces a zero-size Array1.
+TEST(NCollection_LocalArrayTest, ToArray1_EmptyVector)
+{
+  NCollection_LocalArray<int> aEmpty;
+  NCollection_Array1<int>     aArr = aEmpty.ToArray1();
+
+  EXPECT_EQ(0u, aArr.Size());
+  EXPECT_TRUE(aArr.IsEmpty());
+}
+
+// Verify that ToArray1() works with heap-allocated buffers.
+TEST(NCollection_LocalArrayTest, ToArray1_HeapBuffer)
+{
+  NCollection_LocalArray<int, 8> aSrc(16);
+  for (size_t i = 0; i < 16; ++i)
+  {
+    static_cast<int*>(aSrc)[i] = static_cast<int>(i * 3);
+  }
+
+  NCollection_Array1<int> aArr = aSrc.ToArray1();
+  EXPECT_EQ(16u, aArr.Size());
+  EXPECT_EQ(static_cast<int*>(aSrc), &aArr[0]);
+  EXPECT_EQ(0, aArr[0]);
+  EXPECT_EQ(45, aArr[15]);
+}
+
+// Reading through ToArray1() returns correct values without copying.
+TEST(NCollection_LocalArrayTest, ToArray1_ReadThrough)
+{
+  NCollection_LocalArray<int> aSrc(7);
+  for (size_t i = 0; i < 7; ++i)
+  {
+    static_cast<int*>(aSrc)[i] = static_cast<int>(i * 11);
+  }
+
+  const NCollection_Array1<int> aArr = aSrc.ToArray1();
+  for (size_t i = 0; i < 7; ++i)
+  {
+    EXPECT_EQ(static_cast<int>(i * 11), aArr[i]);
+  }
 }

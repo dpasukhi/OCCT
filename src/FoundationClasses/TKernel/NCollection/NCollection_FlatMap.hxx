@@ -538,6 +538,9 @@ public:
     }
   }
 
+  //! Reserve capacity for at least theN elements
+  void Reserve(size_t theN) { reserve(theN); }
+
 public:
   // **************** Iterator access ****************
 
