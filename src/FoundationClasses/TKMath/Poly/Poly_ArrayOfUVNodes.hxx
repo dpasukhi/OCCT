@@ -101,11 +101,11 @@ public:
 public:
   //! A generalized accessor to point.
   inline gp_Pnt2d Value(int theIndex) const;
-  inline gp_Pnt2d Value(size_t theIndex) const;
+  inline gp_Pnt2d Value(const size_t theIndex) const;
 
   //! A generalized setter for point.
   inline void SetValue(int theIndex, const gp_Pnt2d& theValue);
-  inline void SetValue(size_t theIndex, const gp_Pnt2d& theValue);
+  inline void SetValue(const size_t theIndex, const gp_Pnt2d& theValue);
 
   //! operator[] - alias to Value
   gp_Pnt2d operator[](int theIndex) const { return Value(theIndex); }
@@ -129,7 +129,7 @@ inline gp_Pnt2d Poly_ArrayOfUVNodes::Value(int theIndex) const
 
 //=================================================================================================
 
-inline gp_Pnt2d Poly_ArrayOfUVNodes::Value(size_t theIndex) const
+inline gp_Pnt2d Poly_ArrayOfUVNodes::Value(const size_t theIndex) const
 {
   Standard_OutOfRange_Raise_if(theIndex >= static_cast<size_t>(mySize),
                                "Poly_ArrayOfUVNodes::Value(), out of range index");
@@ -154,7 +154,7 @@ inline void Poly_ArrayOfUVNodes::SetValue(int theIndex, const gp_Pnt2d& theValue
 
 //=================================================================================================
 
-inline void Poly_ArrayOfUVNodes::SetValue(size_t theIndex, const gp_Pnt2d& theValue)
+inline void Poly_ArrayOfUVNodes::SetValue(const size_t theIndex, const gp_Pnt2d& theValue)
 {
   Standard_OutOfRange_Raise_if(theIndex >= static_cast<size_t>(mySize),
                                "Poly_ArrayOfUVNodes::SetValue(), out of range index");

@@ -33,8 +33,9 @@ struct GeomHash_PolygonOnTriHasher
   double CompTolerance;
   double HashTolerance;
 
-  Standard_EXPORT GeomHash_PolygonOnTriHasher(double theCompTolerance = Precision::Computational(),
-                                              double theHashTolerance = Precision::Computational());
+  Standard_EXPORT GeomHash_PolygonOnTriHasher(
+    const double theCompTolerance = Precision::Computational(),
+    const double theHashTolerance = Precision::Computational());
 
   Standard_EXPORT std::size_t operator()(const PolygonOnTriHashKey& theKey) const noexcept;
 

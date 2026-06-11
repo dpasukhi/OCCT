@@ -27,8 +27,8 @@ struct GeomHash_TriangulationHasher
   double HashTolerance;
 
   Standard_EXPORT GeomHash_TriangulationHasher(
-    double theCompTolerance = Precision::Computational(),
-    double theHashTolerance = Precision::Computational());
+    const double theCompTolerance = Precision::Computational(),
+    const double theHashTolerance = Precision::Computational());
 
   Standard_EXPORT std::size_t operator()(
     const occ::handle<Poly_Triangulation>& theTri) const noexcept;

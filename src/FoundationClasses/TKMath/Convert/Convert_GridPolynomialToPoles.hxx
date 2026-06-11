@@ -45,8 +45,8 @@ public:
   //! The <Coefficients> have to be formatted than an "C array"
   //! [MaxUDegree+1] [MaxVDegree+1] [3]
   Standard_EXPORT Convert_GridPolynomialToPoles(
-    int                               theMaxUDegree,
-    int                               theMaxVDegree,
+    const int                         theMaxUDegree,
+    const int                         theMaxVDegree,
     const NCollection_Array1<int>&    theNumCoeff,
     const NCollection_Array1<double>& theCoefficients,
     const NCollection_Array1<double>& thePolynomialUIntervals,
@@ -56,8 +56,8 @@ public:
   //! Provided for backward compatibility; new code should prefer the
   //! @c NCollection_Array1 form which avoids unnecessary heap allocation.
   Standard_EXPORT Convert_GridPolynomialToPoles(
-    int                                             theMaxUDegree,
-    int                                             theMaxVDegree,
+    const int                                       theMaxUDegree,
+    const int                                       theMaxVDegree,
     const occ::handle<NCollection_HArray1<int>>&    theNumCoeff,
     const occ::handle<NCollection_HArray1<double>>& theCoefficients,
     const occ::handle<NCollection_HArray1<double>>& thePolynomialUIntervals,
@@ -78,12 +78,12 @@ public:
   //! [1, NbVSurfaces*NbUSurfaces, 1,2] array.
   //! if <Coefficients> is not a
   Standard_EXPORT Convert_GridPolynomialToPoles(
-    int                               theNbUSurfaces,
-    int                               theNbVSurfaces,
-    int                               theUContinuity,
-    int                               theVContinuity,
-    int                               theMaxUDegree,
-    int                               theMaxVDegree,
+    const int                         theNbUSurfaces,
+    const int                         theNbVSurfaces,
+    const int                         theUContinuity,
+    const int                         theVContinuity,
+    const int                         theMaxUDegree,
+    const int                         theMaxVDegree,
     const NCollection_Array2<int>&    theNumCoeffPerSurface,
     const NCollection_Array1<double>& theCoefficients,
     const NCollection_Array1<double>& thePolynomialUIntervals,
@@ -93,12 +93,12 @@ public:
 
   //! Handle-based overload (delegates to the array-based constructor).
   Standard_EXPORT Convert_GridPolynomialToPoles(
-    int                                             theNbUSurfaces,
-    int                                             theNbVSurfaces,
-    int                                             theUContinuity,
-    int                                             theVContinuity,
-    int                                             theMaxUDegree,
-    int                                             theMaxVDegree,
+    const int                                       theNbUSurfaces,
+    const int                                       theNbVSurfaces,
+    const int                                       theUContinuity,
+    const int                                       theVContinuity,
+    const int                                       theMaxUDegree,
+    const int                                       theMaxVDegree,
     const occ::handle<NCollection_HArray2<int>>&    theNumCoeffPerSurface,
     const occ::handle<NCollection_HArray1<double>>& theCoefficients,
     const occ::handle<NCollection_HArray1<double>>& thePolynomialUIntervals,
@@ -143,10 +143,10 @@ public:
   [[nodiscard]] Standard_EXPORT bool IsDone() const;
 
 private:
-  Standard_EXPORT void Perform(int                               theUContinuity,
-                               int                               theVContinuity,
-                               int                               theMaxUDegree,
-                               int                               theMaxVDegree,
+  Standard_EXPORT void Perform(const int                         theUContinuity,
+                               const int                         theVContinuity,
+                               const int                         theMaxUDegree,
+                               const int                         theMaxVDegree,
                                const NCollection_Array2<int>&    theNumCoeffPerSurface,
                                const NCollection_Array1<double>& theCoefficients,
                                const NCollection_Array1<double>& thePolynomialUIntervals,

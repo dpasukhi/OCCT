@@ -101,11 +101,11 @@ public:
 public:
   //! A generalized accessor to point.
   inline gp_Pnt Value(int theIndex) const;
-  inline gp_Pnt Value(size_t theIndex) const;
+  inline gp_Pnt Value(const size_t theIndex) const;
 
   //! A generalized setter for point.
   inline void SetValue(int theIndex, const gp_Pnt& theValue);
-  inline void SetValue(size_t theIndex, const gp_Pnt& theValue);
+  inline void SetValue(const size_t theIndex, const gp_Pnt& theValue);
 
   //! operator[] - alias to Value
   gp_Pnt operator[](int theIndex) const { return Value(theIndex); }
@@ -129,7 +129,7 @@ inline gp_Pnt Poly_ArrayOfNodes::Value(int theIndex) const
 
 //=================================================================================================
 
-inline gp_Pnt Poly_ArrayOfNodes::Value(size_t theIndex) const
+inline gp_Pnt Poly_ArrayOfNodes::Value(const size_t theIndex) const
 {
   Standard_OutOfRange_Raise_if(theIndex >= static_cast<size_t>(mySize),
                                "Poly_ArrayOfNodes::Value(), out of range index");
@@ -154,7 +154,7 @@ inline void Poly_ArrayOfNodes::SetValue(int theIndex, const gp_Pnt& theValue)
 
 //=================================================================================================
 
-inline void Poly_ArrayOfNodes::SetValue(size_t theIndex, const gp_Pnt& theValue)
+inline void Poly_ArrayOfNodes::SetValue(const size_t theIndex, const gp_Pnt& theValue)
 {
   Standard_OutOfRange_Raise_if(theIndex >= static_cast<size_t>(mySize),
                                "Poly_ArrayOfNodes::SetValue(), out of range index");
