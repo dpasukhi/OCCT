@@ -37,9 +37,9 @@ GeomHash_PolygonOnTriHasher::GeomHash_PolygonOnTriHasher(const double theCompTol
 std::size_t GeomHash_PolygonOnTriHasher::operator()(
   const PolygonOnTriHashKey& theKey) const noexcept
 {
-  const occ::handle<Poly_PolygonOnTriangulation>& aPoly      = theKey.Poly;
-  size_t                                          aCombined[9]     = {};
-  aCombined[0]                                                     = opencascade::hash(static_cast<int64_t>(theKey.TriRepId));
+  const occ::handle<Poly_PolygonOnTriangulation>& aPoly        = theKey.Poly;
+  size_t                                          aCombined[9] = {};
+  aCombined[0] = opencascade::hash(static_cast<int64_t>(theKey.TriRepId));
   if (aPoly.IsNull())
   {
     aCombined[1] = opencascade::hash(1);

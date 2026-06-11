@@ -47,16 +47,16 @@ std::size_t GeomHash_Polygon2DHasher::operator()(
   const double aFactor = 1.0 / HashTolerance;
 
   size_t aCombined[6] = {};
-  aCombined[0]             = opencascade::hash(thePoly->NbNodes());
-  aCombined[1]             = quantizedHash(thePoly->Deflection(), aFactor);
+  aCombined[0]        = opencascade::hash(thePoly->NbNodes());
+  aCombined[1]        = quantizedHash(thePoly->Deflection(), aFactor);
 
   if (thePoly->NbNodes() > 0)
   {
     const NCollection_Array1<gp_Pnt2d>& aNodes = thePoly->Nodes();
-    aCombined[2]                                   = quantizedHash(aNodes.First().X(), aFactor);
-    aCombined[3]                                   = quantizedHash(aNodes.First().Y(), aFactor);
-    aCombined[4]                                   = quantizedHash(aNodes.Last().X(), aFactor);
-    aCombined[5]                                   = quantizedHash(aNodes.Last().Y(), aFactor);
+    aCombined[2]                               = quantizedHash(aNodes.First().X(), aFactor);
+    aCombined[3]                               = quantizedHash(aNodes.First().Y(), aFactor);
+    aCombined[4]                               = quantizedHash(aNodes.Last().X(), aFactor);
+    aCombined[5]                               = quantizedHash(aNodes.Last().Y(), aFactor);
   }
 
   return opencascade::hashBytes(aCombined, sizeof(aCombined));

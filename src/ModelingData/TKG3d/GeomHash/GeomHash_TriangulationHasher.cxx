@@ -48,21 +48,21 @@ std::size_t GeomHash_TriangulationHasher::operator()(
   const double aFactor = 1.0 / HashTolerance;
 
   size_t aCombined[20] = {};
-  aCombined[0]              = opencascade::hash(theTri->NbNodes());
-  aCombined[1]              = opencascade::hash(theTri->NbTriangles());
-  aCombined[2]              = opencascade::hash(theTri->HasUVNodes() ? 1 : 0);
-  aCombined[3]              = quantizedHash(theTri->Deflection(), aFactor);
+  aCombined[0]         = opencascade::hash(theTri->NbNodes());
+  aCombined[1]         = opencascade::hash(theTri->NbTriangles());
+  aCombined[2]         = opencascade::hash(theTri->HasUVNodes() ? 1 : 0);
+  aCombined[3]         = quantizedHash(theTri->Deflection(), aFactor);
 
   if (theTri->NbNodes() > 0)
   {
     const gp_Pnt& aFirstNode = theTri->Node(1);
     const gp_Pnt& aLastNode  = theTri->Node(theTri->NbNodes());
-    aCombined[4]                  = quantizedHash(aFirstNode.X(), aFactor);
-    aCombined[5]                  = quantizedHash(aFirstNode.Y(), aFactor);
-    aCombined[6]                  = quantizedHash(aFirstNode.Z(), aFactor);
-    aCombined[7]                  = quantizedHash(aLastNode.X(), aFactor);
-    aCombined[8]                  = quantizedHash(aLastNode.Y(), aFactor);
-    aCombined[9]                  = quantizedHash(aLastNode.Z(), aFactor);
+    aCombined[4]             = quantizedHash(aFirstNode.X(), aFactor);
+    aCombined[5]             = quantizedHash(aFirstNode.Y(), aFactor);
+    aCombined[6]             = quantizedHash(aFirstNode.Z(), aFactor);
+    aCombined[7]             = quantizedHash(aLastNode.X(), aFactor);
+    aCombined[8]             = quantizedHash(aLastNode.Y(), aFactor);
+    aCombined[9]             = quantizedHash(aLastNode.Z(), aFactor);
   }
 
   if (theTri->NbTriangles() > 0)
@@ -82,10 +82,10 @@ std::size_t GeomHash_TriangulationHasher::operator()(
   {
     const gp_Pnt2d& aFirstUV = theTri->UVNode(1);
     const gp_Pnt2d& aLastUV  = theTri->UVNode(theTri->NbNodes());
-    aCombined[16]                 = quantizedHash(aFirstUV.X(), aFactor);
-    aCombined[17]                 = quantizedHash(aFirstUV.Y(), aFactor);
-    aCombined[18]                 = quantizedHash(aLastUV.X(), aFactor);
-    aCombined[19]                 = quantizedHash(aLastUV.Y(), aFactor);
+    aCombined[16]            = quantizedHash(aFirstUV.X(), aFactor);
+    aCombined[17]            = quantizedHash(aFirstUV.Y(), aFactor);
+    aCombined[18]            = quantizedHash(aLastUV.X(), aFactor);
+    aCombined[19]            = quantizedHash(aLastUV.Y(), aFactor);
   }
 
   return opencascade::hashBytes(aCombined, sizeof(aCombined));

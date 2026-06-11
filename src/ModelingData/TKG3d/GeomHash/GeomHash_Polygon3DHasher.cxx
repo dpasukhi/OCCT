@@ -47,24 +47,24 @@ std::size_t GeomHash_Polygon3DHasher::operator()(
   const double aFactor = 1.0 / HashTolerance;
 
   size_t aCombined[11] = {};
-  aCombined[0]              = opencascade::hash(thePoly->NbNodes());
-  aCombined[1]              = opencascade::hash(thePoly->HasParameters() ? 1 : 0);
-  aCombined[2]              = quantizedHash(thePoly->Deflection(), aFactor);
+  aCombined[0]         = opencascade::hash(thePoly->NbNodes());
+  aCombined[1]         = opencascade::hash(thePoly->HasParameters() ? 1 : 0);
+  aCombined[2]         = quantizedHash(thePoly->Deflection(), aFactor);
 
   if (thePoly->NbNodes() > 0)
   {
     const NCollection_Array1<gp_Pnt>& aNodes = thePoly->Nodes();
-    aCombined[3]                                 = quantizedHash(aNodes.First().X(), aFactor);
-    aCombined[4]                                 = quantizedHash(aNodes.First().Y(), aFactor);
-    aCombined[5]                                 = quantizedHash(aNodes.First().Z(), aFactor);
-    aCombined[6]                                 = quantizedHash(aNodes.Last().X(), aFactor);
-    aCombined[7]                                 = quantizedHash(aNodes.Last().Y(), aFactor);
-    aCombined[8]                                 = quantizedHash(aNodes.Last().Z(), aFactor);
+    aCombined[3]                             = quantizedHash(aNodes.First().X(), aFactor);
+    aCombined[4]                             = quantizedHash(aNodes.First().Y(), aFactor);
+    aCombined[5]                             = quantizedHash(aNodes.First().Z(), aFactor);
+    aCombined[6]                             = quantizedHash(aNodes.Last().X(), aFactor);
+    aCombined[7]                             = quantizedHash(aNodes.Last().Y(), aFactor);
+    aCombined[8]                             = quantizedHash(aNodes.Last().Z(), aFactor);
     if (thePoly->HasParameters())
     {
       const NCollection_Array1<double>& aParams = thePoly->Parameters();
-      aCombined[9]                                  = quantizedHash(aParams.First(), aFactor);
-      aCombined[10]                                 = quantizedHash(aParams.Last(), aFactor);
+      aCombined[9]                              = quantizedHash(aParams.First(), aFactor);
+      aCombined[10]                             = quantizedHash(aParams.Last(), aFactor);
     }
   }
 

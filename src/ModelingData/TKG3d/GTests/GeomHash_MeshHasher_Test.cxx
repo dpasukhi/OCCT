@@ -153,14 +153,14 @@ TEST(GeomHash_MeshHasherTest, Triangulation_DifferentSameCountGeometryChangesHas
 
 TEST(GeomHash_MeshHasherTest, NullHandlesDoNotCrash)
 {
-  const GeomHash_Polygon2DHasher        aPoly2dHasher;
-  const GeomHash_Polygon3DHasher        aPoly3dHasher;
-  const GeomHash_PolygonOnTriHasher     aPolyOnTriHasher;
-  const GeomHash_TriangulationHasher    aTriHasher;
-  occ::handle<Poly_Polygon2D>           aNullPoly2d;
-  occ::handle<Poly_Polygon3D>           aNullPoly3d;
+  const GeomHash_Polygon2DHasher           aPoly2dHasher;
+  const GeomHash_Polygon3DHasher           aPoly3dHasher;
+  const GeomHash_PolygonOnTriHasher        aPolyOnTriHasher;
+  const GeomHash_TriangulationHasher       aTriHasher;
+  occ::handle<Poly_Polygon2D>              aNullPoly2d;
+  occ::handle<Poly_Polygon3D>              aNullPoly3d;
   occ::handle<Poly_PolygonOnTriangulation> aNullPolyOnTri;
-  occ::handle<Poly_Triangulation>       aNullTri;
+  occ::handle<Poly_Triangulation>          aNullTri;
 
   EXPECT_EQ(0u, aPoly2dHasher(aNullPoly2d));
   EXPECT_TRUE(aPoly2dHasher(aNullPoly2d, aNullPoly2d));
@@ -179,7 +179,8 @@ TEST(GeomHash_MeshHasherTest, NullHandlesDoNotCrash)
   const PolygonOnTriHashKey aNullKey3{aNullPolyOnTri, 8};
   EXPECT_TRUE(aPolyOnTriHasher(aNullKey1, aNullKey2));
   EXPECT_FALSE(aPolyOnTriHasher(aNullKey1, aNullKey3));
-  EXPECT_FALSE(aPolyOnTriHasher(aNullKey1, PolygonOnTriHashKey{makePolygonOnTriangulation(0.004), 7}));
+  EXPECT_FALSE(
+    aPolyOnTriHasher(aNullKey1, PolygonOnTriHashKey{makePolygonOnTriangulation(0.004), 7}));
 }
 
 TEST(GeomHash_MeshHasherTest, HashToleranceAffectsNumericFields)
