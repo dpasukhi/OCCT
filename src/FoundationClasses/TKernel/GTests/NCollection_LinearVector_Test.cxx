@@ -857,8 +857,8 @@ TEST(NCollection_LinearVectorTest, ToArray1_ModifyReflectsInSource)
   aVec.Append(5);
 
   NCollection_Array1<int> aArr = aVec.ToArray1();
-  aArr[0] = 99;
-  aArr[4] = 77;
+  aArr[0]                      = 99;
+  aArr[4]                      = 77;
 
   EXPECT_EQ(99, aVec[0]);
   EXPECT_EQ(2, aVec[1]);
@@ -869,7 +869,7 @@ TEST(NCollection_LinearVectorTest, ToArray1_ModifyReflectsInSource)
 TEST(NCollection_LinearVectorTest, ToArray1_EmptyVector)
 {
   NCollection_LinearVector<int> aEmpty;
-  NCollection_Array1<int>      aArr = aEmpty.ToArray1();
+  NCollection_Array1<int>       aArr = aEmpty.ToArray1();
 
   EXPECT_EQ(0u, aArr.Size());
   EXPECT_TRUE(aArr.IsEmpty());

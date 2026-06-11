@@ -718,7 +718,7 @@ TEST(NCollection_Array1Test, SizeConstructor_BufferReuse_WritesGoToBuffer)
 
 TEST(NCollection_Array1Test, SizeConstructor_StdVectorBufferReuse)
 {
-  std::vector<int>       aVector = {1, 2, 3, 4};
+  std::vector<int>        aVector = {1, 2, 3, 4};
   NCollection_Array1<int> anArray(aVector.data(), aVector.size());
 
   EXPECT_FALSE(anArray.IsDeletable());

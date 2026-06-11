@@ -48,8 +48,7 @@ occ::handle<Poly_Polygon3D> makePolygon3D(const double theDeflection)
 
 occ::handle<Poly_PolygonOnTriangulation> makePolygonOnTriangulation(const double theDeflection)
 {
-  occ::handle<Poly_PolygonOnTriangulation> aPoly =
-    new Poly_PolygonOnTriangulation(2, false);
+  occ::handle<Poly_PolygonOnTriangulation> aPoly = new Poly_PolygonOnTriangulation(2, false);
   aPoly->SetNode(1, 1);
   aPoly->SetNode(2, 2);
   aPoly->Deflection(theDeflection);
@@ -70,7 +69,7 @@ occ::handle<Poly_Triangulation> makeTriangulation(const double theDeflection)
 
 TEST(GeomHash_MeshHasherTest, Polygon2D_CloseDeflectionKeepsEqualHash)
 {
-  const GeomHash_Polygon2DHasher aHasher(0.1, 0.01);
+  const GeomHash_Polygon2DHasher    aHasher(0.1, 0.01);
   const occ::handle<Poly_Polygon2D> aPoly1 = makePolygon2D(0.004);
   const occ::handle<Poly_Polygon2D> aPoly2 = makePolygon2D(0.015);
 
@@ -80,7 +79,7 @@ TEST(GeomHash_MeshHasherTest, Polygon2D_CloseDeflectionKeepsEqualHash)
 
 TEST(GeomHash_MeshHasherTest, Polygon3D_CloseDeflectionKeepsEqualHash)
 {
-  const GeomHash_Polygon3DHasher aHasher(0.1, 0.01);
+  const GeomHash_Polygon3DHasher    aHasher(0.1, 0.01);
   const occ::handle<Poly_Polygon3D> aPoly1 = makePolygon3D(0.004);
   const occ::handle<Poly_Polygon3D> aPoly2 = makePolygon3D(0.015);
 
@@ -100,7 +99,7 @@ TEST(GeomHash_MeshHasherTest, PolygonOnTriangulation_CloseDeflectionKeepsEqualHa
 
 TEST(GeomHash_MeshHasherTest, Triangulation_CloseDeflectionKeepsEqualHash)
 {
-  const GeomHash_TriangulationHasher aHasher(0.1, 0.01);
+  const GeomHash_TriangulationHasher    aHasher(0.1, 0.01);
   const occ::handle<Poly_Triangulation> aTri1 = makeTriangulation(0.004);
   const occ::handle<Poly_Triangulation> aTri2 = makeTriangulation(0.015);
 

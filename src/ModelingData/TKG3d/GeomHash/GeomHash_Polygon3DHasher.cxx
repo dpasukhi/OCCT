@@ -30,16 +30,15 @@ GeomHash_Polygon3DHasher::GeomHash_Polygon3DHasher(const double theCompTolerance
 std::size_t GeomHash_Polygon3DHasher::operator()(
   const occ::handle<Poly_Polygon3D>& thePoly) const noexcept
 {
-  const std::size_t aHashes[2] = {
-    opencascade::hash(thePoly->NbNodes()),
-    opencascade::hash(thePoly->HasParameters() ? 1 : 0)};
+  const std::size_t aHashes[2] = {opencascade::hash(thePoly->NbNodes()),
+                                  opencascade::hash(thePoly->HasParameters() ? 1 : 0)};
 
   return opencascade::hashBytes(aHashes, sizeof(aHashes));
 }
 
-bool GeomHash_Polygon3DHasher::operator()(const occ::handle<Poly_Polygon3D>& thePoly1,
-                                          const occ::handle<Poly_Polygon3D>& thePoly2) const
-  noexcept
+bool GeomHash_Polygon3DHasher::operator()(
+  const occ::handle<Poly_Polygon3D>& thePoly1,
+  const occ::handle<Poly_Polygon3D>& thePoly2) const noexcept
 {
   if (thePoly1->NbNodes() != thePoly2->NbNodes())
   {
@@ -60,8 +59,7 @@ bool GeomHash_Polygon3DHasher::operator()(const occ::handle<Poly_Polygon3D>& the
   {
     const gp_Pnt& aP1 = aNodes1.Value(aIdx);
     const gp_Pnt& aP2 = aNodes2.Value(aIdx);
-    if (std::abs(aP1.X() - aP2.X()) > CompTolerance
-        || std::abs(aP1.Y() - aP2.Y()) > CompTolerance
+    if (std::abs(aP1.X() - aP2.X()) > CompTolerance || std::abs(aP1.Y() - aP2.Y()) > CompTolerance
         || std::abs(aP1.Z() - aP2.Z()) > CompTolerance)
     {
       return false;

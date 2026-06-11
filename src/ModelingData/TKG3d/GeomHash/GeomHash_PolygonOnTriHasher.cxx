@@ -25,14 +25,13 @@ GeomHash_PolygonOnTriHasher::GeomHash_PolygonOnTriHasher(const double theCompTol
 {
 }
 
-std::size_t GeomHash_PolygonOnTriHasher::operator()(const PolygonOnTriHashKey& theKey) const
-  noexcept
+std::size_t GeomHash_PolygonOnTriHasher::operator()(
+  const PolygonOnTriHashKey& theKey) const noexcept
 {
-  const occ::handle<Poly_PolygonOnTriangulation>& aPoly = theKey.Poly;
-  const std::size_t aHashes[3] = {
-    opencascade::hash(aPoly->NbNodes()),
-    opencascade::hash(aPoly->HasParameters() ? 1 : 0),
-    opencascade::hash(static_cast<int64_t>(theKey.TriRepId))};
+  const occ::handle<Poly_PolygonOnTriangulation>& aPoly      = theKey.Poly;
+  const std::size_t                               aHashes[3] = {opencascade::hash(aPoly->NbNodes()),
+                                                                opencascade::hash(aPoly->HasParameters() ? 1 : 0),
+                                                                opencascade::hash(static_cast<int64_t>(theKey.TriRepId))};
 
   return opencascade::hashBytes(aHashes, sizeof(aHashes));
 }

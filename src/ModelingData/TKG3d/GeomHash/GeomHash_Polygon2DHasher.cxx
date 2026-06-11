@@ -35,9 +35,9 @@ std::size_t GeomHash_Polygon2DHasher::operator()(
   return opencascade::hashBytes(aHashes, sizeof(aHashes));
 }
 
-bool GeomHash_Polygon2DHasher::operator()(const occ::handle<Poly_Polygon2D>& thePoly1,
-                                          const occ::handle<Poly_Polygon2D>& thePoly2) const
-  noexcept
+bool GeomHash_Polygon2DHasher::operator()(
+  const occ::handle<Poly_Polygon2D>& thePoly1,
+  const occ::handle<Poly_Polygon2D>& thePoly2) const noexcept
 {
   if (thePoly1->NbNodes() != thePoly2->NbNodes())
   {
@@ -54,8 +54,7 @@ bool GeomHash_Polygon2DHasher::operator()(const occ::handle<Poly_Polygon2D>& the
   {
     const gp_Pnt2d& aP1 = aNodes1.Value(aIdx);
     const gp_Pnt2d& aP2 = aNodes2.Value(aIdx);
-    if (std::abs(aP1.X() - aP2.X()) > CompTolerance
-        || std::abs(aP1.Y() - aP2.Y()) > CompTolerance)
+    if (std::abs(aP1.X() - aP2.X()) > CompTolerance || std::abs(aP1.Y() - aP2.Y()) > CompTolerance)
     {
       return false;
     }

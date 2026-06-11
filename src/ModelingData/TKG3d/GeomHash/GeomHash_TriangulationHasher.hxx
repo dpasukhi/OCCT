@@ -30,8 +30,8 @@ struct GeomHash_TriangulationHasher
     double theCompTolerance = Precision::Computational(),
     double theHashTolerance = Precision::Computational());
 
-  Standard_EXPORT std::size_t operator()(const occ::handle<Poly_Triangulation>& theTri) const
-    noexcept;
+  Standard_EXPORT std::size_t operator()(
+    const occ::handle<Poly_Triangulation>& theTri) const noexcept;
 
   Standard_EXPORT bool operator()(const occ::handle<Poly_Triangulation>& theTri1,
                                   const occ::handle<Poly_Triangulation>& theTri2) const noexcept;

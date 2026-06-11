@@ -657,8 +657,8 @@ TEST(NCollection_LocalArrayTest, ToArray1_ModifyReflectsInSource)
   }
 
   NCollection_Array1<int> aArr = aSrc.ToArray1();
-  aArr[0] = 99;
-  aArr[4] = 77;
+  aArr[0]                      = 99;
+  aArr[4]                      = 77;
 
   EXPECT_EQ(99, static_cast<int*>(aSrc)[0]);
   EXPECT_EQ(1, static_cast<int*>(aSrc)[1]);

@@ -31,10 +31,9 @@ GeomHash_TriangulationHasher::GeomHash_TriangulationHasher(const double theCompT
 std::size_t GeomHash_TriangulationHasher::operator()(
   const occ::handle<Poly_Triangulation>& theTri) const noexcept
 {
-  const std::size_t aHashes[3] = {
-    opencascade::hash(theTri->NbNodes()),
-    opencascade::hash(theTri->NbTriangles()),
-    opencascade::hash(theTri->HasUVNodes() ? 1 : 0)};
+  const std::size_t aHashes[3] = {opencascade::hash(theTri->NbNodes()),
+                                  opencascade::hash(theTri->NbTriangles()),
+                                  opencascade::hash(theTri->HasUVNodes() ? 1 : 0)};
 
   return opencascade::hashBytes(aHashes, sizeof(aHashes));
 }
@@ -64,8 +63,7 @@ bool GeomHash_TriangulationHasher::operator()(
   {
     const gp_Pnt& aP1 = theTri1->Node(aIdx);
     const gp_Pnt& aP2 = theTri2->Node(aIdx);
-    if (std::abs(aP1.X() - aP2.X()) > CompTolerance
-        || std::abs(aP1.Y() - aP2.Y()) > CompTolerance
+    if (std::abs(aP1.X() - aP2.X()) > CompTolerance || std::abs(aP1.Y() - aP2.Y()) > CompTolerance
         || std::abs(aP1.Z() - aP2.Z()) > CompTolerance)
     {
       return false;

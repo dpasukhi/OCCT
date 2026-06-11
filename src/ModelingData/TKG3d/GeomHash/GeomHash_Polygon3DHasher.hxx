@@ -26,12 +26,10 @@ struct GeomHash_Polygon3DHasher
   double CompTolerance;
   double HashTolerance;
 
-  Standard_EXPORT GeomHash_Polygon3DHasher(
-    double theCompTolerance = Precision::Computational(),
-    double theHashTolerance = Precision::Computational());
+  Standard_EXPORT GeomHash_Polygon3DHasher(double theCompTolerance = Precision::Computational(),
+                                           double theHashTolerance = Precision::Computational());
 
-  Standard_EXPORT std::size_t operator()(const occ::handle<Poly_Polygon3D>& thePoly) const
-    noexcept;
+  Standard_EXPORT std::size_t operator()(const occ::handle<Poly_Polygon3D>& thePoly) const noexcept;
 
   Standard_EXPORT bool operator()(const occ::handle<Poly_Polygon3D>& thePoly1,
                                   const occ::handle<Poly_Polygon3D>& thePoly2) const noexcept;

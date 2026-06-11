@@ -211,8 +211,7 @@ void Convert_GridPolynomialToPoles::Perform(
   // (2) Digitalisation
   const int aDimension = 3 * (myVDegree + 1);
   const int aSizPatch  = 3 * (theMaxUDegree + 1) * (theMaxVDegree + 1);
-  myPoles =
-    NCollection_Array2<gp_Pnt>(1, aUParameters.Length(), 1, aVParameters.Length());
+  myPoles = NCollection_Array2<gp_Pnt>(1, aUParameters.Length(), 1, aVParameters.Length());
 
   NCollection_Array1<double> aPatch(1, (myUDegree + 1) * aDimension);
   NCollection_Array1<double> aPoint(1, 3);
@@ -229,8 +228,7 @@ void Convert_GridPolynomialToPoles::Perform(
       ++aUIndex;
     }
     double aNValue = (aUParameters.Value(ii) - theTrueUIntervals.Value(aUIndex))
-                     / (theTrueUIntervals.Value(aUIndex + 1)
-                        - theTrueUIntervals.Value(aUIndex));
+                     / (theTrueUIntervals.Value(aUIndex + 1) - theTrueUIntervals.Value(aUIndex));
     const double aUValue = (1.0 - aNValue) * thePolynomialUIntervals.Value(1)
                            + aNValue * thePolynomialUIntervals.Value(2);
 
@@ -254,10 +252,8 @@ void Convert_GridPolynomialToPoles::Perform(
         int ll       = 1;
         for (int k1 = 1; k1 <= theNumCoeffPerSurface.Value(aPatchIndice, 1); ++k1)
         {
-          int pos =
-            aSizPatch * (aPatchIndice - 1) + 3 * (theMaxVDegree + 1) * (k1 - 1) + 1;
-          for (int k2 = 1; k2 <= theNumCoeffPerSurface.Value(aPatchIndice, 2);
-               ++k2, pos += 3)
+          int pos = aSizPatch * (aPatchIndice - 1) + 3 * (theMaxVDegree + 1) * (k1 - 1) + 1;
+          for (int k2 = 1; k2 <= theNumCoeffPerSurface.Value(aPatchIndice, 2); ++k2, pos += 3)
           {
             aPatch(ll)     = theCoefficients.Value(pos);
             aPatch(ll + 1) = theCoefficients.Value(pos + 1);

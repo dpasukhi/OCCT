@@ -112,7 +112,7 @@ Poly_Triangulation::Poly_Triangulation(const occ::handle<Poly_Triangulation>& th
       myNormals(theTriangulation->myNormals),
       myPurpose(theTriangulation->myPurpose),
       myParams(!theTriangulation->myParams.IsNull() ? theTriangulation->myParams->Copy()
-                                                     : occ::handle<Poly_TriangulationParameters>())
+                                                    : occ::handle<Poly_TriangulationParameters>())
 {
   if (theTriangulation->HasCachedMinMax())
   {

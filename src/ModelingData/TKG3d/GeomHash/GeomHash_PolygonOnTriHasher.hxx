@@ -25,7 +25,7 @@ class Poly_PolygonOnTriangulation;
 struct PolygonOnTriHashKey
 {
   occ::handle<Poly_PolygonOnTriangulation> Poly;
-  uint32_t TriRepId;
+  uint32_t                                 TriRepId;
 };
 
 struct GeomHash_PolygonOnTriHasher
@@ -33,9 +33,8 @@ struct GeomHash_PolygonOnTriHasher
   double CompTolerance;
   double HashTolerance;
 
-  Standard_EXPORT GeomHash_PolygonOnTriHasher(
-    double theCompTolerance = Precision::Computational(),
-    double theHashTolerance = Precision::Computational());
+  Standard_EXPORT GeomHash_PolygonOnTriHasher(double theCompTolerance = Precision::Computational(),
+                                              double theHashTolerance = Precision::Computational());
 
   Standard_EXPORT std::size_t operator()(const PolygonOnTriHashKey& theKey) const noexcept;
 
