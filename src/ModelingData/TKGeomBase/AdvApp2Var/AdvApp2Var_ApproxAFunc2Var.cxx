@@ -967,12 +967,12 @@ void AdvApp2Var_ApproxAFunc2Var::ConvertBS()
                                       iv,
                                       myMaxDegInU,
                                       myMaxDegInV,
-                                      NbCoeff,
-                                      Poly,
-                                      Uint1,
-                                      Vint1,
-                                      Uint2,
-                                      Vint2);
+                                      NbCoeff->Array2(),
+                                      Poly->Array1(),
+                                      Uint1->Array1(),
+                                      Vint1->Array1(),
+                                      Uint2->Array1(),
+                                      Vint2->Array1());
     if (!CvP.IsDone())
     {
       myDone = false;

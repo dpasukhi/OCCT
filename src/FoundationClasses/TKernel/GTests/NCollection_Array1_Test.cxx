@@ -40,6 +40,44 @@ TEST(NCollection_Array1Test, ConstructorWithBounds)
   EXPECT_EQ(5, anArray.Upper());
 }
 
+TEST(NCollection_Array1Test, ConstructorWithSizeTUpperUsesBounds)
+{
+  const size_t            anUpper = 3;
+  NCollection_Array1<int> anArray(1, anUpper);
+
+  EXPECT_TRUE(anArray.IsDeletable());
+  EXPECT_EQ(3u, anArray.Size());
+  EXPECT_EQ(1, anArray.Lower());
+  EXPECT_EQ(3, anArray.Upper());
+
+  anArray.ChangeValue(1) = 10;
+  anArray.ChangeValue(2) = 20;
+  anArray.ChangeValue(3) = 30;
+
+  EXPECT_EQ(10, anArray.Value(1));
+  EXPECT_EQ(20, anArray.Value(2));
+  EXPECT_EQ(30, anArray.Value(3));
+}
+
+TEST(NCollection_Array1Test, ReferenceSizeConstructorRequiresExplicitBufferPolicy)
+{
+  int aBuffer[3] = {1, 2, 3};
+
+  NCollection_Array1<int> aView(aBuffer[0], size_t(3), true);
+  EXPECT_FALSE(aView.IsDeletable());
+  EXPECT_EQ(0, aView.Lower());
+  EXPECT_EQ(2, aView.Upper());
+  EXPECT_EQ(aBuffer, &aView.ChangeFirst());
+  aView.ChangeAt(1) = 20;
+  EXPECT_EQ(20, aBuffer[1]);
+
+  NCollection_Array1<int> anOwned(aBuffer[0], size_t(3), false);
+  EXPECT_TRUE(anOwned.IsDeletable());
+  EXPECT_EQ(0, anOwned.Lower());
+  EXPECT_EQ(2, anOwned.Upper());
+  EXPECT_NE(aBuffer, &anOwned.ChangeFirst());
+}
+
 TEST(NCollection_Array1Test, ConstructorWithNegativeBounds)
 {
   // Test constructor with negative bounds
@@ -714,6 +752,17 @@ TEST(NCollection_Array1Test, SizeConstructor_BufferReuse_WritesGoToBuffer)
   {
     EXPECT_EQ(i + 7, aBuf[i]);
   }
+}
+
+TEST(NCollection_Array1Test, SizeConstructor_StdVectorBufferReuse)
+{
+  std::vector<int>        aVector = {1, 2, 3, 4};
+  NCollection_Array1<int> anArray(aVector.data(), aVector.size());
+
+  EXPECT_FALSE(anArray.IsDeletable());
+  EXPECT_EQ(aVector.size(), anArray.Size());
+  anArray.ChangeAt(2) = 30;
+  EXPECT_EQ(30, aVector[2]);
 }
 
 TEST(NCollection_Array1Test, SizeConstructor_Resize_Grow)

@@ -41,6 +41,16 @@ Poly_Polygon2D::Poly_Polygon2D(const NCollection_Array1<gp_Pnt2d>& Nodes)
 
 //=================================================================================================
 
+occ::handle<Poly_Polygon2D> Poly_Polygon2D::Copy() const
+{
+  occ::handle<Poly_Polygon2D> aCopy = new Poly_Polygon2D(NbNodes());
+  aCopy->ChangeNodes().CopyValues(myNodes);
+  aCopy->Deflection(myDeflection);
+  return aCopy;
+}
+
+//=================================================================================================
+
 void Poly_Polygon2D::DumpJson(Standard_OStream& theOStream, int) const
 {
   OCCT_DUMP_TRANSIENT_CLASS_BEGIN(theOStream)

@@ -248,6 +248,59 @@ TEST(NCollection_DynamicArrayTest, STLIterators)
   EXPECT_EQ(60, aVector(2));
 }
 
+TEST(NCollection_DynamicArrayTest, STLIteratorSurvivesAppendAcrossBlocks)
+{
+  NCollection_DynamicArray<int> aVector(size_t(2));
+  for (int anIdx = 0; anIdx < 4; ++anIdx)
+  {
+    aVector.Append(anIdx + 1);
+  }
+
+  auto anIter = aVector.begin();
+  auto anEnd  = aVector.end();
+
+  for (int anIdx = 4; anIdx < 64; ++anIdx)
+  {
+    aVector.Append(anIdx + 1);
+  }
+
+  int aSum = 0;
+  for (; anIter != anEnd; ++anIter)
+  {
+    aSum += *anIter;
+  }
+
+  EXPECT_EQ(10, aSum);
+  EXPECT_EQ(64u, aVector.Size());
+}
+
+TEST(NCollection_DynamicArrayTest, ConstSTLIteratorSurvivesAppendAcrossBlocks)
+{
+  NCollection_DynamicArray<int> aVector(size_t(2));
+  for (int anIdx = 0; anIdx < 4; ++anIdx)
+  {
+    aVector.Append((anIdx + 1) * 10);
+  }
+
+  const NCollection_DynamicArray<int>& aConstVector = aVector;
+  auto                                 anIter       = aConstVector.begin();
+  auto                                 anEnd        = aConstVector.end();
+
+  for (int anIdx = 4; anIdx < 64; ++anIdx)
+  {
+    aVector.Append((anIdx + 1) * 10);
+  }
+
+  int aSum = 0;
+  for (; anIter != anEnd; ++anIter)
+  {
+    aSum += *anIter;
+  }
+
+  EXPECT_EQ(100, aSum);
+  EXPECT_EQ(64u, aVector.Size());
+}
+
 TEST(NCollection_DynamicArrayTest, Grow)
 {
   NCollection_DynamicArray<int> aVector;

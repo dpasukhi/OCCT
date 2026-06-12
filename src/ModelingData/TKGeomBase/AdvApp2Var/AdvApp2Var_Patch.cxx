@@ -1126,19 +1126,18 @@ occ::handle<NCollection_HArray2<gp_Pnt>> AdvApp2Var_Patch::Poles(
   {
     throw Standard_ConstructionError("AdvApp2Var_Patch::Poles :  SSPIndex out of range");
   }
-  occ::handle<NCollection_HArray1<double>> Intervalle = new (NCollection_HArray1<double>)(1, 2);
-  Intervalle->SetValue(1, -1);
-  Intervalle->SetValue(2, 1);
+  NCollection_Array1<double> Intervalle(1, 2);
+  Intervalle.SetValue(1, -1);
+  Intervalle.SetValue(2, 1);
 
-  occ::handle<NCollection_HArray1<int>> NbCoeff = new (NCollection_HArray1<int>)(1, 2);
-  NbCoeff->SetValue(1, myNbCoeffInU);
-  NbCoeff->SetValue(2, myNbCoeffInV);
+  NCollection_Array1<int> NbCoeff(1, 2);
+  NbCoeff.SetValue(1, myNbCoeffInU);
+  NbCoeff.SetValue(2, myNbCoeffInV);
 
-  // Conversion
   Convert_GridPolynomialToPoles Conv(Cond.ULimit() - 1,
                                      Cond.VLimit() - 1,
                                      NbCoeff,
-                                     SousEquation,
+                                     SousEquation->Array1(),
                                      Intervalle,
                                      Intervalle);
 

@@ -19,6 +19,7 @@
 #include <gp_Pnt.hxx>
 #include <OSD_FileSystem.hxx>
 #include <Poly_Triangle.hxx>
+#include <Poly_TriangulationParameters.hxx>
 #include <Standard_Dump.hxx>
 #include <Standard_Type.hxx>
 
@@ -109,9 +110,14 @@ Poly_Triangulation::Poly_Triangulation(const occ::handle<Poly_Triangulation>& th
       myTriangles(theTriangulation->myTriangles),
       myUVNodes(theTriangulation->myUVNodes),
       myNormals(theTriangulation->myNormals),
-      myPurpose(theTriangulation->myPurpose)
+      myPurpose(theTriangulation->myPurpose),
+      myParams(!theTriangulation->myParams.IsNull() ? theTriangulation->myParams->Copy()
+                                                    : occ::handle<Poly_TriangulationParameters>())
 {
-  SetCachedMinMax(theTriangulation->CachedMinMax());
+  if (theTriangulation->HasCachedMinMax())
+  {
+    SetCachedMinMax(theTriangulation->CachedMinMax());
+  }
 }
 
 //=================================================================================================
