@@ -1123,7 +1123,8 @@ TEST(BRepGraph_CompactTest, CacheMesh_DriverSurvivesCompact)
 {
   BRepPrimAPI_MakeBox aBoxMaker(10.0, 20.0, 30.0);
   BRepGraph           aGraph;
-  aGraph.Shapes().Add(aBoxMaker.Shape());
+  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes =
+    aGraph.Shapes().Add(aBoxMaker.Shape());
   ASSERT_FALSE(aGraph.IsEmpty());
 
   // Register CacheMesh, register a driver, and populate a face entry.
@@ -1173,7 +1174,8 @@ TEST(BRepGraph_CompactTest, CacheMesh_DriverSurvivesCompact)
 TEST(BRepGraph_CompactTest, CacheMesh_DriverSurvivesCompactWithDedup)
 {
   BRepGraph aGraph;
-  aGraph.Shapes().Add(makeTwoCopiedFaces());
+  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes =
+    aGraph.Shapes().Add(makeTwoCopiedFaces());
   ASSERT_FALSE(aGraph.IsEmpty());
 
   // Register CacheMesh with driver and populate entries for all faces.

@@ -271,8 +271,7 @@ TEST(BRepGraph_LockTest, LockedReferenceRejectsOrientationSetterWithoutMutation)
 
   const BRepGraph_VertexRefId aVertexRefId =
     aGraph.Topo().Edges().Definition(BRepGraph_EdgeId::Start()).StartVertexRefId;
-  const TopAbs_Orientation anOrientation =
-    aGraph.Refs().Vertices().Entry(aVertexRefId).Orientation;
+  const TopAbs_Orientation anOrientation = aGraph.Refs().Vertices().Entry(aVertexRefId).Orientation;
   lockItem(aGraph, aVertexRefId);
 
 #ifndef No_Exception
@@ -367,6 +366,30 @@ TEST(BRepGraph_LockTest, ParentOwnerCollapsesSameOwnedDescendant)
   aLayer->UnsetOwner(aSolidId);
   EXPECT_FALSE(aLayer->HasOwner(aSolidId));
   EXPECT_FALSE(aLayer->HasOwner(aFaceId));
+}
+
+TEST(BRepGraph_LockTest, RemovedRootOwnerCallbackClearsDescendantOwnedFlags)
+{
+  BRepGraph aGraph = makeBoxGraph();
+  ASSERT_FALSE(aGraph.IsEmpty());
+
+  const BRepGraph_SolidId            aSolidId = BRepGraph_SolidId::Start();
+  const BRepGraph_FaceId             aFaceId  = BRepGraph_FaceId::Start();
+  const BRepGraphInc::FaceRelations& aFaceRel = aGraph.Topo().Faces().Relations(aFaceId);
+  ASSERT_FALSE(aFaceRel.WireRefIds.IsEmpty());
+  const BRepGraph_WireRefId aWireRefId = aFaceRel.WireRefIds.First();
+
+  occ::handle<BRepGraph_LayerLock> aLayer = aGraph.LayerRegistry().Ensure<BRepGraph_LayerLock>();
+  ASSERT_TRUE(aLayer->SetOwner(BRepGraph_ItemId(aSolidId), testOwnerId(), false));
+  EXPECT_TRUE(aLayer->HasOwner(aSolidId));
+  EXPECT_TRUE(aLayer->HasOwner(aFaceId));
+  EXPECT_TRUE(aLayer->HasOwner(aWireRefId));
+
+  aGraph.LayerRegistry().DispatchOnNodeRemoved(aSolidId);
+
+  EXPECT_FALSE(aLayer->HasOwner(aSolidId));
+  EXPECT_FALSE(aLayer->HasOwner(aFaceId));
+  EXPECT_FALSE(aLayer->HasOwner(aWireRefId));
 }
 
 TEST(BRepGraph_LockTest, DeferredLayerRegistersMultipleRepresentationsAndLocksItem)

@@ -33,9 +33,10 @@ using OwnerMap = NCollection_FlatDataMap<BRepGraph_ItemId, Standard_GUID>;
 
 //=================================================================================================
 
-BRepGraph_LayerLock::ScopedOwnerEdit::ScopedOwnerEdit(BRepGraph_LayerLock&  theLayer,
-                                                       const BRepGraph_ItemId theItem,
-                                                       const Standard_GUID&   theOwnerId [[maybe_unused]])
+BRepGraph_LayerLock::ScopedOwnerEdit::ScopedOwnerEdit(BRepGraph_LayerLock&   theLayer,
+                                                      const BRepGraph_ItemId theItem,
+                                                      const Standard_GUID&   theOwnerId
+                                                      [[maybe_unused]])
     : myLayer(&theLayer),
       myItem(theItem),
       myIsActive(false)
@@ -184,11 +185,13 @@ bool BRepGraph_LayerLock::HasOwner(const BRepGraph_ItemId theItem) const
   switch (theItem.ItemDomain())
   {
     case BRepGraph_ItemId::Domain::Node:
-      return BRepGraph_NodeId::Visit(theItem.NodeId(),
-                                     [&](const auto& theTypedId) { return aStorage.IsOwned(theTypedId); });
+      return BRepGraph_NodeId::Visit(theItem.NodeId(), [&](const auto& theTypedId) {
+        return aStorage.IsOwned(theTypedId);
+      });
     case BRepGraph_ItemId::Domain::Reference:
-      return BRepGraph_RefId::Visit(theItem.RefId(),
-                                    [&](const auto& theTypedId) { return aStorage.IsOwned(theTypedId); });
+      return BRepGraph_RefId::Visit(theItem.RefId(), [&](const auto& theTypedId) {
+        return aStorage.IsOwned(theTypedId);
+      });
     case BRepGraph_ItemId::Domain::None:
       return false;
   }
@@ -409,6 +412,8 @@ void BRepGraph_LayerLock::OnNodeRemoved(const BRepGraph_NodeId theNode) noexcept
   if (myNodeOwners.UnBind(anItem))
   {
     setItemOwned(anItem, false);
+    expandOwnership(theNode, false);
+    rebuildOwnedFlagsFromRoots();
     touch();
   }
 }
@@ -445,8 +450,7 @@ void BRepGraph_LayerLock::CopyTo(const BRepGraph_CopyRemap& theCopy) const
 
   occ::handle<BRepGraph_LayerLock> aTarget =
     theCopy.TargetGraph().LayerRegistry().Ensure<BRepGraph_LayerLock>();
-  aTarget->ReserveOwners(
-    static_cast<size_t>(myNodeOwners.Extent() + myRefOwners.Extent()));
+  aTarget->ReserveOwners(static_cast<size_t>(myNodeOwners.Extent() + myRefOwners.Extent()));
   bool hasCopied = false;
 
   // Copy node root entries.
@@ -520,8 +524,7 @@ void BRepGraph_LayerLock::Clear() noexcept
 
 //=================================================================================================
 
-void BRepGraph_LayerLock::setItemOwned(const BRepGraph_ItemId theItem,
-                                       const bool             theIsOwned) const
+void BRepGraph_LayerLock::setItemOwned(const BRepGraph_ItemId theItem, const bool theIsOwned) const
 {
   BRepGraph* aGraph = AttachedGraph();
   if (aGraph == nullptr)
@@ -552,8 +555,7 @@ void BRepGraph_LayerLock::setItemOwned(const BRepGraph_ItemId theItem,
 
 //=================================================================================================
 
-void BRepGraph_LayerLock::expandOwnership(const BRepGraph_NodeId theRoot,
-                                          const bool             theIsOwned)
+void BRepGraph_LayerLock::expandOwnership(const BRepGraph_NodeId theRoot, const bool theIsOwned)
 {
   BRepGraph* aGraph = AttachedGraph();
   if (aGraph == nullptr)
@@ -604,9 +606,8 @@ bool BRepGraph_LayerLock::findRootNodeId(const BRepGraph_NodeId theNode,
 
   // Check if this node's bit-flag is set at all.
   bool isOwned = false;
-  BRepGraph_NodeId::Visit(theNode, [&](const auto& theTypedId) {
-    isOwned = aStorage.IsOwned(theTypedId);
-  });
+  BRepGraph_NodeId::Visit(theNode,
+                          [&](const auto& theTypedId) { isOwned = aStorage.IsOwned(theTypedId); });
   if (!isOwned)
   {
     return false;
@@ -615,7 +616,8 @@ bool BRepGraph_LayerLock::findRootNodeId(const BRepGraph_NodeId theNode,
   // Check if this node is a root (parent is NOT owned).
   bool parentOwned = false;
   for (auto [anId, aLoc, anOri] :
-       BRepGraph_ParentExplorer(*aGraph, theNode,
+       BRepGraph_ParentExplorer(*aGraph,
+                                theNode,
                                 BRepGraph_ParentExplorer::TraversalMode::DirectParents))
   {
     BRepGraph_NodeId::Visit(anId, [&](const auto& theTypedId) {
@@ -654,7 +656,8 @@ bool BRepGraph_LayerLock::findRootNodeId(const BRepGraph_NodeId theNode,
     // Check if this ancestor's parent is NOT owned (making it the root).
     bool ancestorParentOwned = false;
     for (auto [aParentId, aPLoc, aPOri] :
-         BRepGraph_ParentExplorer(*aGraph, anId,
+         BRepGraph_ParentExplorer(*aGraph,
+                                  anId,
                                   BRepGraph_ParentExplorer::TraversalMode::DirectParents))
     {
       BRepGraph_NodeId::Visit(aParentId, [&](const auto& theTypedId) {

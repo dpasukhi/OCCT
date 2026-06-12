@@ -37,6 +37,50 @@
 
 namespace
 {
+struct GraphCounts
+{
+  uint32_t NbVertices = 0;
+  uint32_t NbEdges    = 0;
+  uint32_t NbCoEdges  = 0;
+  uint32_t NbFaces    = 0;
+  uint32_t NbProducts = 0;
+};
+
+GraphCounts graphCounts(const BRepGraph& theGraph)
+{
+  GraphCounts aCounts;
+  aCounts.NbVertices = theGraph.Topo().Vertices().Nb();
+  aCounts.NbEdges    = theGraph.Topo().Edges().Nb();
+  aCounts.NbCoEdges  = theGraph.Topo().CoEdges().Nb();
+  aCounts.NbFaces    = theGraph.Topo().Faces().Nb();
+  aCounts.NbProducts = theGraph.Topo().Products().Nb();
+  return aCounts;
+}
+
+bool isInCopiedRange(const BRepGraph_VertexId theId, const GraphCounts& theCounts)
+{
+  return theId.Index >= theCounts.NbVertices;
+}
+
+bool isInCopiedRange(const BRepGraph_EdgeId theId, const GraphCounts& theCounts)
+{
+  return theId.Index >= theCounts.NbEdges;
+}
+
+bool isInCopiedRange(const BRepGraph_CoEdgeId theId, const GraphCounts& theCounts)
+{
+  return theId.Index >= theCounts.NbCoEdges;
+}
+
+bool isInCopiedRange(const BRepGraph_FaceId theId, const GraphCounts& theCounts)
+{
+  return theId.Index >= theCounts.NbFaces;
+}
+
+bool isInCopiedRange(const BRepGraph_ProductId theId, const GraphCounts& theCounts)
+{
+  return theId.Index >= theCounts.NbProducts;
+}
 
 template <typename ApplyProductFn>
 void forEachRootProduct(BRepGraph& theGraph, ApplyProductFn&& theApplyProduct)
@@ -46,6 +90,23 @@ void forEachRootProduct(BRepGraph& theGraph, ApplyProductFn&& theApplyProduct)
   {
     const BRepGraph_ProductId aProductId = aRootIt.Current();
     if (aProductId.IsValid(aProducts.Nb()) && !aProductId.IsRemoved(theGraph))
+    {
+      theApplyProduct(aProductId);
+    }
+  }
+}
+
+template <typename ApplyProductFn>
+void forEachRootProductInCopiedRange(BRepGraph&         theGraph,
+                                     const GraphCounts& theCounts,
+                                     ApplyProductFn&&   theApplyProduct)
+{
+  const BRepGraph::TopoView::ProductOps& aProducts = theGraph.Topo().Products();
+  for (BRepGraph_RootProductIterator aRootIt(theGraph); aRootIt.More(); aRootIt.Next())
+  {
+    const BRepGraph_ProductId aProductId = aRootIt.Current();
+    if (aProductId.IsValid(aProducts.Nb()) && isInCopiedRange(aProductId, theCounts)
+        && !aProductId.IsRemoved(theGraph))
     {
       theApplyProduct(aProductId);
     }
@@ -120,6 +181,60 @@ void transformPolygon3D(const occ::handle<Poly_Polygon3D>& thePoly, const gp_Trs
   }
 }
 
+void transformExistingMesh(BRepGraph&         theGraph,
+                           const GraphCounts& theCounts,
+                           const gp_Trsf&     theTrsf,
+                           const bool         theDoTransform)
+{
+  for (BRepGraph_FaceIterator aFaceIt(theGraph); aFaceIt.More(); aFaceIt.Next())
+  {
+    const BRepGraph_FaceId aFaceId = aFaceIt.CurrentId();
+    if (!isInCopiedRange(aFaceId, theCounts))
+    {
+      continue;
+    }
+    const occ::handle<Poly_Triangulation>& aTri =
+      theGraph.Mesh().Persistent().Faces().Triangulation(aFaceId);
+    if (!aTri.IsNull() && theDoTransform)
+    {
+      transformTriangulation(aTri, theTrsf, BRepGraph_Tool::Face::Surface(theGraph, aFaceId));
+    }
+    theGraph.Mesh().Editor().Faces().Clear(aFaceId);
+  }
+
+  for (BRepGraph_EdgeIterator anEdgeIt(theGraph); anEdgeIt.More(); anEdgeIt.Next())
+  {
+    const BRepGraph_EdgeId anEdgeId = anEdgeIt.CurrentId();
+    if (!isInCopiedRange(anEdgeId, theCounts))
+    {
+      continue;
+    }
+    const occ::handle<Poly_Polygon3D>& aPoly3D =
+      theGraph.Mesh().Persistent().Edges().Polygon3D(anEdgeId);
+    if (!aPoly3D.IsNull() && theDoTransform)
+    {
+      transformPolygon3D(aPoly3D, theTrsf);
+    }
+    theGraph.Mesh().Editor().Edges().Clear(anEdgeId);
+  }
+
+  for (BRepGraph_CoEdgeIterator aCoEdgeIt(theGraph); aCoEdgeIt.More(); aCoEdgeIt.Next())
+  {
+    const BRepGraph_CoEdgeId aCoEdgeId = aCoEdgeIt.CurrentId();
+    if (!isInCopiedRange(aCoEdgeId, theCounts))
+    {
+      continue;
+    }
+    const occ::handle<Poly_PolygonOnTriangulation>& aPolyOnTri =
+      theGraph.Mesh().Persistent().CoEdges().PolygonOnTriangulation(aCoEdgeId);
+    if (!aPolyOnTri.IsNull() && theDoTransform)
+    {
+      aPolyOnTri->Deflection(aPolyOnTri->Deflection() * std::abs(theTrsf.ScaleFactor()));
+    }
+    theGraph.Mesh().Editor().CoEdges().Clear(aCoEdgeId);
+  }
+}
+
 //! Copy persistent mesh representations from theSource into theDest, optionally transforming them.
 //!
 //! Runtime mesh cache is intentionally not copied or transformed.
@@ -130,18 +245,21 @@ void transformPolygon3D(const occ::handle<Poly_Polygon3D>& thePoly, const gp_Trs
 //! @param[in] theDoTransform true: copy + transform; false: copy only (location-only mode)
 //! @param[in] thePolySource  graph whose persistent poly storage is used for mesh rep lookups;
 //!                           when nullptr, theSource is used.
-void applyMeshCopy(const BRepGraph&                  theSource,
-                   BRepGraph&                        theDest,
-                   const gp_Trsf&                    theTrsf,
-                   const bool                        theDoTransform,
-                   const BRepGraph*                  thePolySource  = nullptr)
+void applyMeshCopy(const BRepGraph& theSource,
+                   BRepGraph&       theDest,
+                   const gp_Trsf&   theTrsf,
+                   const bool       theDoTransform,
+                   const BRepGraph* thePolySource = nullptr)
 {
   const BRepGraph* aPolySrc = thePolySource != nullptr ? thePolySource : &theSource;
 
   // Dedup maps: source handle -> transformed handle.
-  NCollection_FlatDataMap<occ::handle<Poly_Triangulation>, occ::handle<Poly_Triangulation>> aTriRepMap;
-  NCollection_FlatDataMap<occ::handle<Poly_Polygon3D>, occ::handle<Poly_Polygon3D>> aPolygon3DRepMap;
-  NCollection_FlatDataMap<occ::handle<Poly_Polygon2D>, occ::handle<Poly_Polygon2D>> aPolygon2DRepMap;
+  NCollection_FlatDataMap<occ::handle<Poly_Triangulation>, occ::handle<Poly_Triangulation>>
+    aTriRepMap;
+  NCollection_FlatDataMap<occ::handle<Poly_Polygon3D>, occ::handle<Poly_Polygon3D>>
+    aPolygon3DRepMap;
+  NCollection_FlatDataMap<occ::handle<Poly_Polygon2D>, occ::handle<Poly_Polygon2D>>
+    aPolygon2DRepMap;
   NCollection_FlatDataMap<occ::handle<Poly_PolygonOnTriangulation>,
                           occ::handle<Poly_PolygonOnTriangulation>>
     aPolygonOnTriRepMap;
@@ -207,7 +325,7 @@ void applyMeshCopy(const BRepGraph&                  theSource,
   // -- Persistent Polygon3D (edges) --
   for (BRepGraph_EdgeIterator anEdgeIt(theSource); anEdgeIt.More(); anEdgeIt.Next())
   {
-    const BRepGraph_EdgeId anEdgeId = anEdgeIt.CurrentId();
+    const BRepGraph_EdgeId             anEdgeId = anEdgeIt.CurrentId();
     const occ::handle<Poly_Polygon3D>& aSrcPersistentPoly3D =
       aPolySrc->Mesh().Persistent().Edges().Polygon3D(anEdgeId);
     if (!aSrcPersistentPoly3D.IsNull())
@@ -275,13 +393,14 @@ void applyMeshCopy(const BRepGraph&                  theSource,
     {
       if (!aSrcPersistPoly2D.IsNull())
       {
-        theDest.Editor().CoEdges().SetPersistentPolygon2D(
-          aCoEdgeId, copyOnePolygon2D(aSrcPersistPoly2D));
+        theDest.Editor().CoEdges().SetPersistentPolygon2D(aCoEdgeId,
+                                                          copyOnePolygon2D(aSrcPersistPoly2D));
       }
       if (!aSrcPersistPolyOnTri.IsNull())
       {
         theDest.Editor().CoEdges().SetPersistentPolygonOnTri(
-          aCoEdgeId, copyOnePolygonOnTri(aSrcPersistPolyOnTri, aCoEdgeId));
+          aCoEdgeId,
+          copyOnePolygonOnTri(aSrcPersistPolyOnTri, aCoEdgeId));
       }
     }
     theDest.Mesh().Editor().CoEdges().Clear(aCoEdgeId);
@@ -294,11 +413,11 @@ void applyMeshCopy(const BRepGraph&                  theSource,
 //! When theCopyMesh=true triangulations are copied and transformed;
 //! otherwise they are invalidated.
 //! @param[in] thePolySource   forwarded to applyMeshCopy; see that function's documentation.
-void applyGeometryTransform(const BRepGraph&                  theSource,
-                            BRepGraph&                        theGraph,
-                            const gp_Trsf&                    theTrsf,
-                            const bool                        theCopyMesh,
-                            const BRepGraph*                  thePolySource  = nullptr)
+void applyGeometryTransform(const BRepGraph& theSource,
+                            BRepGraph&       theGraph,
+                            const gp_Trsf&   theTrsf,
+                            const bool       theCopyMesh,
+                            const BRepGraph* thePolySource = nullptr)
 {
   // Transform absolute vertex points.
   for (BRepGraph_VertexIterator aVertexIt(theGraph); aVertexIt.More(); aVertexIt.Next())
@@ -319,7 +438,8 @@ void applyGeometryTransform(const BRepGraph&                  theSource,
       if (!aSurf.IsNull())
       {
         theGraph.Editor().Faces().SetSurface(
-          aFaceId, occ::down_cast<Geom_Surface>(aSurf->Transformed(theTrsf)));
+          aFaceId,
+          occ::down_cast<Geom_Surface>(aSurf->Transformed(theTrsf)));
       }
     }
     if (!theCopyMesh)
@@ -341,8 +461,10 @@ void applyGeometryTransform(const BRepGraph&                  theSource,
       {
         const auto [aFirst, aLast] = BRepGraph_Tool::Edge::Range(theGraph, anEdgeId);
         theGraph.Editor().Edges().SetCurve(
-          anEdgeId, occ::down_cast<Geom_Curve>(aCurve3d->Transformed(theTrsf)),
-          aFirst, aLast);
+          anEdgeId,
+          occ::down_cast<Geom_Curve>(aCurve3d->Transformed(theTrsf)),
+          aFirst,
+          aLast);
       }
     }
     if (!theCopyMesh)
@@ -358,6 +480,79 @@ void applyGeometryTransform(const BRepGraph&                  theSource,
   }
 }
 
+void applyGeometryTransformInCopiedRange(BRepGraph&         theGraph,
+                                         const GraphCounts& theCounts,
+                                         const gp_Trsf&     theTrsf,
+                                         const bool         theCopyMesh)
+{
+  for (BRepGraph_VertexIterator aVertexIt(theGraph); aVertexIt.More(); aVertexIt.Next())
+  {
+    const BRepGraph_VertexId aVertId = aVertexIt.CurrentId();
+    if (!isInCopiedRange(aVertId, theCounts))
+    {
+      continue;
+    }
+    gp_Pnt aPnt = theGraph.Topo().Vertices().Definition(aVertId).Point;
+    aPnt.Transform(theTrsf);
+    theGraph.Editor().Vertices().SetPoint(aVertId, aPnt);
+  }
+
+  for (BRepGraph_FaceIterator aFaceIt(theGraph); aFaceIt.More(); aFaceIt.Next())
+  {
+    const BRepGraph_FaceId aFaceId = aFaceIt.CurrentId();
+    if (!isInCopiedRange(aFaceId, theCounts))
+    {
+      continue;
+    }
+    if (BRepGraph_Tool::Face::HasSurface(theGraph, aFaceId))
+    {
+      const occ::handle<Geom_Surface>& aSurf = BRepGraph_Tool::Face::Surface(theGraph, aFaceId);
+      if (!aSurf.IsNull())
+      {
+        theGraph.Editor().Faces().SetSurface(
+          aFaceId,
+          occ::down_cast<Geom_Surface>(aSurf->Transformed(theTrsf)));
+      }
+    }
+    if (!theCopyMesh)
+    {
+      theGraph.Editor().Faces().ClearPersistentTriangulation(aFaceId);
+      theGraph.Mesh().Editor().Faces().Clear(aFaceId);
+    }
+  }
+
+  for (BRepGraph_EdgeIterator anEdgeIt(theGraph); anEdgeIt.More(); anEdgeIt.Next())
+  {
+    const BRepGraph_EdgeId anEdgeId = anEdgeIt.CurrentId();
+    if (!isInCopiedRange(anEdgeId, theCounts))
+    {
+      continue;
+    }
+    if (BRepGraph_Tool::Edge::HasCurve(theGraph, anEdgeId))
+    {
+      const occ::handle<Geom_Curve>& aCurve3d = BRepGraph_Tool::Edge::Curve(theGraph, anEdgeId);
+      if (!aCurve3d.IsNull())
+      {
+        const auto [aFirst, aLast] = BRepGraph_Tool::Edge::Range(theGraph, anEdgeId);
+        theGraph.Editor().Edges().SetCurve(
+          anEdgeId,
+          occ::down_cast<Geom_Curve>(aCurve3d->Transformed(theTrsf)),
+          aFirst,
+          aLast);
+      }
+    }
+    if (!theCopyMesh)
+    {
+      theGraph.Mesh().Editor().Edges().Clear(anEdgeId);
+    }
+  }
+
+  if (theCopyMesh)
+  {
+    transformExistingMesh(theGraph, theCounts, theTrsf, true);
+  }
+}
+
 } // namespace
 
 //=================================================================================================
@@ -369,6 +564,28 @@ void BRepGraph_Transform::applyLocationTransform(BRepGraph& theGraph, const gp_T
   // Compose the transform into all top-level OccurrenceRefs of each root product.
   // This handles both parts (shape-root occurrence) and assemblies (sub-product occurrences).
   forEachRootProduct(theGraph, [&](const BRepGraph_ProductId theProductId) {
+    for (const BRepGraph_OccurrenceRefId& aRefId :
+         theGraph.Topo().Products().Relations(theProductId).OccurrenceRefIds)
+    {
+      if (theGraph.Refs().IsRemoved(aRefId))
+      {
+        continue;
+      }
+      BRepGraph_MutGuard<BRepGraphInc::OccurrenceRef> aMutRef =
+        theGraph.Editor().Occurrences().MutRef(aRefId);
+      theGraph.Editor().Occurrences().SetRefLocalLocation(aMutRef, aLoc * aMutRef->LocalLocation);
+    }
+  });
+}
+
+//=================================================================================================
+
+void applyLocationTransformInCopiedRange(BRepGraph&         theGraph,
+                                         const GraphCounts& theCounts,
+                                         const gp_Trsf&     theTrsf)
+{
+  const TopLoc_Location aLoc(theTrsf);
+  forEachRootProductInCopiedRange(theGraph, theCounts, [&](const BRepGraph_ProductId theProductId) {
     for (const BRepGraph_OccurrenceRefId& aRefId :
          theGraph.Topo().Products().Relations(theProductId).OccurrenceRefIds)
     {
@@ -441,6 +658,7 @@ bool BRepGraph_Transform::Perform(const BRepGraph&                 theSourceGrap
   }
 
   // Copy source into target, then transform.
+  const GraphCounts aTargetCounts = graphCounts(theTargetGraph);
   if (!BRepGraph_Copy::Perform(theSourceGraph, theTargetGraph, theGeomPolicy, theMeshPolicy))
   {
     return false;
@@ -448,14 +666,14 @@ bool BRepGraph_Transform::Perform(const BRepGraph&                 theSourceGrap
 
   if (useGeomModif)
   {
-    applyGeometryTransform(theSourceGraph, theTargetGraph, theTrsf, doCopyMesh);
+    applyGeometryTransformInCopiedRange(theTargetGraph, aTargetCounts, theTrsf, doCopyMesh);
   }
   else
   {
-    applyLocationTransform(theTargetGraph, theTrsf);
+    applyLocationTransformInCopiedRange(theTargetGraph, aTargetCounts, theTrsf);
     if (doCopyMesh)
     {
-      applyMeshCopy(theSourceGraph, theTargetGraph, theTrsf, false);
+      transformExistingMesh(theTargetGraph, aTargetCounts, theTrsf, false);
     }
   }
   return true;
@@ -463,13 +681,12 @@ bool BRepGraph_Transform::Perform(const BRepGraph&                 theSourceGrap
 
 //=================================================================================================
 
-BRepGraph_NodeId BRepGraph_Transform::TransformNode(
-  const BRepGraph&                 theSourceGraph,
-  BRepGraph&                       theTargetGraph,
-  const BRepGraph_NodeId           theNodeId,
-  const gp_Trsf&                   theTrsf,
-  const BRepGraph_Copy::GeomPolicy theGeomPolicy,
-  const BRepGraph_Copy::MeshPolicy theMeshPolicy)
+BRepGraph_NodeId BRepGraph_Transform::TransformNode(const BRepGraph&                 theSourceGraph,
+                                                    BRepGraph&                       theTargetGraph,
+                                                    const BRepGraph_NodeId           theNodeId,
+                                                    const gp_Trsf&                   theTrsf,
+                                                    const BRepGraph_Copy::GeomPolicy theGeomPolicy,
+                                                    const BRepGraph_Copy::MeshPolicy theMeshPolicy)
 {
   if (theSourceGraph.IsEmpty())
   {
@@ -482,9 +699,9 @@ BRepGraph_NodeId BRepGraph_Transform::TransformNode(
     std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec();
 
   const bool isPlacementNode = theNodeId.NodeKind == BRepGraph_NodeId::Kind::Product
-                            || theNodeId.NodeKind == BRepGraph_NodeId::Kind::Occurrence;
-  const bool useGeomModif =
-    !isPlacementNode || (theGeomPolicy == BRepGraph_Copy::GeomPolicy::Copy) || isNegative || isScaled;
+                               || theNodeId.NodeKind == BRepGraph_NodeId::Kind::Occurrence;
+  const bool useGeomModif = !isPlacementNode || (theGeomPolicy == BRepGraph_Copy::GeomPolicy::Copy)
+                            || isNegative || isScaled;
 
   // GeomPolicy::Drop is invalid when geometry-level modification is required.
   if (useGeomModif && theGeomPolicy == BRepGraph_Copy::GeomPolicy::Drop)
@@ -509,28 +726,29 @@ BRepGraph_NodeId BRepGraph_Transform::TransformNode(
   }
 
   // Copy node into target, then transform.
-  const BRepGraph_NodeId aRootId =
-    BRepGraph_Copy::CopyNode(theSourceGraph, theTargetGraph, theNodeId, theGeomPolicy, theMeshPolicy);
+  const GraphCounts      aTargetCounts = graphCounts(theTargetGraph);
+  const BRepGraph_NodeId aRootId       = BRepGraph_Copy::CopyNode(theSourceGraph,
+                                                                  theTargetGraph,
+                                                                  theNodeId,
+                                                                  theGeomPolicy,
+                                                                  theMeshPolicy);
   if (!aRootId.IsValid())
   {
     return BRepGraph_NodeId();
   }
 
-  const bool isSelfTransform = (&theSourceGraph == &theTargetGraph);
-  const bool doCopyMesh      = (theMeshPolicy == BRepGraph_Copy::MeshPolicy::Copy);
+  const bool doCopyMesh = (theMeshPolicy == BRepGraph_Copy::MeshPolicy::Copy);
 
   if (useGeomModif)
   {
-    applyGeometryTransform(theTargetGraph, theTargetGraph, theTrsf, doCopyMesh,
-                           isSelfTransform ? &theSourceGraph : nullptr);
+    applyGeometryTransformInCopiedRange(theTargetGraph, aTargetCounts, theTrsf, doCopyMesh);
   }
   else
   {
-    applyLocationTransform(theTargetGraph, theTrsf);
+    applyLocationTransformInCopiedRange(theTargetGraph, aTargetCounts, theTrsf);
     if (doCopyMesh)
     {
-      applyMeshCopy(theTargetGraph, theTargetGraph, theTrsf, false,
-                    isSelfTransform ? &theSourceGraph : nullptr);
+      transformExistingMesh(theTargetGraph, aTargetCounts, theTrsf, false);
     }
   }
   return aRootId;
@@ -538,9 +756,9 @@ BRepGraph_NodeId BRepGraph_Transform::TransformNode(
 
 //=================================================================================================
 
-bool BRepGraph_Transform::MoveRef(BRepGraph&                  theGraph,
-                                  const BRepGraph_ChildRefId  theRefId,
-                                  const gp_Trsf&              theTrsf)
+bool BRepGraph_Transform::MoveRef(BRepGraph&                 theGraph,
+                                  const BRepGraph_ChildRefId theRefId,
+                                  const gp_Trsf&             theTrsf)
 {
   if (std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec())
   {
@@ -551,18 +769,18 @@ bool BRepGraph_Transform::MoveRef(BRepGraph&                  theGraph,
     return false;
   }
 
-  const TopLoc_Location  aLoc     = TopLoc_Location(theTrsf);
+  const TopLoc_Location aLoc     = TopLoc_Location(theTrsf);
   BRepGraph::EditorView anEditor = theGraph.Editor();
-  const TopLoc_Location aOldLoc = theGraph.Refs().Children().Entry(theRefId).LocalLocation;
+  const TopLoc_Location aOldLoc  = theGraph.Refs().Children().Entry(theRefId).LocalLocation;
   anEditor.Gen().SetChildRefLocalLocation(theRefId, aLoc * aOldLoc);
   return true;
 }
 
 //=================================================================================================
 
-bool BRepGraph_Transform::MoveRef(BRepGraph&                       theGraph,
-                                  const BRepGraph_OccurrenceRefId  theRefId,
-                                  const gp_Trsf&                   theTrsf)
+bool BRepGraph_Transform::MoveRef(BRepGraph&                      theGraph,
+                                  const BRepGraph_OccurrenceRefId theRefId,
+                                  const gp_Trsf&                  theTrsf)
 {
   if (std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec())
   {
@@ -573,9 +791,9 @@ bool BRepGraph_Transform::MoveRef(BRepGraph&                       theGraph,
     return false;
   }
 
-  const TopLoc_Location  aLoc     = TopLoc_Location(theTrsf);
+  const TopLoc_Location aLoc     = TopLoc_Location(theTrsf);
   BRepGraph::EditorView anEditor = theGraph.Editor();
-  const TopLoc_Location aOldLoc = theGraph.Refs().Occurrences().Entry(theRefId).LocalLocation;
+  const TopLoc_Location aOldLoc  = theGraph.Refs().Occurrences().Entry(theRefId).LocalLocation;
   anEditor.Occurrences().SetRefLocalLocation(theRefId, aLoc * aOldLoc);
   return true;
 }

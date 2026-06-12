@@ -15,6 +15,7 @@
 
 #include <BRepGraph_LayerRegistry.hxx>
 #include <BRepGraph_ShapesView.hxx>
+#include <NCollection_LinearVector.hxx>
 #include <Standard_Assert.hxx>
 #include <Standard_GUID.hxx>
 #include <Standard_ProgramError.hxx>
@@ -47,7 +48,7 @@ bool isSupportedOwnerKind(const BRepGraph_NodeId::Kind theKind)
   return false;
 }
 
-bool isAttachmentKindCompatible(const BRepGraph_NodeId::Kind                theOwnerKind,
+bool isAttachmentKindCompatible(const BRepGraph_NodeId::Kind                        theOwnerKind,
                                 const BRepGraph_LayerTopoSupplement::AttachmentKind theKind)
 {
   switch (theKind)
@@ -114,10 +115,9 @@ const NCollection_LinearVector<uint64_t>& BRepGraph_LayerTopoSupplement::Attache
 
 //=================================================================================================
 
-uint64_t BRepGraph_LayerTopoSupplement::AddAttachment(
-  const BRepGraph_NodeId      theOwner,
-  const AttachmentKind        theKind,
-  const TopoDS_Shape&         theShape)
+uint64_t BRepGraph_LayerTopoSupplement::AddAttachment(const BRepGraph_NodeId theOwner,
+                                                      const AttachmentKind   theKind,
+                                                      const TopoDS_Shape&    theShape)
 {
   const uint64_t aUid = myNextUid;
   if (!AddAttachmentWithUid(theOwner, aUid, theKind, theShape))
@@ -182,8 +182,7 @@ bool BRepGraph_LayerTopoSupplement::RemoveAttachment(const uint64_t theUid)
     return false;
   }
 
-  NCollection_LinearVector<uint64_t>* aOwnerEntries =
-    myOwnerToUids.ChangeSeek(anEntry->BaseOwner);
+  NCollection_LinearVector<uint64_t>* aOwnerEntries = myOwnerToUids.ChangeSeek(anEntry->BaseOwner);
   if (aOwnerEntries != nullptr)
   {
     for (size_t anIdx = 0; anIdx < aOwnerEntries->Size(); ++anIdx)
@@ -219,8 +218,7 @@ bool BRepGraph_LayerTopoSupplement::RemoveAttachment(const uint64_t theUid)
 
 void BRepGraph_LayerTopoSupplement::Validate() const
 {
-  for (NCollection_DataMap<uint64_t, Entry>::Iterator anIt(myEntries); anIt.More();
-       anIt.Next())
+  for (NCollection_DataMap<uint64_t, Entry>::Iterator anIt(myEntries); anIt.More(); anIt.Next())
   {
     const Entry& anEntry = anIt.Value();
     if (anEntry.LocalUid == 0 || !anEntry.BaseOwner.IsValid()
@@ -233,7 +231,8 @@ void BRepGraph_LayerTopoSupplement::Validate() const
     const NCollection_LinearVector<uint64_t>* aUids = myOwnerToUids.Seek(anEntry.BaseOwner);
     if (aUids == nullptr)
     {
-      throw Standard_ProgramError("BRepGraph_LayerTopoSupplement::Validate() - missing owner index");
+      throw Standard_ProgramError(
+        "BRepGraph_LayerTopoSupplement::Validate() - missing owner index");
     }
 
     bool isFound = false;
@@ -247,7 +246,8 @@ void BRepGraph_LayerTopoSupplement::Validate() const
     }
     if (!isFound)
     {
-      throw Standard_ProgramError("BRepGraph_LayerTopoSupplement::Validate() - missing owner linkage");
+      throw Standard_ProgramError(
+        "BRepGraph_LayerTopoSupplement::Validate() - missing owner linkage");
     }
   }
 }
@@ -318,11 +318,16 @@ void BRepGraph_LayerTopoSupplement::CopyTo(const BRepGraph_CopyRemap& theCopy) c
 
   occ::handle<BRepGraph_LayerTopoSupplement> aTarget =
     theCopy.TargetGraph().LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
+
+  NCollection_LinearVector<Entry> aSourceEntries;
+  aSourceEntries.Reserve(myEntries.Extent());
   for (NCollection_DataMap<uint64_t, Entry>::Iterator anIt(myEntries); anIt.More(); anIt.Next())
   {
-    const Entry&          anEntry = anIt.Value();
-    const BRepGraph_ItemId* aTargetItem =
-      theCopy.TargetItem(BRepGraph_ItemId(anEntry.BaseOwner));
+    aSourceEntries.Append(anIt.Value());
+  }
+  for (const Entry& anEntry : aSourceEntries)
+  {
+    const BRepGraph_ItemId* aTargetItem = theCopy.TargetItem(BRepGraph_ItemId(anEntry.BaseOwner));
     if (aTargetItem == nullptr || !aTargetItem->IsNode())
     {
       continue;
@@ -333,8 +338,13 @@ void BRepGraph_LayerTopoSupplement::CopyTo(const BRepGraph_CopyRemap& theCopy) c
     {
       continue;
     }
-    const bool wasAdded =
-      aTarget->AddAttachmentWithUid(aTargetOwner, anEntry.LocalUid, anEntry.Kind, anEntry.Shape);
+    const bool hasUidCollision = aTarget->myEntries.IsBound(anEntry.LocalUid);
+    const bool wasAdded = hasUidCollision
+                            ? aTarget->AddAttachment(aTargetOwner, anEntry.Kind, anEntry.Shape) != 0
+                            : aTarget->AddAttachmentWithUid(aTargetOwner,
+                                                            anEntry.LocalUid,
+                                                            anEntry.Kind,
+                                                            anEntry.Shape);
     Standard_ASSERT_RAISE(wasAdded,
                           "BRepGraph_LayerTopoSupplement::CopyTo: failed to copy attachment");
   }

@@ -199,17 +199,17 @@ inline void appendItemUidForward(
 //=================================================================================================
 
 BRepGraph_LayerHistory::BRepGraph_LayerHistory()
-    : myRecords(32, myAllocator),
-      myDerivedToOriginals(1, myAllocator),
-      myOriginalToModified(1, myAllocator),
-      myOriginalToGenerated(1, myAllocator),
+    : myRecords(32),
+      myDerivedToOriginals(1),
+      myOriginalToModified(1),
+      myOriginalToGenerated(1),
       myDeleted(1),
-      myUidOriginalToModified(1, myAllocator),
-      myUidOriginalToGenerated(1, myAllocator),
+      myUidOriginalToModified(1),
+      myUidOriginalToGenerated(1),
       myUidKnownInputs(1),
       myUidDeleted(1),
-      myItemUidOriginalToModified(1, myAllocator),
-      myItemUidOriginalToGenerated(1, myAllocator),
+      myItemUidOriginalToModified(1),
+      myItemUidOriginalToGenerated(1),
       myItemUidKnownInputs(1),
       myItemUidDeleted(1)
 {
@@ -412,8 +412,7 @@ void BRepGraph_LayerHistory::CopyTo(const BRepGraph_CopyRemap& theCopy) const
     aTarget->SetEnabled(true);
 
     static const TCollection_AsciiString THE_COMPACT_REMAP_LABEL("Compact:Remap");
-    occ::handle<NCollection_IncAllocator> aNewAlloc = new NCollection_IncAllocator;
-    NCollection_DynamicArray<Event> aNewRecords(32, aNewAlloc);
+    NCollection_DynamicArray<Event> aNewRecords(32);
 
     for (const Event& aRecord : myRecords)
     {
@@ -422,7 +421,7 @@ void BRepGraph_LayerHistory::CopyTo(const BRepGraph_CopyRemap& theCopy) const
         continue;
       }
 
-      Event aNewRecord(aNewAlloc);
+      Event aNewRecord;
       aNewRecord.OperationName  = aRecord.OperationName;
       aNewRecord.SequenceNumber = aNewRecords.Size();
       aNewRecord.RecordKind     = aRecord.RecordKind;
@@ -477,8 +476,7 @@ void BRepGraph_LayerHistory::CopyTo(const BRepGraph_CopyRemap& theCopy) const
       }
     }
 
-    aTarget->myAllocator = aNewAlloc;
-    aTarget->myRecords   = std::move(aNewRecords);
+    aTarget->myRecords = std::move(aNewRecords);
     aTarget->rebuildCaches();
     aTarget->SetEnabled(myEnabled);
     return;
@@ -487,6 +485,7 @@ void BRepGraph_LayerHistory::CopyTo(const BRepGraph_CopyRemap& theCopy) const
   occ::handle<BRepGraph_LayerHistory> aTarget =
     theCopy.TargetGraph().LayerRegistry().Ensure<BRepGraph_LayerHistory>();
   aTarget->SetEnabled(true);
+  bool hasRawRecordsAppended = false;
 
   auto toSourceItem = [&](const BRepGraph_ItemUID& theUID) {
     return theCopy.SourceGraph().UIDs().ItemIdFrom(theUID);
@@ -592,22 +591,61 @@ void BRepGraph_LayerHistory::CopyTo(const BRepGraph_CopyRemap& theCopy) const
   {
     if (aRecord.RecordKind == BRepGraph_LayerHistory::Kind::Deleted && !aRecord.Mapping.IsEmpty())
     {
+      Event aNewRecord;
+      aNewRecord.OperationName  = aRecord.OperationName;
+      aNewRecord.SequenceNumber = aTarget->myRecords.Size();
+      aNewRecord.RecordKind     = aRecord.RecordKind;
+      aNewRecord.ExtraInfo      = aRecord.ExtraInfo;
+
       for (NCollection_DataMap<BRepGraph_NodeId,
                                NCollection_LinearVector<BRepGraph_NodeId>>::Iterator anIt(
              aRecord.Mapping);
            anIt.More();
            anIt.Next())
       {
-        NCollection_LinearVector<BRepGraph_ItemId> aSourceImages(THE_HISTORY_FILTERED_BLOCK_SIZE);
+        BRepGraph_NodeId aTargetNode;
+        const BRepGraph_ItemId* aTargetOriginal = theCopy.TargetItem(BRepGraph_ItemId(anIt.Key()));
+        if (aTargetOriginal != nullptr && aTargetOriginal->IsNode())
+        {
+          aTargetNode = aTargetOriginal->NodeId();
+        }
+        else if (theCopy.TargetGraphConst().Topo().Gen().TopoEntity(anIt.Key()) != nullptr)
+        {
+          aTargetNode = anIt.Key();
+        }
+        if (!aTargetNode.IsValid())
+        {
+          continue;
+        }
+
+        NCollection_LinearVector<BRepGraph_NodeId> aTargetImages(THE_HISTORY_FILTERED_BLOCK_SIZE);
         for (const BRepGraph_NodeId& aNode : anIt.Value())
         {
-          aSourceImages.Append(BRepGraph_ItemId(aNode));
+          const BRepGraph_ItemId* aTargetImage = theCopy.TargetItem(BRepGraph_ItemId(aNode));
+          if (aTargetImage != nullptr && aTargetImage->IsNode())
+          {
+            appendUniqueNode(aTargetImages, aTargetImage->NodeId());
+          }
         }
-        replayItems(aRecord.OperationName,
-                    aRecord.RecordKind,
-                    BRepGraph_ItemId(anIt.Key()),
-                    BRepGraph_ItemUID(),
-                    aSourceImages);
+        aNewRecord.Mapping.Bind(aTargetNode, std::move(aTargetImages));
+      }
+
+      if (!aRecord.ItemUidMapping.IsEmpty())
+      {
+        for (NCollection_DataMap<BRepGraph_ItemUID,
+                                 NCollection_LinearVector<BRepGraph_ItemUID>>::Iterator anIt(
+               aRecord.ItemUidMapping);
+             anIt.More();
+             anIt.Next())
+        {
+          aNewRecord.ItemUidMapping.Bind(anIt.Key(), copyItemUids(anIt.Value()));
+        }
+      }
+
+      if (!aNewRecord.Mapping.IsEmpty() || !aNewRecord.ItemUidMapping.IsEmpty())
+      {
+        aTarget->myRecords.Append(std::move(aNewRecord));
+        hasRawRecordsAppended = true;
       }
       continue;
     }
@@ -702,6 +740,10 @@ void BRepGraph_LayerHistory::CopyTo(const BRepGraph_CopyRemap& theCopy) const
     }
   }
 
+  if (hasRawRecordsAppended)
+  {
+    aTarget->rebuildCaches();
+  }
   aTarget->SetEnabled(myEnabled);
 }
 
@@ -727,7 +769,7 @@ void BRepGraph_LayerHistory::Record(
 
   // Append a new history record.  Empty replacements collapse to a Deleted
   // record regardless of the caller-supplied kind.
-  BRepGraph_LayerHistory::Event aRecord(myAllocator);
+  BRepGraph_LayerHistory::Event aRecord;
   aRecord.OperationName  = theOpLabel;
   aRecord.SequenceNumber = myRecords.Size();
   aRecord.RecordKind = theReplacements.IsEmpty() ? BRepGraph_LayerHistory::Kind::Deleted : theKind;
@@ -846,7 +888,7 @@ void BRepGraph_LayerHistory::RecordBatch(
 
   // Create a single history record with all mappings.
   // Pre-size the Mapping to avoid DataMap rehashing.
-  BRepGraph_LayerHistory::Event aRecord(myAllocator);
+  BRepGraph_LayerHistory::Event aRecord;
   aRecord.OperationName  = theOpLabel;
   aRecord.SequenceNumber = myRecords.Size();
   aRecord.RecordKind     = theKind;
@@ -963,7 +1005,7 @@ void BRepGraph_LayerHistory::RecordDeleted(
     return;
   }
 
-  BRepGraph_LayerHistory::Event aRecord(myAllocator);
+  BRepGraph_LayerHistory::Event aRecord;
   aRecord.OperationName  = theOpLabel;
   aRecord.SequenceNumber = myRecords.Size();
   aRecord.RecordKind     = BRepGraph_LayerHistory::Kind::Deleted;
@@ -1071,7 +1113,7 @@ void BRepGraph_LayerHistory::RecordUid(
     return;
   }
 
-  BRepGraph_LayerHistory::Event aRecord(myAllocator);
+  BRepGraph_LayerHistory::Event aRecord;
   aRecord.OperationName  = theOpLabel;
   aRecord.SequenceNumber = myRecords.Size();
   aRecord.RecordKind     = theKind;
@@ -1125,7 +1167,7 @@ void BRepGraph_LayerHistory::RecordDeletedUid(
     return;
   }
 
-  BRepGraph_LayerHistory::Event aRecord(myAllocator);
+  BRepGraph_LayerHistory::Event aRecord;
   aRecord.OperationName  = theOpLabel;
   aRecord.SequenceNumber = myRecords.Size();
   aRecord.RecordKind     = BRepGraph_LayerHistory::Kind::Deleted;
@@ -1202,7 +1244,7 @@ void BRepGraph_LayerHistory::RecordItemUid(
     return;
   }
 
-  BRepGraph_LayerHistory::Event aRecord(myAllocator);
+  BRepGraph_LayerHistory::Event aRecord;
   aRecord.OperationName  = theOpLabel;
   aRecord.SequenceNumber = myRecords.Size();
   aRecord.RecordKind     = theKind;
@@ -1234,7 +1276,7 @@ void BRepGraph_LayerHistory::RecordDeletedItemUid(
     return;
   }
 
-  BRepGraph_LayerHistory::Event aRecord(myAllocator);
+  BRepGraph_LayerHistory::Event aRecord;
   aRecord.OperationName  = theOpLabel;
   aRecord.SequenceNumber = myRecords.Size();
   aRecord.RecordKind     = BRepGraph_LayerHistory::Kind::Deleted;
@@ -1787,6 +1829,5 @@ void BRepGraph_LayerHistory::Clear() noexcept
   myItemUidOriginalToGenerated.Clear();
   myItemUidKnownInputs.Clear();
   myItemUidDeleted.Clear();
-  myAllocator->Reset(false);
   touch();
 }

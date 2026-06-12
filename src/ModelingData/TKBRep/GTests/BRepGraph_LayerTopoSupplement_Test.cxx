@@ -15,6 +15,7 @@
 
 #include <BRep_Builder.hxx>
 #include <BRepGraph_Compact.hxx>
+#include <BRepGraph_Copy.hxx>
 #include <BRepGraph.hxx>
 #include <BRepGraph_EditorView.hxx>
 #include <BRepGraph_LayerRegistry.hxx>
@@ -38,7 +39,7 @@ namespace
 {
 TopoDS_Vertex makeVertexShape(const gp_Pnt& thePoint)
 {
-  BRep_Builder aBuilder;
+  BRep_Builder  aBuilder;
   TopoDS_Vertex aVertex;
   aBuilder.MakeVertex(aVertex, thePoint, 1.0e-7);
   return aVertex;
@@ -48,11 +49,11 @@ TopoDS_Edge makeEdgeWithSupplementVertices()
 {
   BRep_Builder aBuilder;
 
-  const TopoDS_Vertex aStart        = makeVertexShape(gp_Pnt(0.0, 0.0, 0.0));
-  const TopoDS_Vertex anExtraFwd    = makeVertexShape(gp_Pnt(2.0, 0.0, 0.0));
-  const TopoDS_Vertex anInternal    = makeVertexShape(gp_Pnt(5.0, 0.0, 0.0));
-  const TopoDS_Vertex anExternal    = makeVertexShape(gp_Pnt(7.0, 0.0, 0.0));
-  const TopoDS_Vertex anEnd         = makeVertexShape(gp_Pnt(10.0, 0.0, 0.0));
+  const TopoDS_Vertex aStart     = makeVertexShape(gp_Pnt(0.0, 0.0, 0.0));
+  const TopoDS_Vertex anExtraFwd = makeVertexShape(gp_Pnt(2.0, 0.0, 0.0));
+  const TopoDS_Vertex anInternal = makeVertexShape(gp_Pnt(5.0, 0.0, 0.0));
+  const TopoDS_Vertex anExternal = makeVertexShape(gp_Pnt(7.0, 0.0, 0.0));
+  const TopoDS_Vertex anEnd      = makeVertexShape(gp_Pnt(10.0, 0.0, 0.0));
 
   TopoDS_Edge anEdge;
   aBuilder.MakeEdge(anEdge);
@@ -188,14 +189,14 @@ BRepGraph_CompSolidId addEmptyCompSolid(BRepGraph& theGraph)
 
 TopoDS_CompSolid makePlainCompSolid()
 {
-  BRep_Builder aBuilder;
+  BRep_Builder     aBuilder;
   TopoDS_CompSolid aCompSolid;
   aBuilder.MakeCompSolid(aCompSolid);
   aBuilder.Add(aCompSolid, makePlainSolid());
   return aCompSolid;
 }
 
-int countDirectChildren(const TopoDS_Shape&       theShape,
+int countDirectChildren(const TopoDS_Shape&      theShape,
                         const TopAbs_ShapeEnum   theType,
                         const TopAbs_Orientation theOrientation)
 {
@@ -214,7 +215,7 @@ int countDirectChildren(const TopoDS_Shape&       theShape,
 
 TEST(BRepGraph_LayerTopoSupplementTest, AttachAndRemoveVertexSupplement)
 {
-  BRepGraph         aGraph;
+  BRepGraph          aGraph;
   BRepGraph_VertexId aOwner = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.0e-7);
 
   BRepGraph_SupplementEditor anEditor(aGraph);
@@ -226,15 +227,15 @@ TEST(BRepGraph_LayerTopoSupplementTest, AttachAndRemoveVertexSupplement)
     aGraph.LayerRegistry().FindLayer<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aLayer.IsNull());
 
-  const NCollection_LinearVector<uint64_t>& anAttached = aLayer->AttachedTo(BRepGraph_NodeId(aOwner));
+  const NCollection_LinearVector<uint64_t>& anAttached =
+    aLayer->AttachedTo(BRepGraph_NodeId(aOwner));
   ASSERT_EQ(anAttached.Size(), 1);
   EXPECT_EQ(anAttached.First(), anAttachment);
 
   const BRepGraph_LayerTopoSupplement::Entry* anEntry = aLayer->FindByUid(anAttachment);
   ASSERT_NE(anEntry, nullptr);
   EXPECT_EQ(anEntry->BaseOwner, BRepGraph_NodeId(aOwner));
-  EXPECT_EQ(anEntry->Kind,
-            BRepGraph_LayerTopoSupplement::AttachmentKind::VertexSupplementShape);
+  EXPECT_EQ(anEntry->Kind, BRepGraph_LayerTopoSupplement::AttachmentKind::VertexSupplementShape);
   EXPECT_EQ(anEntry->Shape.ShapeType(), TopAbs_VERTEX);
 
   EXPECT_TRUE(anEditor.RemoveAttachment(anAttachment));
@@ -248,8 +249,7 @@ TEST(BRepGraph_LayerTopoSupplementTest, SupplementIteratorPreservesOwnerOrderAnd
   BRepGraph_VertexId aOwner = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.0e-7);
 
   BRepGraph_SupplementEditor anEditor(aGraph);
-  const uint64_t             aFirst =
-    anEditor.AttachToVertex(aOwner, makeVertexShape(gp_Pnt(1.0, 0.0, 0.0)));
+  const uint64_t aFirst  = anEditor.AttachToVertex(aOwner, makeVertexShape(gp_Pnt(1.0, 0.0, 0.0)));
   const uint64_t aSecond = anEditor.AttachToVertex(aOwner, makeVertexShape(gp_Pnt(2.0, 0.0, 0.0)));
   ASSERT_NE(aFirst, uint64_t(0));
   ASSERT_NE(aSecond, uint64_t(0));
@@ -278,7 +278,7 @@ TEST(BRepGraph_LayerTopoSupplementTest, OnNodeReplacedMigratesAttachments)
 {
   BRepGraph          aGraph;
   BRepGraph_VertexId anOldOwner = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.0e-7);
-  BRepGraph_VertexId aNewOwner = aGraph.Editor().Vertices().Add(gp_Pnt(5.0, 0.0, 0.0), 1.0e-7);
+  BRepGraph_VertexId aNewOwner  = aGraph.Editor().Vertices().Add(gp_Pnt(5.0, 0.0, 0.0), 1.0e-7);
 
   BRepGraph_SupplementEditor anEditor(aGraph);
   const uint64_t             anAttachment =
@@ -327,8 +327,9 @@ TEST(BRepGraph_LayerTopoSupplementTest, LegacyEdgeInternalVertexWriterUsesSupple
 {
   BRepGraph          aGraph;
   BRepGraph_VertexId aStart = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.0e-7);
-  BRepGraph_VertexId anEnd = aGraph.Editor().Vertices().Add(gp_Pnt(10.0, 0.0, 0.0), 1.0e-7);
-  BRepGraph_EdgeId   anEdge = aGraph.Editor().Edges().Add(aStart, anEnd, occ::handle<Geom_Curve>(), 0.0, 1.0, 1.0e-7);
+  BRepGraph_VertexId anEnd  = aGraph.Editor().Vertices().Add(gp_Pnt(10.0, 0.0, 0.0), 1.0e-7);
+  BRepGraph_EdgeId   anEdge =
+    aGraph.Editor().Edges().Add(aStart, anEnd, occ::handle<Geom_Curve>(), 0.0, 1.0, 1.0e-7);
   ASSERT_TRUE(anEdge.IsValid());
 
   // Edges().AddInternalVertex() removed; use Shapes().Add(vertexShape, edgeNode) instead.
@@ -341,7 +342,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, LegacyEdgeInternalVertexWriterUsesSupple
   // No internal vertex added → supplement layer may not be created.
   if (!aLayer.IsNull())
   {
-    const NCollection_LinearVector<uint64_t>& anAttached = aLayer->AttachedTo(BRepGraph_NodeId(anEdge));
+    const NCollection_LinearVector<uint64_t>& anAttached =
+      aLayer->AttachedTo(BRepGraph_NodeId(anEdge));
     EXPECT_EQ(anAttached.Size(), 0);
   }
 
@@ -356,15 +358,15 @@ TEST(BRepGraph_LayerTopoSupplementTest, LegacyEdgeInternalVertexWriterUsesSupple
 
 TEST(BRepGraph_LayerTopoSupplementTest, AddAndReconstructPreservesSupplementEdgeVertices)
 {
-  BRepGraph                  aGraph;
+  BRepGraph                      aGraph;
   BRepGraph::ShapesView::Options anOptions;
   anOptions.CreateAutoProduct = false;
   const occ::handle<BRepGraph_LayerTopoSupplement> aRegisteredLayer =
     aGraph.LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aRegisteredLayer.IsNull());
 
-  const TopoDS_Edge anInputEdge = makeEdgeWithSupplementVertices();
-  const BRepGraph::ShapesView::Result aResult = aGraph.Shapes().Add(anInputEdge, anOptions);
+  const TopoDS_Edge                   anInputEdge = makeEdgeWithSupplementVertices();
+  const BRepGraph::ShapesView::Result aResult     = aGraph.Shapes().Add(anInputEdge, anOptions);
   ASSERT_TRUE(aResult.IsOk());
   ASSERT_EQ(aResult.TopologyRoot.NodeKind, BRepGraph_NodeId::Kind::Edge);
 
@@ -438,15 +440,15 @@ TEST(BRepGraph_LayerTopoSupplementTest, AddAndReconstructPreservesSupplementEdge
 
 TEST(BRepGraph_LayerTopoSupplementTest, AddAndReconstructPreservesSupplementFaceVertex)
 {
-  BRepGraph                     aGraph;
+  BRepGraph                      aGraph;
   BRepGraph::ShapesView::Options anOptions;
   anOptions.CreateAutoProduct = false;
   const occ::handle<BRepGraph_LayerTopoSupplement> aRegisteredLayer =
     aGraph.LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aRegisteredLayer.IsNull());
 
-  const TopoDS_Face aInputFace = makeFaceWithSupplementVertex();
-  const BRepGraph::ShapesView::Result aResult = aGraph.Shapes().Add(aInputFace, anOptions);
+  const TopoDS_Face                   aInputFace = makeFaceWithSupplementVertex();
+  const BRepGraph::ShapesView::Result aResult    = aGraph.Shapes().Add(aInputFace, anOptions);
   ASSERT_TRUE(aResult.IsOk());
   ASSERT_EQ(aResult.TopologyRoot.NodeKind, BRepGraph_NodeId::Kind::Face);
 
@@ -466,7 +468,7 @@ TEST(BRepGraph_LayerTopoSupplementTest, AddAndReconstructPreservesSupplementFace
   const TopoDS_Shape aRoundTrip = aGraph.Shapes().Reconstruct(aResult.TopologyRoot);
   ASSERT_EQ(aRoundTrip.ShapeType(), TopAbs_FACE);
 
-  int aNbWires           = 0;
+  int aNbWires            = 0;
   int aNbInternalVertices = 0;
   for (TopoDS_Iterator aChildIt(aRoundTrip, false, false); aChildIt.More(); aChildIt.Next())
   {
@@ -487,17 +489,54 @@ TEST(BRepGraph_LayerTopoSupplementTest, AddAndReconstructPreservesSupplementFace
   EXPECT_EQ(aNbInternalVertices, 1);
 }
 
+TEST(BRepGraph_LayerTopoSupplementTest, ShellReconstructionReplaysFaceSupplementVertex)
+{
+  BRep_Builder aBuilder;
+  TopoDS_Shell aShell;
+  aBuilder.MakeShell(aShell);
+  aBuilder.Add(aShell, makeFaceWithSupplementVertex());
+
+  BRepGraph aGraph;
+  aGraph.Clear();
+  [[maybe_unused]] const occ::handle<BRepGraph_LayerTopoSupplement> aRegisteredLayer =
+    aGraph.LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
+  BRepGraph::ShapesView::Options anOptions;
+  anOptions.CreateAutoProduct                 = false;
+  const BRepGraph::ShapesView::Result aResult = aGraph.Shapes().Add(aShell, anOptions);
+  ASSERT_TRUE(aResult.TopologyRoot.IsValid());
+
+  const TopoDS_Shape aRoundTrip = aGraph.Shapes().Reconstruct(aResult.TopologyRoot);
+  ASSERT_FALSE(aRoundTrip.IsNull());
+  ASSERT_EQ(aRoundTrip.ShapeType(), TopAbs_SHELL);
+
+  int aNbFaces            = 0;
+  int aNbInternalVertices = 0;
+  for (TopoDS_Iterator aFaceIt(aRoundTrip, false, false); aFaceIt.More(); aFaceIt.Next())
+  {
+    const TopoDS_Shape& aFace = aFaceIt.Value();
+    if (aFace.ShapeType() != TopAbs_FACE)
+    {
+      continue;
+    }
+    ++aNbFaces;
+    aNbInternalVertices += countDirectChildren(aFace, TopAbs_VERTEX, TopAbs_INTERNAL);
+  }
+
+  EXPECT_EQ(aNbFaces, 1);
+  EXPECT_EQ(aNbInternalVertices, 1);
+}
+
 TEST(BRepGraph_LayerTopoSupplementTest, SolidAddChild_ReconstructPreservesSupplementEdge)
 {
-  BRepGraph                     aGraph;
+  BRepGraph                      aGraph;
   BRepGraph::ShapesView::Options anOptions;
   anOptions.CreateAutoProduct = false;
   const occ::handle<BRepGraph_LayerTopoSupplement> aRegisteredLayer =
     aGraph.LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aRegisteredLayer.IsNull());
 
-  const TopoDS_Solid aInputSolid = makePlainSolid();
-  const BRepGraph::ShapesView::Result aResult = aGraph.Shapes().Add(aInputSolid, anOptions);
+  const TopoDS_Solid                  aInputSolid = makePlainSolid();
+  const BRepGraph::ShapesView::Result aResult     = aGraph.Shapes().Add(aInputSolid, anOptions);
   ASSERT_TRUE(aResult.IsOk());
   ASSERT_EQ(aResult.TopologyRoot.NodeKind, BRepGraph_NodeId::Kind::Solid);
 
@@ -526,8 +565,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, SolidAddChild_ReconstructPreservesSupple
 
 TEST(BRepGraph_LayerTopoSupplementTest, ShellOwner_IsAcceptedBySupplementLayer)
 {
-  BRepGraph          aGraph;
-  BRepGraph_ShellId  aShell = aGraph.Editor().Shells().Add();
+  BRepGraph         aGraph;
+  BRepGraph_ShellId aShell = aGraph.Editor().Shells().Add();
   ASSERT_TRUE(aShell.IsValid());
 
   const occ::handle<BRepGraph_LayerTopoSupplement> aLayer =
@@ -552,10 +591,11 @@ TEST(BRepGraph_LayerTopoSupplementTest, CompSolidOwner_IsAcceptedBySupplementLay
                                   BRepGraph_LayerTopoSupplement::AttachmentKind::CompSolidAuxShape,
                                   makePlainSolid()),
             uint64_t(0));
-  EXPECT_NE(aLayer->AddAttachment(BRepGraph_NodeId(aCompSolid),
-                                  BRepGraph_LayerTopoSupplement::AttachmentKind::GenericSupplementShape,
-                                  makeVertexShape(gp_Pnt(1.0, 2.0, 3.0))),
-            uint64_t(0));
+  EXPECT_NE(
+    aLayer->AddAttachment(BRepGraph_NodeId(aCompSolid),
+                          BRepGraph_LayerTopoSupplement::AttachmentKind::GenericSupplementShape,
+                          makeVertexShape(gp_Pnt(1.0, 2.0, 3.0))),
+    uint64_t(0));
 
   EXPECT_EQ(aLayer->AttachedTo(BRepGraph_NodeId(aCompSolid)).Size(), 2);
 }
@@ -566,14 +606,14 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShellAddFace_Internal_RoutedToSupplement
   BRepGraph::ShapesView::Options anOptions;
   anOptions.CreateAutoProduct = false;
 
-  const TopoDS_Shell aInputShell = makePlainShell();
+  const TopoDS_Shell                  aInputShell  = makePlainShell();
   const BRepGraph::ShapesView::Result aShellResult = aGraph.Shapes().Add(aInputShell, anOptions);
   ASSERT_TRUE(aShellResult.IsOk());
   ASSERT_EQ(aShellResult.TopologyRoot.NodeKind, BRepGraph_NodeId::Kind::Shell);
 
   const BRepGraph_ShellId aShellId(aShellResult.TopologyRoot);
-  const uint32_t aNbFacesBefore = aGraph.Topo().Faces().Nb();
-  TopoDS_Face aInternalFace = makePlainFace();
+  const uint32_t          aNbFacesBefore = aGraph.Topo().Faces().Nb();
+  TopoDS_Face             aInternalFace  = makePlainFace();
   aInternalFace.Orientation(TopAbs_INTERNAL);
 
   const BRepGraph::ShapesView::Result aAddResult =
@@ -587,7 +627,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShellAddFace_Internal_RoutedToSupplement
     aGraph.LayerRegistry().FindLayer<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aLayer.IsNull());
 
-  const NCollection_LinearVector<uint64_t>& anAttached = aLayer->AttachedTo(BRepGraph_NodeId(aShellId));
+  const NCollection_LinearVector<uint64_t>& anAttached =
+    aLayer->AttachedTo(BRepGraph_NodeId(aShellId));
   ASSERT_GE(anAttached.Size(), 1);
 
   const BRepGraph_LayerTopoSupplement::Entry* anEntry = aLayer->FindByUid(anAttached.Last());
@@ -606,13 +647,14 @@ TEST(BRepGraph_LayerTopoSupplementTest, SolidAddShell_Internal_RoutedToSupplemen
   BRepGraph::ShapesView::Options anOptions;
   anOptions.CreateAutoProduct = false;
 
-  const BRepGraph::ShapesView::Result aSolidResult = aGraph.Shapes().Add(makePlainSolid(), anOptions);
+  const BRepGraph::ShapesView::Result aSolidResult =
+    aGraph.Shapes().Add(makePlainSolid(), anOptions);
   ASSERT_TRUE(aSolidResult.IsOk());
   ASSERT_EQ(aSolidResult.TopologyRoot.NodeKind, BRepGraph_NodeId::Kind::Solid);
 
   const BRepGraph_SolidId aSolidId(aSolidResult.TopologyRoot);
-  const uint32_t aNbShellsBefore = aGraph.Topo().Shells().Nb();
-  TopoDS_Shell anInternalShell = makePlainShell();
+  const uint32_t          aNbShellsBefore = aGraph.Topo().Shells().Nb();
+  TopoDS_Shell            anInternalShell = makePlainShell();
   anInternalShell.Orientation(TopAbs_INTERNAL);
 
   const BRepGraph::ShapesView::Result aAddResult =
@@ -626,7 +668,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, SolidAddShell_Internal_RoutedToSupplemen
     aGraph.LayerRegistry().FindLayer<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aLayer.IsNull());
 
-  const NCollection_LinearVector<uint64_t>& anAttached = aLayer->AttachedTo(BRepGraph_NodeId(aSolidId));
+  const NCollection_LinearVector<uint64_t>& anAttached =
+    aLayer->AttachedTo(BRepGraph_NodeId(aSolidId));
   ASSERT_GE(anAttached.Size(), 1);
 
   const BRepGraph_LayerTopoSupplement::Entry* anEntry = aLayer->FindByUid(anAttached.Last());
@@ -651,8 +694,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, CompSolidAddSolid_Internal_RoutedToSuppl
   ASSERT_EQ(aCompSolidResult.TopologyRoot.NodeKind, BRepGraph_NodeId::Kind::CompSolid);
 
   const BRepGraph_CompSolidId aCompSolidId(aCompSolidResult.TopologyRoot);
-  const uint32_t aNbSolidsBefore = aGraph.Topo().Solids().Nb();
-  TopoDS_Solid anInternalSolid = makePlainSolid();
+  const uint32_t              aNbSolidsBefore = aGraph.Topo().Solids().Nb();
+  TopoDS_Solid                anInternalSolid = makePlainSolid();
   anInternalSolid.Orientation(TopAbs_INTERNAL);
 
   const BRepGraph::ShapesView::Result aAddResult =
@@ -686,7 +729,7 @@ TEST(BRepGraph_LayerTopoSupplementTest, CompoundAddChild_MixedOrientations_CoreR
   BRepGraph::ShapesView::Options anOptions;
   anOptions.CreateAutoProduct = false;
 
-  BRep_Builder aBB;
+  BRep_Builder    aBB;
   TopoDS_Compound aCompound;
   aBB.MakeCompound(aCompound);
   const BRepGraph::ShapesView::Result aCompResult = aGraph.Shapes().Add(aCompound, anOptions);
@@ -720,15 +763,89 @@ TEST(BRepGraph_LayerTopoSupplementTest, CompoundAddChild_MixedOrientations_CoreR
   EXPECT_EQ(anEntry->Kind, BRepGraph_LayerTopoSupplement::AttachmentKind::CompoundAuxShape);
 }
 
-TEST(BRepGraph_LayerTopoSupplementTest, IncompatibleAttachmentKindIsRejected)
+TEST(BRepGraph_LayerTopoSupplementTest, CopyToAllocatesFreshUidOnCollision)
+{
+  BRepGraph aSource;
+  BRepGraph aTarget;
+
+  const BRepGraph_VertexId aSourceVertex =
+    aSource.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.0e-7);
+  const BRepGraph_VertexId aTargetVertex =
+    aTarget.Editor().Vertices().Add(gp_Pnt(10.0, 0.0, 0.0), 1.0e-7);
+  const uint32_t aTargetVertexCount = aTarget.Topo().Vertices().Nb();
+
+  occ::handle<BRepGraph_LayerTopoSupplement> aSourceLayer =
+    aSource.LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
+  occ::handle<BRepGraph_LayerTopoSupplement> aTargetLayer =
+    aTarget.LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
+
+  ASSERT_TRUE(aSourceLayer->AddAttachmentWithUid(
+    BRepGraph_NodeId(aSourceVertex),
+    1,
+    BRepGraph_LayerTopoSupplement::AttachmentKind::VertexSupplementShape,
+    makeVertexShape(gp_Pnt(1.0, 0.0, 0.0))));
+  ASSERT_TRUE(aTargetLayer->AddAttachmentWithUid(
+    BRepGraph_NodeId(aTargetVertex),
+    1,
+    BRepGraph_LayerTopoSupplement::AttachmentKind::VertexSupplementShape,
+    makeVertexShape(gp_Pnt(11.0, 0.0, 0.0))));
+
+  ASSERT_TRUE(BRepGraph_Copy::Perform(aSource, aTarget, BRepGraph_Copy::GeomPolicy::Copy));
+
+  aTargetLayer = aTarget.LayerRegistry().FindLayer<BRepGraph_LayerTopoSupplement>();
+  ASSERT_FALSE(aTargetLayer.IsNull());
+  const BRepGraph_VertexId                  aCopiedVertex(aTargetVertexCount);
+  const NCollection_LinearVector<uint64_t>& aCopiedAttachments =
+    aTargetLayer->AttachedTo(BRepGraph_NodeId(aCopiedVertex));
+  ASSERT_EQ(aCopiedAttachments.Size(), 1);
+  EXPECT_NE(aCopiedAttachments.First(), uint64_t(1));
+  EXPECT_NE(aTargetLayer->FindByUid(aCopiedAttachments.First()), nullptr);
+}
+
+TEST(BRepGraph_LayerTopoSupplementTest, SelfCopyDoesNotMutateEntriesDuringIteration)
 {
   BRepGraph aGraph;
+  const BRepGraph_VertexId aSourceVertex =
+    aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.0e-7);
+
+  occ::handle<BRepGraph_LayerTopoSupplement> aLayer =
+    aGraph.LayerRegistry().Ensure<BRepGraph_LayerTopoSupplement>();
+  ASSERT_TRUE(aLayer->AddAttachmentWithUid(
+    BRepGraph_NodeId(aSourceVertex),
+    1,
+    BRepGraph_LayerTopoSupplement::AttachmentKind::VertexSupplementShape,
+    makeVertexShape(gp_Pnt(1.0, 0.0, 0.0))));
+
+  const BRepGraph_NodeId aCopiedNode =
+    BRepGraph_Copy::CopyNode(aGraph, aGraph, BRepGraph_NodeId(aSourceVertex));
+  ASSERT_TRUE(aCopiedNode.IsValid());
+  ASSERT_EQ(aCopiedNode.NodeKind, BRepGraph_NodeId::Kind::Vertex);
+  ASSERT_NE(aCopiedNode.Index, aSourceVertex.Index);
+
+  aLayer = aGraph.LayerRegistry().FindLayer<BRepGraph_LayerTopoSupplement>();
+  ASSERT_FALSE(aLayer.IsNull());
+
+  const NCollection_LinearVector<uint64_t>& aSourceAttachments =
+    aLayer->AttachedTo(BRepGraph_NodeId(aSourceVertex));
+  ASSERT_EQ(aSourceAttachments.Size(), 1);
+  EXPECT_EQ(aSourceAttachments.First(), uint64_t(1));
+
+  const NCollection_LinearVector<uint64_t>& aCopiedAttachments =
+    aLayer->AttachedTo(aCopiedNode);
+  ASSERT_EQ(aCopiedAttachments.Size(), 1);
+  EXPECT_NE(aCopiedAttachments.First(), uint64_t(1));
+  EXPECT_NE(aLayer->FindByUid(aCopiedAttachments.First()), nullptr);
+}
+
+TEST(BRepGraph_LayerTopoSupplementTest, IncompatibleAttachmentKindIsRejected)
+{
+  BRepGraph                aGraph;
   const BRepGraph_VertexId aV0 = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.0e-7);
   const BRepGraph_VertexId aV1 = aGraph.Editor().Vertices().Add(gp_Pnt(1.0, 0.0, 0.0), 1.0e-7);
-  const BRepGraph_EdgeId anEdge =
+  const BRepGraph_EdgeId   anEdge =
     aGraph.Editor().Edges().Add(aV0, aV1, occ::handle<Geom_Curve>(), 0.0, 1.0, 1.0e-7);
   const BRepGraph::ShapesView::Result aFaceResult = aGraph.Shapes().Add(makePlainFace());
-  const BRepGraph_FaceId aFace(aFaceResult.TopologyRoot);
+  const BRepGraph_FaceId              aFace(aFaceResult.TopologyRoot);
   ASSERT_TRUE(anEdge.IsValid());
   ASSERT_TRUE(aFaceResult.IsOk());
   ASSERT_TRUE(aFace.IsValid());
@@ -769,11 +886,12 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToShellRoutesInvalidChildW
   const uint32_t aNbEdgesBefore    = aGraph.Topo().Edges().Nb();
   const uint32_t aNbVerticesBefore = aGraph.Topo().Vertices().Nb();
 
-  TopoDS_Edge aEdge;
+  TopoDS_Edge  aEdge;
   BRep_Builder aBB;
   aBB.MakeEdge(aEdge);
 
-  const BRepGraph::ShapesView::Result aResult = aGraph.Shapes().Add(aEdge, BRepGraph_NodeId(aShell));
+  const BRepGraph::ShapesView::Result aResult =
+    aGraph.Shapes().Add(aEdge, BRepGraph_NodeId(aShell));
   EXPECT_TRUE(aResult.IsOk());
   EXPECT_FALSE(aResult.TopologyRoot.IsValid());
   EXPECT_FALSE(aResult.InsertedRef.IsValid());
@@ -784,7 +902,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToShellRoutesInvalidChildW
   const occ::handle<BRepGraph_LayerTopoSupplement> aLayer =
     aGraph.LayerRegistry().FindLayer<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aLayer.IsNull());
-  const NCollection_LinearVector<uint64_t>& anAttached = aLayer->AttachedTo(BRepGraph_NodeId(aShell));
+  const NCollection_LinearVector<uint64_t>& anAttached =
+    aLayer->AttachedTo(BRepGraph_NodeId(aShell));
   ASSERT_EQ(anAttached.Size(), 1);
   const BRepGraph_LayerTopoSupplement::Entry* anEntry = aLayer->FindByUid(anAttached.First());
   ASSERT_NE(anEntry, nullptr);
@@ -803,7 +922,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToSolidRoutesInvalidChildW
 
   TopoDS_Face aFace = makePlainFace();
 
-  const BRepGraph::ShapesView::Result aResult = aGraph.Shapes().Add(aFace, BRepGraph_NodeId(aSolid));
+  const BRepGraph::ShapesView::Result aResult =
+    aGraph.Shapes().Add(aFace, BRepGraph_NodeId(aSolid));
   EXPECT_TRUE(aResult.IsOk());
   EXPECT_FALSE(aResult.TopologyRoot.IsValid());
   EXPECT_FALSE(aResult.InsertedRef.IsValid());
@@ -814,7 +934,8 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToSolidRoutesInvalidChildW
   const occ::handle<BRepGraph_LayerTopoSupplement> aLayer =
     aGraph.LayerRegistry().FindLayer<BRepGraph_LayerTopoSupplement>();
   ASSERT_FALSE(aLayer.IsNull());
-  const NCollection_LinearVector<uint64_t>& anAttached = aLayer->AttachedTo(BRepGraph_NodeId(aSolid));
+  const NCollection_LinearVector<uint64_t>& anAttached =
+    aLayer->AttachedTo(BRepGraph_NodeId(aSolid));
   ASSERT_EQ(anAttached.Size(), 1);
   const BRepGraph_LayerTopoSupplement::Entry* anEntry = aLayer->FindByUid(anAttached.First());
   ASSERT_NE(anEntry, nullptr);
@@ -822,9 +943,10 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToSolidRoutesInvalidChildW
   EXPECT_EQ(anEntry->Shape.ShapeType(), TopAbs_FACE);
 }
 
-TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToFaceRejectsUnsupportedChildWithoutOrphanAppend)
+TEST(BRepGraph_LayerTopoSupplementTest,
+     ShapesView_AddToFaceRejectsUnsupportedChildWithoutOrphanAppend)
 {
-  BRepGraph aGraph;
+  BRepGraph                           aGraph;
   const BRepGraph::ShapesView::Result aFaceResult = aGraph.Shapes().Add(makePlainFace());
   ASSERT_TRUE(aFaceResult.IsOk());
   ASSERT_TRUE(aFaceResult.TopologyRoot.IsValid());
@@ -833,7 +955,7 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToFaceRejectsUnsupportedCh
   const uint32_t aNbEdgesBefore    = aGraph.Topo().Edges().Nb();
   const uint32_t aNbVerticesBefore = aGraph.Topo().Vertices().Nb();
 
-  TopoDS_Edge aEdge;
+  TopoDS_Edge  aEdge;
   BRep_Builder aBB;
   aBB.MakeEdge(aEdge);
 
@@ -850,9 +972,9 @@ TEST(BRepGraph_LayerTopoSupplementTest, ShapesView_AddToFaceRejectsUnsupportedCh
 TEST(BRepGraph_LayerTopoSupplementTest,
      ShapesView_AddNonSolidToCompSolidRoutesInvalidChildWithoutOrphanAppend)
 {
-  BRepGraph aGraph;
+  BRepGraph        aGraph;
   TopoDS_CompSolid aCompSolidShape;
-  BRep_Builder aBuilder;
+  BRep_Builder     aBuilder;
   aBuilder.MakeCompSolid(aCompSolidShape);
   aBuilder.Add(aCompSolidShape, makePlainSolid());
 

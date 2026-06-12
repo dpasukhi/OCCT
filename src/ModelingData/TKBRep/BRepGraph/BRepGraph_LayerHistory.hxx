@@ -19,11 +19,9 @@
 #include <BRepGraph_ItemUID.hxx>
 #include <BRepGraph_UID.hxx>
 #include <NCollection_Array1.hxx>
-#include <NCollection_BaseAllocator.hxx>
 #include <NCollection_DataMap.hxx>
 #include <NCollection_DynamicArray.hxx>
 #include <NCollection_FlatMap.hxx>
-#include <NCollection_IncAllocator.hxx>
 #include <NCollection_LinearVector.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <TopoDS_Shape.hxx>
@@ -66,13 +64,6 @@ public:
   struct Event
   {
     Event() = default;
-
-    explicit Event(const occ::handle<NCollection_BaseAllocator>& theAlloc)
-        : Mapping(1, theAlloc),
-          UidMapping(1, theAlloc),
-          ItemUidMapping(1, theAlloc)
-    {
-    }
 
     TCollection_AsciiString OperationName;
     size_t                  SequenceNumber = 0;
@@ -379,7 +370,6 @@ public:
 private:
   //! Rebuild all lookup caches from myRecords.
   void                                  rebuildCaches();
-  occ::handle<NCollection_IncAllocator> myAllocator = new NCollection_IncAllocator;
 
   NCollection_DynamicArray<Event> myRecords;
 
