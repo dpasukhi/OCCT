@@ -1307,11 +1307,17 @@ void BRepFill_CompatibleWires::SameNumberByPolarMethod(const bool WithRotation)
     gp_Pnt                                   PPs = Curve.Value(0.1 * (U1 + 9 * U2));
     NCollection_List<TopoDS_Shape>::Iterator itF(MapVLV(VF)), itL(MapVLV(VL));
     int                                      rang = ideb;
-    while (rang < i)
+    while (rang < i && itF.More() && itL.More())
     {
       itF.Next();
       itL.Next();
       rang++;
+    }
+    if (!itF.More() || !itL.More())
+    {
+      // Correspondence chain shorter than the section index; fail gracefully.
+      myStatus = BRepFill_ThruSectionErrorStatus_Failed;
+      return;
     }
     TopoDS_Vertex   V1 = TopoDS::Vertex(itF.Value()), V2 = TopoDS::Vertex(itL.Value());
     TopoDS_Edge     Esol;
