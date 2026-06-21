@@ -45,7 +45,7 @@ else()
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-elaborated-enum-base")
     set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wno-elaborated-enum-base")
   endif()
-  add_definitions(-DOCC_CONVERT_SIGNALS)
+  #add_definitions(-DOCC_CONVERT_SIGNALS)
 endif()
 
 # enable structured exceptions for MSVC
