@@ -35,6 +35,8 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
+
 namespace
 {
 TopoDS_Wire makeRectangle(const double theXMin,
@@ -112,6 +114,37 @@ TopoDS_Face makeFaceWithDisconnectedWire()
   aBuilder.Add(aDisconnectedWire, aThirdEdge);
   aBuilder.Add(aFace, aDisconnectedWire);
   return aFace;
+}
+
+TopoDS_Face makeRegularPolygonFace(const int    theEdgeCount,
+                                   const double theRadius,
+                                   const double theVOffset = 0.0)
+{
+  BRepBuilderAPI_MakeWire aWireBuilder;
+  for (int anEdgeIndex = 0; anEdgeIndex < theEdgeCount; ++anEdgeIndex)
+  {
+    const double anAngle1 = 2.0 * M_PI * static_cast<double>(anEdgeIndex) / theEdgeCount;
+    const double anAngle2 = 2.0 * M_PI * static_cast<double>(anEdgeIndex + 1) / theEdgeCount;
+    const gp_Pnt aPoint1(theRadius * std::cos(anAngle1),
+                         theVOffset + theRadius * std::sin(anAngle1),
+                         0.0);
+    const gp_Pnt aPoint2(theRadius * std::cos(anAngle2),
+                         theVOffset + theRadius * std::sin(anAngle2),
+                         0.0);
+    BRepBuilderAPI_MakeEdge anEdgeBuilder(aPoint1, aPoint2);
+    if (!anEdgeBuilder.IsDone())
+    {
+      return TopoDS_Face();
+    }
+    aWireBuilder.Add(anEdgeBuilder.Edge());
+  }
+  if (!aWireBuilder.IsDone())
+  {
+    return TopoDS_Face();
+  }
+
+  BRepBuilderAPI_MakeFace aFaceBuilder(aWireBuilder.Wire(), true);
+  return aFaceBuilder.IsDone() ? aFaceBuilder.Face() : TopoDS_Face();
 }
 } // namespace
 
@@ -198,5 +231,71 @@ TEST(BRepTopAdaptorFClass2dTest, DisconnectedWire_FallsBackToStableExactClassifi
   {
     EXPECT_EQ(aClassifier.Perform(aPoint, false), anExpected);
     EXPECT_EQ(aClassifier.TestOnRestriction(aPoint, Precision::PConfusion(), false), anExpected);
+  }
+}
+
+TEST(BRepTopAdaptorFClass2dTest, LargeParameterOffset_PreservesWireOrientation)
+{
+  constexpr double  aVOffset = 1.e15;
+  const TopoDS_Face aFace    = makeRegularPolygonFace(32, 1.0, aVOffset);
+  ASSERT_FALSE(aFace.IsNull());
+
+  const gp_Pnt2d          aPoints[] = {gp_Pnt2d(0.0, aVOffset), gp_Pnt2d(2.0, aVOffset)};
+  BRepTopAdaptor_FClass2d aClassifier(aFace, Precision::PConfusion());
+  for (const gp_Pnt2d& aPoint : aPoints)
+  {
+    BRepClass_FaceClassifier anExact(aFace, aPoint, Precision::PConfusion());
+    ASSERT_NE(anExact.State(), TopAbs_UNKNOWN);
+    for (int aQueryIndex = 0; aQueryIndex < 80; ++aQueryIndex)
+    {
+      EXPECT_EQ(aClassifier.Perform(aPoint), anExact.State());
+    }
+  }
+}
+
+TEST(BRepTopAdaptorFClass2dTest, DenseWire_GridActivationPreservesExactClassification)
+{
+  const TopoDS_Face aFace = makeRegularPolygonFace(32, 10.0);
+  ASSERT_FALSE(aFace.IsNull());
+  BRepTopAdaptor_FClass2d aClassifier(aFace, Precision::PConfusion());
+
+  const gp_Pnt2d           aWarmupPoint(1.0, 1.0);
+  BRepClass_FaceClassifier anExactWarmup(aFace, aWarmupPoint, Precision::PConfusion());
+  for (int aQueryIndex = 0; aQueryIndex < 80; ++aQueryIndex)
+  {
+    EXPECT_EQ(aClassifier.Perform(aWarmupPoint), anExactWarmup.State());
+  }
+
+  const gp_Pnt2d aPoints[] = {gp_Pnt2d(0.0, 0.0),
+                              gp_Pnt2d(9.0, 0.0),
+                              gp_Pnt2d(10.5, 0.0),
+                              gp_Pnt2d(-3.0, 8.0),
+                              gp_Pnt2d(-11.0, -2.0)};
+  for (const gp_Pnt2d& aPoint : aPoints)
+  {
+    BRepClass_FaceClassifier anExact(aFace, aPoint, Precision::PConfusion());
+    EXPECT_EQ(aClassifier.Perform(aPoint), anExact.State());
+  }
+}
+
+TEST(BRepTopAdaptorFClass2dTest, ReversedFace_PreservesParametricDomain)
+{
+  const TopoDS_Face aFace = makeRegularPolygonFace(32, 10.0);
+  ASSERT_FALSE(aFace.IsNull());
+  const TopoDS_Face aReversedFace = TopoDS::Face(aFace.Reversed());
+
+  BRepTopAdaptor_FClass2d aForwardClassifier(aFace, Precision::PConfusion());
+  BRepTopAdaptor_FClass2d aReversedClassifier(aReversedFace, Precision::PConfusion());
+  const gp_Pnt2d          aPoints[] = {gp_Pnt2d(0.0, 0.0),
+                                       gp_Pnt2d(9.0, 0.0),
+                                       gp_Pnt2d(10.5, 0.0),
+                                       gp_Pnt2d(-3.0, 8.0)};
+
+  for (int aRepeat = 0; aRepeat < 80; ++aRepeat)
+  {
+    for (const gp_Pnt2d& aPoint : aPoints)
+    {
+      EXPECT_EQ(aReversedClassifier.Perform(aPoint), aForwardClassifier.Perform(aPoint));
+    }
   }
 }

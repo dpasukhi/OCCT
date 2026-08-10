@@ -102,6 +102,18 @@ struct PolygonMetrics
   double Perimeter = 0.0;
 };
 
+//! Adds a value with compensation for low-order bits lost by floating-point summation.
+//! @param[in] theValue value to add
+//! @param[in,out] theSum accumulated sum
+//! @param[in,out] theCompensation lost low-order contribution
+void addCompensated(const double theValue, double& theSum, double& theCompensation)
+{
+  const double aCorrectedValue = theValue - theCompensation;
+  const double aNewSum         = theSum + aCorrectedValue;
+  theCompensation              = (aNewSum - theSum) - aCorrectedValue;
+  theSum                       = aNewSum;
+}
+
 PolygonMetrics polygonMetrics(const NCollection_LinearVector<gp_Pnt2d>& thePoints)
 {
   PolygonMetrics aMetrics;
@@ -110,15 +122,23 @@ PolygonMetrics polygonMetrics(const NCollection_LinearVector<gp_Pnt2d>& thePoint
     return aMetrics;
   }
 
-  const size_t aLastUnique = thePoints.Size() - 2;
-  size_t       aPrevious   = aLastUnique;
+  const size_t    aLastUnique            = thePoints.Size() - 2;
+  size_t          aPrevious              = aLastUnique;
+  double          anAreaCompensation     = 0.0;
+  double          aPerimeterCompensation = 0.0;
+  const gp_Pnt2d& anOrigin               = thePoints[0];
   for (size_t aCurrent = 0; aCurrent <= aLastUnique; ++aCurrent)
   {
-    const gp_Pnt2d& aCurrentPoint  = thePoints[aCurrent];
-    const gp_Pnt2d& aPreviousPoint = thePoints[aPrevious];
-    aMetrics.Area +=
-      (aCurrentPoint.X() - aPreviousPoint.X()) * (aCurrentPoint.Y() + aPreviousPoint.Y()) * 0.5;
-    aMetrics.Perimeter += (aCurrentPoint.XY() - aPreviousPoint.XY()).Modulus();
+    const gp_Pnt2d& aCurrentPoint       = thePoints[aCurrent];
+    const gp_Pnt2d& aPreviousPoint      = thePoints[aPrevious];
+    const double    aCurrentX           = aCurrentPoint.X() - anOrigin.X();
+    const double    aCurrentY           = aCurrentPoint.Y() - anOrigin.Y();
+    const double    aPreviousX          = aPreviousPoint.X() - anOrigin.X();
+    const double    aPreviousY          = aPreviousPoint.Y() - anOrigin.Y();
+    const double    anAreaContribution  = (aCurrentX * aPreviousY - aCurrentY * aPreviousX) * 0.5;
+    const double    aLengthContribution = (aCurrentPoint.XY() - aPreviousPoint.XY()).Modulus();
+    addCompensated(anAreaContribution, aMetrics.Area, anAreaCompensation);
+    addCompensated(aLengthContribution, aMetrics.Perimeter, aPerimeterCompensation);
     aPrevious = aCurrent;
   }
   return aMetrics;
@@ -136,6 +156,26 @@ bool expectedThickness(const PolygonMetrics& theMetrics, double& theThickness)
 
   theThickness = std::max(2.0 * (std::abs(theMetrics.Area) / theMetrics.Perimeter), 1.e-7);
   return isRepresentableValue(theThickness);
+}
+
+//! Checks whether sampled polygon area has a stable sign at the classifier tolerance.
+//! A wire whose enclosed area is no larger than its tolerance-sized boundary band has no reliable
+//! polygonal orientation and must use exact face classification.
+//! @param[in] theMetrics sampled polygon metrics
+//! @param[in] theTolerance classification tolerance in UV space
+//! @return true when the sign of the sampled area is reliable
+bool hasReliableOrientation(const PolygonMetrics& theMetrics, const double theTolerance)
+{
+  double aTolerance = std::abs(theTolerance);
+  if (!isRepresentableValue(aTolerance))
+  {
+    return false;
+  }
+  aTolerance = std::max(aTolerance, Precision::PConfusion());
+
+  const double anAreaTolerance = theMetrics.Perimeter * aTolerance;
+  return isRepresentableValue(anAreaTolerance)
+         && std::abs(theMetrics.Area) > std::max(anAreaTolerance, Precision::SquarePConfusion());
 }
 } // namespace
 
@@ -477,6 +517,13 @@ BRepTopAdaptor_FClass2d::BRepTopAdaptor_FClass2d(const TopoDS_Face& aFace, const
         if (aNbE == 1 && FlecheU < eps && FlecheV < eps && std::abs(aSignedArea) < eps)
         {
           TabOrien.Append(WireRole::Outer);
+        }
+        else if (!hasReliableOrientation(aMetrics, Toluv))
+        {
+          // The sampled polygon is too thin or numerically ambiguous to decide whether it is an
+          // outer boundary or a hole. Route the complete face through exact classification.
+          TabOrien.Append(WireRole::Invalid);
+          anIsBadWire = true;
         }
         else
         {
