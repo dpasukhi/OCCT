@@ -32,6 +32,34 @@ protected:
   static constexpr double THE_PI_2 = M_PI / 2.0;
 };
 
+TEST_F(ExtremaPC_EllipseTest, ShiftedFullPeriod_UniqueRepresentatives)
+{
+  gp_Elips anEllipse(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 20.0, 10.0);
+  gp_Pnt   aPoint(30.0, 0.0, 0.0);
+
+  constexpr double aUMin = -10.0;
+  ExtremaPC_Ellipse anEval(anEllipse, ExtremaPC::Domain1D{aUMin, aUMin + THE_2PI});
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(aPoint, THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 2);
+  for (int anIndex = 0; anIndex < aResult.NbExt(); ++anIndex)
+  {
+    EXPECT_GE(aResult[anIndex].Parameter, aUMin);
+    EXPECT_LE(aResult[anIndex].Parameter, aUMin + THE_2PI);
+  }
+}
+
+TEST_F(ExtremaPC_EllipseTest, SingletonDomain_InvalidTolerance)
+{
+  gp_Elips anEllipse(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 20.0, 10.0);
+  ExtremaPC_Ellipse anEval(anEllipse, ExtremaPC::Domain1D{0.5, 0.5});
+
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(30, 0, 0), 0.0);
+
+  EXPECT_EQ(aResult.Status, ExtremaPC::Status::InvalidInput);
+}
+
 //==================================================================================================
 // Basic tests - point on major axis
 //==================================================================================================

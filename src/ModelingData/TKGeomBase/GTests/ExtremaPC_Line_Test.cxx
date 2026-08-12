@@ -30,6 +30,81 @@ protected:
   static constexpr double THE_TOL = 1.0e-10;
 };
 
+TEST_F(ExtremaPC_LineTest, SingletonDomain_IsMinimumAndMaximum)
+{
+  gp_Lin aLine(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+  ExtremaPC_Line anEval(aLine, ExtremaPC::Domain1D{2.0, 2.0});
+
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(5, 3, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_TRUE(aResult[0].IsMinimum);
+  EXPECT_TRUE(aResult[0].IsMaximum);
+  EXPECT_NEAR(aResult[0].Parameter, 2.0, THE_TOL);
+}
+
+TEST_F(ExtremaPC_LineTest, SingletonProjection_IsMinimumAndMaximum)
+{
+  gp_Lin aLine(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+  ExtremaPC_Line anEval(aLine, ExtremaPC::Domain1D{2.0, 2.0});
+
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(2, 3, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_TRUE(aResult[0].IsMinimum);
+  EXPECT_TRUE(aResult[0].IsMaximum);
+}
+
+TEST_F(ExtremaPC_LineTest, EffectivelyUnboundedDomain_DoesNotAddEndpoints)
+{
+  gp_Lin aLine(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+  ExtremaPC_Line anEval(aLine, ExtremaPC::Domain1D{-1.0e100, 1.0e100});
+
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(2, 3, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_NEAR(aResult[0].Parameter, 2.0, THE_TOL);
+}
+
+TEST_F(ExtremaPC_LineTest, LowerBoundedDomain_PreservesFiniteEndpoint)
+{
+  gp_Lin aLine(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+  ExtremaPC_Line anEval(aLine, ExtremaPC::Domain1D{0.0, 1.0e100});
+
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(-2, 3, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_NEAR(aResult[0].Parameter, 0.0, THE_TOL);
+  EXPECT_TRUE(aResult[0].IsMinimum);
+}
+
+TEST_F(ExtremaPC_LineTest, UpperBoundedDomain_PreservesFiniteEndpoint)
+{
+  gp_Lin aLine(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+  ExtremaPC_Line anEval(aLine, ExtremaPC::Domain1D{-1.0e100, 0.0});
+
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(2, 3, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_NEAR(aResult[0].Parameter, 0.0, THE_TOL);
+  EXPECT_TRUE(aResult[0].IsMinimum);
+}
+
+TEST_F(ExtremaPC_LineTest, ReversedDomain_IsInvalidInput)
+{
+  gp_Lin aLine(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+  ExtremaPC_Line anEval(aLine, ExtremaPC::Domain1D{1.0, -1.0});
+
+  const ExtremaPC::Result& aResult = anEval.Perform(gp_Pnt(0, 0, 0), THE_TOL);
+
+  EXPECT_EQ(aResult.Status, ExtremaPC::Status::InvalidInput);
+}
+
 //==================================================================================================
 // Basic projection tests
 // When projection is inside bounds: 3 extrema (1 min projection + 2 max endpoints)

@@ -13,7 +13,6 @@
 
 #include <ExtremaPC_BSplineCurve.hxx>
 
-#include <GeomGridEval_BSplineCurve.hxx>
 #include <math_Vector.hxx>
 #include <NCollection_DynamicArray.hxx>
 
@@ -21,10 +20,16 @@
 
 ExtremaPC_BSplineCurve::ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCurve>& theCurve)
     : myCurve(theCurve),
-      myAdaptor(theCurve),
-      myDomain{theCurve->FirstParameter(), theCurve->LastParameter()}
+      myDomain{0.0, 1.0}
 {
-  buildGrid();
+  if (myCurve.IsNull())
+  {
+    return;
+  }
+  myAdaptor.Load(myCurve);
+  myDomain.Min = myCurve->FirstParameter();
+  myDomain.Max = myCurve->LastParameter();
+  buildParams();
 }
 
 //==================================================================================================
@@ -32,10 +37,14 @@ ExtremaPC_BSplineCurve::ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCur
 ExtremaPC_BSplineCurve::ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCurve>& theCurve,
                                                const ExtremaPC::Domain1D&            theDomain)
     : myCurve(theCurve),
-      myAdaptor(theCurve),
       myDomain(theDomain)
 {
-  buildGrid();
+  if (myCurve.IsNull())
+  {
+    return;
+  }
+  myAdaptor.Load(myCurve);
+  buildParams();
 }
 
 //==================================================================================================
@@ -90,7 +99,7 @@ math_Vector ExtremaPC_BSplineCurve::buildKnotAwareParams() const
   }
   aParams.Append(theUMax);
 
-  // Convert to math_Vector (required by BuildGrid interface)
+  // Convert to math_Vector for the numerical evaluator.
   math_Vector aResult(1, aParams.Length());
   for (int i = 0; i < aParams.Length(); ++i)
   {
@@ -102,19 +111,17 @@ math_Vector ExtremaPC_BSplineCurve::buildKnotAwareParams() const
 
 //==================================================================================================
 
-void ExtremaPC_BSplineCurve::buildGrid()
+void ExtremaPC_BSplineCurve::buildParams()
 {
-  if (myCurve.IsNull())
+  if (myCurve.IsNull() || !myDomain.IsValid() || !myDomain.IsFinite())
   {
     return;
   }
 
-  // Build knot-aware parameter grid
+  // Build knot-aware parameter partition.
   math_Vector aParams = buildKnotAwareParams();
 
-  // Build grid using the evaluator
-  GeomGridEval_BSplineCurve aGridEval(myCurve);
-  myEvaluator.BuildGrid(aGridEval, aParams);
+  myEvaluator.SetParams(aParams);
 }
 
 //==================================================================================================
@@ -147,14 +154,14 @@ const ExtremaPC::Result& ExtremaPC_BSplineCurve::PerformWithEndpoints(
   double                theTol,
   ExtremaPC::SearchMode theMode) const
 {
-  // Get interior extrema (populates myEvaluator's result)
-  (void)myEvaluator.Perform(myAdaptor, theP, myDomain, theTol, theMode);
+  (void)Perform(theP, theTol, theMode);
 
   // Add endpoints to the result
   ExtremaPC::Result& aResult = myEvaluator.Result();
   if (aResult.Status == ExtremaPC::Status::OK || aResult.Status == ExtremaPC::Status::NoSolution)
   {
-    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theTol, theMode);
+    const bool isClosed = ExtremaPC_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
+    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
 
     // Update status if we found any extrema (including endpoints)
     if (!aResult.Extrema.IsEmpty())

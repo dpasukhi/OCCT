@@ -187,6 +187,22 @@ TEST_F(ExtremaPC_BSplineCurveTest, PointOnCurve_Middle)
   EXPECT_NEAR(aMinSqDist, 0.0, THE_TOL);
 }
 
+TEST_F(ExtremaPC_BSplineCurveTest, SingletonDomain_ReturnsSolePoint)
+{
+  occ::handle<Geom_BSplineCurve> aBSpline = createCubicBSpline();
+  constexpr double              aParameter = 0.35;
+
+  ExtremaPC_BSplineCurve    anEval(aBSpline, ExtremaPC::Domain1D{aParameter, aParameter});
+  const ExtremaPC::Result& aResult =
+    anEval.PerformWithEndpoints(gp_Pnt(5, 5, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_NEAR(aResult[0].Parameter, aParameter, THE_TOL);
+  EXPECT_TRUE(aResult[0].IsMinimum);
+  EXPECT_TRUE(aResult[0].IsMaximum);
+}
+
 //==================================================================================================
 // Point near curve tests
 //==================================================================================================
@@ -551,4 +567,108 @@ TEST_F(ExtremaPC_BSplineCurveTest, HighDegreeSpline_RefinementHelps)
   // Verify the distance is reasonable (point is within expected range of curve)
   double aDist = std::sqrt(aResult.MinSquareDistance());
   EXPECT_LT(aDist, 2.0);
+}
+
+TEST_F(ExtremaPC_BSplineCurveTest, C1Junction_PointOnCurve_FindsMinimum)
+{
+  NCollection_Array1<gp_Pnt> aPoles(1, 4);
+  aPoles(1) = gp_Pnt(0.0, 0.0, 0.0);
+  aPoles(2) = gp_Pnt(1.0, 1.0, 0.0);
+  aPoles(3) = gp_Pnt(2.0, 1.0, 0.0);
+  aPoles(4) = gp_Pnt(3.0, 0.0, 0.0);
+
+  NCollection_Array1<double> aKnots(1, 3);
+  aKnots(1) = 0.0;
+  aKnots(2) = 0.5;
+  aKnots(3) = 1.0;
+
+  NCollection_Array1<int> aMultiplicities(1, 3);
+  aMultiplicities(1) = 3;
+  aMultiplicities(2) = 1;
+  aMultiplicities(3) = 3;
+
+  occ::handle<Geom_BSplineCurve> aBSpline =
+    new Geom_BSplineCurve(aPoles, aKnots, aMultiplicities, 2);
+  const gp_Pnt aPoint = aBSpline->Value(0.5);
+
+  ExtremaPC_BSplineCurve   anEvaluator(aBSpline);
+  const ExtremaPC::Result& aResult = anEvaluator.Perform(aPoint, THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_GT(aResult.NbExt(), 0);
+  EXPECT_NEAR(aResult[aResult.MinIndex()].Parameter, 0.5, THE_TOL);
+  EXPECT_NEAR(aResult.MinSquareDistance(), 0.0, THE_TOL);
+}
+
+TEST_F(ExtremaPC_BSplineCurveTest, ClusteredC0Junctions_FindsBothExtrema)
+{
+  NCollection_Array1<gp_Pnt> aPoles(1, 4);
+  aPoles(1) = gp_Pnt(0.0, 0.0, 0.0);
+  aPoles(2) = gp_Pnt(1.0, 1.0, 0.0);
+  aPoles(3) = gp_Pnt(2.0, 0.0, 0.0);
+  aPoles(4) = gp_Pnt(3.0, 1.0, 0.0);
+
+  NCollection_Array1<double> aKnots(1, 4);
+  aKnots(1) = 0.0;
+  aKnots(2) = 0.499;
+  aKnots(3) = 0.501;
+  aKnots(4) = 1.0;
+
+  NCollection_Array1<int> aMultiplicities(1, 4);
+  aMultiplicities(1) = 2;
+  aMultiplicities(2) = 1;
+  aMultiplicities(3) = 1;
+  aMultiplicities(4) = 2;
+
+  occ::handle<Geom_BSplineCurve> aBSpline =
+    new Geom_BSplineCurve(aPoles, aKnots, aMultiplicities, 1);
+  ExtremaPC_BSplineCurve   anEvaluator(aBSpline);
+  const ExtremaPC::Result& aResult = anEvaluator.Perform(gp_Pnt(1.5, 1.5, 0.0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  bool hasFirstJunction  = false;
+  bool hasSecondJunction = false;
+  for (int anIndex = 0; anIndex < aResult.NbExt(); ++anIndex)
+  {
+    if (std::abs(aResult[anIndex].Parameter - 0.499) <= THE_TOL)
+    {
+      hasFirstJunction = true;
+      EXPECT_TRUE(aResult[anIndex].IsMinimum);
+    }
+    if (std::abs(aResult[anIndex].Parameter - 0.501) <= THE_TOL)
+    {
+      hasSecondJunction = true;
+      EXPECT_TRUE(aResult[anIndex].IsMaximum);
+    }
+  }
+  EXPECT_TRUE(hasFirstJunction);
+  EXPECT_TRUE(hasSecondJunction);
+
+  const ExtremaPC::Result& aMinResult =
+    anEvaluator.Perform(gp_Pnt(1.5, 1.5, 0.0), THE_TOL, ExtremaPC::SearchMode::Min);
+  hasFirstJunction  = false;
+  hasSecondJunction = false;
+  for (int anIndex = 0; anIndex < aMinResult.NbExt(); ++anIndex)
+  {
+    hasFirstJunction = hasFirstJunction
+                       || std::abs(aMinResult[anIndex].Parameter - 0.499) <= THE_TOL;
+    hasSecondJunction = hasSecondJunction
+                        || std::abs(aMinResult[anIndex].Parameter - 0.501) <= THE_TOL;
+  }
+  EXPECT_TRUE(hasFirstJunction);
+  EXPECT_FALSE(hasSecondJunction);
+
+  const ExtremaPC::Result& aMaxResult =
+    anEvaluator.Perform(gp_Pnt(1.5, 1.5, 0.0), THE_TOL, ExtremaPC::SearchMode::Max);
+  hasFirstJunction  = false;
+  hasSecondJunction = false;
+  for (int anIndex = 0; anIndex < aMaxResult.NbExt(); ++anIndex)
+  {
+    hasFirstJunction = hasFirstJunction
+                       || std::abs(aMaxResult[anIndex].Parameter - 0.499) <= THE_TOL;
+    hasSecondJunction = hasSecondJunction
+                        || std::abs(aMaxResult[anIndex].Parameter - 0.501) <= THE_TOL;
+  }
+  EXPECT_FALSE(hasFirstJunction);
+  EXPECT_TRUE(hasSecondJunction);
 }

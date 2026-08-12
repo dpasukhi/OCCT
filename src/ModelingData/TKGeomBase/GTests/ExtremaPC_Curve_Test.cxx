@@ -949,6 +949,54 @@ TEST_F(ExtremaPC_CurveTest, TransformedCurve_Scale_Bezier)
   EXPECT_NEAR(aResultTr.MinSquareDistance(), aResult.MinSquareDistance() * 9.0, 1.0e-4);
 }
 
+TEST_F(ExtremaPC_CurveTest, TransformedCurve_CompoundScale_LinePreservesParameter)
+{
+  occ::handle<Geom_Line> aLine = new Geom_Line(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+
+  gp_Trsf aTrsf;
+  aTrsf.SetScale(gp_Pnt(0, 0, 0), 2.0);
+  gp_Trsf aRotation;
+  aRotation.SetRotation(gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), M_PI / 2.0);
+  aTrsf.PreMultiply(aRotation);
+  gp_Trsf aTranslation;
+  aTranslation.SetTranslation(gp_Vec(5, 7, 0));
+  aTrsf.PreMultiply(aTranslation);
+
+  GeomAdaptor_TransformedCurve aTransformed(aLine, 0.0, 10.0, aTrsf);
+  ExtremaPC_Curve              anExtPC(aTransformed);
+  const gp_Pnt                 aQuery = gp_Pnt(4, 7, 0).Transformed(aTrsf);
+  const ExtremaPC::Result&     aResult = anExtPC.Perform(aQuery, THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_NEAR(aResult[0].Parameter, 4.0, THE_TOL);
+  EXPECT_NEAR(aResult[0].Point.Distance(aTransformed.Value(aResult[0].Parameter)), 0.0, THE_TOL);
+}
+
+TEST_F(ExtremaPC_CurveTest, TransformedCurve_CompoundScale_ParabolaPreservesParameter)
+{
+  occ::handle<Geom_Parabola> aParabola =
+    new Geom_Parabola(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 5.0);
+
+  gp_Trsf aTrsf;
+  aTrsf.SetScale(gp_Pnt(0, 0, 0), 3.0);
+  gp_Trsf aTranslation;
+  aTranslation.SetTranslation(gp_Vec(10, -4, 2));
+  aTrsf.PreMultiply(aTranslation);
+
+  GeomAdaptor_TransformedCurve aTransformed(aParabola, -10.0, 10.0, aTrsf);
+  ExtremaPC_Curve              anExtPC(aTransformed);
+  constexpr double            aParameter = 3.0;
+  const gp_Pnt                 aQuery = aTransformed.Value(aParameter);
+  const ExtremaPC::Result&     aResult = anExtPC.Perform(aQuery, THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_GE(aResult.NbExt(), 1);
+  const int aMinIndex = aResult.MinIndex();
+  EXPECT_NEAR(aResult[aMinIndex].Parameter, aParameter, THE_TOL);
+  EXPECT_NEAR(aResult[aMinIndex].Point.Distance(aQuery), 0.0, THE_TOL);
+}
+
 //==================================================================================================
 // GeomAdaptor_TransformedCurve - Offset curve via Adaptor3d_Curve interface
 //==================================================================================================

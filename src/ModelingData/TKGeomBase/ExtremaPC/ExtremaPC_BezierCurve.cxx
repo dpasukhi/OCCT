@@ -13,18 +13,23 @@
 
 #include <ExtremaPC_BezierCurve.hxx>
 
-#include <GeomGridEval_BezierCurve.hxx>
-
 //==================================================================================================
 
 ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>& theCurve)
     : myCurve(theCurve),
-      myAdaptor(theCurve),
-      myDomain{theCurve->FirstParameter(), theCurve->LastParameter()},
-      myNbSamples(std::max(ExtremaPC::THE_BEZIER_MIN_SAMPLES,
-                           ExtremaPC::THE_BEZIER_DEGREE_MULTIPLIER * (theCurve->Degree() + 1)))
+      myDomain{0.0, 1.0},
+      myNbSamples(ExtremaPC::THE_BEZIER_MIN_SAMPLES)
 {
-  buildGrid();
+  if (myCurve.IsNull())
+  {
+    return;
+  }
+  myAdaptor.Load(myCurve);
+  myDomain.Min = myCurve->FirstParameter();
+  myDomain.Max = myCurve->LastParameter();
+  myNbSamples  = std::max(ExtremaPC::THE_BEZIER_MIN_SAMPLES,
+                         ExtremaPC::THE_BEZIER_DEGREE_MULTIPLIER * (myCurve->Degree() + 1));
+  buildParams();
 }
 
 //==================================================================================================
@@ -32,19 +37,24 @@ ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>
 ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>& theCurve,
                                              const ExtremaPC::Domain1D&           theDomain)
     : myCurve(theCurve),
-      myAdaptor(theCurve),
       myDomain(theDomain),
-      myNbSamples(std::max(ExtremaPC::THE_BEZIER_MIN_SAMPLES,
-                           ExtremaPC::THE_BEZIER_DEGREE_MULTIPLIER * (theCurve->Degree() + 1)))
+      myNbSamples(ExtremaPC::THE_BEZIER_MIN_SAMPLES)
 {
-  buildGrid();
+  if (myCurve.IsNull())
+  {
+    return;
+  }
+  myAdaptor.Load(myCurve);
+  myNbSamples = std::max(ExtremaPC::THE_BEZIER_MIN_SAMPLES,
+                         ExtremaPC::THE_BEZIER_DEGREE_MULTIPLIER * (myCurve->Degree() + 1));
+  buildParams();
 }
 
 //==================================================================================================
 
-void ExtremaPC_BezierCurve::buildGrid()
+void ExtremaPC_BezierCurve::buildParams()
 {
-  if (myCurve.IsNull())
+  if (myCurve.IsNull() || !myDomain.IsValid() || !myDomain.IsFinite())
   {
     return;
   }
@@ -52,8 +62,7 @@ void ExtremaPC_BezierCurve::buildGrid()
   math_Vector aParams =
     ExtremaPC_GridEvaluator::BuildUniformParams(myDomain.Min, myDomain.Max, myNbSamples);
 
-  GeomGridEval_BezierCurve aGridEval(myCurve);
-  myEvaluator.BuildGrid(aGridEval, aParams);
+  myEvaluator.SetParams(aParams);
 }
 
 //==================================================================================================
@@ -86,14 +95,14 @@ const ExtremaPC::Result& ExtremaPC_BezierCurve::PerformWithEndpoints(
   double                theTol,
   ExtremaPC::SearchMode theMode) const
 {
-  // Get interior extrema (populates myEvaluator's result)
-  (void)myEvaluator.Perform(myAdaptor, theP, myDomain, theTol, theMode);
+  (void)Perform(theP, theTol, theMode);
 
   // Add endpoints to the result
   ExtremaPC::Result& aResult = myEvaluator.Result();
   if (aResult.Status == ExtremaPC::Status::OK || aResult.Status == ExtremaPC::Status::NoSolution)
   {
-    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theTol, theMode);
+    const bool isClosed = ExtremaPC_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
+    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
 
     // Update status if we found any extrema (including endpoints)
     if (!aResult.Extrema.IsEmpty())

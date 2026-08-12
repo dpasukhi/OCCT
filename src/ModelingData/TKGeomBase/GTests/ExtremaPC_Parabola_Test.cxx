@@ -49,6 +49,19 @@ TEST_F(ExtremaPC_ParabolaTest, PointOnAxis_AtVertex)
   EXPECT_NEAR(aMinSqDist, 0.0, THE_TOL);
 }
 
+TEST_F(ExtremaPC_ParabolaTest, ZeroFocal_DegeneratesToLine)
+{
+  gp_Parab aParabola(gp_Ax2(gp_Pnt(1, 2, 3), gp_Dir(0, 0, 1), gp_Dir(1, 0, 0)), 0.0);
+  ExtremaPC_Parabola anEval(aParabola, ExtremaPC::Domain1D{-10.0, 10.0});
+
+  const ExtremaPC::Result& aResult = anEval.Perform(gp_Pnt(5, 7, 3), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_NEAR(aResult[0].Parameter, 4.0, THE_TOL);
+  EXPECT_NEAR(aResult[0].Point.Distance(gp_Pnt(5, 2, 3)), 0.0, THE_TOL);
+}
+
 TEST_F(ExtremaPC_ParabolaTest, PointOnAxis_Positive)
 {
   gp_Parab aParabola(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1), gp_Dir(1, 0, 0)), 5.0);

@@ -14,7 +14,6 @@
 #include <ExtremaPC_OffsetCurve.hxx>
 
 #include <ExtremaPC_GridEvaluator.hxx>
-#include <GeomGridEval_OtherCurve.hxx>
 
 //==================================================================================================
 
@@ -22,7 +21,7 @@ ExtremaPC_OffsetCurve::ExtremaPC_OffsetCurve(const Adaptor3d_Curve& theCurve)
     : myCurve(&theCurve),
       myDomain{theCurve.FirstParameter(), theCurve.LastParameter()}
 {
-  buildGrid();
+  buildParams();
 }
 
 //==================================================================================================
@@ -32,26 +31,21 @@ ExtremaPC_OffsetCurve::ExtremaPC_OffsetCurve(const Adaptor3d_Curve&     theCurve
     : myCurve(&theCurve),
       myDomain(theDomain)
 {
-  buildGrid();
+  buildParams();
 }
 
 //==================================================================================================
 
-void ExtremaPC_OffsetCurve::buildGrid()
+void ExtremaPC_OffsetCurve::buildParams()
 {
-  if (myCurve == nullptr)
+  if (myCurve == nullptr || !myDomain.IsValid() || !myDomain.IsFinite())
   {
     return;
   }
 
-  // Use higher number of samples for offset curves (they can be complex)
-  constexpr int aNbSamples = 64;
+  math_Vector aParams = ExtremaPC_GridEvaluator::BuildCurveAwareParams(*myCurve, myDomain);
 
-  math_Vector aParams =
-    ExtremaPC_GridEvaluator::BuildUniformParams(myDomain.Min, myDomain.Max, aNbSamples);
-
-  GeomGridEval_OtherCurve aGridEval(*myCurve);
-  myEvaluator.BuildGrid(aGridEval, aParams);
+  myEvaluator.SetParams(aParams);
 }
 
 //==================================================================================================
@@ -84,6 +78,13 @@ const ExtremaPC::Result& ExtremaPC_OffsetCurve::PerformWithEndpoints(
   double                theTol,
   ExtremaPC::SearchMode theMode) const
 {
+  if (myCurve == nullptr)
+  {
+    myEvaluator.Result().Clear();
+    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.Result();
+  }
+
   // Get interior extrema (populates myEvaluator's result)
   (void)myEvaluator.Perform(*myCurve, theP, myDomain, theTol, theMode);
 
@@ -91,7 +92,8 @@ const ExtremaPC::Result& ExtremaPC_OffsetCurve::PerformWithEndpoints(
   ExtremaPC::Result& aResult = myEvaluator.Result();
   if (aResult.Status == ExtremaPC::Status::OK || aResult.Status == ExtremaPC::Status::NoSolution)
   {
-    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theTol, theMode);
+    const bool isClosed = ExtremaPC_GridEvaluator::IsClosedDomain(*myCurve, myDomain);
+    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
 
     // Update status if we found any extrema (including endpoints)
     if (!aResult.Extrema.IsEmpty())

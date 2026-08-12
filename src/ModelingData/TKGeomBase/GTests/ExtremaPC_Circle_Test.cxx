@@ -61,6 +61,56 @@ TEST_F(ExtremaPC_CircleTest, PointOutside_OnXAxis)
   EXPECT_NEAR(aResult[aMaxIdx].Parameter, THE_PI, THE_TOL);
 }
 
+TEST_F(ExtremaPC_CircleTest, ShiftedFullPeriod_UniqueRepresentatives)
+{
+  gp_Circ aCircle(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 10.0);
+  gp_Pnt  aPoint(20.0, 0.0, 0.0);
+
+  constexpr double aUMin = 7.0;
+  ExtremaPC_Circle anEval(aCircle, ExtremaPC::Domain1D{aUMin, aUMin + THE_2PI});
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(aPoint, THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 2);
+  for (int anIndex = 0; anIndex < aResult.NbExt(); ++anIndex)
+  {
+    EXPECT_GE(aResult[anIndex].Parameter, aUMin);
+    EXPECT_LE(aResult[anIndex].Parameter, aUMin + THE_2PI);
+  }
+}
+
+TEST_F(ExtremaPC_CircleTest, LargeTolerance_PreservesOppositeExtrema)
+{
+  gp_Circ aCircle(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 1.0);
+  ExtremaPC_Circle anEval(aCircle, ExtremaPC::Domain1D{0.0, THE_2PI});
+
+  const ExtremaPC::Result& aResult = anEval.Perform(gp_Pnt(2, 0, 0), 4.0);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 2);
+  EXPECT_NEAR(aResult.MinSquareDistance(), 1.0, THE_TOL);
+  EXPECT_NEAR(aResult.MaxSquareDistance(), 9.0, THE_TOL);
+}
+
+TEST_F(ExtremaPC_CircleTest, MoreThanOnePeriod_RetainsConstrainedEndpoint)
+{
+  constexpr double aDomainEnd = THE_2PI + 0.1;
+  gp_Circ aCircle(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 10.0);
+  ExtremaPC_Circle anEval(aCircle, ExtremaPC::Domain1D{0.0, aDomainEnd});
+  const gp_Pnt aPoint = ElCLib::Value(aDomainEnd, aCircle);
+
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(aPoint, THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  bool hasUpperEndpoint = false;
+  for (int anIndex = 0; anIndex < aResult.NbExt(); ++anIndex)
+  {
+    hasUpperEndpoint = hasUpperEndpoint
+                       || std::abs(aResult[anIndex].Parameter - aDomainEnd) <= THE_TOL;
+  }
+  EXPECT_TRUE(hasUpperEndpoint);
+}
+
 TEST_F(ExtremaPC_CircleTest, PointOutside_OnYAxis)
 {
   gp_Circ aCircle(gp_Ax2(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 10.0);

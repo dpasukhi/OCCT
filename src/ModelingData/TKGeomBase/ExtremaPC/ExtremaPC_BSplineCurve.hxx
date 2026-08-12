@@ -24,18 +24,17 @@
 #include <Standard_Handle.hxx>
 #include <math_Vector.hxx>
 
-//! @brief Point-BSplineCurve extrema computation using grid-based approach.
+//! @brief Point-BSplineCurve extrema computation using numerical root isolation.
 //!
-//! Computes the extrema between a 3D point and a BSpline curve using
-//! a grid-based approach with Newton refinement.
+//! Computes roots of the normalized point-curve stationarity function with a
+//! derivative-aware multiple-root solver.
 //!
-//! The grid is cached for efficiency when performing multiple queries
-//! with the same parameter domain.
+//! The knot-aware parameter partition is cached while geometry is evaluated for each query.
 //!
 //! The algorithm:
-//! 1. Build knot-aware grid with 2*(degree + 1) samples per knot span using GeomGridEval
-//! 2. Linear scan of grid to find candidate intervals (sign changes in F(u))
-//! 3. Newton refinement on each candidate interval
+//! 1. Build a knot-aware parameter partition
+//! 2. Isolate all roots of the stationarity function, including tangential roots
+//! 3. Classify roots from the stationarity sign on both sides
 //!
 //! This approach is simpler and more stable than BVH-based methods,
 //! with comparable accuracy for typical BSpline curves.
@@ -48,12 +47,12 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with BSpline curve (uses full curve domain).
-  //! Grid is built eagerly at construction time.
+  //! Parameter partition is built eagerly at construction time.
   //! @param[in] theCurve BSpline curve handle
   Standard_EXPORT explicit ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCurve>& theCurve);
 
   //! Constructor with BSpline curve and parameter domain.
-  //! Grid is built eagerly at construction time for the specified domain.
+  //! Parameter partition is built eagerly at construction time for the specified domain.
   //! @param[in] theCurve BSpline curve handle
   //! @param[in] theDomain parameter domain (fixed for all queries)
   Standard_EXPORT ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCurve>& theCurve,
@@ -113,14 +112,14 @@ private:
   //! @return array of parameter values for grid sampling
   math_Vector buildKnotAwareParams() const;
 
-  //! Build grid for the curve.
-  void buildGrid();
+  //! Build parameter partition for the curve.
+  void buildParams();
 
   occ::handle<Geom_BSplineCurve> myCurve;   //!< BSpline curve
   GeomAdaptor_Curve              myAdaptor; //!< Curve adaptor
   ExtremaPC::Domain1D            myDomain;  //!< Parameter domain (fixed)
 
-  // Grid evaluator with cached state (grid, result, temporary vectors)
+  // Numerical evaluator with cached parameter partition and result
   mutable ExtremaPC_GridEvaluator myEvaluator;
 };
 

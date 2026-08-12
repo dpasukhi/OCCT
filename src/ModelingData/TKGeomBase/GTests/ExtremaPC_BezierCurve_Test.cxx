@@ -402,12 +402,8 @@ TEST_F(ExtremaPC_BezierCurveTest, RationalQuadratic_CircularArc)
   ExtremaPC_BezierCurve    anEval(aBezier);
   const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(aPoint, THE_TOL);
 
-  ASSERT_TRUE(aResult.IsDone());
-  EXPECT_GE(aResult.NbExt(), 1);
-
-  // All points on a circular arc should be equidistant from center (radius = 1)
-  double aMinDist = aResult.MinSquareDistance();
-  EXPECT_NEAR(aMinDist, 1.0, 0.01);
+  ASSERT_TRUE(aResult.IsInfinite());
+  EXPECT_NEAR(aResult.InfiniteSquareDistance, 1.0, 0.01);
 }
 
 TEST_F(ExtremaPC_BezierCurveTest, RationalQuadratic_HighWeight)
@@ -520,12 +516,59 @@ TEST_F(ExtremaPC_BezierCurveTest, DegenerateBezier_AllPolesSame)
   ExtremaPC_BezierCurve    anEval(aBezier);
   const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(aPoint, THE_TOL);
 
-  ASSERT_TRUE(aResult.IsDone());
-  EXPECT_GE(aResult.NbExt(), 1);
+  ASSERT_TRUE(aResult.IsInfinite());
+  EXPECT_NEAR(aResult.InfiniteSquareDistance, 1.0, THE_TOL);
+}
 
-  // Distance should be 1 (squared)
-  double aMinDist = aResult.MinSquareDistance();
-  EXPECT_NEAR(aMinDist, 1.0, THE_TOL);
+TEST_F(ExtremaPC_BezierCurveTest, SingletonDomain_ReturnsSolePoint)
+{
+  occ::handle<Geom_BezierCurve> aBezier =
+    createQuadraticBezier(gp_Pnt(0, 0, 0), gp_Pnt(1, 2, 0), gp_Pnt(3, 0, 0));
+  constexpr double aParameter = 0.4;
+
+  ExtremaPC_BezierCurve    anEval(aBezier, ExtremaPC::Domain1D{aParameter, aParameter});
+  const ExtremaPC::Result& aResult =
+    anEval.PerformWithEndpoints(gp_Pnt(5, 5, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), 1);
+  EXPECT_NEAR(aResult[0].Parameter, aParameter, THE_TOL);
+  EXPECT_TRUE(aResult[0].IsMinimum);
+  EXPECT_TRUE(aResult[0].IsMaximum);
+}
+
+TEST_F(ExtremaPC_BezierCurveTest, RepeatedEndpointPole_DoesNotFailNumerically)
+{
+  occ::handle<Geom_BezierCurve> aBezier =
+    createCubicBezier(gp_Pnt(0, 0, 0), gp_Pnt(0, 0, 0), gp_Pnt(2, 1, 0), gp_Pnt(3, 0, 0));
+
+  ExtremaPC_BezierCurve    anEval(aBezier);
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(0, 0, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_GT(aResult.NbExt(), 0);
+  EXPECT_NEAR(aResult.MinSquareDistance(), 0.0, THE_TOL);
+}
+
+TEST_F(ExtremaPC_BezierCurveTest, ClosedCurve_SeamHasSingleRepresentative)
+{
+  occ::handle<Geom_BezierCurve> aBezier =
+    createCubicBezier(gp_Pnt(1, 0, 0), gp_Pnt(1, 1, 0), gp_Pnt(1, -1, 0), gp_Pnt(1, 0, 0));
+
+  ExtremaPC_BezierCurve    anEval(aBezier);
+  const ExtremaPC::Result& aResult = anEval.PerformWithEndpoints(gp_Pnt(2, 0, 0), THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  int aNbSeamRepresentatives = 0;
+  for (int anIndex = 0; anIndex < aResult.NbExt(); ++anIndex)
+  {
+    if (std::abs(aResult[anIndex].Parameter - aBezier->FirstParameter()) <= THE_TOL
+        || std::abs(aResult[anIndex].Parameter - aBezier->LastParameter()) <= THE_TOL)
+    {
+      ++aNbSeamRepresentatives;
+    }
+  }
+  EXPECT_EQ(aNbSeamRepresentatives, 1);
 }
 
 TEST_F(ExtremaPC_BezierCurveTest, PointFarFromCurve)

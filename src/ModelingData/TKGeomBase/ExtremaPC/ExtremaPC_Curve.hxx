@@ -42,7 +42,7 @@
 //! Supports all elementary curve types (analytical solutions):
 //! - Line, Circle, Ellipse, Hyperbola, Parabola
 //!
-//! And numerical curves (grid-based with Newton refinement):
+//! And numerical curves (derivative-aware multiple-root isolation):
 //! - BSpline, Bezier, Offset, and general curves
 //!
 //! @note The parameter domain is fixed at construction time for optimal performance.
@@ -94,9 +94,8 @@ public:
 
   //! Constructor with transformed curve adaptor.
   //! Uses the curve's natural parameter bounds as domain.
-  //! For elementary curves, uses already-transformed primitives (analytical solver).
-  //! For BSpline/Bezier, uses inverse-transform optimization with post-processing.
-  //! For offset/other curves, delegates through Adaptor3d_Curve interface.
+  //! For 3D curves, computes in the original curve space to preserve parameterization.
+  //! Curves on surfaces are evaluated through the transformed adaptor.
   //! @param[in] theCurve transformed curve adaptor
   Standard_EXPORT explicit ExtremaPC_Curve(const GeomAdaptor_TransformedCurve& theCurve);
 
@@ -167,7 +166,7 @@ private:
                          const std::optional<ExtremaPC::Domain1D>& theDomain);
 
   //! Helper to initialize from a TransformedCurve.
-  //! Dispatches based on curve type and transform properties.
+  //! Preserves the source parameterization by dispatching the original 3D curve.
   //! @param[in] theCurve the transformed curve adaptor
   //! @param[in] theDomain optional domain to use
   void initFromTransformedCurve(const GeomAdaptor_TransformedCurve&       theCurve,
@@ -176,13 +175,15 @@ private:
   //! Post-process result from untransformed-space computation.
   //! Forward-transforms points and scales distances.
   //! @param[in] theSrc result in untransformed space
+  //! @param[in] theP query point in transformed space
   //! @return reference to myTransformResult with transformed data
-  const ExtremaPC::Result& postProcessTransform(const ExtremaPC::Result& theSrc) const;
+  const ExtremaPC::Result& postProcessTransform(const ExtremaPC::Result& theSrc,
+                                                const gp_Pnt&            theP) const;
 
-  EvaluatorVariant             myEvaluator;            //!< Specialized evaluator
-  const Adaptor3d_Curve*       myAdaptorRef = nullptr; //!< Non-owning pointer to caller's adaptor
-  occ::handle<Adaptor3d_Curve> myAdaptorOwned;         //!< Owned adaptor for lifetime management
-  gp_Trsf                      myTrsf; //!< Forward transform (identity = no post-processing)
+  EvaluatorVariant             myEvaluator;    //!< Specialized evaluator
+  const Adaptor3d_Curve*       myAdaptorRef = nullptr; //!< Non-owning caller adaptor
+  occ::handle<Adaptor3d_Curve> myAdaptorOwned; //!< Owned adaptor for lifetime management
+  std::optional<gp_Trsf>       myTrsf;         //!< Forward transform for original-space evaluation
   mutable ExtremaPC::Result    myTransformResult; //!< Result buffer for transform post-processing
 };
 
