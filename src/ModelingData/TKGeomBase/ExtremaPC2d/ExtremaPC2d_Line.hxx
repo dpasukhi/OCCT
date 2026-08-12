@@ -11,16 +11,13 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _ExtremaPC_Line_HeaderFile
-#define _ExtremaPC_Line_HeaderFile
+#ifndef _ExtremaPC2d_Line_HeaderFile
+#define _ExtremaPC2d_Line_HeaderFile
 
-#include <ExtremaPC.hxx>
-#include <ExtremaPC_Planar.hxx>
-#include <ExtremaPC2d_Line.hxx>
-#include <gp_Lin.hxx>
-#include <gp_Pnt.hxx>
-#include <gp_Vec.hxx>
-#include <ProjLib.hxx>
+#include <ExtremaPC2d.hxx>
+#include <gp_Lin2d.hxx>
+#include <gp_Pnt2d.hxx>
+#include <gp_Vec2d.hxx>
 #include <Standard_DefineAlloc.hxx>
 
 #include <algorithm>
@@ -28,7 +25,7 @@
 
 //! @brief Point-Line extrema computation.
 //!
-//! Computes the extremum (closest point) between a 3D point and a line.
+//! Computes the extremum (closest point) between a 2D point and a line.
 //! Uses direct analytical projection via dot product.
 //!
 //! For a line defined by origin O and direction D, the closest point
@@ -38,14 +35,14 @@
 //! For unbounded line, construct without domain or with nullopt.
 //!
 //! @note Lines always have exactly one extremum (minimum) if within bounds.
-class ExtremaPC_Line
+class ExtremaPC2d_Line
 {
 public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with line geometry (unbounded).
   //! @param[in] theLine the line to compute extrema for
-  explicit ExtremaPC_Line(const gp_Lin& theLine)
+  explicit ExtremaPC2d_Line(const gp_Lin2d& theLine)
       : myLine(theLine),
         myDomain(std::nullopt)
   {
@@ -54,37 +51,37 @@ public:
   //! Constructor with line geometry and parameter domain.
   //! @param[in] theLine the line to compute extrema for
   //! @param[in] theDomain parameter domain (fixed for all queries)
-  ExtremaPC_Line(const gp_Lin& theLine, const ExtremaPC::Domain1D& theDomain)
+  ExtremaPC2d_Line(const gp_Lin2d& theLine, const ExtremaPC2d::Domain1D& theDomain)
       : myLine(theLine),
         myDomain(theDomain)
   {
   }
 
   //! Copy constructor is deleted.
-  ExtremaPC_Line(const ExtremaPC_Line&) = delete;
+  ExtremaPC2d_Line(const ExtremaPC2d_Line&) = delete;
 
   //! Copy assignment operator is deleted.
-  ExtremaPC_Line& operator=(const ExtremaPC_Line&) = delete;
+  ExtremaPC2d_Line& operator=(const ExtremaPC2d_Line&) = delete;
 
   //! Move constructor.
-  ExtremaPC_Line(ExtremaPC_Line&&) = default;
+  ExtremaPC2d_Line(ExtremaPC2d_Line&&) = default;
 
   //! Move assignment operator.
-  ExtremaPC_Line& operator=(ExtremaPC_Line&&) = default;
+  ExtremaPC2d_Line& operator=(ExtremaPC2d_Line&&) = default;
 
   //! Evaluates point on line at parameter.
   //! @param theU parameter
   //! @return point on line
-  gp_Pnt Value(double theU) const
+  gp_Pnt2d Value(double theU) const
   {
-    return myLine.Location().Translated(theU * gp_Vec(myLine.Direction()));
+    return myLine.Location().Translated(theU * gp_Vec2d(myLine.Direction()));
   }
 
   //! Returns true if domain is bounded.
   bool IsBounded() const { return myDomain.has_value(); }
 
   //! Returns the domain (only valid if IsBounded() is true).
-  const ExtremaPC::Domain1D& Domain() const { return *myDomain; }
+  const ExtremaPC2d::Domain1D& Domain() const { return *myDomain; }
 
   //! Compute extrema between point P and the line.
   //! Uses domain specified at construction time.
@@ -92,46 +89,31 @@ public:
   //! @param theTol tolerance for parameter comparison
   //! @param theMode search mode (Max returns no interior extremum)
   //! @return const reference to result containing the extremum
-  [[nodiscard]] const ExtremaPC::Result& Perform(
-    const gp_Pnt&         theP,
+  [[nodiscard]] const ExtremaPC2d::Result& Perform(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const
   {
     myResult.Clear();
 
-    if (!ExtremaPC::IsValidTolerance(theTol)
+    if (!ExtremaPC2d::IsValidTolerance(theTol) || !ExtremaPC2d::IsFinitePoint(theP)
         || (myDomain.has_value() && !myDomain->IsValid()))
     {
-      myResult.Status = ExtremaPC::Status::InvalidInput;
+      myResult.Status = ExtremaPC2d::Status::InvalidInput;
       return myResult;
     }
 
-    const gp_Pln aPlane = ExtremaPC::LinePlane(myLine);
-    if (ExtremaPC::PerformPlanar<ExtremaPC2d_Line>(ProjLib::Project(aPlane, myLine),
-                                                   myDomain,
-                                                   ProjLib::Project(aPlane, theP),
-                                                   theP,
-                                                   aPlane,
-                                                   *this,
-                                                   theTol,
-                                                   theMode,
-                                                   false,
-                                                   myResult))
+    if (theMode == ExtremaPC2d::SearchMode::Max)
     {
-      return myResult;
-    }
-
-    if (theMode == ExtremaPC::SearchMode::Max)
-    {
-      myResult.Status = ExtremaPC::Status::NoSolution;
+      myResult.Status = ExtremaPC2d::Status::NoSolution;
       return myResult;
     }
 
     // Compute projection parameter: u = (P - O) . Direction
-    const gp_Dir& aDir    = myLine.Direction();
-    const gp_Pnt& aOrigin = myLine.Location();
-    gp_Vec        aVec(aOrigin, theP);
-    double        aU = aVec.Dot(gp_Vec(aDir));
+    const gp_Dir2d& aDir    = myLine.Direction();
+    const gp_Pnt2d& aOrigin = myLine.Location();
+    gp_Vec2d        aVec(aOrigin, theP);
+    double        aU = aVec.Dot(gp_Vec2d(aDir));
 
     // Check bounds if domain is specified
     if (myDomain.has_value())
@@ -139,7 +121,7 @@ public:
       if (aU < myDomain->Min - theTol || aU > myDomain->Max + theTol)
       {
         // Projection is outside bounds - no interior extremum
-        myResult.Status = ExtremaPC::Status::NoSolution;
+        myResult.Status = ExtremaPC2d::Status::NoSolution;
         return myResult;
       }
       // Clamp to bounds
@@ -147,10 +129,10 @@ public:
     }
 
     // Compute point on line at projected parameter
-    gp_Pnt aPtOnLine = aOrigin.Translated(aU * gp_Vec(aDir));
+    gp_Pnt2d aPtOnLine = aOrigin.Translated(aU * gp_Vec2d(aDir));
 
     // Store result
-    ExtremaPC::ExtremumResult anExt;
+    ExtremaPC2d::ExtremumResult anExt;
     anExt.Parameter      = aU;
     anExt.Point          = aPtOnLine;
     anExt.SquareDistance = theP.SquareDistance(aPtOnLine);
@@ -158,7 +140,7 @@ public:
     anExt.IsMaximum      = false;
 
     myResult.Extrema.Append(anExt);
-    myResult.Status = ExtremaPC::Status::OK;
+    myResult.Status = ExtremaPC2d::Status::OK;
     return myResult;
   }
 
@@ -168,38 +150,38 @@ public:
   //! @param theTol tolerance for parameter comparison
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing interior + endpoint extrema
-  [[nodiscard]] const ExtremaPC::Result& PerformWithEndpoints(
-    const gp_Pnt&         theP,
+  [[nodiscard]] const ExtremaPC2d::Result& PerformWithEndpoints(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const
   {
-    if (!ExtremaPC::IsValidTolerance(theTol)
+    if (!ExtremaPC2d::IsValidTolerance(theTol) || !ExtremaPC2d::IsFinitePoint(theP)
         || (myDomain.has_value() && !myDomain->IsValid()))
     {
       myResult.Clear();
-      myResult.Status = ExtremaPC::Status::InvalidInput;
+      myResult.Status = ExtremaPC2d::Status::InvalidInput;
       return myResult;
     }
 
     if (myDomain.has_value() && myDomain->Min == myDomain->Max)
     {
       myResult.Clear();
-      ExtremaPC::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
-      myResult.Status = myResult.Extrema.IsEmpty() ? ExtremaPC::Status::NoSolution
-                                                   : ExtremaPC::Status::OK;
+      ExtremaPC2d::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
+      myResult.Status = myResult.Extrema.IsEmpty() ? ExtremaPC2d::Status::NoSolution
+                                                   : ExtremaPC2d::Status::OK;
       return myResult;
     }
 
     (void)Perform(theP, theTol, theMode);
 
-    if ((myResult.Status == ExtremaPC::Status::OK
-         || myResult.Status == ExtremaPC::Status::NoSolution)
+    if ((myResult.Status == ExtremaPC2d::Status::OK
+         || myResult.Status == ExtremaPC2d::Status::NoSolution)
         && myDomain.has_value())
     {
-      ExtremaPC::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
+      ExtremaPC2d::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
       if (!myResult.Extrema.IsEmpty())
       {
-        myResult.Status = ExtremaPC::Status::OK;
+        myResult.Status = ExtremaPC2d::Status::OK;
       }
     }
 
@@ -207,12 +189,12 @@ public:
   }
 
   //! Returns the line geometry.
-  const gp_Lin& Line() const { return myLine; }
+  const gp_Lin2d& Line() const { return myLine; }
 
 private:
-  gp_Lin                             myLine;   //!< Line geometry
-  std::optional<ExtremaPC::Domain1D> myDomain; //!< Parameter domain (nullopt for unbounded)
-  mutable ExtremaPC::Result          myResult; //!< Reusable result storage
+  gp_Lin2d                             myLine;   //!< Line geometry
+  std::optional<ExtremaPC2d::Domain1D> myDomain; //!< Parameter domain (nullopt for unbounded)
+  mutable ExtremaPC2d::Result          myResult; //!< Reusable result storage
 };
 
-#endif // _ExtremaPC_Line_HeaderFile
+#endif // _ExtremaPC2d_Line_HeaderFile

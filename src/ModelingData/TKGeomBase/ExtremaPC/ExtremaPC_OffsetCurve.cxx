@@ -14,6 +14,13 @@
 #include <ExtremaPC_OffsetCurve.hxx>
 
 #include <ExtremaPC_GridEvaluator.hxx>
+#include <ExtremaPC_Planar.hxx>
+#include <ExtremaPC2d_OffsetCurve.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <GeomAdaptor_Curve.hxx>
+#include <ProjLib.hxx>
+#include <Standard_ErrorHandler.hxx>
+#include <Standard_Failure.hxx>
 
 //==================================================================================================
 
@@ -55,6 +62,50 @@ gp_Pnt ExtremaPC_OffsetCurve::Value(double theU) const
   return myCurve->Value(theU);
 }
 
+//=================================================================================================
+
+bool ExtremaPC_OffsetCurve::performPlanar(const gp_Pnt&         theP,
+                                           double                theTol,
+                                           ExtremaPC::SearchMode theMode,
+                                           bool theIncludeEndpoints) const
+{
+  gp_Pln                          aPlane;
+  occ::handle<Geom2d_OffsetCurve> anOffset2d;
+  try
+  {
+    OCC_CATCH_SIGNALS
+    const GeomAdaptor_Curve* aGeomAdaptor = dynamic_cast<const GeomAdaptor_Curve*>(myCurve);
+    if (aGeomAdaptor == nullptr)
+    {
+      return false;
+    }
+    const occ::handle<Geom_OffsetCurve> anOffset =
+      occ::down_cast<Geom_OffsetCurve>(aGeomAdaptor->Curve());
+    if (!ExtremaPC::ProjectOffset(anOffset, aPlane, anOffset2d))
+    {
+      return false;
+    }
+  }
+  catch (const Standard_Failure&)
+  {
+    return false;
+  }
+
+  Geom2dAdaptor_Curve anAdaptor2d(anOffset2d, myDomain.Min, myDomain.Max);
+  ExtremaPC2d_OffsetCurve anEvaluator2d(anAdaptor2d,
+                                         ExtremaPC2d::Domain1D(myDomain.Min, myDomain.Max));
+  const ExtremaPC2d::SearchMode aMode = static_cast<ExtremaPC2d::SearchMode>(theMode);
+  const gp_Pnt2d aPoint2d = ProjLib::Project(aPlane, theP);
+  const ExtremaPC2d::Result& aResult2d =
+    theIncludeEndpoints ? anEvaluator2d.PerformWithEndpoints(aPoint2d, theTol, aMode)
+                        : anEvaluator2d.Perform(aPoint2d, theTol, aMode);
+  return ExtremaPC::ConvertPlanarResult(aResult2d,
+                                        theP,
+                                        aPlane,
+                                        *this,
+                                        myEvaluator.Result());
+}
+
 //==================================================================================================
 
 const ExtremaPC::Result& ExtremaPC_OffsetCurve::Perform(const gp_Pnt&         theP,
@@ -65,6 +116,12 @@ const ExtremaPC::Result& ExtremaPC_OffsetCurve::Perform(const gp_Pnt&         th
   {
     myEvaluator.Result().Clear();
     myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.Result();
+  }
+
+  if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
+      && performPlanar(theP, theTol, theMode, false))
+  {
     return myEvaluator.Result();
   }
 
@@ -82,6 +139,12 @@ const ExtremaPC::Result& ExtremaPC_OffsetCurve::PerformWithEndpoints(
   {
     myEvaluator.Result().Clear();
     myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.Result();
+  }
+
+  if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
+      && performPlanar(theP, theTol, theMode, true))
+  {
     return myEvaluator.Result();
   }
 

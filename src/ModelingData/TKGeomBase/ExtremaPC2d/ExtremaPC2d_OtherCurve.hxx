@@ -11,17 +11,17 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _ExtremaPC_OffsetCurve_HeaderFile
-#define _ExtremaPC_OffsetCurve_HeaderFile
+#ifndef _ExtremaPC2d_OtherCurve_HeaderFile
+#define _ExtremaPC2d_OtherCurve_HeaderFile
 
-#include <Adaptor3d_Curve.hxx>
-#include <ExtremaPC.hxx>
-#include <ExtremaPC_GridEvaluator.hxx>
-#include <gp_Pnt.hxx>
+#include <Adaptor2d_Curve2d.hxx>
+#include <ExtremaPC2d.hxx>
+#include <ExtremaPC2d_GridEvaluator.hxx>
+#include <gp_Pnt2d.hxx>
 #include <NCollection_Array1.hxx>
 #include <Standard_DefineAlloc.hxx>
 
-//! @brief Point-OffsetCurve extrema computation using numerical root isolation.
+//! @brief Point-Curve extrema computation for general curves using numerical root isolation.
 //!
 //! Computes roots of the normalized point-curve stationarity function with a
 //! derivative-aware multiple-root solver.
@@ -34,50 +34,50 @@
 //! 2. Isolate all roots of the stationarity function, including tangential roots
 //! 3. Classify roots from the stationarity sign on both sides
 //!
-//! Offset curves are handled through the Adaptor3d_Curve interface,
-//! which provides uniform access to the offset geometry.
+//! This is a fallback implementation that works with any curve type
+//! through the Adaptor2d_Curve2d interface.
 //!
 //! The domain is fixed at construction time and the grid is built eagerly
 //! for optimal performance with multiple queries.
-class ExtremaPC_OffsetCurve
+class ExtremaPC2d_OtherCurve
 {
 public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with curve adaptor (uses full curve domain).
   //! Parameter partition is built eagerly at construction time.
-  //! @param[in] theCurve curve adaptor for offset curve (must remain valid)
-  Standard_EXPORT explicit ExtremaPC_OffsetCurve(const Adaptor3d_Curve& theCurve);
+  //! @param[in] theCurve curve adaptor (must remain valid)
+  Standard_EXPORT explicit ExtremaPC2d_OtherCurve(const Adaptor2d_Curve2d& theCurve);
 
   //! Constructor with curve adaptor and parameter domain.
   //! Parameter partition is built eagerly at construction time for the specified domain.
-  //! @param[in] theCurve curve adaptor for offset curve (must remain valid)
+  //! @param[in] theCurve curve adaptor (must remain valid)
   //! @param[in] theDomain parameter domain (fixed for all queries)
-  Standard_EXPORT ExtremaPC_OffsetCurve(const Adaptor3d_Curve&     theCurve,
-                                        const ExtremaPC::Domain1D& theDomain);
+  Standard_EXPORT ExtremaPC2d_OtherCurve(const Adaptor2d_Curve2d&     theCurve,
+                                       const ExtremaPC2d::Domain1D& theDomain);
 
   //! Copy constructor is deleted.
-  ExtremaPC_OffsetCurve(const ExtremaPC_OffsetCurve&) = delete;
+  ExtremaPC2d_OtherCurve(const ExtremaPC2d_OtherCurve&) = delete;
 
   //! Copy assignment operator is deleted.
-  ExtremaPC_OffsetCurve& operator=(const ExtremaPC_OffsetCurve&) = delete;
+  ExtremaPC2d_OtherCurve& operator=(const ExtremaPC2d_OtherCurve&) = delete;
 
   //! Move constructor.
-  ExtremaPC_OffsetCurve(ExtremaPC_OffsetCurve&&) = default;
+  ExtremaPC2d_OtherCurve(ExtremaPC2d_OtherCurve&&) = default;
 
   //! Move assignment operator.
-  ExtremaPC_OffsetCurve& operator=(ExtremaPC_OffsetCurve&&) = default;
+  ExtremaPC2d_OtherCurve& operator=(ExtremaPC2d_OtherCurve&&) = default;
 
   //! Evaluates point on curve at parameter.
   //! @param theU parameter
   //! @return point on curve
-  Standard_EXPORT gp_Pnt Value(double theU) const;
+  Standard_EXPORT gp_Pnt2d Value(double theU) const;
 
   //! Returns true if domain is bounded.
-  bool IsBounded() const { return myDomain.IsFinite(); }
+  bool IsBounded() const { return true; }
 
   //! Returns the domain.
-  const ExtremaPC::Domain1D& Domain() const { return myDomain; }
+  const ExtremaPC2d::Domain1D& Domain() const { return myDomain; }
 
   //! Compute extrema between point P and the curve.
   //! Uses domain specified at construction time.
@@ -85,10 +85,10 @@ public:
   //! @param theTol tolerance for root finding
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing extrema
-  [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& Perform(
-    const gp_Pnt&         theP,
+  [[nodiscard]] Standard_EXPORT const ExtremaPC2d::Result& Perform(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const;
 
   //! Compute extrema between point P and the curve including endpoints.
   //! Uses domain specified at construction time.
@@ -96,31 +96,20 @@ public:
   //! @param theTol tolerance for root finding
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing interior + endpoint extrema
-  [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& PerformWithEndpoints(
-    const gp_Pnt&         theP,
+  [[nodiscard]] Standard_EXPORT const ExtremaPC2d::Result& PerformWithEndpoints(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const;
 
 private:
-  //! Build parameter partition for the curve.
-  void buildParams();
+  //! Build parameter partition for the current adaptor state.
+  void buildParams() const;
 
-  //! Performs through the exact 2D representation when the current offset is planar.
-  //! @param[in] theP query point
-  //! @param[in] theTol tolerance for root finding
-  //! @param[in] theMode search mode
-  //! @param[in] theIncludeEndpoints whether endpoints should be included
-  //! @return true when the 2D result was accepted
-  bool performPlanar(const gp_Pnt&         theP,
-                     double                theTol,
-                     ExtremaPC::SearchMode theMode,
-                     bool                  theIncludeEndpoints) const;
-
-  const Adaptor3d_Curve* myCurve;  //!< Curve adaptor (not owned)
-  ExtremaPC::Domain1D    myDomain; //!< Parameter domain (fixed)
+  const Adaptor2d_Curve2d* myCurve;  //!< Curve adaptor (not owned)
+  ExtremaPC2d::Domain1D    myDomain; //!< Parameter domain (fixed)
 
   //! Numerical evaluator with cached parameter partition and result.
-  mutable ExtremaPC_GridEvaluator myEvaluator;
+  mutable ExtremaPC2d_GridEvaluator myEvaluator;
 };
 
-#endif // _ExtremaPC_OffsetCurve_HeaderFile
+#endif // _ExtremaPC2d_OtherCurve_HeaderFile

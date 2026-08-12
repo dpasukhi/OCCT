@@ -11,14 +11,14 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _ExtremaPC_BezierCurve_HeaderFile
-#define _ExtremaPC_BezierCurve_HeaderFile
+#ifndef _ExtremaPC2d_BezierCurve_HeaderFile
+#define _ExtremaPC2d_BezierCurve_HeaderFile
 
-#include <ExtremaPC.hxx>
-#include <ExtremaPC_GridEvaluator.hxx>
-#include <GeomAdaptor_Curve.hxx>
-#include <Geom_BezierCurve.hxx>
-#include <gp_Pnt.hxx>
+#include <ExtremaPC2d.hxx>
+#include <ExtremaPC2d_GridEvaluator.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <Geom2d_BezierCurve.hxx>
+#include <gp_Pnt2d.hxx>
 #include <NCollection_Array1.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -41,7 +41,7 @@
 //!
 //! The domain is fixed at construction time and the grid is built eagerly
 //! for optimal performance with multiple queries.
-class ExtremaPC_BezierCurve
+class ExtremaPC2d_BezierCurve
 {
 public:
   DEFINE_STANDARD_ALLOC
@@ -49,37 +49,37 @@ public:
   //! Constructor with Bezier curve (uses full curve domain).
   //! Parameter partition is built eagerly at construction time.
   //! @param[in] theCurve Bezier curve handle
-  Standard_EXPORT explicit ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>& theCurve);
+  Standard_EXPORT explicit ExtremaPC2d_BezierCurve(const occ::handle<Geom2d_BezierCurve>& theCurve);
 
   //! Constructor with Bezier curve and parameter domain.
   //! Parameter partition is built eagerly at construction time for the specified domain.
   //! @param[in] theCurve Bezier curve handle
   //! @param[in] theDomain parameter domain (fixed for all queries)
-  Standard_EXPORT ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>& theCurve,
-                                        const ExtremaPC::Domain1D&           theDomain);
+  Standard_EXPORT ExtremaPC2d_BezierCurve(const occ::handle<Geom2d_BezierCurve>& theCurve,
+                                        const ExtremaPC2d::Domain1D&           theDomain);
 
   //! Copy constructor is deleted.
-  ExtremaPC_BezierCurve(const ExtremaPC_BezierCurve&) = delete;
+  ExtremaPC2d_BezierCurve(const ExtremaPC2d_BezierCurve&) = delete;
 
   //! Copy assignment operator is deleted.
-  ExtremaPC_BezierCurve& operator=(const ExtremaPC_BezierCurve&) = delete;
+  ExtremaPC2d_BezierCurve& operator=(const ExtremaPC2d_BezierCurve&) = delete;
 
   //! Move constructor.
-  ExtremaPC_BezierCurve(ExtremaPC_BezierCurve&&) = default;
+  ExtremaPC2d_BezierCurve(ExtremaPC2d_BezierCurve&&) = default;
 
   //! Move assignment operator.
-  ExtremaPC_BezierCurve& operator=(ExtremaPC_BezierCurve&&) = default;
+  ExtremaPC2d_BezierCurve& operator=(ExtremaPC2d_BezierCurve&&) = default;
 
   //! Evaluates point on curve at parameter.
   //! @param theU parameter
   //! @return point on curve
-  Standard_EXPORT gp_Pnt Value(double theU) const;
+  Standard_EXPORT gp_Pnt2d Value(double theU) const;
 
   //! Returns true if domain is bounded (subset of curve domain).
   bool IsBounded() const { return true; } // Bezier curves are always bounded
 
   //! Returns the domain.
-  const ExtremaPC::Domain1D& Domain() const { return myDomain; }
+  const ExtremaPC2d::Domain1D& Domain() const { return myDomain; }
 
   //! Compute extrema between point P and the curve.
   //! Uses domain specified at construction time.
@@ -87,10 +87,10 @@ public:
   //! @param theTol tolerance for root finding
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing extrema
-  [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& Perform(
-    const gp_Pnt&         theP,
+  [[nodiscard]] Standard_EXPORT const ExtremaPC2d::Result& Perform(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const;
 
   //! Compute extrema between point P and the curve including endpoints.
   //! Uses domain specified at construction time.
@@ -98,36 +98,24 @@ public:
   //! @param theTol tolerance for root finding
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing interior + endpoint extrema
-  [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& PerformWithEndpoints(
-    const gp_Pnt&         theP,
+  [[nodiscard]] Standard_EXPORT const ExtremaPC2d::Result& PerformWithEndpoints(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const;
 
   //! Returns the Bezier curve.
-  const occ::handle<Geom_BezierCurve>& Curve() const { return myCurve; }
+  const occ::handle<Geom2d_BezierCurve>& Curve() const { return myCurve; }
 
 private:
   //! Build parameter partition for the curve.
-  void buildParams();
+  void buildParams() const;
 
-  //! Performs through the exact 2D representation when the current curve is planar.
-  //! @param[in] theP query point
-  //! @param[in] theTol tolerance for root finding
-  //! @param[in] theMode search mode
-  //! @param[in] theIncludeEndpoints whether endpoints should be included
-  //! @return true when the 2D result was accepted
-  bool performPlanar(const gp_Pnt&         theP,
-                     double                theTol,
-                     ExtremaPC::SearchMode theMode,
-                     bool                  theIncludeEndpoints) const;
-
-  occ::handle<Geom_BezierCurve> myCurve;     //!< Bezier curve
-  GeomAdaptor_Curve             myAdaptor;   //!< Curve adaptor
-  ExtremaPC::Domain1D           myDomain;    //!< Parameter domain (fixed)
-  int                           myNbSamples; //!< Number of samples
+  occ::handle<Geom2d_BezierCurve> myCurve;     //!< Bezier curve
+  ExtremaPC2d::Domain1D           myDomain;    //!< Parameter domain (fixed)
+  mutable int                   myNbSamples; //!< Number of samples
 
   // Numerical evaluator with cached parameter partition and result
-  mutable ExtremaPC_GridEvaluator myEvaluator;
+  mutable ExtremaPC2d_GridEvaluator myEvaluator;
 };
 
-#endif // _ExtremaPC_BezierCurve_HeaderFile
+#endif // _ExtremaPC2d_BezierCurve_HeaderFile

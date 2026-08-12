@@ -13,6 +13,10 @@
 
 #include <ExtremaPC_BezierCurve.hxx>
 
+#include <ExtremaPC_Planar.hxx>
+#include <ExtremaPC2d_BezierCurve.hxx>
+#include <ProjLib.hxx>
+
 //==================================================================================================
 
 ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>& theCurve)
@@ -72,6 +76,34 @@ gp_Pnt ExtremaPC_BezierCurve::Value(double theU) const
   return myCurve->Value(theU);
 }
 
+//=================================================================================================
+
+bool ExtremaPC_BezierCurve::performPlanar(const gp_Pnt&         theP,
+                                           double                theTol,
+                                           ExtremaPC::SearchMode theMode,
+                                           bool theIncludeEndpoints) const
+{
+  gp_Pln                          aPlane;
+  occ::handle<Geom2d_BezierCurve> aCurve2d;
+  if (!ExtremaPC::ProjectBezier(myCurve, aPlane, aCurve2d))
+  {
+    return false;
+  }
+
+  ExtremaPC2d_BezierCurve anEvaluator2d(aCurve2d,
+                                         ExtremaPC2d::Domain1D(myDomain.Min, myDomain.Max));
+  const ExtremaPC2d::SearchMode aMode = static_cast<ExtremaPC2d::SearchMode>(theMode);
+  const gp_Pnt2d aPoint2d = ProjLib::Project(aPlane, theP);
+  const ExtremaPC2d::Result& aResult2d =
+    theIncludeEndpoints ? anEvaluator2d.PerformWithEndpoints(aPoint2d, theTol, aMode)
+                        : anEvaluator2d.Perform(aPoint2d, theTol, aMode);
+  return ExtremaPC::ConvertPlanarResult(aResult2d,
+                                        theP,
+                                        aPlane,
+                                        *this,
+                                        myEvaluator.Result());
+}
+
 //==================================================================================================
 
 const ExtremaPC::Result& ExtremaPC_BezierCurve::Perform(const gp_Pnt&         theP,
@@ -85,6 +117,12 @@ const ExtremaPC::Result& ExtremaPC_BezierCurve::Perform(const gp_Pnt&         th
     return myEvaluator.Result();
   }
 
+  if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
+      && performPlanar(theP, theTol, theMode, false))
+  {
+    return myEvaluator.Result();
+  }
+
   return myEvaluator.Perform(myAdaptor, theP, myDomain, theTol, theMode);
 }
 
@@ -95,6 +133,18 @@ const ExtremaPC::Result& ExtremaPC_BezierCurve::PerformWithEndpoints(
   double                theTol,
   ExtremaPC::SearchMode theMode) const
 {
+  if (myCurve.IsNull())
+  {
+    myEvaluator.Result().Clear();
+    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.Result();
+  }
+  if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
+      && performPlanar(theP, theTol, theMode, true))
+  {
+    return myEvaluator.Result();
+  }
+
   (void)Perform(theP, theTol, theMode);
 
   // Add endpoints to the result

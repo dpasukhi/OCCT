@@ -11,14 +11,14 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _ExtremaPC_BSplineCurve_HeaderFile
-#define _ExtremaPC_BSplineCurve_HeaderFile
+#ifndef _ExtremaPC2d_BSplineCurve_HeaderFile
+#define _ExtremaPC2d_BSplineCurve_HeaderFile
 
-#include <ExtremaPC.hxx>
-#include <ExtremaPC_GridEvaluator.hxx>
-#include <GeomAdaptor_Curve.hxx>
-#include <Geom_BSplineCurve.hxx>
-#include <gp_Pnt.hxx>
+#include <ExtremaPC2d.hxx>
+#include <ExtremaPC2d_GridEvaluator.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <Geom2d_BSplineCurve.hxx>
+#include <gp_Pnt2d.hxx>
 #include <NCollection_Array1.hxx>
 #include <Standard_DefineAlloc.hxx>
 #include <Standard_Handle.hxx>
@@ -41,7 +41,7 @@
 //!
 //! The domain is fixed at construction time and the grid is built eagerly
 //! for optimal performance with multiple queries.
-class ExtremaPC_BSplineCurve
+class ExtremaPC2d_BSplineCurve
 {
 public:
   DEFINE_STANDARD_ALLOC
@@ -49,37 +49,37 @@ public:
   //! Constructor with BSpline curve (uses full curve domain).
   //! Parameter partition is built eagerly at construction time.
   //! @param[in] theCurve BSpline curve handle
-  Standard_EXPORT explicit ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCurve>& theCurve);
+  Standard_EXPORT explicit ExtremaPC2d_BSplineCurve(const occ::handle<Geom2d_BSplineCurve>& theCurve);
 
   //! Constructor with BSpline curve and parameter domain.
   //! Parameter partition is built eagerly at construction time for the specified domain.
   //! @param[in] theCurve BSpline curve handle
   //! @param[in] theDomain parameter domain (fixed for all queries)
-  Standard_EXPORT ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCurve>& theCurve,
-                                         const ExtremaPC::Domain1D&            theDomain);
+  Standard_EXPORT ExtremaPC2d_BSplineCurve(const occ::handle<Geom2d_BSplineCurve>& theCurve,
+                                         const ExtremaPC2d::Domain1D&            theDomain);
 
   //! Copy constructor is deleted.
-  ExtremaPC_BSplineCurve(const ExtremaPC_BSplineCurve&) = delete;
+  ExtremaPC2d_BSplineCurve(const ExtremaPC2d_BSplineCurve&) = delete;
 
   //! Copy assignment operator is deleted.
-  ExtremaPC_BSplineCurve& operator=(const ExtremaPC_BSplineCurve&) = delete;
+  ExtremaPC2d_BSplineCurve& operator=(const ExtremaPC2d_BSplineCurve&) = delete;
 
   //! Move constructor.
-  ExtremaPC_BSplineCurve(ExtremaPC_BSplineCurve&&) = default;
+  ExtremaPC2d_BSplineCurve(ExtremaPC2d_BSplineCurve&&) = default;
 
   //! Move assignment operator.
-  ExtremaPC_BSplineCurve& operator=(ExtremaPC_BSplineCurve&&) = default;
+  ExtremaPC2d_BSplineCurve& operator=(ExtremaPC2d_BSplineCurve&&) = default;
 
   //! Evaluates point on curve at parameter.
   //! @param theU parameter
   //! @return point on curve
-  Standard_EXPORT gp_Pnt Value(double theU) const;
+  Standard_EXPORT gp_Pnt2d Value(double theU) const;
 
   //! Returns true if domain is bounded (subset of curve domain).
   bool IsBounded() const { return true; } // BSpline curves are always bounded
 
   //! Returns the domain.
-  const ExtremaPC::Domain1D& Domain() const { return myDomain; }
+  const ExtremaPC2d::Domain1D& Domain() const { return myDomain; }
 
   //! Compute extrema between point P and the curve.
   //! Uses domain specified at construction time.
@@ -87,10 +87,10 @@ public:
   //! @param theTol tolerance for root finding
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing extrema
-  [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& Perform(
-    const gp_Pnt&         theP,
+  [[nodiscard]] Standard_EXPORT const ExtremaPC2d::Result& Perform(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const;
 
   //! Compute extrema between point P and the curve including endpoints.
   //! Uses domain specified at construction time.
@@ -98,13 +98,13 @@ public:
   //! @param theTol tolerance for root finding
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing interior + endpoint extrema
-  [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& PerformWithEndpoints(
-    const gp_Pnt&         theP,
+  [[nodiscard]] Standard_EXPORT const ExtremaPC2d::Result& PerformWithEndpoints(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const;
 
   //! Returns the BSpline curve.
-  const occ::handle<Geom_BSplineCurve>& Curve() const { return myCurve; }
+  const occ::handle<Geom2d_BSplineCurve>& Curve() const { return myCurve; }
 
 private:
   //! Build knot-aware parameter array for grid sampling.
@@ -113,25 +113,13 @@ private:
   math_Vector buildKnotAwareParams() const;
 
   //! Build parameter partition for the curve.
-  void buildParams();
+  void buildParams() const;
 
-  //! Performs through the exact 2D representation when the current curve is planar.
-  //! @param[in] theP query point
-  //! @param[in] theTol tolerance for root finding
-  //! @param[in] theMode search mode
-  //! @param[in] theIncludeEndpoints whether endpoints should be included
-  //! @return true when the 2D result was accepted
-  bool performPlanar(const gp_Pnt&         theP,
-                     double                theTol,
-                     ExtremaPC::SearchMode theMode,
-                     bool                  theIncludeEndpoints) const;
-
-  occ::handle<Geom_BSplineCurve> myCurve;   //!< BSpline curve
-  GeomAdaptor_Curve              myAdaptor; //!< Curve adaptor
-  ExtremaPC::Domain1D            myDomain;  //!< Parameter domain (fixed)
+  occ::handle<Geom2d_BSplineCurve> myCurve;   //!< BSpline curve
+  ExtremaPC2d::Domain1D            myDomain;  //!< Parameter domain (fixed)
 
   // Numerical evaluator with cached parameter partition and result
-  mutable ExtremaPC_GridEvaluator myEvaluator;
+  mutable ExtremaPC2d_GridEvaluator myEvaluator;
 };
 
-#endif // _ExtremaPC_BSplineCurve_HeaderFile
+#endif // _ExtremaPC2d_BSplineCurve_HeaderFile

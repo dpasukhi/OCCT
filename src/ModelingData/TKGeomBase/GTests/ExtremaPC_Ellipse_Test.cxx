@@ -14,10 +14,14 @@
 #include <gtest/gtest.h>
 
 #include <ExtremaPC_Ellipse.hxx>
+#include <ExtremaPC2d_Ellipse.hxx>
 
 #include <gp_Ax2.hxx>
+#include <gp_Ax22d.hxx>
 #include <gp_Elips.hxx>
+#include <gp_Elips2d.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Pnt2d.hxx>
 #include <ElCLib.hxx>
 
 #include <cmath>
@@ -583,5 +587,25 @@ TEST_F(ExtremaPC_EllipseTest, LargeRange_FullCircle)
   for (int i = 0; i < aResult.NbExt(); ++i)
   {
     EXPECT_GT(aResult[i].SquareDistance, 0.0);
+  }
+}
+
+//=================================================================================================
+
+TEST_F(ExtremaPC_EllipseTest, PlanarDelegation_PreservesParameterAndHeight)
+{
+  ExtremaPC_Ellipse anEvaluator3d(
+    gp_Elips(gp_Ax2(gp_Pnt(0.0, 0.0, 0.0), gp_Dir(0.0, 0.0, 1.0)), 5.0, 2.0));
+  ExtremaPC2d_Ellipse anEvaluator2d(
+    gp_Elips2d(gp_Ax22d(gp_Pnt2d(0.0, 0.0), gp_Dir2d(1.0, 0.0), true), 5.0, 2.0));
+  const ExtremaPC::Result& aResult3d = anEvaluator3d.Perform(gp_Pnt(8.0, 3.0, 6.0), THE_TOL);
+  const ExtremaPC2d::Result& aResult2d = anEvaluator2d.Perform(gp_Pnt2d(8.0, 3.0), THE_TOL);
+  ASSERT_EQ(aResult3d.NbExt(), aResult2d.NbExt());
+  for (int anIndex = 0; anIndex < aResult3d.NbExt(); ++anIndex)
+  {
+    EXPECT_NEAR(aResult3d[anIndex].Parameter, aResult2d[anIndex].Parameter, THE_TOL);
+    EXPECT_NEAR(aResult3d[anIndex].SquareDistance,
+                aResult2d[anIndex].SquareDistance + 36.0,
+                THE_TOL);
   }
 }

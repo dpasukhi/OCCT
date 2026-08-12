@@ -14,9 +14,12 @@
 #include <gtest/gtest.h>
 
 #include <ExtremaPC_BezierCurve.hxx>
+#include <ExtremaPC2d_BezierCurve.hxx>
 
 #include <Geom_BezierCurve.hxx>
+#include <Geom2d_BezierCurve.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Pnt2d.hxx>
 #include <gp_Vec.hxx>
 
 #include <cmath>
@@ -684,4 +687,58 @@ TEST_F(ExtremaPC_BezierCurveTest, ConsistentDistanceCalculation)
     double aExpectedSqDist = aPoint.SquareDistance(aCurvePt);
     EXPECT_NEAR(aSqDist, aExpectedSqDist, THE_TOL);
   }
+}
+
+//=================================================================================================
+
+TEST_F(ExtremaPC_BezierCurveTest, PlanarDelegation_PreservesOffPlaneExtrema)
+{
+  NCollection_Array1<gp_Pnt> aPoles3d(1, 4);
+  NCollection_Array1<gp_Pnt2d> aPoles2d(1, 4);
+  for (int anIndex = 1; anIndex <= 4; ++anIndex)
+  {
+    const double anX = static_cast<double>(anIndex - 1);
+    const double anY = anIndex == 2 ? 3.0 : (anIndex == 3 ? -1.0 : 0.0);
+    aPoles3d(anIndex) = gp_Pnt(anX, anY, 2.0);
+    aPoles2d(anIndex) = gp_Pnt2d(anX, anY);
+  }
+  occ::handle<Geom_BezierCurve> aCurve3d = new Geom_BezierCurve(aPoles3d);
+  occ::handle<Geom2d_BezierCurve> aCurve2d = new Geom2d_BezierCurve(aPoles2d);
+  ExtremaPC_BezierCurve anEvaluator3d(aCurve3d);
+  ExtremaPC2d_BezierCurve anEvaluator2d(aCurve2d);
+  const ExtremaPC::Result& aResult3d = anEvaluator3d.Perform(gp_Pnt(1.3, 1.0, 7.0), THE_TOL);
+  const ExtremaPC2d::Result& aResult2d = anEvaluator2d.Perform(gp_Pnt2d(1.3, 1.0), THE_TOL);
+  ASSERT_EQ(aResult3d.NbExt(), aResult2d.NbExt());
+  for (int anIndex = 0; anIndex < aResult3d.NbExt(); ++anIndex)
+  {
+    EXPECT_NEAR(aResult3d[anIndex].Parameter, aResult2d[anIndex].Parameter, THE_TOL);
+    EXPECT_NEAR(aResult3d[anIndex].SquareDistance,
+                aResult2d[anIndex].SquareDistance + 25.0,
+                THE_TOL);
+  }
+}
+
+//=================================================================================================
+
+TEST_F(ExtremaPC_BezierCurveTest, PlanarDelegation_ReprojectsMutationPerCall)
+{
+  NCollection_Array1<gp_Pnt> aPoles(1, 3);
+  aPoles(1) = gp_Pnt(0.0, 0.0, 1.0);
+  aPoles(2) = gp_Pnt(2.0, 3.0, 1.0);
+  aPoles(3) = gp_Pnt(4.0, 0.0, 1.0);
+  occ::handle<Geom_BezierCurve> aCurve = new Geom_BezierCurve(aPoles);
+  ExtremaPC_BezierCurve anEvaluator(aCurve);
+  const ExtremaPC::Result& aBefore = anEvaluator.Perform(gp_Pnt(2.0, 2.0, 4.0), THE_TOL);
+  ASSERT_TRUE(aBefore.IsDone());
+  const double aBeforeParameter = aBefore[aBefore.MinIndex()].Parameter;
+
+  aCurve->SetPole(2, gp_Pnt(3.5, -4.0, 1.0));
+  const ExtremaPC::Result& anAfter = anEvaluator.Perform(gp_Pnt(2.0, 2.0, 4.0), THE_TOL);
+  ASSERT_TRUE(anAfter.IsDone());
+  ASSERT_GE(anAfter.NbExt(), 1);
+  EXPECT_GT(std::abs(anAfter[anAfter.MinIndex()].Parameter - aBeforeParameter), 1.0e-3);
+  EXPECT_NEAR(anAfter[anAfter.MinIndex()].Point.Distance(
+                aCurve->Value(anAfter[anAfter.MinIndex()].Parameter)),
+              0.0,
+              1.0e-12);
 }

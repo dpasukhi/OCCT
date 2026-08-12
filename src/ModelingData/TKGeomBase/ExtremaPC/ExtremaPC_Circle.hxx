@@ -16,11 +16,14 @@
 
 #include <ElCLib.hxx>
 #include <ExtremaPC.hxx>
+#include <ExtremaPC_Planar.hxx>
+#include <ExtremaPC2d_Circle.hxx>
 #include <gp_Circ.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Vec.hxx>
 #include <Precision.hxx>
 #include <Standard_DefineAlloc.hxx>
+#include <ProjLib.hxx>
 
 #include <cmath>
 #include <optional>
@@ -106,6 +109,21 @@ public:
         || (myDomain.has_value() && !myDomain->IsValid()))
     {
       myResult.Status = ExtremaPC::Status::InvalidInput;
+      return myResult;
+    }
+
+    const gp_Pln aPlane(gp_Ax3(myCircle.Position()));
+    if (ExtremaPC::PerformPlanar<ExtremaPC2d_Circle>(ProjLib::Project(aPlane, myCircle),
+                                                     myDomain,
+                                                     ProjLib::Project(aPlane, theP),
+                                                     theP,
+                                                     aPlane,
+                                                     *this,
+                                                     theTol,
+                                                     theMode,
+                                                     false,
+                                                     myResult))
+    {
       return myResult;
     }
 

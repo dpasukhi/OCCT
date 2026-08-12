@@ -11,32 +11,28 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _ExtremaPC_Hyperbola_HeaderFile
-#define _ExtremaPC_Hyperbola_HeaderFile
+#ifndef _ExtremaPC2d_Hyperbola_HeaderFile
+#define _ExtremaPC2d_Hyperbola_HeaderFile
 
 #include <ElCLib.hxx>
-#include <ExtremaPC.hxx>
-#include <ExtremaPC_Planar.hxx>
-#include <ExtremaPC2d_Hyperbola.hxx>
-#include <gp_Hypr.hxx>
-#include <gp_Pnt.hxx>
-#include <gp_Vec.hxx>
+#include <ExtremaPC2d.hxx>
+#include <gp_Hypr2d.hxx>
+#include <gp_Pnt2d.hxx>
+#include <gp_Vec2d.hxx>
 #include <MathPoly_Quartic.hxx>
 #include <Precision.hxx>
 #include <Standard_DefineAlloc.hxx>
-#include <ProjLib.hxx>
 
 #include <cmath>
 #include <optional>
 
 //! @brief Point-Hyperbola extrema computation.
 //!
-//! Computes the extrema between a 3D point and a hyperbola.
+//! Computes the extrema between a 2D point and a hyperbola.
 //! Uses quartic polynomial solving via MathPoly::Quartic with substitution.
 //!
 //! The algorithm:
-//! 1. Projects point P onto the hyperbola plane -> Pp
-//! 2. For hyperbola C(u) = (R*cosh(u), r*sinh(u)) with major radius R and minor radius r,
+//! For hyperbola C(u) = (R*cosh(u), r*sinh(u)) with major radius R and minor radius r,
 //!    substitutes v = e^u to convert the transcendental equation to a polynomial:
 //!    ((R^2 + r^2)/4) * v^4 - ((X*R + Y*r)/2) * v^3 + ((X*R - Y*r)/2) * v - ((R^2 + r^2)/4) = 0
 //! 3. Filters positive roots (v > 0) and converts back via u = ln(v)
@@ -45,14 +41,14 @@
 //!
 //! The domain is fixed at construction time for optimal performance.
 //! For infinite hyperbola, construct without domain or with nullopt.
-class ExtremaPC_Hyperbola
+class ExtremaPC2d_Hyperbola
 {
 public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with hyperbola geometry (infinite).
   //! @param[in] theHyperbola the hyperbola to compute extrema for
-  explicit ExtremaPC_Hyperbola(const gp_Hypr& theHyperbola)
+  explicit ExtremaPC2d_Hyperbola(const gp_Hypr2d& theHyperbola)
       : myHyperbola(theHyperbola),
         myDomain(std::nullopt)
   {
@@ -62,7 +58,7 @@ public:
   //! Constructor with hyperbola geometry and parameter domain.
   //! @param[in] theHyperbola the hyperbola to compute extrema for
   //! @param[in] theDomain parameter domain (fixed for all queries)
-  ExtremaPC_Hyperbola(const gp_Hypr& theHyperbola, const ExtremaPC::Domain1D& theDomain)
+  ExtremaPC2d_Hyperbola(const gp_Hypr2d& theHyperbola, const ExtremaPC2d::Domain1D& theDomain)
       : myHyperbola(theHyperbola),
         myDomain(theDomain)
   {
@@ -70,37 +66,36 @@ public:
   }
 
   //! Copy constructor is deleted.
-  ExtremaPC_Hyperbola(const ExtremaPC_Hyperbola&) = delete;
+  ExtremaPC2d_Hyperbola(const ExtremaPC2d_Hyperbola&) = delete;
 
   //! Copy assignment operator is deleted.
-  ExtremaPC_Hyperbola& operator=(const ExtremaPC_Hyperbola&) = delete;
+  ExtremaPC2d_Hyperbola& operator=(const ExtremaPC2d_Hyperbola&) = delete;
 
   //! Move constructor.
-  ExtremaPC_Hyperbola(ExtremaPC_Hyperbola&&) = default;
+  ExtremaPC2d_Hyperbola(ExtremaPC2d_Hyperbola&&) = default;
 
   //! Move assignment operator.
-  ExtremaPC_Hyperbola& operator=(ExtremaPC_Hyperbola&&) = default;
+  ExtremaPC2d_Hyperbola& operator=(ExtremaPC2d_Hyperbola&&) = default;
 
   //! Evaluates point on hyperbola at parameter using cached geometry.
   //! @param theU parameter
   //! @return point on hyperbola
-  gp_Pnt Value(double theU) const
+  gp_Pnt2d Value(double theU) const
   {
     // Hyperbola: P(u) = Center + R*cosh(u)*XDir + r*sinh(u)*YDir
     const double aCosh  = std::cosh(theU);
     const double aSinh  = std::sinh(theU);
     const double aRCosh = myMajorR * aCosh;
     const double arSinh = myMinorR * aSinh;
-    return gp_Pnt(myCenterX + aRCosh * myXDirX + arSinh * myYDirX,
-                  myCenterY + aRCosh * myXDirY + arSinh * myYDirY,
-                  myCenterZ + aRCosh * myXDirZ + arSinh * myYDirZ);
+    return gp_Pnt2d(myCenterX + aRCosh * myXDirX + arSinh * myYDirX,
+                    myCenterY + aRCosh * myXDirY + arSinh * myYDirY);
   }
 
   //! Returns true if domain is bounded.
   bool IsBounded() const { return myDomain.has_value(); }
 
   //! Returns the domain (only valid if IsBounded() is true).
-  const ExtremaPC::Domain1D& Domain() const { return *myDomain; }
+  const ExtremaPC2d::Domain1D& Domain() const { return *myDomain; }
 
   //! Compute extrema between point P and the hyperbola.
   //! Uses domain specified at construction time.
@@ -108,27 +103,11 @@ public:
   //! @param theTol tolerance for duplicate detection
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing extrema
-  [[nodiscard]] const ExtremaPC::Result& Perform(
-    const gp_Pnt&         theP,
+  [[nodiscard]] const ExtremaPC2d::Result& Perform(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const
   {
-    const gp_Pln aPlane(gp_Ax3(myHyperbola.Position()));
-    if (ExtremaPC::IsValidTolerance(theTol)
-        && (!myDomain.has_value() || myDomain->IsValid())
-        && ExtremaPC::PerformPlanar<ExtremaPC2d_Hyperbola>(ProjLib::Project(aPlane, myHyperbola),
-                                                           myDomain,
-                                                           ProjLib::Project(aPlane, theP),
-                                                           theP,
-                                                           aPlane,
-                                                           *this,
-                                                           theTol,
-                                                           theMode,
-                                                           false,
-                                                           myResult))
-    {
-      return myResult;
-    }
     performCore(theP, myDomain, theTol, theMode);
     return myResult;
   }
@@ -139,39 +118,39 @@ public:
   //! @param theTol tolerance for duplicate detection
   //! @param theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing interior + endpoint extrema
-  [[nodiscard]] const ExtremaPC::Result& PerformWithEndpoints(
-    const gp_Pnt&         theP,
+  [[nodiscard]] const ExtremaPC2d::Result& PerformWithEndpoints(
+    const gp_Pnt2d&         theP,
     double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const
+    ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const
   {
-    if (!ExtremaPC::IsValidTolerance(theTol)
+    if (!ExtremaPC2d::IsValidTolerance(theTol) || !ExtremaPC2d::IsFinitePoint(theP)
         || (myDomain.has_value() && !myDomain->IsValid()))
     {
       myResult.Clear();
-      myResult.Status = ExtremaPC::Status::InvalidInput;
+      myResult.Status = ExtremaPC2d::Status::InvalidInput;
       return myResult;
     }
 
     if (myDomain.has_value() && myDomain->IsValid() && myDomain->Min == myDomain->Max)
     {
       myResult.Clear();
-      ExtremaPC::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
-      myResult.Status = myResult.Extrema.IsEmpty() ? ExtremaPC::Status::NoSolution
-                                                   : ExtremaPC::Status::OK;
+      ExtremaPC2d::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
+      myResult.Status = myResult.Extrema.IsEmpty() ? ExtremaPC2d::Status::NoSolution
+                                                   : ExtremaPC2d::Status::OK;
       return myResult;
     }
 
     (void)Perform(theP, theTol, theMode);
 
     // Add endpoints if interior computation succeeded and domain is bounded
-    if ((myResult.Status == ExtremaPC::Status::OK
-         || myResult.Status == ExtremaPC::Status::NoSolution)
+    if ((myResult.Status == ExtremaPC2d::Status::OK
+         || myResult.Status == ExtremaPC2d::Status::NoSolution)
         && myDomain.has_value())
     {
-      ExtremaPC::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
+      ExtremaPC2d::AddEndpointExtrema(myResult, theP, *myDomain, *this, theMode, false);
       if (!myResult.Extrema.IsEmpty())
       {
-        myResult.Status = ExtremaPC::Status::OK;
+        myResult.Status = ExtremaPC2d::Status::OK;
       }
     }
 
@@ -179,31 +158,22 @@ public:
   }
 
   //! Returns the hyperbola geometry.
-  const gp_Hypr& Hyperbola() const { return myHyperbola; }
+  const gp_Hypr2d& Hyperbola() const { return myHyperbola; }
 
 private:
   //! Cache geometry components for fast computation.
   void cacheGeometry()
   {
-    const gp_Pnt& aCenter = myHyperbola.Location();
+    const gp_Pnt2d& aCenter = myHyperbola.Location();
     myCenterX             = aCenter.X();
     myCenterY             = aCenter.Y();
-    myCenterZ             = aCenter.Z();
-
-    const gp_Dir aXDir = myHyperbola.XAxis().Direction();
+    const gp_Dir2d& aXDir = myHyperbola.Axis().XDirection();
     myXDirX            = aXDir.X();
     myXDirY            = aXDir.Y();
-    myXDirZ            = aXDir.Z();
 
-    const gp_Dir aYDir = myHyperbola.YAxis().Direction();
+    const gp_Dir2d& aYDir = myHyperbola.Axis().YDirection();
     myYDirX            = aYDir.X();
     myYDirY            = aYDir.Y();
-    myYDirZ            = aYDir.Z();
-
-    const gp_Dir& aAxis = myHyperbola.Axis().Direction();
-    myAxisX             = aAxis.X();
-    myAxisY             = aAxis.Y();
-    myAxisZ             = aAxis.Z();
 
     myMajorR        = myHyperbola.MajorRadius();
     myMinorR        = myHyperbola.MinorRadius();
@@ -211,30 +181,15 @@ private:
   }
 
   //! Solve the quartic equation and return polynomial result using cached geometry.
-  MathPoly::PolyResult solveQuartic(const gp_Pnt& theP) const
+  MathPoly::PolyResult solveQuartic(const gp_Pnt2d& theP) const
   {
     // Vector from center to point
     const double aDx = theP.X() - myCenterX;
     const double aDy = theP.Y() - myCenterY;
-    const double aDz = theP.Z() - myCenterZ;
-
-    // Project point P onto the hyperbola plane
-    // Height = (P - Center) . Axis
-    const double aHeight = aDx * myAxisX + aDy * myAxisY + aDz * myAxisZ;
-
-    // Projected point Pp = P - Height * Axis
-    const double aPpX = theP.X() - aHeight * myAxisX;
-    const double aPpY = theP.Y() - aHeight * myAxisY;
-    const double aPpZ = theP.Z() - aHeight * myAxisZ;
-
-    // Vector from center to projected point
-    const double aOPpX = aPpX - myCenterX;
-    const double aOPpY = aPpY - myCenterY;
-    const double aOPpZ = aPpZ - myCenterZ;
 
     // Local coordinates in hyperbola frame
-    const double aX = aOPpX * myXDirX + aOPpY * myXDirY + aOPpZ * myXDirZ;
-    const double aY = aOPpX * myYDirX + aOPpY * myYDirY + aOPpZ * myYDirZ;
+    const double aX = aDx * myXDirX + aDy * myXDirY;
+    const double aY = aDx * myYDirX + aDy * myYDirY;
 
     // Solve quartic equation in v = e^u
     const double aC1 = myR2PlusR2Over4;
@@ -252,17 +207,17 @@ private:
   //! @param theDomain optional parameter domain (nullopt for unbounded)
   //! @param theTol tolerance for duplicate detection
   //! @param theMode search mode
-  void performCore(const gp_Pnt&                             theP,
-                   const std::optional<ExtremaPC::Domain1D>& theDomain,
+  void performCore(const gp_Pnt2d&                             theP,
+                   const std::optional<ExtremaPC2d::Domain1D>& theDomain,
                    double                                    theTol,
-                   ExtremaPC::SearchMode                     theMode) const
+                   ExtremaPC2d::SearchMode                     theMode) const
   {
     myResult.Clear();
 
-    if (!ExtremaPC::IsValidTolerance(theTol)
+    if (!ExtremaPC2d::IsValidTolerance(theTol) || !ExtremaPC2d::IsFinitePoint(theP)
         || (theDomain.has_value() && !theDomain->IsValid()))
     {
-      myResult.Status = ExtremaPC::Status::InvalidInput;
+      myResult.Status = ExtremaPC2d::Status::InvalidInput;
       return;
     }
 
@@ -272,13 +227,13 @@ private:
     {
       if (aPolyRes.Status == MathUtils::Status::InfiniteSolutions)
       {
-        myResult.Status                 = ExtremaPC::Status::InfiniteSolutions;
-        gp_Pnt aPtOnCurve               = Value(0.0);
+        myResult.Status                 = ExtremaPC2d::Status::InfiniteSolutions;
+        gp_Pnt2d aPtOnCurve               = Value(0.0);
         myResult.InfiniteSquareDistance = theP.SquareDistance(aPtOnCurve);
       }
       else
       {
-        myResult.Status = ExtremaPC::Status::NumericalError;
+        myResult.Status = ExtremaPC2d::Status::NumericalError;
       }
       return;
     }
@@ -299,14 +254,14 @@ private:
           continue;
       }
 
-      gp_Pnt aCurvePt = Value(aU);
+      gp_Pnt2d aCurvePt = Value(aU);
 
       // Check for duplicates
       bool aDuplicate = false;
       for (int j = 0; j < myResult.Extrema.Length(); ++j)
       {
         if (std::abs(aU - myResult.Extrema.Value(j).Parameter)
-            < ExtremaPC::THE_PARAM_TOLERANCE)
+            < ExtremaPC2d::THE_PARAM_TOLERANCE)
         {
           aDuplicate = true;
           break;
@@ -336,12 +291,12 @@ private:
       const bool aIsMin = aNbOddRootsAfter % 2 == 0;
 
       // Filter by search mode
-      if (theMode == ExtremaPC::SearchMode::Min && !aIsMin)
+      if (theMode == ExtremaPC2d::SearchMode::Min && !aIsMin)
         continue;
-      if (theMode == ExtremaPC::SearchMode::Max && aIsMin)
+      if (theMode == ExtremaPC2d::SearchMode::Max && aIsMin)
         continue;
 
-      ExtremaPC::ExtremumResult anExt;
+      ExtremaPC2d::ExtremumResult anExt;
       anExt.Parameter      = aU;
       anExt.Point          = aCurvePt;
       anExt.SquareDistance = aSqDist;
@@ -351,22 +306,21 @@ private:
       myResult.Extrema.Append(anExt);
     }
 
-    myResult.Status = myResult.Extrema.IsEmpty() ? ExtremaPC::Status::NoSolution
-                                                 : ExtremaPC::Status::OK;
+    myResult.Status = myResult.Extrema.IsEmpty() ? ExtremaPC2d::Status::NoSolution
+                                                 : ExtremaPC2d::Status::OK;
   }
 
-  gp_Hypr                            myHyperbola; //!< Hyperbola geometry
-  std::optional<ExtremaPC::Domain1D> myDomain;    //!< Parameter domain (nullopt for infinite)
-  mutable ExtremaPC::Result          myResult;    //!< Reusable result storage
+  gp_Hypr2d                            myHyperbola; //!< Hyperbola geometry
+  std::optional<ExtremaPC2d::Domain1D> myDomain;    //!< Parameter domain (nullopt for infinite)
+  mutable ExtremaPC2d::Result          myResult;    //!< Reusable result storage
 
   // Cached geometry components for fast computation
-  double myCenterX, myCenterY, myCenterZ; //!< Center location
-  double myXDirX, myXDirY, myXDirZ;       //!< X-axis direction
-  double myYDirX, myYDirY, myYDirZ;       //!< Y-axis direction
-  double myAxisX, myAxisY, myAxisZ;       //!< Main axis direction
+  double myCenterX, myCenterY; //!< Center location
+  double myXDirX, myXDirY;     //!< X-axis direction
+  double myYDirX, myYDirY;     //!< Y-axis direction
   double myMajorR;                        //!< Major radius
   double myMinorR;                        //!< Minor radius
   double myR2PlusR2Over4;                 //!< Precomputed (R^2 + r^2)/4
 };
 
-#endif // _ExtremaPC_Hyperbola_HeaderFile
+#endif // _ExtremaPC2d_Hyperbola_HeaderFile

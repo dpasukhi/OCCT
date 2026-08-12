@@ -15,10 +15,13 @@
 
 #include <ExtremaPC_BSplineCurve.hxx>
 #include <ExtremaPC_GridEvaluator.hxx>
+#include <ExtremaPC2d_BSplineCurve.hxx>
 
 #include <Geom_BSplineCurve.hxx>
+#include <Geom2d_BSplineCurve.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Pnt2d.hxx>
 
 #include <chrono>
 #include <cmath>
@@ -671,4 +674,68 @@ TEST_F(ExtremaPC_BSplineCurveTest, ClusteredC0Junctions_FindsBothExtrema)
   }
   EXPECT_FALSE(hasFirstJunction);
   EXPECT_TRUE(hasSecondJunction);
+}
+
+//=================================================================================================
+
+TEST_F(ExtremaPC_BSplineCurveTest, PlanarDelegation_RationalCurvePreservesDomainAndEndpoints)
+{
+  NCollection_Array1<gp_Pnt> aPoles3d(1, 4);
+  NCollection_Array1<gp_Pnt2d> aPoles2d(1, 4);
+  NCollection_Array1<double> aWeights(1, 4);
+  for (int anIndex = 1; anIndex <= 4; ++anIndex)
+  {
+    const double anX = 10.0 + anIndex;
+    const double anY = anIndex % 2 == 0 ? 2.0 : -1.0;
+    aPoles3d(anIndex) = gp_Pnt(anX, -4.0, anY);
+    aPoles2d(anIndex) = gp_Pnt2d(anX, anY);
+    aWeights(anIndex) = 0.5 + 0.25 * anIndex;
+  }
+  NCollection_Array1<double> aKnots(1, 2);
+  aKnots(1) = 2.0;
+  aKnots(2) = 6.0;
+  NCollection_Array1<int> aMultiplicities(1, 2);
+  aMultiplicities(1) = 4;
+  aMultiplicities(2) = 4;
+  occ::handle<Geom_BSplineCurve> aCurve3d =
+    new Geom_BSplineCurve(aPoles3d, aWeights, aKnots, aMultiplicities, 3);
+  occ::handle<Geom2d_BSplineCurve> aCurve2d =
+    new Geom2d_BSplineCurve(aPoles2d, aWeights, aKnots, aMultiplicities, 3);
+  ExtremaPC_BSplineCurve anEvaluator3d(aCurve3d, ExtremaPC::Domain1D{2.5, 5.5});
+  ExtremaPC2d_BSplineCurve anEvaluator2d(aCurve2d, ExtremaPC2d::Domain1D{2.5, 5.5});
+  const ExtremaPC::Result& aResult3d =
+    anEvaluator3d.PerformWithEndpoints(gp_Pnt(12.0, 3.0, 0.5), THE_TOL);
+  const ExtremaPC2d::Result& aResult2d =
+    anEvaluator2d.PerformWithEndpoints(gp_Pnt2d(12.0, 0.5), THE_TOL);
+  ASSERT_EQ(aResult3d.NbExt(), aResult2d.NbExt());
+  for (int anIndex = 0; anIndex < aResult3d.NbExt(); ++anIndex)
+  {
+    EXPECT_NEAR(aResult3d[anIndex].Parameter, aResult2d[anIndex].Parameter, THE_TOL);
+    EXPECT_NEAR(aResult3d[anIndex].SquareDistance,
+                aResult2d[anIndex].SquareDistance + 49.0,
+                THE_TOL);
+  }
+}
+
+//=================================================================================================
+
+TEST_F(ExtremaPC_BSplineCurveTest, PlanarDelegation_NonPlanarCurveUses3dFallback)
+{
+  NCollection_Array1<gp_Pnt> aPoles(1, 4);
+  aPoles(1) = gp_Pnt(0.0, 0.0, 0.0);
+  aPoles(2) = gp_Pnt(1.0, 2.0, 1.0);
+  aPoles(3) = gp_Pnt(2.0, -1.0, 3.0);
+  aPoles(4) = gp_Pnt(4.0, 0.0, -2.0);
+  NCollection_Array1<double> aKnots(1, 2);
+  aKnots(1) = 0.0;
+  aKnots(2) = 1.0;
+  NCollection_Array1<int> aMultiplicities(1, 2);
+  aMultiplicities(1) = 4;
+  aMultiplicities(2) = 4;
+  occ::handle<Geom_BSplineCurve> aCurve =
+    new Geom_BSplineCurve(aPoles, aKnots, aMultiplicities, 3);
+  ExtremaPC_BSplineCurve anEvaluator(aCurve);
+  const ExtremaPC::Result& aResult = anEvaluator.Perform(gp_Pnt(1.0, 0.5, 2.0), THE_TOL);
+  EXPECT_TRUE(aResult.IsDone());
+  EXPECT_GE(aResult.NbExt(), 1);
 }

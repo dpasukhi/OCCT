@@ -14,9 +14,12 @@
 #include <gtest/gtest.h>
 
 #include <ExtremaPC_Line.hxx>
+#include <ExtremaPC2d_Line.hxx>
 
 #include <gp_Lin.hxx>
+#include <gp_Lin2d.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Pnt2d.hxx>
 
 #include <cmath>
 
@@ -534,4 +537,19 @@ TEST_F(ExtremaPC_LineTest, EndpointsAsMaxima)
   int    aMaxIdx   = aResult.MaxIndex();
   double aMaxParam = aResult[aMaxIdx].Parameter;
   EXPECT_TRUE(std::abs(aMaxParam - 0.0) < THE_TOL || std::abs(aMaxParam - 10.0) < THE_TOL);
+}
+
+//=================================================================================================
+
+TEST_F(ExtremaPC_LineTest, PlanarDelegation_PreservesParameterAndHeight)
+{
+  ExtremaPC_Line anEvaluator3d(gp_Lin(gp_Pnt(0.0, 0.0, 0.0), gp_Dir(1.0, 0.0, 0.0)));
+  ExtremaPC2d_Line anEvaluator2d(gp_Lin2d(gp_Pnt2d(0.0, 0.0), gp_Dir2d(1.0, 0.0)));
+
+  const ExtremaPC::Result& aResult3d = anEvaluator3d.Perform(gp_Pnt(8.0, 3.0, 6.0), THE_TOL);
+  const ExtremaPC2d::Result& aResult2d = anEvaluator2d.Perform(gp_Pnt2d(8.0, 3.0), THE_TOL);
+  ASSERT_EQ(aResult3d.NbExt(), aResult2d.NbExt());
+  ASSERT_EQ(aResult3d.NbExt(), 1);
+  EXPECT_NEAR(aResult3d[0].Parameter, aResult2d[0].Parameter, THE_TOL);
+  EXPECT_NEAR(aResult3d[0].SquareDistance, aResult2d[0].SquareDistance + 36.0, THE_TOL);
 }
