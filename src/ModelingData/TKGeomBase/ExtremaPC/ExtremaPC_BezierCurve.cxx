@@ -21,8 +21,7 @@
 
 ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>& theCurve)
     : myCurve(theCurve),
-      myDomain{0.0, 1.0},
-      myNbSamples(ExtremaPC::THE_BEZIER_MIN_SAMPLES)
+      myDomain{0.0, 1.0}
 {
   if (myCurve.IsNull())
   {
@@ -31,10 +30,8 @@ ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>
   myAdaptor.Load(myCurve);
   myDomain.Min = myCurve->FirstParameter();
   myDomain.Max = myCurve->LastParameter();
-  myNbSamples =
-    std::max(ExtremaPC::THE_BEZIER_MIN_SAMPLES,
-             ExtremaPC::THE_BEZIER_DEGREE_MULTIPLIER * static_cast<size_t>(myCurve->Degree() + 1));
   buildParams();
+  initPlanar();
 }
 
 //==================================================================================================
@@ -42,18 +39,15 @@ ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>
 ExtremaPC_BezierCurve::ExtremaPC_BezierCurve(const occ::handle<Geom_BezierCurve>& theCurve,
                                              const ExtremaPC::Domain1D&           theDomain)
     : myCurve(theCurve),
-      myDomain(theDomain),
-      myNbSamples(ExtremaPC::THE_BEZIER_MIN_SAMPLES)
+      myDomain(theDomain)
 {
   if (myCurve.IsNull())
   {
     return;
   }
   myAdaptor.Load(myCurve);
-  myNbSamples =
-    std::max(ExtremaPC::THE_BEZIER_MIN_SAMPLES,
-             ExtremaPC::THE_BEZIER_DEGREE_MULTIPLIER * static_cast<size_t>(myCurve->Degree() + 1));
   buildParams();
+  initPlanar();
 }
 
 //==================================================================================================
@@ -65,60 +59,69 @@ void ExtremaPC_BezierCurve::buildParams()
     return;
   }
 
+  const size_t aNbSamples =
+    std::max(ExtremaPC::THE_BEZIER_MIN_SAMPLES,
+             ExtremaPC::THE_BEZIER_DEGREE_MULTIPLIER * static_cast<size_t>(myCurve->Degree() + 1));
+
   math_Vector aParams =
-    ExtremaPC_GridEvaluator::BuildUniformParams(myDomain.Min, myDomain.Max, myNbSamples);
+    ExtremaPC_GridEvaluator::BuildUniformParams(myDomain.Min, myDomain.Max, aNbSamples);
 
   myEvaluator.SetParams(aParams);
 }
 
 //==================================================================================================
 
-gp_Pnt ExtremaPC_BezierCurve::Value(double theU) const
+void ExtremaPC_BezierCurve::initPlanar()
 {
-  return myCurve->Value(theU);
-}
-
-//=================================================================================================
-
-bool ExtremaPC_BezierCurve::performPlanar(const gp_Pnt&         theP,
-                                          double                theTol,
-                                          ExtremaPC::SearchMode theMode,
-                                          bool                  theIncludeEndpoints) const
-{
-  gp_Pln                          aPlane;
   occ::handle<Geom2d_BezierCurve> aCurve2d;
-  if (!ExtremaPC::ProjectBezier(myCurve, aPlane, aCurve2d))
+  if (ExtremaPC::ProjectBezier(myCurve, myPlanarPlane, aCurve2d))
   {
-    return false;
+    myPlanarEvaluator.emplace(aCurve2d, ExtremaPC2d::Domain1D(myDomain.Min, myDomain.Max));
   }
-
-  ExtremaPC2d_BezierCurve       anEvaluator2d(aCurve2d,
-                                        ExtremaPC2d::Domain1D(myDomain.Min, myDomain.Max));
-  const ExtremaPC2d::SearchMode aMode    = ExtremaPC::ToSearchMode2d(theMode);
-  const gp_Pnt2d                aPoint2d = ProjLib::Project(aPlane, theP);
-  const ExtremaPC2d::Result&    aResult2d =
-    theIncludeEndpoints ? anEvaluator2d.PerformWithEndpoints(aPoint2d, theTol, aMode)
-                           : anEvaluator2d.Perform(aPoint2d, theTol, aMode);
-  return ExtremaPC::ConvertPlanarResult(aResult2d, theP, aPlane, *this, myEvaluator.Result());
 }
 
 //==================================================================================================
 
-const ExtremaPC::Result& ExtremaPC_BezierCurve::Perform(const gp_Pnt&         theP,
-                                                        double                theTol,
-                                                        ExtremaPC::SearchMode theMode) const
+bool ExtremaPC_BezierCurve::performPlanar(const gp_Pnt&               theP,
+                                          const double                theTol,
+                                          const ExtremaPC::SearchMode theMode,
+                                          const bool                  theIncludeEndpoints) const
+{
+  if (!myPlanarEvaluator.has_value())
+  {
+    return false;
+  }
+
+  const ExtremaPC2d::SearchMode aMode    = ExtremaPC::ToSearchMode2d(theMode);
+  const gp_Pnt2d                aPoint2d = ProjLib::Project(myPlanarPlane, theP);
+  const ExtremaPC2d::Result&    aResult2d =
+    theIncludeEndpoints ? myPlanarEvaluator->PerformWithEndpoints(aPoint2d, theTol, aMode)
+                        : myPlanarEvaluator->Perform(aPoint2d, theTol, aMode);
+  const Adaptor3d_Curve& anAdaptor = myAdaptor;
+  return ExtremaPC::ConvertPlanarResult(aResult2d,
+                                        theP,
+                                        myPlanarPlane,
+                                        anAdaptor,
+                                        myEvaluator.ChangeResult());
+}
+
+//==================================================================================================
+
+const ExtremaPC::Result& ExtremaPC_BezierCurve::Perform(const gp_Pnt&               theP,
+                                                        const double                theTol,
+                                                        const ExtremaPC::SearchMode theMode) const
 {
   if (myCurve.IsNull())
   {
-    myEvaluator.Result().Clear();
-    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
-    return myEvaluator.Result();
+    myEvaluator.ChangeResult().Clear();
+    myEvaluator.ChangeResult().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.ChangeResult();
   }
 
   if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
       && performPlanar(theP, theTol, theMode, false))
   {
-    return myEvaluator.Result();
+    return myEvaluator.ChangeResult();
   }
 
   return myEvaluator.Perform(myAdaptor, theP, myDomain, theTol, theMode);
@@ -127,36 +130,34 @@ const ExtremaPC::Result& ExtremaPC_BezierCurve::Perform(const gp_Pnt&         th
 //==================================================================================================
 
 const ExtremaPC::Result& ExtremaPC_BezierCurve::PerformWithEndpoints(
-  const gp_Pnt&         theP,
-  double                theTol,
-  ExtremaPC::SearchMode theMode) const
+  const gp_Pnt&               theP,
+  const double                theTol,
+  const ExtremaPC::SearchMode theMode) const
 {
   if (myCurve.IsNull())
   {
-    myEvaluator.Result().Clear();
-    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
-    return myEvaluator.Result();
+    myEvaluator.ChangeResult().Clear();
+    myEvaluator.ChangeResult().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.ChangeResult();
   }
   if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
       && performPlanar(theP, theTol, theMode, true))
   {
-    return myEvaluator.Result();
+    return myEvaluator.ChangeResult();
   }
 
-  (void)Perform(theP, theTol, theMode);
-
-  // Add endpoints to the result
-  ExtremaPC::Result& aResult = myEvaluator.Result();
-  if (aResult.Status == ExtremaPC::Status::OK || aResult.Status == ExtremaPC::Status::NoSolution)
+  const ExtremaPC::Result& anInteriorResult = Perform(theP, theTol, theMode);
+  if (!anInteriorResult.IsDone())
   {
-    const bool isClosed = ExtremaPC_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
-    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
-
-    // Update status if we found any extrema (including endpoints)
-    if (!aResult.Extrema.IsEmpty())
-    {
-      aResult.Status = ExtremaPC::Status::OK;
-    }
+    return anInteriorResult;
+  }
+  ExtremaPC::Result&     aResult   = myEvaluator.ChangeResult();
+  const bool             isClosed  = ExtremaPC_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
+  const Adaptor3d_Curve& anAdaptor = myAdaptor;
+  ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, anAdaptor, theMode, isClosed);
+  if (!aResult.Extrema.IsEmpty())
+  {
+    aResult.Status = ExtremaPC::Status::OK;
   }
 
   return aResult;

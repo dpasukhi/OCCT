@@ -4,19 +4,26 @@ set(OCCT_ExtremaPC_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 set(OCCT_ExtremaPC_FILES
   # Core types
   ExtremaPC.hxx
+  ExtremaPC.cxx
   ExtremaPC_Planar.hxx
   ExtremaPC_Planar.cxx
 
-  # Elementary curves (header-only, analytical solutions)
+  # Elementary curves (analytical solutions)
   ExtremaPC_Line.hxx
+  ExtremaPC_Line.cxx
   ExtremaPC_Circle.hxx
+  ExtremaPC_Circle.cxx
   ExtremaPC_Ellipse.hxx
+  ExtremaPC_Ellipse.cxx
   ExtremaPC_Hyperbola.hxx
+  ExtremaPC_Hyperbola.cxx
   ExtremaPC_Parabola.hxx
+  ExtremaPC_Parabola.cxx
 
   # Grid-based infrastructure for numerical curves
   ExtremaPC_DistanceFunction.hxx
   ExtremaPC_GridEvaluator.hxx
+  ExtremaPC_GridEvaluator.cxx
 
   # Numerical curve evaluators (grid-based)
   ExtremaPC_BezierCurve.hxx

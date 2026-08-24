@@ -28,17 +28,21 @@
 
 namespace
 {
-//! Static result for uninitialized evaluator case
-static ExtremaPC::Result THE_NOT_DONE_RESULT = [] {
-  ExtremaPC::Result aResult;
-  aResult.Status = ExtremaPC::Status::NotDone;
+const ExtremaPC::Result& notDoneResult()
+{
+  static const ExtremaPC::Result aResult;
   return aResult;
-}();
+}
 } // namespace
 
-//=================================================================================================
+bool ExtremaPC_Curve::IsInitialized() const
+{
+  return !std::holds_alternative<std::monostate>(myEvaluator);
+}
 
-void ExtremaPC_Curve::initFromAdaptor(const GeomAdaptor_Curve&   theCurve,
+//==================================================================================================
+
+void ExtremaPC_Curve::initFromAdaptor(const Adaptor3d_Curve&     theCurve,
                                       const ExtremaPC::Domain1D& theDomain)
 {
   const GeomAbs_CurveType aCurveType = theCurve.GetType();
@@ -87,6 +91,25 @@ void ExtremaPC_Curve::initFromAdaptor(const GeomAdaptor_Curve&   theCurve,
 
 //=================================================================================================
 
+ExtremaPC_Curve::ExtremaPC_Curve(const Adaptor3d_Curve& theCurve)
+    : myEvaluator(std::monostate{})
+{
+  initFromAdaptor(theCurve,
+                  ExtremaPC::Domain1D(theCurve.FirstParameter(), theCurve.LastParameter()));
+}
+
+//=================================================================================================
+
+ExtremaPC_Curve::ExtremaPC_Curve(const Adaptor3d_Curve& theCurve,
+                                 const double           theUMin,
+                                 const double           theUMax)
+    : myEvaluator(std::monostate{})
+{
+  initFromAdaptor(theCurve, ExtremaPC::Domain1D(theUMin, theUMax));
+}
+
+//=================================================================================================
+
 ExtremaPC_Curve::ExtremaPC_Curve(const GeomAdaptor_Curve& theCurve)
     : myEvaluator(std::monostate{})
 {
@@ -100,7 +123,9 @@ ExtremaPC_Curve::ExtremaPC_Curve(const GeomAdaptor_Curve& theCurve)
 
 //=================================================================================================
 
-ExtremaPC_Curve::ExtremaPC_Curve(const GeomAdaptor_Curve& theCurve, double theUMin, double theUMax)
+ExtremaPC_Curve::ExtremaPC_Curve(const GeomAdaptor_Curve& theCurve,
+                                 const double             theUMin,
+                                 const double             theUMax)
     : myEvaluator(std::monostate{})
 {
   if (theCurve.Curve().IsNull())
@@ -126,8 +151,8 @@ ExtremaPC_Curve::ExtremaPC_Curve(const GeomAdaptor_TransformedCurve& theCurve)
 //=================================================================================================
 
 ExtremaPC_Curve::ExtremaPC_Curve(const GeomAdaptor_TransformedCurve& theCurve,
-                                 double                              theUMin,
-                                 double                              theUMax)
+                                 const double                        theUMin,
+                                 const double                        theUMax)
     : myEvaluator(std::monostate{})
 {
   if (theCurve.Is3DCurve() && theCurve.GeomCurve().IsNull())
@@ -335,8 +360,8 @@ ExtremaPC_Curve::ExtremaPC_Curve(const occ::handle<Geom_Curve>& theCurve)
 //=================================================================================================
 
 ExtremaPC_Curve::ExtremaPC_Curve(const occ::handle<Geom_Curve>& theCurve,
-                                 double                         theUMin,
-                                 double                         theUMax)
+                                 const double                   theUMin,
+                                 const double                   theUMax)
     : myEvaluator(std::monostate{})
 {
   if (theCurve.IsNull())
@@ -389,11 +414,11 @@ const ExtremaPC::Result& ExtremaPC_Curve::postProcessTransform(const ExtremaPC::
 
 //=================================================================================================
 
-const ExtremaPC::Result& ExtremaPC_Curve::Perform(const gp_Pnt&         theP,
-                                                  double                theTol,
-                                                  ExtremaPC::SearchMode theMode) const
+const ExtremaPC::Result& ExtremaPC_Curve::Perform(const gp_Pnt&               theP,
+                                                  const double                theTol,
+                                                  const ExtremaPC::SearchMode theMode) const
 {
-  const ExtremaPC::Result* aResultPtr = &THE_NOT_DONE_RESULT;
+  const ExtremaPC::Result* aResultPtr = &notDoneResult();
 
   if (myTrsf.has_value())
   {
@@ -439,11 +464,12 @@ const ExtremaPC::Result& ExtremaPC_Curve::Perform(const gp_Pnt&         theP,
 
 //=================================================================================================
 
-const ExtremaPC::Result& ExtremaPC_Curve::PerformWithEndpoints(const gp_Pnt&         theP,
-                                                               double                theTol,
-                                                               ExtremaPC::SearchMode theMode) const
+const ExtremaPC::Result& ExtremaPC_Curve::PerformWithEndpoints(
+  const gp_Pnt&               theP,
+  const double                theTol,
+  const ExtremaPC::SearchMode theMode) const
 {
-  const ExtremaPC::Result* aResultPtr = &THE_NOT_DONE_RESULT;
+  const ExtremaPC::Result* aResultPtr = &notDoneResult();
 
   if (myTrsf.has_value())
   {

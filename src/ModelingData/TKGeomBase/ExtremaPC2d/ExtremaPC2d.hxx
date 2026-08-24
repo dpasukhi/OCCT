@@ -69,13 +69,6 @@ constexpr size_t THE_OTHER_CURVE_NB_SAMPLES = 64;
 //! Fallback number of samples for BSpline curves when curve is null.
 constexpr size_t THE_BSPLINE_FALLBACK_SAMPLES = 32;
 
-//! Multiplier for BSpline curve samples per knot span: samples = multiplier * (degree + 1).
-//! For a degree 3 curve: 2*4 = 8 samples per span.
-//! This is higher than the surface counterpart because curves are 1D and require
-//! finer sampling to detect extrema reliably. Surfaces use degree+2 per direction,
-//! resulting in (degree+2)^2 samples per cell, which provides adequate coverage.
-constexpr size_t THE_BSPLINE_SPAN_MULTIPLIER = 2;
-
 //! 1D parameter domain for curves (alias for MathUtils::Domain1D).
 using Domain1D = MathUtils::Domain1D;
 

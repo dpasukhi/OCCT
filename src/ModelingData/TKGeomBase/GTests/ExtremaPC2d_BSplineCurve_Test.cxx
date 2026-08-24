@@ -84,6 +84,76 @@ TEST(ExtremaPC2d_BSplineCurveTest, C1JunctionPointIsFound)
   EXPECT_NEAR(aResult[aResult.MinIndex()].Parameter, 0.5, THE_TOL);
 }
 
+TEST(ExtremaPC2d_BSplineCurveTest, HighDegreeRationalFindsAllOscillatoryExtrema)
+{
+  constexpr int    aDegree = 9;
+  constexpr double aNumerators[] =
+    {-1.0, 17.0, -85.0, 221.0, -2431.0 / 7.0, 2431.0 / 7.0, -221.0, 85.0, -17.0, 1.0};
+  NCollection_Array1<gp_Pnt2d> aPoles(1, aDegree + 1);
+  NCollection_Array1<double>   aWeights(1, aDegree + 1);
+  for (size_t anIndex = 0; anIndex < aPoles.Size(); ++anIndex)
+  {
+    const double aWeight       = anIndex % 2 == 0 ? 0.8 : 1.2;
+    aWeights.ChangeAt(anIndex) = aWeight;
+    aPoles.ChangeAt(anIndex)   = gp_Pnt2d(0.0, aNumerators[anIndex] / aWeight);
+  }
+
+  NCollection_Array1<double> aKnots(1, 2);
+  aKnots(1) = 0.0;
+  aKnots(2) = 1.0;
+  NCollection_Array1<int> aMultiplicities(1, 2);
+  aMultiplicities(1) = aDegree + 1;
+  aMultiplicities(2) = aDegree + 1;
+
+  occ::handle<Geom2d_BSplineCurve> aCurve =
+    new Geom2d_BSplineCurve(aPoles, aWeights, aKnots, aMultiplicities, aDegree);
+  const gp_Pnt2d             aPoint(0.0, 0.0);
+  ExtremaPC2d_BSplineCurve   anEvaluator(aCurve);
+  const ExtremaPC2d::Result& aResult = anEvaluator.Perform(aPoint, THE_TOL);
+
+  ASSERT_TRUE(aResult.IsDone());
+  ASSERT_EQ(aResult.NbExt(), static_cast<size_t>(2 * aDegree - 1));
+  size_t aNbMinima = 0;
+  size_t aNbMaxima = 0;
+  for (size_t anIndex = 0; anIndex < aResult.NbExt(); ++anIndex)
+  {
+    const ExtremaPC2d::ExtremumResult& anExtremum = aResult[anIndex];
+    const double                       aDelta     = 1.0e-6;
+    const double                       aLeftDistance =
+      aPoint.SquareDistance(aCurve->EvalD0(anExtremum.Parameter - aDelta));
+    const double aRightDistance =
+      aPoint.SquareDistance(aCurve->EvalD0(anExtremum.Parameter + aDelta));
+    if (anExtremum.IsMinimum)
+    {
+      ++aNbMinima;
+      EXPECT_LE(anExtremum.SquareDistance, aLeftDistance + THE_TOL);
+      EXPECT_LE(anExtremum.SquareDistance, aRightDistance + THE_TOL);
+    }
+    else
+    {
+      ++aNbMaxima;
+      EXPECT_GE(anExtremum.SquareDistance + THE_TOL, aLeftDistance);
+      EXPECT_GE(anExtremum.SquareDistance + THE_TOL, aRightDistance);
+    }
+  }
+  EXPECT_EQ(aNbMinima, static_cast<size_t>(aDegree));
+  EXPECT_EQ(aNbMaxima, static_cast<size_t>(aDegree - 1));
+
+  for (int aRootIndex = 1; aRootIndex <= aDegree; ++aRootIndex)
+  {
+    const double anExpected =
+      0.5 * (1.0 + std::cos((2.0 * aRootIndex - 1.0) * M_PI / (2.0 * aDegree)));
+    bool hasMinimum = false;
+    for (size_t anIndex = 0; anIndex < aResult.NbExt(); ++anIndex)
+    {
+      hasMinimum = hasMinimum
+                   || (aResult[anIndex].IsMinimum
+                       && std::abs(aResult[anIndex].Parameter - anExpected) <= 1.0e-6);
+    }
+    EXPECT_TRUE(hasMinimum) << "missing Chebyshev zero at " << anExpected;
+  }
+}
+
 TEST(ExtremaPC2d_BSplineCurveTest, DegenerateCurveHasInfiniteSolutions)
 {
   occ::handle<Geom2d_BSplineCurve> aCurve = makeLinear();
@@ -95,13 +165,15 @@ TEST(ExtremaPC2d_BSplineCurveTest, DegenerateCurveHasInfiniteSolutions)
   EXPECT_NEAR(aResult.InfiniteSquareDistance, 25.0, THE_TOL);
 }
 
-TEST(ExtremaPC2d_BSplineCurveTest, PoleMutationIsObserved)
+TEST(ExtremaPC2d_BSplineCurveTest, RecreateEvaluatorAfterGeometryChange)
 {
   occ::handle<Geom2d_BSplineCurve> aCurve = makeC1Curve();
-  ExtremaPC2d_BSplineCurve         anEvaluator(aCurve);
-  const double aBefore = anEvaluator.Perform(gp_Pnt2d(1.5, 2.0), THE_TOL).MinSquareDistance();
+  ExtremaPC2d_BSplineCurve         anInitialEvaluator(aCurve);
+  const double                     aBefore =
+    anInitialEvaluator.Perform(gp_Pnt2d(1.5, 2.0), THE_TOL).MinSquareDistance();
   aCurve->SetPole(2, gp_Pnt2d(1.0, -3.0));
-  const ExtremaPC2d::Result& anAfter = anEvaluator.Perform(gp_Pnt2d(1.5, 2.0), THE_TOL);
+  ExtremaPC2d_BSplineCurve   anUpdatedEvaluator(aCurve);
+  const ExtremaPC2d::Result& anAfter = anUpdatedEvaluator.Perform(gp_Pnt2d(1.5, 2.0), THE_TOL);
   ASSERT_TRUE(anAfter.IsDone());
   EXPECT_GT(std::abs(anAfter.MinSquareDistance() - aBefore), 1.0e-4);
   EXPECT_NEAR(anAfter[anAfter.MinIndex()].Point.Distance(

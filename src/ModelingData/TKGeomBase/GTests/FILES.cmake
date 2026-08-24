@@ -43,6 +43,26 @@ set(OCCT_TKGeomBase_GTests_FILES
   ExtremaPC2d_OtherCurve_Test.cxx
   ExtremaPC2d_Parabola_Test.cxx
   ExtremaPC2d_Test.cxx
+  ExtremaPS_BSplineSurface_Comparison_Test.cxx
+  ExtremaPS_BSplineSurface_Test.cxx
+  ExtremaPS_BezierSurface_Comparison_Test.cxx
+  ExtremaPS_BezierSurface_Test.cxx
+  ExtremaPS_Cone_Comparison_Test.cxx
+  ExtremaPS_Cone_Test.cxx
+  ExtremaPS_Cylinder_Comparison_Test.cxx
+  ExtremaPS_Cylinder_Test.cxx
+  ExtremaPS_EdgeCases_Test.cxx
+  ExtremaPS_Performance_Test.cxx
+  ExtremaPS_Plane_Comparison_Test.cxx
+  ExtremaPS_Plane_Test.cxx
+  ExtremaPS_Precision_Test.cxx
+  ExtremaPS_Sphere_Comparison_Test.cxx
+  ExtremaPS_Sphere_Test.cxx
+  ExtremaPS_SurfaceOfExtrusion_Test.cxx
+  ExtremaPS_SurfaceOfRevolution_Test.cxx
+  ExtremaPS_Surface_Test.cxx
+  ExtremaPS_Torus_Comparison_Test.cxx
+  ExtremaPS_Torus_Test.cxx
   GC_MakeArcOfCircle_Test.cxx
   GC_MakeCircle2d_Test.cxx
   GC_MakeConicalSurface_Test.cxx

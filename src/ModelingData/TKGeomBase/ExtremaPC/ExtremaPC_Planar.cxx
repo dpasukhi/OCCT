@@ -229,8 +229,8 @@ bool ExtremaPC::ProjectBezier(const occ::handle<Geom_BezierCurve>& theCurve,
 
   NCollection_LocalArray<gp_Pnt2d, 32> aPoleStorage(theCurve->Poles().Size());
   NCollection_Array1<gp_Pnt2d>         aPoles(aPoleStorage[0],
-                                      theCurve->Poles().Lower(),
-                                      theCurve->Poles().Upper());
+                                              theCurve->Poles().Lower(),
+                                              theCurve->Poles().Upper());
   for (size_t anIndex = 0; anIndex < aPoles.Size(); ++anIndex)
   {
     aPoles.ChangeAt(anIndex) = ProjLib::Project(thePlane, theCurve->Poles().At(anIndex));
@@ -255,8 +255,8 @@ bool ExtremaPC::ProjectBSpline(const occ::handle<Geom_BSplineCurve>& theCurve,
 
   NCollection_LocalArray<gp_Pnt2d, 64> aPoleStorage(theCurve->Poles().Size());
   NCollection_Array1<gp_Pnt2d>         aPoles(aPoleStorage[0],
-                                      theCurve->Poles().Lower(),
-                                      theCurve->Poles().Upper());
+                                              theCurve->Poles().Lower(),
+                                              theCurve->Poles().Upper());
   for (size_t anIndex = 0; anIndex < aPoles.Size(); ++anIndex)
   {
     aPoles.ChangeAt(anIndex) = ProjLib::Project(thePlane, theCurve->Poles().At(anIndex));
@@ -303,9 +303,9 @@ bool ExtremaPC::ProjectOffset(const occ::handle<Geom_OffsetCurve>& theCurve,
   {
     occ::handle<Geom2d_OffsetCurve> aCandidate =
       new Geom2d_OffsetCurve(aBasis2d, aSign * theCurve->Offset());
-    const gp_Pnt2d aPoint2d = aCandidate->Value(aProbe);
+    const gp_Pnt2d aPoint2d = aCandidate->EvalD0(aProbe);
     const gp_Pnt   aPoint3d = ElSLib::Value(aPoint2d.X(), aPoint2d.Y(), thePlane);
-    if (aPoint3d.SquareDistance(theCurve->Value(aProbe)) == 0.0)
+    if (aPoint3d.SquareDistance(theCurve->EvalD0(aProbe)) == 0.0)
     {
       theCurve2d = aCandidate;
       return true;

@@ -25,7 +25,7 @@
 //! Computes roots of the normalized point-curve stationarity function with a
 //! derivative-aware multiple-root solver.
 //!
-//! The parameter partition is refreshed for each query so referenced-adaptor mutations are seen.
+//! The parameter partition is built once for repeated point queries.
 //!
 //! The algorithm:
 //! 1. Build a uniform parameter partition
@@ -42,12 +42,10 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with curve adaptor (uses full curve domain).
-  //! Parameter partition is built on demand by Perform().
   //! @param[in] theCurve curve adaptor (must remain valid)
   Standard_EXPORT explicit ExtremaPC2d_OtherCurve(const Adaptor2d_Curve2d& theCurve);
 
   //! Constructor with curve adaptor and parameter domain.
-  //! Parameter partition is built on demand by Perform().
   //! @param[in] theCurve curve adaptor (must remain valid)
   //! @param[in] theDomain parameter domain (fixed for all queries)
   Standard_EXPORT ExtremaPC2d_OtherCurve(const Adaptor2d_Curve2d&     theCurve,
@@ -99,8 +97,8 @@ public:
     ExtremaPC2d::SearchMode theMode = ExtremaPC2d::SearchMode::MinMax) const;
 
 private:
-  //! Build parameter partition for the current adaptor state.
-  void buildParams() const;
+  //! Build parameter partition for the fixed adaptor and domain.
+  void buildParams();
 
   const Adaptor2d_Curve2d* myCurve;  //!< Curve adaptor (not owned)
   ExtremaPC2d::Domain1D    myDomain; //!< Parameter domain (fixed)

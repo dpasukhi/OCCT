@@ -119,13 +119,15 @@ TEST(ExtremaPC2d_BezierCurveTest, MaxDegreeRationalWorkspaceHandlesConstantCurve
   EXPECT_NEAR(aResult.InfiniteSquareDistance, 25.0, THE_TOL);
 }
 
-TEST(ExtremaPC2d_BezierCurveTest, MutationIsObserved)
+TEST(ExtremaPC2d_BezierCurveTest, RecreateEvaluatorAfterGeometryChange)
 {
   occ::handle<Geom2d_BezierCurve> aCurve = makeQuadratic();
-  ExtremaPC2d_BezierCurve         anEvaluator(aCurve);
-  const double aBefore = anEvaluator.Perform(gp_Pnt2d(0.0, 1.5), THE_TOL).MinSquareDistance();
+  ExtremaPC2d_BezierCurve         anInitialEvaluator(aCurve);
+  const double                    aBefore =
+    anInitialEvaluator.Perform(gp_Pnt2d(0.0, 1.5), THE_TOL).MinSquareDistance();
   aCurve->SetPole(2, gp_Pnt2d(3.0, -4.0));
-  const ExtremaPC2d::Result& anAfter = anEvaluator.Perform(gp_Pnt2d(0.0, 1.5), THE_TOL);
+  ExtremaPC2d_BezierCurve    anUpdatedEvaluator(aCurve);
+  const ExtremaPC2d::Result& anAfter = anUpdatedEvaluator.Perform(gp_Pnt2d(0.0, 1.5), THE_TOL);
   ASSERT_TRUE(anAfter.IsDone());
   EXPECT_GT(std::abs(anAfter.MinSquareDistance() - aBefore), 1.0e-4);
   EXPECT_NEAR(anAfter[anAfter.MinIndex()].Point.Distance(

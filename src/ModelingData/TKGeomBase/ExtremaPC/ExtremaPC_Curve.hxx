@@ -31,7 +31,10 @@
 #include <gp_Trsf.hxx>
 #include <Standard_DefineAlloc.hxx>
 
+#include <optional>
 #include <variant>
+
+class Adaptor3d_Curve;
 
 //! @brief Main aggregator for Point-Curve extrema computation.
 //!
@@ -79,6 +82,14 @@ public:
                                         ExtremaPC_OffsetCurve,
                                         ExtremaPC_OtherCurve>;
 
+  //! Constructor with a generic curve adaptor using its parameter bounds.
+  Standard_EXPORT explicit ExtremaPC_Curve(const Adaptor3d_Curve& theCurve);
+
+  //! Constructor with a generic curve adaptor and parameter range.
+  Standard_EXPORT ExtremaPC_Curve(const Adaptor3d_Curve& theCurve,
+                                  const double           theUMin,
+                                  const double           theUMax);
+
   //! Constructor with curve adaptor.
   //! Uses the curve's natural parameter bounds as domain.
   //! @param[in] theCurve curve adaptor; must outlive this evaluator when dispatched as an offset
@@ -91,8 +102,8 @@ public:
   //! @param[in] theUMin lower parameter bound
   //! @param[in] theUMax upper parameter bound
   Standard_EXPORT ExtremaPC_Curve(const GeomAdaptor_Curve& theCurve,
-                                  double                   theUMin,
-                                  double                   theUMax);
+                                  const double             theUMin,
+                                  const double             theUMax);
 
   //! Constructor with transformed curve adaptor.
   //! Uses the curve's natural parameter bounds as domain.
@@ -108,8 +119,8 @@ public:
   //! @param[in] theUMin lower parameter bound
   //! @param[in] theUMax upper parameter bound
   Standard_EXPORT ExtremaPC_Curve(const GeomAdaptor_TransformedCurve& theCurve,
-                                  double                              theUMin,
-                                  double                              theUMax);
+                                  const double                        theUMin,
+                                  const double                        theUMax);
 
   //! Constructor with Geom_Curve.
   //! For non-trimmed curves, does NOT set domain (uses natural/unbounded behavior).
@@ -123,8 +134,8 @@ public:
   //! @param[in] theUMin lower parameter bound
   //! @param[in] theUMax upper parameter bound
   Standard_EXPORT ExtremaPC_Curve(const occ::handle<Geom_Curve>& theCurve,
-                                  double                         theUMin,
-                                  double                         theUMax);
+                                  const double                   theUMin,
+                                  const double                   theUMax);
 
   ExtremaPC_Curve(const ExtremaPC_Curve&)            = delete;
   ExtremaPC_Curve& operator=(const ExtremaPC_Curve&) = delete;
@@ -138,9 +149,9 @@ public:
   //! @param[in] theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing all found extrema
   [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& Perform(
-    const gp_Pnt&         theP,
-    double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    const gp_Pnt&               theP,
+    const double                theTol,
+    const ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
 
   //! Computes extrema between point P and the curve, including endpoints.
   //! Uses domain specified at construction time.
@@ -149,18 +160,18 @@ public:
   //! @param[in] theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing interior + endpoint extrema
   [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& PerformWithEndpoints(
-    const gp_Pnt&         theP,
-    double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    const gp_Pnt&               theP,
+    const double                theTol,
+    const ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
 
   //! Returns true if the evaluator is properly initialized.
-  bool IsInitialized() const { return !std::holds_alternative<std::monostate>(myEvaluator); }
+  Standard_EXPORT bool IsInitialized() const;
 
 private:
   //! Helper to initialize evaluator from an adaptor curve with curve-type switch.
   //! @param[in] theCurve the adaptor curve
   //! @param[in] theDomain parameter domain
-  void initFromAdaptor(const GeomAdaptor_Curve& theCurve, const ExtremaPC::Domain1D& theDomain);
+  void initFromAdaptor(const Adaptor3d_Curve& theCurve, const ExtremaPC::Domain1D& theDomain);
 
   //! Helper method to initialize evaluator from a Geom_Curve.
   //! Handles all curve type detection and evaluator creation.
@@ -184,9 +195,9 @@ private:
   const ExtremaPC::Result& postProcessTransform(const ExtremaPC::Result& theSrc,
                                                 const gp_Pnt&            theP) const;
 
-  EvaluatorVariant             myEvaluator;            //!< Specialized evaluator
-  const Adaptor3d_Curve*       myAdaptorRef = nullptr; //!< Non-owning adaptor for numerical curves
-  occ::handle<Adaptor3d_Curve> myAdaptorOwned;         //!< Adaptor created for Geom_Curve input
+  mutable EvaluatorVariant     myEvaluator;            //!< Specialized evaluator
+  const Adaptor3d_Curve*       myAdaptorRef = nullptr; //!< External numerical adaptor
+  occ::handle<Adaptor3d_Curve> myAdaptorOwned;         //!< Adaptor owned for Geom_Curve input
   std::optional<gp_Trsf>       myTrsf; //!< Forward transform for original-space evaluation
   mutable ExtremaPC::Result    myTransformResult; //!< Result buffer for transform post-processing
 };

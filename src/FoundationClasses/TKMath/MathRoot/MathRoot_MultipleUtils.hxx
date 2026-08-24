@@ -35,6 +35,17 @@ namespace MathRoot
 {
 using namespace MathUtils;
 
+//! Minimum number of uniform intervals used for multiple-root isolation.
+inline constexpr size_t THE_MIN_NB_INTERVALS = 20;
+
+//! Returns a sampling density with two intervals per possible polynomial root.
+//! @param[in] theRootBound upper bound on the number of roots in the interval
+//! @return number of uniform sampling intervals
+inline constexpr size_t NbIntervalsForRootBound(const size_t theRootBound)
+{
+  return 2 * theRootBound;
+}
+
 // ============================================================================
 //  Result and configuration types
 // ============================================================================
@@ -65,7 +76,7 @@ struct MultipleResult
 //! Configuration for multiple root finding.
 struct MultipleConfig
 {
-  size_t   NbSamples     = 100;   //!< Number of sample points for initial search
+  size_t   NbSamples     = 200;   //!< Number of uniform intervals for initial search
   double   XTolerance    = 1e-10; //!< Tolerance on X for convergence
   double   FTolerance    = 1e-10; //!< Tolerance on F(X) for convergence
   double   NullTolerance = 1e-12; //!< Tolerance to consider function as null
@@ -421,7 +432,7 @@ MultipleResult FindAllRootsWithDerivativeImpl(Function&             theFunc,
 
   const double aLower         = theLower;
   const double aUpper         = theUpper;
-  const size_t aNbSamples     = std::max<size_t>(2 * theConfig.NbSamples, 20);
+  const size_t aNbSamples     = std::max(theConfig.NbSamples, THE_MIN_NB_INTERVALS);
   const double aDx            = (aUpper / aNbSamples) - (aLower / aNbSamples);
   const double aEpsX          = EffectiveXTolerance(aLower, aUpper, theConfig.XTolerance);
   const double aRawXTolerance = theConfig.XTolerance;
@@ -1031,7 +1042,7 @@ MultipleResult FindAllRootsImpl(double                theLower,
   const double aUpper = theUpper;
 
   // Minimum samples
-  const size_t aNbSamples = std::max<size_t>(2 * theConfig.NbSamples, 20);
+  const size_t aNbSamples = std::max(theConfig.NbSamples, THE_MIN_NB_INTERVALS);
   // Ensure EpsX is not too small relative to interval
   const double aEpsX = EffectiveXTolerance(aLower, aUpper, theConfig.XTolerance);
 

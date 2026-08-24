@@ -18,10 +18,10 @@
 #include <MathUtils_Domain.hxx>
 #include <NCollection_LinearVector.hxx>
 #include <Precision.hxx>
+#include <Standard_Macro.hxx>
 
 #include <cmath>
 #include <cstddef>
-#include <limits>
 
 //! @file ExtremaPC.hxx
 //! @brief Common types and utilities for Point-Curve extrema computation.
@@ -29,37 +29,30 @@
 //! The ExtremaPC package provides modern C++ implementation of point-curve
 //! extrema computation using std::variant for curve type dispatch and
 //! analytical and derivative-aware numerical algorithms.
+//!
+//! An evaluator is bound to one curve and parameter domain at construction.
+//! Geometry-dependent sampling data is therefore built once and reused for
+//! subsequent query points. `Perform()` reports stationary extrema in the
+//! parameter-domain interior, while evaluator-specific `PerformWithEndpoints()`
+//! methods additionally classify finite domain endpoints.
+//!
+//! Returned results belong to the evaluator and are replaced by its next
+//! computation. `Min` and `Max` select local extrema of the squared distance;
+//! callers can use `Result::MinIndex()` or `Result::MaxIndex()` to select the
+//! global closest or farthest entry from the returned set.
 
 namespace ExtremaPC
 {
 
-//==================================================================================================
-//! @name Precision Constants
-//! Centralized tolerance and precision values used throughout the ExtremaPC package.
-//! These replace magic numbers to improve code clarity and maintainability.
-//==================================================================================================
+//! Returns whether a geometric tolerance is finite and strictly positive.
+//! @param[in] theTolerance tolerance to validate
+//! @return true when the tolerance can be used for extrema computation
+Standard_EXPORT bool IsValidTolerance(const double theTolerance);
 
-//! Default tolerance for root finding and distance comparison.
-//! Used when no explicit tolerance is provided.
-constexpr double THE_DEFAULT_TOLERANCE = Precision::Confusion();
-
-//! Returns true when a geometric tolerance is usable by extrema algorithms.
-inline bool IsValidTolerance(double theTolerance)
-{
-  return std::isfinite(theTolerance) && theTolerance > 0.0;
-}
-
-//! Returns true when all point coordinates are finite OCCT values.
-inline bool IsFinitePoint(const gp_Pnt& thePoint)
-{
-  return std::isfinite(thePoint.X()) && !Precision::IsInfinite(thePoint.X())
-         && std::isfinite(thePoint.Y()) && !Precision::IsInfinite(thePoint.Y())
-         && std::isfinite(thePoint.Z()) && !Precision::IsInfinite(thePoint.Z());
-}
-
-//! Tolerance for parameter domain comparison (cache validation).
-//! Uses PConfusion which is appropriate for parametric space.
-constexpr double THE_PARAM_TOLERANCE = Precision::PConfusion();
+//! Returns whether all point coordinates are finite OCCT values.
+//! @param[in] thePoint point to validate
+//! @return true when every coordinate is finite
+Standard_EXPORT bool IsFinitePoint(const gp_Pnt& thePoint);
 
 //! Ratio of parameter range for neighbor point sampling.
 //! Used to evaluate if an endpoint is a local extremum.
@@ -77,34 +70,22 @@ constexpr size_t THE_OTHER_CURVE_NB_SAMPLES = 64;
 //! Fallback number of samples for BSpline curves when curve is null.
 constexpr size_t THE_BSPLINE_FALLBACK_SAMPLES = 32;
 
-//! Multiplier for BSpline curve samples per knot span: samples = multiplier * (degree + 1).
-//! For a degree 3 curve: 2*4 = 8 samples per span.
-//! This is higher than the surface counterpart because curves are 1D and require
-//! finer sampling to detect extrema reliably. Surfaces use degree+2 per direction,
-//! resulting in (degree+2)^2 samples per cell, which provides adequate coverage.
-constexpr size_t THE_BSPLINE_SPAN_MULTIPLIER = 2;
-
 //! 1D parameter domain for curves (alias for MathUtils::Domain1D).
 using Domain1D = MathUtils::Domain1D;
 
-//! Returns true when a finite domain spans an integral number of periods.
-inline bool IsClosedPeriodicDomain(const Domain1D& theDomain, double thePeriod, double theTolerance)
-{
-  if (!theDomain.IsValid() || !std::isfinite(thePeriod) || thePeriod <= 0.0
-      || !std::isfinite(theTolerance) || theTolerance < 0.0)
-  {
-    return false;
-  }
+//! Returns whether a finite domain spans one or more complete periods.
+//! @param[in] theDomain parameter domain to examine
+//! @param[in] thePeriod positive period of the curve
+//! @param[in] theTolerance admissible difference from an integral number of periods
+//! @return true when both domain endpoints represent the same periodic seam
+Standard_EXPORT bool IsClosedPeriodicDomain(const Domain1D& theDomain,
+                                            const double    thePeriod,
+                                            const double    theTolerance);
 
-  const double aNbPeriods = std::round(theDomain.Length() / thePeriod);
-  return aNbPeriods >= 1.0 && std::abs(theDomain.Length() - aNbPeriods * thePeriod) <= theTolerance;
-}
-
-//! Returns true when a parameter can be evaluated as a finite endpoint.
-inline bool IsFiniteParameter(double theParameter)
-{
-  return std::isfinite(theParameter) && !Precision::IsInfinite(theParameter);
-}
+//! Returns whether a parameter can be evaluated as a finite endpoint.
+//! @param[in] theParameter parameter to validate
+//! @return true for a finite parameter that is not an OCCT infinity sentinel
+Standard_EXPORT bool IsFiniteParameter(const double theParameter);
 
 //! Status of extrema computation.
 enum class Status
@@ -175,123 +156,47 @@ struct Result
   size_t NbExt() const { return Extrema.Size(); }
 
   //! Access extremum by 0-based index.
-  const ExtremumResult& operator[](size_t theIndex) const { return Extrema.Value(theIndex); }
+  const ExtremumResult& operator[](const size_t theIndex) const { return Extrema.Value(theIndex); }
 
   //! Returns the squared distance of the closest extremum.
   //! Returns infinity if no extrema found.
-  double MinSquareDistance() const
-  {
-    if (Extrema.IsEmpty())
-    {
-      return std::numeric_limits<double>::infinity();
-    }
-    double aMinSqDist = Extrema.Value(0).SquareDistance;
-    for (size_t anIndex = 1; anIndex < Extrema.Size(); ++anIndex)
-    {
-      if (Extrema.Value(anIndex).SquareDistance < aMinSqDist)
-      {
-        aMinSqDist = Extrema.Value(anIndex).SquareDistance;
-      }
-    }
-    return aMinSqDist;
-  }
+  Standard_EXPORT double MinSquareDistance() const;
 
   //! Returns the index of the closest extremum (0-based).
   //! Returns INVALID_INDEX if no extrema are available.
-  size_t MinIndex() const
-  {
-    if (Extrema.IsEmpty())
-    {
-      return INVALID_INDEX;
-    }
-    size_t aMinIdx    = 0;
-    double aMinSqDist = Extrema.Value(0).SquareDistance;
-    for (size_t anIndex = 1; anIndex < Extrema.Size(); ++anIndex)
-    {
-      if (Extrema.Value(anIndex).SquareDistance < aMinSqDist)
-      {
-        aMinSqDist = Extrema.Value(anIndex).SquareDistance;
-        aMinIdx    = anIndex;
-      }
-    }
-    return aMinIdx;
-  }
+  Standard_EXPORT size_t MinIndex() const;
 
   //! Returns the squared distance of the farthest extremum.
   //! Returns 0 if no extrema found.
-  double MaxSquareDistance() const
-  {
-    if (Extrema.IsEmpty())
-    {
-      return 0.0;
-    }
-    double aMaxSqDist = Extrema.Value(0).SquareDistance;
-    for (size_t anIndex = 1; anIndex < Extrema.Size(); ++anIndex)
-    {
-      if (Extrema.Value(anIndex).SquareDistance > aMaxSqDist)
-      {
-        aMaxSqDist = Extrema.Value(anIndex).SquareDistance;
-      }
-    }
-    return aMaxSqDist;
-  }
+  Standard_EXPORT double MaxSquareDistance() const;
 
   //! Returns the index of the farthest extremum (0-based).
   //! Returns INVALID_INDEX if no extrema are available.
-  size_t MaxIndex() const
-  {
-    if (Extrema.IsEmpty())
-    {
-      return INVALID_INDEX;
-    }
-    size_t aMaxIdx    = 0;
-    double aMaxSqDist = Extrema.Value(0).SquareDistance;
-    for (size_t anIndex = 1; anIndex < Extrema.Size(); ++anIndex)
-    {
-      if (Extrema.Value(anIndex).SquareDistance > aMaxSqDist)
-      {
-        aMaxSqDist = Extrema.Value(anIndex).SquareDistance;
-        aMaxIdx    = anIndex;
-      }
-    }
-    return aMaxIdx;
-  }
+  Standard_EXPORT size_t MaxIndex() const;
 
   //! Clear the result for reuse.
   //! Preserves allocated memory in Extrema vector.
-  void Clear()
-  {
-    Status = Status::NotDone;
-    Extrema.Clear();
-    InfiniteSquareDistance = 0.0;
-  }
+  Standard_EXPORT void Clear();
 };
 
-//! @brief Adds endpoint extrema to result for bounded curves.
-//!
-//! This function adds the curve endpoints as extrema when:
-//! - The parameter bounds are finite
-//! - The endpoint is a true local extremum (checked via neighbor distance)
-//! - The endpoint doesn't duplicate an existing extremum
-//!
-//! An endpoint is considered a local minimum if the distance to a neighboring
-//! point on the curve is greater than the distance to the endpoint.
-//! An endpoint is considered a local maximum if the distance to a neighboring
-//! point is less than the distance to the endpoint.
-//!
-//! @tparam CurveEvaluator Type with Value(double) method returning gp_Pnt
-//! @param theResult result to add endpoints to
-//! @param theP query point
-//! @param theDomain parameter domain
-//! @param theEval curve evaluator
-//! @param theMode search mode
+//! Adds finite non-duplicate endpoints that satisfy the requested extremum classification.
+//! Each endpoint is compared with a nearby point inside the domain to determine
+//! whether it is a constrained minimum or maximum. Closed periodic seams are
+//! omitted because they are not curve boundaries.
+//! @tparam CurveEvaluator elementary geometry or curve adaptor type
+//! @param[in, out] theResult result to extend
+//! @param[in] theP query point
+//! @param[in] theDomain parameter domain
+//! @param[in] theEval curve evaluator
+//! @param[in] theMode search mode
+//! @param[in] theIsClosed whether the domain represents a closed curve
 template <typename CurveEvaluator>
 inline void AddEndpointExtrema(Result&               theResult,
                                const gp_Pnt&         theP,
                                const Domain1D&       theDomain,
                                const CurveEvaluator& theEval,
-                               SearchMode            theMode,
-                               bool                  theIsClosed)
+                               const SearchMode      theMode,
+                               const bool            theIsClosed)
 {
   if (!theDomain.IsValid())
   {
@@ -308,11 +213,11 @@ inline void AddEndpointExtrema(Result&               theResult,
   }
 
   // Helper to check if parameter or point already exists in result
-  auto isDuplicate = [&](double theU) -> bool {
+  auto isDuplicate = [&](const double theU) -> bool {
     for (size_t anIndex = 0; anIndex < theResult.Extrema.Size(); ++anIndex)
     {
       // Check parameter proximity
-      if (std::abs(theResult.Extrema.Value(anIndex).Parameter - theU) < THE_PARAM_TOLERANCE)
+      if (std::abs(theResult.Extrema.Value(anIndex).Parameter - theU) < Precision::PConfusion())
       {
         return true;
       }
@@ -324,7 +229,7 @@ inline void AddEndpointExtrema(Result&               theResult,
   {
     if (hasFiniteMin && !isDuplicate(theUMin))
     {
-      const gp_Pnt   aPoint = theEval.Value(theUMin);
+      const gp_Pnt   aPoint = theEval.EvalD0(theUMin);
       ExtremumResult anExt;
       anExt.Parameter      = theUMin;
       anExt.Point          = aPoint;
@@ -342,7 +247,7 @@ inline void AddEndpointExtrema(Result&               theResult,
   }
 
   const bool hasFiniteSpan = hasFiniteMin && hasFiniteMax;
-  auto       addEndpoint   = [&](double theParameter, bool theIsLower) {
+  auto       addEndpoint   = [&](const double theParameter, const bool theIsLower) {
     if (isDuplicate(theParameter))
     {
       return;
@@ -350,10 +255,10 @@ inline void AddEndpointExtrema(Result&               theResult,
 
     const double aStep =
       hasFiniteSpan
-                ? std::min((theUMax - theUMin) * THE_NEIGHBOR_STEP_RATIO, (theUMax - theUMin) * 0.5)
-                : std::max(THE_NEIGHBOR_STEP_RATIO, std::abs(theParameter) * THE_NEIGHBOR_STEP_RATIO);
-    const gp_Pnt aPoint    = theEval.Value(theParameter);
-    const gp_Pnt aNeighbor = theEval.Value(theParameter + (theIsLower ? aStep : -aStep));
+        ? std::min((theUMax - theUMin) * THE_NEIGHBOR_STEP_RATIO, (theUMax - theUMin) * 0.5)
+        : std::max(THE_NEIGHBOR_STEP_RATIO, std::abs(theParameter) * THE_NEIGHBOR_STEP_RATIO);
+    const gp_Pnt aPoint            = theEval.EvalD0(theParameter);
+    const gp_Pnt aNeighbor         = theEval.EvalD0(theParameter + (theIsLower ? aStep : -aStep));
     const double aSquareDistance   = theP.SquareDistance(aPoint);
     const double aNeighborDistance = theP.SquareDistance(aNeighbor);
     const bool   isMinimum         = aSquareDistance <= aNeighborDistance;

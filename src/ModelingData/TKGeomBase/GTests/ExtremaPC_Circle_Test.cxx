@@ -13,6 +13,7 @@
 
 #include <gtest/gtest.h>
 
+#include <ElCLib.hxx>
 #include <ExtremaPC_Circle.hxx>
 #include <ExtremaPC2d_Circle.hxx>
 

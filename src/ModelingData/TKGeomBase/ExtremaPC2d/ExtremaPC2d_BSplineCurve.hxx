@@ -32,27 +32,25 @@
 //!
 //! The algorithm:
 //! 1. Build a knot-aware parameter partition
-//! 2. Isolate all roots of the stationarity function, including tangential roots
-//! 3. Classify roots from the stationarity sign on both sides
+//! 2. Select per-span root samples from the degree of the stationarity numerator
+//! 3. Isolate all roots of the stationarity function, including tangential roots
+//! 4. Classify roots from the stationarity sign on both sides
 //!
 //! This approach is simpler and more stable than BVH-based methods,
 //! with comparable accuracy for typical BSpline curves.
 //!
-//! The domain is fixed at construction time. The parameter partition is refreshed
-//! on each query so changes to the referenced curve are observed.
+//! The geometry, domain, and parameter partition are fixed for the evaluator lifetime.
 class ExtremaPC2d_BSplineCurve
 {
 public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with BSpline curve (uses full curve domain).
-  //! Parameter partition is built on demand by Perform().
   //! @param[in] theCurve BSpline curve handle
   Standard_EXPORT explicit ExtremaPC2d_BSplineCurve(
     const occ::handle<Geom2d_BSplineCurve>& theCurve);
 
   //! Constructor with BSpline curve and parameter domain.
-  //! Parameter partition is built on demand by Perform().
   //! @param[in] theCurve BSpline curve handle
   //! @param[in] theDomain parameter domain (fixed for all queries)
   Standard_EXPORT ExtremaPC2d_BSplineCurve(const occ::handle<Geom2d_BSplineCurve>& theCurve,
@@ -107,16 +105,16 @@ public:
   const occ::handle<Geom2d_BSplineCurve>& Curve() const { return myCurve; }
 
 private:
-  //! Build knot-aware parameter array for grid sampling.
-  //! Places samples at knots and (degree + 1) intermediate points per span.
-  //! @return array of parameter values for grid sampling
+  //! Builds the parameter partition from BSpline knot spans.
+  //! @return knot-span boundaries clipped to the evaluator domain
   math_Vector buildKnotAwareParams() const;
 
-  //! Build parameter partition for the curve.
-  void buildParams() const;
+  //! Builds the knot partition and configures degree-aware root sampling.
+  void buildParams();
 
-  occ::handle<Geom2d_BSplineCurve> myCurve;  //!< BSpline curve
-  ExtremaPC2d::Domain1D            myDomain; //!< Parameter domain (fixed)
+  occ::handle<Geom2d_BSplineCurve> myCurve;   //!< BSpline curve
+  Geom2dAdaptor_Curve              myAdaptor; //!< Curve adaptor
+  ExtremaPC2d::Domain1D            myDomain;  //!< Parameter domain (fixed)
 
   // Numerical evaluator with cached parameter partition and result
   mutable ExtremaPC2d_GridEvaluator myEvaluator;

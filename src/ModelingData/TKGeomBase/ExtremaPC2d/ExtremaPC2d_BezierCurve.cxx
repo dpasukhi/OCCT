@@ -27,8 +27,10 @@ ExtremaPC2d_BezierCurve::ExtremaPC2d_BezierCurve(const occ::handle<Geom2d_Bezier
   myDomain.Min = myCurve->FirstParameter();
   myDomain.Max = myCurve->LastParameter();
   myNbSamples  = std::max(ExtremaPC2d::THE_BEZIER_MIN_SAMPLES,
-                         ExtremaPC2d::THE_BEZIER_DEGREE_MULTIPLIER
-                           * static_cast<size_t>(myCurve->Degree() + 1));
+                          ExtremaPC2d::THE_BEZIER_DEGREE_MULTIPLIER
+                            * static_cast<size_t>(myCurve->Degree() + 1));
+  myAdaptor.Load(myCurve);
+  buildParams();
 }
 
 //==================================================================================================
@@ -46,11 +48,13 @@ ExtremaPC2d_BezierCurve::ExtremaPC2d_BezierCurve(const occ::handle<Geom2d_Bezier
   myNbSamples = std::max(ExtremaPC2d::THE_BEZIER_MIN_SAMPLES,
                          ExtremaPC2d::THE_BEZIER_DEGREE_MULTIPLIER
                            * static_cast<size_t>(myCurve->Degree() + 1));
+  myAdaptor.Load(myCurve);
+  buildParams();
 }
 
 //==================================================================================================
 
-void ExtremaPC2d_BezierCurve::buildParams() const
+void ExtremaPC2d_BezierCurve::buildParams()
 {
   if (myCurve.IsNull() || !myDomain.IsValid() || !myDomain.IsFinite())
   {
@@ -87,9 +91,7 @@ const ExtremaPC2d::Result& ExtremaPC2d_BezierCurve::Perform(const gp_Pnt2d&     
     return myEvaluator.Result();
   }
 
-  buildParams();
-  Geom2dAdaptor_Curve anAdaptor(myCurve);
-  return myEvaluator.Perform(anAdaptor, theP, myDomain, theTol, theMode);
+  return myEvaluator.Perform(myAdaptor, theP, myDomain, theTol, theMode);
 }
 
 //==================================================================================================
@@ -106,8 +108,7 @@ const ExtremaPC2d::Result& ExtremaPC2d_BezierCurve::PerformWithEndpoints(
   if (aResult.Status == ExtremaPC2d::Status::OK
       || aResult.Status == ExtremaPC2d::Status::NoSolution)
   {
-    Geom2dAdaptor_Curve anAdaptor(myCurve);
-    const bool          isClosed = ExtremaPC2d_GridEvaluator::IsClosedDomain(anAdaptor, myDomain);
+    const bool isClosed = ExtremaPC2d_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
     ExtremaPC2d::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
 
     // Update status if we found any extrema (including endpoints)

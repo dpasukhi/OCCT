@@ -14,6 +14,7 @@
 #include <ExtremaPC_Circle.hxx>
 #include <ExtremaPC_Curve.hxx>
 #include <ExtremaPC_Line.hxx>
+#include <ExtremaPC_OtherCurve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_BSplineCurve.hxx>
 #include <Geom_Circle.hxx>
@@ -32,6 +33,7 @@
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Trsf.hxx>
+#include <gp_Vec.hxx>
 #include <NCollection_Array1.hxx>
 
 #include <gtest/gtest.h>

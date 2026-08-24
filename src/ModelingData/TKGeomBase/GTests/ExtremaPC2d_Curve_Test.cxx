@@ -195,13 +195,15 @@ TEST(ExtremaPC2d_CurveTest, ExplicitBoundsIntersectTrimmedBounds)
   }
 }
 
-TEST(ExtremaPC2d_CurveTest, BezierMutationFlowsThroughAggregator)
+TEST(ExtremaPC2d_CurveTest, RecreateAggregatorAfterGeometryChange)
 {
   occ::handle<Geom2d_BezierCurve> aCurve = makeBezier();
-  ExtremaPC2d_Curve               anEvaluator(aCurve);
-  const double aBefore = anEvaluator.Perform(gp_Pnt2d(2.0, 2.0), THE_TOL).MinSquareDistance();
+  ExtremaPC2d_Curve               anInitialEvaluator(aCurve);
+  const double                    aBefore =
+    anInitialEvaluator.Perform(gp_Pnt2d(2.0, 2.0), THE_TOL).MinSquareDistance();
   aCurve->SetPole(2, gp_Pnt2d(3.5, -4.0));
-  const ExtremaPC2d::Result& anAfter = anEvaluator.Perform(gp_Pnt2d(2.0, 2.0), THE_TOL);
+  ExtremaPC2d_Curve          anUpdatedEvaluator(aCurve);
+  const ExtremaPC2d::Result& anAfter = anUpdatedEvaluator.Perform(gp_Pnt2d(2.0, 2.0), THE_TOL);
   EXPECT_GT(std::abs(anAfter.MinSquareDistance() - aBefore), 1.0e-4);
   EXPECT_NEAR(anAfter[anAfter.MinIndex()].Point.Distance(
                 aCurve->Value(anAfter[anAfter.MinIndex()].Parameter)),

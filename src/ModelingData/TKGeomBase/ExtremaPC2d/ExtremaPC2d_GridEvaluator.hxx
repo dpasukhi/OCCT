@@ -48,10 +48,13 @@ public:
   //! Default constructor.
   ExtremaPC2d_GridEvaluator() = default;
 
-  //! Stores ordered parameter values defining the numerical search partition.
+  //! Stores the numerical search partition and root-sampling density.
   //! @param[in] theParams ordered parameter values
-  void SetParams(const math_Vector& theParams)
+  //! @param[in] theNbRootIntervals requested root-isolation intervals per partition interval
+  void SetParams(const math_Vector& theParams,
+                 const size_t       theNbRootIntervals = MathRoot::THE_MIN_NB_INTERVALS)
   {
+    myNbRootIntervals      = std::max(theNbRootIntervals, MathRoot::THE_MIN_NB_INTERVALS);
     const size_t aNbParams = theParams.Size();
     if (aNbParams == 0)
     {
@@ -108,7 +111,7 @@ public:
     buildPartition(theCurve, theDomain, myContinuityBounds, myPartition);
 
     MathRoot::MultipleConfig aConfig;
-    aConfig.NbSamples     = 2;
+    aConfig.NbSamples     = myNbRootIntervals;
     aConfig.XTolerance    = ExtremaPC2d::THE_PARAM_TOLERANCE;
     aConfig.FTolerance    = theTol;
     aConfig.NullTolerance = theTol;
@@ -122,18 +125,7 @@ public:
       {
         continue;
       }
-      occ::handle<Adaptor2d_Curve2d> aLocalCurve;
-      try
-      {
-        OCC_CATCH_SIGNALS
-        aLocalCurve = theCurve.Trim(aLower, anUpper, Precision::PConfusion());
-      }
-      catch (const Standard_Failure&)
-      {
-        // Some custom adaptors support evaluation but do not implement Trim().
-      }
-      const Adaptor2d_Curve2d& aCurveForInterval = aLocalCurve.IsNull() ? theCurve : *aLocalCurve;
-      ExtremaPC2d_DistanceFunction aLocalFunction(aCurveForInterval, theP);
+      ExtremaPC2d_DistanceFunction aLocalFunction(theCurve, theP);
       MathRoot::MultipleResult     anIntervalRoots;
       try
       {
@@ -368,7 +360,7 @@ private:
       {
         const size_t      aSecondIndex = aResultIndex - anIndex;
         const long double aFactor      = aDegreeBinomial[anIndex] * aDegreeBinomial[aSecondIndex]
-                                    / aDoubleDegreeBinomial[aResultIndex];
+                                         / aDoubleDegreeBinomial[aResultIndex];
         aDistance +=
           aFactor * (aQx[anIndex] * aQx[aSecondIndex] + aQy[anIndex] * aQy[aSecondIndex]);
         aWeight += aFactor * aWeights[anIndex] * aWeights[aSecondIndex];
@@ -561,29 +553,21 @@ private:
       thePartition.Append(aParameter);
     }
 
-    try
+    const int                          aNbIntervals = theCurve.NbIntervals(GeomAbs_C2);
+    NCollection_LocalArray<double, 32> anIntervalStorage(static_cast<size_t>(aNbIntervals + 1));
+    NCollection_Array1<double>         anIntervals(anIntervalStorage[0], 1, aNbIntervals + 1);
+    thePartition.Reserve(myParams.Size() + static_cast<size_t>(aNbIntervals + 1));
+    theContinuityBounds.Reserve(static_cast<size_t>(aNbIntervals + 1));
+    theCurve.Intervals(anIntervals, GeomAbs_C2);
+    for (size_t anIndex = 0; anIndex < anIntervals.Size(); ++anIndex)
     {
-      OCC_CATCH_SIGNALS
-      const int                          aNbIntervals = theCurve.NbIntervals(GeomAbs_C2);
-      NCollection_LocalArray<double, 32> anIntervalStorage(static_cast<size_t>(aNbIntervals + 1));
-      NCollection_Array1<double>         anIntervals(anIntervalStorage[0], 1, aNbIntervals + 1);
-      thePartition.Reserve(myParams.Size() + static_cast<size_t>(aNbIntervals + 1));
-      theContinuityBounds.Reserve(static_cast<size_t>(aNbIntervals + 1));
-      theCurve.Intervals(anIntervals, GeomAbs_C2);
-      for (size_t anIndex = 0; anIndex < anIntervals.Size(); ++anIndex)
+      const double aParameter = theDomain.Clamp(anIntervals.At(anIndex));
+      insertParameter(thePartition, aParameter);
+      if (aParameter > theDomain.Min + ExtremaPC2d::THE_PARAM_TOLERANCE
+          && aParameter < theDomain.Max - ExtremaPC2d::THE_PARAM_TOLERANCE)
       {
-        const double aParameter = theDomain.Clamp(anIntervals.At(anIndex));
-        insertParameter(thePartition, aParameter);
-        if (aParameter > theDomain.Min + ExtremaPC2d::THE_PARAM_TOLERANCE
-            && aParameter < theDomain.Max - ExtremaPC2d::THE_PARAM_TOLERANCE)
-        {
-          insertParameter(theContinuityBounds, aParameter);
-        }
+        insertParameter(theContinuityBounds, aParameter);
       }
-    }
-    catch (const Standard_Failure&)
-    {
-      // Cached sampling remains usable for adaptors without interval APIs.
     }
   }
 
@@ -810,7 +794,8 @@ private:
   }
 
 private:
-  NCollection_LinearVector<double>                myParams; //!< Cached parameter partition
+  NCollection_LinearVector<double> myParams;                 //!< Cached parameter partition
+  size_t myNbRootIntervals = MathRoot::THE_MIN_NB_INTERVALS; //!< Root-isolation intervals per cell
   mutable NCollection_LinearVector<double>        myContinuityBounds; //!< Reusable C2 bounds
   mutable NCollection_LinearVector<double>        myPartition;        //!< Reusable merged partition
   mutable NCollection_LinearVector<RootCandidate> myRoots;            //!< Reusable root candidates

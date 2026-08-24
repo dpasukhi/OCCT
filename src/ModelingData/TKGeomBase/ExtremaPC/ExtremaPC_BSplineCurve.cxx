@@ -38,6 +38,7 @@ ExtremaPC_BSplineCurve::ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCur
   myDomain.Min = myCurve->FirstParameter();
   myDomain.Max = myCurve->LastParameter();
   buildParams();
+  initPlanar();
 }
 
 //==================================================================================================
@@ -53,6 +54,7 @@ ExtremaPC_BSplineCurve::ExtremaPC_BSplineCurve(const occ::handle<Geom_BSplineCur
   }
   myAdaptor.Load(myCurve);
   buildParams();
+  initPlanar();
 }
 
 //==================================================================================================
@@ -70,20 +72,14 @@ math_Vector ExtremaPC_BSplineCurve::buildKnotAwareParams() const
   const double theUMin = myDomain.Min;
   const double theUMax = myDomain.Max;
 
-  const int                         aDegree = myCurve->Degree();
-  const NCollection_Array1<double>& aKnots  = myCurve->Knots();
-
-  // Use multiplier*(degree+1) samples per span for accurate extrema detection.
-  const size_t aSamplesPerSpan =
-    ExtremaPC::THE_BSPLINE_SPAN_MULTIPLIER * static_cast<size_t>(aDegree + 1);
+  const NCollection_Array1<double>& aKnots = myCurve->Knots();
 
   const bool   isPeriodic      = myCurve->IsPeriodic();
   const double aPeriod         = isPeriodic ? myCurve->Period() : 0.0;
   const double aFirstShiftReal = isPeriodic ? std::floor((theUMin - aKnots.Last()) / aPeriod) : 0.0;
   const double aLastShiftReal  = isPeriodic ? std::ceil((theUMax - aKnots.First()) / aPeriod) : 0.0;
   const double aNbShifts       = aLastShiftReal - aFirstShiftReal + 1.0;
-  const double aMaxParams =
-    2.0 + aNbShifts * static_cast<double>(aKnots.Size() - 1) * aSamplesPerSpan;
+  const double aMaxParams      = 2.0 + aNbShifts * static_cast<double>(aKnots.Size() - 1);
   Standard_RangeError_Raise_if(aFirstShiftReal < IntegerFirst() || aFirstShiftReal > IntegerLast()
                                  || aLastShiftReal < IntegerFirst()
                                  || aLastShiftReal > IntegerLast() || aNbShifts < 1.0
@@ -108,15 +104,6 @@ math_Vector ExtremaPC_BSplineCurve::buildKnotAwareParams() const
         continue;
       }
 
-      const double aStep = (aSpanHi - aSpanLo) / aSamplesPerSpan;
-      for (size_t aSampleIndex = 1; aSampleIndex < aSamplesPerSpan; ++aSampleIndex)
-      {
-        const double aU = aSpanLo + static_cast<double>(aSampleIndex) * aStep;
-        if (aU > theUMin && aU < theUMax)
-        {
-          aParams[aNbParams++] = aU;
-        }
-      }
       if (aKnotHi > theUMin && aKnotHi < theUMax)
       {
         aParams[aNbParams++] = aKnotHi;
@@ -148,60 +135,68 @@ void ExtremaPC_BSplineCurve::buildParams()
     return;
   }
 
-  // Build knot-aware parameter partition.
-  math_Vector aParams = buildKnotAwareParams();
-
-  myEvaluator.SetParams(aParams);
+  math_Vector  aParams                = buildKnotAwareParams();
+  const size_t aDegree                = static_cast<size_t>(myCurve->Degree());
+  const size_t aStationarityRootBound = (myCurve->IsRational() ? 3 : 2) * aDegree;
+  const size_t aNbRootIntervals =
+    std::max(MathRoot::THE_MIN_NB_INTERVALS,
+             MathRoot::NbIntervalsForRootBound(aStationarityRootBound));
+  myEvaluator.SetParams(aParams, aNbRootIntervals);
 }
 
 //==================================================================================================
 
-gp_Pnt ExtremaPC_BSplineCurve::Value(double theU) const
+void ExtremaPC_BSplineCurve::initPlanar()
 {
-  return myCurve->Value(theU);
+  occ::handle<Geom2d_BSplineCurve> aCurve2d;
+  if (ExtremaPC::ProjectBSpline(myCurve, myPlanarPlane, aCurve2d))
+  {
+    myPlanarEvaluator.emplace(aCurve2d, ExtremaPC2d::Domain1D(myDomain.Min, myDomain.Max));
+  }
 }
 
-//=================================================================================================
+//==================================================================================================
 
-bool ExtremaPC_BSplineCurve::performPlanar(const gp_Pnt&         theP,
-                                           double                theTol,
-                                           ExtremaPC::SearchMode theMode,
-                                           bool                  theIncludeEndpoints) const
+bool ExtremaPC_BSplineCurve::performPlanar(const gp_Pnt&               theP,
+                                           const double                theTol,
+                                           const ExtremaPC::SearchMode theMode,
+                                           const bool                  theIncludeEndpoints) const
 {
-  gp_Pln                           aPlane;
-  occ::handle<Geom2d_BSplineCurve> aCurve2d;
-  if (!ExtremaPC::ProjectBSpline(myCurve, aPlane, aCurve2d))
+  if (!myPlanarEvaluator.has_value())
   {
     return false;
   }
 
-  ExtremaPC2d_BSplineCurve      anEvaluator2d(aCurve2d,
-                                         ExtremaPC2d::Domain1D(myDomain.Min, myDomain.Max));
   const ExtremaPC2d::SearchMode aMode    = ExtremaPC::ToSearchMode2d(theMode);
-  const gp_Pnt2d                aPoint2d = ProjLib::Project(aPlane, theP);
+  const gp_Pnt2d                aPoint2d = ProjLib::Project(myPlanarPlane, theP);
   const ExtremaPC2d::Result&    aResult2d =
-    theIncludeEndpoints ? anEvaluator2d.PerformWithEndpoints(aPoint2d, theTol, aMode)
-                           : anEvaluator2d.Perform(aPoint2d, theTol, aMode);
-  return ExtremaPC::ConvertPlanarResult(aResult2d, theP, aPlane, *this, myEvaluator.Result());
+    theIncludeEndpoints ? myPlanarEvaluator->PerformWithEndpoints(aPoint2d, theTol, aMode)
+                        : myPlanarEvaluator->Perform(aPoint2d, theTol, aMode);
+  const Adaptor3d_Curve& anAdaptor = myAdaptor;
+  return ExtremaPC::ConvertPlanarResult(aResult2d,
+                                        theP,
+                                        myPlanarPlane,
+                                        anAdaptor,
+                                        myEvaluator.ChangeResult());
 }
 
 //==================================================================================================
 
-const ExtremaPC::Result& ExtremaPC_BSplineCurve::Perform(const gp_Pnt&         theP,
-                                                         double                theTol,
-                                                         ExtremaPC::SearchMode theMode) const
+const ExtremaPC::Result& ExtremaPC_BSplineCurve::Perform(const gp_Pnt&               theP,
+                                                         const double                theTol,
+                                                         const ExtremaPC::SearchMode theMode) const
 {
   if (myCurve.IsNull())
   {
-    myEvaluator.Result().Clear();
-    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
-    return myEvaluator.Result();
+    myEvaluator.ChangeResult().Clear();
+    myEvaluator.ChangeResult().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.ChangeResult();
   }
 
   if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
       && performPlanar(theP, theTol, theMode, false))
   {
-    return myEvaluator.Result();
+    return myEvaluator.ChangeResult();
   }
 
   return myEvaluator.Perform(myAdaptor, theP, myDomain, theTol, theMode);
@@ -210,36 +205,34 @@ const ExtremaPC::Result& ExtremaPC_BSplineCurve::Perform(const gp_Pnt&         t
 //==================================================================================================
 
 const ExtremaPC::Result& ExtremaPC_BSplineCurve::PerformWithEndpoints(
-  const gp_Pnt&         theP,
-  double                theTol,
-  ExtremaPC::SearchMode theMode) const
+  const gp_Pnt&               theP,
+  const double                theTol,
+  const ExtremaPC::SearchMode theMode) const
 {
   if (myCurve.IsNull())
   {
-    myEvaluator.Result().Clear();
-    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
-    return myEvaluator.Result();
+    myEvaluator.ChangeResult().Clear();
+    myEvaluator.ChangeResult().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.ChangeResult();
   }
   if (ExtremaPC::IsValidTolerance(theTol) && myDomain.IsValid()
       && performPlanar(theP, theTol, theMode, true))
   {
-    return myEvaluator.Result();
+    return myEvaluator.ChangeResult();
   }
 
-  (void)Perform(theP, theTol, theMode);
-
-  // Add endpoints to the result
-  ExtremaPC::Result& aResult = myEvaluator.Result();
-  if (aResult.Status == ExtremaPC::Status::OK || aResult.Status == ExtremaPC::Status::NoSolution)
+  const ExtremaPC::Result& anInteriorResult = Perform(theP, theTol, theMode);
+  if (!anInteriorResult.IsDone())
   {
-    const bool isClosed = ExtremaPC_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
-    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
-
-    // Update status if we found any extrema (including endpoints)
-    if (!aResult.Extrema.IsEmpty())
-    {
-      aResult.Status = ExtremaPC::Status::OK;
-    }
+    return anInteriorResult;
+  }
+  ExtremaPC::Result&     aResult   = myEvaluator.ChangeResult();
+  const bool             isClosed  = ExtremaPC_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
+  const Adaptor3d_Curve& anAdaptor = myAdaptor;
+  ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, anAdaptor, theMode, isClosed);
+  if (!aResult.Extrema.IsEmpty())
+  {
+    aResult.Status = ExtremaPC::Status::OK;
   }
 
   return aResult;

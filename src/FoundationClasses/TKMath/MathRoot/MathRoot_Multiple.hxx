@@ -29,7 +29,7 @@ namespace MathRoot
 //! Uses uniform sampling to detect sign changes, then refines each root using Brent's method.
 //!
 //! Algorithm:
-//! 1. Sample function at NbSamples uniform points
+//! 1. Sample the function over NbSamples uniform intervals
 //! 2. Detect all sign changes and zero crossings
 //! 3. For each bracket, apply Brent's method to find precise root
 //! Value-only sampling cannot generally detect tangential roots. Such a root is returned only
@@ -54,7 +54,7 @@ MultipleResult FindAllRoots(Function&             theFunc,
     return aResult;
   }
 
-  const size_t aNbSamples = std::max<size_t>(2 * theConfig.NbSamples, 20);
+  const size_t aNbSamples = std::max(theConfig.NbSamples, THE_MIN_NB_INTERVALS);
   math_Vector  aSamples(aNbSamples + 1);
 
   Utils::MultipleSampleValueFn<Function>     aSampleFn{theFunc, aSamples, theConfig.Offset};
@@ -97,7 +97,7 @@ MultipleResult FindAllRootsWithDerivative(Function&             theFunc,
 //! @param theFunc function to find roots of
 //! @param theLower lower bound
 //! @param theUpper upper bound
-//! @param theNbSamples number of sample points
+//! @param theNbSamples number of uniform sampling intervals
 //! @return result with all found roots
 template <typename Function>
 MultipleResult FindAllRoots(Function& theFunc,

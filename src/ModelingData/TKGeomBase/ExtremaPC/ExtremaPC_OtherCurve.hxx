@@ -36,20 +36,17 @@
 //! This is a fallback implementation that works with any curve type
 //! through the Adaptor3d_Curve interface.
 //!
-//! The domain is fixed at construction time and the grid is built eagerly
-//! for optimal performance with multiple queries.
+//! The geometry and domain are fixed for the evaluator lifetime.
 class ExtremaPC_OtherCurve
 {
 public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with curve adaptor (uses full curve domain).
-  //! Parameter partition is built eagerly at construction time.
   //! @param[in] theCurve curve adaptor (must remain valid)
   Standard_EXPORT explicit ExtremaPC_OtherCurve(const Adaptor3d_Curve& theCurve);
 
   //! Constructor with curve adaptor and parameter domain.
-  //! Parameter partition is built eagerly at construction time for the specified domain.
   //! @param[in] theCurve curve adaptor (must remain valid)
   //! @param[in] theDomain parameter domain (fixed for all queries)
   Standard_EXPORT ExtremaPC_OtherCurve(const Adaptor3d_Curve&     theCurve,
@@ -67,11 +64,6 @@ public:
   //! Move assignment operator.
   ExtremaPC_OtherCurve& operator=(ExtremaPC_OtherCurve&&) = default;
 
-  //! Evaluates point on curve at parameter.
-  //! @param theU parameter
-  //! @return point on curve
-  Standard_EXPORT gp_Pnt Value(double theU) const;
-
   //! Returns true if domain is bounded.
   bool IsBounded() const { return myDomain.IsFinite(); }
 
@@ -80,25 +72,25 @@ public:
 
   //! Compute extrema between point P and the curve.
   //! Uses domain specified at construction time.
-  //! @param theP query point
-  //! @param theTol tolerance for root finding
-  //! @param theMode search mode (MinMax, Min, or Max)
+  //! @param[in] theP query point
+  //! @param[in] theTol tolerance for root finding
+  //! @param[in] theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing extrema
   [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& Perform(
-    const gp_Pnt&         theP,
-    double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    const gp_Pnt&               theP,
+    const double                theTol,
+    const ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
 
   //! Compute extrema between point P and the curve including endpoints.
   //! Uses domain specified at construction time.
-  //! @param theP query point
-  //! @param theTol tolerance for root finding
-  //! @param theMode search mode (MinMax, Min, or Max)
+  //! @param[in] theP query point
+  //! @param[in] theTol tolerance for root finding
+  //! @param[in] theMode search mode (MinMax, Min, or Max)
   //! @return const reference to result containing interior + endpoint extrema
   [[nodiscard]] Standard_EXPORT const ExtremaPC::Result& PerformWithEndpoints(
-    const gp_Pnt&         theP,
-    double                theTol,
-    ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
+    const gp_Pnt&               theP,
+    const double                theTol,
+    const ExtremaPC::SearchMode theMode = ExtremaPC::SearchMode::MinMax) const;
 
 private:
   //! Build parameter partition for the curve.
@@ -106,7 +98,6 @@ private:
 
   const Adaptor3d_Curve* myCurve;  //!< Curve adaptor (not owned)
   ExtremaPC::Domain1D    myDomain; //!< Parameter domain (fixed)
-
   //! Numerical evaluator with cached parameter partition and result.
   mutable ExtremaPC_GridEvaluator myEvaluator;
 };

@@ -1,0 +1,32 @@
+set(OCCT_ExtremaPS_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
+
+set(OCCT_ExtremaPS_FILES
+  ExtremaPS.hxx
+  ExtremaPS.cxx
+  ExtremaPS_Plane.hxx
+  ExtremaPS_Plane.cxx
+  ExtremaPS_Cylinder.hxx
+  ExtremaPS_Cylinder.cxx
+  ExtremaPS_Cone.hxx
+  ExtremaPS_Cone.cxx
+  ExtremaPS_Sphere.hxx
+  ExtremaPS_Sphere.cxx
+  ExtremaPS_Torus.hxx
+  ExtremaPS_Torus.cxx
+  ExtremaPS_GridEvaluator.hxx
+  ExtremaPS_GridEvaluator.cxx
+  ExtremaPS_BezierSurface.hxx
+  ExtremaPS_BezierSurface.cxx
+  ExtremaPS_BSplineSurface.hxx
+  ExtremaPS_BSplineSurface.cxx
+  ExtremaPS_OffsetSurface.hxx
+  ExtremaPS_OffsetSurface.cxx
+  ExtremaPS_OtherSurface.hxx
+  ExtremaPS_OtherSurface.cxx
+  ExtremaPS_SurfaceOfRevolution.hxx
+  ExtremaPS_SurfaceOfRevolution.cxx
+  ExtremaPS_SurfaceOfExtrusion.hxx
+  ExtremaPS_SurfaceOfExtrusion.cxx
+  ExtremaPS_Surface.hxx
+  ExtremaPS_Surface.cxx
+)

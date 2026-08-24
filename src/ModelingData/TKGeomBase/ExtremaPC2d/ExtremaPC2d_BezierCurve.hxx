@@ -27,8 +27,7 @@
 //! Computes roots of the normalized point-curve stationarity function with a
 //! derivative-aware multiple-root solver.
 //!
-//! The parameter partition is cached while geometry is evaluated for each query,
-//! so mutations of the curve do not leave stale geometric samples.
+//! The parameter partition is built once for repeated point queries.
 //!
 //! The algorithm:
 //! 1. Build a parameter partition based on curve degree
@@ -38,20 +37,17 @@
 //! This approach is simpler and more stable than BVH-based methods,
 //! with comparable accuracy for typical Bezier curves.
 //!
-//! The domain is fixed at construction time. The parameter partition is refreshed
-//! on each query so changes to the referenced curve are observed.
+//! The geometry, domain, and parameter partition are fixed for the evaluator lifetime.
 class ExtremaPC2d_BezierCurve
 {
 public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor with Bezier curve (uses full curve domain).
-  //! Parameter partition is built on demand by Perform().
   //! @param[in] theCurve Bezier curve handle
   Standard_EXPORT explicit ExtremaPC2d_BezierCurve(const occ::handle<Geom2d_BezierCurve>& theCurve);
 
   //! Constructor with Bezier curve and parameter domain.
-  //! Parameter partition is built on demand by Perform().
   //! @param[in] theCurve Bezier curve handle
   //! @param[in] theDomain parameter domain (fixed for all queries)
   Standard_EXPORT ExtremaPC2d_BezierCurve(const occ::handle<Geom2d_BezierCurve>& theCurve,
@@ -107,11 +103,12 @@ public:
 
 private:
   //! Build parameter partition for the curve.
-  void buildParams() const;
+  void buildParams();
 
   occ::handle<Geom2d_BezierCurve> myCurve;     //!< Bezier curve
+  Geom2dAdaptor_Curve             myAdaptor;   //!< Curve adaptor
   ExtremaPC2d::Domain1D           myDomain;    //!< Parameter domain (fixed)
-  mutable size_t                  myNbSamples; //!< Number of samples
+  size_t                          myNbSamples; //!< Number of samples
 
   // Numerical evaluator with cached parameter partition and result
   mutable ExtremaPC2d_GridEvaluator myEvaluator;

@@ -37,8 +37,8 @@ public:
   DEFINE_STANDARD_ALLOC
 
   //! Constructor.
-  //! @param theCurve the curve adaptor
-  //! @param theP the query point
+  //! @param[in] theCurve the curve adaptor
+  //! @param[in] theP the query point
   ExtremaPC_DistanceFunction(const Adaptor3d_Curve& theCurve, const gp_Pnt& theP)
       : myCurve(&theCurve),
         myP(theP)
@@ -46,10 +46,10 @@ public:
   }
 
   //! Computes F(u) = (C(u) - P) . C'(u) / |C'(u)|.
-  //! @param theU parameter value
-  //! @param theF output: function value
+  //! @param[in] theU parameter value
+  //! @param[out] theF function value
   //! @return true if computation succeeded
-  bool Value(double theU, double& theF) const
+  bool Value(const double theU, double& theF) const
   {
     gp_Pnt aPt;
     gp_Vec aD1;
@@ -70,11 +70,11 @@ public:
 
   //! Computes F(u) and F'(u).
   //! Computes the normalized stationarity function and its derivative.
-  //! @param theU parameter value
-  //! @param theF output: function value
-  //! @param theDF output: derivative value
+  //! @param[in] theU parameter value
+  //! @param[out] theF function value
+  //! @param[out] theDF derivative value
   //! @return true if computation succeeded
-  bool Values(double theU, double& theF, double& theDF) const
+  bool Values(const double theU, double& theF, double& theDF) const
   {
     gp_Pnt aPt;
     gp_Vec aD1, aD2;
@@ -96,10 +96,10 @@ public:
   }
 
   //! Computes the derivative F'(u).
-  //! @param theU parameter value
-  //! @param theDF output: derivative value
+  //! @param[in] theU parameter value
+  //! @param[out] theDF derivative value
   //! @return true if computation succeeded
-  bool Derivative(double theU, double& theDF) const
+  bool Derivative(const double theU, double& theDF) const
   {
     double aF;
     return Values(theU, aF, theDF);

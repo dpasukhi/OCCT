@@ -33,7 +33,7 @@ namespace ExtremaPC
 //! Converts the 3D search mode to its 2D counterpart without relying on enum ordinals.
 //! @param[in] theMode 3D search mode
 //! @return corresponding 2D search mode; MinMax for an invalid enumeration value
-constexpr ExtremaPC2d::SearchMode ToSearchMode2d(ExtremaPC::SearchMode theMode)
+constexpr ExtremaPC2d::SearchMode ToSearchMode2d(const ExtremaPC::SearchMode theMode)
 {
   switch (theMode)
   {
@@ -87,7 +87,7 @@ Standard_EXPORT bool ProjectOffset(const occ::handle<Geom_OffsetCurve>& theCurve
 
 //! Converts a 2D result to the corresponding 3D result.
 //! Points and distances are evaluated on the original 3D evaluator at unchanged parameters.
-//! @tparam CurveEvaluator type providing Value(double)
+//! @tparam CurveEvaluator elementary geometry or curve adaptor type
 //! @param[in] theResult2d source 2D result
 //! @param[in] theQuery original 3D query point
 //! @param[in] thePlane projection plane
@@ -137,7 +137,7 @@ bool ConvertPlanarResult(const ExtremaPC2d::Result& theResult2d,
   for (size_t anIndex = 0; anIndex < theResult2d.NbExt(); ++anIndex)
   {
     const double aParameter  = theResult2d[anIndex].Parameter;
-    const gp_Pnt aCurvePoint = theEvaluator.Value(aParameter);
+    const gp_Pnt aCurvePoint = theEvaluator.EvalD0(aParameter);
     theResult.Extrema.Append(ExtremaPC::ExtremumResult{aParameter,
                                                        aCurvePoint,
                                                        theQuery.SquareDistance(aCurvePoint),
@@ -169,9 +169,9 @@ bool PerformPlanar(const Geometry2d&                         theGeometry,
                    const gp_Pnt&                             theQuery3d,
                    const gp_Pln&                             thePlane,
                    const CurveEvaluator&                     theEvaluator,
-                   double                                    theTolerance,
-                   ExtremaPC::SearchMode                     theMode,
-                   bool                                      theIncludeEndpoints,
+                   const double                              theTolerance,
+                   const ExtremaPC::SearchMode               theMode,
+                   const bool                                theIncludeEndpoints,
                    ExtremaPC::Result&                        theResult)
 {
   const ExtremaPC2d::SearchMode aMode = ExtremaPC::ToSearchMode2d(theMode);

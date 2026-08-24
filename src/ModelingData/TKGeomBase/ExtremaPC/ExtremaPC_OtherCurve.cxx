@@ -50,22 +50,15 @@ void ExtremaPC_OtherCurve::buildParams()
 
 //==================================================================================================
 
-gp_Pnt ExtremaPC_OtherCurve::Value(double theU) const
-{
-  return myCurve->Value(theU);
-}
-
-//==================================================================================================
-
-const ExtremaPC::Result& ExtremaPC_OtherCurve::Perform(const gp_Pnt&         theP,
-                                                       double                theTol,
-                                                       ExtremaPC::SearchMode theMode) const
+const ExtremaPC::Result& ExtremaPC_OtherCurve::Perform(const gp_Pnt&               theP,
+                                                       const double                theTol,
+                                                       const ExtremaPC::SearchMode theMode) const
 {
   if (myCurve == nullptr)
   {
-    myEvaluator.Result().Clear();
-    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
-    return myEvaluator.Result();
+    myEvaluator.ChangeResult().Clear();
+    myEvaluator.ChangeResult().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.ChangeResult();
   }
 
   return myEvaluator.Perform(*myCurve, theP, myDomain, theTol, theMode);
@@ -74,32 +67,28 @@ const ExtremaPC::Result& ExtremaPC_OtherCurve::Perform(const gp_Pnt&         the
 //==================================================================================================
 
 const ExtremaPC::Result& ExtremaPC_OtherCurve::PerformWithEndpoints(
-  const gp_Pnt&         theP,
-  double                theTol,
-  ExtremaPC::SearchMode theMode) const
+  const gp_Pnt&               theP,
+  const double                theTol,
+  const ExtremaPC::SearchMode theMode) const
 {
   if (myCurve == nullptr)
   {
-    myEvaluator.Result().Clear();
-    myEvaluator.Result().Status = ExtremaPC::Status::NotDone;
-    return myEvaluator.Result();
+    myEvaluator.ChangeResult().Clear();
+    myEvaluator.ChangeResult().Status = ExtremaPC::Status::NotDone;
+    return myEvaluator.ChangeResult();
   }
 
-  // Get interior extrema (populates myEvaluator's result)
-  (void)myEvaluator.Perform(*myCurve, theP, myDomain, theTol, theMode);
-
-  // Add endpoints to the result
-  ExtremaPC::Result& aResult = myEvaluator.Result();
-  if (aResult.Status == ExtremaPC::Status::OK || aResult.Status == ExtremaPC::Status::NoSolution)
+  const ExtremaPC::Result& anInteriorResult = Perform(theP, theTol, theMode);
+  if (!anInteriorResult.IsDone())
   {
-    const bool isClosed = ExtremaPC_GridEvaluator::IsClosedDomain(*myCurve, myDomain);
-    ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
-
-    // Update status if we found any extrema (including endpoints)
-    if (!aResult.Extrema.IsEmpty())
-    {
-      aResult.Status = ExtremaPC::Status::OK;
-    }
+    return anInteriorResult;
+  }
+  ExtremaPC::Result& aResult  = myEvaluator.ChangeResult();
+  const bool         isClosed = ExtremaPC_GridEvaluator::IsClosedDomain(*myCurve, myDomain);
+  ExtremaPC::AddEndpointExtrema(aResult, theP, myDomain, *myCurve, theMode, isClosed);
+  if (!aResult.Extrema.IsEmpty())
+  {
+    aResult.Status = ExtremaPC::Status::OK;
   }
 
   return aResult;

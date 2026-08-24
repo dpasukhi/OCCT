@@ -722,29 +722,6 @@ TEST_F(ExtremaPC_BezierCurveTest, PlanarDelegation_PreservesOffPlaneExtrema)
 
 //=================================================================================================
 
-TEST_F(ExtremaPC_BezierCurveTest, PlanarDelegation_ReprojectsMutationPerCall)
-{
-  NCollection_Array1<gp_Pnt> aPoles(1, 3);
-  aPoles(1)                            = gp_Pnt(0.0, 0.0, 1.0);
-  aPoles(2)                            = gp_Pnt(2.0, 3.0, 1.0);
-  aPoles(3)                            = gp_Pnt(4.0, 0.0, 1.0);
-  occ::handle<Geom_BezierCurve> aCurve = new Geom_BezierCurve(aPoles);
-  ExtremaPC_BezierCurve         anEvaluator(aCurve);
-  const ExtremaPC::Result&      aBefore = anEvaluator.Perform(gp_Pnt(2.0, 2.0, 4.0), THE_TOL);
-  ASSERT_TRUE(aBefore.IsDone());
-  const double aBeforeParameter = aBefore[aBefore.MinIndex()].Parameter;
-
-  aCurve->SetPole(2, gp_Pnt(3.5, -4.0, 1.0));
-  const ExtremaPC::Result& anAfter = anEvaluator.Perform(gp_Pnt(2.0, 2.0, 4.0), THE_TOL);
-  ASSERT_TRUE(anAfter.IsDone());
-  ASSERT_GE(anAfter.NbExt(), 1);
-  EXPECT_GT(std::abs(anAfter[anAfter.MinIndex()].Parameter - aBeforeParameter), 1.0e-3);
-  EXPECT_NEAR(anAfter[anAfter.MinIndex()].Point.Distance(
-                aCurve->Value(anAfter[anAfter.MinIndex()].Parameter)),
-              0.0,
-              1.0e-12);
-}
-
 TEST_F(ExtremaPC_BezierCurveTest, SmallNonConstantCurveIsNotPromotedToInfinite)
 {
   constexpr int              THE_NB_POLES = 12;

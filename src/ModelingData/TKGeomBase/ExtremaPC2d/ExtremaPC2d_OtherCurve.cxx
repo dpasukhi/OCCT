@@ -21,6 +21,7 @@ ExtremaPC2d_OtherCurve::ExtremaPC2d_OtherCurve(const Adaptor2d_Curve2d& theCurve
     : myCurve(&theCurve),
       myDomain{theCurve.FirstParameter(), theCurve.LastParameter()}
 {
+  buildParams();
 }
 
 //==================================================================================================
@@ -30,11 +31,12 @@ ExtremaPC2d_OtherCurve::ExtremaPC2d_OtherCurve(const Adaptor2d_Curve2d&     theC
     : myCurve(&theCurve),
       myDomain(theDomain)
 {
+  buildParams();
 }
 
 //==================================================================================================
 
-void ExtremaPC2d_OtherCurve::buildParams() const
+void ExtremaPC2d_OtherCurve::buildParams()
 {
   if (myCurve == nullptr || !myDomain.IsValid() || !myDomain.IsFinite())
   {
@@ -66,7 +68,6 @@ const ExtremaPC2d::Result& ExtremaPC2d_OtherCurve::Perform(const gp_Pnt2d&      
     return myEvaluator.Result();
   }
 
-  buildParams();
   return myEvaluator.Perform(*myCurve, theP, myDomain, theTol, theMode);
 }
 
@@ -84,7 +85,6 @@ const ExtremaPC2d::Result& ExtremaPC2d_OtherCurve::PerformWithEndpoints(
     return myEvaluator.Result();
   }
 
-  // Refresh the curve-aware partition and compute interior extrema.
   (void)Perform(theP, theTol, theMode);
 
   // Add endpoints to the result

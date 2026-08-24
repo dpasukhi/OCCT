@@ -30,6 +30,8 @@ ExtremaPC2d_BSplineCurve::ExtremaPC2d_BSplineCurve(const occ::handle<Geom2d_BSpl
   }
   myDomain.Min = myCurve->FirstParameter();
   myDomain.Max = myCurve->LastParameter();
+  myAdaptor.Load(myCurve);
+  buildParams();
 }
 
 //==================================================================================================
@@ -43,6 +45,8 @@ ExtremaPC2d_BSplineCurve::ExtremaPC2d_BSplineCurve(const occ::handle<Geom2d_BSpl
   {
     return;
   }
+  myAdaptor.Load(myCurve);
+  buildParams();
 }
 
 //==================================================================================================
@@ -60,20 +64,14 @@ math_Vector ExtremaPC2d_BSplineCurve::buildKnotAwareParams() const
   const double theUMin = myDomain.Min;
   const double theUMax = myDomain.Max;
 
-  const int                         aDegree = myCurve->Degree();
-  const NCollection_Array1<double>& aKnots  = myCurve->Knots();
-
-  // Use multiplier*(degree+1) samples per span for accurate extrema detection.
-  const size_t aSamplesPerSpan =
-    ExtremaPC2d::THE_BSPLINE_SPAN_MULTIPLIER * static_cast<size_t>(aDegree + 1);
+  const NCollection_Array1<double>& aKnots = myCurve->Knots();
 
   const bool   isPeriodic      = myCurve->IsPeriodic();
   const double aPeriod         = isPeriodic ? myCurve->Period() : 0.0;
   const double aFirstShiftReal = isPeriodic ? std::floor((theUMin - aKnots.Last()) / aPeriod) : 0.0;
   const double aLastShiftReal  = isPeriodic ? std::ceil((theUMax - aKnots.First()) / aPeriod) : 0.0;
   const double aNbShifts       = aLastShiftReal - aFirstShiftReal + 1.0;
-  const double aMaxParams =
-    2.0 + aNbShifts * static_cast<double>(aKnots.Size() - 1) * aSamplesPerSpan;
+  const double aMaxParams      = 2.0 + aNbShifts * static_cast<double>(aKnots.Size() - 1);
   Standard_RangeError_Raise_if(aFirstShiftReal < IntegerFirst() || aFirstShiftReal > IntegerLast()
                                  || aLastShiftReal < IntegerFirst()
                                  || aLastShiftReal > IntegerLast() || aNbShifts < 1.0
@@ -98,15 +96,6 @@ math_Vector ExtremaPC2d_BSplineCurve::buildKnotAwareParams() const
         continue;
       }
 
-      const double aStep = (aSpanHi - aSpanLo) / aSamplesPerSpan;
-      for (size_t aSampleIndex = 1; aSampleIndex < aSamplesPerSpan; ++aSampleIndex)
-      {
-        const double aU = aSpanLo + static_cast<double>(aSampleIndex) * aStep;
-        if (aU > theUMin && aU < theUMax)
-        {
-          aParams[aNbParams++] = aU;
-        }
-      }
       if (aKnotHi > theUMin && aKnotHi < theUMax)
       {
         aParams[aNbParams++] = aKnotHi;
@@ -131,17 +120,20 @@ math_Vector ExtremaPC2d_BSplineCurve::buildKnotAwareParams() const
 
 //==================================================================================================
 
-void ExtremaPC2d_BSplineCurve::buildParams() const
+void ExtremaPC2d_BSplineCurve::buildParams()
 {
   if (myCurve.IsNull() || !myDomain.IsValid() || !myDomain.IsFinite())
   {
     return;
   }
 
-  // Build knot-aware parameter partition.
-  math_Vector aParams = buildKnotAwareParams();
-
-  myEvaluator.SetParams(aParams);
+  math_Vector  aParams                = buildKnotAwareParams();
+  const size_t aDegree                = static_cast<size_t>(myCurve->Degree());
+  const size_t aStationarityRootBound = (myCurve->IsRational() ? 3 : 2) * aDegree;
+  const size_t aNbRootIntervals =
+    std::max(MathRoot::THE_MIN_NB_INTERVALS,
+             MathRoot::NbIntervalsForRootBound(aStationarityRootBound));
+  myEvaluator.SetParams(aParams, aNbRootIntervals);
 }
 
 //==================================================================================================
@@ -164,9 +156,7 @@ const ExtremaPC2d::Result& ExtremaPC2d_BSplineCurve::Perform(const gp_Pnt2d&    
     return myEvaluator.Result();
   }
 
-  buildParams();
-  Geom2dAdaptor_Curve anAdaptor(myCurve);
-  return myEvaluator.Perform(anAdaptor, theP, myDomain, theTol, theMode);
+  return myEvaluator.Perform(myAdaptor, theP, myDomain, theTol, theMode);
 }
 
 //==================================================================================================
@@ -183,8 +173,7 @@ const ExtremaPC2d::Result& ExtremaPC2d_BSplineCurve::PerformWithEndpoints(
   if (aResult.Status == ExtremaPC2d::Status::OK
       || aResult.Status == ExtremaPC2d::Status::NoSolution)
   {
-    Geom2dAdaptor_Curve anAdaptor(myCurve);
-    const bool          isClosed = ExtremaPC2d_GridEvaluator::IsClosedDomain(anAdaptor, myDomain);
+    const bool isClosed = ExtremaPC2d_GridEvaluator::IsClosedDomain(myAdaptor, myDomain);
     ExtremaPC2d::AddEndpointExtrema(aResult, theP, myDomain, *this, theMode, isClosed);
 
     // Update status if we found any extrema (including endpoints)
