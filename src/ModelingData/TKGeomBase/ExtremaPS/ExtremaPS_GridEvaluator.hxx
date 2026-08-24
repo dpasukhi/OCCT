@@ -16,7 +16,6 @@
 
 #include <ExtremaPS.hxx>
 #include <GeomGridEval.hxx>
-#include <math_Vector.hxx>
 #include <NCollection_Array1.hxx>
 #include <NCollection_Array2.hxx>
 #include <NCollection_LinearVector.hxx>
@@ -31,19 +30,7 @@ class Adaptor3d_Surface;
 class ExtremaPS_GridEvaluator
 {
 private:
-  //! Compact surface sample used by the query-time grid scan.
-  struct GridSample
-  {
-    double PointX;
-    double PointY;
-    double PointZ;
-    double DUX;
-    double DUY;
-    double DUZ;
-    double DVX;
-    double DVY;
-    double DVZ;
-  };
+  using GridSample = GeomGridEval::SurfD1Coords;
 
   //! Candidate cell for Newton refinement.
   struct Candidate
@@ -66,8 +53,16 @@ public:
   //! @param[in] theUParams ordered U parameters matching the grid rows
   //! @param[in] theVParams ordered V parameters matching the grid columns
   Standard_EXPORT void SetGrid(const NCollection_Array2<GeomGridEval::SurfD1>& theD1Grid,
-                               const math_Vector&                              theUParams,
-                               const math_Vector&                              theVParams);
+                               const NCollection_Array1<double>&                theUParams,
+                               const NCollection_Array1<double>&                theVParams);
+
+  //! Takes ownership of a compact D1 grid without copying its samples.
+  //! @param[in] theD1Grid sampled surface points and first derivatives
+  //! @param[in] theUParams ordered U parameters defining the grid rows
+  //! @param[in] theVParams ordered V parameters defining the grid columns
+  Standard_EXPORT void SetGrid(NCollection_Array2<GeomGridEval::SurfD1Coords>&& theD1Grid,
+                               NCollection_Array1<double>&&                      theUParams,
+                               NCollection_Array1<double>&&                      theVParams);
 
   //! Returns mutable result storage for evaluator-specific post-processing.
   //! @return reusable result storage owned by this evaluator
@@ -93,19 +88,15 @@ public:
   //! @param[in] theMax last parameter
   //! @param[in] theNbSamples number of parameters, at least two
   //! @return ordered parameter vector including both bounds
-  Standard_EXPORT static math_Vector BuildUniformParams(const double theMin,
-                                                        const double theMax,
-                                                        const size_t theNbSamples);
+  Standard_EXPORT static NCollection_Array1<double> BuildUniformParams(const double theMin,
+                                                                       const double theMax,
+                                                                       const size_t theNbSamples);
 
 private:
   static constexpr double        THE_GRADIENT_TOL_FACTOR      = 100.0;
-  static constexpr double        THE_COHERENCE_THRESHOLD_SQ   = 100.0;
-  static constexpr double        THE_TRAJECTORY_MIN_RATIO     = 0.5;
-  static constexpr double        THE_TRAJECTORY_MAX_RATIO     = 2.0;
-  static constexpr double        THE_TRAJECTORY_MIN_COS       = 0.7;
-  static constexpr double        THE_TRAJECTORY_QUADRATIC_COS = 0.9;
   static constexpr double        THE_AFFINE_COORD_TOL_FACTOR  = 16.0;
-  static constexpr size_t        THE_CACHE_SIZE               = 5;
+  //! Cell span balancing conservative-bound precision against block traversal cost.
+  static constexpr size_t        THE_BLOCK_NB_CELLS           = 4;
   static constexpr unsigned char THE_NEGATIVE_SIGN_MASK       = 1;
   static constexpr unsigned char THE_POSITIVE_SIGN_MASK       = 2;
   static constexpr unsigned char THE_BOTH_SIGNS_MASK =
@@ -124,6 +115,8 @@ private:
   {
     double        GradSq; //!< Squared gradient magnitude
     double        Dist;   //!< Squared distance to query point
+    double        Fu;     //!< U stationarity function
+    double        Fv;     //!< V stationarity function
     unsigned char SignU;  //!< Bit 0 for negative, bit 1 for positive U gradient
     unsigned char SignV;  //!< Bit 0 for negative, bit 1 for positive V gradient
   };
@@ -131,12 +124,12 @@ private:
   //! Coefficients for evaluating one grid sample along a query line.
   struct AffineSample
   {
-    double FuOrigin;      //!< U gradient at the query-line origin
-    double FvOrigin;      //!< V gradient at the query-line origin
-    double FuDirection;   //!< U gradient change per line parameter
-    double FvDirection;   //!< V gradient change per line parameter
-    double DistOrigin;    //!< Squared distance at the query-line origin
-    double DistDirection; //!< Linear squared-distance coefficient
+    double FuOrigin;      //!< U stationarity value at the line origin
+    double FvOrigin;      //!< V stationarity value at the line origin
+    double FuDirection;   //!< U stationarity reduction per line parameter
+    double FvDirection;   //!< V stationarity reduction per line parameter
+    double DistOrigin;    //!< Squared distance at the line origin
+    double DistDirection; //!< Linear coefficient of squared distance
   };
 
   //! Grid location and value of a sampled distance extremum.
@@ -147,11 +140,19 @@ private:
     double SquareDistance;
   };
 
-    struct CachedSolution
+  //! Conservative geometry bounds for a rectangular group of grid cells.
+  struct GridBlock
   {
-    gp_Pnt QueryPoint;
-    double U = 0.0;
-    double V = 0.0;
+    size_t FirstU;
+    size_t LastU;
+    size_t FirstV;
+    size_t LastV;
+    double FuMin[4];
+    double FuMax[4];
+    double FvMin[4];
+    double FvMax[4];
+    double PointMin[3];
+    double PointMax[3];
   };
 
   static GridPointData evaluateGridPoint(const GridSample& theSample,
@@ -159,30 +160,38 @@ private:
                                          const double      thePy,
                                          const double      thePz);
 
-  //! Evaluates precomputed coefficients for a point on the active query line.
+  //! Evaluates a sample using coefficients prepared during an earlier direct scan.
   GridPointData evaluateAffineGridPoint(const AffineSample& theSample,
                                         const double        theParameter) const;
 
-  //! Recognizes a coherent query line and prepares its fixed-origin parameter.
-  //! Coefficients are built only after three distinct collinear queries.
+  //! Detects whether the query belongs to the currently established line.
   bool prepareAffineEvaluation(const gp_Pnt& thePoint, double& theParameter) const;
 
-  //! Builds query-line coefficients from the immutable surface grid.
-  void buildAffineGrid(const gp_Pnt& theOrigin, const gp_Vec& theDirection) const;
+  //! Allocates query workspace, stores grid parameters, and resets geometry-dependent state.
+  void initializeGridState(const NCollection_Array1<double>& theUParams,
+                           const NCollection_Array1<double>& theVParams);
+
+  //! Allocates query workspace, takes ownership of grid parameters, and resets state.
+  void initializeGridState(NCollection_Array1<double>&& theUParams,
+                           NCollection_Array1<double>&& theVParams);
+
+  //! Builds conservative block bounds used to reject groups of grid cells.
+  void buildBlockHierarchy() const;
+
+  //! Builds grid coefficients for repeated queries along the established line.
+  void buildAffineGrid() const;
 
   //! Scans 2D grid to find candidate cells for extrema.
   //! Uses pre-computed grid point data to avoid redundant calculations.
-  //! @note theTol is intentionally unused - gradient tolerance uses Precision::Confusion() for
-  //! consistency.
-  void scanGrid(const gp_Pnt&                 theP,
-                [[maybe_unused]] const double theTol,
-                const ExtremaPS::SearchMode   theMode) const;
+  void scanGrid(const gp_Pnt& theP, const ExtremaPS::SearchMode theMode) const;
 
-  std::optional<std::pair<double, double>> cachedStart(const gp_Pnt&              thePoint,
-                                                       const ExtremaPS::Domain2D& theDomain) const;
+  //! Scans reusable block bounds and evaluates only blocks that cannot be rejected.
+  void scanGridHierarchical(const gp_Pnt&               theP,
+                            const double                theAffineParameter,
+                            const ExtremaPS::SearchMode theMode) const;
 
-  //! Adds cached solution as an additional candidate for Newton refinement.
-  void addCachedAsCandidate(const gp_Pnt& theP, const ExtremaPS::Domain2D& theDomain) const;
+  //! Scans the complete grid without constructing reusable hierarchy state.
+  void scanGridDense(const gp_Pnt& theP, const ExtremaPS::SearchMode theMode) const;
 
   //! Refines candidates using 2D Newton's method with grid fallback.
   void refineCandidates(const Adaptor3d_Surface&    theSurface,
@@ -198,12 +207,6 @@ private:
                               const double                theTol,
                               const ExtremaPS::SearchMode theMode) const;
 
-  //! Adds a solution to the ring buffer cache.
-  void addToCache(const gp_Pnt& theP, const double theU, const double theV) const;
-
-  //! Updates the solution cache with the best result.
-  void updateSolutionCache(const gp_Pnt& theP, const ExtremaPS::SearchMode theMode) const;
-
 private:
   NCollection_Array2<GridSample> myGrid; //!< D1 grid built for the bound surface
 
@@ -213,25 +216,22 @@ private:
                                               myFoundRoots;    //!< Found roots for dedup
   mutable NCollection_LinearVector<SortEntry> mySortedEntries; //!< Sorted candidate indices
   mutable NCollection_Array1<GridPointData>   myRowData[2];    //!< Two scan rows
-  mutable NCollection_Array1<AffineSample>    myAffineGrid;    //!< Query-line coefficients
+  mutable NCollection_Array1<AffineSample>    myAffineGrid;    //!< Coherent-query coefficients
+  mutable NCollection_LinearVector<GridBlock> myGridBlocks;    //!< Conservative cell blocks
   NCollection_Array1<double>                  myUParams;       //!< Ordered U parameters
   NCollection_Array1<double>                  myVParams;       //!< Ordered V parameters
 
-  mutable gp_Pnt myPreviousQuery;              //!< Query retained to establish a line
-  mutable gp_Pnt myAffineOrigin;               //!< Fixed origin of the active query line
-  mutable gp_Vec myAffineDirection;            //!< Direction of the active query line
-  mutable double myAffineDirectionSq  = 0.0;   //!< Squared query-line direction
-  mutable int    myAffineAxis         = 0;     //!< Direction component used to recover parameter
-  mutable bool   myHasPreviousQuery   = false; //!< Whether a query is available for line detection
-  mutable bool   myHasAffineDirection = false; //!< Whether a candidate query line is available
-  mutable bool   myHasAffineGrid      = false; //!< Whether coefficients match the candidate line
+  mutable gp_Pnt myPreviousQuery;   //!< Most recent query used for line detection
+  mutable gp_Pnt myAffineOrigin;    //!< Origin of the current coherent-query line
+  mutable gp_Vec myAffineDirection; //!< Direction from the first to the second line query
+  mutable double myAffineDirectionSq  = 0.0;   //!< Squared line-direction magnitude
+  mutable int    myAffineAxis         = 0;     //!< Stable coordinate used for line parameterization
+  mutable bool   myHasPreviousQuery   = false; //!< Whether line detection has a first query
+  mutable bool   myHasAffineDirection = false; //!< Whether the current line is defined
 
   mutable std::optional<GridDistanceExtremum> myGridMinimum;
   mutable std::optional<GridDistanceExtremum> myGridMaximum;
 
-  mutable CachedSolution myCachedSolutions[THE_CACHE_SIZE]; //!< Ring buffer of cached solutions
-  mutable size_t         myCacheCount = 0;                  //!< Number of valid entries
-  mutable size_t         myCacheIndex = 0;                  //!< Next write index (circular)
 };
 
 #endif // _ExtremaPS_GridEvaluator_HeaderFile

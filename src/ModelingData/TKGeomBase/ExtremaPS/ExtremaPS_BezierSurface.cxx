@@ -13,7 +13,7 @@
 
 #include <ExtremaPS_BezierSurface.hxx>
 
-#include <math_Vector.hxx>
+#include <utility>
 
 //==================================================================================================
 
@@ -64,15 +64,15 @@ void ExtremaPS_BezierSurface::buildGrid()
                                         ExtremaPS::THE_BEZIER_MIN_SAMPLES,
                                         ExtremaPS::THE_BEZIER_MAX_SAMPLES);
 
-  math_Vector aUParams =
+  NCollection_Array1<double> aUParams =
     ExtremaPS_GridEvaluator::BuildUniformParams(myDomain.UMin, myDomain.UMax, aNbUSamples);
-  math_Vector aVParams =
+  NCollection_Array1<double> aVParams =
     ExtremaPS_GridEvaluator::BuildUniformParams(myDomain.VMin, myDomain.VMax, aNbVSamples);
 
-  GeomGridEval_BezierSurface                     anEval(mySurface);
-  const NCollection_Array2<GeomGridEval::SurfD1> aGrid =
-    anEval.EvaluateGridD1(aUParams.Array1(), aVParams.Array1());
-  myEvaluator.SetGrid(aGrid, aUParams, aVParams);
+  const GeomGridEval_BezierSurface anEval(mySurface);
+  myEvaluator.SetGrid(anEval.EvaluateGridD1Coords(aUParams, aVParams),
+                      std::move(aUParams),
+                      std::move(aVParams));
 }
 
 //==================================================================================================

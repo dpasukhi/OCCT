@@ -165,6 +165,55 @@ TEST(GeomGridEval_BezierSurfaceTest, DerivativeD2)
   }
 }
 
+TEST(GeomGridEval_BezierSurfaceTest, DerivativeD2RationalLinear)
+{
+  NCollection_Array2<gp_Pnt> aPoles(1, 2, 1, 2);
+  NCollection_Array2<double> aWeights(1, 2, 1, 2);
+  aPoles.SetValue(1, 1, gp_Pnt(0.0, 0.0, 0.0));
+  aPoles.SetValue(2, 1, gp_Pnt(1.0, 0.0, 0.0));
+  aPoles.SetValue(1, 2, gp_Pnt(0.0, 1.0, 0.0));
+  aPoles.SetValue(2, 2, gp_Pnt(1.0, 1.0, 1.0));
+  aWeights.SetValue(1, 1, 1.0);
+  aWeights.SetValue(2, 1, 1.5);
+  aWeights.SetValue(1, 2, 2.0);
+  aWeights.SetValue(2, 2, 0.75);
+
+  const occ::handle<Geom_BezierSurface> aSurface = new Geom_BezierSurface(aPoles, aWeights);
+  GeomGridEval_BezierSurface            anEval(aSurface);
+  NCollection_Array1<double>            aParams = CreateUniformParams(0.0, 1.0, 7);
+  const NCollection_Array2<GeomGridEval::SurfD2> aGrid =
+    anEval.EvaluateGridD2(aParams, aParams);
+  const NCollection_Array2<GeomGridEval::SurfD2Coords> aCompactGrid =
+    anEval.EvaluateGridD2Coords(aParams, aParams);
+
+  for (size_t aUIndex = 0; aUIndex < aParams.Size(); ++aUIndex)
+  {
+    for (size_t aVIndex = 0; aVIndex < aParams.Size(); ++aVIndex)
+    {
+      const Geom_Surface::ResD2 anExpected = aSurface->EvalD2(aParams.At(aUIndex),
+                                                              aParams.At(aVIndex));
+      const size_t anIndex = aUIndex * aParams.Size() + aVIndex;
+      const GeomGridEval::SurfD2&       aResult        = aGrid.At(anIndex);
+      const GeomGridEval::SurfD2Coords& aCompactResult = aCompactGrid.At(anIndex);
+      EXPECT_NEAR(aResult.Point.Distance(anExpected.Point), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D1U - anExpected.D1U).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D1V - anExpected.D1V).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D2U - anExpected.D2U).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D2V - anExpected.D2V).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D2UV - anExpected.D2UV).Magnitude(), 0.0, THE_TOLERANCE);
+      for (int aCoord = 0; aCoord < 3; ++aCoord)
+      {
+        EXPECT_NEAR(aCompactResult.Point[aCoord], anExpected.Point.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D1U[aCoord], anExpected.D1U.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D1V[aCoord], anExpected.D1V.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D2U[aCoord], anExpected.D2U.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D2V[aCoord], anExpected.D2V.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D2UV[aCoord], anExpected.D2UV.Coord(aCoord + 1), THE_TOLERANCE);
+      }
+    }
+  }
+}
+
 TEST(GeomGridEval_BezierSurfaceTest, DerivativeD3)
 {
   NCollection_Array2<gp_Pnt> aPoles(1, 4, 1, 4);

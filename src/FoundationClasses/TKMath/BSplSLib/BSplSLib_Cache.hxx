@@ -65,6 +65,20 @@ public:
                                   const NCollection_Array2<gp_Pnt>& thePoles,
                                   const NCollection_Array2<double>* theWeights = nullptr);
 
+  //! Recomputes cache data for already located flat-knot spans.
+  //! @param[in] theSpanU flat-knot span index in U
+  //! @param[in] theSpanV flat-knot span index in V
+  //! @param[in] theFlatKnotsU flat knots in U
+  //! @param[in] theFlatKnotsV flat knots in V
+  //! @param[in] thePoles surface poles
+  //! @param[in] theWeights optional surface weights
+  Standard_EXPORT void BuildCacheForSpan(const int                         theSpanU,
+                                         const int                         theSpanV,
+                                         const NCollection_Array1<double>& theFlatKnotsU,
+                                         const NCollection_Array1<double>& theFlatKnotsV,
+                                         const NCollection_Array2<gp_Pnt>& thePoles,
+                                         const NCollection_Array2<double>* theWeights = nullptr);
+
   //! Calculates the point on the surface for specified parameters
   //! \param[in]  theU      first parameter for calculation of the value
   //! \param[in]  theV      second parameter for calculation of the value
@@ -108,6 +122,22 @@ public:
   //! @param[out] thePoint  the result of calculation (the point on the surface)
   Standard_EXPORT void D0Local(double theLocalU, double theLocalV, gp_Pnt& thePoint) const;
 
+  //! Evaluates points on a Cartesian product of pre-computed local parameters.
+  //! Consecutive V samples are adjacent; the row stride permits direct evaluation into a
+  //! sub-grid of a larger array.
+  //! @param[in] theLocalU local U parameters in [-1, 1]
+  //! @param[in] theNbU number of U parameters
+  //! @param[in] theLocalV local V parameters in [-1, 1]
+  //! @param[in] theNbV number of V parameters
+  //! @param[out] theResults first point of the destination block
+  //! @param[in] theRowStride distance in points between consecutive U rows
+  Standard_EXPORT void D0GridLocal(const double* theLocalU,
+                                   const size_t  theNbU,
+                                   const double* theLocalV,
+                                   const size_t  theNbV,
+                                   gp_Pnt*       theResults,
+                                   const size_t  theRowStride) const;
+
   //! Calculates the point and first derivatives using pre-computed local parameters in [-1, 1]
   //! range. This bypasses periodic normalization and local parameter calculation.
   //! @param[in]  theLocalU   pre-computed local U parameter: (U - SpanMid) / SpanHalfLen
@@ -120,6 +150,38 @@ public:
                                gp_Pnt& thePoint,
                                gp_Vec& theTangentU,
                                gp_Vec& theTangentV) const;
+
+  //! Evaluates a Cartesian product of local parameters using shared tensor contractions.
+  //! Results are written as nine doubles per sample: P, D1U, D1V. Consecutive V samples are
+  //! adjacent; the row stride permits direct evaluation into a sub-grid of a larger array.
+  //! @param[in] theLocalU local U parameters in [-1, 1]
+  //! @param[in] theNbU number of U parameters
+  //! @param[in] theLocalV local V parameters in [-1, 1]
+  //! @param[in] theNbV number of V parameters
+  //! @param[out] theResults first sample of the destination block
+  //! @param[in] theRowStride distance in doubles between consecutive U rows
+  Standard_EXPORT void D1GridLocal(const double* theLocalU,
+                                   const size_t  theNbU,
+                                   const double* theLocalV,
+                                   const size_t  theNbV,
+                                   double*       theResults,
+                                   const size_t  theRowStride) const;
+
+  //! Evaluates points and derivatives through second order on a Cartesian product of local
+  //! parameters using shared tensor contractions. Results contain 18 doubles per sample in the
+  //! order P, D1U, D1V, D2U, D2V, D2UV.
+  //! @param[in] theLocalU local U parameters in [-1, 1]
+  //! @param[in] theNbU number of U parameters
+  //! @param[in] theLocalV local V parameters in [-1, 1]
+  //! @param[in] theNbV number of V parameters
+  //! @param[out] theResults first sample of the destination block
+  //! @param[in] theRowStride distance in doubles between consecutive U rows
+  Standard_EXPORT void D2GridLocal(const double* theLocalU,
+                                   const size_t  theNbU,
+                                   const double* theLocalV,
+                                   const size_t  theNbV,
+                                   double*       theResults,
+                                   const size_t  theRowStride) const;
 
   //! Calculates the point and derivatives till second order using pre-computed local parameters.
   //! This bypasses periodic normalization and local parameter calculation.
@@ -143,6 +205,11 @@ public:
   DEFINE_STANDARD_RTTIEXT(BSplSLib_Cache, Standard_Transient)
 
 private:
+  void buildCache(const NCollection_Array1<double>& theFlatKnotsU,
+                  const NCollection_Array1<double>& theFlatKnotsV,
+                  const NCollection_Array2<gp_Pnt>& thePoles,
+                  const NCollection_Array2<double>* theWeights);
+
   // copying is prohibited
   BSplSLib_Cache(const BSplSLib_Cache&) = delete;
   void operator=(const BSplSLib_Cache&) = delete;

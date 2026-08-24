@@ -223,6 +223,62 @@ TEST(GeomGridEval_BSplineSurfaceTest, MultiSpanSurface)
   }
 }
 
+TEST(GeomGridEval_BSplineSurfaceTest, UnorderedParametersAcrossSpans)
+{
+  const occ::handle<Geom_BSplineSurface> aSurface = CreateMultiSpanBSplineSurface();
+  GeomGridEval_BSplineSurface            anEvaluator(aSurface);
+  NCollection_Array1<double>             aUParams(4);
+  NCollection_Array1<double>             aVParams(4);
+  aUParams.ChangeAt(0) = 0.8;
+  aUParams.ChangeAt(1) = 0.2;
+  aUParams.ChangeAt(2) = 0.65;
+  aUParams.ChangeAt(3) = 0.35;
+  aVParams.ChangeAt(0) = 0.3;
+  aVParams.ChangeAt(1) = 0.7;
+  aVParams.ChangeAt(2) = 0.15;
+  aVParams.ChangeAt(3) = 0.85;
+
+  const NCollection_Array2<gp_Pnt> aPoints = anEvaluator.EvaluateGrid(aUParams, aVParams);
+  const NCollection_Array2<GeomGridEval::SurfD1Coords> aD1 =
+    anEvaluator.EvaluateGridD1Coords(aUParams, aVParams);
+  const NCollection_Array2<GeomGridEval::SurfD2Coords> aD2 =
+    anEvaluator.EvaluateGridD2Coords(aUParams, aVParams);
+  const NCollection_Array2<GeomGridEval::SurfD3> aD3 =
+    anEvaluator.EvaluateGridD3(aUParams, aVParams);
+  const NCollection_Array2<gp_Vec> aDN = anEvaluator.EvaluateGridDN(aUParams, aVParams, 1, 1);
+  for (size_t i = 0; i < aUParams.Size(); ++i)
+  {
+    for (size_t j = 0; j < aVParams.Size(); ++j)
+    {
+      const Geom_Surface::ResD2 anExpected = aSurface->EvalD2(aUParams.At(i), aVParams.At(j));
+      const size_t              anIndex    = i * aVParams.Size() + j;
+      EXPECT_NEAR(aPoints.At(anIndex).Distance(anExpected.Point), 0.0, THE_TOLERANCE);
+      const GeomGridEval::SurfD1Coords& aD1Value = aD1.At(anIndex);
+      const GeomGridEval::SurfD2Coords& aD2Value = aD2.At(anIndex);
+      const Geom_Surface::ResD3 anExpectedD3 = aSurface->EvalD3(aUParams.At(i), aVParams.At(j));
+      for (int aCoord = 0; aCoord < 3; ++aCoord)
+      {
+        EXPECT_NEAR(aD1Value.Point[aCoord], anExpected.Point.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD1Value.D1U[aCoord], anExpected.D1U.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD1Value.D1V[aCoord], anExpected.D1V.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD2Value.Point[aCoord], anExpected.Point.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD2Value.D1U[aCoord], anExpected.D1U.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD2Value.D1V[aCoord], anExpected.D1V.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD2Value.D2U[aCoord], anExpected.D2U.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD2Value.D2V[aCoord], anExpected.D2V.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD2Value.D2UV[aCoord], anExpected.D2UV.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aD3.At(anIndex).D3U.Coord(aCoord + 1),
+                    anExpectedD3.D3U.Coord(aCoord + 1),
+                    THE_TOLERANCE);
+      }
+      EXPECT_NEAR((aDN.At(anIndex) - aSurface->EvalDN(aUParams.At(i), aVParams.At(j), 1, 1))
+                    .Magnitude(),
+                  0.0,
+                  THE_TOLERANCE);
+    }
+  }
+}
+
 TEST(GeomGridEval_BSplineSurfaceTest, HigherDegree)
 {
   NCollection_Array2<gp_Pnt> aPoles(1, 4, 1, 4);
@@ -432,6 +488,44 @@ TEST(GeomGridEval_BSplineSurfaceTest, DerivativeD2)
       EXPECT_NEAR((aGrid.Value(iU, iV).D2U - aD2U).Magnitude(), 0.0, THE_TOLERANCE);
       EXPECT_NEAR((aGrid.Value(iU, iV).D2V - aD2V).Magnitude(), 0.0, THE_TOLERANCE);
       EXPECT_NEAR((aGrid.Value(iU, iV).D2UV - aD2UV).Magnitude(), 0.0, THE_TOLERANCE);
+    }
+  }
+}
+
+TEST(GeomGridEval_BSplineSurfaceTest, DerivativeD2Rational)
+{
+  occ::handle<Geom_BSplineSurface> aSurf = CreateRationalBSplineSurface();
+  GeomGridEval_BSplineSurface      anEval(aSurf);
+  NCollection_Array1<double>       aParams = CreateUniformParams(0.0, 1.0, 7);
+
+  const NCollection_Array2<GeomGridEval::SurfD2> aGrid =
+    anEval.EvaluateGridD2(aParams, aParams);
+  const NCollection_Array2<GeomGridEval::SurfD2Coords> aCompactGrid =
+    anEval.EvaluateGridD2Coords(aParams, aParams);
+  for (size_t aUIndex = 0; aUIndex < aParams.Size(); ++aUIndex)
+  {
+    for (size_t aVIndex = 0; aVIndex < aParams.Size(); ++aVIndex)
+    {
+      const Geom_Surface::ResD2 anExpected = aSurf->EvalD2(aParams.At(aUIndex),
+                                                           aParams.At(aVIndex));
+      const size_t anIndex = aUIndex * aParams.Size() + aVIndex;
+      const GeomGridEval::SurfD2&       aResult        = aGrid.At(anIndex);
+      const GeomGridEval::SurfD2Coords& aCompactResult = aCompactGrid.At(anIndex);
+      EXPECT_NEAR(aResult.Point.Distance(anExpected.Point), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D1U - anExpected.D1U).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D1V - anExpected.D1V).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D2U - anExpected.D2U).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D2V - anExpected.D2V).Magnitude(), 0.0, THE_TOLERANCE);
+      EXPECT_NEAR((aResult.D2UV - anExpected.D2UV).Magnitude(), 0.0, THE_TOLERANCE);
+      for (int aCoord = 0; aCoord < 3; ++aCoord)
+      {
+        EXPECT_NEAR(aCompactResult.Point[aCoord], anExpected.Point.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D1U[aCoord], anExpected.D1U.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D1V[aCoord], anExpected.D1V.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D2U[aCoord], anExpected.D2U.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D2V[aCoord], anExpected.D2V.Coord(aCoord + 1), THE_TOLERANCE);
+        EXPECT_NEAR(aCompactResult.D2UV[aCoord], anExpected.D2UV.Coord(aCoord + 1), THE_TOLERANCE);
+      }
     }
   }
 }

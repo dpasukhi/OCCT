@@ -270,6 +270,36 @@ void BSplSLib_Cache::BuildCache(const double&                     theParameterU,
   myParamsU.LocateParameter(aNewParamU, theFlatKnotsU);
   myParamsV.LocateParameter(aNewParamV, theFlatKnotsV);
 
+  buildCache(theFlatKnotsU, theFlatKnotsV, thePoles, theWeights);
+}
+
+//=================================================================================================
+
+void BSplSLib_Cache::BuildCacheForSpan(const int                         theSpanU,
+                                       const int                         theSpanV,
+                                       const NCollection_Array1<double>& theFlatKnotsU,
+                                       const NCollection_Array1<double>& theFlatKnotsV,
+                                       const NCollection_Array2<gp_Pnt>& thePoles,
+                                       const NCollection_Array2<double>* theWeights)
+{
+  myParamsU.SpanIndex  = theSpanU;
+  myParamsU.SpanStart  = theFlatKnotsU.Value(theSpanU);
+  myParamsU.SpanLength = theFlatKnotsU.Value(theSpanU + 1) - myParamsU.SpanStart;
+  myParamsV.SpanIndex  = theSpanV;
+  myParamsV.SpanStart  = theFlatKnotsV.Value(theSpanV);
+  myParamsV.SpanLength = theFlatKnotsV.Value(theSpanV + 1) - myParamsV.SpanStart;
+
+  buildCache(theFlatKnotsU, theFlatKnotsV, thePoles, theWeights);
+}
+
+//=================================================================================================
+
+void BSplSLib_Cache::buildCache(const NCollection_Array1<double>& theFlatKnotsU,
+                                const NCollection_Array1<double>& theFlatKnotsV,
+                                const NCollection_Array2<gp_Pnt>& thePoles,
+                                const NCollection_Array2<double>* theWeights)
+{
+
   // BSplSLib uses different convention for span parameters than BSplCLib
   // (Start is in the middle of the span and length is half-span),
   // thus we need to amend them here
@@ -346,6 +376,71 @@ void BSplSLib_Cache::D0Local(double theLocalU, double theLocalV, gp_Pnt& thePoin
 
 //=================================================================================================
 
+void BSplSLib_Cache::D0GridLocal(const double* theLocalU,
+                                 const size_t  theNbU,
+                                 const double* theLocalV,
+                                 const size_t  theNbV,
+                                 gp_Pnt*       theResults,
+                                 const size_t  theRowStride) const
+{
+  if (theNbU == 0 || theNbV == 0)
+  {
+    return;
+  }
+
+  const double* const aPolesArray = ConvertArray(myPolesWeights);
+  const int           aDimension  = myIsRational ? 4 : 3;
+  const int           aCacheCols  = myPolesWeights->RowLength();
+  const bool          isMaxU      = myParamsU.Degree > myParamsV.Degree;
+  const int           aMaxDegree  = isMaxU ? myParamsU.Degree : myParamsV.Degree;
+  const int           aMinDegree  = isMaxU ? myParamsV.Degree : myParamsU.Degree;
+  const double*       aMaxParams  = isMaxU ? theLocalU : theLocalV;
+  const size_t        aNbMax      = isMaxU ? theNbU : theNbV;
+
+  NCollection_LocalArray<double> anIntermediate(aNbMax * static_cast<size_t>(aCacheCols));
+  for (size_t aMaxIndex = 0; aMaxIndex < aNbMax; ++aMaxIndex)
+  {
+    PLib::NoDerivativeEvalPolynomial(aMaxParams[aMaxIndex],
+                                     aMaxDegree,
+                                     aCacheCols,
+                                     aMaxDegree * aCacheCols,
+                                     aPolesArray[0],
+                                     anIntermediate[aMaxIndex * static_cast<size_t>(aCacheCols)]);
+  }
+
+  for (size_t aUIndex = 0; aUIndex < theNbU; ++aUIndex)
+  {
+    for (size_t aVIndex = 0; aVIndex < theNbV; ++aVIndex)
+    {
+      const size_t  aMaxIndex = isMaxU ? aUIndex : aVIndex;
+      const double  aMinParam = isMaxU ? theLocalV[aVIndex] : theLocalU[aUIndex];
+      const double* aCoeffs =
+        &anIntermediate[aMaxIndex * static_cast<size_t>(aCacheCols)];
+      double aPoint[4];
+      PLib::NoDerivativeEvalPolynomial(aMinParam,
+                                       aMinDegree,
+                                       aDimension,
+                                       aMinDegree * aDimension,
+                                       aCoeffs[0],
+                                       aPoint[0]);
+      gp_Pnt& aResult = theResults[aUIndex * theRowStride + aVIndex];
+      if (myIsRational)
+      {
+        const double anInvWeight = 1.0 / aPoint[3];
+        aResult.SetCoord(aPoint[0] * anInvWeight,
+                         aPoint[1] * anInvWeight,
+                         aPoint[2] * anInvWeight);
+      }
+      else
+      {
+        aResult.SetCoord(aPoint[0], aPoint[1], aPoint[2]);
+      }
+    }
+  }
+}
+
+//=================================================================================================
+
 void BSplSLib_Cache::D1Local(double  theLocalU,
                              double  theLocalV,
                              gp_Pnt& thePoint,
@@ -397,6 +492,204 @@ void BSplSLib_Cache::D1Local(double  theLocalU,
   const double aSpanLengthV = 0.5 * myParamsV.SpanLength;
   theTangentU.Divide(aSpanLengthU);
   theTangentV.Divide(aSpanLengthV);
+}
+
+//=================================================================================================
+
+void BSplSLib_Cache::D1GridLocal(const double* theLocalU,
+                                 const size_t  theNbU,
+                                 const double* theLocalV,
+                                 const size_t  theNbV,
+                                 double*       theResults,
+                                 const size_t  theRowStride) const
+{
+  if (theNbU == 0 || theNbV == 0)
+  {
+    return;
+  }
+
+  const double* const aPolesArray = ConvertArray(myPolesWeights);
+  const int           aDimension  = myIsRational ? 4 : 3;
+  const int           aCacheCols  = myPolesWeights->RowLength();
+  const bool          isMaxU      = myParamsU.Degree > myParamsV.Degree;
+  const int           aMaxDegree  = isMaxU ? myParamsU.Degree : myParamsV.Degree;
+  const int           aMinDegree  = isMaxU ? myParamsV.Degree : myParamsU.Degree;
+  const double*       aMaxParams  = isMaxU ? theLocalU : theLocalV;
+  const size_t        aNbMax      = isMaxU ? theNbU : theNbV;
+
+  NCollection_LocalArray<double> anIntermediate(aNbMax * static_cast<size_t>(2 * aCacheCols));
+  for (size_t aMaxIndex = 0; aMaxIndex < aNbMax; ++aMaxIndex)
+  {
+    PLib::EvalPolynomial(aMaxParams[aMaxIndex],
+                         1,
+                         aMaxDegree,
+                         aCacheCols,
+                         aPolesArray[0],
+                         anIntermediate[aMaxIndex * static_cast<size_t>(2 * aCacheCols)]);
+  }
+
+  const double anInvSpanU = 2.0 / myParamsU.SpanLength;
+  const double anInvSpanV = 2.0 / myParamsV.SpanLength;
+  for (size_t aUIndex = 0; aUIndex < theNbU; ++aUIndex)
+  {
+    for (size_t aVIndex = 0; aVIndex < theNbV; ++aVIndex)
+    {
+      const size_t  aMaxIndex = isMaxU ? aUIndex : aVIndex;
+      const double  aMinParam = isMaxU ? theLocalV[aVIndex] : theLocalU[aUIndex];
+      const double* aCoeffs =
+        &anIntermediate[aMaxIndex * static_cast<size_t>(2 * aCacheCols)];
+      double aMinResult[8];
+      double aMaxResult[4];
+      PLib::EvalPolynomial(
+        aMinParam, 1, aMinDegree, aDimension, aCoeffs[0], aMinResult[0]);
+      PLib::NoDerivativeEvalPolynomial(aMinParam,
+                                       aMinDegree,
+                                       aDimension,
+                                       aMinDegree * aDimension,
+                                       aCoeffs[aCacheCols],
+                                       aMaxResult[0]);
+
+      const double* aDerivU = isMaxU ? aMaxResult : &aMinResult[aDimension];
+      const double* aDerivV = isMaxU ? &aMinResult[aDimension] : aMaxResult;
+      double* const aResult = &theResults[aUIndex * theRowStride + aVIndex * 9];
+      if (myIsRational)
+      {
+        const double anInvWeight = 1.0 / aMinResult[3];
+        for (int aCoord = 0; aCoord < 3; ++aCoord)
+        {
+          aResult[aCoord] = aMinResult[aCoord] * anInvWeight;
+          aResult[3 + aCoord] =
+            (aDerivU[aCoord] - aResult[aCoord] * aDerivU[3]) * anInvWeight * anInvSpanU;
+          aResult[6 + aCoord] =
+            (aDerivV[aCoord] - aResult[aCoord] * aDerivV[3]) * anInvWeight * anInvSpanV;
+        }
+      }
+      else
+      {
+        for (int aCoord = 0; aCoord < 3; ++aCoord)
+        {
+          aResult[aCoord]     = aMinResult[aCoord];
+          aResult[3 + aCoord] = aDerivU[aCoord] * anInvSpanU;
+          aResult[6 + aCoord] = aDerivV[aCoord] * anInvSpanV;
+        }
+      }
+    }
+  }
+}
+
+//=================================================================================================
+
+void BSplSLib_Cache::D2GridLocal(const double* theLocalU,
+                                 const size_t  theNbU,
+                                 const double* theLocalV,
+                                 const size_t  theNbV,
+                                 double*       theResults,
+                                 const size_t  theRowStride) const
+{
+  if (theNbU == 0 || theNbV == 0)
+  {
+    return;
+  }
+
+  const double* const aPolesArray = ConvertArray(myPolesWeights);
+  const int           aDimension  = myIsRational ? 4 : 3;
+  const int           aCacheCols  = myPolesWeights->RowLength();
+  const bool          isMaxU      = myParamsU.Degree > myParamsV.Degree;
+  const int           aMaxDegree  = isMaxU ? myParamsU.Degree : myParamsV.Degree;
+  const int           aMinDegree  = isMaxU ? myParamsV.Degree : myParamsU.Degree;
+  const double*       aMaxParams  = isMaxU ? theLocalU : theLocalV;
+  const size_t        aNbMax      = isMaxU ? theNbU : theNbV;
+
+  NCollection_LocalArray<double> anIntermediate(aNbMax * static_cast<size_t>(3 * aCacheCols));
+  for (size_t aMaxIndex = 0; aMaxIndex < aNbMax; ++aMaxIndex)
+  {
+    PLib::EvalPolynomial(aMaxParams[aMaxIndex],
+                         2,
+                         aMaxDegree,
+                         aCacheCols,
+                         aPolesArray[0],
+                         anIntermediate[aMaxIndex * static_cast<size_t>(3 * aCacheCols)]);
+  }
+
+  const double anInvSpanU   = 2.0 / myParamsU.SpanLength;
+  const double anInvSpanV   = 2.0 / myParamsV.SpanLength;
+  const double anInvSpanUSq = anInvSpanU * anInvSpanU;
+  const double anInvSpanVSq = anInvSpanV * anInvSpanV;
+  const double anInvSpanUV  = anInvSpanU * anInvSpanV;
+  for (size_t aUIndex = 0; aUIndex < theNbU; ++aUIndex)
+  {
+    for (size_t aVIndex = 0; aVIndex < theNbV; ++aVIndex)
+    {
+      const size_t  aMaxIndex = isMaxU ? aUIndex : aVIndex;
+      const double  aMinParam = isMaxU ? theLocalV[aVIndex] : theLocalU[aUIndex];
+      const double* aCoeffs =
+        &anIntermediate[aMaxIndex * static_cast<size_t>(3 * aCacheCols)];
+      double aMin0[12];
+      double aMin1[8];
+      double aMax2[4];
+      PLib::EvalPolynomial(aMinParam, 2, aMinDegree, aDimension, aCoeffs[0], aMin0[0]);
+      PLib::EvalPolynomial(
+        aMinParam, 1, aMinDegree, aDimension, aCoeffs[aCacheCols], aMin1[0]);
+      PLib::NoDerivativeEvalPolynomial(aMinParam,
+                                       aMinDegree,
+                                       aDimension,
+                                       aMinDegree * aDimension,
+                                       aCoeffs[2 * aCacheCols],
+                                       aMax2[0]);
+
+      const double* aD1U  = isMaxU ? aMin1 : &aMin0[aDimension];
+      const double* aD1V  = isMaxU ? &aMin0[aDimension] : aMin1;
+      const double* aD2U  = isMaxU ? aMax2 : &aMin0[2 * aDimension];
+      const double* aD2V  = isMaxU ? &aMin0[2 * aDimension] : aMax2;
+      const double* aD2UV = &aMin1[aDimension];
+      double* const aResult = &theResults[aUIndex * theRowStride + aVIndex * 18];
+      if (myIsRational)
+      {
+        const double anInvWeight = 1.0 / aMin0[3];
+        for (int aCoord = 0; aCoord < 3; ++aCoord)
+        {
+          aResult[aCoord] = aMin0[aCoord] * anInvWeight;
+          aResult[3 + aCoord] =
+            (aD1U[aCoord] - aResult[aCoord] * aD1U[3]) * anInvWeight;
+          aResult[6 + aCoord] =
+            (aD1V[aCoord] - aResult[aCoord] * aD1V[3]) * anInvWeight;
+          aResult[9 + aCoord] =
+            (aD2U[aCoord] - 2.0 * aResult[3 + aCoord] * aD1U[3]
+             - aResult[aCoord] * aD2U[3])
+            * anInvWeight;
+          aResult[12 + aCoord] =
+            (aD2V[aCoord] - 2.0 * aResult[6 + aCoord] * aD1V[3]
+             - aResult[aCoord] * aD2V[3])
+            * anInvWeight;
+          aResult[15 + aCoord] =
+            (aD2UV[aCoord] - aResult[3 + aCoord] * aD1V[3]
+             - aResult[6 + aCoord] * aD1U[3] - aResult[aCoord] * aD2UV[3])
+            * anInvWeight;
+        }
+      }
+      else
+      {
+        for (int aCoord = 0; aCoord < 3; ++aCoord)
+        {
+          aResult[aCoord]      = aMin0[aCoord];
+          aResult[3 + aCoord]  = aD1U[aCoord];
+          aResult[6 + aCoord]  = aD1V[aCoord];
+          aResult[9 + aCoord]  = aD2U[aCoord];
+          aResult[12 + aCoord] = aD2V[aCoord];
+          aResult[15 + aCoord] = aD2UV[aCoord];
+        }
+      }
+
+      for (int aCoord = 0; aCoord < 3; ++aCoord)
+      {
+        aResult[3 + aCoord] *= anInvSpanU;
+        aResult[6 + aCoord] *= anInvSpanV;
+        aResult[9 + aCoord] *= anInvSpanUSq;
+        aResult[12 + aCoord] *= anInvSpanVSq;
+        aResult[15 + aCoord] *= anInvSpanUV;
+      }
+    }
+  }
 }
 
 //=================================================================================================

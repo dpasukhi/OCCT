@@ -13,7 +13,6 @@
 
 #include <ExtremaPS_OtherSurface.hxx>
 
-#include <math_Vector.hxx>
 
 //==================================================================================================
 
@@ -55,18 +54,18 @@ void ExtremaPS_OtherSurface::buildGrid()
     return;
   }
 
-  math_Vector aUParams =
+  NCollection_Array1<double> aUParams =
     ExtremaPS_GridEvaluator::BuildUniformParams(myDomain.UMin,
                                                 myDomain.UMax,
                                                 ExtremaPS::THE_DEFAULT_NB_SAMPLES);
-  math_Vector aVParams =
+  NCollection_Array1<double> aVParams =
     ExtremaPS_GridEvaluator::BuildUniformParams(myDomain.VMin,
                                                 myDomain.VMax,
                                                 ExtremaPS::THE_DEFAULT_NB_SAMPLES);
 
   GeomGridEval_OtherSurface                      anEval(&myAdaptor);
   const NCollection_Array2<GeomGridEval::SurfD1> aGrid =
-    anEval.EvaluateGridD1(aUParams.Array1(), aVParams.Array1());
+    anEval.EvaluateGridD1(aUParams, aVParams);
   myEvaluator.SetGrid(aGrid, aUParams, aVParams);
 }
 

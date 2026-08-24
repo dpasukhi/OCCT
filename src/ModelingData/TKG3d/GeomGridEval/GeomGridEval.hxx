@@ -34,6 +34,31 @@ using SurfD1  = Geom_Surface::ResD1;
 using SurfD2  = Geom_Surface::ResD2;
 using SurfD3  = Geom_Surface::ResD3;
 
+//! Cartesian coordinates of a surface point and its first derivatives.
+//! Unlike SurfD1, this type is trivially default constructible and is intended for dense grids
+//! whose entries are completely overwritten by the evaluator.
+struct SurfD1Coords
+{
+  double Point[3]; //!< Surface point coordinates
+  double D1U[3];   //!< First derivative along U
+  double D1V[3];   //!< First derivative along V
+};
+
+static_assert(sizeof(SurfD1Coords) == 9 * sizeof(double));
+
+//! Cartesian coordinates of a surface point and derivatives through second order.
+struct SurfD2Coords
+{
+  double Point[3]; //!< Surface point coordinates
+  double D1U[3];   //!< First derivative along U
+  double D1V[3];   //!< First derivative along V
+  double D2U[3];   //!< Second derivative along U
+  double D2V[3];   //!< Second derivative along V
+  double D2UV[3];  //!< Mixed second derivative
+};
+
+static_assert(sizeof(SurfD2Coords) == 18 * sizeof(double));
+
 //=================================================================================================
 // Template helpers for parametric surface evaluation.
 // These provide the iteration pattern, while the actual computation is delegated to a functor.

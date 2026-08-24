@@ -31,7 +31,8 @@
 //! For trivially copyable types the fast memcpy / Standard::Reallocate path
 //! is used.  For non-trivially-copyable types (Handle, TopLoc_Location, etc.)
 //! the class uses placement new, move semantics, and explicit destructors
-//! while keeping Standard::Allocate / Standard::Free for heap management.
+//! while keeping OCCT allocation and deallocation for heap storage. Heap storage
+//! is uninitialized before element construction, consistently with the inline buffer.
 //!
 //! Non-trivially-copyable types must be default-constructible and
 //! nothrow-move-constructible.
@@ -134,8 +135,11 @@ public:
       return;
     }
 
-    theItem* aNewPtr =
-      aUseInline ? inlinePtr() : static_cast<theItem*>(Standard::Allocate(aNewBytes));
+    theItem* aNewPtr = inlinePtr();
+    if (!aUseInline)
+    {
+      aNewPtr = static_cast<theItem*>(Standard::AllocateOptimal(aNewBytes));
+    }
     if constexpr (IS_TRIVIAL)
     {
       if (aCopy > 0)

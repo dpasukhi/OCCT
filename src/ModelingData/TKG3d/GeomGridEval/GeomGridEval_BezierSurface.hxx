@@ -71,12 +71,29 @@ public:
     const NCollection_Array1<double>& theUParams,
     const NCollection_Array1<double>& theVParams) const;
 
+  //! Evaluates a compact coordinate grid using shared tensor contractions.
+  //! @param[in] theUParams array of U parameter values
+  //! @param[in] theVParams array of V parameter values
+  //! @return zero-based, U-major compact grid
+  Standard_EXPORT NCollection_Array2<GeomGridEval::SurfD1Coords> EvaluateGridD1Coords(
+    const NCollection_Array1<double>& theUParams,
+    const NCollection_Array1<double>& theVParams) const;
+
   //! Evaluate all grid points with first and second partial derivatives.
   //! @param[in] theUParams array of U parameter values
   //! @param[in] theVParams array of V parameter values
   //! @return 2D array of SurfD2 (1-based indexing),
   //!         or empty array if geometry is null or no parameters set
   Standard_EXPORT NCollection_Array2<GeomGridEval::SurfD2> EvaluateGridD2(
+    const NCollection_Array1<double>& theUParams,
+    const NCollection_Array1<double>& theVParams) const;
+
+  //! Evaluates a compact coordinate grid through second derivative order using shared tensor
+  //! contractions.
+  //! @param[in] theUParams array of U parameter values
+  //! @param[in] theVParams array of V parameter values
+  //! @return zero-based, U-major compact grid
+  Standard_EXPORT NCollection_Array2<GeomGridEval::SurfD2Coords> EvaluateGridD2Coords(
     const NCollection_Array1<double>& theUParams,
     const NCollection_Array1<double>& theVParams) const;
 

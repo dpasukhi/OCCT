@@ -18,6 +18,7 @@
 #include <MathOpt_BFGS.hxx>
 #include <MathSys_Newton2D.hxx>
 #include <MathUtils_Config.hxx>
+#include <math_Vector.hxx>
 #include <NCollection_Array1.hxx>
 #include <NCollection_LocalArray.hxx>
 #include <Precision.hxx>
@@ -143,8 +144,8 @@ ExtremaPS::Result& ExtremaPS_GridEvaluator::ChangeResult() const
 //==================================================================================================
 
 void ExtremaPS_GridEvaluator::SetGrid(const NCollection_Array2<GeomGridEval::SurfD1>& theD1Grid,
-                                      const math_Vector&                              theUParams,
-                                      const math_Vector&                              theVParams)
+                                      const NCollection_Array1<double>&                theUParams,
+                                      const NCollection_Array1<double>&                theVParams)
 {
   const size_t aNbU = theUParams.Size();
   const size_t aNbV = theVParams.Size();
@@ -152,29 +153,47 @@ void ExtremaPS_GridEvaluator::SetGrid(const NCollection_Array2<GeomGridEval::Sur
                                    "ExtremaPS_GridEvaluator::SetGrid");
 
   myGrid.Resize(aNbU, aNbV, false);
-  myRowData[0].Resize(aNbV, false);
-  myRowData[1].Resize(aNbV, false);
-  myUParams.Resize(aNbU, false);
-  myVParams.Resize(aNbV, false);
-  myCacheCount         = 0;
-  myCacheIndex         = 0;
-  myHasPreviousQuery   = false;
-  myHasAffineDirection = false;
-  myHasAffineGrid      = false;
+  initializeGridState(theUParams, theVParams);
   for (size_t anIndex = 0; anIndex < aNbU * aNbV; ++anIndex)
   {
     const GeomGridEval::SurfD1& aD1     = theD1Grid.Data()[anIndex];
     GridSample&                 aSample = myGrid.Data()[anIndex];
-    aSample.PointX                      = aD1.Point.X();
-    aSample.PointY                      = aD1.Point.Y();
-    aSample.PointZ                      = aD1.Point.Z();
-    aSample.DUX                         = aD1.D1U.X();
-    aSample.DUY                         = aD1.D1U.Y();
-    aSample.DUZ                         = aD1.D1U.Z();
-    aSample.DVX                         = aD1.D1V.X();
-    aSample.DVY                         = aD1.D1V.Y();
-    aSample.DVZ                         = aD1.D1V.Z();
+    aD1.Point.Coord(aSample.Point[0], aSample.Point[1], aSample.Point[2]);
+    aD1.D1U.Coord(aSample.D1U[0], aSample.D1U[1], aSample.D1U[2]);
+    aD1.D1V.Coord(aSample.D1V[0], aSample.D1V[1], aSample.D1V[2]);
   }
+}
+
+//==================================================================================================
+
+void ExtremaPS_GridEvaluator::SetGrid(NCollection_Array2<GeomGridEval::SurfD1Coords>&& theD1Grid,
+                                      NCollection_Array1<double>&&                      theUParams,
+                                      NCollection_Array1<double>&&                      theVParams)
+{
+  Standard_DimensionError_Raise_if(theD1Grid.RowSize() != theUParams.Size()
+                                     || theD1Grid.ColSize() != theVParams.Size(),
+                                   "ExtremaPS_GridEvaluator::SetGrid");
+  myGrid = std::move(theD1Grid);
+  initializeGridState(std::move(theUParams), std::move(theVParams));
+}
+
+//==================================================================================================
+
+void ExtremaPS_GridEvaluator::initializeGridState(const NCollection_Array1<double>& theUParams,
+                                                  const NCollection_Array1<double>& theVParams)
+{
+  const size_t aNbU = theUParams.Size();
+  const size_t aNbV = theVParams.Size();
+  myRowData[0].Resize(aNbV, false);
+  myRowData[1].Resize(aNbV, false);
+  myUParams.Resize(aNbU, false);
+  myVParams.Resize(aNbV, false);
+  myHasPreviousQuery   = false;
+  myHasAffineDirection = false;
+  myAffineGrid          = NCollection_Array1<AffineSample>();
+  myGridMinimum.reset();
+  myGridMaximum.reset();
+  myGridBlocks.Clear();
   for (size_t anIndex = 0; anIndex < aNbU; ++anIndex)
   {
     myUParams.ChangeAt(anIndex) = theUParams.At(anIndex);
@@ -182,6 +201,130 @@ void ExtremaPS_GridEvaluator::SetGrid(const NCollection_Array2<GeomGridEval::Sur
   for (size_t anIndex = 0; anIndex < aNbV; ++anIndex)
   {
     myVParams.ChangeAt(anIndex) = theVParams.At(anIndex);
+  }
+}
+
+//==================================================================================================
+
+void ExtremaPS_GridEvaluator::initializeGridState(NCollection_Array1<double>&& theUParams,
+                                                  NCollection_Array1<double>&& theVParams)
+{
+  myRowData[0].Resize(theVParams.Size(), false);
+  myRowData[1].Resize(theVParams.Size(), false);
+  myUParams            = std::move(theUParams);
+  myVParams            = std::move(theVParams);
+  myHasPreviousQuery   = false;
+  myHasAffineDirection = false;
+  myAffineGrid          = NCollection_Array1<AffineSample>();
+  myGridMinimum.reset();
+  myGridMaximum.reset();
+  myGridBlocks.Clear();
+}
+
+//==================================================================================================
+
+void ExtremaPS_GridEvaluator::buildBlockHierarchy() const
+{
+  myGridBlocks.Clear();
+
+  const size_t aNbU = myGrid.RowSize();
+  const size_t aNbV = myGrid.ColSize();
+  if (aNbU < 2 || aNbV < 2)
+  {
+    return;
+  }
+
+  const size_t aNbUBlocks = (aNbU - 2) / THE_BLOCK_NB_CELLS + 1;
+  const size_t aNbVBlocks = (aNbV - 2) / THE_BLOCK_NB_CELLS + 1;
+  myGridBlocks.Reserve(aNbUBlocks * aNbVBlocks);
+  for (size_t aFirstU = 0; aFirstU + 1 < aNbU; aFirstU += THE_BLOCK_NB_CELLS)
+  {
+    const size_t aLastU = std::min(aFirstU + THE_BLOCK_NB_CELLS, aNbU - 1);
+    for (size_t aFirstV = 0; aFirstV + 1 < aNbV; aFirstV += THE_BLOCK_NB_CELLS)
+    {
+      const size_t aLastV = std::min(aFirstV + THE_BLOCK_NB_CELLS, aNbV - 1);
+      GridBlock    aBlock;
+      aBlock.FirstU = aFirstU;
+      aBlock.LastU  = aLastU;
+      aBlock.FirstV = aFirstV;
+      aBlock.LastV  = aLastV;
+      bool isFirst = true;
+      for (size_t i = aFirstU; i <= aLastU; ++i)
+      {
+        for (size_t j = aFirstV; j <= aLastV; ++j)
+        {
+          const GridSample& aSample = myGrid.At(i, j);
+          const double aFu[4] = {aSample.Point[0] * aSample.D1U[0]
+                                   + aSample.Point[1] * aSample.D1U[1]
+                                   + aSample.Point[2] * aSample.D1U[2],
+                                 aSample.D1U[0],
+                                 aSample.D1U[1],
+                                 aSample.D1U[2]};
+          const double aFv[4] = {aSample.Point[0] * aSample.D1V[0]
+                                   + aSample.Point[1] * aSample.D1V[1]
+                                   + aSample.Point[2] * aSample.D1V[2],
+                                 aSample.D1V[0],
+                                 aSample.D1V[1],
+                                 aSample.D1V[2]};
+          for (size_t aCoord = 0; aCoord < 4; ++aCoord)
+          {
+            if (isFirst)
+            {
+              aBlock.FuMin[aCoord] = aBlock.FuMax[aCoord] = aFu[aCoord];
+              aBlock.FvMin[aCoord] = aBlock.FvMax[aCoord] = aFv[aCoord];
+            }
+            else
+            {
+              aBlock.FuMin[aCoord] = std::min(aBlock.FuMin[aCoord], aFu[aCoord]);
+              aBlock.FuMax[aCoord] = std::max(aBlock.FuMax[aCoord], aFu[aCoord]);
+              aBlock.FvMin[aCoord] = std::min(aBlock.FvMin[aCoord], aFv[aCoord]);
+              aBlock.FvMax[aCoord] = std::max(aBlock.FvMax[aCoord], aFv[aCoord]);
+            }
+          }
+          for (size_t aCoord = 0; aCoord < 3; ++aCoord)
+          {
+            if (isFirst)
+            {
+              aBlock.PointMin[aCoord] = aBlock.PointMax[aCoord] = aSample.Point[aCoord];
+            }
+            else
+            {
+              aBlock.PointMin[aCoord] =
+                std::min(aBlock.PointMin[aCoord], aSample.Point[aCoord]);
+              aBlock.PointMax[aCoord] =
+                std::max(aBlock.PointMax[aCoord], aSample.Point[aCoord]);
+            }
+          }
+          isFirst = false;
+        }
+      }
+      myGridBlocks.Append(aBlock);
+    }
+  }
+}
+
+//==================================================================================================
+
+void ExtremaPS_GridEvaluator::buildAffineGrid() const
+{
+  myAffineGrid.Resize(myGrid.Size(), false);
+  const double      aDx = myAffineDirection.X();
+  const double      aDy = myAffineDirection.Y();
+  const double      aDz = myAffineDirection.Z();
+  const GridSample* aGrid = myGrid.Data();
+  for (size_t anIndex = 0; anIndex < myGrid.Size(); ++anIndex)
+  {
+    const GridSample& aSample = aGrid[anIndex];
+    const double aPx = aSample.Point[0] - myAffineOrigin.X();
+    const double aPy = aSample.Point[1] - myAffineOrigin.Y();
+    const double aPz = aSample.Point[2] - myAffineOrigin.Z();
+    AffineSample& aAffine = myAffineGrid.ChangeAt(anIndex);
+    aAffine.FuOrigin = aPx * aSample.D1U[0] + aPy * aSample.D1U[1] + aPz * aSample.D1U[2];
+    aAffine.FvOrigin = aPx * aSample.D1V[0] + aPy * aSample.D1V[1] + aPz * aSample.D1V[2];
+    aAffine.FuDirection = aDx * aSample.D1U[0] + aDy * aSample.D1U[1] + aDz * aSample.D1U[2];
+    aAffine.FvDirection = aDx * aSample.D1V[0] + aDy * aSample.D1V[1] + aDz * aSample.D1V[2];
+    aAffine.DistOrigin = aPx * aPx + aPy * aPy + aPz * aPz;
+    aAffine.DistDirection = -2.0 * (aPx * aDx + aPy * aDy + aPz * aDz);
   }
 }
 
@@ -203,7 +346,7 @@ void ExtremaPS_GridEvaluator::SetGrid(const NCollection_Array2<GeomGridEval::Sur
     return myResult;
   }
 
-  if (myGrid.IsEmpty())
+  if (myGrid.RowSize() < 2 || myGrid.ColSize() < 2)
   {
     myResult.Status = ExtremaPS::Status::InvalidInput;
     return myResult;
@@ -211,8 +354,8 @@ void ExtremaPS_GridEvaluator::SetGrid(const NCollection_Array2<GeomGridEval::Sur
 
   try
   {
-    scanGrid(theP, theTol, theMode);
-    addCachedAsCandidate(theP, theDomain);
+    myCandidates.Clear();
+    scanGrid(theP, theMode);
     refineCandidates(theSurface, theP, theDomain, theTol, theMode);
     addVerifiedGridMinimum(theSurface, theP, theDomain, theTol, theMode);
   }
@@ -226,7 +369,6 @@ void ExtremaPS_GridEvaluator::SetGrid(const NCollection_Array2<GeomGridEval::Sur
   if (!myResult.Extrema.IsEmpty())
   {
     myResult.Status = ExtremaPS::Status::OK;
-    updateSolutionCache(theP, theMode);
   }
   else
   {
@@ -237,13 +379,13 @@ void ExtremaPS_GridEvaluator::SetGrid(const NCollection_Array2<GeomGridEval::Sur
 
 //==================================================================================================
 
-math_Vector ExtremaPS_GridEvaluator::BuildUniformParams(const double theMin,
-                                                        const double theMax,
-                                                        const size_t theNbSamples)
+NCollection_Array1<double> ExtremaPS_GridEvaluator::BuildUniformParams(const double theMin,
+                                                                      const double theMax,
+                                                                      const size_t theNbSamples)
 {
   Standard_RangeError_Raise_if(theNbSamples < 2, "ExtremaPS_GridEvaluator::BuildUniformParams");
-  math_Vector  aParams(theNbSamples);
-  const double aStep = (theMax - theMin) / static_cast<double>(theNbSamples - 1);
+  NCollection_Array1<double> aParams(theNbSamples);
+  const double               aStep = (theMax - theMin) / static_cast<double>(theNbSamples - 1);
 
   for (size_t anIndex = 0; anIndex < theNbSamples; ++anIndex)
   {
@@ -262,15 +404,17 @@ ExtremaPS_GridEvaluator::GridPointData ExtremaPS_GridEvaluator::evaluateGridPoin
   const double      thePy,
   const double      thePz)
 {
-  const double aDx = theSample.PointX - thePx;
-  const double aDy = theSample.PointY - thePy;
-  const double aDz = theSample.PointZ - thePz;
-  const double aFu = aDx * theSample.DUX + aDy * theSample.DUY + aDz * theSample.DUZ;
-  const double aFv = aDx * theSample.DVX + aDy * theSample.DVY + aDz * theSample.DVZ;
+  const double aDx = theSample.Point[0] - thePx;
+  const double aDy = theSample.Point[1] - thePy;
+  const double aDz = theSample.Point[2] - thePz;
+  const double aFu = aDx * theSample.D1U[0] + aDy * theSample.D1U[1] + aDz * theSample.D1U[2];
+  const double aFv = aDx * theSample.D1V[0] + aDy * theSample.D1V[1] + aDz * theSample.D1V[2];
 
   GridPointData aData;
   aData.GradSq = aFu * aFu + aFv * aFv;
   aData.Dist   = aDx * aDx + aDy * aDy + aDz * aDz;
+  aData.Fu     = aFu;
+  aData.Fv     = aFv;
   aData.SignU  = aFu < 0.0 ? THE_NEGATIVE_SIGN_MASK : (aFu > 0.0 ? THE_POSITIVE_SIGN_MASK : 0);
   aData.SignV  = aFv < 0.0 ? THE_NEGATIVE_SIGN_MASK : (aFv > 0.0 ? THE_POSITIVE_SIGN_MASK : 0);
   return aData;
@@ -282,44 +426,19 @@ ExtremaPS_GridEvaluator::GridPointData ExtremaPS_GridEvaluator::evaluateAffineGr
   const AffineSample& theSample,
   const double        theParameter) const
 {
-  const double aFu = theSample.FuOrigin - theParameter * theSample.FuDirection;
-  const double aFv = theSample.FvOrigin - theParameter * theSample.FvDirection;
-
   GridPointData aData;
-  aData.GradSq = aFu * aFu + aFv * aFv;
+  aData.Fu     = theSample.FuOrigin - theParameter * theSample.FuDirection;
+  aData.Fv     = theSample.FvOrigin - theParameter * theSample.FvDirection;
+  aData.GradSq = aData.Fu * aData.Fu + aData.Fv * aData.Fv;
   aData.Dist =
     std::max(0.0,
              theSample.DistOrigin
                + theParameter * (theSample.DistDirection + theParameter * myAffineDirectionSq));
-  aData.SignU = aFu < 0.0 ? THE_NEGATIVE_SIGN_MASK : (aFu > 0.0 ? THE_POSITIVE_SIGN_MASK : 0);
-  aData.SignV = aFv < 0.0 ? THE_NEGATIVE_SIGN_MASK : (aFv > 0.0 ? THE_POSITIVE_SIGN_MASK : 0);
+  aData.SignU =
+    aData.Fu < 0.0 ? THE_NEGATIVE_SIGN_MASK : (aData.Fu > 0.0 ? THE_POSITIVE_SIGN_MASK : 0);
+  aData.SignV =
+    aData.Fv < 0.0 ? THE_NEGATIVE_SIGN_MASK : (aData.Fv > 0.0 ? THE_POSITIVE_SIGN_MASK : 0);
   return aData;
-}
-
-//==================================================================================================
-
-void ExtremaPS_GridEvaluator::buildAffineGrid(const gp_Pnt& theOrigin,
-                                              const gp_Vec& theDirection) const
-{
-  myAffineGrid.Resize(myGrid.Size(), false);
-  const GridSample* aGrid = myGrid.Data();
-  for (size_t anIndex = 0; anIndex < myGrid.Size(); ++anIndex)
-  {
-    const GridSample& aSample = aGrid[anIndex];
-    const double      aDx     = aSample.PointX - theOrigin.X();
-    const double      aDy     = aSample.PointY - theOrigin.Y();
-    const double      aDz     = aSample.PointZ - theOrigin.Z();
-    AffineSample&     aAffine = myAffineGrid.ChangeAt(anIndex);
-    aAffine.FuOrigin          = aDx * aSample.DUX + aDy * aSample.DUY + aDz * aSample.DUZ;
-    aAffine.FvOrigin          = aDx * aSample.DVX + aDy * aSample.DVY + aDz * aSample.DVZ;
-    aAffine.FuDirection       = theDirection.X() * aSample.DUX + theDirection.Y() * aSample.DUY
-                                + theDirection.Z() * aSample.DUZ;
-    aAffine.FvDirection       = theDirection.X() * aSample.DVX + theDirection.Y() * aSample.DVY
-                                + theDirection.Z() * aSample.DVZ;
-    aAffine.DistOrigin        = aDx * aDx + aDy * aDy + aDz * aDz;
-    aAffine.DistDirection =
-      -2.0 * (aDx * theDirection.X() + aDy * theDirection.Y() + aDz * theDirection.Z());
-  }
 }
 
 //==================================================================================================
@@ -356,33 +475,20 @@ bool ExtremaPS_GridEvaluator::prepareAffineEvaluation(const gp_Pnt& thePoint,
     return false;
   }
 
-  const double aDirectionComponent =
-    myAffineAxis == 0 ? myAffineDirection.X()
-                      : (myAffineAxis == 1 ? myAffineDirection.Y() : myAffineDirection.Z());
-  const double aPointComponent =
-    myAffineAxis == 0 ? thePoint.X() : (myAffineAxis == 1 ? thePoint.Y() : thePoint.Z());
-  const double anOriginComponent =
-    myAffineAxis == 0 ? myAffineOrigin.X()
-                      : (myAffineAxis == 1 ? myAffineOrigin.Y() : myAffineOrigin.Z());
-  theParameter = (aPointComponent - anOriginComponent) / aDirectionComponent;
-
-  const double aPredictedX = myAffineOrigin.X() + theParameter * myAffineDirection.X();
-  const double aPredictedY = myAffineOrigin.Y() + theParameter * myAffineDirection.Y();
-  const double aPredictedZ = myAffineOrigin.Z() + theParameter * myAffineDirection.Z();
-  const double aTolX       = THE_AFFINE_COORD_TOL_FACTOR * RealEpsilon()
-                             * std::max({1.0, std::abs(thePoint.X()), std::abs(aPredictedX)});
-  const double aTolY       = THE_AFFINE_COORD_TOL_FACTOR * RealEpsilon()
-                             * std::max({1.0, std::abs(thePoint.Y()), std::abs(aPredictedY)});
-  const double aTolZ       = THE_AFFINE_COORD_TOL_FACTOR * RealEpsilon()
-                             * std::max({1.0, std::abs(thePoint.Z()), std::abs(aPredictedZ)});
-  if (std::abs(thePoint.X() - aPredictedX) <= aTolX && std::abs(thePoint.Y() - aPredictedY) <= aTolY
-      && std::abs(thePoint.Z() - aPredictedZ) <= aTolZ)
+  const double aDirectionComponent = myAffineDirection.Coord(myAffineAxis + 1);
+  theParameter = (thePoint.Coord(myAffineAxis + 1) - myAffineOrigin.Coord(myAffineAxis + 1))
+                 / aDirectionComponent;
+  const gp_Pnt aPredicted = myAffineOrigin.Translated(theParameter * myAffineDirection);
+  const double aTolX = THE_AFFINE_COORD_TOL_FACTOR * RealEpsilon()
+                       * std::max({1.0, std::abs(thePoint.X()), std::abs(aPredicted.X())});
+  const double aTolY = THE_AFFINE_COORD_TOL_FACTOR * RealEpsilon()
+                       * std::max({1.0, std::abs(thePoint.Y()), std::abs(aPredicted.Y())});
+  const double aTolZ = THE_AFFINE_COORD_TOL_FACTOR * RealEpsilon()
+                       * std::max({1.0, std::abs(thePoint.Z()), std::abs(aPredicted.Z())});
+  if (std::abs(thePoint.X() - aPredicted.X()) <= aTolX
+      && std::abs(thePoint.Y() - aPredicted.Y()) <= aTolY
+      && std::abs(thePoint.Z() - aPredicted.Z()) <= aTolZ)
   {
-    if (!myHasAffineGrid)
-    {
-      buildAffineGrid(myAffineOrigin, myAffineDirection);
-      myHasAffineGrid = true;
-    }
     myPreviousQuery = thePoint;
     return true;
   }
@@ -391,7 +497,7 @@ bool ExtremaPS_GridEvaluator::prepareAffineEvaluation(const gp_Pnt& thePoint,
   const double aDirectionSq = aDirection.SquareMagnitude();
   myAffineOrigin            = myPreviousQuery;
   myPreviousQuery           = thePoint;
-  myHasAffineGrid           = false;
+  myAffineGrid = NCollection_Array1<AffineSample>();
   if (aDirectionSq <= Precision::SquareConfusion())
   {
     myHasAffineDirection = false;
@@ -410,12 +516,34 @@ bool ExtremaPS_GridEvaluator::prepareAffineEvaluation(const gp_Pnt& thePoint,
 
 //==================================================================================================
 
-void ExtremaPS_GridEvaluator::scanGrid(const gp_Pnt&                 theP,
-                                       [[maybe_unused]] const double theTol,
-                                       const ExtremaPS::SearchMode   theMode) const
+void ExtremaPS_GridEvaluator::scanGrid(const gp_Pnt&               theP,
+                                       const ExtremaPS::SearchMode theMode) const
 {
-  myCandidates.Clear();
+  double     anAffineParameter = 0.0;
+  const bool isCoherentQuery   = prepareAffineEvaluation(theP, anAffineParameter);
+  if (!isCoherentQuery)
+  {
+    scanGridDense(theP, theMode);
+    return;
+  }
+  if (myGridBlocks.IsEmpty())
+  {
+    buildBlockHierarchy();
+  }
+  if (myAffineGrid.IsEmpty())
+  {
+    buildAffineGrid();
+  }
+  scanGridHierarchical(theP, anAffineParameter, theMode);
+}
 
+//==================================================================================================
+
+void ExtremaPS_GridEvaluator::scanGridHierarchical(
+  const gp_Pnt&               theP,
+  const double                theAffineParameter,
+  const ExtremaPS::SearchMode theMode) const
+{
   const size_t aNbU = myGrid.RowSize();
   const size_t aNbV = myGrid.ColSize();
 
@@ -423,126 +551,136 @@ void ExtremaPS_GridEvaluator::scanGrid(const gp_Pnt&                 theP,
   {
     return;
   }
+  const double      aTolF               = Precision::Confusion() * THE_GRADIENT_TOL_FACTOR;
+  const double      aTolFSq             = aTolF * aTolF;
+  const AffineSample* anAffineGrid = myAffineGrid.Data();
+  const double aPoint[3] = {theP.X(), theP.Y(), theP.Z()};
+  const auto stationarityRange = [&](const double* theMin,
+                                     const double* theMax,
+                                     double&       theLower,
+                                     double&       theUpper) {
+    theLower = theMin[0];
+    theUpper = theMax[0];
+    for (size_t aCoord = 0; aCoord < 3; ++aCoord)
+    {
+      const double aTerm1 = -aPoint[aCoord] * theMin[aCoord + 1];
+      const double aTerm2 = -aPoint[aCoord] * theMax[aCoord + 1];
+      theLower += std::min(aTerm1, aTerm2);
+      theUpper += std::max(aTerm1, aTerm2);
+    }
+  };
+  const auto distanceBounds = [&](const GridBlock& theBlock,
+                                  double&          theLower,
+                                  double&          theUpper) {
+    theLower = 0.0;
+    theUpper = 0.0;
+    for (size_t aCoord = 0; aCoord < 3; ++aCoord)
+    {
+      const double aLowDelta  = theBlock.PointMin[aCoord] - aPoint[aCoord];
+      const double aHighDelta = theBlock.PointMax[aCoord] - aPoint[aCoord];
+      double       aNear      = 0.0;
+      if (aLowDelta > 0.0)
+        aNear = aLowDelta;
+      else if (aHighDelta < 0.0)
+        aNear = aHighDelta;
+      const double aFar = std::max(std::abs(aLowDelta), std::abs(aHighDelta));
+      theLower += aNear * aNear;
+      theUpper += aFar * aFar;
+    }
+  };
 
-  const double aPx = theP.X();
-  const double aPy = theP.Y();
-  const double aPz = theP.Z();
+  size_t aMinIndex = 0;
+  size_t aMaxIndex = 0;
+  double aMinSquareDistance = 0.0;
+  double aMaxSquareDistance = 0.0;
+  bool   hasDistanceExtrema = false;
+  constexpr size_t aBlockPointStride = THE_BLOCK_NB_CELLS + 1;
+  GridPointData aBlockData[aBlockPointStride * aBlockPointStride];
 
-  const double aTolF               = Precision::Confusion() * THE_GRADIENT_TOL_FACTOR;
-  const double aTolFSq             = aTolF * aTolF;
-  double       anAffineParameter   = 0.0;
-  const bool   useAffineEvaluation = prepareAffineEvaluation(theP, anAffineParameter);
-
-  const GridSample*   aGrid              = myGrid.Data();
-  const AffineSample* anAffineGrid       = useAffineEvaluation ? myAffineGrid.Data() : nullptr;
-  size_t              aMinIndex          = 0;
-  size_t              aMaxIndex          = 0;
-  double              aMinSquareDistance = 0.0;
-  double              aMaxSquareDistance = 0.0;
-
-  for (size_t i = 0; i < aNbU; ++i)
+  for (const GridBlock& aBlock : myGridBlocks)
   {
-    GridPointData* aCurrentRow = myRowData[i % 2].Data();
-    const size_t   aRowOffset  = i * aNbV;
-    if (useAffineEvaluation)
-    {
-      for (size_t j = 0; j < aNbV; ++j)
-      {
-        const size_t anIndex = aRowOffset + j;
-        aCurrentRow[j]       = evaluateAffineGridPoint(anAffineGrid[anIndex], anAffineParameter);
-        if (anIndex == 0)
-        {
-          aMinSquareDistance = aCurrentRow[j].Dist;
-          aMaxSquareDistance = aCurrentRow[j].Dist;
-        }
-        else if (aCurrentRow[j].Dist < aMinSquareDistance)
-        {
-          aMinSquareDistance = aCurrentRow[j].Dist;
-          aMinIndex          = anIndex;
-        }
-        else if (aCurrentRow[j].Dist > aMaxSquareDistance)
-        {
-          aMaxSquareDistance = aCurrentRow[j].Dist;
-          aMaxIndex          = anIndex;
-        }
-      }
-    }
-    else
-    {
-      for (size_t j = 0; j < aNbV; ++j)
-      {
-        const size_t anIndex = aRowOffset + j;
-        aCurrentRow[j]       = evaluateGridPoint(aGrid[anIndex], aPx, aPy, aPz);
-        if (anIndex == 0)
-        {
-          aMinSquareDistance = aCurrentRow[j].Dist;
-          aMaxSquareDistance = aCurrentRow[j].Dist;
-        }
-        else if (aCurrentRow[j].Dist < aMinSquareDistance)
-        {
-          aMinSquareDistance = aCurrentRow[j].Dist;
-          aMinIndex          = anIndex;
-        }
-        else if (aCurrentRow[j].Dist > aMaxSquareDistance)
-        {
-          aMaxSquareDistance = aCurrentRow[j].Dist;
-          aMaxIndex          = anIndex;
-        }
-      }
-    }
-
-    if (i == 0)
+    double aFuLower = 0.0;
+    double aFuUpper = 0.0;
+    double aFvLower = 0.0;
+    double aFvUpper = 0.0;
+    stationarityRange(aBlock.FuMin, aBlock.FuMax, aFuLower, aFuUpper);
+    stationarityRange(aBlock.FvMin, aBlock.FvMax, aFvLower, aFvUpper);
+    const bool hasStationaryCell = aFuLower <= aTolF && aFuUpper >= -aTolF
+                                   && aFvLower <= aTolF && aFvUpper >= -aTolF;
+    double aDistanceLower = 0.0;
+    double aDistanceUpper = 0.0;
+    distanceBounds(aBlock, aDistanceLower, aDistanceUpper);
+    const bool needsDistanceScan = !hasDistanceExtrema || aDistanceLower <= aMinSquareDistance
+                                   || aDistanceUpper >= aMaxSquareDistance;
+    if (!needsDistanceScan && !hasStationaryCell)
     {
       continue;
     }
 
-    const size_t         aCellI       = i - 1;
-    const GridPointData* aPreviousRow = myRowData[aCellI % 2].Data();
-    for (size_t j = 0; j + 1 < aNbV; ++j)
+    const size_t aBlockNbU = aBlock.LastU - aBlock.FirstU + 1;
+    const size_t aBlockNbV = aBlock.LastV - aBlock.FirstV + 1;
+    for (size_t i = 0; i < aBlockNbU; ++i)
     {
-      const GridPointData& aD00 = aPreviousRow[j];
-      const GridPointData& aD10 = aCurrentRow[j];
-      const GridPointData& aD01 = aPreviousRow[j + 1];
-      const GridPointData& aD11 = aCurrentRow[j + 1];
-
-      double aMinDist    = aD00.Dist;
-      double aMinGradMag = aD00.GradSq;
-      if (aD10.Dist < aMinDist)
-        aMinDist = aD10.Dist;
-      if (aD01.Dist < aMinDist)
-        aMinDist = aD01.Dist;
-      if (aD11.Dist < aMinDist)
-        aMinDist = aD11.Dist;
-      if (aD10.GradSq < aMinGradMag)
-        aMinGradMag = aD10.GradSq;
-      if (aD01.GradSq < aMinGradMag)
-        aMinGradMag = aD01.GradSq;
-      if (aD11.GradSq < aMinGradMag)
-        aMinGradMag = aD11.GradSq;
-
-      bool aAddCandidate = aMinGradMag < aTolFSq;
-      if (!aAddCandidate)
+      for (size_t j = 0; j < aBlockNbV; ++j)
       {
-        const bool aFuSignChange =
-          (aD00.SignU | aD10.SignU | aD01.SignU | aD11.SignU) == THE_BOTH_SIGNS_MASK;
-        if (aFuSignChange)
+        const size_t anIndex = (aBlock.FirstU + i) * aNbV + aBlock.FirstV + j;
+        GridPointData& aData = aBlockData[i * aBlockPointStride + j];
+        aData = evaluateAffineGridPoint(anAffineGrid[anIndex], theAffineParameter);
+        if (!hasDistanceExtrema)
         {
-          const bool aFvSignChange =
-            (aD00.SignV | aD10.SignV | aD01.SignV | aD11.SignV) == THE_BOTH_SIGNS_MASK;
-          aAddCandidate = aFvSignChange;
+          aMinIndex = aMaxIndex = anIndex;
+          aMinSquareDistance = aMaxSquareDistance = aData.Dist;
+          hasDistanceExtrema = true;
+        }
+        else
+        {
+          if (aData.Dist < aMinSquareDistance)
+          {
+            aMinSquareDistance = aData.Dist;
+            aMinIndex          = anIndex;
+          }
+          if (aData.Dist > aMaxSquareDistance)
+          {
+            aMaxSquareDistance = aData.Dist;
+            aMaxIndex          = anIndex;
+          }
         }
       }
+    }
 
-      if (aAddCandidate)
+    if (!hasStationaryCell)
+    {
+      continue;
+    }
+    for (size_t i = 0; i + 1 < aBlockNbU; ++i)
+    {
+      for (size_t j = 0; j + 1 < aBlockNbV; ++j)
       {
-        Candidate aCand;
-        aCand.IdxU    = aCellI;
-        aCand.IdxV    = j;
-        aCand.StartU  = (myUParams.At(aCellI) + myUParams.At(i)) * 0.5;
-        aCand.StartV  = (myVParams.At(j) + myVParams.At(j + 1)) * 0.5;
-        aCand.EstDist = aMinDist;
-        aCand.GradMag = aMinGradMag;
-        myCandidates.Append(aCand);
+        const GridPointData& aD00 = aBlockData[i * aBlockPointStride + j];
+        const GridPointData& aD10 = aBlockData[(i + 1) * aBlockPointStride + j];
+        const GridPointData& aD01 = aBlockData[i * aBlockPointStride + j + 1];
+        const GridPointData& aD11 = aBlockData[(i + 1) * aBlockPointStride + j + 1];
+        const double aMinDist = std::min({aD00.Dist, aD10.Dist, aD01.Dist, aD11.Dist});
+        const double aMinGradMag =
+          std::min({aD00.GradSq, aD10.GradSq, aD01.GradSq, aD11.GradSq});
+        bool aAddCandidate = aMinGradMag < aTolFSq;
+        if (!aAddCandidate
+            && (aD00.SignU | aD10.SignU | aD01.SignU | aD11.SignU) == THE_BOTH_SIGNS_MASK)
+        {
+          aAddCandidate =
+            (aD00.SignV | aD10.SignV | aD01.SignV | aD11.SignV) == THE_BOTH_SIGNS_MASK;
+        }
+        if (aAddCandidate)
+        {
+          Candidate aCand;
+          aCand.IdxU    = aBlock.FirstU + i;
+          aCand.IdxV    = aBlock.FirstV + j;
+          aCand.StartU  = (myUParams.At(aCand.IdxU) + myUParams.At(aCand.IdxU + 1)) * 0.5;
+          aCand.StartV  = (myVParams.At(aCand.IdxV) + myVParams.At(aCand.IdxV + 1)) * 0.5;
+          aCand.EstDist = aMinDist;
+          aCand.GradMag = aMinGradMag;
+          myCandidates.Append(aCand);
+        }
       }
     }
   }
@@ -581,179 +719,111 @@ void ExtremaPS_GridEvaluator::scanGrid(const gp_Pnt&                 theP,
   }
 }
 
-std::optional<std::pair<double, double>> ExtremaPS_GridEvaluator::cachedStart(
-  const gp_Pnt&              thePoint,
-  const ExtremaPS::Domain2D& theDomain) const
-{
-  if (myCacheCount == 0)
-  {
-    return std::nullopt;
-  }
-
-  size_t aNearestIdx  = (myCacheIndex + THE_CACHE_SIZE - 1) % THE_CACHE_SIZE;
-  double aNearestDist = thePoint.SquareDistance(myCachedSolutions[aNearestIdx].QueryPoint);
-
-  for (size_t i = 1; i < myCacheCount; ++i)
-  {
-    size_t aIdx  = (myCacheIndex + THE_CACHE_SIZE - 1 - i) % THE_CACHE_SIZE;
-    double aDist = thePoint.SquareDistance(myCachedSolutions[aIdx].QueryPoint);
-    if (aDist < aNearestDist)
-    {
-      aNearestDist = aDist;
-      aNearestIdx  = aIdx;
-    }
-  }
-
-  if (aNearestDist > THE_COHERENCE_THRESHOLD_SQ)
-  {
-    return std::nullopt;
-  }
-
-  const CachedSolution& aNearest = myCachedSolutions[aNearestIdx];
-
-  double aStartU = aNearest.U;
-  double aStartV = aNearest.V;
-
-  if (myCacheCount >= 3)
-  {
-    const size_t aIdx2 = (myCacheIndex + THE_CACHE_SIZE - 1) % THE_CACHE_SIZE;
-    const size_t aIdx1 = (myCacheIndex + THE_CACHE_SIZE - 2) % THE_CACHE_SIZE;
-    const size_t aIdx0 = (myCacheIndex + THE_CACHE_SIZE - 3) % THE_CACHE_SIZE;
-
-    const CachedSolution& aS0 = myCachedSolutions[aIdx0];
-    const CachedSolution& aS1 = myCachedSolutions[aIdx1];
-    const CachedSolution& aS2 = myCachedSolutions[aIdx2];
-
-    const gp_Vec aV01(aS0.QueryPoint, aS1.QueryPoint);
-    const gp_Vec aV12(aS1.QueryPoint, aS2.QueryPoint);
-    const double aMag01 = aV01.Magnitude();
-    const double aMag12 = aV12.Magnitude();
-
-    if (aMag01 > Precision::Confusion() && aMag12 > Precision::Confusion())
-    {
-      const double aRatio = aMag12 / aMag01;
-      if (aRatio > THE_TRAJECTORY_MIN_RATIO && aRatio < THE_TRAJECTORY_MAX_RATIO)
-      {
-        const double aCos = aV01.Dot(aV12) / (aMag01 * aMag12);
-        if (aCos > THE_TRAJECTORY_MIN_COS)
-        {
-          if (myCacheCount >= 4 && aCos > THE_TRAJECTORY_QUADRATIC_COS)
-          {
-            aStartU = 3.0 * aS2.U - 3.0 * aS1.U + aS0.U;
-            aStartV = 3.0 * aS2.V - 3.0 * aS1.V + aS0.V;
-          }
-          else
-          {
-            const double aDeltaU = aS2.U - aS1.U;
-            const double aDeltaV = aS2.V - aS1.V;
-            aStartU              = aS2.U + aDeltaU;
-            aStartV              = aS2.V + aDeltaV;
-          }
-          aStartU = theDomain.U().Clamp(aStartU);
-          aStartV = theDomain.V().Clamp(aStartV);
-        }
-      }
-    }
-  }
-
-  return std::make_pair(aStartU, aStartV);
-}
-
 //==================================================================================================
 
-void ExtremaPS_GridEvaluator::addCachedAsCandidate(const gp_Pnt&              theP,
-                                                   const ExtremaPS::Domain2D& theDomain) const
+void ExtremaPS_GridEvaluator::scanGridDense(const gp_Pnt&               theP,
+                                            const ExtremaPS::SearchMode theMode) const
 {
-  const std::optional<std::pair<double, double>> aStart = cachedStart(theP, theDomain);
-  if (!aStart)
-  {
-    return;
-  }
-  const double aStartU = aStart->first;
-  const double aStartV = aStart->second;
-
   const size_t aNbU = myGrid.RowSize();
   const size_t aNbV = myGrid.ColSize();
+  const double aPx   = theP.X();
+  const double aPy   = theP.Y();
+  const double aPz   = theP.Z();
+  const double aTolF   = Precision::Confusion() * THE_GRADIENT_TOL_FACTOR;
+  const double aTolFSq = aTolF * aTolF;
+  const GridSample* aGrid = myGrid.Data();
+  size_t aMinIndex = 0;
+  size_t aMaxIndex = 0;
+  double aMinSquareDistance = 0.0;
+  double aMaxSquareDistance = 0.0;
 
-  size_t aCellI = 0;
+  for (size_t i = 0; i < aNbU; ++i)
   {
-    size_t aLo = 0;
-    size_t aHi = aNbU - 1;
-    while (aLo + 1 < aHi)
+    GridPointData* aCurrentRow = myRowData[i % 2].Data();
+    const size_t   aRowOffset  = i * aNbV;
+    for (size_t j = 0; j < aNbV; ++j)
     {
-      const size_t aMid = aLo + (aHi - aLo) / 2;
-      if (aStartU < myUParams.At(aMid))
+      const size_t anIndex = aRowOffset + j;
+      aCurrentRow[j]       = evaluateGridPoint(aGrid[anIndex], aPx, aPy, aPz);
+      if (anIndex == 0)
       {
-        aHi = aMid;
+        aMinSquareDistance = aCurrentRow[j].Dist;
+        aMaxSquareDistance = aCurrentRow[j].Dist;
       }
       else
       {
-        aLo = aMid;
+        if (aCurrentRow[j].Dist < aMinSquareDistance)
+        {
+          aMinSquareDistance = aCurrentRow[j].Dist;
+          aMinIndex          = anIndex;
+        }
+        if (aCurrentRow[j].Dist > aMaxSquareDistance)
+        {
+          aMaxSquareDistance = aCurrentRow[j].Dist;
+          aMaxIndex          = anIndex;
+        }
       }
-    }
-    aCellI = aLo;
-  }
 
-  size_t aCellJ = 0;
-  {
-    size_t aLo = 0;
-    size_t aHi = aNbV - 1;
-    while (aLo + 1 < aHi)
-    {
-      const size_t aMid = aLo + (aHi - aLo) / 2;
-      if (aStartV < myVParams.At(aMid))
+      if (i == 0 || j == 0)
       {
-        aHi = aMid;
+        continue;
       }
-      else
+      const size_t         aCellI       = i - 1;
+      const size_t         aCellJ       = j - 1;
+      const GridPointData* aPreviousRow = myRowData[aCellI % 2].Data();
+      const GridPointData& aD00         = aPreviousRow[aCellJ];
+      const GridPointData& aD10         = aCurrentRow[aCellJ];
+      const GridPointData& aD01         = aPreviousRow[j];
+      const GridPointData& aD11         = aCurrentRow[j];
+      const double aMinDist = std::min({aD00.Dist, aD10.Dist, aD01.Dist, aD11.Dist});
+      const double aMinGradMag =
+        std::min({aD00.GradSq, aD10.GradSq, aD01.GradSq, aD11.GradSq});
+      bool aAddCandidate = aMinGradMag < aTolFSq;
+      if (!aAddCandidate
+          && (aD00.SignU | aD10.SignU | aD01.SignU | aD11.SignU) == THE_BOTH_SIGNS_MASK)
       {
-        aLo = aMid;
+        aAddCandidate =
+          (aD00.SignV | aD10.SignV | aD01.SignV | aD11.SignV) == THE_BOTH_SIGNS_MASK;
+      }
+      if (aAddCandidate)
+      {
+        Candidate aCand;
+        aCand.IdxU    = aCellI;
+        aCand.IdxV    = aCellJ;
+        aCand.StartU  = (myUParams.At(aCellI) + myUParams.At(i)) * 0.5;
+        aCand.StartV  = (myVParams.At(aCellJ) + myVParams.At(j)) * 0.5;
+        aCand.EstDist = aMinDist;
+        aCand.GradMag = aMinGradMag;
+        myCandidates.Append(aCand);
       }
     }
-    aCellJ = aLo;
   }
 
-  const double        aPx  = theP.X();
-  const double        aPy  = theP.Y();
-  const double        aPz  = theP.Z();
-  const GridPointData aD00 = evaluateGridPoint(myGrid.At(aCellI, aCellJ), aPx, aPy, aPz);
-  const GridPointData aD10 = evaluateGridPoint(myGrid.At(aCellI + 1, aCellJ), aPx, aPy, aPz);
-  const GridPointData aD01 = evaluateGridPoint(myGrid.At(aCellI, aCellJ + 1), aPx, aPy, aPz);
-  const GridPointData aD11 = evaluateGridPoint(myGrid.At(aCellI + 1, aCellJ + 1), aPx, aPy, aPz);
-
-  double aMinDist = aD00.Dist;
-  if (aD10.Dist < aMinDist)
-    aMinDist = aD10.Dist;
-  if (aD01.Dist < aMinDist)
-    aMinDist = aD01.Dist;
-  if (aD11.Dist < aMinDist)
-    aMinDist = aD11.Dist;
-
-  const double aMinGradMag =
-    std::min(std::min(aD00.GradSq, aD10.GradSq), std::min(aD01.GradSq, aD11.GradSq));
-
-  for (size_t anIndex = 0; anIndex < myCandidates.Size(); ++anIndex)
+  myGridMinimum = GridDistanceExtremum{aMinIndex / aNbV, aMinIndex % aNbV, aMinSquareDistance};
+  myGridMaximum = GridDistanceExtremum{aMaxIndex / aNbV, aMaxIndex % aNbV, aMaxSquareDistance};
+  if (theMode == ExtremaPS::SearchMode::Min || theMode == ExtremaPS::SearchMode::MinMax)
   {
-    Candidate& aCandidate = myCandidates.ChangeValue(anIndex);
-    if (aCandidate.IdxU == aCellI && aCandidate.IdxV == aCellJ)
-    {
-      aCandidate.StartU = aStartU;
-      aCandidate.StartV = aStartV;
-      return;
-    }
+    Candidate aCand;
+    aCand.IdxU    = std::min(aNbU - 2, myGridMinimum->I);
+    aCand.IdxV    = std::min(aNbV - 2, myGridMinimum->J);
+    aCand.StartU  = myUParams.At(myGridMinimum->I);
+    aCand.StartV  = myVParams.At(myGridMinimum->J);
+    aCand.EstDist = myGridMinimum->SquareDistance;
+    aCand.GradMag = 0.0;
+    myCandidates.Append(aCand);
   }
-
-  Candidate aCand;
-  aCand.IdxU    = aCellI;
-  aCand.IdxV    = aCellJ;
-  aCand.StartU  = aStartU;
-  aCand.StartV  = aStartV;
-  aCand.EstDist = aMinDist;    // Actual distance estimate from grid
-  aCand.GradMag = aMinGradMag; // Actual gradient magnitude from grid
-  myCandidates.Append(aCand);
+  if (theMode == ExtremaPS::SearchMode::Max || theMode == ExtremaPS::SearchMode::MinMax)
+  {
+    Candidate aCand;
+    aCand.IdxU    = std::min(aNbU - 2, myGridMaximum->I);
+    aCand.IdxV    = std::min(aNbV - 2, myGridMaximum->J);
+    aCand.StartU  = myUParams.At(myGridMaximum->I);
+    aCand.StartV  = myVParams.At(myGridMaximum->J);
+    aCand.EstDist = myGridMaximum->SquareDistance;
+    aCand.GradMag = 0.0;
+    myCandidates.Append(aCand);
+  }
 }
-
-//==================================================================================================
 
 void ExtremaPS_GridEvaluator::refineCandidates(const Adaptor3d_Surface&    theSurface,
                                                const gp_Pnt&               theP,
@@ -833,7 +903,7 @@ void ExtremaPS_GridEvaluator::refineCandidates(const Adaptor3d_Surface&    theSu
           const size_t      j       = aCand.IdxV + dj;
           const GridSample& aSample = myGrid.At(i, j);
           const double      aDist =
-            theP.SquareDistance(gp_Pnt(aSample.PointX, aSample.PointY, aSample.PointZ));
+            theP.SquareDistance(gp_Pnt(aSample.Point[0], aSample.Point[1], aSample.Point[2]));
           if (!aBestGridDist || aDist < *aBestGridDist)
           {
             aBestGridDist = aDist;
@@ -1025,33 +1095,4 @@ void ExtremaPS_GridEvaluator::addVerifiedGridMinimum(const Adaptor3d_Surface&   
   anExtremum.SquareDistance = aSquareDistance;
   anExtremum.IsMinimum      = true;
   myResult.Extrema.Append(anExtremum);
-}
-
-//==================================================================================================
-
-void ExtremaPS_GridEvaluator::addToCache(const gp_Pnt& theP,
-                                         const double  theU,
-                                         const double  theV) const
-{
-  myCachedSolutions[myCacheIndex].QueryPoint = theP;
-  myCachedSolutions[myCacheIndex].U          = theU;
-  myCachedSolutions[myCacheIndex].V          = theV;
-  myCacheIndex                               = (myCacheIndex + 1) % THE_CACHE_SIZE;
-  if (myCacheCount < THE_CACHE_SIZE)
-    ++myCacheCount;
-}
-
-//==================================================================================================
-
-void ExtremaPS_GridEvaluator::updateSolutionCache(const gp_Pnt&               theP,
-                                                  const ExtremaPS::SearchMode theMode) const
-{
-  if (myResult.Extrema.IsEmpty())
-  {
-    return;
-  }
-
-  const size_t anIndex =
-    theMode == ExtremaPS::SearchMode::Max ? myResult.MaxIndex() : myResult.MinIndex();
-  addToCache(theP, myResult.Extrema.Value(anIndex).U, myResult.Extrema.Value(anIndex).V);
 }

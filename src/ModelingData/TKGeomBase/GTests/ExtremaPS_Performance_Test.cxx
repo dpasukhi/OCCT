@@ -126,6 +126,23 @@ void RunPerfTest(const char*                      name,
             << (speedup > 1.0 ? " FASTER" : " slower") << std::endl;
 }
 
+void RunNewEvaluatorProfile(const occ::handle<Geom_Surface>& theSurface,
+                            const ExtremaPS::Domain2D&        theDomain,
+                            const int                         theNbPoints,
+                            const int                         theNbIterations)
+{
+  const GeomAdaptor_Surface anAdaptor(theSurface);
+  const std::vector<gp_Pnt> aPoints = GenerateTestPoints(theNbPoints, 20.0);
+  ExtremaPS_Surface         anExtrema(anAdaptor, theDomain);
+  for (int anIteration = 0; anIteration < theNbIterations; ++anIteration)
+  {
+    for (const gp_Pnt& aPoint : aPoints)
+    {
+      (void)anExtrema.Perform(aPoint, THE_TOL);
+    }
+  }
+}
+
 occ::handle<Geom_BSplineSurface> MakeDomeBSpline()
 {
   // Complex BSpline with 20x20 poles and multiple knot spans
@@ -281,6 +298,29 @@ TEST(ExtremaPS_Performance, AllSurfaces)
   std::cout << "\n=== Done ===" << std::endl;
 }
 
+TEST(ExtremaPS_Performance, BSplineFocused)
+{
+  std::cout << "\n=== Focused BSpline Performance ===" << std::endl;
+  const occ::handle<Geom_BSplineSurface> aSurface = MakeDomeBSpline();
+  RunPerfTest("BSpline (focused)",
+              aSurface,
+              0.0,
+              1.0,
+              0.0,
+              1.0,
+              NUM_POINTS_NUMERICAL,
+              NUM_ITERATIONS_NUMERICAL);
+}
+
+TEST(ExtremaPS_Performance, BSplineNewEvaluatorProfile)
+{
+  const occ::handle<Geom_BSplineSurface> aSurface = MakeDomeBSpline();
+  RunNewEvaluatorProfile(aSurface,
+                         ExtremaPS::Domain2D(0.0, 1.0, 0.0, 1.0),
+                         NUM_POINTS_NUMERICAL,
+                         NUM_ITERATIONS_NUMERICAL);
+}
+
 // Generate points along a line (simulating coherent scanning)
 std::vector<gp_Pnt> GenerateCoherentPoints(int           count,
                                            const gp_Pnt& start,
@@ -316,11 +356,11 @@ void RunCoherentPerfTest(const char*                      name,
   const ExtremaPS::Domain2D aDomain(uMin, uMax, vMin, vMax);
 
   // Old implementation
-  auto          oldStart = std::chrono::high_resolution_clock::now();
-  Extrema_ExtPS oldExt;
-  oldExt.Initialize(adaptor, uMin, uMax, vMin, vMax, THE_TOL, THE_TOL);
+  auto oldStart = std::chrono::high_resolution_clock::now();
   for (int iter = 0; iter < numIterations; ++iter)
   {
+    Extrema_ExtPS oldExt;
+    oldExt.Initialize(adaptor, uMin, uMax, vMin, vMax, THE_TOL, THE_TOL);
     for (const auto& p : points)
     {
       oldExt.Perform(p);
@@ -330,11 +370,11 @@ void RunCoherentPerfTest(const char*                      name,
   double oldTime =
     std::chrono::duration<double, std::milli>(oldEnd - oldStart).count() / numIterations;
 
-  // New implementation with trajectory prediction
-  auto              newStart = std::chrono::high_resolution_clock::now();
-  ExtremaPS_Surface newExt(adaptor, aDomain);
+  // New implementation with coherent grid scanning
+  auto newStart = std::chrono::high_resolution_clock::now();
   for (int iter = 0; iter < numIterations; ++iter)
   {
+    ExtremaPS_Surface newExt(adaptor, aDomain);
     for (const auto& p : points)
     {
       (void)newExt.Perform(p, THE_TOL);
@@ -354,26 +394,18 @@ void RunCoherentPerfTest(const char*                      name,
 
 TEST(ExtremaPS_Performance, CoherentScanning)
 {
-  std::cout << "\n=== Coherent Scanning Performance (Trajectory Prediction) ===" << std::endl;
+  std::cout << "\n=== Coherent Grid Scanning Performance ===" << std::endl;
   std::cout << "Testing 1000 sequential points, 100 iterations each" << std::endl;
 
   // BSpline with coherent scanning
   {
     occ::handle<Geom_BSplineSurface> surf = MakeDomeBSpline();
-    RunCoherentPerfTest("BSpline (coherent)", surf, 0, 1, 0, 1, 1000, 100);
+    RunCoherentPerfTest("BSpline (1 point)", surf, 0, 1, 0, 1, 1, 10000);
   }
 
-  // Bezier with coherent scanning
   {
-    occ::handle<Geom_BezierSurface> surf = MakeDomeBezier();
-    RunCoherentPerfTest("Bezier (coherent)", surf, 0, 1, 0, 1, 1000, 100);
-  }
-
-  // Sphere with coherent scanning
-  {
-    gp_Sphere                          sph(gp_Ax3(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1)), 5.0);
-    occ::handle<Geom_SphericalSurface> surf = new Geom_SphericalSurface(sph);
-    RunCoherentPerfTest("Sphere (coherent)", surf, 0, 2 * M_PI, -M_PI / 2, M_PI / 2, 1000, 100);
+    occ::handle<Geom_BSplineSurface> surf = MakeDomeBSpline();
+    RunCoherentPerfTest("BSpline 1000 points", surf, 0, 1, 0, 1, 1000, 100);
   }
 
   std::cout << "\n=== Done ===" << std::endl;

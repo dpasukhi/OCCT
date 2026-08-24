@@ -13,19 +13,20 @@
 
 #include <ExtremaPS_BSplineSurface.hxx>
 
-#include <math_Vector.hxx>
 #include <MathRoot_Multiple.hxx>
-#include <NCollection_LinearVector.hxx>
+#include <NCollection_Array1.hxx>
 #include <Precision.hxx>
+
+#include <utility>
 
 namespace
 {
 //! Builds a degree-aware sampling grid aligned with BSpline knot spans.
-math_Vector BuildKnotAwareParams(const NCollection_Array1<double>& theKnots,
-                                 const int                         theDegree,
-                                 const bool                        theIsRational,
-                                 const double                      theParMin,
-                                 const double                      theParMax)
+NCollection_Array1<double> BuildKnotAwareParams(const NCollection_Array1<double>& theKnots,
+                                                const int                         theDegree,
+                                                const bool                        theIsRational,
+                                                const double                      theParMin,
+                                                const double                      theParMax)
 {
   size_t aNbSpans = 0;
   for (size_t anIndex = 0; anIndex + 1 < theKnots.Size(); ++anIndex)
@@ -46,44 +47,50 @@ math_Vector BuildKnotAwareParams(const NCollection_Array1<double>& theKnots,
   const size_t aMinIntervals     = (aDefaultIntervals + aNbSpans - 1) / aNbSpans;
   const size_t aNbIntervals      = std::max(aBaseIntervals, aMinIntervals);
 
-  NCollection_LinearVector<double> aParams;
-  double                           aPrevPar = theParMin;
-  aParams.Append(theParMin);
-
-  for (size_t anIndex = 0; anIndex + 1 < theKnots.Size(); ++anIndex)
-  {
-    double aKnotLo = theKnots.At(anIndex);
-    double aKnotHi = theKnots.At(anIndex + 1);
-
-    if (aKnotHi < theParMin + Precision::PConfusion())
-      continue;
-    if (aKnotLo > theParMax - Precision::PConfusion())
-      break;
-
-    aKnotLo = std::max(aKnotLo, theParMin);
-    aKnotHi = std::min(aKnotHi, theParMax);
-
-    const double aStep = (aKnotHi - aKnotLo) / static_cast<double>(aNbIntervals);
-    for (size_t k = 0; k <= aNbIntervals; ++k)
+  const auto forEachParameter = [&](auto&& theAppend) {
+    double aPrevious = theParMin;
+    theAppend(theParMin);
+    for (size_t anIndex = 0; anIndex + 1 < theKnots.Size(); ++anIndex)
     {
-      const double aPar = aKnotLo + static_cast<double>(k) * aStep;
-      if (aPar > theParMax - Precision::PConfusion())
-        break;
-      if (aPar > aPrevPar + Precision::PConfusion())
+      double aKnotLo = theKnots.At(anIndex);
+      double aKnotHi = theKnots.At(anIndex + 1);
+      if (aKnotHi < theParMin + Precision::PConfusion())
       {
-        aParams.Append(aPar);
-        aPrevPar = aPar;
+        continue;
+      }
+      if (aKnotLo > theParMax - Precision::PConfusion())
+      {
+        break;
+      }
+      aKnotLo           = std::max(aKnotLo, theParMin);
+      aKnotHi           = std::min(aKnotHi, theParMax);
+      const double aStep = (aKnotHi - aKnotLo) / static_cast<double>(aNbIntervals);
+      for (size_t anInterval = 0; anInterval <= aNbIntervals; ++anInterval)
+      {
+        const double aParameter = aKnotLo + static_cast<double>(anInterval) * aStep;
+        if (aParameter > theParMax - Precision::PConfusion())
+        {
+          break;
+        }
+        if (aParameter > aPrevious + Precision::PConfusion())
+        {
+          theAppend(aParameter);
+          aPrevious = aParameter;
+        }
       }
     }
-  }
-  if (theParMax > aPrevPar + Precision::PConfusion())
-    aParams.Append(theParMax);
+    if (theParMax > aPrevious + Precision::PConfusion())
+    {
+      theAppend(theParMax);
+    }
+  };
 
-  math_Vector aResult(aParams.Size());
-  for (size_t i = 0; i < aParams.Size(); ++i)
-  {
-    aResult.ChangeAt(i) = aParams.Value(i);
-  }
+  size_t aNbParameters = 0;
+  forEachParameter([&](const double) { ++aNbParameters; });
+  NCollection_Array1<double> aResult(aNbParameters);
+  size_t                     anOutputIndex = 0;
+  forEachParameter(
+    [&](const double theParameter) { aResult.ChangeAt(anOutputIndex++) = theParameter; });
 
   return aResult;
 }
@@ -136,21 +143,21 @@ void ExtremaPS_BSplineSurface::buildGrid()
   }
 
   const bool  isRational = mySurface->IsURational() || mySurface->IsVRational();
-  math_Vector aUParams   = BuildKnotAwareParams(mySurface->UKnots(),
-                                                mySurface->UDegree(),
-                                                isRational,
-                                                myDomain.UMin,
-                                                myDomain.UMax);
-  math_Vector aVParams   = BuildKnotAwareParams(mySurface->VKnots(),
-                                                mySurface->VDegree(),
-                                                isRational,
-                                                myDomain.VMin,
-                                                myDomain.VMax);
+  NCollection_Array1<double> aUParams = BuildKnotAwareParams(mySurface->UKnots(),
+                                                             mySurface->UDegree(),
+                                                             isRational,
+                                                             myDomain.UMin,
+                                                             myDomain.UMax);
+  NCollection_Array1<double> aVParams = BuildKnotAwareParams(mySurface->VKnots(),
+                                                             mySurface->VDegree(),
+                                                             isRational,
+                                                             myDomain.VMin,
+                                                             myDomain.VMax);
 
-  GeomGridEval_BSplineSurface                    anEval(mySurface);
-  const NCollection_Array2<GeomGridEval::SurfD1> aGrid =
-    anEval.EvaluateGridD1(aUParams.Array1(), aVParams.Array1());
-  myEvaluator.SetGrid(aGrid, aUParams, aVParams);
+  const GeomGridEval_BSplineSurface anEval(mySurface);
+  myEvaluator.SetGrid(anEval.EvaluateGridD1Coords(aUParams, aVParams),
+                      std::move(aUParams),
+                      std::move(aVParams));
 }
 
 //==================================================================================================
