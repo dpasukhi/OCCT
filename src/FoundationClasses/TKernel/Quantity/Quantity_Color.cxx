@@ -62,13 +62,6 @@ static constexpr double XYZ_TO_RGB_Z_B = 1.0572252;
 
 namespace
 {
-// Returns a reference to the epsilon value.
-inline double& getEpsilonRef() noexcept
-{
-  static double theEpsilon = 0.0001;
-  return theEpsilon;
-}
-
 // Validate RGB values are in range [0, 1].
 inline void validateRgbRange(double theR, double theG, double theB)
 {
@@ -141,20 +134,6 @@ struct Quantity_StandardColor
 static constexpr Quantity_StandardColor THE_COLORS[] = {
 #include "Quantity_ColorTable.pxx"
 };
-
-//=================================================================================================
-
-double Quantity_Color::Epsilon() noexcept
-{
-  return getEpsilonRef();
-}
-
-//=================================================================================================
-
-void Quantity_Color::SetEpsilon(const double theEpsilon) noexcept
-{
-  getEpsilonRef() = theEpsilon;
-}
 
 //=================================================================================================
 

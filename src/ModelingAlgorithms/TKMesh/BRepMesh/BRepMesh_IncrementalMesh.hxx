@@ -119,14 +119,6 @@ public: //! @name plugin API
                                      const double           theAngDeflection,
                                      BRepMesh_DiscretRoot*& theAlgo);
 
-  //! Returns multi-threading usage flag set by default in
-  //! Discret() static method (thus applied only to Mesh Factories).
-  Standard_EXPORT static bool IsParallelDefault();
-
-  //! Setup multi-threading usage flag set by default in
-  //! Discret() static method (thus applied only to Mesh Factories).
-  Standard_EXPORT static void SetParallelDefault(const bool isInParallel);
-
   DEFINE_STANDARD_RTTIEXT(BRepMesh_IncrementalMesh, BRepMesh_DiscretRoot)
 
 protected:

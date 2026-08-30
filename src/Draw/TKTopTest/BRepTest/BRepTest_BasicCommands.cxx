@@ -29,7 +29,6 @@
 #include <Draw_Interpretor.hxx>
 #include <Draw_Box.hxx>
 
-#include <BRepBuilderAPI.hxx>
 #include <BRepBuilderAPI_FindPlane.hxx>
 #include <BRepBuilderAPI_Copy.hxx>
 #include <BRepBuilderAPI_Transform.hxx>
@@ -1049,22 +1048,6 @@ static int findplane(Draw_Interpretor& di, int n, const char** a)
 
 //=================================================================================================
 
-static int precision(Draw_Interpretor& di, int n, const char** a)
-{
-  n--;
-
-  if (n == 0)
-  {
-    // std::cout << " Current Precision = " << BRepBuilderAPI::Precision() << std::endl;
-    di << " Current Precision = " << BRepBuilderAPI::Precision() << "\n";
-  }
-  else
-  {
-    BRepBuilderAPI::Precision(Draw::Atof(a[1]));
-  }
-  return 0;
-}
-
 //=======================================================================
 // function : reperage shape (Int lin Shape) + pointe double click   + maxtol
 // purpose  :
@@ -1794,8 +1777,6 @@ void BRepTest::BasicCommands(Draw_Interpretor& theCommands)
   theCommands.Add("bscale", "bscale name x y z scale", __FILE__, transform, g);
 
   theCommands.Add("fscale", "fscale name x y z scale", __FILE__, transform, g);
-
-  theCommands.Add("precision", "precision [preci]", __FILE__, precision, g);
 
   theCommands.Add("mkedgecurve", "mkedgecurve name tolerance", __FILE__, mkedgecurve, g);
 

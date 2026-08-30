@@ -47,27 +47,27 @@ Quantity_Color IGESCAFControl::DecodeColor(const int color)
 int IGESCAFControl::EncodeColor(const Quantity_Color& col)
 {
   int code = 0;
-  if (std::abs(col.Red() - 1.) <= Quantity_Color::Epsilon())
+  if (col.IsEqual(1.0, Quantity_Color::Component::Red))
   {
     code |= 0x001;
   }
-  else if (std::abs(col.Red()) > Quantity_Color::Epsilon())
+  else if (col.IsDifferent(0.0, Quantity_Color::Component::Red))
   {
     return 0;
   }
-  if (std::abs(col.Green() - 1.) <= Quantity_Color::Epsilon())
+  if (col.IsEqual(1.0, Quantity_Color::Component::Green))
   {
     code |= 0x010;
   }
-  else if (std::abs(col.Green()) > Quantity_Color::Epsilon())
+  else if (col.IsDifferent(0.0, Quantity_Color::Component::Green))
   {
     return 0;
   }
-  if (std::abs(col.Blue() - 1.) <= Quantity_Color::Epsilon())
+  if (col.IsEqual(1.0, Quantity_Color::Component::Blue))
   {
     code |= 0x100;
   }
-  else if (std::abs(col.Blue()) > Quantity_Color::Epsilon())
+  else if (col.IsDifferent(0.0, Quantity_Color::Component::Blue))
   {
     return 0;
   }

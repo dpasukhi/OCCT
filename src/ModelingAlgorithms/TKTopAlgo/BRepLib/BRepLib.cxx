@@ -80,10 +80,6 @@
 
 #include <algorithm>
 
-// TODO - not thread-safe static variables
-static double                  thePrecision = Precision::Confusion();
-static occ::handle<Geom_Plane> thePlane;
-
 static void InternalUpdateTolerances(const TopoDS_Shape& theOldShape,
                                      const bool          IsVerifyTolerance,
                                      const bool          IsMutableInput,
@@ -111,38 +107,6 @@ struct BRepLib_ComparePoints
     return false;
   }
 };
-
-//=================================================================================================
-
-void BRepLib::Precision(const double P)
-{
-  thePrecision = P;
-}
-
-//=================================================================================================
-
-double BRepLib::Precision()
-{
-  return thePrecision;
-}
-
-//=================================================================================================
-
-void BRepLib::Plane(const occ::handle<Geom_Plane>& P)
-{
-  thePlane = P;
-}
-
-//=================================================================================================
-
-const occ::handle<Geom_Plane>& BRepLib::Plane()
-{
-  if (thePlane.IsNull())
-  {
-    thePlane = new Geom_Plane(gp::XOY());
-  }
-  return thePlane;
-}
 
 //=================================================================================================
 

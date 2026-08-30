@@ -53,6 +53,16 @@ occ::handle<BRepMesh_DiscretRoot> BRepMesh_DiscretFactory::Discret(const TopoDS_
                                                                    double theLinDeflection,
                                                                    double theAngDeflection)
 {
+  return Discret(theShape, theLinDeflection, theAngDeflection, false);
+}
+
+//=================================================================================================
+
+occ::handle<BRepMesh_DiscretRoot> BRepMesh_DiscretFactory::Discret(const TopoDS_Shape& theShape,
+                                                                   double theLinDeflection,
+                                                                   double theAngDeflection,
+                                                                   bool   theInParallel)
+{
   occ::handle<BRepMesh_DiscretAlgoFactory> aFactory =
     myDefaultName.IsEmpty() ? BRepMesh_DiscretAlgoFactory::DefaultFactory()
                             : BRepMesh_DiscretAlgoFactory::FindFactory(myDefaultName);
@@ -62,5 +72,5 @@ occ::handle<BRepMesh_DiscretRoot> BRepMesh_DiscretFactory::Discret(const TopoDS_
     return occ::handle<BRepMesh_DiscretRoot>();
   }
 
-  return aFactory->CreateAlgorithm(theShape, theLinDeflection, theAngDeflection);
+  return aFactory->CreateAlgorithm(theShape, theLinDeflection, theAngDeflection, theInParallel);
 }

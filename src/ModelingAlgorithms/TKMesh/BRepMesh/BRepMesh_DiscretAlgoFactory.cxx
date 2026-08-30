@@ -112,3 +112,14 @@ BRepMesh_DiscretAlgoFactory::BRepMesh_DiscretAlgoFactory(const TCollection_Ascii
     : myName(theName)
 {
 }
+
+//=================================================================================================
+
+occ::handle<BRepMesh_DiscretRoot> BRepMesh_DiscretAlgoFactory::CreateAlgorithm(
+  const TopoDS_Shape& theShape,
+  double              theLinDeflection,
+  double              theAngDeflection,
+  bool                /*theInParallel*/)
+{
+  return CreateAlgorithm(theShape, theLinDeflection, theAngDeflection);
+}

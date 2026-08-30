@@ -2,8 +2,6 @@
 set(OCCT_BRepBuilderAPI_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 
 set(OCCT_BRepBuilderAPI_FILES
-  BRepBuilderAPI.cxx
-  BRepBuilderAPI.hxx
   BRepBuilderAPI_BndBoxTreeSelector.hxx
 
   BRepBuilderAPI_Collect.cxx

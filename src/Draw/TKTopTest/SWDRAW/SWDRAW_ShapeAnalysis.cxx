@@ -18,7 +18,6 @@
 
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepBuilderAPI.hxx>
 #include <BRepBuilderAPI_MakeFace.hxx>
 #include <BRepGProp.hxx>
 #include <BRepTopAdaptor_FClass2d.hxx>
@@ -371,14 +370,14 @@ static int projcurve(Draw_Interpretor& di, int argc, const char** argv)
   X = Draw::Atof(argv[2 + i0]);
   Y = Draw::Atof(argv[3 + i0]);
   Z = Draw::Atof(argv[4 + i0]);
-  di << "Precision (BRepBuilderAPI) : " << BRepBuilderAPI::Precision() << "  Projection : " << X
+  di << "Precision::Confusion() : " << Precision::Confusion() << "  Projection : " << X
      << "  " << Y << "  " << Z << "\n";
 
   gp_Pnt P3D(X, Y, Z);
   gp_Pnt res;
   double param, dist;
 
-  dist = ShapeAnalysis_Curve().Project(C, P3D, BRepBuilderAPI::Precision(), res, param, cf, cl);
+  dist = ShapeAnalysis_Curve().Project(C, P3D, Precision::Confusion(), res, param, cf, cl);
   res.Coord(X, Y, Z);
   di << "Result : " << X << "  " << Y << "  " << Z << "\nParam = " << param << "  Gap = " << dist
      << "\n";
@@ -486,7 +485,7 @@ static int anaface(Draw_Interpretor& di, int argc, const char** argv)
   }
   bool iasurf = !surface.IsNull();
   //: sw  if (!Face.IsNull()) STW.SetFace (Face);
-  //: sw  else STW.SetPrecision (BRepBuilderAPI::Precision());
+  //: sw  else STW.SetPrecision (Precision::Confusion());
 
   for (TopExp_Explorer exp(Shape, TopAbs_WIRE); exp.More(); exp.Next())
   {

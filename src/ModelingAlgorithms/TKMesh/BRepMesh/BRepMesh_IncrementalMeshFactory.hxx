@@ -36,6 +36,13 @@ public:
     const TopoDS_Shape& theShape,
     double              theLinDeflection,
     double              theAngDeflection) override;
+
+  //! Creates a new BRepMesh_IncrementalMesh instance with an explicit parallel-processing mode.
+  Standard_EXPORT occ::handle<BRepMesh_DiscretRoot> CreateAlgorithm(
+    const TopoDS_Shape& theShape,
+    double              theLinDeflection,
+    double              theAngDeflection,
+    bool                theInParallel) override;
 };
 
 #endif // _BRepMesh_IncrementalMeshFactory_HeaderFile

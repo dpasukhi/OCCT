@@ -102,12 +102,6 @@ public:
 public:
   //!@name Parallel processing mode
 
-  //! Gets the global parallel mode
-  Standard_EXPORT static bool GetParallelMode();
-
-  //! Sets the global parallel mode
-  Standard_EXPORT static void SetParallelMode(const bool theNewMode);
-
   //! Set the flag of parallel processing
   //! if <theFlag> is true  the parallel processing is switched on
   //! if <theFlag> is false the parallel processing is switched off

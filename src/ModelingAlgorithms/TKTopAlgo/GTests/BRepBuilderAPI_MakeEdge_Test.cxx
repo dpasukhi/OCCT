@@ -13,14 +13,20 @@
 
 #include <BRep_Tool.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
+#include <BRepBuilderAPI_MakeEdge2d.hxx>
 #include <BRepGProp.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Line.hxx>
+#include <gp.hxx>
 #include <gp_Ax2.hxx>
+#include <gp_Ax3.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Pnt2d.hxx>
+#include <gp_Pln.hxx>
 #include <GProp_GProps.hxx>
 #include <Precision.hxx>
+#include <StdFail_NotDone.hxx>
 #include <TopExp.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Edge.hxx>
@@ -129,4 +135,67 @@ TEST(BRepBuilderAPI_MakeEdgeTest, ToleranceCheck)
   double      aTol   = BRep_Tool::Tolerance(anEdge);
   EXPECT_GT(aTol, 0.0) << "Edge tolerance should be positive";
   EXPECT_LE(aTol, Precision::Confusion()) << "Edge tolerance should not exceed confusion";
+}
+
+TEST(BRepBuilderAPI_MakeEdgeTest, Edge2dExplicitPlane)
+{
+  const gp_Pln aPlane(gp_Ax3(gp_Pnt(10.0, 20.0, 30.0),
+                             gp_Dir(0.0, 1.0, 0.0),
+                             gp_Dir(1.0, 0.0, 0.0)));
+  BRepBuilderAPI_MakeEdge2d aMakeEdge(aPlane);
+  aMakeEdge.Init(gp_Pnt2d(1.0, 2.0), gp_Pnt2d(4.0, 6.0));
+  ASSERT_TRUE(aMakeEdge.IsDone());
+
+  TopoDS_Vertex aV1, aV2;
+  TopExp::Vertices(aMakeEdge.Edge(), aV1, aV2);
+  ASSERT_FALSE(aV1.IsNull());
+  ASSERT_FALSE(aV2.IsNull());
+
+  EXPECT_TRUE(BRep_Tool::Pnt(aV1).IsEqual(gp_Pnt(11.0, 20.0, 28.0), Precision::Confusion()));
+  EXPECT_TRUE(BRep_Tool::Pnt(aV2).IsEqual(gp_Pnt(14.0, 20.0, 24.0), Precision::Confusion()));
+}
+
+TEST(BRepBuilderAPI_MakeEdgeTest, Edge2dDefaultPlanesAreIndependent)
+{
+  BRepBuilderAPI_MakeEdge2d aFirstMaker(gp_Pnt2d(0.0, 0.0), gp_Pnt2d(1.0, 0.0));
+  BRepBuilderAPI_MakeEdge2d aSecondMaker(gp_Pnt2d(0.0, 0.0), gp_Pnt2d(0.0, 1.0));
+  ASSERT_TRUE(aFirstMaker.IsDone());
+  ASSERT_TRUE(aSecondMaker.IsDone());
+
+  occ::handle<Geom2d_Curve> aFirstCurve;
+  occ::handle<Geom2d_Curve> aSecondCurve;
+  occ::handle<Geom_Surface> aFirstSurface;
+  occ::handle<Geom_Surface> aSecondSurface;
+  TopLoc_Location           aFirstLocation;
+  TopLoc_Location           aSecondLocation;
+  double                    aFirstParameter = 0.0;
+  double                    aLastParameter  = 0.0;
+  BRep_Tool::CurveOnSurface(aFirstMaker.Edge(),
+                            aFirstCurve,
+                            aFirstSurface,
+                            aFirstLocation,
+                            aFirstParameter,
+                            aLastParameter);
+  BRep_Tool::CurveOnSurface(aSecondMaker.Edge(),
+                            aSecondCurve,
+                            aSecondSurface,
+                            aSecondLocation,
+                            aFirstParameter,
+                            aLastParameter);
+
+  ASSERT_FALSE(aFirstSurface.IsNull());
+  ASSERT_FALSE(aSecondSurface.IsNull());
+  EXPECT_NE(aFirstSurface.get(), aSecondSurface.get());
+}
+
+TEST(BRepBuilderAPI_MakeEdgeTest, Edge2dInitFailureClearsPreviousResult)
+{
+  BRepBuilderAPI_MakeEdge2d aMakeEdge{gp_Pln(gp::XOY())};
+  aMakeEdge.Init(gp_Pnt2d(0.0, 0.0), gp_Pnt2d(1.0, 0.0));
+  ASSERT_TRUE(aMakeEdge.IsDone());
+
+  aMakeEdge.Init(gp_Pnt2d(2.0, 3.0), gp_Pnt2d(2.0, 3.0));
+  EXPECT_FALSE(aMakeEdge.IsDone());
+  EXPECT_EQ(aMakeEdge.Error(), BRepBuilderAPI_LineThroughIdenticPoints);
+  EXPECT_THROW(aMakeEdge.Shape(), StdFail_NotDone);
 }

@@ -30,7 +30,9 @@ class gp_Circ2d;
 class gp_Elips2d;
 class gp_Hypr2d;
 class gp_Parab2d;
+class gp_Pln;
 class Geom2d_Curve;
+class Geom_Plane;
 class TopoDS_Edge;
 
 //! Provides methods to build edges.
@@ -68,6 +70,10 @@ class BRepLib_MakeEdge2d : public BRepLib_MakeShape
 {
 public:
   DEFINE_STANDARD_ALLOC
+
+  //! Creates an uninitialized builder using the specified plane to map 2D curves into 3D space.
+  //! Call one of the Init() methods to build the edge.
+  Standard_EXPORT explicit BRepLib_MakeEdge2d(const gp_Pln& thePlane);
 
   Standard_EXPORT BRepLib_MakeEdge2d(const TopoDS_Vertex& V1, const TopoDS_Vertex& V2);
 
@@ -149,6 +155,12 @@ public:
                                      const double                     p1,
                                      const double                     p2);
 
+  //! Initializes a straight edge between two vertices projected onto the configured plane.
+  Standard_EXPORT void Init(const TopoDS_Vertex& V1, const TopoDS_Vertex& V2);
+
+  //! Initializes a straight edge between two points on the configured plane.
+  Standard_EXPORT void Init(const gp_Pnt2d& P1, const gp_Pnt2d& P2);
+
   Standard_EXPORT void Init(const occ::handle<Geom2d_Curve>& C);
 
   Standard_EXPORT void Init(const occ::handle<Geom2d_Curve>& C, const double p1, const double p2);
@@ -186,9 +198,13 @@ public:
   Standard_EXPORT const TopoDS_Vertex& Vertex2() const;
 
 private:
-  BRepLib_EdgeError myError;
-  TopoDS_Vertex     myVertex1;
-  TopoDS_Vertex     myVertex2;
+  //! Clears the previous result before starting a new construction.
+  void reset();
+
+  BRepLib_EdgeError       myError = BRepLib_EdgeDone;
+  TopoDS_Vertex           myVertex1;
+  TopoDS_Vertex           myVertex2;
+  occ::handle<Geom_Plane> myPlane;
 };
 
 #endif // _BRepLib_MakeEdge2d_HeaderFile

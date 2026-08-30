@@ -66,6 +66,15 @@ public:
                                                             double              theLinDeflection,
                                                             double theAngDeflection) = 0;
 
+  //! Creates a new meshing algorithm instance with an explicit parallel-processing mode.
+  //! The default implementation preserves compatibility with factories that do not expose
+  //! parallel execution and delegates to the three-argument overload.
+  Standard_EXPORT virtual occ::handle<BRepMesh_DiscretRoot> CreateAlgorithm(
+    const TopoDS_Shape& theShape,
+    double              theLinDeflection,
+    double              theAngDeflection,
+    bool                theInParallel);
+
   //! Returns the factory name.
   const TCollection_AsciiString& Name() const { return myName; }
 

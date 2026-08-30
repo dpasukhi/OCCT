@@ -18,29 +18,23 @@
 #include <NCollection_BaseAllocator.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <Precision.hxx>
-#include <Standard_NotImplemented.hxx>
 #include <BOPAlgo_Alerts.hxx>
 
 namespace
 {
-bool myGlobalRunParallel = false;
-
 // Initialize textual messages for errors and warnings defined in BOPAlgo
 #include "BOPAlgo_BOPAlgo_msg.pxx"
-bool BOPAlgo_InitMessages = false;
 
 void BOPAlgo_LoadMessages()
 {
-  if (BOPAlgo_InitMessages)
-  {
-    return;
-  }
-  BOPAlgo_InitMessages = true;
-
-  if (!Message_MsgFile::HasMsg("BOPAlgo_LOAD_CHECKER"))
-  {
-    Message_MsgFile::LoadFromString(BOPAlgo_BOPAlgo_msg);
-  }
+  static const bool isLoaded = []() {
+    if (!Message_MsgFile::HasMsg("BOPAlgo_LOAD_CHECKER"))
+    {
+      Message_MsgFile::LoadFromString(BOPAlgo_BOPAlgo_msg);
+    }
+    return true;
+  }();
+  (void)isLoaded;
 }
 } // namespace
 
@@ -49,7 +43,7 @@ void BOPAlgo_LoadMessages()
 BOPAlgo_Options::BOPAlgo_Options()
     : myAllocator(NCollection_BaseAllocator::CommonBaseAllocator()),
       myReport(new Message_Report),
-      myRunParallel(myGlobalRunParallel),
+      myRunParallel(false),
       myFuzzyValue(Precision::Confusion()),
       myUseOBB(false)
 {
@@ -61,7 +55,7 @@ BOPAlgo_Options::BOPAlgo_Options()
 BOPAlgo_Options::BOPAlgo_Options(const occ::handle<NCollection_BaseAllocator>& theAllocator)
     : myAllocator(theAllocator),
       myReport(new Message_Report),
-      myRunParallel(myGlobalRunParallel),
+      myRunParallel(false),
       myFuzzyValue(Precision::Confusion()),
       myUseOBB(false)
 {
@@ -84,20 +78,6 @@ void BOPAlgo_Options::DumpErrors(Standard_OStream& theOS) const
 void BOPAlgo_Options::DumpWarnings(Standard_OStream& theOS) const
 {
   myReport->Dump(theOS, Message_Warning);
-}
-
-//=================================================================================================
-
-void BOPAlgo_Options::SetParallelMode(bool theNewMode)
-{
-  myGlobalRunParallel = theNewMode;
-}
-
-//=================================================================================================
-
-bool BOPAlgo_Options::GetParallelMode()
-{
-  return myGlobalRunParallel;
 }
 
 //=================================================================================================

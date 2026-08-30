@@ -39,12 +39,13 @@ constexpr int THE_INVALID_VALUE = -999;
 constexpr int THE_MAX_DEGREE = 30;
 
 // Lookup tables for database pointers indexed by myNivConstr (constraint level)
-constexpr double const* THE_WEIGHTS_DB[3]    = {WeightsDB_C0, WeightsDB_C1, WeightsDB_C2};
-constexpr double const* THE_WEIGHTS_DB0[3]   = {WeightsDB0_C0, WeightsDB0_C1, WeightsDB0_C2};
-constexpr double const* THE_MAX_VALUES_DB[3] = {MaxValuesDB_C0, MaxValuesDB_C1, MaxValuesDB_C2};
-constexpr double const* THE_TRANS_MATRIX[3]  = {&TransMatrix_C0[0][0],
-                                                &TransMatrix_C1[0][0],
-                                                &TransMatrix_C2[0][0]};
+constexpr double const* THE_WEIGHTS_DB[3]      = {WeightsDB_C0, WeightsDB_C1, WeightsDB_C2};
+constexpr double const* THE_WEIGHTS_DB0[3]     = {WeightsDB0_C0, WeightsDB0_C1, WeightsDB0_C2};
+constexpr double const* THE_MAX_VALUES_DB[3]   = {MaxValuesDB_C0, MaxValuesDB_C1, MaxValuesDB_C2};
+constexpr int           THE_MAX_VALUES_SIZE[3] = {57, 55, 53};
+constexpr double const* THE_TRANS_MATRIX[3]    = {&TransMatrix_C0[0][0],
+                                                  &TransMatrix_C1[0][0],
+                                                  &TransMatrix_C2[0][0]};
 } // namespace
 
 //=================================================================================================
@@ -194,6 +195,20 @@ void PLib_JacobiPolynomial::MaxValue(NCollection_Array1<double>& theTabMax) cons
   {
     theTabMax.ChangeValue(i) = *aDbPointer++;
   }
+}
+
+//=================================================================================================
+
+const double* PLib_JacobiPolynomial::MaxValuesData(const GeomAbs_Shape theConstraintOrder)
+{
+  return THE_MAX_VALUES_DB[PLib::NivConstr(theConstraintOrder)];
+}
+
+//=================================================================================================
+
+int PLib_JacobiPolynomial::MaxValuesSize(const GeomAbs_Shape theConstraintOrder)
+{
+  return THE_MAX_VALUES_SIZE[PLib::NivConstr(theConstraintOrder)];
 }
 
 //=================================================================================================
