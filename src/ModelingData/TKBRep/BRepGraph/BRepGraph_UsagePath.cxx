@@ -13,6 +13,8 @@
 
 #include <BRepGraph_UsagePath.hxx>
 
+#include <Standard_HashUtils.hxx>
+
 //=================================================================================================
 
 bool BRepGraph_UsagePath::IsEqual(const BRepGraph_UsagePath& theOther) const
@@ -35,27 +37,26 @@ bool BRepGraph_UsagePath::IsEqual(const BRepGraph_UsagePath& theOther) const
 
 size_t BRepGraph_UsagePath::HashCode() const
 {
-  const size_t aSize = Size();
+  const size_t aSize = mySteps.Size();
   if (aSize == 0)
   {
     return opencascade::hash(aSize);
   }
-  const Step& aFirst = First();
-  if (aSize == 1)
-  {
-    size_t aCombination[] = {opencascade::hash(aSize),
-                             opencascade::hash(aFirst.Node),
-                             opencascade::hash(aFirst.Ref),
-                             opencascade::hash(aFirst.StepIndex)};
-    return opencascade::hashBytes(aCombination, sizeof(aCombination));
-  }
-  const Step& aLast          = Last();
-  size_t      aCombination[] = {opencascade::hash(aSize),
-                                opencascade::hash(aFirst.Node),
-                                opencascade::hash(aFirst.Ref),
-                                opencascade::hash(aFirst.StepIndex),
-                                opencascade::hash(aLast.Node),
-                                opencascade::hash(aLast.Ref),
-                                opencascade::hash(aLast.StepIndex)};
+
+  const Step& aFirst  = mySteps.First();
+  const Step& aMiddle = mySteps.Value(aSize / 2);
+  const Step& aLast   = mySteps.Last();
+  const size_t aCombination[] = {
+    opencascade::hash(aSize),
+    opencascade::hash(aFirst.Node),
+    opencascade::hash(aFirst.Ref),
+    opencascade::hash(aFirst.StepIndex),
+    opencascade::hash(aMiddle.Node),
+    opencascade::hash(aMiddle.Ref),
+    opencascade::hash(aMiddle.StepIndex),
+    opencascade::hash(aLast.Node),
+    opencascade::hash(aLast.Ref),
+    opencascade::hash(aLast.StepIndex),
+  };
   return opencascade::hashBytes(aCombination, sizeof(aCombination));
 }

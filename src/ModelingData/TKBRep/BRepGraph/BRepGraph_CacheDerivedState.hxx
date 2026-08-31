@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <shared_mutex>
 
 class BRepGraphInc_Storage;
 
@@ -80,6 +81,24 @@ public:
   //! @param[in] theWire   wire definition identifier
   //! @param[in] theClosed pre-computed closure value
   Standard_EXPORT void SetWireIsClosed(BRepGraph_WireId theWire, bool theClosed);
+
+  //! @brief Return number of distinct edge definitions used by a wire.
+  //! Seam wires can contain two coedges referencing the same edge; this query counts
+  //! such seam halves once.
+  //! @param[in] theWire wire definition identifier
+  //! @return number of distinct active edge definitions used by active coedges in the wire
+  [[nodiscard]] Standard_EXPORT uint32_t NbDistinctEdges(BRepGraph_WireId theWire);
+
+  //! @brief Return the outer wire reference of a face.
+  //! Computes the wire whose UV bounds contain all other face wire UV boxes.
+  //! @param[in] theFace face definition identifier
+  //! @return outer wire reference id, or invalid id when no valid wire bounds exist
+  [[nodiscard]] Standard_EXPORT BRepGraph_WireRefId OuterWireRef(BRepGraph_FaceId theFace);
+
+  //! @brief Return the outer wire of a face.
+  //! @param[in] theFace face definition identifier
+  //! @return child wire id of OuterWireRef(), or invalid id when no valid wire bounds exist
+  [[nodiscard]] Standard_EXPORT BRepGraph_WireId OuterWire(BRepGraph_FaceId theFace);
 
   //! @brief Test if a shell is closed.
   //! @param[in] theShell shell definition identifier
@@ -247,18 +266,21 @@ private:
   {
     enum Flags : uint8_t
     {
-      FlagNone     = 0,
-      FlagClosed   = 1 << 0,
-      FlagComputed = 1 << 1,
+      FlagNone             = 0,
+      FlagClosed           = 1 << 0,
+      FlagClosureComputed  = 1 << 1,
+      FlagDistinctComputed = 1 << 2,
     };
 
     std::atomic<uint8_t> Packed{FlagNone};
+    std::atomic<uint32_t> DistinctEdges{0};
 
     WireEntry() = default;
 
     WireEntry(const WireEntry& theOther)
         : NodeEntry(theOther),
-          Packed(theOther.Packed.load(std::memory_order_relaxed))
+          Packed(theOther.Packed.load(std::memory_order_relaxed)),
+          DistinctEdges(theOther.DistinctEdges.load(std::memory_order_relaxed))
     {
     }
 
@@ -266,6 +288,8 @@ private:
     {
       NodeEntry::operator=(theOther);
       Packed.store(theOther.Packed.load(std::memory_order_relaxed), std::memory_order_relaxed);
+      DistinctEdges.store(theOther.DistinctEdges.load(std::memory_order_relaxed),
+                          std::memory_order_relaxed);
       return *this;
     }
 
@@ -276,17 +300,35 @@ private:
 
     [[nodiscard]] bool IsComputed() const
     {
-      return (Packed.load(std::memory_order_acquire) & FlagComputed) != 0;
+      return (Packed.load(std::memory_order_acquire) & FlagClosureComputed) != 0;
+    }
+
+    [[nodiscard]] bool HasDistinctEdges() const
+    {
+      return (Packed.load(std::memory_order_acquire) & FlagDistinctComputed) != 0;
+    }
+
+    [[nodiscard]] uint32_t NbDistinctEdges() const
+    {
+      return DistinctEdges.load(std::memory_order_acquire);
     }
 
     void SetClosed(bool theVal)
     {
-      uint8_t aFlags = FlagComputed;
+      uint8_t aFlags = Packed.load(std::memory_order_acquire)
+                     & ~(FlagClosureComputed | FlagClosed);
+      aFlags |= FlagClosureComputed;
       if (theVal)
       {
         aFlags |= FlagClosed;
       }
       Packed.store(aFlags, std::memory_order_release);
+    }
+
+    void SetDistinctEdges(uint32_t theCount)
+    {
+      DistinctEdges.store(theCount, std::memory_order_release);
+      Packed.fetch_or(FlagDistinctComputed, std::memory_order_release);
     }
   };
 
@@ -319,6 +361,48 @@ private:
     }
   };
 
+  struct FaceEntry : public NodeEntry
+  {
+    enum Flags : uint8_t
+    {
+      FlagNone              = 0,
+      FlagOuterWireComputed = 1 << 0,
+    };
+
+    std::atomic<uint8_t> Packed{FlagNone};
+    BRepGraph_WireRefId  OuterWireRefId;
+
+    FaceEntry() = default;
+
+    FaceEntry(const FaceEntry& theOther)
+        : NodeEntry(theOther),
+          Packed(theOther.Packed.load(std::memory_order_relaxed)),
+           OuterWireRefId(theOther.OuterWireRefId)
+    {
+    }
+
+    FaceEntry& operator=(const FaceEntry& theOther)
+    {
+      NodeEntry::operator=(theOther);
+      Packed.store(theOther.Packed.load(std::memory_order_relaxed), std::memory_order_relaxed);
+      OuterWireRefId = theOther.OuterWireRefId;
+      return *this;
+    }
+
+    [[nodiscard]] bool HasOuterWire() const
+    {
+      return (Packed.load(std::memory_order_acquire) & FlagOuterWireComputed) != 0;
+    }
+
+    [[nodiscard]] BRepGraph_WireRefId OuterWireRef() const { return OuterWireRefId; }
+
+    void SetOuterWireRef(BRepGraph_WireRefId theWireRef)
+    {
+      OuterWireRefId = theWireRef;
+      Packed.store(FlagOuterWireComputed, std::memory_order_release);
+    }
+  };
+
   //! Ensure edge-own entry (Status, IsClosed) is fresh. Uses OwnGen only.
   bool ensureEdgeEntry(BRepGraph_EdgeId theEdge, EdgeEntry& theEntry);
 
@@ -342,12 +426,19 @@ private:
   static ShellEntry::ClosureStatus computeShellClosure(const BRepGraph&  theGraph,
                                                        BRepGraph_ShellId theShell);
 
-  mutable std::mutex myMutex;
+  static uint32_t computeWireNbDistinctEdges(const BRepGraph&  theGraph,
+                                             BRepGraph_WireId theWire);
+
+  static BRepGraph_WireRefId computeFaceOuterWireRef(const BRepGraph&  theGraph,
+                                                      BRepGraph_FaceId theFace);
+
+  mutable std::shared_mutex myMutex;
 
   NCollection_DynamicArray<EdgeEntry>            myEdgeEntries;
   NCollection_DynamicArray<CoEdgeSameRangeEntry> myCoEdgeSameRangeEntries;
   NCollection_DynamicArray<WireEntry>            myWireEntries;
   NCollection_DynamicArray<ShellEntry>           myShellEntries;
+  NCollection_DynamicArray<FaceEntry>            myFaceEntries;
 };
 
 #endif // _BRepGraph_CacheDerivedState_HeaderFile

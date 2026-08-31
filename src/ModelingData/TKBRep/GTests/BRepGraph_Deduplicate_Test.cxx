@@ -31,6 +31,8 @@
 #include <BRepGraph_ShapesView.hxx>
 #include <BRepGraph_Compact.hxx>
 #include <BRepGraph_Deduplicate.hxx>
+#include <BRepGraph_RevisionHash.hxx>
+#include <BRepGraph_UIDsView.hxx>
 #include <BRepGraph_RefsView.hxx>
 #include <BRepGraph_RefsIterator.hxx>
 #include <BRepGraph_Validate.hxx>
@@ -40,7 +42,9 @@
 #include <BRepPrimAPI_MakeCone.hxx>
 #include <BRepPrimAPI_MakeCylinder.hxx>
 #include <BRepPrimAPI_MakeSphere.hxx>
+#include <Geom_Line.hxx>
 #include <NCollection_FlatMap.hxx>
+#include <NCollection_DataMap.hxx>
 #include <NCollection_Map.hxx>
 #include <Precision.hxx>
 #include <TopAbs_ShapeEnum.hxx>
@@ -320,6 +324,53 @@ TopoDS_Compound makeThreeCopiedIdenticalEdges()
   TopoDS_Compound     aCompound;
   aBuilder.MakeCompound(aCompound);
   aBuilder.Add(aCompound, aEdge);
+  aBuilder.Add(aCompound, aCopy1.Shape());
+  aBuilder.Add(aCompound, aCopy2.Shape());
+  return aCompound;
+}
+
+void addTwoReversedEdgesOnSharedCurve(BRepGraph& theGraph)
+{
+  const gp_Pnt aStart(0.0, 0.0, 0.0);
+  const gp_Pnt anEnd(10.0, 0.0, 0.0);
+
+  const BRepGraph_VertexId      aStartVertex = theGraph.Editor().Vertices().Add(aStart, 1.0e-7);
+  const BRepGraph_VertexId      anEndVertex  = theGraph.Editor().Vertices().Add(anEnd, 1.0e-7);
+  const occ::handle<Geom_Curve> aCurve       = new Geom_Line(aStart, gp_Dir(1.0, 0.0, 0.0));
+  std::ignore = theGraph.Editor().Edges().Add(aStartVertex, anEndVertex, aCurve, 0.0, 10.0, 1.0e-7);
+  std::ignore = theGraph.Editor().Edges().Add(anEndVertex, aStartVertex, aCurve, 0.0, 10.0, 1.0e-7);
+}
+
+TopoDS_Compound makeTwoCopiedFacesWithInnerWire()
+{
+  gp_Pln aPlane(gp_Pnt(0.0, 0.0, 0.0), gp_Dir(0.0, 0.0, 1.0));
+
+  BRep_Builder aBuilder;
+  TopoDS_Wire  anOuterWire;
+  aBuilder.MakeWire(anOuterWire);
+  aBuilder.Add(anOuterWire, BRepBuilderAPI_MakeEdge(gp_Pnt(0.0, 0.0, 0.0), gp_Pnt(10.0, 0.0, 0.0)));
+  aBuilder.Add(anOuterWire,
+               BRepBuilderAPI_MakeEdge(gp_Pnt(10.0, 0.0, 0.0), gp_Pnt(10.0, 10.0, 0.0)));
+  aBuilder.Add(anOuterWire,
+               BRepBuilderAPI_MakeEdge(gp_Pnt(10.0, 10.0, 0.0), gp_Pnt(0.0, 10.0, 0.0)));
+  aBuilder.Add(anOuterWire, BRepBuilderAPI_MakeEdge(gp_Pnt(0.0, 10.0, 0.0), gp_Pnt(0.0, 0.0, 0.0)));
+
+  TopoDS_Wire anInnerWire;
+  aBuilder.MakeWire(anInnerWire);
+  aBuilder.Add(anInnerWire, BRepBuilderAPI_MakeEdge(gp_Pnt(3.0, 3.0, 0.0), gp_Pnt(3.0, 7.0, 0.0)));
+  aBuilder.Add(anInnerWire, BRepBuilderAPI_MakeEdge(gp_Pnt(3.0, 7.0, 0.0), gp_Pnt(7.0, 7.0, 0.0)));
+  aBuilder.Add(anInnerWire, BRepBuilderAPI_MakeEdge(gp_Pnt(7.0, 7.0, 0.0), gp_Pnt(7.0, 3.0, 0.0)));
+  aBuilder.Add(anInnerWire, BRepBuilderAPI_MakeEdge(gp_Pnt(7.0, 3.0, 0.0), gp_Pnt(3.0, 3.0, 0.0)));
+
+  BRepBuilderAPI_MakeFace aFaceMaker(aPlane, anOuterWire);
+  aFaceMaker.Add(anInnerWire);
+  const TopoDS_Face aFace = aFaceMaker.Face();
+
+  BRepBuilderAPI_Copy aCopy1(aFace, true);
+  BRepBuilderAPI_Copy aCopy2(aFace, true);
+
+  TopoDS_Compound aCompound;
+  aBuilder.MakeCompound(aCompound);
   aBuilder.Add(aCompound, aCopy1.Shape());
   aBuilder.Add(aCompound, aCopy2.Shape());
   return aCompound;
@@ -2456,9 +2507,9 @@ TEST(BRepGraph_DeduplicateTest, SelfLoopEdge_AfterVertexMerge_OrientationCorrect
   // A self-loop edge (start == end vertex) should not be marked as reversed
   // during edge merge after vertex deduplication.
 
-  // Build two identical triangles (3 edges each, different vertex instances
-  // at the same positions). After vertex merge, all vertices at the same
-  // position are canonicalized. The edges should merge correctly.
+  // Build two identical boxes with separate vertex instances. After vertex
+  // merge, coincident vertices are canonicalized and the compacted graph must
+  // retain the same semantic state.
   BRepPrimAPI_MakeBox aBoxMaker1(10.0, 10.0, 10.0);
   BRepPrimAPI_MakeBox aBoxMaker2(10.0, 10.0, 10.0);
 
@@ -2479,8 +2530,11 @@ TEST(BRepGraph_DeduplicateTest, SelfLoopEdge_AfterVertexMerge_OrientationCorrect
   anOpts.MergeEntitiesWhenSafe = true;
   std::ignore                  = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
 
+  const BRepGraph_RevisionHash aSemanticHash = BRepGraph_RevisionHash::Hasher::Semantic(aGraph);
+
   // Compact.
   std::ignore = BRepGraph_Compact::Perform(aGraph);
+  EXPECT_EQ(BRepGraph_RevisionHash::Hasher::Semantic(aGraph), aSemanticHash);
 
   // Validate.
   const BRepGraph_Validate::Result aVal = BRepGraph_Validate::Perform(aGraph);
@@ -2525,6 +2579,36 @@ TEST(BRepGraph_DeduplicateTest, EdgeMerge_ThreeCopiedEdges_GraphValidates)
   EXPECT_TRUE(aVal.IsValid());
 }
 
+TEST(BRepGraph_DeduplicateTest, EdgeMerge_ReversedEdges_MergeAndValidate)
+{
+  BRepGraph aGraph;
+  aGraph.Clear();
+  addTwoReversedEdgesOnSharedCurve(aGraph);
+  ASSERT_FALSE(aGraph.IsEmpty());
+  ASSERT_EQ(aGraph.Topo().Edges().Nb(), 2);
+
+  BRepGraph_Deduplicate::Options anOpts;
+  anOpts.MergeEntitiesWhenSafe = true;
+
+  const BRepGraph_Deduplicate::Result aDedupRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
+  EXPECT_EQ(aDedupRes.NbMergedEdges, 1);
+
+  std::ignore = BRepGraph_Compact::Perform(aGraph);
+
+  int aNbActiveEdges = 0;
+  for (BRepGraph_FullEdgeIterator anEdgeIt(aGraph); anEdgeIt.More(); anEdgeIt.Next())
+  {
+    if (!anEdgeIt.CurrentId().IsRemoved(aGraph))
+    {
+      ++aNbActiveEdges;
+    }
+  }
+  EXPECT_EQ(aNbActiveEdges, 1);
+
+  const BRepGraph_Validate::Result aVal = BRepGraph_Validate::Perform(aGraph);
+  EXPECT_TRUE(aVal.IsValid());
+}
+
 // ---------------------------------------------------------------------------
 // Face merge tests
 // ---------------------------------------------------------------------------
@@ -2553,6 +2637,49 @@ TEST(BRepGraph_DeduplicateTest, FaceMerge_TwoIdenticalSingularFaces_Merge)
     if (!aFaceIt.CurrentId().IsRemoved(aGraph))
     {
       ++aNbActiveFaces;
+    }
+  }
+  EXPECT_EQ(aNbActiveFaces, 1);
+
+  const BRepGraph_Validate::Result aVal = BRepGraph_Validate::Perform(aGraph);
+  EXPECT_TRUE(aVal.IsValid());
+}
+
+TEST(BRepGraph_DeduplicateTest, FaceMerge_TwoIdenticalInnerWireFaces_Merge)
+{
+  BRepGraph aGraph;
+  aGraph.Clear();
+  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes =
+    aGraph.Shapes().Add(makeTwoCopiedFacesWithInnerWire());
+  ASSERT_FALSE(aGraph.IsEmpty());
+  ASSERT_EQ(aGraph.Topo().Faces().Nb(), 2);
+
+  bool hasInnerWire = false;
+  for (BRepGraph_FullFaceIterator aFaceIt(aGraph); aFaceIt.More(); aFaceIt.Next())
+  {
+    if (aGraph.Topo().Faces().Relations(aFaceIt.CurrentId()).WireRefIds.Size() > 1)
+    {
+      hasInnerWire = true;
+      break;
+    }
+  }
+  ASSERT_TRUE(hasInnerWire);
+
+  BRepGraph_Deduplicate::Options anOpts;
+  anOpts.MergeEntitiesWhenSafe = true;
+
+  const BRepGraph_Deduplicate::Result aDedupRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
+  EXPECT_EQ(aDedupRes.NbMergedFaces, 1);
+
+  std::ignore = BRepGraph_Compact::Perform(aGraph);
+
+  int aNbActiveFaces = 0;
+  for (BRepGraph_FullFaceIterator aFaceIt(aGraph); aFaceIt.More(); aFaceIt.Next())
+  {
+    if (!aFaceIt.CurrentId().IsRemoved(aGraph))
+    {
+      ++aNbActiveFaces;
+      EXPECT_EQ(aGraph.Topo().Faces().Relations(aFaceIt.CurrentId()).WireRefIds.Size(), 2);
     }
   }
   EXPECT_EQ(aNbActiveFaces, 1);

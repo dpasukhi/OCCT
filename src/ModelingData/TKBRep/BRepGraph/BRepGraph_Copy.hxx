@@ -30,7 +30,8 @@
 //!   duplicated with new entity IDs; shared dependencies (geometry, vertices referenced
 //!   from outside the sub-graph) are preserved.
 //!
-//! Geometry and mesh policies are controlled by the GeomPolicy and MeshPolicy enums.
+//! Geometry and mesh policies apply to core graph incidence and representation data only.
+//! Supplemental stores define their copy behavior through BRepGraphSupInc_Store::CopyTo().
 //!
 //! @note Check the return value for success: Perform returns bool,
 //! CopyNode returns the mapped root NodeId (invalid on failure).
@@ -78,7 +79,7 @@ public:
   //! Identity no-op, returns true immediately.
   //!
   //! External copy to empty target (theTargetGraph.IsEmpty()):
-  //! Uses identity-mapped fast path (old index == new index).
+  //! Uses an index-preserving core fast path. Supplemental items receive newly allocated target UIDs.
   //!
   //! External copy to non-empty target:
   //! Uses explicit mapping; IDs in theTargetGraph will differ from theSourceGraph.
@@ -106,6 +107,9 @@ public:
   //! The specified sub-graph is duplicated with new entity IDs within the same graph.
   //! Shared dependencies (vertices, edges referenced from outside the sub-graph)
   //! are preserved as-is.
+  //!
+  //! CopyNode invokes the node-scoped copy contract of every supplemental store. The generic
+  //! BRepGraph_LayerSupplement remains excluded because it has no node-scoped ownership.
   //!
   //! @param[in] theSourceGraph a pre-built BRepGraph
   //! @param[in,out] theTargetGraph destination graph (may already contain data)

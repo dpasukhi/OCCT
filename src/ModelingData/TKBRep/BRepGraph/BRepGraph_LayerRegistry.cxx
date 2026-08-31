@@ -170,6 +170,21 @@ void BRepGraph_LayerRegistry::Detach() noexcept
 
 //=================================================================================================
 
+void BRepGraph_LayerRegistry::Relocate(BRepGraph* theGraph) noexcept
+{
+  std::unique_lock<std::shared_mutex> aLock(myMutex);
+  myGraph = theGraph;
+  for (const occ::handle<BRepGraph_Layer>& aLayer : myLayers)
+  {
+    if (!aLayer.IsNull())
+    {
+      aLayer->relocateGraph(theGraph);
+    }
+  }
+}
+
+//=================================================================================================
+
 occ::handle<BRepGraph_Layer> BRepGraph_LayerRegistry::FindLayer(const Standard_GUID& theGUID) const
 {
   std::shared_lock<std::shared_mutex> aLock(myMutex);
@@ -457,6 +472,41 @@ void BRepGraph_LayerRegistry::CopyLayersTo(BRepGraph&                       theT
       return;
     }
     aLayer->CopyTo(aCopy);
+  }
+}
+
+//=================================================================================================
+
+void BRepGraph_LayerRegistry::CopyTransientLayersTo(
+  BRepGraph&                                                         theTargetGraph,
+  const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap) const
+{
+  BRepGraph* aSourceGraph = nullptr;
+  {
+    std::shared_lock<std::shared_mutex> aLock(myMutex);
+    aSourceGraph = myGraph;
+  }
+  Standard_ProgramError_Raise_if(
+    aSourceGraph == nullptr,
+    "BRepGraph_LayerRegistry::CopyTransientLayersTo() - detached source registry");
+
+  const BRepGraph_CopyRemap aCopy(*aSourceGraph,
+                                  theTargetGraph,
+                                  theItemRemap,
+                                  BRepGraph_CopyRemap::Mode::Compact,
+                                  BRepGraph_CopyRemap::FreshnessPolicy::MatchTarget);
+  for (uint32_t aSlot = 0;; ++aSlot)
+  {
+    const occ::handle<BRepGraph_Layer> aLayer = layerAt(aSlot);
+    if (aLayer.IsNull())
+    {
+      return;
+    }
+    if (aLayer->RevisionDescriptor().RetentionKind
+        != BRepGraph_RevisionComponent::Retention::Persistent)
+    {
+      aLayer->CopyTo(aCopy);
+    }
   }
 }
 

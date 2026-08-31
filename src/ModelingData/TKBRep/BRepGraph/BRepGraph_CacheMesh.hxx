@@ -25,9 +25,13 @@
 #include <Poly_PolygonOnTriangulation.hxx>
 #include <Poly_Triangulation.hxx>
 
+#include <atomic>
+#include <cstddef>
 #include <cstdint>
+#include <mutex>
 
 class BRepGraph;
+class BRepGraph_CopyRemap;
 
 //! @brief Registry-owned runtime mesh cache for BRepGraph.
 //!
@@ -45,7 +49,7 @@ public:
   //! Entry stamp against the slot recipe and cache-local generation.
   struct EntryStamp
   {
-    uint64_t RecipeHash     = 0;
+    size_t   RecipeHash     = 0;
     uint32_t SlotGeneration = 0;
 
     void Reset() noexcept
@@ -115,6 +119,14 @@ public:
       Polygon2D.Nullify();
       PolygonsOnTri.Clear();
     }
+
+    void ClearPolygonsOnTri() noexcept
+    {
+      FaceTopologyStamp.Reset();
+      FaceMeshGeneration = 0;
+      BoundFaceId        = BRepGraph_FaceId();
+      PolygonsOnTri.Clear();
+    }
   };
 
   //! Cached mesh entry for an edge: polygon-3D.
@@ -152,7 +164,7 @@ public:
   struct SlotState
   {
     SlotId   Slot       = DefaultDisplaySlot;
-    uint64_t RecipeHash = 0;
+    size_t   RecipeHash = 0;
     uint32_t Generation = 1;
     bool     HasDriver  = false;
   };
@@ -162,12 +174,19 @@ public:
   {
   public:
     [[nodiscard]] virtual const Standard_GUID& ID() const         = 0;
-    [[nodiscard]] virtual uint64_t             RecipeHash() const = 0;
+    [[nodiscard]] virtual size_t               RecipeHash() const = 0;
 
     [[nodiscard]] virtual bool Fill(BRepGraph&                   theGraph,
                                     SlotId                       theSlot,
                                     const DirtySet&              theDirtySet,
                                     const Message_ProgressRange& theRange) = 0;
+
+    //! Copy driver registration for cache migration.
+    //!
+    //! Implementations may return this driver for compact migration when the
+    //! same logical graph is rebuilt, or a new recipe-only driver for graph
+    //! copy. Returning null drops the driver while preserving copied entries.
+    [[nodiscard]] virtual occ::handle<Driver> Copy(const BRepGraph_CopyRemap& theCopy) const = 0;
 
     DEFINE_STANDARD_RTTIEXT(Driver, Standard_Transient)
   };
@@ -189,6 +208,14 @@ public:
   //! Clears all cache slots and registered drivers.
   Standard_EXPORT void Clear() noexcept override;
 
+  //! Monotonic generation of cache content visible through Mesh().Effective().
+  //! Writers publish it after completing an entry update; readers compare it
+  //! without consuming state.
+  [[nodiscard]] uint64_t Generation() const noexcept
+  {
+    return myGeneration.load(std::memory_order_acquire);
+  }
+
   //! Copy fresh, remappable mesh cache entries into the target graph.
   Standard_EXPORT void CopyFreshTo(const BRepGraph_CopyRemap& theCopy) const override;
 
@@ -196,7 +223,14 @@ public:
   //! EffectiveView reads from this slot.
   [[nodiscard]] SlotId ActiveDisplaySlot() const { return myActiveSlot; }
 
-  void SetActiveDisplaySlot(SlotId theSlot) { myActiveSlot = theSlot; }
+  void SetActiveDisplaySlot(SlotId theSlot)
+  {
+    if (myActiveSlot != theSlot)
+    {
+      myActiveSlot = theSlot;
+      bumpGeneration();
+    }
+  }
 
   //! Register or replace a meshing driver for a cache slot.
   Standard_EXPORT void RegisterDriver(SlotId theSlot, const occ::handle<Driver>& theDriver);
@@ -240,6 +274,7 @@ public:
   [[nodiscard]] Standard_EXPORT const FaceMeshEntry* FindFaceMesh(BRepGraph_FaceId theFace) const;
   [[nodiscard]] Standard_EXPORT FaceMeshEntry&       ChangeFaceMesh(BRepGraph_FaceId theFace);
   Standard_EXPORT void                               ClearFaceMesh(BRepGraph_FaceId theFace);
+  Standard_EXPORT void                               InvalidateFaceMesh(BRepGraph_FaceId theFace);
 
   [[nodiscard]] Standard_EXPORT bool             HasCoEdgeMesh(BRepGraph_CoEdgeId theCoEdge) const;
   [[nodiscard]] Standard_EXPORT CoEdgeMeshEntry& ChangeCoEdgeMesh(BRepGraph_CoEdgeId theCoEdge);
@@ -274,6 +309,17 @@ public:
   Standard_EXPORT void BindFresh(FaceMeshEntry& theEntry, BRepGraph_FaceId theFace) const;
   Standard_EXPORT void BindFresh(CoEdgeMeshEntry& theEntry, BRepGraph_CoEdgeId theCoEdge) const;
   Standard_EXPORT void BindFresh(EdgeMeshEntry& theEntry, BRepGraph_EdgeId theEdge) const;
+
+  //! Stamp a freshly written slot-specific entry.
+  Standard_EXPORT void BindFresh(FaceMeshEntry&   theEntry,
+                                 BRepGraph_FaceId theFace,
+                                 SlotId           theSlot) const;
+  Standard_EXPORT void BindFresh(CoEdgeMeshEntry&   theEntry,
+                                 BRepGraph_CoEdgeId theCoEdge,
+                                 SlotId             theSlot) const;
+  Standard_EXPORT void BindFresh(EdgeMeshEntry&   theEntry,
+                                 BRepGraph_EdgeId theEdge,
+                                 SlotId           theSlot) const;
 
   //! Bump face mesh generation after cached content changed.
   //! This is the ONLY mutator for MeshGeneration. ClearRepresentation() does not bump.
@@ -320,6 +366,7 @@ private:
   static void ensureSize(NCollection_DynamicArray<T>& theVec, size_t theIndex);
 
   [[nodiscard]] Slot&       changeSlot(SlotId theSlot);
+  [[nodiscard]] Slot*       findSlot(SlotId theSlot);
   [[nodiscard]] const Slot* findSlot(SlotId theSlot) const;
 
   [[nodiscard]] bool isSlotActual(const Slot& theSlot, const EntryStamp& theStamp) const noexcept;
@@ -339,16 +386,30 @@ private:
   [[nodiscard]] const CoEdgeMeshEntry* findCoEdgeMesh(SlotId             theSlot,
                                                       BRepGraph_CoEdgeId theCoEdge) const;
 
-  [[nodiscard]] DirtySet collectDirty(BRepGraph& theGraph, const Slot& theSlot) const;
+  enum class DirtyCollectMode
+  {
+    All,
+    FirstOnly
+  };
+
+  [[nodiscard]] DirtySet collectDirty(BRepGraph&       theGraph,
+                                      const Slot&      theSlot,
+                                      DirtyCollectMode theMode = DirtyCollectMode::All) const;
   [[nodiscard]] DirtySet collectDirty(BRepGraph&             theGraph,
                                       const BRepGraph_NodeId theRoot,
-                                      const Slot&            theSlot) const;
+                                      const Slot&            theSlot,
+                                      DirtyCollectMode       theMode = DirtyCollectMode::All) const;
   [[nodiscard]] DirtySet collectDirty(BRepGraph&                                  theGraph,
                                       const NCollection_Array1<BRepGraph_NodeId>& theNodes,
-                                      const Slot&                                 theSlot) const;
+                                      const Slot&                                 theSlot,
+                                      DirtyCollectMode theMode = DirtyCollectMode::All) const;
+
+  void bumpGeneration() const noexcept { myGeneration.fetch_add(1, std::memory_order_release); }
 
   NCollection_LinearVector<Slot> mySlots;
   SlotId                         myActiveSlot = DefaultDisplaySlot;
+  mutable std::recursive_mutex   myEnsureMutex;
+  mutable std::atomic<uint64_t>  myGeneration{0};
 };
 
 #endif // _BRepGraph_CacheMesh_HeaderFile

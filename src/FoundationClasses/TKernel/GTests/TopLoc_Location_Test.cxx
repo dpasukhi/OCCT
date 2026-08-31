@@ -22,6 +22,7 @@
 #include <gp_Vec.hxx>
 #include <gp_Pnt.hxx>
 #include <OSD_Parallel.hxx>
+#include <Precision.hxx>
 
 #include <gtest/gtest.h>
 
@@ -88,4 +89,26 @@ TEST(TopLoc_Location_Test, OCC25545_ConcurrentTransformationAccess)
   // Verify no data race was detected
   EXPECT_EQ(aFunc.myIsRaceDetected, 0)
     << "Data race detected in concurrent TopLoc_Location::Transformation() access";
+}
+
+TEST(TopLoc_Location_Test, IsTransformationIdentity)
+{
+  const TopLoc_Location anIdentity;
+  EXPECT_TRUE(anIdentity.IsTransformationIdentity());
+
+  gp_Trsf aTranslation;
+  aTranslation.SetTranslation(gp_Vec(10.0, 20.0, 30.0));
+  const TopLoc_Location aTranslated(aTranslation);
+  EXPECT_FALSE(aTranslated.IsTransformationIdentity());
+
+  gp_Trsf aSmallTranslation;
+  aSmallTranslation.SetTranslation(gp_Vec(Precision::Confusion() * 0.5, 0.0, 0.0));
+  EXPECT_TRUE(TopLoc_Location(aSmallTranslation).IsTransformationIdentity());
+
+  gp_Trsf anInverseTranslation = aTranslation.Inverted();
+  const TopLoc_Location aComposedIdentity =
+    aTranslated.Multiplied(TopLoc_Location(anInverseTranslation));
+  EXPECT_FALSE(aComposedIdentity.IsIdentity());
+  EXPECT_NE(aComposedIdentity.Transformation().Form(), gp_Identity);
+  EXPECT_TRUE(aComposedIdentity.IsTransformationIdentity());
 }

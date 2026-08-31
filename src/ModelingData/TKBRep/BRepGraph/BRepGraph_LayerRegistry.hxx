@@ -145,6 +145,12 @@ public:
                                     BRepGraph_CopyRemap::MappingKind theMappingKind,
                                     BRepGraph_CopyRemap::Mode        theMode) const;
 
+  //! Migrate runtime and derived layers into a replacement graph.
+  //! Persistent target layers remain authoritative and are never overwritten.
+  Standard_EXPORT void CopyTransientLayersTo(
+    BRepGraph&                                                         theTargetGraph,
+    const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap) const;
+
   //! True if any registered layer subscribes to reference modification events.
   [[nodiscard]] bool HasRefModificationSubscribers() const
   {
@@ -183,6 +189,9 @@ private:
 
   //! Clear the graph data binding.
   Standard_EXPORT void Detach() noexcept;
+
+  //! Update graph owner after wrapper relocation without lifecycle callbacks.
+  Standard_EXPORT void Relocate(BRepGraph* theGraph) noexcept;
 
   [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Layer> findLayerLocked(
     const Standard_GUID& theGUID) const;

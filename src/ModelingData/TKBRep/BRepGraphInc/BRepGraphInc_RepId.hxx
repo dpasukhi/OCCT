@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <functional>
 #include <limits>
+#include <utility>
 
 class BRepGraph;
 
@@ -179,6 +180,33 @@ struct BRepGraph_RepId
       return static_cast<int>(RepKind) < static_cast<int>(theOther.RepKind);
     }
     return Index < theOther.Index;
+  }
+
+  //! Dispatch a generic use id to a callable taking the matching typed use id.
+  template <typename FuncT>
+  static auto Visit(const BRepGraph_RepId theRepId, FuncT&& theFunc)
+    -> decltype(std::forward<FuncT>(theFunc)(Typed<Kind::EdgeCurve3D>()))
+  {
+    switch (theRepId.RepKind)
+    {
+      case Kind::EdgeCurve3D:
+        return std::forward<FuncT>(theFunc)(Typed<Kind::EdgeCurve3D>(theRepId.Index));
+      case Kind::EdgePolygon3D:
+        return std::forward<FuncT>(theFunc)(Typed<Kind::EdgePolygon3D>(theRepId.Index));
+      case Kind::CoEdgeCurve2D:
+        return std::forward<FuncT>(theFunc)(Typed<Kind::CoEdgeCurve2D>(theRepId.Index));
+      case Kind::CoEdgePolygon2D:
+        return std::forward<FuncT>(theFunc)(Typed<Kind::CoEdgePolygon2D>(theRepId.Index));
+      case Kind::CoEdgePolygonOnTri:
+        return std::forward<FuncT>(theFunc)(Typed<Kind::CoEdgePolygonOnTri>(theRepId.Index));
+      case Kind::FaceSurface:
+        return std::forward<FuncT>(theFunc)(Typed<Kind::FaceSurface>(theRepId.Index));
+      case Kind::FaceTriangulation:
+        return std::forward<FuncT>(theFunc)(Typed<Kind::FaceTriangulation>(theRepId.Index));
+    }
+
+    Standard_ASSERT_VOID(false, "BRepGraph_RepId::Visit: unhandled Kind");
+    return std::forward<FuncT>(theFunc)(Typed<Kind::EdgeCurve3D>());
   }
 
   //! Return true if this use entry has been soft-removed in the given graph.

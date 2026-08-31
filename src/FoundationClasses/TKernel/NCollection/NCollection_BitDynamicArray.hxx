@@ -11,56 +11,59 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
-#ifndef _BRepGraphInc_BitFlags_HeaderFile
-#define _BRepGraphInc_BitFlags_HeaderFile
+#ifndef _NCollection_BitDynamicArray_HeaderFile
+#define _NCollection_BitDynamicArray_HeaderFile
 
-#include <NCollection_LinearVector.hxx>
+#include <NCollection_PagedArray.hxx>
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
-//! @brief Contiguous bit-vector for per-entity boolean flags.
+//! @brief Dynamic bit array with page-granular copy-on-write storage.
 //!
 //! Stores one bit per entity index in a flat array of 64-bit blocks.
 //! Provides O(1) Set/Clear/Test operations and cache-friendly sequential
 //! traversal (512 flags per 64-byte cache line via eight 64-bit blocks).
 //!
-//! Used by BRepGraphInc_Storage to store IsRemoved and IsOwned flags
-//! outside the entity structs, improving cache locality during traversal
-//! and reducing struct size by eliminating bool-field padding.
+//! Copying retains shared immutable pages. Mutating either copy detaches only
+//! the touched page, so snapshots are cheap and concurrent const access to
+//! retained copies is safe. Simultaneous mutation of one object requires
+//! external synchronization.
 //!
-//! Public helpers in BRepGraphInc_Storage validate indices before reaching this
-//! low-level container. Set, Clear, and Test remain unchecked for hot internal
-//! paths that already proved the index is in range.
+//! Set, Clear, and Test are unchecked for hot paths that already validated the
+//! index. Use IsValidIndex() at API boundaries.
 //!
 //! @code
-//!   BRepGraphInc_BitFlags aFlags;
+//!   NCollection_BitDynamicArray aFlags;
 //!   aFlags.Resize(1000);
 //!   aFlags.Set(42);
 //!   if (aFlags.Test(42)) { ... }
 //!   aFlags.Clear(42);
 //! @endcode
-class BRepGraphInc_BitFlags
+class NCollection_BitDynamicArray
 {
   static constexpr uint32_t THE_BITS_PER_BLOCK = 64;
   using BlockType                              = uint64_t;
 
 public:
-  //! Construct an empty bit-vector.
-  BRepGraphInc_BitFlags() = default;
+  //! Construct an empty bit array.
+  NCollection_BitDynamicArray() = default;
 
-  //! Resize the bit-vector to hold at least theCount bits.
+  //! Resize the bit array to contain exactly theCount bits.
+  //! @param[in] theCount number of bits after resizing
   //! Newly added bits are initialized to false.
   void Resize(const size_t theCount)
   {
-    const size_t aBlockCount = (theCount + THE_BITS_PER_BLOCK - 1) / THE_BITS_PER_BLOCK;
+    const size_t aBlockCount =
+      theCount / THE_BITS_PER_BLOCK + (theCount % THE_BITS_PER_BLOCK != 0 ? 1 : 0);
     myBlocks.Resize(aBlockCount, 0);
     myBitCount = theCount;
     maskTailBits();
   }
 
   //! Set the bit at theIndex to true.
-  void Set(const uint32_t theIndex)
+  //! @param[in] theIndex zero-based bit index
+  void Set(const size_t theIndex)
   {
     const size_t   aBlock = theIndex / THE_BITS_PER_BLOCK;
     const uint32_t aBit   = theIndex % THE_BITS_PER_BLOCK;
@@ -68,7 +71,8 @@ public:
   }
 
   //! Clear the bit at theIndex to false.
-  void Clear(const uint32_t theIndex)
+  //! @param[in] theIndex zero-based bit index
+  void Clear(const size_t theIndex)
   {
     const size_t   aBlock = theIndex / THE_BITS_PER_BLOCK;
     const uint32_t aBit   = theIndex % THE_BITS_PER_BLOCK;
@@ -76,7 +80,8 @@ public:
   }
 
   //! Return the value of the bit at theIndex.
-  [[nodiscard]] bool Test(const uint32_t theIndex) const
+  //! @param[in] theIndex zero-based bit index
+  [[nodiscard]] bool Test(const size_t theIndex) const noexcept
   {
     const size_t   aBlock = theIndex / THE_BITS_PER_BLOCK;
     const uint32_t aBit   = theIndex % THE_BITS_PER_BLOCK;
@@ -116,16 +121,23 @@ public:
   }
 
   //! Return the number of blocks allocated.
-  [[nodiscard]] size_t NbBlocks() const { return myBlocks.Size(); }
+  [[nodiscard]] size_t NbBlocks() const noexcept { return myBlocks.Size(); }
 
-  //! Return the number of valid bits represented by this vector.
-  [[nodiscard]] size_t BitCount() const { return myBitCount; }
+  //! Return the number of valid bits represented by this array.
+  [[nodiscard]] size_t BitCount() const noexcept { return myBitCount; }
 
   //! Return true if theIndex is inside the valid bit range.
-  [[nodiscard]] bool IsValidIndex(const uint32_t theIndex) const { return theIndex < myBitCount; }
+  //! @param[in] theIndex zero-based bit index
+  [[nodiscard]] bool IsValidIndex(const size_t theIndex) const noexcept
+  {
+    return theIndex < myBitCount;
+  }
 
-  //! Return the raw block array for direct iteration.
-  [[nodiscard]] const BlockType* Blocks() const { return myBlocks.Data(); }
+  //! Return one raw block for deterministic serialization or hashing.
+  [[nodiscard]] BlockType Block(const size_t theIndex) const noexcept
+  {
+    return myBlocks.Value(theIndex);
+  }
 
 private:
   void maskTailBits()
@@ -140,8 +152,8 @@ private:
     myBlocks[myBlocks.Size() - 1] &= aTailMask;
   }
 
-  NCollection_LinearVector<BlockType> myBlocks;
-  size_t                              myBitCount = 0;
+  NCollection_PagedArray<BlockType> myBlocks{64};
+  size_t                            myBitCount = 0;
 };
 
-#endif // _BRepGraphInc_BitFlags_HeaderFile
+#endif // _NCollection_BitDynamicArray_HeaderFile

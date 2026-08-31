@@ -802,7 +802,8 @@ void BRepGraph::EditorView::CoEdgeOps::SetChildEdgeId(
 //=================================================================================================
 
 void BRepGraph::EditorView::CoEdgeOps::SetFaceId(const BRepGraph_CoEdgeId theCoEdge,
-                                                 const BRepGraph_FaceId   theFace)
+                                                 const BRepGraph_FaceId   theFace,
+                                                 const bool theResetFaceScopedReps)
 {
   BRepGraphInc_Storage& aStorage = myGraph->myData->myIncStorage;
   myGraph->Editor().requireUnlocked(theCoEdge, "BRepGraph::EditorView: locked item");
@@ -812,13 +813,17 @@ void BRepGraph::EditorView::CoEdgeOps::SetFaceId(const BRepGraph_CoEdgeId theCoE
     return;
   }
   aDef.FaceId = theFace;
-  clearCoEdgeFaceScopedRepresentations(aStorage, aDef);
+  if (theResetFaceScopedReps)
+  {
+    clearCoEdgeFaceScopedRepresentations(aStorage, aDef);
+  }
   myGraph->markModified(theCoEdge);
 }
 
 void BRepGraph::EditorView::CoEdgeOps::SetFaceId(
   BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-  const BRepGraph_FaceId                       theFace)
+  const BRepGraph_FaceId                       theFace,
+  const bool                                   theResetFaceScopedReps)
 {
   if (theMut->FaceId == theFace)
   {
@@ -827,7 +832,10 @@ void BRepGraph::EditorView::CoEdgeOps::SetFaceId(
   BRepGraphInc_Storage&    aStorage = myGraph->myData->myIncStorage;
   BRepGraphInc::CoEdgeDef& aCoEdge  = theMut.Internal();
   aCoEdge.FaceId                    = theFace;
-  clearCoEdgeFaceScopedRepresentations(aStorage, aCoEdge);
+  if (theResetFaceScopedReps)
+  {
+    clearCoEdgeFaceScopedRepresentations(aStorage, aCoEdge);
+  }
 }
 
 //=================================================================================================
@@ -1264,6 +1272,14 @@ void BRepGraph::EditorView::CoEdgeOps::SetPersistentPolygon2D(
 
 //=================================================================================================
 
+void BRepGraph::EditorView::CoEdgeOps::ClearPersistentPolygon2D(
+  const BRepGraph_CoEdgeId theCoEdge)
+{
+  SetPersistentPolygon2D(theCoEdge, occ::handle<Poly_Polygon2D>());
+}
+
+//=================================================================================================
+
 void BRepGraph::EditorView::CoEdgeOps::SetPersistentPolygonOnTri(
   const BRepGraph_CoEdgeId                        theCoEdge,
   const occ::handle<Poly_PolygonOnTriangulation>& thePolygon)
@@ -1298,6 +1314,14 @@ void BRepGraph::EditorView::CoEdgeOps::SetPersistentPolygonOnTri(
   }
 
   myGraph->markModified(theCoEdge);
+}
+
+//=================================================================================================
+
+void BRepGraph::EditorView::CoEdgeOps::ClearPersistentPolygonOnTri(
+  const BRepGraph_CoEdgeId theCoEdge)
+{
+  SetPersistentPolygonOnTri(theCoEdge, occ::handle<Poly_PolygonOnTriangulation>());
 }
 
 //=================================================================================================

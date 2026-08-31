@@ -698,9 +698,13 @@ BRepGraph_NodeId BRepGraph_Transform::TransformNode(const BRepGraph&            
   const bool isScaled =
     std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec();
 
-  const bool isPlacementNode = theNodeId.NodeKind == BRepGraph_NodeId::Kind::Product
-                               || theNodeId.NodeKind == BRepGraph_NodeId::Kind::Occurrence;
-  const bool useGeomModif = !isPlacementNode || (theGeomPolicy == BRepGraph_Copy::GeomPolicy::Copy)
+  if (theNodeId.NodeKind == BRepGraph_NodeId::Kind::Occurrence)
+  {
+    return BRepGraph_NodeId();
+  }
+
+  const bool isProductNode = theNodeId.NodeKind == BRepGraph_NodeId::Kind::Product;
+  const bool useGeomModif = !isProductNode || (theGeomPolicy == BRepGraph_Copy::GeomPolicy::Copy)
                             || isNegative || isScaled;
 
   // GeomPolicy::Drop is invalid when geometry-level modification is required.
@@ -716,11 +720,10 @@ BRepGraph_NodeId BRepGraph_Transform::TransformNode(const BRepGraph&            
     return BRepGraph_NodeId();
   }
 
-  // Assembly nodes (Product / Occurrence) carry topology only via locations on
-  // OccurrenceRef. The geometry-modification path warps shared geometry but never
-  // updates locations, producing an inconsistent result regardless of traversal mode.
-  // Reject the combination explicitly rather than silently mis-transforming.
-  if (useGeomModif && isPlacementNode)
+  // Product nodes carry their placement through root OccurrenceRefs. The
+  // geometry-modification path would warp shared geometry without updating those
+  // refs, so reject it explicitly.
+  if (useGeomModif && isProductNode)
   {
     return BRepGraph_NodeId();
   }
@@ -760,7 +763,8 @@ bool BRepGraph_Transform::MoveRef(BRepGraph&                 theGraph,
                                   const BRepGraph_ChildRefId theRefId,
                                   const gp_Trsf&             theTrsf)
 {
-  if (std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec())
+  if (theTrsf.IsNegative()
+      || std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec())
   {
     return false;
   }
@@ -783,7 +787,8 @@ bool BRepGraph_Transform::MoveRef(BRepGraph&                      theGraph,
                                   const BRepGraph_OccurrenceRefId theRefId,
                                   const gp_Trsf&                  theTrsf)
 {
-  if (std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec())
+  if (theTrsf.IsNegative()
+      || std::abs(std::abs(theTrsf.ScaleFactor()) - 1.) > TopLoc_Location::ScalePrec())
   {
     return false;
   }

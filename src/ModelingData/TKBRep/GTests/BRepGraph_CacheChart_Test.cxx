@@ -1,0 +1,122 @@
+// Copyright (c) 2026 OPEN CASCADE SAS
+//
+// This file is part of Open CASCADE Technology software library.
+
+#include <BRepGraph.hxx>
+#include <BRepGraph_CacheChart.hxx>
+#include <BRepGraph_CacheRegistry.hxx>
+#include <BRepGraph_EditorView.hxx>
+#include <BRepGraph_Iterator.hxx>
+#include <BRepGraph_ShapesView.hxx>
+#include <BRepGraph_Tool.hxx>
+#include <BRepPrimAPI_MakeCylinder.hxx>
+#include <BRepPrimAPI_MakeSphere.hxx>
+#include <Geom_CylindricalSurface.hxx>
+#include <Geom_Surface.hxx>
+
+#include <gtest/gtest.h>
+
+namespace
+{
+
+BRepGraph_FaceId findPeriodicFace(const BRepGraph& theGraph)
+{
+  for (BRepGraph_FaceId aFace = BRepGraph_FaceId::Start();
+       aFace.IsValid(theGraph.Topo().Faces().Nb());
+       ++aFace)
+  {
+    if (aFace.IsRemoved(theGraph))
+    {
+      continue;
+    }
+    const occ::handle<Geom_Surface>& aSurface = theGraph.Topo().Faces().Surface(aFace);
+    if (!aSurface.IsNull() && (aSurface->IsUPeriodic() || aSurface->IsVPeriodic()))
+    {
+      return aFace;
+    }
+  }
+  return BRepGraph_FaceId();
+}
+
+uint32_t countBoundaryKind(const BRepGraph_CacheChart::Result&      theResult,
+                           const BRepGraph_CacheChart::BoundaryKind theKind)
+{
+  uint32_t aCount = 0;
+  for (const BRepGraph_CacheChart::Loop& aLoop : theResult.Loops)
+  {
+    for (const BRepGraph_CacheChart::BoundaryUse& aUse : aLoop.Boundary)
+    {
+      aCount += aUse.Kind == theKind ? 1u : 0u;
+    }
+  }
+  return aCount;
+}
+
+} // namespace
+
+TEST(BRepGraph_CacheChartTest, CylinderRetainsSeamAsDerivedChartOccurrence)
+{
+  BRepGraph aGraph;
+  ASSERT_TRUE(aGraph.Shapes().Add(BRepPrimAPI_MakeCylinder(5.0, 10.0).Shape()).IsOk());
+
+  const BRepGraph_FaceId aFace = findPeriodicFace(aGraph);
+  ASSERT_TRUE(aFace.IsValid());
+  const occ::handle<BRepGraph_CacheChart::Result> aChart =
+    BRepGraph_CacheChart::Build(aGraph, aFace);
+  ASSERT_FALSE(aChart.IsNull());
+  EXPECT_EQ(aChart->Status, BRepGraph_CacheChart::Status::Ready);
+  EXPECT_TRUE(aChart->UPeriodic);
+  EXPECT_NEAR(aChart->UPeriod, 2.0 * M_PI, 1.0e-12);
+  ASSERT_FALSE(aChart->Transitions.IsEmpty());
+  EXPECT_GT(countBoundaryKind(*aChart, BRepGraph_CacheChart::BoundaryKind::VirtualCut), 0u);
+  EXPECT_TRUE(aChart->Loops.IsEmpty() || aChart->Loops.First().IsClosed);
+}
+
+TEST(BRepGraph_CacheChartTest, SphereUsesPeriodicChartWithExplicitBoundaries)
+{
+  BRepGraph aGraph;
+  ASSERT_TRUE(aGraph.Shapes().Add(BRepPrimAPI_MakeSphere(5.0).Shape()).IsOk());
+
+  const BRepGraph_FaceId aFace = findPeriodicFace(aGraph);
+  ASSERT_TRUE(aFace.IsValid());
+  EXPECT_GT(BRepGraph_Tool::Face::NbWires(aGraph, aFace), 0u);
+
+  const occ::handle<BRepGraph_CacheChart::Result> aChart =
+    BRepGraph_CacheChart::Build(aGraph, aFace);
+  ASSERT_FALSE(aChart.IsNull());
+  EXPECT_EQ(aChart->Status, BRepGraph_CacheChart::Status::Ready);
+  EXPECT_TRUE(aChart->UPeriodic);
+}
+
+TEST(BRepGraph_CacheChartTest, CacheIsFreshPerFaceGenerationAndBoundsExplicitCuts)
+{
+  BRepGraph aGraph;
+  ASSERT_TRUE(aGraph.Shapes().Add(BRepPrimAPI_MakeCylinder(5.0, 10.0).Shape()).IsOk());
+  const BRepGraph_FaceId aFace = findPeriodicFace(aGraph);
+  ASSERT_TRUE(aFace.IsValid());
+
+  const occ::handle<BRepGraph_CacheChart> aCache =
+    aGraph.CacheRegistry().Ensure<BRepGraph_CacheChart>();
+  ASSERT_FALSE(aCache.IsNull());
+
+  const occ::handle<BRepGraph_CacheChart::Result> aFirst  = aCache->Get(aFace);
+  const occ::handle<BRepGraph_CacheChart::Result> aSecond = aCache->Get(aFace);
+  EXPECT_EQ(aFirst, aSecond);
+  EXPECT_EQ(aCache->NbEntries(), 1u);
+
+  BRepGraph_CacheChart::Policy anExplicit;
+  anExplicit.Selection = BRepGraph_CacheChart::Policy::CutSelection::Explicit;
+  anExplicit.ExplicitU = 0.25;
+  const occ::handle<BRepGraph_CacheChart::Result> anAtQuarter =
+    aCache->Get(aFace, anExplicit);
+  anExplicit.ExplicitU = 1.25;
+  const occ::handle<BRepGraph_CacheChart::Result> anAtOneAndQuarter =
+    aCache->Get(aFace, anExplicit);
+  EXPECT_NE(anAtQuarter, anAtOneAndQuarter);
+  EXPECT_EQ(aCache->NbEntries(), 2u);
+
+  aGraph.Editor().Faces().SetTolerance(aFace, 2.0e-6);
+  const occ::handle<BRepGraph_CacheChart::Result> aAfterEdit = aCache->Get(aFace);
+  EXPECT_NE(aFirst, aAfterEdit);
+  EXPECT_EQ(aCache->NbEntries(), 2u);
+}

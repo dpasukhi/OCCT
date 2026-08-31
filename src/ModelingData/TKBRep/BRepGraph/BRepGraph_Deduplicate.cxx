@@ -41,6 +41,26 @@
 
 namespace
 {
+using VertexCanonicalMap = NCollection_DataMap<BRepGraph_VertexId, BRepGraph_VertexId>;
+
+BRepGraph_VertexId resolveCanonicalVertex(const VertexCanonicalMap& theCanonicalVertex,
+                                          const BRepGraph_VertexId  theVertexId)
+{
+  BRepGraph_VertexId aCanonical = theVertexId;
+  for (int aRemaining = theCanonicalVertex.Extent();
+       aRemaining > 0 && theCanonicalVertex.IsBound(aCanonical);
+       --aRemaining)
+  {
+    const BRepGraph_VertexId aNext = theCanonicalVertex.Find(aCanonical);
+    if (aNext == aCanonical)
+    {
+      break;
+    }
+    aCanonical = aNext;
+  }
+  return aCanonical;
+}
+
 //! Redirect all OccurrenceDef.ChildNodeId entries that still point to theOldNodeId
 //! to theNewNodeId. Snapshots the occurrence ref list before iterating because
 //! SetChildNodeId modifies the underlying OccurrenceRefsOfNode vector.
@@ -344,9 +364,8 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
     }
 
     // Canonical vertex map: old graph id -> canonical graph id.
-    NCollection_DataMap<BRepGraph_VertexId, BRepGraph_VertexId> aCanonicalVertex(
-      static_cast<size_t>(std::max(1u, aNbVertices)),
-      aTmpAlloc);
+    VertexCanonicalMap aCanonicalVertex(static_cast<size_t>(std::max(1u, aNbVertices)),
+                                        aTmpAlloc);
 
     for (size_t aLocalIdx = 0; aLocalIdx < aActiveVertices.Size(); ++aLocalIdx)
     {
@@ -367,17 +386,8 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
         }
 
         const BRepGraph_VertexId aCandVtxId      = aActiveVertices.Value(anArrayIdx).second;
-        BRepGraph_VertexId       aEffectiveCanon = aCandVtxId;
-        // Resolve through any prior canonical bindings (path compression with cycle guard).
-        for (size_t aHop = 0; aHop < 64 && aCanonicalVertex.IsBound(aEffectiveCanon); ++aHop)
-        {
-          const BRepGraph_VertexId aNext = aCanonicalVertex.Find(aEffectiveCanon);
-          if (aNext == aEffectiveCanon)
-          {
-            break;
-          }
-          aEffectiveCanon = aNext;
-        }
+        const BRepGraph_VertexId aEffectiveCanon = resolveCanonicalVertex(aCanonicalVertex,
+                                                                          aCandVtxId);
         if (aEffectiveCanon == aBaseVtxId)
         {
           return;
@@ -409,12 +419,12 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
         for (BRepGraph_FullEdgeIterator anEdgeIt(theGraph); anEdgeIt.More(); anEdgeIt.Next())
         {
           const BRepGraph_EdgeId                    anEdgeId = anEdgeIt.CurrentId();
-          BRepGraph_MutGuard<BRepGraphInc::EdgeDef> anEdge =
-            theGraph.Editor().Edges().Mut(anEdgeId);
           if (anEdgeId.IsRemoved(theGraph))
           {
             continue;
           }
+          BRepGraph_MutGuard<BRepGraphInc::EdgeDef> anEdge =
+            theGraph.Editor().Edges().Mut(anEdgeId);
           // Resolve current vertex def ids through ref entries and update them.
           if (anEdge->StartVertexRefId.IsValid())
           {
@@ -944,6 +954,7 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
 
     WireIdList aCanonOuter(64);
     WireIdList aCandOuter(64);
+    NCollection_LinearVector<BRepGraph_WireRefId> anOldFaceWireRefs(8);
 
     for (NCollection_DataMap<FaceKey, FaceIdList, FaceKeyHasher>::Iterator aGroupIter(aFaceGroups);
          aGroupIter.More();
@@ -1089,6 +1100,23 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
           }
         }
 
+        // The old face owns its face-to-wire references. They must be retired
+        // before the face definition is replaced; otherwise they remain active
+        // orphan references and compaction silently drops them.
+        anOldFaceWireRefs.Clear(false);
+        for (const BRepGraph_WireRefId aWireRefId :
+             theGraph.Topo().Faces().Relations(anOldFaceId).WireRefIds)
+        {
+          anOldFaceWireRefs.Append(aWireRefId);
+        }
+        for (const BRepGraph_WireRefId aWireRefId : anOldFaceWireRefs)
+        {
+          if (!theGraph.Refs().Gen().IsRemoved(aWireRefId))
+          {
+            (void)theGraph.Editor().Faces().RemoveWire(anOldFaceId, aWireRefId);
+          }
+        }
+
         // Redirect OccurrenceDef.ChildNodeId entries that still point to the old face.
         // Snapshot first - SetChildNodeId modifies the underlying OccurrenceRefsOfNode vector.
         redirectOccurrenceChildren(theGraph, anOldId, aCanonId);
@@ -1104,6 +1132,15 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
     {
       aResult.NbMergedFaces = static_cast<uint32_t>(aCanonicalFace.Size());
     }
+  }
+
+  // ReplaceNode() redirects the owning forward definitions incrementally, but
+  // the accumulated merge batch can leave reverse incidence indexes with
+  // obsolete slots until the batch is normalized. Repair them once here so
+  // the live graph and a later compaction observe the same derived state.
+  if (!theOptions.AnalyzeOnly)
+  {
+    theGraph.Editor().Gen().RebuildDerivedRelations();
   }
 
   aResult.IsEntityMergeApplied = !theOptions.AnalyzeOnly

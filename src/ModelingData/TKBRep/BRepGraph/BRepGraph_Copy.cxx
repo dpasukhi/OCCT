@@ -17,6 +17,7 @@
 #include <BRepGraphInc_Reference.hxx>
 #include <BRepGraphInc_Representation.hxx>
 #include <BRepGraph_CacheRegistry.hxx>
+#include <BRepGraph_LayerSupplementRegistry.hxx>
 #include <BRepGraph_EditorView.hxx>
 #include <BRepGraph_Data.hxx>
 #include <BRepGraph_Iterator.hxx>
@@ -25,10 +26,11 @@
 #include <BRepGraph_Tool.hxx>
 #include <BRepGraph_TopoView.hxx>
 #include <BRepGraphInc_Load.hxx>
+#include <BRepGraphSupInc_CopyContext.hxx>
+#include <BRepGraphSupInc_Storage.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom_Curve.hxx>
 #include <Geom_Surface.hxx>
-#include <NCollection_DataMap.hxx>
 #include <NCollection_FlatDataMap.hxx>
 #include <NCollection_FlatMap.hxx>
 #include <NCollection_IndexedMap.hxx>
@@ -48,6 +50,19 @@ using MeshPolicy = BRepGraph_Copy::MeshPolicy;
 
 namespace
 {
+
+void addSupplementNodeMappings(
+  BRepGraphSupInc_CopyContext&                                       theContext,
+  const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap)
+{
+  for (const auto& [aSource, aTarget] : theItemRemap.Items())
+  {
+    if (aSource.IsNode() && aTarget.IsNode())
+    {
+      theContext.AddNodeMapping(aSource.NodeId(), aTarget.NodeId());
+    }
+  }
+}
 
 //! Copy geometry handle according to the policy.
 //! Copy: deep-clone via Geom_Geometry::Copy().
@@ -129,6 +144,11 @@ HandleT copyMeshHandle(const HandleT& theHandle, MeshPolicy thePolicy)
 
 //=================================================================================================
 
+template <typename SourceIdT, typename TargetIdT>
+using IdRemap = NCollection_FlatDataMap<SourceIdT, TargetIdT>;
+
+//=================================================================================================
+
 //! Memoised copy context shared across all ensure* free functions.
 //!
 //! Source/result pointers that require friend access (incStorage, cacheRegistry, data)
@@ -145,19 +165,19 @@ struct GraphCopyContext
   BRepGraphInc_Storage*       DstStorage = nullptr;
   BRepGraph_Data*             DstData    = nullptr;
 
-  NCollection_DataMap<BRepGraph_VertexId, BRepGraph_VertexId>               Vertices;
-  NCollection_DataMap<BRepGraph_EdgeId, BRepGraph_EdgeId>                   Edges;
-  NCollection_DataMap<BRepGraph_CoEdgeId, BRepGraph_CoEdgeId>               CoEdges;
-  NCollection_DataMap<BRepGraph_WireId, BRepGraph_WireId>                   Wires;
-  NCollection_DataMap<BRepGraph_FaceId, BRepGraph_FaceId>                   Faces;
-  NCollection_DataMap<BRepGraph_ShellId, BRepGraph_ShellId>                 Shells;
-  NCollection_DataMap<BRepGraph_SolidId, BRepGraph_SolidId>                 Solids;
-  NCollection_DataMap<BRepGraph_CompoundId, BRepGraph_CompoundId>           Compounds;
-  NCollection_DataMap<BRepGraph_CompSolidId, BRepGraph_CompSolidId>         CompSolids;
-  NCollection_DataMap<BRepGraph_ProductId, BRepGraph_ProductId>             Products;
-  NCollection_DataMap<BRepGraph_OccurrenceId, BRepGraph_OccurrenceId>       Occurrences;
-  NCollection_DataMap<BRepGraph_OccurrenceRefId, BRepGraph_OccurrenceRefId> OccurrenceRefs;
-  NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>               ItemRemap;
+  IdRemap<BRepGraph_VertexId, BRepGraph_VertexId>               Vertices;
+  IdRemap<BRepGraph_EdgeId, BRepGraph_EdgeId>                   Edges;
+  IdRemap<BRepGraph_CoEdgeId, BRepGraph_CoEdgeId>               CoEdges;
+  IdRemap<BRepGraph_WireId, BRepGraph_WireId>                   Wires;
+  IdRemap<BRepGraph_FaceId, BRepGraph_FaceId>                   Faces;
+  IdRemap<BRepGraph_ShellId, BRepGraph_ShellId>                 Shells;
+  IdRemap<BRepGraph_SolidId, BRepGraph_SolidId>                 Solids;
+  IdRemap<BRepGraph_CompoundId, BRepGraph_CompoundId>           Compounds;
+  IdRemap<BRepGraph_CompSolidId, BRepGraph_CompSolidId>         CompSolids;
+  IdRemap<BRepGraph_ProductId, BRepGraph_ProductId>             Products;
+  IdRemap<BRepGraph_OccurrenceId, BRepGraph_OccurrenceId>       Occurrences;
+  IdRemap<BRepGraph_OccurrenceRefId, BRepGraph_OccurrenceRefId> OccurrenceRefs;
+  NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>   ItemRemap;
 
   explicit GraphCopyContext(const BRepGraph& theSrc,
                             BRepGraph&       theDst,
@@ -189,6 +209,47 @@ BRepGraph_OccurrenceRefId ensureOccurrenceRef(GraphCopyContext&         theCtx,
                                               BRepGraph_ProductId       theDstParentProductId);
 void                      ensureNode(GraphCopyContext& theCtx, BRepGraph_NodeId theSrcNodeId);
 BRepGraph_NodeId          mappedNode(const GraphCopyContext& theCtx, BRepGraph_NodeId theSrcId);
+
+//=================================================================================================
+
+bool hasRootProduct(const BRepGraphInc_Storage& theStorage, const BRepGraph_ProductId theProductId)
+{
+  for (const BRepGraph_ProductId& aRootId : theStorage.RootProductIds())
+  {
+    if (aRootId == theProductId)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+//=================================================================================================
+
+void appendRootProduct(GraphCopyContext& theCtx, const BRepGraph_ProductId theProductId)
+{
+  if (!theProductId.IsValidIn(theCtx.Result.Topo().Products())
+      || theCtx.DstStorage->IsRemoved(theProductId)
+      || hasRootProduct(*theCtx.DstStorage, theProductId))
+  {
+    return;
+  }
+  theCtx.DstStorage->ChangeRootProductIds().Append(theProductId);
+}
+
+//=================================================================================================
+
+void appendMappedSourceRootProducts(GraphCopyContext& theCtx)
+{
+  for (const BRepGraph_ProductId& aSourceRootId : theCtx.Source.RootProductIds())
+  {
+    const BRepGraph_ProductId* aMappedRootId = theCtx.Products.Seek(aSourceRootId);
+    if (aMappedRootId != nullptr)
+    {
+      appendRootProduct(theCtx, *aMappedRootId);
+    }
+  }
+}
 
 //=================================================================================================
 
@@ -237,10 +298,10 @@ void setRemovedLike(const BRepGraphInc_Storage& theSourceStorage,
 //=================================================================================================
 
 template <typename SourceIdT, typename TargetIdT>
-void bindTypedMap(NCollection_DataMap<SourceIdT, TargetIdT>& theTypedMap,
-                  GraphCopyContext&                          theCtx,
-                  const SourceIdT                            theSource,
-                  const TargetIdT                            theTarget)
+void bindTypedMap(IdRemap<SourceIdT, TargetIdT>& theTypedMap,
+                  GraphCopyContext&              theCtx,
+                  const SourceIdT                theSource,
+                  const TargetIdT                theTarget)
 {
   theTypedMap.Bind(theSource, theTarget);
   bindItemRemap(theCtx, theSource, theTarget);
@@ -296,6 +357,48 @@ size_t itemCapacityUpperBound(const BRepGraphInc_Storage& theStorage)
          + theStorage.NbCoEdgeCurves2D() + theStorage.NbFaceTriangulations()
          + theStorage.NbEdgePolygons3D() + theStorage.NbCoEdgePolygons2D()
          + theStorage.NbCoEdgePolygonsOnTri();
+}
+
+//=================================================================================================
+
+void reserveTypedRemaps(GraphCopyContext& theCtx, const BRepGraphInc_Storage& theStorage)
+{
+  theCtx.Vertices.Reserve(static_cast<size_t>(theStorage.NbVertices()));
+  theCtx.Edges.Reserve(static_cast<size_t>(theStorage.NbEdges()));
+  theCtx.CoEdges.Reserve(static_cast<size_t>(theStorage.NbCoEdges()));
+  theCtx.Wires.Reserve(static_cast<size_t>(theStorage.NbWires()));
+  theCtx.Faces.Reserve(static_cast<size_t>(theStorage.NbFaces()));
+  theCtx.Shells.Reserve(static_cast<size_t>(theStorage.NbShells()));
+  theCtx.Solids.Reserve(static_cast<size_t>(theStorage.NbSolids()));
+  theCtx.Compounds.Reserve(static_cast<size_t>(theStorage.NbCompounds()));
+  theCtx.CompSolids.Reserve(static_cast<size_t>(theStorage.NbCompSolids()));
+  theCtx.Products.Reserve(static_cast<size_t>(theStorage.NbProducts()));
+  theCtx.Occurrences.Reserve(static_cast<size_t>(theStorage.NbOccurrences()));
+  theCtx.OccurrenceRefs.Reserve(static_cast<size_t>(theStorage.NbOccurrenceRefs()));
+  theCtx.ItemRemap.Reserve(itemCapacityUpperBound(theStorage));
+}
+
+//=================================================================================================
+
+bool preflightNodeCopyStores(const BRepGraph&               theSourceGraph,
+                             BRepGraph&                     thePreflightGraph,
+                             const BRepGraphInc_Storage&    theSourceStorage,
+                             BRepGraphInc_Storage&          thePreflightStorage,
+                             const BRepGraph_NodeId         theNodeId,
+                             const GeomPolicy               theGeomPolicy,
+                             const MeshPolicy               theMeshPolicy,
+                             const BRepGraphSupInc_Storage& theSourceSupplements,
+                             BRepGraphSupInc_Storage&       theTargetSupplements,
+                             BRepGraphSupInc_CopyContext&   theSupplementCopy)
+{
+  GraphCopyContext aContext(theSourceGraph, thePreflightGraph, false, theGeomPolicy, theMeshPolicy);
+  aContext.SrcStorage = &theSourceStorage;
+  aContext.DstStorage = &thePreflightStorage;
+  reserveTypedRemaps(aContext, theSourceStorage);
+  ensureNode(aContext, theNodeId);
+  addSupplementNodeMappings(theSupplementCopy, aContext.ItemRemap);
+  return theSourceSupplements.PreflightRecordsForMappedNodesTo(theTargetSupplements,
+                                                               theSupplementCopy);
 }
 
 //=================================================================================================
@@ -1189,8 +1292,8 @@ static void copyRootProductsIdentity(const BRepGraphInc_Storage& theSrc,
 //=================================================================================================
 
 //! Copy UID counters, generation, and graph GUID from source to destination.
-static void copyUIDAndGraphStateIdentity(const BRepGraphInc_Storage& theSrc,
-                                         BRepGraphInc_Storage&       theDst)
+static void copyUIDAndGraphIdentity(const BRepGraphInc_Storage& theSrc,
+                                    BRepGraphInc_Storage&       theDst)
 {
   constexpr BRepGraph_NodeId::Kind aNodeKinds[] = {BRepGraph_NodeId::Kind::Vertex,
                                                    BRepGraph_NodeId::Kind::Edge,
@@ -1241,13 +1344,15 @@ static void copyFlagsAndActiveCountsIdentity(const BRepGraphInc_Storage& theSrc,
 
 //! Fast identity copy: source and target ids match.
 //! Used for Perform(source, emptyTarget, ...) to avoid editor API overhead.
-static bool copyFullGraphIdentity(const BRepGraphInc_Storage& aSrc,
-                                  BRepGraphInc_Storage&       aDst,
-                                  const BRepGraph&            theSourceGraph,
-                                  BRepGraph&                  theTargetGraph,
-                                  GeomPolicy                  theGeomPolicy,
-                                  MeshPolicy                  theMeshPolicy,
-                                  BRepGraph_Copy::CachePolicy theCachePolicy)
+static bool copyFullGraphIdentity(const BRepGraphInc_Storage&    aSrc,
+                                  BRepGraphInc_Storage&          aDst,
+                                  const BRepGraphSupInc_Storage& theSourceSupplements,
+                                  BRepGraphSupInc_Storage&       theTargetSupplements,
+                                  const BRepGraph&               theSourceGraph,
+                                  BRepGraph&                     theTargetGraph,
+                                  GeomPolicy                     theGeomPolicy,
+                                  MeshPolicy                     theMeshPolicy,
+                                  BRepGraph_Copy::CachePolicy    theCachePolicy)
 {
   const BRepGraphInc_Load::Counts aCounts =
     countsForIdentityCopy(aSrc, theGeomPolicy, theMeshPolicy);
@@ -1257,16 +1362,28 @@ static bool copyFullGraphIdentity(const BRepGraphInc_Storage& aSrc,
   copyReferencesIdentity(aSrc, aDst);
   copyRepresentationsIdentity(aSrc, aDst, theGeomPolicy, theMeshPolicy);
   copyRootProductsIdentity(aSrc, aDst);
-  copyUIDAndGraphStateIdentity(aSrc, aDst);
+  copyUIDAndGraphIdentity(aSrc, aDst);
   copyFlagsAndActiveCountsIdentity(aSrc, aDst);
 
   aDst.CopyDerivedRelationsFrom(aSrc);
   aDst.MarkUIDReverseIndexesDirty();
   aDst.CopyShapeBindingsFrom(aSrc);
 
+  BRepGraphSupInc_CopyContext aSupplementCopy(theSourceSupplements,
+                                              theTargetSupplements,
+                                              BRepGraphSupInc_CopyContext::Mode::Copy);
+  if (!theSourceSupplements.CopyTo(theTargetSupplements, aSupplementCopy))
+  {
+    return false;
+  }
+
   theSourceGraph.LayerRegistry().CopyLayersTo(theTargetGraph,
                                               BRepGraph_CopyRemap::MappingKind::Identity,
                                               BRepGraph_CopyRemap::Mode::Copy);
+  theSourceGraph.LayerSupplementRegistry().CopyLayersTo(theTargetGraph,
+                                                        BRepGraph_CopyRemap::MappingKind::Identity,
+                                                        BRepGraph_CopyRemap::Mode::Copy,
+                                                        aSupplementCopy);
   if (theCachePolicy == BRepGraph_Copy::CachePolicy::CopyFresh)
   {
     theSourceGraph.CacheRegistry().CopyFreshCachesTo(theTargetGraph,
@@ -1291,11 +1408,10 @@ bool BRepGraph_Copy::Perform(const BRepGraph& theSourceGraph,
     return true; // self-copy: identity no-op
   }
 
-  if (theSourceGraph.IsEmpty())
+  if (!theSourceGraph.supplementStorage().IsCopySupported(theTargetGraph.supplementStorage()))
   {
     return false;
   }
-
   // Non-empty target: use explicit mapping via GraphCopyContext (same as CopyNode).
   // IDs in theTargetGraph will differ from theSourceGraph.
   if (!theTargetGraph.IsEmpty())
@@ -1304,7 +1420,7 @@ bool BRepGraph_Copy::Perform(const BRepGraph& theSourceGraph,
     aCtx.SrcStorage = &theSourceGraph.incStorage();
     aCtx.DstStorage = &theTargetGraph.incStorage();
     aCtx.DstData    = theTargetGraph.data();
-    aCtx.ItemRemap.Reserve(itemCapacityUpperBound(theSourceGraph.incStorage()));
+    reserveTypedRemaps(aCtx, theSourceGraph.incStorage());
 
     // Copy all topological entities bottom-up.
     for (BRepGraph_FullVertexIterator aVIt(theSourceGraph); aVIt.More(); aVIt.Next())
@@ -1348,40 +1464,30 @@ bool BRepGraph_Copy::Perform(const BRepGraph& theSourceGraph,
       ensureOccurrence(aCtx, aOIt.CurrentId());
     }
 
-    // Build root product list.
+    // Extend the root product list only with roots copied from the source graph.
     if (!aCtx.Products.IsEmpty())
     {
-      NCollection_FlatMap<BRepGraph_ProductId> aReferencedProducts;
-      for (BRepGraph_FullOccurrenceIterator anOccIt(theTargetGraph); anOccIt.More(); anOccIt.Next())
-      {
-        const BRepGraph_OccurrenceId       anOccId = anOccIt.CurrentId();
-        const BRepGraphInc::OccurrenceDef& anOcc   = aCtx.DstStorage->Occurrence(anOccId);
-        if (!aCtx.DstStorage->IsRemoved(anOccId)
-            && anOcc.ChildNodeId.NodeKind == BRepGraph_NodeId::Kind::Product)
-        {
-          const BRepGraph_ProductId aChildProdId =
-            BRepGraph_ProductId::FromNodeId(anOcc.ChildNodeId);
-          if (aChildProdId.IsValidIn(theTargetGraph.Topo().Products()))
-          {
-            aReferencedProducts.Add(aChildProdId);
-          }
-        }
-      }
-      for (BRepGraph_FullProductIterator aProdIt(theTargetGraph); aProdIt.More(); aProdIt.Next())
-      {
-        const BRepGraph_ProductId aProdId = aProdIt.CurrentId();
-        if (!aCtx.DstStorage->IsRemoved(aProdId) && !aReferencedProducts.Contains(aProdId))
-        {
-          aCtx.DstStorage->ChangeRootProductIds().Append(aProdId);
-        }
-      }
+      appendMappedSourceRootProducts(aCtx);
     }
 
     aCtx.DstStorage->MarkUIDReverseIndexesDirty();
     aCtx.DstStorage->RebuildDerivedRelationsPreservingActiveCounts();
+    BRepGraphSupInc_CopyContext aSupplementCopy(theSourceGraph.supplementStorage(),
+                                                theTargetGraph.supplementStorage(),
+                                                BRepGraphSupInc_CopyContext::Mode::Copy);
+    addSupplementNodeMappings(aSupplementCopy, aCtx.ItemRemap);
+    if (!theSourceGraph.supplementStorage().CopyTo(theTargetGraph.supplementStorage(),
+                                                   aSupplementCopy))
+    {
+      return false;
+    }
     theSourceGraph.LayerRegistry().CopyLayersTo(theTargetGraph,
                                                 aCtx.ItemRemap,
                                                 BRepGraph_CopyRemap::Mode::Copy);
+    theSourceGraph.LayerSupplementRegistry().CopyLayersTo(theTargetGraph,
+                                                          aCtx.ItemRemap,
+                                                          BRepGraph_CopyRemap::Mode::Copy,
+                                                          aSupplementCopy);
     if (theCachePolicy == CachePolicy::CopyFresh)
     {
       theSourceGraph.CacheRegistry().CopyFreshCachesTo(theTargetGraph,
@@ -1392,13 +1498,16 @@ bool BRepGraph_Copy::Perform(const BRepGraph& theSourceGraph,
   }
 
   // Empty target: fast identity copy using PrepareForLoad() instead of editor APIs.
-  return copyFullGraphIdentity(theSourceGraph.incStorage(),
-                               theTargetGraph.incStorage(),
-                               theSourceGraph,
-                               theTargetGraph,
-                               theGeomPolicy,
-                               theMeshPolicy,
-                               theCachePolicy);
+  const bool isCopied = copyFullGraphIdentity(theSourceGraph.incStorage(),
+                                              theTargetGraph.incStorage(),
+                                              theSourceGraph.supplementStorage(),
+                                              theTargetGraph.supplementStorage(),
+                                              theSourceGraph,
+                                              theTargetGraph,
+                                              theGeomPolicy,
+                                              theMeshPolicy,
+                                              theCachePolicy);
+  return isCopied;
 }
 
 //=================================================================================================
@@ -1414,41 +1523,65 @@ BRepGraph_NodeId BRepGraph_Copy::CopyNode(const BRepGraph&       theSourceGraph,
   {
     return BRepGraph_NodeId();
   }
-
   const bool isSelfCopy = (&theSourceGraph == &theTargetGraph);
 
   GraphCopyContext theCtx(theSourceGraph, theTargetGraph, isSelfCopy, theGeomPolicy, theMeshPolicy);
   theCtx.SrcStorage = &theSourceGraph.incStorage();
   theCtx.DstStorage = &theTargetGraph.incStorage();
   theCtx.DstData    = theTargetGraph.data();
-  theCtx.ItemRemap.Reserve(itemCapacityUpperBound(theSourceGraph.incStorage()));
+  reserveTypedRemaps(theCtx, theSourceGraph.incStorage());
+
+  // Plan core mappings in an isolated target clone before stores can veto node-scoped copying.
+  BRepGraph                   aPreflightGraph;
+  BRepGraphSupInc_CopyContext aPreflightSupplementCopy(theSourceGraph.supplementStorage(),
+                                                       theTargetGraph.supplementStorage(),
+                                                       BRepGraphSupInc_CopyContext::Mode::Copy);
+  if ((!theTargetGraph.IsEmpty()
+       && !BRepGraph_Copy::Perform(theTargetGraph,
+                                   aPreflightGraph,
+                                   theGeomPolicy,
+                                   theMeshPolicy,
+                                   theCachePolicy))
+      || !preflightNodeCopyStores(theSourceGraph,
+                                  aPreflightGraph,
+                                  theSourceGraph.incStorage(),
+                                  aPreflightGraph.incStorage(),
+                                  theNodeId,
+                                  theGeomPolicy,
+                                  theMeshPolicy,
+                                  theSourceGraph.supplementStorage(),
+                                  theTargetGraph.supplementStorage(),
+                                  aPreflightSupplementCopy))
+  {
+    return BRepGraph_NodeId();
+  }
 
   ensureNode(theCtx, theNodeId);
 
-  // Build root product list when product entities were copied.
+  // The preflight graph only validates store contracts. Use mappings produced by the real copy
+  // when selecting and attaching supplemental records, in particular for self copies.
+  BRepGraphSupInc_CopyContext aSupplementCopy(theSourceGraph.supplementStorage(),
+                                              theTargetGraph.supplementStorage(),
+                                              BRepGraphSupInc_CopyContext::Mode::Copy);
+  addSupplementNodeMappings(aSupplementCopy, theCtx.ItemRemap);
+  if (!theSourceGraph.supplementStorage().PreflightRecordsForMappedNodesTo(
+        theTargetGraph.supplementStorage(),
+        aSupplementCopy))
+  {
+    return BRepGraph_NodeId();
+  }
+
+  // Extend the root product list only with products copied by this operation.
   if (!theCtx.Products.IsEmpty())
   {
-    NCollection_FlatMap<BRepGraph_ProductId> aReferencedProducts;
-    for (BRepGraph_FullOccurrenceIterator anOccIt(theTargetGraph); anOccIt.More(); anOccIt.Next())
+    appendMappedSourceRootProducts(theCtx);
+    if (theNodeId.NodeKind == BRepGraph_NodeId::Kind::Product)
     {
-      const BRepGraph_OccurrenceId       anOccId = anOccIt.CurrentId();
-      const BRepGraphInc::OccurrenceDef& anOcc   = theCtx.DstStorage->Occurrence(anOccId);
-      if (!theCtx.DstStorage->IsRemoved(anOccId)
-          && anOcc.ChildNodeId.NodeKind == BRepGraph_NodeId::Kind::Product)
+      const BRepGraph_ProductId* aMappedProductId =
+        theCtx.Products.Seek(BRepGraph_ProductId(theNodeId.Index));
+      if (aMappedProductId != nullptr)
       {
-        const BRepGraph_ProductId aChildProdId = BRepGraph_ProductId::FromNodeId(anOcc.ChildNodeId);
-        if (aChildProdId.IsValidIn(theTargetGraph.Topo().Products()))
-        {
-          aReferencedProducts.Add(aChildProdId);
-        }
-      }
-    }
-    for (BRepGraph_FullProductIterator aProdIt(theTargetGraph); aProdIt.More(); aProdIt.Next())
-    {
-      const BRepGraph_ProductId aProdId = aProdIt.CurrentId();
-      if (!theCtx.DstStorage->IsRemoved(aProdId) && !aReferencedProducts.Contains(aProdId))
-      {
-        theCtx.DstStorage->ChangeRootProductIds().Append(aProdId);
+        appendRootProduct(theCtx, *aMappedProductId);
       }
     }
   }
@@ -1456,6 +1589,8 @@ BRepGraph_NodeId BRepGraph_Copy::CopyNode(const BRepGraph&       theSourceGraph,
   theCtx.DstStorage->MarkUIDReverseIndexesDirty();
 
   theCtx.DstStorage->RebuildDerivedRelationsPreservingActiveCounts();
+  theSourceGraph.supplementStorage().CopyRecordsForMappedNodesTo(theTargetGraph.supplementStorage(),
+                                                                 aSupplementCopy);
   theSourceGraph.LayerRegistry().CopyLayersTo(theTargetGraph,
                                               theCtx.ItemRemap,
                                               BRepGraph_CopyRemap::Mode::Copy);
