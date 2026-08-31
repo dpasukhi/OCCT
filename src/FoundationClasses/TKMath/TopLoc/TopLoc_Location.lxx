@@ -14,16 +14,40 @@
 // Alternatively, this file may be used under the terms of Open CASCADE
 // commercial license or contractual agreement.
 
+#include <Precision.hxx>
 #include <Standard_HashUtils.hxx>
 #include <TopLoc_SListOfItemLocation.hxx>
 #include <TopLoc_Datum3D.hxx>
 #include <TopLoc_ItemLocation.hxx>
+
+#include <cmath>
 
 //=================================================================================================
 
 inline bool TopLoc_Location::IsIdentity() const noexcept
 {
   return myItems.IsEmpty();
+}
+
+//=================================================================================================
+
+inline bool TopLoc_Location::IsTransformationIdentity() const noexcept
+{
+  if (myItems.IsEmpty())
+  {
+    return true;
+  }
+  const gp_Trsf& aTrsf = myItems.Value().myTrsf;
+  return aTrsf.TranslationPart().SquareModulus() <= Precision::SquareConfusion()
+      && std::abs(aTrsf.Value(1, 1) - 1.0) <= Precision::Angular()
+      && std::abs(aTrsf.Value(1, 2)) <= Precision::Angular()
+      && std::abs(aTrsf.Value(1, 3)) <= Precision::Angular()
+      && std::abs(aTrsf.Value(2, 1)) <= Precision::Angular()
+      && std::abs(aTrsf.Value(2, 2) - 1.0) <= Precision::Angular()
+      && std::abs(aTrsf.Value(2, 3)) <= Precision::Angular()
+      && std::abs(aTrsf.Value(3, 1)) <= Precision::Angular()
+      && std::abs(aTrsf.Value(3, 2)) <= Precision::Angular()
+      && std::abs(aTrsf.Value(3, 3) - 1.0) <= Precision::Angular();
 }
 
 //=================================================================================================

@@ -92,6 +92,12 @@ public:
   //! Returns the transformation associated to the
   //! coordinate system.
   Standard_EXPORT const gp_Trsf& Transformation() const;
+
+  //! Returns true when the composed geometric transformation is identity.
+  //! Unlike IsIdentity(), this also recognizes non-empty datum chains whose
+  //! transformations cancel each other.
+  [[nodiscard]] bool IsTransformationIdentity() const noexcept;
+
   Standard_EXPORT                operator gp_Trsf() const;
 
   //! Returns the inverse of <me>.

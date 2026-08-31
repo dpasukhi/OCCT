@@ -359,7 +359,7 @@ bool projectCoEdgeSplitParameter(const BRepGraph&            theGraph,
   const ExtremaPC::Result& aResult   = aProjector.PerformWithEndpoints(theSplitPoint,
                                                                        Precision::Confusion(),
                                                                        ExtremaPC::SearchMode::Min);
-  const int                aMinIndex = aResult.MinIndex();
+  const size_t             aMinIndex = aResult.MinIndex();
   if (aMinIndex < 0)
   {
     return false;
