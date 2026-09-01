@@ -114,10 +114,22 @@ protected:
   //! Transient dense IDs may change.
   virtual void Compact() = 0;
 
+  //! Return true when the store retains inactive records that compaction can discard.
+  [[nodiscard]] virtual bool NeedsCompaction() const { return false; }
+
   //! Remap core-node references after core graph compaction.
   //! Stores without core-node references leave this as a no-op.
   //! @param[in] theNodeMap source-to-target core-node mapping
   virtual void RemapCoreNodes(const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>&) {}
+
+  //! Build a detached, compacted store snapshot while preserving every active runtime UID.
+  //! Implementations with compaction-visible state must override this method. Returning null
+  //! rejects graph compaction before the source graph is modified.
+  [[nodiscard]] virtual occ::handle<BRepGraphSupInc_Store> CloneForCompaction(
+    const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>&) const
+  {
+    return occ::handle<BRepGraphSupInc_Store>();
+  }
 
   //! Test whether this source store can copy into a target store.
   //! @param[in] theTarget target store to validate
@@ -166,27 +178,19 @@ private:
 
   [[nodiscard]] bool bindRegistry(const uint32_t theStoreId) noexcept
   {
-    bool isExpected = false;
-    if (!myIsRegistered.compare_exchange_strong(isExpected, true))
-    {
-      return false;
-    }
-    myStoreId.store(theStoreId);
-    return true;
+    uint32_t anExpectedId = 0;
+    return theStoreId != 0
+           && myStoreId.compare_exchange_strong(anExpectedId, theStoreId);
   }
 
   void unbindRegistry(const uint32_t theStoreId) noexcept
   {
-    if (myStoreId.load() == theStoreId)
-    {
-      myStoreId.store(0);
-      myIsRegistered.store(false);
-    }
+    uint32_t anExpectedId = theStoreId;
+    (void)myStoreId.compare_exchange_strong(anExpectedId, 0);
   }
 
 private:
   std::atomic<uint32_t> myStoreId{0};
-  std::atomic<bool>     myIsRegistered{false};
 
   DEFINE_STANDARD_RTTI_INLINE(BRepGraphSupInc_Store, Standard_Transient)
 };

@@ -20,8 +20,6 @@
 #include <TopLoc_Datum3D.hxx>
 #include <TopLoc_ItemLocation.hxx>
 
-#include <cmath>
-
 //=================================================================================================
 
 inline bool TopLoc_Location::IsIdentity() const noexcept
@@ -37,17 +35,26 @@ inline bool TopLoc_Location::IsTransformationIdentity() const noexcept
   {
     return true;
   }
-  const gp_Trsf& aTrsf = myItems.Value().myTrsf;
-  return aTrsf.TranslationPart().SquareModulus() <= Precision::SquareConfusion()
-      && std::abs(aTrsf.Value(1, 1) - 1.0) <= Precision::Angular()
-      && std::abs(aTrsf.Value(1, 2)) <= Precision::Angular()
-      && std::abs(aTrsf.Value(1, 3)) <= Precision::Angular()
-      && std::abs(aTrsf.Value(2, 1)) <= Precision::Angular()
-      && std::abs(aTrsf.Value(2, 2) - 1.0) <= Precision::Angular()
-      && std::abs(aTrsf.Value(2, 3)) <= Precision::Angular()
-      && std::abs(aTrsf.Value(3, 1)) <= Precision::Angular()
-      && std::abs(aTrsf.Value(3, 2)) <= Precision::Angular()
-      && std::abs(aTrsf.Value(3, 3) - 1.0) <= Precision::Angular();
+  const gp_Trsf& aTrsf            = myItems.Value().myTrsf;
+  double         aSquaredResidual = 0.0;
+  const auto addResidual = [&aSquaredResidual](const double theValue, const double theExpected) {
+    const double aDelta = theValue - theExpected;
+    aSquaredResidual += aDelta * aDelta;
+  };
+  addResidual(aTrsf.Value(1, 1), 1.0);
+  addResidual(aTrsf.Value(1, 2), 0.0);
+  addResidual(aTrsf.Value(1, 3), 0.0);
+  addResidual(aTrsf.Value(1, 4), 0.0);
+  addResidual(aTrsf.Value(2, 1), 0.0);
+  addResidual(aTrsf.Value(2, 2), 1.0);
+  addResidual(aTrsf.Value(2, 3), 0.0);
+  addResidual(aTrsf.Value(2, 4), 0.0);
+  addResidual(aTrsf.Value(3, 1), 0.0);
+  addResidual(aTrsf.Value(3, 2), 0.0);
+  addResidual(aTrsf.Value(3, 3), 1.0);
+  addResidual(aTrsf.Value(3, 4), 0.0);
+
+  return aSquaredResidual <= Precision::SquareComputational();
 }
 
 //=================================================================================================

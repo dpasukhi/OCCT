@@ -399,55 +399,29 @@ void BRepGraph_LayerRegistry::CopyLayersTo(
   const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap,
   const BRepGraph_CopyRemap::Mode                                    theMode) const
 {
-  if (theMode == BRepGraph_CopyRemap::Mode::Compact)
+  BRepGraph*                                             aSourceGraph = nullptr;
+  NCollection_LinearVector<occ::handle<BRepGraph_Layer>> aLayers;
   {
-    BRepGraph_LayerRegistry&            aSelf = const_cast<BRepGraph_LayerRegistry&>(*this);
-    std::unique_lock<std::shared_mutex> aLock(aSelf.myMutex);
-    BRepGraph*                          aSourceGraph = myGraph;
-    // Compact: collect old layer handles, unregister all, call CopyTo on each
-    // which creates fresh layers in the target (same graph) via Ensure<T>().
-    NCollection_LinearVector<occ::handle<BRepGraph_Layer>> aOldLayers(myLayers.Size());
+    std::shared_lock<std::shared_mutex> aLock(myMutex);
+    aSourceGraph = myGraph;
     for (const occ::handle<BRepGraph_Layer>& aLayer : myLayers)
     {
       if (!aLayer.IsNull())
       {
-        aOldLayers.Append(aLayer);
+        aLayers.Append(aLayer);
       }
-    }
-
-    aSelf.detachAllLocked();
-    aSelf.myLayers.Clear();
-    aSelf.myGuidToSlot.Clear();
-    aSelf.mySubscribedKindsMask.store(0, std::memory_order_relaxed);
-    aSelf.mySubscribedRefKindsMask.store(0, std::memory_order_relaxed);
-    aLock.unlock();
-
-    // Call CopyTo on each old (now detached) layer.
-    const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theItemRemap, theMode);
-    for (const occ::handle<BRepGraph_Layer>& aLayer : aOldLayers)
-    {
-      aLayer->CopyTo(aCopy);
     }
   }
-  else
-  {
-    BRepGraph* aSourceGraph = nullptr;
-    {
-      std::shared_lock<std::shared_mutex> aLock(myMutex);
-      aSourceGraph = myGraph;
-    }
+  Standard_ProgramError_Raise_if(
+    aSourceGraph == nullptr,
+    "BRepGraph_LayerRegistry::CopyLayersTo() - detached source registry");
 
-    // Copy: standard pass-through to each layer's CopyTo.
-    const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theItemRemap, theMode);
-    for (uint32_t aSlot = 0;; ++aSlot)
-    {
-      occ::handle<BRepGraph_Layer> aLayer = layerAt(aSlot);
-      if (aLayer.IsNull())
-      {
-        return;
-      }
-      aLayer->CopyTo(aCopy);
-    }
+  // Work from a stable handle snapshot. This keeps replacement failure-atomic
+  // and prevents concurrent registry changes from altering the copy pass.
+  const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theItemRemap, theMode);
+  for (const occ::handle<BRepGraph_Layer>& aLayer : aLayers)
+  {
+    aLayer->CopyTo(aCopy);
   }
 }
 
@@ -457,20 +431,26 @@ void BRepGraph_LayerRegistry::CopyLayersTo(BRepGraph&                       theT
                                            BRepGraph_CopyRemap::MappingKind theMappingKind,
                                            BRepGraph_CopyRemap::Mode        theMode) const
 {
-  BRepGraph* aSourceGraph = nullptr;
+  BRepGraph*                                             aSourceGraph = nullptr;
+  NCollection_LinearVector<occ::handle<BRepGraph_Layer>> aLayers;
   {
     std::shared_lock<std::shared_mutex> aLock(myMutex);
     aSourceGraph = myGraph;
+    for (const occ::handle<BRepGraph_Layer>& aLayer : myLayers)
+    {
+      if (!aLayer.IsNull())
+      {
+        aLayers.Append(aLayer);
+      }
+    }
   }
+  Standard_ProgramError_Raise_if(
+    aSourceGraph == nullptr,
+    "BRepGraph_LayerRegistry::CopyLayersTo() - detached source registry");
 
   const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theMappingKind, theMode);
-  for (uint32_t aSlot = 0;; ++aSlot)
+  for (const occ::handle<BRepGraph_Layer>& aLayer : aLayers)
   {
-    occ::handle<BRepGraph_Layer> aLayer = layerAt(aSlot);
-    if (aLayer.IsNull())
-    {
-      return;
-    }
     aLayer->CopyTo(aCopy);
   }
 }
@@ -481,10 +461,18 @@ void BRepGraph_LayerRegistry::CopyTransientLayersTo(
   BRepGraph&                                                         theTargetGraph,
   const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap) const
 {
-  BRepGraph* aSourceGraph = nullptr;
+  BRepGraph*                                             aSourceGraph = nullptr;
+  NCollection_LinearVector<occ::handle<BRepGraph_Layer>> aLayers;
   {
     std::shared_lock<std::shared_mutex> aLock(myMutex);
     aSourceGraph = myGraph;
+    for (const occ::handle<BRepGraph_Layer>& aLayer : myLayers)
+    {
+      if (!aLayer.IsNull())
+      {
+        aLayers.Append(aLayer);
+      }
+    }
   }
   Standard_ProgramError_Raise_if(
     aSourceGraph == nullptr,
@@ -495,13 +483,8 @@ void BRepGraph_LayerRegistry::CopyTransientLayersTo(
                                   theItemRemap,
                                   BRepGraph_CopyRemap::Mode::Compact,
                                   BRepGraph_CopyRemap::FreshnessPolicy::MatchTarget);
-  for (uint32_t aSlot = 0;; ++aSlot)
+  for (const occ::handle<BRepGraph_Layer>& aLayer : aLayers)
   {
-    const occ::handle<BRepGraph_Layer> aLayer = layerAt(aSlot);
-    if (aLayer.IsNull())
-    {
-      return;
-    }
     if (aLayer->RevisionDescriptor().RetentionKind
         != BRepGraph_RevisionComponent::Retention::Persistent)
     {

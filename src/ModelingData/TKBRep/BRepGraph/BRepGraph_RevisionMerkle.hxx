@@ -15,82 +15,33 @@
 #define _BRepGraph_RevisionMerkle_HeaderFile
 
 #include <BRepGraph_RevisionHash.hxx>
-#include <NCollection_LinearVector.hxx>
+#include <NCollection_PersistentRadixMap.hxx>
 #include <Standard_Macro.hxx>
 
-#include <cstddef>
 #include <cstdint>
-#include <memory>
+#include <utility>
 
-//! Persistent sparse Merkle index used by BRepGraph revision hashing.
-//!
-//! Keys traverse a fixed-depth radix-256 tree from their most significant byte.
-//! Insert() and Remove() return a new index while sharing every node not
-//! on the changed path. Node hashes encode fields individually and never depend
-//! on addresses or object representation.
-//! Retained versions are safe for concurrent reads and independent persistent
-//! updates. Assignment to the same object requires external synchronization.
-class BRepGraph_RevisionMerkle
+//! Canonical BRepGraph Merkle encoding policy.
+//! Persistent radix mechanics live in NCollection; only the graph's stable byte
+//! format and digest choice remain in the BRepGraph layer.
+class BRepGraph_RevisionMerkleHasher
 {
 public:
-  //! Key and value hash used to build an index in bulk.
-  struct Entry
-  {
-    uint64_t               Key;
-    BRepGraph_RevisionHash Value;
-  };
+  using ChildHash = std::pair<uint8_t, BRepGraph_RevisionHash>;
 
-  //! Construct an empty index.
-  Standard_EXPORT BRepGraph_RevisionMerkle();
-
-  //! Build a canonical index from arbitrarily ordered entries.
-  //! Each final tree node is allocated once. Duplicate keys are rejected.
-  //! @param[in] theEntries key and value hashes to store
-  //! @return index with the same root hash as sequential insertion
-  //! @throws Standard_DomainError if two entries have the same key
-  [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionMerkle Build(
-    NCollection_LinearVector<Entry> theEntries);
-
-  //! Return a new index containing the key and value hash.
-  //! An existing key is updated without modifying this index.
-  [[nodiscard]] Standard_EXPORT BRepGraph_RevisionMerkle
-    Insert(uint64_t theKey, const BRepGraph_RevisionHash& theValue) const;
-
-  //! Return a new index without the key. Removing an absent key is a no-op.
-  [[nodiscard]] Standard_EXPORT BRepGraph_RevisionMerkle Remove(uint64_t theKey) const;
-
-  //! Return true if the key is present.
-  [[nodiscard]] Standard_EXPORT bool Contains(uint64_t theKey) const;
-
-  //! Return the number of stored leaves in constant time.
-  [[nodiscard]] Standard_EXPORT size_t Size() const noexcept;
-
-  //! Return the cached canonical root hash in constant time.
-  [[nodiscard]] const BRepGraph_RevisionHash& RootHash() const noexcept { return myRootHash; }
-
-  //! Return true if the index has no leaves.
-  [[nodiscard]] bool IsEmpty() const noexcept { return myRoot == nullptr; }
-
-private:
-  struct Node;
-  using NodePtr = std::shared_ptr<const Node>;
-
-  BRepGraph_RevisionMerkle(const NodePtr& theRoot, const BRepGraph_RevisionHash& theRootHash);
-
-  [[nodiscard]] static NodePtr insert(const NodePtr&                theNode,
-                                      uint64_t                      theKey,
-                                      const BRepGraph_RevisionHash& theValue,
-                                      int                           theDepth);
-  [[nodiscard]] static NodePtr build(const NCollection_LinearVector<Entry>& theEntries,
-                                     size_t                                 theFirst,
-                                     size_t                                 theLast,
-                                     int                                    theDepth);
-  [[nodiscard]] static NodePtr remove(const NodePtr& theNode, uint64_t theKey, int theDepth);
-  [[nodiscard]] static bool    contains(const NodePtr& theNode, uint64_t theKey, int theDepth);
-  [[nodiscard]] static BRepGraph_RevisionHash emptyRootHash();
-
-  NodePtr                myRoot;
-  BRepGraph_RevisionHash myRootHash;
+  [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash EmptyHash();
+  [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash LeafHash(
+    uint64_t                      theKey,
+    const BRepGraph_RevisionHash& theValue);
+  [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash BranchHash(
+    size_t           theDepth,
+    const ChildHash* theChildren,
+    size_t           theNbChildren);
 };
+
+using BRepGraph_RevisionMerkle = NCollection_PersistentRadixMap<uint64_t,
+                                                                BRepGraph_RevisionHash,
+                                                                BRepGraph_RevisionHash,
+                                                                BRepGraph_RevisionMerkleHasher>;
 
 #endif // _BRepGraph_RevisionMerkle_HeaderFile

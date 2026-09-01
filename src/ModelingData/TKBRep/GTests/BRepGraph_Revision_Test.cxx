@@ -17,6 +17,7 @@
 #include <BRepGraph_EditorView.hxx>
 #include <BRepGraph_Iterator.hxx>
 #include <BRepGraph_LayerLock.hxx>
+#include <BRepGraph_Layer.hxx>
 #include <BRepGraph_LayerRegistry.hxx>
 #include <BRepGraph_RefsView.hxx>
 #include <BRepGraph_Replace.hxx>
@@ -73,8 +74,8 @@ occ::handle<Geom_BSplineCurve> makeBSplineCurve(const double theMiddlePoleY)
   return new Geom_BSplineCurve(aPoles, aKnots, aMultiplicities, 2);
 }
 
-BRepGraph_RevisionHash edgePayloadHash(const occ::handle<Geom_Curve>&     theCurve,
-                                       const occ::handle<Poly_Polygon3D>& thePolygon)
+BRepGraph_RevisionHash edgeRepresentationHash(const occ::handle<Geom_Curve>&     theCurve,
+                                              const occ::handle<Poly_Polygon3D>& thePolygon)
 {
   BRepGraph                aGraph;
   const BRepGraph_VertexId aStart = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.e-7);
@@ -92,9 +93,9 @@ BRepGraph_RevisionHash edgePayloadHash(const occ::handle<Geom_Curve>&     theCur
   return BRepGraph_RevisionHash::Hasher::Semantic(aGraph);
 }
 
-BRepGraph_RevisionHash triangulationPayloadHash(const double theThirdNodeZ,
-                                                const bool   theHasNormals,
-                                                const double theNormalZ = 1.0)
+BRepGraph_RevisionHash triangulationRepresentationHash(const double theThirdNodeZ,
+                                                       const bool   theHasNormals,
+                                                       const double theNormalZ = 1.0)
 {
   BRepGraph                                  aGraph;
   NCollection_LinearVector<BRepGraph_WireId> anInnerWires;
@@ -128,6 +129,43 @@ BRepGraph_RevisionHash triangulationPayloadHash(const double theThirdNodeZ,
   aGraph.Editor().Faces().SetPersistentTriangulation(aFace, aTriangulation);
   return BRepGraph_RevisionHash::Hasher::Semantic(aGraph);
 }
+
+class BRepGraph_ThrowingCopyLayer : public BRepGraph_Layer
+{
+public:
+  DEFINE_STANDARD_RTTI_INLINE(BRepGraph_ThrowingCopyLayer, BRepGraph_Layer)
+
+  static const Standard_GUID& GetID()
+  {
+    static const Standard_GUID THE_ID("96e5a1b9-928f-4ef8-a512-b77a45df7408");
+    return THE_ID;
+  }
+
+  const Standard_GUID& ID() const override { return GetID(); }
+
+  const TCollection_AsciiString& Name() const override
+  {
+    static const TCollection_AsciiString THE_NAME("ThrowingCopyLayer");
+    return THE_NAME;
+  }
+
+  BRepGraph_RevisionComponent::ComponentDescriptor RevisionDescriptor() const override
+  {
+    BRepGraph_RevisionComponent::ComponentDescriptor aDescriptor;
+    aDescriptor.StableGUID    = GetID();
+    aDescriptor.RetentionKind = BRepGraph_RevisionComponent::Retention::Transient;
+    return aDescriptor;
+  }
+
+  void CopyTo(const BRepGraph_CopyRemap&) const override
+  {
+    throw Standard_DomainError("intentional layer-copy failure");
+  }
+
+  void InvalidateAll() noexcept override {}
+
+  void Clear() noexcept override {}
+};
 
 } // namespace
 
@@ -163,25 +201,23 @@ TEST(BRepGraph_RevisionMerkleTest, InsertionOrderIsCanonical)
 
 TEST(BRepGraph_RevisionHashTest, IncrementalBytesMatchContiguousBytes)
 {
-  std::string aPayload(128 * 1024 + 17, '\0');
-  for (size_t anIndex = 0; anIndex < aPayload.size(); ++anIndex)
+  std::string aBytes(128 * 1024 + 17, '\0');
+  for (size_t anIndex = 0; anIndex < aBytes.size(); ++anIndex)
   {
-    aPayload[anIndex] = static_cast<char>((anIndex * 37u + 11u) & 0xffu);
+    aBytes[anIndex] = static_cast<char>((anIndex * 37u + 11u) & 0xffu);
   }
 
-  BRepGraph_RevisionHash::Hasher::ByteAccumulator anAccumulator(aPayload.size());
-  ASSERT_TRUE(anAccumulator.Append(aPayload.data(), 23));
-  ASSERT_TRUE(anAccumulator.Append(aPayload.data() + 23, 64 * 1024));
-  ASSERT_TRUE(anAccumulator.Append(aPayload.data() + 23 + 64 * 1024,
-                                   aPayload.size() - 23 - 64 * 1024));
+  BRepGraph_RevisionHash::Hasher::ByteAccumulator anAccumulator(aBytes.size());
+  ASSERT_TRUE(anAccumulator.Append(aBytes.data(), 23));
+  ASSERT_TRUE(anAccumulator.Append(aBytes.data() + 23, 64 * 1024));
+  ASSERT_TRUE(anAccumulator.Append(aBytes.data() + 23 + 64 * 1024, aBytes.size() - 23 - 64 * 1024));
 
   BRepGraph_RevisionHash anIncrementalHash;
   ASSERT_TRUE(anAccumulator.Finish(anIncrementalHash));
-  EXPECT_EQ(anIncrementalHash,
-            BRepGraph_RevisionHash::Hasher::Bytes(aPayload.data(), aPayload.size()));
+  EXPECT_EQ(anIncrementalHash, BRepGraph_RevisionHash::Hasher::Bytes(aBytes.data(), aBytes.size()));
 
   BRepGraph_RevisionHash::Hasher::ByteAccumulator aShortAccumulator(8);
-  ASSERT_TRUE(aShortAccumulator.Append(aPayload.data(), 7));
+  ASSERT_TRUE(aShortAccumulator.Append(aBytes.data(), 7));
   BRepGraph_RevisionHash aShortHash;
   EXPECT_FALSE(aShortAccumulator.Finish(aShortHash));
 }
@@ -200,23 +236,22 @@ TEST(BRepGraph_RevisionMerkleTest, BulkBuildMatchesSequentialInsertionAndHandles
   {
     aSequential = aSequential.Insert(anEntry.Key, anEntry.Value);
   }
-  const BRepGraph_RevisionMerkle aBulk = BRepGraph_RevisionMerkle::Build(anEntries);
+  BRepGraph_RevisionMerkle aBulk;
+  ASSERT_TRUE(BRepGraph_RevisionMerkle::Build(anEntries, aBulk));
   EXPECT_EQ(aBulk.RootHash(), aSequential.RootHash());
   EXPECT_EQ(aBulk.Size(), anEntries.Size());
 
   const NCollection_LinearVector<BRepGraph_RevisionMerkle::Entry> anEmptyEntries;
-  const BRepGraph_RevisionMerkle anEmpty = BRepGraph_RevisionMerkle::Build(anEmptyEntries);
+  BRepGraph_RevisionMerkle                                        anEmpty;
+  ASSERT_TRUE(BRepGraph_RevisionMerkle::Build(anEmptyEntries, anEmpty));
   EXPECT_TRUE(anEmpty.IsEmpty());
   EXPECT_EQ(anEmpty.Size(), 0u);
   EXPECT_EQ(anEmpty.RootHash(), BRepGraph_RevisionMerkle().RootHash());
 
   anEntries.Append(anEntries.First());
-  EXPECT_THROW(
-    {
-      const BRepGraph_RevisionMerkle aDuplicate = BRepGraph_RevisionMerkle::Build(anEntries);
-      (void)aDuplicate;
-    },
-    Standard_DomainError);
+  const void* const aBulkRoot = aBulk.RootIdentity();
+  EXPECT_FALSE(BRepGraph_RevisionMerkle::Build(anEntries, aBulk));
+  EXPECT_EQ(aBulk.RootIdentity(), aBulkRoot);
 }
 
 TEST(BRepGraph_RevisionMerkleTest, UpdatesAndRemovalPreserveBase)
@@ -242,16 +277,16 @@ TEST(BRepGraph_RevisionMerkleTest, UpdatesAndRemovalPreserveBase)
   EXPECT_TRUE(anUpdated.Contains(aKey));
 }
 
-TEST(BRepGraph_RevisionHashTest, BSplinePolePayloadChangesSemanticHash)
+TEST(BRepGraph_RevisionHashTest, BSplinePoleChangesSemanticHash)
 {
-  const BRepGraph_RevisionHash aFirst  = edgePayloadHash(makeBSplineCurve(0.25), {});
-  const BRepGraph_RevisionHash aSecond = edgePayloadHash(makeBSplineCurve(0.75), {});
+  const BRepGraph_RevisionHash aFirst  = edgeRepresentationHash(makeBSplineCurve(0.25), {});
+  const BRepGraph_RevisionHash aSecond = edgeRepresentationHash(makeBSplineCurve(0.75), {});
   ASSERT_FALSE(aFirst.IsNull());
   ASSERT_FALSE(aSecond.IsNull());
   EXPECT_NE(aFirst, aSecond);
 }
 
-TEST(BRepGraph_RevisionHashTest, PolygonNodePayloadChangesSemanticHash)
+TEST(BRepGraph_RevisionHashTest, PolygonNodeChangesSemanticHash)
 {
   NCollection_Array1<gp_Pnt> aFirstNodes(1, 2);
   aFirstNodes.SetValue(1, gp_Pnt(0.0, 0.0, 0.0));
@@ -264,17 +299,17 @@ TEST(BRepGraph_RevisionHashTest, PolygonNodePayloadChangesSemanticHash)
   aSecondPolygon->Deflection(0.01);
 
   const occ::handle<Geom_Curve> aCurve  = makeBSplineCurve(0.25);
-  const BRepGraph_RevisionHash  aFirst  = edgePayloadHash(aCurve, aFirstPolygon);
-  const BRepGraph_RevisionHash  aSecond = edgePayloadHash(aCurve, aSecondPolygon);
+  const BRepGraph_RevisionHash  aFirst  = edgeRepresentationHash(aCurve, aFirstPolygon);
+  const BRepGraph_RevisionHash  aSecond = edgeRepresentationHash(aCurve, aSecondPolygon);
   ASSERT_FALSE(aFirst.IsNull());
   ASSERT_FALSE(aSecond.IsNull());
   EXPECT_NE(aFirst, aSecond);
 }
 
-TEST(BRepGraph_RevisionHashTest, TriangulationNodePayloadChangesSemanticHash)
+TEST(BRepGraph_RevisionHashTest, TriangulationNodeChangesSemanticHash)
 {
-  const BRepGraph_RevisionHash aFirst  = triangulationPayloadHash(0.0, true);
-  const BRepGraph_RevisionHash aSecond = triangulationPayloadHash(0.25, true);
+  const BRepGraph_RevisionHash aFirst  = triangulationRepresentationHash(0.0, true);
+  const BRepGraph_RevisionHash aSecond = triangulationRepresentationHash(0.25, true);
   ASSERT_FALSE(aFirst.IsNull());
   ASSERT_FALSE(aSecond.IsNull());
   EXPECT_NE(aFirst, aSecond);
@@ -282,9 +317,9 @@ TEST(BRepGraph_RevisionHashTest, TriangulationNodePayloadChangesSemanticHash)
 
 TEST(BRepGraph_RevisionHashTest, TriangulationNormalsChangeSemanticHash)
 {
-  const BRepGraph_RevisionHash aWithoutNormals  = triangulationPayloadHash(0.0, false);
-  const BRepGraph_RevisionHash aPositiveNormals = triangulationPayloadHash(0.0, true, 1.0);
-  const BRepGraph_RevisionHash aNegativeNormals = triangulationPayloadHash(0.0, true, -1.0);
+  const BRepGraph_RevisionHash aWithoutNormals  = triangulationRepresentationHash(0.0, false);
+  const BRepGraph_RevisionHash aPositiveNormals = triangulationRepresentationHash(0.0, true, 1.0);
+  const BRepGraph_RevisionHash aNegativeNormals = triangulationRepresentationHash(0.0, true, -1.0);
   ASSERT_FALSE(aWithoutNormals.IsNull());
   EXPECT_NE(aWithoutNormals, aPositiveNormals);
   EXPECT_NE(aPositiveNormals, aNegativeNormals);
@@ -321,7 +356,7 @@ TEST(BRepGraph_RevisionHashTest, OwnershipChangesOnlyPhysicalHashes)
   EXPECT_NE(BRepGraph_RevisionHash::Hasher::Storage(aGraph), aStorage);
 }
 
-TEST(BRepGraph_RevisionHashTest, TombstonePayloadChangesOnlyPhysicalHash)
+TEST(BRepGraph_RevisionHashTest, TombstoneChangesOnlyPhysicalHash)
 {
   BRepGraph                aFirstGraph;
   const BRepGraph_VertexId aFirstVertex =
@@ -485,7 +520,7 @@ TEST(BRepGraph_RevisionTest, CopyToCreatesMutablePageSharedGraph)
   EXPECT_EQ(aRevision->Graph().Topo().Faces().Nb(), aSource.Topo().Faces().Nb());
 }
 
-TEST(BRepGraph_RevisionTest, CopiedMutablePayloadDoesNotModifyRevisionOrSource)
+TEST(BRepGraph_RevisionTest, CopiedMutableRepresentationDoesNotModifyRevisionOrSource)
 {
   BRepGraph                aSource;
   const BRepGraph_VertexId aStart = aSource.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.e-7);
@@ -516,7 +551,7 @@ TEST(BRepGraph_RevisionTest, CopiedMutablePayloadDoesNotModifyRevisionOrSource)
   EXPECT_DOUBLE_EQ(aSourceCurve->Pole(2).Y(), 2.0);
 }
 
-TEST(BRepGraph_RevisionTest, BranchPayloadMutationDoesNotModifyImmutableRevisions)
+TEST(BRepGraph_RevisionTest, BranchRepresentationMutationDoesNotModifyImmutableRevisions)
 {
   BRepGraph                aGraph;
   const BRepGraph_VertexId aStart = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.e-7);
@@ -778,17 +813,66 @@ TEST(BRepGraph_RevisionTest, CompleteGraphTransactionUsesExistingEditorAPI)
   EXPECT_EQ(aCommit.Diff.CreatedUIDs.First(), aVertexUID);
 }
 
+TEST(BRepGraph_RevisionTest, CompleteGraphCommitDetachesExposedRepresentationHandles)
+{
+  BRepGraph                aGraph;
+  const BRepGraph_VertexId aStart = aGraph.Editor().Vertices().Add(gp_Pnt(0.0, 0.0, 0.0), 1.e-7);
+  const BRepGraph_VertexId anEnd  = aGraph.Editor().Vertices().Add(gp_Pnt(1.0, 0.0, 0.0), 1.e-7);
+  const BRepGraph_EdgeId   anEdge =
+    aGraph.Editor().Edges().Add(aStart, anEnd, makeBSplineCurve(1.0), 0.0, 1.0, 1.e-7);
+  ASSERT_TRUE(anEdge.IsValid());
+
+  const occ::handle<BRepGraph_Revision> aBase = BRepGraph_Revision::FromGraph(aGraph);
+  ASSERT_FALSE(aBase.IsNull());
+  BRepGraph_Transaction anEdit        = aBase->BeginTransaction();
+  BRepGraph*            aWorkingGraph = anEdit.Graph();
+  ASSERT_NE(aWorkingGraph, nullptr);
+  aWorkingGraph->Editor().Vertices().SetPoint(aStart, gp_Pnt(-1.0, 0.0, 0.0));
+  occ::handle<Geom_BSplineCurve> anExposedCurve =
+    occ::down_cast<Geom_BSplineCurve>(aWorkingGraph->Topo().Edges().Curve3D(anEdge));
+  ASSERT_FALSE(anExposedCurve.IsNull());
+
+  const BRepGraph_Transaction::CommitResult aCommit = anEdit.Commit();
+  ASSERT_TRUE(aCommit.IsOk());
+  ASSERT_NE(aCommit.Revision, aBase);
+  const BRepGraph_RevisionHash aHashBefore = aCommit.Revision->SemanticHash();
+
+  anExposedCurve->SetPole(2, gp_Pnt(0.5, 42.0, 0.0));
+  const occ::handle<Geom_BSplineCurve> aCommittedCurve =
+    occ::down_cast<Geom_BSplineCurve>(aCommit.Revision->Graph().Topo().Edges().Curve3D(anEdge));
+  ASSERT_FALSE(aCommittedCurve.IsNull());
+  EXPECT_DOUBLE_EQ(aCommittedCurve->Pole(2).Y(), 1.0);
+  EXPECT_EQ(aCommit.Revision->SemanticHash(), aHashBefore);
+}
+
+TEST(BRepGraph_RevisionTest, CompleteGraphWatermarkOnlyCommitIsNotDiscarded)
+{
+  const occ::handle<BRepGraph_Revision> aBase = BRepGraph_Revision::Empty();
+  ASSERT_FALSE(aBase.IsNull());
+  BRepGraph_Transaction anEdit        = aBase->BeginTransaction();
+  BRepGraph*            aWorkingGraph = anEdit.Graph();
+  ASSERT_NE(aWorkingGraph, nullptr);
+  ASSERT_TRUE(aWorkingGraph->RaiseNextNodeUIDCounter(BRepGraph_NodeId::Kind::Vertex, 100u));
+
+  const BRepGraph_Transaction::CommitResult aCommit = anEdit.Commit();
+  ASSERT_TRUE(aCommit.IsOk());
+  EXPECT_TRUE(aCommit.Diff.IsEmpty());
+  EXPECT_NE(aCommit.Revision, aBase);
+  EXPECT_EQ(aCommit.Revision->SemanticHash(), aBase->SemanticHash());
+  EXPECT_NE(aCommit.Revision->StorageRootHash(), aBase->StorageRootHash());
+  EXPECT_EQ(aCommit.Revision->Graph().NextNodeUIDCounter(BRepGraph_NodeId::Kind::Vertex), 100u);
+}
+
 TEST(BRepGraph_RevisionTest, CompleteGraphTransactionDiffReportsModifyNoOpAndRemove)
 {
   BRepGraph                aGraph;
-  const BRepGraph_VertexId aVertex =
-    aGraph.Editor().Vertices().Add(gp_Pnt(1.0, 2.0, 3.0), 1.e-7);
+  const BRepGraph_VertexId aVertex = aGraph.Editor().Vertices().Add(gp_Pnt(1.0, 2.0, 3.0), 1.e-7);
   ASSERT_TRUE(aVertex.IsValid());
   const occ::handle<BRepGraph_Revision> aBase = BRepGraph_Revision::FromGraph(aGraph);
   ASSERT_FALSE(aBase.IsNull());
   const BRepGraph_UID aUID = aBase->Graph().UIDs().Of(aVertex);
 
-  BRepGraph_Transaction anEdit = aBase->BeginTransaction();
+  BRepGraph_Transaction anEdit        = aBase->BeginTransaction();
   BRepGraph*            aWorkingGraph = anEdit.Graph();
   ASSERT_NE(aWorkingGraph, nullptr);
   aWorkingGraph->Editor().Vertices().SetPoint(aVertex, gp_Pnt(4.0, 5.0, 6.0));
@@ -797,7 +881,7 @@ TEST(BRepGraph_RevisionTest, CompleteGraphTransactionDiffReportsModifyNoOpAndRem
   ASSERT_EQ(aModified.Diff.ModifiedUIDs.Size(), 1u);
   EXPECT_EQ(aModified.Diff.ModifiedUIDs.First(), aUID);
 
-  BRepGraph_Transaction aNoOpEdit = aModified.Revision->BeginTransaction();
+  BRepGraph_Transaction aNoOpEdit  = aModified.Revision->BeginTransaction();
   BRepGraph*            aNoOpGraph = aNoOpEdit.Graph();
   ASSERT_NE(aNoOpGraph, nullptr);
   aNoOpGraph->Editor().Vertices().SetPoint(aVertex, gp_Pnt(4.0, 5.0, 6.0));
@@ -806,7 +890,7 @@ TEST(BRepGraph_RevisionTest, CompleteGraphTransactionDiffReportsModifyNoOpAndRem
   EXPECT_TRUE(aNoOp.Diff.IsEmpty());
   EXPECT_EQ(aNoOp.Revision, aModified.Revision);
 
-  BRepGraph_Transaction aRemoveEdit = aModified.Revision->BeginTransaction();
+  BRepGraph_Transaction aRemoveEdit  = aModified.Revision->BeginTransaction();
   BRepGraph*            aRemoveGraph = aRemoveEdit.Graph();
   ASSERT_NE(aRemoveGraph, nullptr);
   aRemoveGraph->Editor().Gen().RemoveNode(aVertex);
@@ -1121,4 +1205,26 @@ TEST(BRepGraph_ReplaceTest, RejectsDifferentGraphIdentityWithoutMutation)
     BRepGraph_Replace::Perform(aGraph, std::move(aForeignGraph));
   EXPECT_EQ(aResult.StatusCode, BRepGraph_Replace::Status::DifferentGraphIdentity);
   EXPECT_EQ(BRepGraph_RevisionHash::Hasher::Semantic(aGraph), aBefore);
+}
+
+TEST(BRepGraph_ReplaceTest, LayerMigrationFailureKeepsSourceGraphAndServices)
+{
+  BRepGraph                aGraph;
+  const BRepGraph_VertexId aVertex = aGraph.Editor().Vertices().Add(gp_Pnt(1.0, 2.0, 3.0), 1.e-7);
+  ASSERT_TRUE(aVertex.IsValid());
+  const occ::handle<BRepGraph_Revision> aRevision = BRepGraph_Revision::FromGraph(aGraph);
+  ASSERT_FALSE(aRevision.IsNull());
+
+  const occ::handle<BRepGraph_ThrowingCopyLayer> aLayer = new BRepGraph_ThrowingCopyLayer();
+  aGraph.LayerRegistry().RegisterLayer(aLayer);
+  const BRepGraph_RevisionHash aBefore = BRepGraph_RevisionHash::Hasher::Semantic(aGraph);
+  BRepGraph                    aReplacement;
+  ASSERT_TRUE(aRevision->CopyTo(aReplacement));
+
+  const BRepGraph_Replace::Result aResult =
+    BRepGraph_Replace::Perform(aGraph, std::move(aReplacement));
+  EXPECT_EQ(aResult.StatusCode, BRepGraph_Replace::Status::MigrationFailed);
+  EXPECT_EQ(BRepGraph_RevisionHash::Hasher::Semantic(aGraph), aBefore);
+  EXPECT_EQ(aGraph.Topo().Vertices().Definition(aVertex).Point.X(), 1.0);
+  EXPECT_EQ(aGraph.LayerRegistry().FindLayer(BRepGraph_ThrowingCopyLayer::GetID()), aLayer);
 }

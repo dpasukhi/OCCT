@@ -17,9 +17,17 @@
 #include <NCollection_PagedArray.hxx>
 
 #include <NCollection_DefaultHasher.hxx>
-#include <Standard_ProgramError.hxx>
+#include <NCollection_ItemsView.hxx>
+#include <Standard_DefineAlloc.hxx>
+#include <Standard_NoSuchObject.hxx>
+#include <Standard_OutOfRange.hxx>
 
+#include <cstddef>
 #include <cstdint>
+#include <iterator>
+#include <limits>
+#include <new>
+#include <type_traits>
 #include <utility>
 
 //! Page-granular copy-on-write hash index.
@@ -36,60 +44,270 @@ template <typename TheKey,
 class NCollection_PagedDataMap
 {
 public:
-  class Iterator
+  DEFINE_STANDARD_ALLOC
+
+  using key_type        = TheKey;
+  using value_type      = TheValue;
+  using size_type       = size_t;
+  using difference_type = std::ptrdiff_t;
+  using reference       = TheValue&;
+  using const_reference = const TheValue&;
+  using pointer         = TheValue*;
+  using const_pointer   = const TheValue*;
+
+private:
+  template <bool IsConstant>
+  class BasicIterator
   {
   public:
-    explicit Iterator(const NCollection_PagedDataMap& theMap)
+    using iterator_category = std::forward_iterator_tag;
+    using value_type        = TheValue;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = std::conditional_t<IsConstant, const TheValue*, TheValue*>;
+    using reference         = std::conditional_t<IsConstant, const TheValue&, TheValue&>;
+    using map_pointer =
+      std::conditional_t<IsConstant, const NCollection_PagedDataMap*, NCollection_PagedDataMap*>;
+
+    BasicIterator() noexcept = default;
+
+    template <bool B = IsConstant, std::enable_if_t<!B>* = nullptr>
+    explicit BasicIterator(NCollection_PagedDataMap& theMap) noexcept
         : myMap(&theMap)
     {
       skipEmpty();
     }
 
-    [[nodiscard]] bool More() const noexcept { return myIndex < myMap->myBuckets.Size(); }
-
-    void Next()
+    template <bool B = IsConstant, std::enable_if_t<B>* = nullptr>
+    explicit BasicIterator(const NCollection_PagedDataMap& theMap) noexcept
+        : myMap(&theMap)
     {
-      ++myIndex;
       skipEmpty();
     }
 
-    [[nodiscard]] const TheKey& Key() const { return myMap->myBuckets.Value(myIndex).Key; }
+    template <bool B = IsConstant, std::enable_if_t<B>* = nullptr>
+    BasicIterator(const BasicIterator<false>& theOther) noexcept
+        : myMap(theOther.myMap),
+          myIndex(theOther.myIndex)
+    {
+    }
 
-    [[nodiscard]] const TheValue& Value() const { return myMap->myBuckets.Value(myIndex).Value; }
+    template <bool B = IsConstant, std::enable_if_t<B>* = nullptr>
+    BasicIterator& operator=(const BasicIterator<false>& theOther) noexcept
+    {
+      myMap   = theOther.myMap;
+      myIndex = theOther.myIndex;
+      return *this;
+    }
+
+    reference operator*() const
+    {
+      if constexpr (IsConstant)
+      {
+        return myMap->myBuckets.Value(myIndex).Value();
+      }
+      else
+      {
+        return myMap->myBuckets.ChangeValue(myIndex).ChangeValue();
+      }
+    }
+
+    pointer operator->() const { return &operator*(); }
+
+    [[nodiscard]] bool More() const noexcept
+    {
+      return myMap != nullptr && myIndex < myMap->myBuckets.Size();
+    }
+
+    BasicIterator& operator++()
+    {
+      ++myIndex;
+      skipEmpty();
+      return *this;
+    }
+
+    BasicIterator operator++(int)
+    {
+      BasicIterator anOld(*this);
+      ++(*this);
+      return anOld;
+    }
+
+    [[nodiscard]] const TheKey& Key() const { return myMap->myBuckets.Value(myIndex).Key(); }
+
+    [[nodiscard]] const TheValue& Value() const { return myMap->myBuckets.Value(myIndex).Value(); }
+
+    template <bool B = IsConstant, std::enable_if_t<!B>* = nullptr>
+    [[nodiscard]] TheValue& ChangeValue() const
+    {
+      return myMap->myBuckets.ChangeValue(myIndex).ChangeValue();
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator==(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return (!More() && !theOther.More())
+             || (myMap == theOther.myMap && myIndex == theOther.myIndex);
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator!=(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return !(*this == theOther);
+    }
 
   private:
-    void skipEmpty()
+    template <bool>
+    friend class BasicIterator;
+
+    void skipEmpty() noexcept
     {
-      while (myIndex < myMap->myBuckets.Size()
-             && myMap->myBuckets.Value(myIndex).State != BucketState::Occupied)
+      while (myMap != nullptr && myIndex < myMap->myBuckets.Size()
+             && !myMap->myBuckets.Value(myIndex).IsOccupied())
       {
         ++myIndex;
       }
     }
 
-    const NCollection_PagedDataMap* myMap   = nullptr;
-    size_t                          myIndex = 0;
+    map_pointer myMap   = nullptr;
+    size_t      myIndex = 0;
   };
 
-  explicit NCollection_PagedDataMap(const int theInitialCapacity = 1)
+public:
+  using iterator       = BasicIterator<false>;
+  using const_iterator = BasicIterator<true>;
+
+  class Iterator : public iterator
   {
-    initialize(capacityFor(static_cast<size_t>(theInitialCapacity < 1 ? 1 : theInitialCapacity)));
+  public:
+    Iterator() noexcept = default;
+
+    explicit Iterator(NCollection_PagedDataMap& theMap) noexcept
+        : iterator(theMap),
+          myMap(&theMap)
+    {
+    }
+
+    explicit Iterator(const NCollection_PagedDataMap& theMap) noexcept
+        : iterator(const_cast<NCollection_PagedDataMap&>(theMap)),
+          myMap(const_cast<NCollection_PagedDataMap*>(&theMap))
+    {
+    }
+
+    bool More() const noexcept { return iterator::More(); }
+
+    void Next() noexcept { ++(*this); }
+
+    const TheKey& Key() const
+    {
+      Standard_NoSuchObject_Raise_if(!More(), "NCollection_PagedDataMap::Iterator::Key");
+      return iterator::Key();
+    }
+
+    const TheValue& Value() const
+    {
+      Standard_NoSuchObject_Raise_if(!More(), "NCollection_PagedDataMap::Iterator::Value");
+      return iterator::Value();
+    }
+
+    TheValue& ChangeValue() const
+    {
+      Standard_NoSuchObject_Raise_if(!More(), "NCollection_PagedDataMap::Iterator::ChangeValue");
+      return iterator::ChangeValue();
+    }
+
+    void Initialize(NCollection_PagedDataMap& theMap) noexcept { *this = Iterator(theMap); }
+
+    void Initialize(const NCollection_PagedDataMap& theMap) noexcept { *this = Iterator(theMap); }
+
+    void Reset() noexcept { *this = myMap == nullptr ? Iterator() : Iterator(*myMap); }
+
+    bool IsEqual(const Iterator& theOther) const noexcept
+    {
+      return iterator::operator==(static_cast<const iterator&>(theOther));
+    }
+
+  private:
+    NCollection_PagedDataMap* myMap = nullptr;
+  };
+
+  iterator begin() noexcept { return iterator(*this); }
+
+  const_iterator begin() const noexcept { return const_iterator(*this); }
+
+  iterator end() noexcept { return iterator(); }
+
+  const_iterator end() const noexcept { return const_iterator(); }
+
+  const_iterator cbegin() const noexcept { return const_iterator(*this); }
+
+  const_iterator cend() const noexcept { return const_iterator(); }
+
+  using KeyValueRef      = NCollection_ItemsView::KeyValueRef<TheKey, TheValue, false>;
+  using ConstKeyValueRef = NCollection_ItemsView::KeyValueRef<TheKey, TheValue, true>;
+
+private:
+  struct ItemsExtractor
+  {
+    template <class TheIterator>
+    static KeyValueRef Extract(const TheIterator& theIterator)
+    {
+      return {theIterator.Key(), *theIterator};
+    }
+  };
+
+  struct ConstItemsExtractor
+  {
+    template <class TheIterator>
+    static ConstKeyValueRef Extract(const TheIterator& theIterator)
+    {
+      return {theIterator.Key(), *theIterator};
+    }
+  };
+
+public:
+  using ItemsView =
+    NCollection_ItemsView::View<NCollection_PagedDataMap, KeyValueRef, ItemsExtractor, false>;
+  using ConstItemsView = NCollection_ItemsView::
+    View<NCollection_PagedDataMap, ConstKeyValueRef, ConstItemsExtractor, true>;
+
+  ItemsView Items() { return ItemsView(*this); }
+
+  ConstItemsView Items() const { return ConstItemsView(*this); }
+
+  explicit NCollection_PagedDataMap(const size_t theInitialCapacity = 1)
+  {
+    initialize(capacityFor(theInitialCapacity));
   }
 
+  NCollection_PagedDataMap(const TheHasher& theHasher, const size_t theInitialCapacity = 1)
+      : myHasher(theHasher)
+  {
+    initialize(capacityFor(theInitialCapacity));
+  }
+
+  NCollection_PagedDataMap(TheHasher&& theHasher, const size_t theInitialCapacity = 1)
+      : myHasher(std::move(theHasher))
+  {
+    initialize(capacityFor(theInitialCapacity));
+  }
   [[nodiscard]] size_t Size() const noexcept { return mySize; }
 
   [[nodiscard]] bool IsEmpty() const noexcept { return mySize == 0; }
 
+  [[nodiscard]] size_t Capacity() const noexcept { return myBuckets.Size(); }
+
+  [[nodiscard]] const TheHasher& GetHasher() const noexcept { return myHasher; }
+
   [[nodiscard]] const TheValue* Seek(const TheKey& theKey) const
   {
     const size_t anIndex = findIndex(theKey);
-    return anIndex == THE_NOT_FOUND ? nullptr : &myBuckets.Value(anIndex).Value;
+    return anIndex == THE_NOT_FOUND ? nullptr : &myBuckets.Value(anIndex).Value();
   }
 
   [[nodiscard]] TheValue* ChangeSeek(const TheKey& theKey)
   {
     const size_t anIndex = findIndex(theKey);
-    return anIndex == THE_NOT_FOUND ? nullptr : &myBuckets.ChangeValue(anIndex).Value;
+    return anIndex == THE_NOT_FOUND ? nullptr : &myBuckets.ChangeValue(anIndex).ChangeValue();
   }
 
   [[nodiscard]] bool IsBound(const TheKey& theKey) const
@@ -97,20 +315,28 @@ public:
     return findIndex(theKey) != THE_NOT_FOUND;
   }
 
-  void Bind(const TheKey& theKey, const TheValue& theValue)
+  //! Bind a new key and return false without modifying the map if it is already bound.
+  bool Bind(const TheKey& theKey, const TheValue& theValue)
   {
-    Standard_ProgramError_Raise_if(IsBound(theKey),
-                                   "NCollection_PagedDataMap::Bind: key already bound");
+    if (IsBound(theKey))
+    {
+      return false;
+    }
     ensureInsertCapacity();
     bindWithoutResize(theKey, theValue);
+    return true;
   }
 
-  void Bind(const TheKey& theKey, TheValue&& theValue)
+  //! Bind a new key and return false without modifying the map if it is already bound.
+  bool Bind(const TheKey& theKey, TheValue&& theValue)
   {
-    Standard_ProgramError_Raise_if(IsBound(theKey),
-                                   "NCollection_PagedDataMap::Bind: key already bound");
+    if (IsBound(theKey))
+    {
+      return false;
+    }
     ensureInsertCapacity();
     bindWithoutResize(theKey, std::move(theValue));
+    return true;
   }
 
   TheValue& TryBound(const TheKey& theKey, const TheValue& theValue)
@@ -118,7 +344,7 @@ public:
     const size_t anExisting = findIndex(theKey);
     if (anExisting != THE_NOT_FOUND)
     {
-      return myBuckets.ChangeValue(anExisting).Value;
+      return myBuckets.ChangeValue(anExisting).ChangeValue();
     }
     ensureInsertCapacity();
     return bindWithoutResize(theKey, theValue);
@@ -132,9 +358,7 @@ public:
       return false;
     }
     Bucket& aBucket = myBuckets.ChangeValue(anIndex);
-    aBucket.State   = BucketState::Removed;
-    aBucket.Key     = TheKey();
-    aBucket.Value   = TheValue();
+    aBucket.Remove();
     --mySize;
     ++myRemoved;
     return true;
@@ -142,14 +366,23 @@ public:
 
   void Reserve(const size_t theCapacity)
   {
-    const size_t aRequired = capacityFor((theCapacity * 10u + 6u) / 7u);
+    const size_t aRequired = capacityForEntries(theCapacity);
     if (aRequired > myBuckets.Size())
     {
       rehash(aRequired);
     }
   }
 
-  void Clear(const bool = false) { initialize(THE_MIN_CAPACITY); }
+  //! Remove all entries, retaining capacity unless memory release is requested.
+  void Clear(const bool theToReleaseMemory = false)
+  {
+    if (mySize == 0 && myRemoved == 0
+        && (!theToReleaseMemory || myBuckets.Size() == THE_MIN_CAPACITY))
+    {
+      return;
+    }
+    initialize(theToReleaseMemory ? THE_MIN_CAPACITY : myBuckets.Size());
+  }
 
 private:
   enum class BucketState : uint8_t
@@ -161,20 +394,128 @@ private:
 
   struct Bucket
   {
-    TheKey      Key;
-    TheValue    Value;
-    BucketState State = BucketState::Empty;
+    using KeyValue = std::pair<TheKey, TheValue>;
+
+    Bucket() noexcept = default;
+
+    Bucket(const Bucket& theOther)
+    {
+      if (theOther.IsOccupied())
+      {
+        new (myStorage) KeyValue(theOther.keyValue());
+        myState = BucketState::Occupied;
+      }
+      else
+      {
+        myState = theOther.myState;
+      }
+    }
+
+    ~Bucket() { destroy(); }
+
+    Bucket& operator=(const Bucket& theOther)
+    {
+      if (this != &theOther)
+      {
+        assign(theOther);
+      }
+      return *this;
+    }
+
+    [[nodiscard]] bool IsEmpty() const noexcept { return myState == BucketState::Empty; }
+
+    [[nodiscard]] bool IsOccupied() const noexcept { return myState == BucketState::Occupied; }
+
+    [[nodiscard]] bool IsRemoved() const noexcept { return myState == BucketState::Removed; }
+
+    [[nodiscard]] const TheKey& Key() const noexcept { return keyValue().first; }
+
+    [[nodiscard]] const TheValue& Value() const noexcept { return keyValue().second; }
+
+    [[nodiscard]] TheValue& ChangeValue() noexcept { return changeKeyValue().second; }
+
+    template <typename TheStoredValue>
+    TheValue& Bind(const TheKey& theKey, TheStoredValue&& theValue)
+    {
+      new (myStorage) KeyValue(theKey, std::forward<TheStoredValue>(theValue));
+      myState = BucketState::Occupied;
+      return changeKeyValue().second;
+    }
+
+    void Remove() noexcept
+    {
+      destroy();
+      myState = BucketState::Removed;
+    }
+
+  private:
+    [[nodiscard]] const KeyValue& keyValue() const noexcept
+    {
+      return *std::launder(reinterpret_cast<const KeyValue*>(myStorage));
+    }
+
+    [[nodiscard]] KeyValue& changeKeyValue() noexcept
+    {
+      return *std::launder(reinterpret_cast<KeyValue*>(myStorage));
+    }
+
+    void destroy() noexcept
+    {
+      if (IsOccupied())
+      {
+        changeKeyValue().~KeyValue();
+      }
+    }
+
+    void assign(const Bucket& theOther)
+    {
+      destroy();
+      myState = BucketState::Empty;
+      if (theOther.IsOccupied())
+      {
+        new (myStorage) KeyValue(theOther.keyValue());
+        myState = BucketState::Occupied;
+      }
+      else
+      {
+        myState = theOther.myState;
+      }
+    }
+
+    BucketState                     myState = BucketState::Empty;
+    alignas(KeyValue) unsigned char myStorage[sizeof(KeyValue)];
   };
 
   static constexpr size_t THE_MIN_CAPACITY = 8;
   static constexpr size_t THE_PAGE_SIZE    = 64;
-  static constexpr size_t THE_NOT_FOUND    = static_cast<size_t>(-1);
+  static constexpr size_t THE_NOT_FOUND    = std::numeric_limits<size_t>::max();
+  static constexpr size_t THE_MAX_CAPACITY = size_t(1)
+                                                 << (std::numeric_limits<size_t>::digits - 1);
+
+  static size_t loadLimit(const size_t theCapacity, const size_t theTenths) noexcept
+  {
+    return (theCapacity / 10) * theTenths + ((theCapacity % 10) * theTenths) / 10;
+  }
 
   static size_t capacityFor(size_t theCapacity)
   {
     size_t aCapacity = THE_MIN_CAPACITY;
     while (aCapacity < theCapacity)
     {
+      Standard_OutOfRange_Raise_if(aCapacity == THE_MAX_CAPACITY,
+                                   "NCollection_PagedDataMap capacity is too large");
+      aCapacity <<= 1;
+    }
+    return aCapacity;
+  }
+
+  static size_t capacityForEntries(const size_t theSize)
+  {
+    size_t aCapacity = THE_MIN_CAPACITY;
+    while (loadLimit(aCapacity, 7) < theSize)
+    {
+      Standard_OutOfRange_Raise_if(aCapacity == THE_MAX_CAPACITY,
+                                   "NCollection_PagedDataMap size is too large");
       aCapacity <<= 1;
     }
     return aCapacity;
@@ -182,8 +523,9 @@ private:
 
   void initialize(const size_t theCapacity)
   {
-    myBuckets = NCollection_PagedArray<Bucket>(THE_PAGE_SIZE);
-    myBuckets.Resize(theCapacity);
+    NCollection_PagedArray<Bucket> aBuckets(THE_PAGE_SIZE);
+    aBuckets.Resize(theCapacity);
+    myBuckets = std::move(aBuckets);
     mySize    = 0;
     myRemoved = 0;
   }
@@ -195,11 +537,11 @@ private:
     for (size_t aProbe = 0; aProbe < myBuckets.Size(); ++aProbe)
     {
       const Bucket& aBucket = myBuckets.Value(anIndex);
-      if (aBucket.State == BucketState::Empty)
+      if (aBucket.IsEmpty())
       {
         return THE_NOT_FOUND;
       }
-      if (aBucket.State == BucketState::Occupied && myHasher(aBucket.Key, theKey))
+      if (aBucket.IsOccupied() && myHasher(aBucket.Key(), theKey))
       {
         return anIndex;
       }
@@ -210,9 +552,19 @@ private:
 
   void ensureInsertCapacity()
   {
-    if ((mySize + myRemoved + 1) * 10u >= myBuckets.Size() * 7u)
+    const size_t aCapacity = myBuckets.Size();
+    if (mySize + myRemoved + 1 > loadLimit(aCapacity, 7))
     {
-      rehash(mySize * 10u >= myBuckets.Size() * 6u ? myBuckets.Size() * 2u : myBuckets.Size());
+      if (mySize > loadLimit(aCapacity, 6))
+      {
+        Standard_OutOfRange_Raise_if(aCapacity == THE_MAX_CAPACITY,
+                                     "NCollection_PagedDataMap size is too large");
+        rehash(aCapacity << 1);
+      }
+      else
+      {
+        rehash(aCapacity);
+      }
     }
   }
 
@@ -225,23 +577,21 @@ private:
     for (;;)
     {
       const Bucket& aReadBucket = myBuckets.Value(anIndex);
-      if (aReadBucket.State == BucketState::Removed && aRemovedIndex == THE_NOT_FOUND)
+      if (aReadBucket.IsRemoved() && aRemovedIndex == THE_NOT_FOUND)
       {
         aRemovedIndex = anIndex;
       }
-      else if (aReadBucket.State == BucketState::Empty)
+      else if (aReadBucket.IsEmpty())
       {
         const size_t aTarget = aRemovedIndex == THE_NOT_FOUND ? anIndex : aRemovedIndex;
         Bucket&      aBucket = myBuckets.ChangeValue(aTarget);
-        aBucket.Key          = theKey;
-        aBucket.Value        = std::forward<TheStoredValue>(theValue);
-        aBucket.State        = BucketState::Occupied;
+        TheValue&    aValue  = aBucket.Bind(theKey, std::forward<TheStoredValue>(theValue));
         ++mySize;
         if (aRemovedIndex != THE_NOT_FOUND)
         {
           --myRemoved;
         }
-        return aBucket.Value;
+        return aValue;
       }
       anIndex = (anIndex + 1) & aMask;
     }
@@ -249,16 +599,18 @@ private:
 
   void rehash(const size_t theCapacity)
   {
-    NCollection_PagedArray<Bucket> anOldBuckets = std::move(myBuckets);
-    initialize(capacityFor(theCapacity));
-    for (size_t anIndex = 0; anIndex < anOldBuckets.Size(); ++anIndex)
+    NCollection_PagedDataMap aRehashed(myHasher, capacityFor(theCapacity));
+    for (size_t anIndex = 0; anIndex < myBuckets.Size(); ++anIndex)
     {
-      const Bucket& aBucket = anOldBuckets.Value(anIndex);
-      if (aBucket.State == BucketState::Occupied)
+      const Bucket& aBucket = myBuckets.Value(anIndex);
+      if (aBucket.IsOccupied())
       {
-        bindWithoutResize(aBucket.Key, aBucket.Value);
+        aRehashed.bindWithoutResize(aBucket.Key(), aBucket.Value());
       }
     }
+    myBuckets = std::move(aRehashed.myBuckets);
+    mySize    = aRehashed.mySize;
+    myRemoved = 0;
   }
 
   NCollection_PagedArray<Bucket> myBuckets{THE_PAGE_SIZE};

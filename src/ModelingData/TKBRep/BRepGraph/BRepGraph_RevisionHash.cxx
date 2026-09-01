@@ -841,7 +841,7 @@ BRepGraph_RevisionHash::Hasher::ByteAccumulator::~ByteAccumulator() = default;
 //=================================================================================================
 
 bool BRepGraph_RevisionHash::Hasher::ByteAccumulator::Append(const void*  theData,
-                                                              const size_t theSize)
+                                                             const size_t theSize)
 {
   if (!myData || theSize > myData->Remaining || (theSize != 0 && theData == nullptr))
   {
@@ -870,8 +870,8 @@ bool BRepGraph_RevisionHash::Hasher::ByteAccumulator::Finish(BRepGraph_RevisionH
 TCollection_AsciiString BRepGraph_RevisionHash::ToString() const
 {
   static constexpr char THE_HEX_DIGITS[] = "0123456789abcdef";
-  std::array<char, 65>   aText{};
-  size_t                 aCharIndex = 0;
+  std::array<char, 65>  aText{};
+  size_t                aCharIndex = 0;
   for (const uint64_t aWord : Words)
   {
     for (int aNibble = 15; aNibble >= 0; --aNibble)
@@ -1016,13 +1016,19 @@ BRepGraph_RevisionHash::Hasher::Result BRepGraph_RevisionHash::Hasher::Compute(
 
   aSemanticEntries.Append(
     {merkleKey(MerkleNamespace::SemanticMetadata, 0, 0), semanticMetadataHash(theGraph)});
-  const BRepGraph_RevisionMerkle aSemantic =
-    BRepGraph_RevisionMerkle::Build(std::move(aSemanticEntries));
+  BRepGraph_RevisionMerkle aSemantic;
+  if (!BRepGraph_RevisionMerkle::Build(std::move(aSemanticEntries), aSemantic))
+  {
+    return {};
+  }
   const BRepGraph_RevisionHash aSemanticRoot = aSemantic.RootHash();
   aStorageEntries.Append({merkleKey(MerkleNamespace::StorageMetadata, 0, 0),
                           storageMetadataHash(theGraph, theGraph.incStorage(), aSemanticRoot)});
-  const BRepGraph_RevisionMerkle aStorage =
-    BRepGraph_RevisionMerkle::Build(std::move(aStorageEntries));
+  BRepGraph_RevisionMerkle aStorage;
+  if (!BRepGraph_RevisionMerkle::Build(std::move(aStorageEntries), aStorage))
+  {
+    return {};
+  }
   const std::shared_ptr<const Index> anIndex = std::make_shared<const Index>(aSemantic, aStorage);
   return {aSemanticRoot, aStorage.RootHash(), anIndex};
 }

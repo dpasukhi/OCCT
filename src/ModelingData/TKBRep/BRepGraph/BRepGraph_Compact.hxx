@@ -42,9 +42,19 @@ public:
     ValidationPolicy ValidationMode = ValidationPolicy::Lightweight; //!< Pre-swap validation mode.
   };
 
+  enum class Status
+  {
+    Done,
+    NoChange,
+    InvalidGraph,
+    CandidateValidationFailed,
+    MigrationFailed
+  };
+
   //! Result counters for diagnostics.
   struct Result
   {
+    Status   StatusCode           = Status::InvalidGraph;
     uint32_t NbRemovedVertices    = 0;
     uint32_t NbRemovedEdges       = 0;
     uint32_t NbRemovedCoEdges     = 0;
@@ -64,6 +74,11 @@ public:
     uint32_t NbNodesAfter         = 0;
     uint32_t NbUnmappedActiveDefs =
       0; //!< Active defs not present in any remap (orphans + drop-outs).
+
+    [[nodiscard]] bool IsDone() const noexcept
+    {
+      return StatusCode == Status::Done || StatusCode == Status::NoChange;
+    }
   };
 
   //! Run compaction with default options.

@@ -18,6 +18,8 @@
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <BRep_Tool.hxx>
 #include <gp.hxx>
+#include <gp_Ax1.hxx>
+#include <gp_Dir.hxx>
 #include <gp_Trsf.hxx>
 #include <gp_Vec.hxx>
 #include <gp_Pnt.hxx>
@@ -103,12 +105,28 @@ TEST(TopLoc_Location_Test, IsTransformationIdentity)
 
   gp_Trsf aSmallTranslation;
   aSmallTranslation.SetTranslation(gp_Vec(Precision::Confusion() * 0.5, 0.0, 0.0));
-  EXPECT_TRUE(TopLoc_Location(aSmallTranslation).IsTransformationIdentity());
+  EXPECT_FALSE(TopLoc_Location(aSmallTranslation).IsTransformationIdentity());
 
-  gp_Trsf anInverseTranslation = aTranslation.Inverted();
+  gp_Trsf aRoundoffTranslation;
+  aRoundoffTranslation.SetTranslation(gp_Vec(Precision::Computational() * 0.5, 0.0, 0.0));
+  EXPECT_TRUE(TopLoc_Location(aRoundoffTranslation).IsTransformationIdentity());
+
+  gp_Trsf aSignificantTranslation;
+  aSignificantTranslation.SetTranslation(gp_Vec(Precision::Computational() * 2.0, 0.0, 0.0));
+  EXPECT_FALSE(TopLoc_Location(aSignificantTranslation).IsTransformationIdentity());
+
+  gp_Trsf               anInverseTranslation = aTranslation.Inverted();
   const TopLoc_Location aComposedIdentity =
     aTranslated.Multiplied(TopLoc_Location(anInverseTranslation));
   EXPECT_FALSE(aComposedIdentity.IsIdentity());
   EXPECT_NE(aComposedIdentity.Transformation().Form(), gp_Identity);
   EXPECT_TRUE(aComposedIdentity.IsTransformationIdentity());
+
+  gp_Trsf aRotation;
+  aRotation.SetRotation(gp_Ax1(gp_Pnt(1.0, 2.0, 3.0), gp_Dir(1.0, 2.0, 3.0)), 0.731);
+  const TopLoc_Location aRotated(aRotation);
+  const TopLoc_Location aComposedRotation =
+    aRotated.Multiplied(TopLoc_Location(aRotation.Inverted()));
+  EXPECT_FALSE(aComposedRotation.IsIdentity());
+  EXPECT_TRUE(aComposedRotation.IsTransformationIdentity());
 }

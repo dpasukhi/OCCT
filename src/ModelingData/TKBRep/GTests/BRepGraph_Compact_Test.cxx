@@ -317,6 +317,7 @@ TEST(BRepGraph_CompactTest, InteriorRemovedVertex_CompactsStorage)
 
   const BRepGraph_Compact::Result aRes = BRepGraph_Compact::Perform(aGraph);
 
+  EXPECT_EQ(aRes.StatusCode, BRepGraph_Compact::Status::Done);
   EXPECT_EQ(aRes.NbRemovedVertices, 1u);
   EXPECT_EQ(aGraph.Topo().Vertices().Nb(), 2u);
   EXPECT_TRUE(BRepGraph_Validate::Perform(aGraph).IsValid());

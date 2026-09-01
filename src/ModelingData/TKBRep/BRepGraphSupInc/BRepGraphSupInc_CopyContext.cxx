@@ -17,10 +17,9 @@
 
 //=================================================================================================
 
-BRepGraphSupInc_CopyContext::BRepGraphSupInc_CopyContext(
-  const BRepGraphSupInc_Storage& theSource,
-  BRepGraphSupInc_Storage&       theTarget,
-  const Mode                     theMode)
+BRepGraphSupInc_CopyContext::BRepGraphSupInc_CopyContext(const BRepGraphSupInc_Storage& theSource,
+                                                         BRepGraphSupInc_Storage&       theTarget,
+                                                         const Mode                     theMode)
     : mySource(theSource),
       myTarget(theTarget),
       myMode(theMode)
@@ -56,9 +55,8 @@ BRepGraphSupInc_ItemUID BRepGraphSupInc_CopyContext::TargetUID(
   {
     return *aTargetUID;
   }
-  return myMode == Mode::Compact && &mySource == &myTarget && myTarget.Has(theSourceUID)
-           ? theSourceUID
-           : BRepGraphSupInc_ItemUID();
+  return myMode == Mode::Compact && myTarget.Has(theSourceUID) ? theSourceUID
+                                                               : BRepGraphSupInc_ItemUID();
 }
 
 //=================================================================================================
@@ -66,13 +64,13 @@ BRepGraphSupInc_ItemUID BRepGraphSupInc_CopyContext::TargetUID(
 bool BRepGraphSupInc_CopyContext::HasTargetUID(const BRepGraphSupInc_ItemUID& theSourceUID) const
 {
   return myMappings.Seek(theSourceUID) != nullptr
-         || (myMode == Mode::Compact && &mySource == &myTarget && myTarget.Has(theSourceUID));
+         || (myMode == Mode::Compact && myTarget.Has(theSourceUID));
 }
 
 //=================================================================================================
 
 bool BRepGraphSupInc_CopyContext::AddNodeMapping(const BRepGraph_NodeId theSourceNode,
-                                                  const BRepGraph_NodeId theTargetNode)
+                                                 const BRepGraph_NodeId theTargetNode)
 {
   if (!theSourceNode.IsValid() || !theTargetNode.IsValid())
   {
@@ -113,7 +111,7 @@ occ::handle<BRepGraphSupInc_Store> BRepGraphSupInc_CopyContext::TargetStore(
 //=================================================================================================
 
 bool BRepGraphSupInc_CopyContext::addPrevalidatedTargetStore(
-  const Standard_GUID&                         theID,
+  const Standard_GUID&                      theID,
   const occ::handle<BRepGraphSupInc_Store>& theStore)
 {
   if (theStore.IsNull())
@@ -122,7 +120,8 @@ bool BRepGraphSupInc_CopyContext::addPrevalidatedTargetStore(
   }
 
   const occ::handle<BRepGraphSupInc_Store>* anExisting = myPrevalidatedStores.Seek(theID);
-  return anExisting == nullptr ? myPrevalidatedStores.Bind(theID, theStore) : *anExisting == theStore;
+  return anExisting == nullptr ? myPrevalidatedStores.Bind(theID, theStore)
+                               : *anExisting == theStore;
 }
 
 //=================================================================================================

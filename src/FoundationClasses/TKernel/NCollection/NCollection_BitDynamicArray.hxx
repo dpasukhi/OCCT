@@ -15,6 +15,7 @@
 #define _NCollection_BitDynamicArray_HeaderFile
 
 #include <NCollection_PagedArray.hxx>
+#include <Standard_DefineAlloc.hxx>
 
 #include <cstddef>
 #include <cstdint>
@@ -42,10 +43,12 @@
 //! @endcode
 class NCollection_BitDynamicArray
 {
-  static constexpr uint32_t THE_BITS_PER_BLOCK = 64;
-  using BlockType                              = uint64_t;
+  static constexpr size_t THE_BITS_PER_BLOCK = 64;
+  using BlockType                            = uint64_t;
 
 public:
+  DEFINE_STANDARD_ALLOC
+
   //! Construct an empty bit array.
   NCollection_BitDynamicArray() = default;
 
@@ -65,8 +68,8 @@ public:
   //! @param[in] theIndex zero-based bit index
   void Set(const size_t theIndex)
   {
-    const size_t   aBlock = theIndex / THE_BITS_PER_BLOCK;
-    const uint32_t aBit   = theIndex % THE_BITS_PER_BLOCK;
+    const size_t aBlock = theIndex / THE_BITS_PER_BLOCK;
+    const size_t aBit   = theIndex % THE_BITS_PER_BLOCK;
     myBlocks[aBlock] |= (BlockType(1) << aBit);
   }
 
@@ -74,8 +77,8 @@ public:
   //! @param[in] theIndex zero-based bit index
   void Clear(const size_t theIndex)
   {
-    const size_t   aBlock = theIndex / THE_BITS_PER_BLOCK;
-    const uint32_t aBit   = theIndex % THE_BITS_PER_BLOCK;
+    const size_t aBlock = theIndex / THE_BITS_PER_BLOCK;
+    const size_t aBit   = theIndex % THE_BITS_PER_BLOCK;
     myBlocks[aBlock] &= ~(BlockType(1) << aBit);
   }
 
@@ -83,8 +86,8 @@ public:
   //! @param[in] theIndex zero-based bit index
   [[nodiscard]] bool Test(const size_t theIndex) const noexcept
   {
-    const size_t   aBlock = theIndex / THE_BITS_PER_BLOCK;
-    const uint32_t aBit   = theIndex % THE_BITS_PER_BLOCK;
+    const size_t aBlock = theIndex / THE_BITS_PER_BLOCK;
+    const size_t aBit   = theIndex % THE_BITS_PER_BLOCK;
     return (myBlocks[aBlock] & (BlockType(1) << aBit)) != 0;
   }
 
@@ -124,7 +127,7 @@ public:
   [[nodiscard]] size_t NbBlocks() const noexcept { return myBlocks.Size(); }
 
   //! Return the number of valid bits represented by this array.
-  [[nodiscard]] size_t BitCount() const noexcept { return myBitCount; }
+  [[nodiscard]] size_t Size() const noexcept { return myBitCount; }
 
   //! Return true if theIndex is inside the valid bit range.
   //! @param[in] theIndex zero-based bit index
@@ -142,14 +145,19 @@ public:
 private:
   void maskTailBits()
   {
-    const uint32_t aTailBits = static_cast<uint32_t>(myBitCount % THE_BITS_PER_BLOCK);
+    const size_t aTailBits = myBitCount % THE_BITS_PER_BLOCK;
     if (aTailBits == 0u || myBlocks.Size() == 0)
     {
       return;
     }
 
     const BlockType aTailMask = (BlockType(1) << aTailBits) - BlockType(1);
-    myBlocks[myBlocks.Size() - 1] &= aTailMask;
+    const size_t    aLastBlock = myBlocks.Size() - 1;
+    const BlockType aValue     = myBlocks.Value(aLastBlock);
+    if ((aValue & ~aTailMask) != 0)
+    {
+      myBlocks[aLastBlock] = aValue & aTailMask;
+    }
   }
 
   NCollection_PagedArray<BlockType> myBlocks{64};

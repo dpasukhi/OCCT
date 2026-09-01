@@ -71,6 +71,15 @@ protected:
   Standard_EXPORT void Clear() noexcept override;
   //! Discard removed records while preserving active runtime UIDs and rebuilding dense IDs.
   Standard_EXPORT void Compact() override;
+
+  [[nodiscard]] bool NeedsCompaction() const override
+  {
+    return myCurves3d.Size() != myActive3d || myCurves2d.Size() != myActive2d
+           || mySurfaces.Size() != myActiveSurface;
+  }
+
+  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraphSupInc_Store> CloneForCompaction(
+    const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>& theNodeMap) const override;
   //! Test whether a target store has the same type and schema.
   //! @param[in] theTarget target store to validate
   //! @return true when the target is compatible

@@ -134,7 +134,7 @@ protected:
     [[nodiscard]] Standard_EXPORT bool IsFresh(const BRepGraph_Cache& theCache) const noexcept;
 
     //! True if the entry was successfully bound to a reference generation.
-    [[nodiscard]] bool IsBound() const noexcept { return myIsBound; }
+    [[nodiscard]] bool IsBound() const noexcept { return myRef.IsValid(); }
 
     //! Reference identity captured at bind time.
     [[nodiscard]] BRepGraph_RefId Ref() const noexcept { return myRef; }
@@ -142,7 +142,6 @@ protected:
   private:
     BRepGraph_RefId myRef;
     uint32_t        myGeneration = 0;
-    bool            myIsBound    = false;
   };
 
   //! @brief Value base for item-derived cache entries.
@@ -165,7 +164,7 @@ protected:
     [[nodiscard]] Standard_EXPORT bool IsFresh(const BRepGraph_Cache& theCache) const noexcept;
 
     //! True if the entry was successfully bound to an item generation.
-    [[nodiscard]] bool IsBound() const noexcept { return myIsBound; }
+    [[nodiscard]] bool IsBound() const noexcept { return myItem.IsValid(); }
 
     //! Item identity captured at bind time.
     [[nodiscard]] BRepGraph_ItemId Item() const noexcept { return myItem; }
@@ -173,7 +172,6 @@ protected:
   private:
     BRepGraph_ItemId myItem;
     uint32_t         myGeneration = 0;
-    bool             myIsBound    = false;
   };
 
   Standard_EXPORT BRepGraph_Cache();

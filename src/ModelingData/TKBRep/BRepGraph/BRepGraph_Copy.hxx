@@ -79,7 +79,8 @@ public:
   //! Identity no-op, returns true immediately.
   //!
   //! External copy to empty target (theTargetGraph.IsEmpty()):
-  //! Uses an index-preserving core fast path. Supplemental items receive newly allocated target UIDs.
+  //! Uses an index-preserving core fast path. Supplemental items receive newly allocated target
+  //! UIDs.
   //!
   //! External copy to non-empty target:
   //! Uses explicit mapping; IDs in theTargetGraph will differ from theSourceGraph.
@@ -125,6 +126,23 @@ public:
     MeshPolicy             theMeshPolicy  = MeshPolicy::Copy,
     CachePolicy            theCachePolicy = CachePolicy::Drop);
 
+private:
+  friend class BRepGraph_Transform;
+
+  static bool performInPlace(const BRepGraph& theSourceGraph,
+                             BRepGraph&       theTargetGraph,
+                             GeomPolicy       theGeomPolicy,
+                             MeshPolicy       theMeshPolicy,
+                             CachePolicy      theCachePolicy);
+
+  static BRepGraph_NodeId copyNodeInPlace(const BRepGraph& theSourceGraph,
+                                          BRepGraph&       theTargetGraph,
+                                          BRepGraph_NodeId theNodeId,
+                                          GeomPolicy       theGeomPolicy,
+                                          MeshPolicy       theMeshPolicy,
+                                          CachePolicy      theCachePolicy);
+
+public:
   BRepGraph_Copy() = delete;
 };
 

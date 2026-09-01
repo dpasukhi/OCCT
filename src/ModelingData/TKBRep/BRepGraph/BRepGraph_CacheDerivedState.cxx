@@ -169,14 +169,13 @@ bool isCoEdgeSameRange(const BRepGraph&         theGraph,
     return true;
   }
 
-  const Geom2dAdaptor_Curve aPCurve =
-    BRepGraph_Tool::CoEdge::PCurveAdaptor(theGraph, theCoEdge);
+  const Geom2dAdaptor_Curve aPCurve = BRepGraph_Tool::CoEdge::PCurveAdaptor(theGraph, theCoEdge);
   if (!aPCurve.IsInitialized() || aPCurve.Curve().IsNull())
   {
     return true;
   }
 
-  const std::pair<double, double> anEdgeRange  = BRepGraph_Tool::Edge::Range(theGraph, theEdge);
+  const std::pair<double, double> anEdgeRange = BRepGraph_Tool::Edge::Range(theGraph, theEdge);
   return std::abs(aPCurve.FirstParameter() - anEdgeRange.first) <= Precision::PConfusion()
          && std::abs(aPCurve.LastParameter() - anEdgeRange.second) <= Precision::PConfusion();
 }
@@ -200,8 +199,7 @@ bool isCoEdgeSameParameter(const BRepGraph&                 theGraph,
     return true;
   }
 
-  const Geom2dAdaptor_Curve aPCurve =
-    BRepGraph_Tool::CoEdge::PCurveAdaptor(theGraph, theCoEdge);
+  const Geom2dAdaptor_Curve aPCurve = BRepGraph_Tool::CoEdge::PCurveAdaptor(theGraph, theCoEdge);
   if (!aPCurve.IsInitialized() || aPCurve.Curve().IsNull())
   {
     return true;
@@ -216,7 +214,7 @@ bool isCoEdgeSameParameter(const BRepGraph&                 theGraph,
   const double  aTol           = theEdgeDef.Tolerance + Precision::Confusion();
   constexpr int THE_NB_SAMPLES = 5;
 
-  const GeomAdaptor_TransformedCurve   aCurveAdaptor =
+  const GeomAdaptor_TransformedCurve aCurveAdaptor =
     BRepGraph_Tool::Edge::CurveAdaptor(theGraph, theEdge);
   const GeomAdaptor_TransformedSurface aSurfAdaptor =
     BRepGraph_Tool::Face::SurfaceAdaptor(theGraph, aFace);
@@ -829,7 +827,7 @@ bool BRepGraph_CacheDerivedState::ComputeWireIsClosed(const BRepGraph& theGraph,
 
 //=================================================================================================
 
-uint32_t BRepGraph_CacheDerivedState::computeWireNbDistinctEdges(const BRepGraph&  theGraph,
+uint32_t BRepGraph_CacheDerivedState::computeWireNbDistinctEdges(const BRepGraph& theGraph,
                                                                  BRepGraph_WireId theWire)
 {
   if (!theWire.IsValid(theGraph.Topo().Wires().Nb()) || theWire.IsRemoved(theGraph))
@@ -838,8 +836,7 @@ uint32_t BRepGraph_CacheDerivedState::computeWireNbDistinctEdges(const BRepGraph
   }
 
   NCollection_FlatMap<BRepGraph_EdgeId> aSeenEdges;
-  for (BRepGraph_CoEdgesOfWire aCoEdgeIt(theGraph, theWire);
-       aCoEdgeIt.More(); aCoEdgeIt.Next())
+  for (BRepGraph_CoEdgesOfWire aCoEdgeIt(theGraph, theWire); aCoEdgeIt.More(); aCoEdgeIt.Next())
   {
     const BRepGraph_EdgeId anEdge =
       theGraph.Topo().CoEdges().Definition(aCoEdgeIt.CurrentId()).ChildEdgeId;
@@ -853,27 +850,31 @@ uint32_t BRepGraph_CacheDerivedState::computeWireNbDistinctEdges(const BRepGraph
 
 //=================================================================================================
 
-BRepGraph_WireRefId BRepGraph_CacheDerivedState::computeFaceOuterWireRef(
-  const BRepGraph&  theGraph,
-  BRepGraph_FaceId theFace)
+BRepGraph_WireRefId BRepGraph_CacheDerivedState::computeFaceOuterWireRef(const BRepGraph& theGraph,
+                                                                         BRepGraph_FaceId theFace)
 {
   if (!theFace.IsValid(theGraph.Topo().Faces().Nb()) || theFace.IsRemoved(theGraph))
   {
     return BRepGraph_WireRefId();
   }
 
-  BRepGraph_WireRefId aResult;
-  double           aUMin = 0.0;
-  double           aUMax = 0.0;
-  double           aVMin = 0.0;
-  double           aVMax = 0.0;
+  struct WireBounds
+  {
+    BRepGraph_WireRefId RefId;
+    double              UMin;
+    double              UMax;
+    double              VMin;
+    double              VMax;
+  };
+
+  NCollection_LinearVector<WireBounds> aBounds;
 
   const BRepGraph::RefsView& aRefs = theGraph.Refs();
   for (BRepGraph_RefsWireOfFace aWireIt(theGraph, theFace); aWireIt.More(); aWireIt.Next())
   {
     const BRepGraph_WireRefId    aWireRefId = aWireIt.CurrentId();
     const BRepGraphInc::WireRef& aRef       = aRefs.Wires().Entry(aWireRefId);
-    const BRepGraph_WireId       aWireId = aRef.ChildWireId;
+    const BRepGraph_WireId       aWireId    = aRef.ChildWireId;
     if (!aWireId.IsValid(theGraph.Topo().Wires().Nb()) || aWireId.IsRemoved(theGraph))
     {
       continue;
@@ -888,29 +889,29 @@ BRepGraph_WireRefId BRepGraph_CacheDerivedState::computeFaceOuterWireRef(
       continue;
     }
 
-    if (!aResult.IsValid())
-    {
-      aResult = aWireRefId;
-      aUMin   = aCurUMin;
-      aUMax   = aCurUMax;
-      aVMin   = aCurVMin;
-      aVMax   = aCurVMax;
-      continue;
-    }
+    aBounds.Append({aWireRefId, aCurUMin, aCurUMax, aCurVMin, aCurVMax});
+  }
 
-    if (((aCurUMin - aUMin) <= Precision::PConfusion())
-        && ((aCurUMax - aUMax) >= -Precision::PConfusion())
-        && ((aCurVMin - aVMin) <= Precision::PConfusion())
-        && ((aCurVMax - aVMax) >= -Precision::PConfusion()))
+  const double aTolerance = Precision::PConfusion();
+  for (const WireBounds& aCandidate : aBounds)
+  {
+    bool containsAll = true;
+    for (const WireBounds& anOther : aBounds)
     {
-      aResult = aWireRefId;
-      aUMin   = aCurUMin;
-      aUMax   = aCurUMax;
-      aVMin   = aCurVMin;
-      aVMax   = aCurVMax;
+      if (aCandidate.UMin - anOther.UMin > aTolerance || anOther.UMax - aCandidate.UMax > aTolerance
+          || aCandidate.VMin - anOther.VMin > aTolerance
+          || anOther.VMax - aCandidate.VMax > aTolerance)
+      {
+        containsAll = false;
+        break;
+      }
+    }
+    if (containsAll)
+    {
+      return aCandidate.RefId;
     }
   }
-  return aResult;
+  return BRepGraph_WireRefId();
 }
 
 //=================================================================================================
@@ -1119,7 +1120,7 @@ uint32_t BRepGraph_CacheDerivedState::NbDistinctEdges(BRepGraph_WireId theWire)
 
 BRepGraph_WireId BRepGraph_CacheDerivedState::OuterWire(BRepGraph_FaceId theFace)
 {
-  const BRepGraph& aGraph = Graph();
+  const BRepGraph&          aGraph   = Graph();
   const BRepGraph_WireRefId aWireRef = OuterWireRef(theFace);
   if (!aWireRef.IsValid(aGraph.Refs().Wires().Nb()))
   {

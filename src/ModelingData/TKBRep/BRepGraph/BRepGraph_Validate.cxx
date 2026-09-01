@@ -1920,8 +1920,10 @@ BRepGraph_Validate::Result BRepGraph_Validate::Perform(const BRepGraph& theGraph
 
       if (!hasLiveWire)
       {
-        aResult.Issues.Append(
-          Issue{Severity::Error, aCoEdgeId, "Orphan CoEdge: not owned by any live Wire"});
+        aResult.Issues.Append(Issue{Severity::Error,
+                                    aCoEdgeId,
+                                    "Orphan CoEdge: not owned by any live Wire",
+                                    IssueCode::OrphanCoEdge});
       }
     }
 

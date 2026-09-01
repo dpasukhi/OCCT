@@ -332,7 +332,7 @@ public:
 
   //! Check whether at least one item has deferred representations.
   //! @return true if at least one item has deferred representations.
-  [[nodiscard]] bool HasDeferredItems() const { return myEntries.Extent() != 0; }
+  [[nodiscard]] bool HasDeferredItems() const { return !myEntries.IsEmpty(); }
 
   //! Return first deferred entry with at least one representation of the requested kind, or null.
   //! @param[in] theKind requested representation kind

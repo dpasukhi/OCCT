@@ -74,6 +74,28 @@ void BRepGraphSupInc_TopologyStore::Compact()
 
 //=================================================================================================
 
+occ::handle<BRepGraphSupInc_Store> BRepGraphSupInc_TopologyStore::CloneForCompaction(
+  const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>& theNodeMap) const
+{
+  occ::handle<BRepGraphSupInc_TopologyStore> aResult = new BRepGraphSupInc_TopologyStore();
+  for (const BRepGraphSupInc::TopologyDef& anItem : myItems)
+  {
+    if (anItem.IsRemoved)
+    {
+      continue;
+    }
+    const BRepGraph_NodeId* aMappedOwner = theNodeMap.Seek(anItem.Owner);
+    if (aMappedOwner != nullptr && aMappedOwner->IsValid())
+    {
+      (void)aResult->append(*aMappedOwner, anItem.Kind, anItem.Shape, anItem.OwnGen, anItem.UID);
+    }
+  }
+  aResult->myNextCounter = myNextCounter;
+  return aResult;
+}
+
+//=================================================================================================
+
 bool BRepGraphSupInc_TopologyStore::IsCompatible(const BRepGraphSupInc_Store& theTarget) const
 {
   return theTarget.ID() == ID();

@@ -29,8 +29,8 @@ public:
   //! StoreId is an ItemUID field alias and is not retained outside the active process.
   using StoreId = uint32_t;
 
-  BRepGraphSupInc_Storage() = default;
-  BRepGraphSupInc_Storage(const BRepGraphSupInc_Storage&) = delete;
+  BRepGraphSupInc_Storage()                                          = default;
+  BRepGraphSupInc_Storage(const BRepGraphSupInc_Storage&)            = delete;
   BRepGraphSupInc_Storage& operator=(const BRepGraphSupInc_Storage&) = delete;
 
   BRepGraphSupInc_Storage(BRepGraphSupInc_Storage&&) noexcept            = default;
@@ -47,8 +47,8 @@ public:
   //! Find an active supplemental definition by runtime UID.
   //! @param[in] theUID runtime item identifier to query
   //! @return store-local dense definition ID, or an invalid ID
-  [[nodiscard]] Standard_EXPORT BRepGraphSupInc_DefinitionId FindDefinitionByUID(
-    const BRepGraphSupInc_ItemUID& theUID) const;
+  [[nodiscard]] Standard_EXPORT BRepGraphSupInc_DefinitionId
+    FindDefinitionByUID(const BRepGraphSupInc_ItemUID& theUID) const;
 
   //! Test whether a UID names an active record in its registered owning store.
   //! @param[in] theUID runtime item identifier to query
@@ -62,10 +62,10 @@ public:
 
   //! Add an attachment to the built-in topology store.
   //! @return allocated dense attachment ID, or an invalid ID when the input is invalid
-  [[nodiscard]] Standard_EXPORT BRepGraphSupInc_TopologyId AddTopology(
-    const BRepGraph_NodeId theOwner,
-    const BRepGraphSupInc::TopologyAttachmentKind theKind,
-    const TopoDS_Shape& theShape);
+  [[nodiscard]] Standard_EXPORT BRepGraphSupInc_TopologyId
+    AddTopology(const BRepGraph_NodeId                        theOwner,
+                const BRepGraphSupInc::TopologyAttachmentKind theKind,
+                const TopoDS_Shape&                           theShape);
 
   //! Remove an attachment from the built-in topology store.
   [[nodiscard]] Standard_EXPORT bool RemoveTopology(const BRepGraphSupInc_TopologyId theID);
@@ -75,7 +75,7 @@ public:
 
   //! Move or remove attachments after a core-node replacement.
   Standard_EXPORT void ReplaceTopologyOwner(const BRepGraph_NodeId theOldOwner,
-                                             const BRepGraph_NodeId theNewOwner);
+                                            const BRepGraph_NodeId theNewOwner);
 
   //! Dispatch core-node remapping to every registered store after a core graph transformation.
   Standard_EXPORT void RemapCoreNodes(
@@ -87,7 +87,8 @@ public:
   //! Test whether registered matching stores are compatible for copying.
   //! Source stores without a target registration are created by CopyTo() through NewEmpty().
   //! @return false when a matching target store is incompatible
-  [[nodiscard]] Standard_EXPORT bool IsCopySupported(const BRepGraphSupInc_Storage& theTarget) const;
+  [[nodiscard]] Standard_EXPORT bool IsCopySupported(
+    const BRepGraphSupInc_Storage& theTarget) const;
 
   //! Copy active definitions into target stores and populate the supplied UID mapping context.
   //! Every registered compatible source store is copied through its Store contract. Every copied
@@ -95,8 +96,8 @@ public:
   //! @param[in,out] theTarget target storage receiving compatible stores and active records
   //! @param[in,out] theContext source-to-target mapping context bound to these storages
   //! @return false when store compatibility, registration, or copying fails
-  [[nodiscard]] Standard_EXPORT bool CopyTo(BRepGraphSupInc_Storage&       theTarget,
-                                              BRepGraphSupInc_CopyContext& theContext) const;
+  [[nodiscard]] Standard_EXPORT bool CopyTo(BRepGraphSupInc_Storage&     theTarget,
+                                            BRepGraphSupInc_CopyContext& theContext) const;
 
   //! Validate all registered stores, dependencies, and existing target-store compatibility for a
   //! node-scoped copy without changing target storage. Missing target stores are created and
@@ -105,21 +106,29 @@ public:
   //! @param[in] theContext source-to-target mapping context bound to these storages
   //! @return false when dependencies, compatibility, or mapped-record preflight is invalid
   [[nodiscard]] Standard_EXPORT bool PreflightRecordsForMappedNodesTo(
-    const BRepGraphSupInc_Storage&       theTarget,
-    BRepGraphSupInc_CopyContext&       theContext) const;
+    const BRepGraphSupInc_Storage& theTarget,
+    BRepGraphSupInc_CopyContext&   theContext) const;
 
   //! Copy records selected by mapped core nodes through every registered store contract.
   //! Stores without node-scoped ownership perform no work.
   //! @param[in,out] theTarget target storage receiving compatible stores and selected records
   //! @param[in,out] theContext source-to-target mapping context bound to these storages
   //! Successful PreflightRecordsForMappedNodesTo() is a precondition.
-  Standard_EXPORT void CopyRecordsForMappedNodesTo(
-    BRepGraphSupInc_Storage&       theTarget,
-    BRepGraphSupInc_CopyContext& theContext) const;
+  Standard_EXPORT void CopyRecordsForMappedNodesTo(BRepGraphSupInc_Storage&     theTarget,
+                                                   BRepGraphSupInc_CopyContext& theContext) const;
 
   //! Compact every registered store while preserving active runtime UIDs.
   //! Dense IDs may change as removed records are discarded.
   Standard_EXPORT void Compact();
+
+  //! Return true when at least one registered store retains removable records.
+  [[nodiscard]] Standard_EXPORT bool NeedsCompaction() const;
+
+  //! Prepare a detached compacted copy in another storage while retaining active ItemUIDs.
+  //! The target must be empty. It is updated only after every store is cloned successfully.
+  [[nodiscard]] Standard_EXPORT bool CloneCompactedTo(
+    BRepGraphSupInc_Storage&                                           theTarget,
+    const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>& theNodeMap) const;
 
 private:
   BRepGraphSupInc_StoreRegistry myRegistry;

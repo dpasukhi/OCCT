@@ -24,8 +24,7 @@
 //!
 //! This algorithm canonicalizes deep-equal geometry references (surfaces and
 //! 3D curves) using GeomHash hashers. It updates face/edge definition links to
-//! canonical geometry nodes, can optionally merge safe topology definitions, and
-//! can record lineage in graph history.
+//! canonical geometry nodes and can optionally merge safe topology definitions.
 class BRepGraph_Deduplicate
 {
 public:
@@ -34,8 +33,7 @@ public:
   //! Configuration for graph deduplication run.
   struct Options
   {
-    bool AnalyzeOnly           = false;
-    bool HistoryMode           = true;
+    bool AnalyzeOnly = false;
     //! Also merge safe duplicate topology definitions in Vertex -> Edge -> Wire -> Face order.
     bool   MergeEntitiesWhenSafe = false;
     double CompTolerance         = Precision::Angular();
@@ -51,7 +49,6 @@ public:
     uint32_t NbCurveRewrites      = 0;
     uint32_t NbNullifiedSurfaces  = 0;
     uint32_t NbNullifiedCurves    = 0;
-    uint32_t NbHistoryRecords     = 0;
     bool     IsEntityMergeApplied = false;
 
     //! Topology definition merge counters (active when MergeEntitiesWhenSafe = true).

@@ -25,7 +25,6 @@
 #include <BRepGraph_EditorView.hxx>
 #include <BRepGraph_Iterator.hxx>
 #include <BRepGraph_TopoView.hxx>
-#include <BRepGraph_LayerHistory.hxx>
 #include <BRepGraph_Tool.hxx>
 #include <BRepGraph_NodeId.hxx>
 #include <BRepGraph_ShapesView.hxx>
@@ -134,28 +133,6 @@ size_t nbPCurveEntries(const BRepGraph& theGraph)
       {
         ++aCount;
       }
-    }
-  }
-  return aCount;
-}
-
-//=================================================================================================
-
-int countHistoryRecordsByOp(const BRepGraph& theGraph, const TCollection_AsciiString& theOp)
-{
-  const BRepGraph_LayerHistory* aHistory =
-    theGraph.LayerRegistry().Find<BRepGraph_LayerHistory>().get();
-  if (aHistory == nullptr)
-  {
-    return 0;
-  }
-
-  int aCount = 0;
-  for (size_t aRecIdx = 0; aRecIdx < aHistory->NbRecords(); ++aRecIdx)
-  {
-    if (aHistory->Record(aRecIdx).OperationName == theOp)
-    {
-      ++aCount;
     }
   }
   return aCount;
@@ -431,7 +408,7 @@ TEST(BRepGraph_DeduplicateTest, AnalyzeOnly_ReportsCanonicalCandidates)
   EXPECT_EQ(aRes.NbCurveRewrites, 0);
 }
 
-TEST(BRepGraph_DeduplicateTest, CanonicalizeSurfaces_RewritesAndRecordsHistory)
+TEST(BRepGraph_DeduplicateTest, CanonicalizeSurfaces_Rewrites)
 {
   BRepGraph aGraph;
   aGraph.Clear();
@@ -442,18 +419,11 @@ TEST(BRepGraph_DeduplicateTest, CanonicalizeSurfaces_RewritesAndRecordsHistory)
   ASSERT_EQ(nbUniqueFaceSurfaceDefs(aGraph), 2);
 
   BRepGraph_Deduplicate::Options anOpts;
-  anOpts.AnalyzeOnly = false;
-  anOpts.HistoryMode = true;
-
-  const size_t aHistoryBefore =
-    aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords();
+  anOpts.AnalyzeOnly                       = false;
   const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
 
   EXPECT_EQ(aRes.NbSurfaceRewrites, 1);
   EXPECT_EQ(nbUniqueFaceSurfaceDefs(aGraph), 1);
-  // 1 surface canonicalize + 4 curve canonicalizes = 5 history records.
-  EXPECT_EQ(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords(),
-            aHistoryBefore + 5);
 }
 
 TEST(BRepGraph_DeduplicateTest, CanonicalizeCurves_RewritesAndReducesUnique)
@@ -474,43 +444,6 @@ TEST(BRepGraph_DeduplicateTest, CanonicalizeCurves_RewritesAndReducesUnique)
   EXPECT_EQ(nbUniqueEdgeCurveDefs(aGraph), 4);
 }
 
-TEST(BRepGraph_DeduplicateTest, HistoryModeOff_DoesNotAddHistory)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes5 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  ASSERT_EQ(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords(), 0);
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.HistoryMode = false;
-
-  const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-  EXPECT_EQ(aRes.NbSurfaceRewrites, 1);
-  EXPECT_EQ(aRes.NbCurveRewrites, 4);
-  EXPECT_EQ(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords(), 0);
-}
-
-TEST(BRepGraph_DeduplicateTest, RestoresHistoryEnabledFlag)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes6 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->SetEnabled(false);
-  ASSERT_FALSE(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->IsEnabled());
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.HistoryMode = true;
-  std::ignore        = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-
-  EXPECT_FALSE(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->IsEnabled());
-}
-
 TEST(BRepGraph_DeduplicateTest, DefaultOverload_PerformWorks)
 {
   BRepGraph aGraph;
@@ -523,8 +456,6 @@ TEST(BRepGraph_DeduplicateTest, DefaultOverload_PerformWorks)
   EXPECT_EQ(aRes.NbCanonicalSurfaces, 1);
   EXPECT_EQ(aRes.NbSurfaceRewrites, 1);
   EXPECT_EQ(aRes.NbCurveRewrites, 4);
-  // 1 surface canonicalize + 4 curve canonicalizes = 5 history records.
-  EXPECT_EQ(aRes.NbHistoryRecords, 5);
   EXPECT_FALSE(aRes.IsEntityMergeApplied);
 }
 
@@ -560,7 +491,6 @@ TEST(BRepGraph_DeduplicateTest, NotDoneGraph_ReturnsEmptyResult)
   EXPECT_EQ(aRes.NbCurveRewrites, 0);
   EXPECT_EQ(aRes.NbNullifiedSurfaces, 0);
   EXPECT_EQ(aRes.NbNullifiedCurves, 0);
-  EXPECT_EQ(aRes.NbHistoryRecords, 0);
   EXPECT_FALSE(aRes.IsEntityMergeApplied);
   EXPECT_EQ(aRes.NbReorderedWires, 0);
   EXPECT_EQ(aRes.NbToleranceOrderedWires, 0);
@@ -689,7 +619,6 @@ TEST(BRepGraph_DeduplicateTest, MixedGeometry_OnlyIdenticalDeduped)
   EXPECT_EQ(aRes.NbSurfaceRewrites, 1);
   EXPECT_EQ(aRes.NbCurveRewrites, 4);
   // 7 canonicalize + 1 nullify surface + 4 nullify curves + 2 nullify PCurves = 14.
-  EXPECT_GT(aRes.NbHistoryRecords, 0);
   EXPECT_EQ(nbUniqueFaceSurfaceDefs(aGraph), 2);
   EXPECT_EQ(nbUniqueEdgeCurveDefs(aGraph), 7);
 }
@@ -717,32 +646,6 @@ TEST(BRepGraph_DeduplicateTest, AfterDedup_AllCopiedFacesShareCanonicalSurface)
     }
   }
   EXPECT_EQ(aSurfIds.Extent(), 1);
-}
-
-TEST(BRepGraph_DeduplicateTest, HistoryRecordNames_MatchExpectedOps)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes16 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.HistoryMode = true;
-
-  const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-  // 1 surface canonicalize + 4 curve canonicalizes = 5 history records.
-  ASSERT_EQ(aRes.NbHistoryRecords, 5);
-
-  // TwoCopiedFaces: 1 surface + 4 curve canonicalizations (no orphan nullification).
-  const int aNbSurfOps =
-    countHistoryRecordsByOp(aGraph, TCollection_AsciiString("Dedup:CanonicalizeSurface"));
-  const int aNbCurveOps =
-    countHistoryRecordsByOp(aGraph, TCollection_AsciiString("Dedup:CanonicalizeCurve"));
-
-  EXPECT_EQ(aNbSurfOps, 1);
-  EXPECT_EQ(aNbCurveOps, 4);
-  EXPECT_EQ(aNbSurfOps + aNbCurveOps, 5);
 }
 
 TEST(BRepGraph_DeduplicateTest, AnalyzeOnly_CurveAndPCurveCountsReported)
@@ -775,7 +678,6 @@ TEST(BRepGraph_DeduplicateTest, DefaultOptionsStruct_HasExpectedDefaults)
 {
   BRepGraph_Deduplicate::Options anOpts;
   EXPECT_FALSE(anOpts.AnalyzeOnly);
-  EXPECT_TRUE(anOpts.HistoryMode);
   EXPECT_FALSE(anOpts.MergeEntitiesWhenSafe);
   EXPECT_NEAR(anOpts.CompTolerance, Precision::Angular(), 1e-20);
   EXPECT_NEAR(anOpts.HashTolerance, Precision::Confusion(), 1e-20);
@@ -790,7 +692,6 @@ TEST(BRepGraph_DeduplicateTest, DefaultResultStruct_AllZeroed)
   EXPECT_EQ(aRes.NbCurveRewrites, 0);
   EXPECT_EQ(aRes.NbNullifiedSurfaces, 0);
   EXPECT_EQ(aRes.NbNullifiedCurves, 0);
-  EXPECT_EQ(aRes.NbHistoryRecords, 0);
   EXPECT_FALSE(aRes.IsEntityMergeApplied);
   EXPECT_EQ(aRes.NbReorderedWires, 0);
   EXPECT_EQ(aRes.NbToleranceOrderedWires, 0);
@@ -841,7 +742,6 @@ TEST(BRepGraph_DeduplicateTest, NestedCompound_AllCopiesDeduped)
   EXPECT_EQ(aRes.NbSurfaceRewrites, 2);
   EXPECT_EQ(aRes.NbCurveRewrites, 8);
   // 10 canonicalize + 2 nullify surfaces + 8 nullify curves = 20.
-  EXPECT_GT(aRes.NbHistoryRecords, 0);
   EXPECT_EQ(nbUniqueFaceSurfaceDefs(aGraph), 1);
   EXPECT_EQ(nbUniqueEdgeCurveDefs(aGraph), 4);
 }
@@ -887,7 +787,6 @@ TEST(BRepGraph_DeduplicateTest, TwoIdenticalBoxes_SurfacesAndCurvesDeduped)
   EXPECT_EQ(aRes.NbSurfaceRewrites, 6);
   EXPECT_EQ(aRes.NbCurveRewrites, 12);
   // 18 canonicalize + 6 nullify surfaces + 12 nullify curves = 36.
-  EXPECT_GT(aRes.NbHistoryRecords, 0);
   EXPECT_EQ(nbUniqueFaceSurfaceDefs(aGraph), 6);
   EXPECT_EQ(nbUniqueEdgeCurveDefs(aGraph), 12);
 }
@@ -995,151 +894,6 @@ TEST(BRepGraph_DeduplicateTest, NoPCurveDuplicates_ZeroPCurveRewrites)
   ASSERT_FALSE(aGraph.IsEmpty());
 
   const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph);
-}
-
-// ---------------------------------------------------------------------------
-// History tracing tests
-// ---------------------------------------------------------------------------
-
-TEST(BRepGraph_DeduplicateTest, HistoryFindOriginal_TracesBackToCanonical)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes27 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.HistoryMode = true;
-
-  const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-  ASSERT_EQ(aRes.NbHistoryRecords, 5);
-
-  // For each history record, FindOriginal on the replacement should trace back.
-  for (size_t aRecIdx = 0;
-       aRecIdx < aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords();
-       ++aRecIdx)
-  {
-    const BRepGraph_LayerHistory::Event& aRec =
-      aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->Record(aRecIdx);
-    for (NCollection_DataMap<BRepGraph_NodeId, NCollection_LinearVector<BRepGraph_NodeId>>::Iterator
-           aMapIter(aRec.Mapping);
-         aMapIter.More();
-         aMapIter.Next())
-    {
-      const BRepGraph_NodeId&                           anOriginal    = aMapIter.Key();
-      const NCollection_LinearVector<BRepGraph_NodeId>& aReplacements = aMapIter.Value();
-      for (size_t aReplIdx = 0; aReplIdx < aReplacements.Size(); ++aReplIdx)
-      {
-        const BRepGraph_NodeId aTraced =
-          aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->FindOriginal(
-            aReplacements.Value(aReplIdx));
-        // FindOriginal should eventually reach a root - the canonical node.
-        EXPECT_TRUE(aTraced.IsValid());
-        // The original node from the record should match one of the trace results.
-        EXPECT_TRUE(anOriginal.IsValid());
-      }
-    }
-  }
-}
-
-TEST(BRepGraph_DeduplicateTest, HistoryFindDerived_ContainsCanonicalNode)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes28 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.HistoryMode = true;
-
-  const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-  // 1 surface canonicalize + 4 curve canonicalizes = 5 history records.
-  ASSERT_EQ(aRes.NbHistoryRecords, 5);
-
-  // For each history record, FindDerived on the original should contain the replacements.
-  // All records are canonicalize records with 1 replacement (no nullify records).
-  int aNbCanonMappings = 0;
-  for (size_t aRecIdx = 0;
-       aRecIdx < aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords();
-       ++aRecIdx)
-  {
-    const BRepGraph_LayerHistory::Event& aRec =
-      aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->Record(aRecIdx);
-    for (NCollection_DataMap<BRepGraph_NodeId, NCollection_LinearVector<BRepGraph_NodeId>>::Iterator
-           aMapIter(aRec.Mapping);
-         aMapIter.More();
-         aMapIter.Next())
-    {
-      const BRepGraph_NodeId&                          anOriginal = aMapIter.Key();
-      const NCollection_LinearVector<BRepGraph_NodeId> aDerived =
-        aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->FindDerived(anOriginal);
-      EXPECT_EQ(aDerived.Size(), 1);
-      ++aNbCanonMappings;
-    }
-  }
-  EXPECT_EQ(aNbCanonMappings, 5);
-}
-
-TEST(BRepGraph_DeduplicateTest, HistoryRecordSequenceNumbers_AreMonotonic)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes29 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.HistoryMode = true;
-
-  std::ignore = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-
-  bool   isFirst  = true;
-  size_t aPrevSeq = 0;
-  for (size_t aRecIdx = 0;
-       aRecIdx < aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords();
-       ++aRecIdx)
-  {
-    const BRepGraph_LayerHistory::Event& aRec =
-      aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->Record(aRecIdx);
-    if (!isFirst)
-    {
-      EXPECT_GT(aRec.SequenceNumber, aPrevSeq);
-    }
-    aPrevSeq = aRec.SequenceNumber;
-    isFirst  = false;
-  }
-}
-
-TEST(BRepGraph_DeduplicateTest, HistoryOff_NbRecordsUnchanged)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes30 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  // Run once with history to get 5 records (1 surface + 4 curve canonicalizes).
-  BRepGraph_Deduplicate::Options anOpts1;
-  anOpts1.HistoryMode = true;
-  std::ignore         = BRepGraph_Deduplicate::Perform(aGraph, anOpts1);
-  EXPECT_EQ(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords(), 5);
-
-  // Fresh graph, run with history off - no records should be added.
-  BRepGraph aGraph2;
-  aGraph2.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes31 =
-    aGraph2.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph2.IsEmpty());
-
-  BRepGraph_Deduplicate::Options anOpts2;
-  anOpts2.HistoryMode = false;
-
-  const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph2, anOpts2);
-  EXPECT_EQ(aRes.NbSurfaceRewrites, 1);
-  EXPECT_EQ(aRes.NbCurveRewrites, 4);
-  EXPECT_EQ(aGraph2.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->NbRecords(), 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -1405,48 +1159,6 @@ TEST(BRepGraph_DeduplicateTest, DISABLED_PCurveDedup_RewritesReduceUniquePCurveN
 }
 
 // ---------------------------------------------------------------------------
-// History enabled flag restoration tests
-// ---------------------------------------------------------------------------
-
-TEST(BRepGraph_DeduplicateTest, RestoresHistoryFlag_WhenHistoryModeOff)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes44 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->SetEnabled(true);
-  ASSERT_TRUE(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->IsEnabled());
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.HistoryMode = false;
-  std::ignore        = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-
-  // Should be restored to the original value (true).
-  EXPECT_TRUE(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->IsEnabled());
-}
-
-TEST(BRepGraph_DeduplicateTest, RestoresHistoryFlag_AnalyzeOnlyPath)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes45 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->SetEnabled(true);
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.AnalyzeOnly = true;
-  anOpts.HistoryMode = false;
-  std::ignore        = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-
-  // Restored even when exiting through the AnalyzeOnly early-return.
-  EXPECT_TRUE(aGraph.LayerRegistry().Ensure<BRepGraph_LayerHistory>()->IsEnabled());
-}
-
-// ---------------------------------------------------------------------------
 // Geometry count consistency invariants
 // ---------------------------------------------------------------------------
 
@@ -1549,7 +1261,6 @@ TEST(BRepGraph_DeduplicateTest, TwoCopiedSphereFaces_Deduped)
   // After dedup, both sphere faces share the same surface pointer.
   EXPECT_EQ(BRepGraph_Tool::Face::Surface(aGraph, BRepGraph_FaceId::Start()).get(),
             BRepGraph_Tool::Face::Surface(aGraph, BRepGraph_FaceId(1)).get());
-  EXPECT_GT(aRes.NbHistoryRecords, 0);
 }
 
 TEST(BRepGraph_DeduplicateTest, TwoCopiedCylinderFaces_Deduped)
@@ -1586,7 +1297,6 @@ TEST(BRepGraph_DeduplicateTest, TwoCopiedCylinderFaces_Deduped)
   EXPECT_EQ(aRes.NbSurfaceRewrites, 1);
   EXPECT_EQ(aRes.NbCurveRewrites, 3);
   // 8 canonicalize + 1 nullify surface + 3 nullify curves + 4 nullify PCurves = 16.
-  EXPECT_GT(aRes.NbHistoryRecords, 0);
 }
 
 TEST(BRepGraph_DeduplicateTest, DifferentSizedCylinders_NotDeduped)
@@ -1621,8 +1331,7 @@ TEST(BRepGraph_DeduplicateTest, DifferentSizedCylinders_NotDeduped)
   EXPECT_EQ(aRes.NbCanonicalCurves, 6);
   EXPECT_EQ(aRes.NbSurfaceRewrites, 0);
   EXPECT_EQ(aRes.NbCurveRewrites, 0);
-  // No PCurve dedup (inline now), so zero history records for different-sized cylinders.
-  EXPECT_EQ(aRes.NbHistoryRecords, 0);
+  // No PCurve dedup is performed because PCurves are stored inline.
 }
 
 // ---------------------------------------------------------------------------
@@ -2085,35 +1794,6 @@ TEST(BRepGraph_DeduplicateTest, AnalyzeOnly_MergeDefsWhenSafe_CountsOnly)
   // But no mutation: all vertices still present.
   EXPECT_EQ(aGraph.Topo().Vertices().Nb(), aNbVerticesBefore);
   EXPECT_FALSE(aRes.IsEntityMergeApplied);
-}
-
-TEST(BRepGraph_DeduplicateTest, HistoryRecords_MergePhases)
-{
-  BRepGraph aGraph;
-  aGraph.Clear();
-  [[maybe_unused]] const BRepGraph::ShapesView::Result aBuildRes72 =
-    aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
-  ASSERT_FALSE(aGraph.IsEmpty());
-
-  BRepGraph_Deduplicate::Options anOpts;
-  anOpts.MergeEntitiesWhenSafe = true;
-  anOpts.HistoryMode           = true;
-
-  const BRepGraph_Deduplicate::Result aRes = BRepGraph_Deduplicate::Perform(aGraph, anOpts);
-
-  const int aNbVertexMerge =
-    countHistoryRecordsByOp(aGraph, TCollection_AsciiString("Dedup:MergeVertex"));
-  const int aNbEdgeMerge =
-    countHistoryRecordsByOp(aGraph, TCollection_AsciiString("Dedup:MergeEdge"));
-  const int aNbWireMerge =
-    countHistoryRecordsByOp(aGraph, TCollection_AsciiString("Dedup:MergeWire"));
-  const int aNbFaceMerge =
-    countHistoryRecordsByOp(aGraph, TCollection_AsciiString("Dedup:MergeFace"));
-
-  EXPECT_EQ(aNbVertexMerge, aRes.NbMergedVertices);
-  EXPECT_EQ(aNbEdgeMerge, aRes.NbMergedEdges);
-  EXPECT_EQ(aNbWireMerge, aRes.NbMergedWires);
-  EXPECT_EQ(aNbFaceMerge, aRes.NbMergedFaces);
 }
 
 TEST(BRepGraph_DeduplicateTest, AfterMerge_Validate_NoIssues)

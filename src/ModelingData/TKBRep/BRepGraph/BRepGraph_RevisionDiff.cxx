@@ -227,8 +227,8 @@ void appendComponentChanges(const BRepGraph_Revision& theBaseRevision,
       aResultComponents.Seek(aDescriptor.StableGUID);
     if (aResultComponent == nullptr
         || (*aResultComponent)->Descriptor().ComponentDomain != aDescriptor.ComponentDomain
-        || (*aResultComponent != aBaseComponent
-            && (*aResultComponent)->SemanticHash() != aBaseComponent->SemanticHash()))
+        || theResultRevision.ComponentSemanticHash(aDescriptor.StableGUID)
+             != theBaseRevision.ComponentSemanticHash(aDescriptor.StableGUID))
     {
       appendChange(aDescriptor);
     }
@@ -256,6 +256,11 @@ BRepGraph_RevisionDiff BRepGraph_Revision::Diff(const BRepGraph_Revision& theRes
 {
   const BRepGraph_Revision& theBaseRevision = *this;
   if (&theBaseRevision == &theResultRevision)
+  {
+    return BRepGraph_RevisionDiff();
+  }
+  if (theBaseRevision.GraphGUID() == theResultRevision.GraphGUID()
+      && theBaseRevision.StorageRootHash() == theResultRevision.StorageRootHash())
   {
     return BRepGraph_RevisionDiff();
   }

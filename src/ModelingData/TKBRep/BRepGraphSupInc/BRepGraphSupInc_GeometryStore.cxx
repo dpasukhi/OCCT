@@ -160,6 +160,39 @@ void BRepGraphSupInc_GeometryStore::Compact()
 
 //=================================================================================================
 
+occ::handle<BRepGraphSupInc_Store> BRepGraphSupInc_GeometryStore::CloneForCompaction(
+  const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>&) const
+{
+  occ::handle<BRepGraphSupInc_GeometryStore> aResult = new BRepGraphSupInc_GeometryStore();
+  for (const BRepGraphSupInc::Curve3dDef& aDefinition : myCurves3d)
+  {
+    if (!aDefinition.IsRemoved)
+    {
+      (void)aResult->append(aDefinition.Curve, aDefinition.OwnGen, aDefinition.UID);
+    }
+  }
+  for (const BRepGraphSupInc::Curve2dDef& aDefinition : myCurves2d)
+  {
+    if (!aDefinition.IsRemoved)
+    {
+      (void)aResult->append(aDefinition.Curve, aDefinition.OwnGen, aDefinition.UID);
+    }
+  }
+  for (const BRepGraphSupInc::SurfaceDef& aDefinition : mySurfaces)
+  {
+    if (!aDefinition.IsRemoved)
+    {
+      (void)aResult->append(aDefinition.Surface, aDefinition.OwnGen, aDefinition.UID);
+    }
+  }
+  aResult->myNext3d      = myNext3d;
+  aResult->myNext2d      = myNext2d;
+  aResult->myNextSurface = myNextSurface;
+  return aResult;
+}
+
+//=================================================================================================
+
 bool BRepGraphSupInc_GeometryStore::IsCompatible(const BRepGraphSupInc_Store& theTarget) const
 {
   return theTarget.ID() == ID();

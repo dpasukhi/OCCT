@@ -68,12 +68,13 @@ BRepGraph::BRepGraph()
 
 //=================================================================================================
 
-BRepGraph::BRepGraph(const BRepGraphInc_Storage& theStorage, const bool theToCloneMutablePayloads)
+BRepGraph::BRepGraph(const BRepGraphInc_Storage& theStorage,
+                     const bool                  theToCloneMutableRepresentations)
     : myData(std::make_unique<BRepGraph_Data>(theStorage))
 {
-  if (theToCloneMutablePayloads && !myData->myIncStorage.cloneMutablePayloads())
+  if (theToCloneMutableRepresentations && !myData->myIncStorage.cloneMutableRepresentations())
   {
-    throw Standard_ProgramError("BRepGraph: cannot isolate mutable representation payloads");
+    throw Standard_ProgramError("BRepGraph: cannot isolate mutable representations");
   }
   initViewsAndRegistries();
   (void)myData->myLayerRegistry.Ensure<BRepGraph_LayerHistory>();
@@ -97,13 +98,6 @@ BRepGraph::~BRepGraph()
 bool BRepGraph::IsValid() const noexcept
 {
   return myData != nullptr;
-}
-
-//=================================================================================================
-
-bool BRepGraph::cloneMutablePayloads()
-{
-  return myData != nullptr && myData->myIncStorage.cloneMutablePayloads();
 }
 
 //=================================================================================================

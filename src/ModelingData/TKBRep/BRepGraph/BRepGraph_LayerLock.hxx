@@ -197,7 +197,7 @@ public:
   //! @return true if at least one root owner entry exists.
   [[nodiscard]] bool HasOwners() const
   {
-    return myNodeOwners.Extent() != 0 || myRefOwners.Extent() != 0;
+    return !myNodeOwners.IsEmpty() || !myRefOwners.IsEmpty();
   }
 
   //! Reserve owner map buckets for bulk registration.

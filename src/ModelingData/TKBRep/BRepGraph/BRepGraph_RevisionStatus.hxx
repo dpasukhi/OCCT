@@ -30,6 +30,7 @@ public:
     Ok,
     InvalidInput,
     CopyFailed,
+    HashFailed,
     ValidationFailed,
     InvalidBase,
     AlreadyFinished,

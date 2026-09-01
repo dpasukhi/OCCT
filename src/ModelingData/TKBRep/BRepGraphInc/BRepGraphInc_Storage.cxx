@@ -56,18 +56,16 @@ void validateNextUidCounter(const uint32_t theCounter, const char* theContext)
 Standard_GUID makeRuntimeIdentity(const void* theStorage)
 {
   const std::array<uint64_t, 4> aSource1 = {
-    static_cast<uint64_t>(
-      std::chrono::system_clock::now().time_since_epoch().count()),
-    static_cast<uint64_t>(
-      std::chrono::steady_clock::now().time_since_epoch().count()),
+    static_cast<uint64_t>(std::chrono::system_clock::now().time_since_epoch().count()),
+    static_cast<uint64_t>(std::chrono::steady_clock::now().time_since_epoch().count()),
     static_cast<uint64_t>(reinterpret_cast<uintptr_t>(theStorage)),
     static_cast<uint64_t>(sizeof(BRepGraphInc_Storage))};
-  const uint64_t aWord1 = opencascade::hashBytes<uint64_t, uint64_t>(aSource1.data(),
-                                                                     static_cast<int>(sizeof(aSource1)));
+  const uint64_t aWord1 =
+    opencascade::hashBytes<uint64_t, uint64_t>(aSource1.data(), static_cast<int>(sizeof(aSource1)));
 
   const std::array<uint64_t, 4> aSource2 = {aSource1[2], aSource1[0], aWord1, aSource1[1]};
-  const uint64_t aWord2 = opencascade::hashBytes<uint64_t, uint64_t>(aSource2.data(),
-                                                                     static_cast<int>(sizeof(aSource2)));
+  const uint64_t                aWord2 =
+    opencascade::hashBytes<uint64_t, uint64_t>(aSource2.data(), static_cast<int>(sizeof(aSource2)));
 
   Standard_UUID aUUID;
   aUUID.Data1 = static_cast<uint32_t>(aWord1);
@@ -493,7 +491,7 @@ BRepGraphInc_Storage::~BRepGraphInc_Storage()
 
 //=================================================================================================
 
-bool BRepGraphInc_Storage::cloneMutablePayloads()
+bool BRepGraphInc_Storage::cloneMutableRepresentations()
 {
   for (uint32_t anIndex = 0; anIndex < myEdgeCurves3D.Nb(); ++anIndex)
   {

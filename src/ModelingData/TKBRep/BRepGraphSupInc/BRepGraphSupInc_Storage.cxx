@@ -224,9 +224,60 @@ void BRepGraphSupInc_Storage::RemapCoreNodes(
 
 //=================================================================================================
 
+bool BRepGraphSupInc_Storage::CloneCompactedTo(
+  BRepGraphSupInc_Storage&                                           theTarget,
+  const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>& theNodeMap) const
+{
+  if (this == &theTarget || theTarget.Registry().Count() != 0)
+  {
+    return false;
+  }
+
+  BRepGraphSupInc_Storage                                      aCandidate;
+  NCollection_LinearVector<occ::handle<BRepGraphSupInc_Store>> aSourceStores;
+  if (!orderedStores(myRegistry, aSourceStores))
+  {
+    return false;
+  }
+  for (const occ::handle<BRepGraphSupInc_Store>& aSourceStore : aSourceStores)
+  {
+    if (aSourceStore.IsNull())
+    {
+      return false;
+    }
+    const occ::handle<BRepGraphSupInc_Store> aSnapshot =
+      aSourceStore->CloneForCompaction(theNodeMap);
+    if (aSnapshot.IsNull() || !aSourceStore->IsCompatible(*aSnapshot)
+        || !aCandidate.ChangeRegistry().registerCompactedStore(aSnapshot, aSourceStore->StoreId()))
+    {
+      return false;
+    }
+  }
+  theTarget = std::move(aCandidate);
+  return true;
+}
+
+//=================================================================================================
+
 void BRepGraphSupInc_Storage::Clear() noexcept
 {
   myRegistry.ClearAll();
+}
+
+//=================================================================================================
+
+bool BRepGraphSupInc_Storage::NeedsCompaction() const
+{
+  NCollection_LinearVector<occ::handle<BRepGraphSupInc_Store>> aStores;
+  collectRegisteredStores(myRegistry, aStores);
+  for (const occ::handle<BRepGraphSupInc_Store>& aStore : aStores)
+  {
+    if (!aStore.IsNull() && aStore->NeedsCompaction())
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
 //=================================================================================================

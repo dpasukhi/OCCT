@@ -14,6 +14,7 @@
 #include <gtest/gtest.h>
 
 #include <BRepGraph.hxx>
+#include <BRepGraph_UIDsView.hxx>
 #include <BRepGraph_Compact.hxx>
 #include <BRepGraph_Copy.hxx>
 #include <BRepGraph_EditorView.hxx>
@@ -475,6 +476,16 @@ protected:
     myOwner = aRemappedOwner == nullptr ? BRepGraph_NodeId() : *aRemappedOwner;
   }
 
+  occ::handle<BRepGraphSupInc_Store> CloneForCompaction(
+    const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>& theNodeMap) const override
+  {
+    occ::handle<BRepGraphSupInc_RemapStore> aResult      = new BRepGraphSupInc_RemapStore();
+    const BRepGraph_NodeId*                 aMappedOwner = theNodeMap.Seek(myOwner);
+    aResult->myOwner       = aMappedOwner == nullptr ? BRepGraph_NodeId() : *aMappedOwner;
+    aResult->myWasRemapped = true;
+    return aResult;
+  }
+
   bool IsCompatible(const BRepGraphSupInc_Store& theTarget) const override
   {
     return theTarget.ID() == ID();
@@ -730,6 +741,28 @@ TEST(BRepGraphSupIncTest, CopyNode_RejectsFailingNewEmptyBeforeCoreMutation)
   EXPECT_FALSE(BRepGraph_Copy::CopyNode(aSource, aTarget, aSourceVertex).IsValid());
   EXPECT_EQ(aFailingStore->NewEmptyCalls(), 1u);
   EXPECT_EQ(aTarget.Topo().Vertices().Nb(), aTargetVertexCount);
+  EXPECT_TRUE(
+    aTarget.Supplements().FindStore(BRepGraphSupInc_FailingNodeCopyStore::GetID()).IsNull());
+}
+
+TEST(BRepGraphSupIncTest, FullCopyFailureKeepsNonEmptyTargetUnchanged)
+{
+  BRepGraph aSource;
+  ASSERT_TRUE(aSource.Editor().Vertices().Add(gp_Pnt(), 1.0e-7).IsValid());
+  const occ::handle<BRepGraphSupInc_FailingNodeCopyStore> aFailingStore =
+    new BRepGraphSupInc_FailingNodeCopyStore();
+  ASSERT_TRUE(aSource.Supplements().RegisterStore(aFailingStore));
+
+  BRepGraph                aTarget;
+  const BRepGraph_VertexId aTargetVertex =
+    aTarget.Editor().Vertices().Add(gp_Pnt(3.0, 4.0, 5.0), 1.0e-7);
+  ASSERT_TRUE(aTargetVertex.IsValid());
+  const Standard_GUID aGraphGUID = aTarget.UIDs().GraphGUID();
+
+  EXPECT_FALSE(BRepGraph_Copy::Perform(aSource, aTarget));
+  EXPECT_EQ(aTarget.UIDs().GraphGUID(), aGraphGUID);
+  EXPECT_EQ(aTarget.Topo().Vertices().Nb(), 1u);
+  EXPECT_EQ(aTarget.Topo().Vertices().Definition(aTargetVertex).Point.X(), 3.0);
   EXPECT_TRUE(
     aTarget.Supplements().FindStore(BRepGraphSupInc_FailingNodeCopyStore::GetID()).IsNull());
 }
@@ -1077,7 +1110,12 @@ TEST(BRepGraphSupIncTest, Copy_CustomStoreAllocatesTargetUIDsAndRemapsReferences
   const BRepGraphSupInc_ItemUID* anAppendUID = anAppendReference->Target.SupplementalItem();
   ASSERT_NE(anAppendUID, nullptr);
   EXPECT_NE(*anAppendUID, aSourceUID);
-  EXPECT_TRUE(anAppendStore->Has(*anAppendUID));
+  const occ::handle<BRepGraphSupInc_TestStore> aCopiedAppendStore =
+    occ::down_cast<BRepGraphSupInc_TestStore>(
+      anAppendTarget.Supplements().FindStore(BRepGraphSupInc_TestStore::GetID()));
+  ASSERT_FALSE(aCopiedAppendStore.IsNull());
+  EXPECT_NE(aCopiedAppendStore, anAppendStore);
+  EXPECT_TRUE(aCopiedAppendStore->Has(*anAppendUID));
 }
 
 TEST(BRepGraphSupIncTest, Compact_PreservesSupplementalUIDAndRemapsCoreEndpoint)
@@ -1131,6 +1169,60 @@ TEST(BRepGraphSupIncTest, Compact_DispatchesCoreNodeRemapToCustomStores)
   aGraph.Editor().Gen().RemoveNode(aRemovedVertex);
   std::ignore = BRepGraph_Compact::Perform(aGraph);
 
-  EXPECT_TRUE(aStore->WasRemapped());
-  EXPECT_EQ(aStore->Owner(), BRepGraph_NodeId(BRepGraph_VertexId::Start()));
+  const occ::handle<BRepGraphSupInc_RemapStore> aCompactedStore =
+    occ::down_cast<BRepGraphSupInc_RemapStore>(
+      aGraph.Supplements().FindStore(BRepGraphSupInc_RemapStore::GetID()));
+  ASSERT_FALSE(aCompactedStore.IsNull());
+  EXPECT_TRUE(aCompactedStore->WasRemapped());
+  EXPECT_EQ(aCompactedStore->Owner(), BRepGraph_NodeId(BRepGraph_VertexId::Start()));
+  EXPECT_FALSE(aStore->WasRemapped());
+  EXPECT_EQ(aStore->Owner(), BRepGraph_NodeId(aTrackedVertex));
+}
+
+TEST(BRepGraphSupIncTest, Compact_UnsupportedStoreKeepsSourceGraphUnchanged)
+{
+  BRepGraph                aGraph;
+  const BRepGraph_VertexId aRemovedVertex =
+    aGraph.Editor().Vertices().Add(gp_Pnt(-1.0, 0.0, 0.0), 1.0e-7);
+  (void)aGraph.Editor().Vertices().Add(gp_Pnt(1.0, 0.0, 0.0), 1.0e-7);
+  const occ::handle<BRepGraphSupInc_TestStore> aStore = new BRepGraphSupInc_TestStore();
+  ASSERT_TRUE(aGraph.Supplements().RegisterStore(aStore));
+  const BRepGraphSupInc_ItemUID anItemUID  = aStore->Add(42);
+  const Standard_GUID           aGraphGUID = aGraph.UIDs().GraphGUID();
+
+  aGraph.Editor().Gen().RemoveNode(aRemovedVertex);
+  const BRepGraph_Compact::Result aResult = BRepGraph_Compact::Perform(aGraph);
+
+  EXPECT_EQ(aResult.StatusCode, BRepGraph_Compact::Status::MigrationFailed);
+  EXPECT_EQ(aGraph.UIDs().GraphGUID(), aGraphGUID);
+  EXPECT_EQ(aGraph.Topo().Vertices().Nb(), 2u);
+  EXPECT_TRUE(aRemovedVertex.IsRemoved(aGraph));
+  EXPECT_EQ(aGraph.Supplements().FindStore(BRepGraphSupInc_TestStore::GetID()), aStore);
+  EXPECT_TRUE(aStore->Has(anItemUID));
+}
+
+TEST(BRepGraphSupIncTest, Compact_SupplementOnlyTombstoneUsesAtomicReplacement)
+{
+  BRepGraph aGraph;
+  (void)aGraph.Editor().Vertices().Add(gp_Pnt(), 1.0e-7);
+  const occ::handle<BRepGraphSupInc_GeometryStore> aSourceStore =
+    aGraph.Supplements().EnsureStore<BRepGraphSupInc_GeometryStore>();
+  const BRepGraphSupInc_ItemUID aRemovedUID =
+    aSourceStore->ItemUID(aSourceStore->Add(new Geom_Line(gp_Pnt(), gp_Dir(1.0, 0.0, 0.0))));
+  const BRepGraphSupInc_ItemUID aRetainedUID =
+    aSourceStore->ItemUID(aSourceStore->Add(new Geom_Line(gp_Pnt(), gp_Dir(0.0, 1.0, 0.0))));
+  ASSERT_TRUE(aGraph.Supplements().Remove(aRemovedUID));
+
+  const BRepGraph_Compact::Result aResult = BRepGraph_Compact::Perform(aGraph);
+
+  ASSERT_EQ(aResult.StatusCode, BRepGraph_Compact::Status::Done);
+  const occ::handle<BRepGraphSupInc_GeometryStore> aCompactedStore =
+    occ::down_cast<BRepGraphSupInc_GeometryStore>(
+      aGraph.Supplements().FindStore(BRepGraphSupInc_GeometryStore::GetID()));
+  ASSERT_FALSE(aCompactedStore.IsNull());
+  EXPECT_NE(aCompactedStore, aSourceStore);
+  EXPECT_EQ(aCompactedStore->Count(BRepGraphSupInc_GeometryStore::Kind::Curve3d), 1u);
+  EXPECT_FALSE(aCompactedStore->Has(aRemovedUID));
+  EXPECT_TRUE(aCompactedStore->Has(aRetainedUID));
+  EXPECT_EQ(aSourceStore->Count(BRepGraphSupInc_GeometryStore::Kind::Curve3d), 2u);
 }

@@ -45,7 +45,7 @@ class BRepGraph_Transaction;
 //! Complete immutable value of a BRepGraph model.
 //!
 //! Each revision retains a page-sharing copy of BRepGraphInc_Storage. Revisions are
-//! isolated by page-level copy-on-write and detached mutable payloads. A
+//! isolated by page-level copy-on-write and detached mutable representations. A
 //! transaction may either collect sparse durable-identity changes or edit an
 //! isolated complete graph before committing a new revision.
 //!
@@ -181,7 +181,7 @@ public:
 private:
   //! Iterator over visible records without building a temporary container.
   //! The revision must outlive the iterator.
-  //! Mutable payloads exposed by a record are detached from the immutable revision.
+  //! Mutable representations exposed by a record are detached from the immutable revision.
   template <typename TheChangeType>
   class VisibleIterator
   {
@@ -392,7 +392,7 @@ public:
   //! Copy this revision to a mutable page-shared graph.
   //! The destination is replaced only after all persistent components have
   //! restored successfully. Core pages remain shared until changed;
-  //! independently mutable geometry, mesh, and TopoDS payloads are detached.
+  //! independently mutable geometry, mesh, and TopoDS representations are detached.
   //! @param[out] theGraph graph receiving the complete revision
   //! @return true when the revision was copied successfully
   [[nodiscard]] Standard_EXPORT bool CopyTo(BRepGraph& theGraph) const;
@@ -526,20 +526,34 @@ public:
   [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_RevisionComponent> FindComponent(
     const Standard_GUID& theGUID) const;
 
+  //! Return the semantic hash captured with a persistent component.
+  //! The returned value is revision-owned and does not observe later mutation
+  //! of an incorrectly implemented component object.
+  [[nodiscard]] Standard_EXPORT BRepGraph_RevisionHash
+    ComponentSemanticHash(const Standard_GUID& theGUID) const;
+
 private:
   friend class BRepGraphODE_RevisionPackage;
   friend class BRepGraph_Transaction;
 
   struct HashState;
 
+  struct ComponentSnapshot
+  {
+    BRepGraph_RevisionComponent::ComponentDescriptor Descriptor;
+    BRepGraph_RevisionHash                           SemanticHash;
+    BRepGraph_RevisionHash                           StorageHash;
+    NCollection_LinearVector<uint8_t>                PersistentBytes;
+  };
+
   BRepGraph_Revision(
     std::shared_ptr<const BRepGraph> theGraph,
     uint32_t                         theSchemaVersion,
     bool                             theSupportsSparseEdits,
     const NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>>& theComponents = {},
-    std::shared_ptr<const HashState> theHashState = {});
+    std::shared_ptr<const HashState>                                          theHashState  = {});
 
-  [[nodiscard]] const HashState& ensureHashState() const;
+  [[nodiscard]] const HashState&                 ensureHashState() const;
   [[nodiscard]] std::shared_ptr<const HashState> hashStateIfAvailable() const noexcept;
 
   //! Apply sparse core changes and return a new immutable revision.
@@ -658,15 +672,16 @@ private:
   [[nodiscard]] uint32_t WireRefCount() const noexcept;
   [[nodiscard]] uint32_t NextWireRefCounter() const noexcept;
 
-  std::shared_ptr<const BRepGraph>                             myCoreGraph;
-  mutable std::unique_ptr<BRepGraph>                           myCachedGraph;
-  mutable std::once_flag                                       myGraphOnce;
-  mutable std::once_flag                                       myHashOnce;
-  mutable std::shared_ptr<const HashState>                      myHashState;
-  uint32_t                                                     mySchemaVersion = THE_SCHEMA_VERSION;
-  bool                                                         mySupportsSparseEdits = false;
+  std::shared_ptr<const BRepGraph>         myCoreGraph;
+  mutable std::unique_ptr<BRepGraph>       myCachedGraph;
+  mutable std::once_flag                   myGraphOnce;
+  mutable std::once_flag                   myHashOnce;
+  mutable std::shared_ptr<const HashState> myHashState;
+  uint32_t                                 mySchemaVersion       = THE_SCHEMA_VERSION;
+  bool                                     mySupportsSparseEdits = false;
   NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>> myComponents;
-  NCollection_FlatDataMap<Standard_GUID, uint32_t>                    myComponentIndices;
+  NCollection_LinearVector<ComponentSnapshot>                        myComponentSnapshots;
+  NCollection_FlatDataMap<Standard_GUID, uint32_t>                   myComponentIndices;
 
 public:
   DEFINE_STANDARD_RTTIEXT(BRepGraph_Revision, Standard_Transient)

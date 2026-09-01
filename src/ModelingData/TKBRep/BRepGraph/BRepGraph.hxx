@@ -291,14 +291,11 @@ private:
   friend struct BRepGraph_RepId;
 
   //! Construct a graph facade over a page-sharing fork of native core storage.
-  BRepGraph(const BRepGraphInc_Storage& theStorage, bool theToCloneMutablePayloads);
+  BRepGraph(const BRepGraphInc_Storage& theStorage, bool theToCloneMutableRepresentations);
 
   //! Access the underlying storage.
   [[nodiscard]] Standard_EXPORT BRepGraphInc_Storage&       incStorage();
   [[nodiscard]] Standard_EXPORT const BRepGraphInc_Storage& incStorage() const;
-
-  //! Isolate mutable representation payloads in this private graph facade.
-  [[nodiscard]] Standard_EXPORT bool cloneMutablePayloads();
 
   //! Access graph-owned supplemental storage.
   [[nodiscard]] Standard_EXPORT BRepGraphSupInc_Storage&       supplementStorage();

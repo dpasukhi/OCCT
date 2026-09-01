@@ -13,18 +13,12 @@
 
 #include <BRepGraph_RevisionMerkle.hxx>
 
-#include <NCollection_LinearVector.hxx>
-#include <Standard_DomainError.hxx>
-
-#include <algorithm>
 #include <array>
 
 namespace
 {
-constexpr int      THE_RADIX          = 256;
-constexpr int      THE_KEY_BYTES      = 8;
 constexpr uint32_t THE_FORMAT_VERSION = 1;
-constexpr size_t   THE_MAX_INPUT_SIZE = 4 + 4 + 1 + 2 + THE_RADIX * (1 + 4 * 8);
+constexpr size_t   THE_MAX_INPUT_SIZE = 4 + 4 + 1 + 2 + 256 * (1 + sizeof(BRepGraph_RevisionHash));
 
 struct HashInput
 {
@@ -68,13 +62,19 @@ struct HashInput
   std::array<uint8_t, THE_MAX_INPUT_SIZE> Bytes;
   size_t                                  Size = 0;
 };
+} // namespace
 
-uint8_t keySlot(const uint64_t theKey, const int theDepth)
+BRepGraph_RevisionHash BRepGraph_RevisionMerkleHasher::EmptyHash()
 {
-  return static_cast<uint8_t>(theKey >> ((THE_KEY_BYTES - theDepth - 1) * 8));
+  HashInput anInput;
+  anInput.AppendUInt32(0x4d454d50u); // MEMP
+  anInput.AppendUInt32(THE_FORMAT_VERSION);
+  return anInput.Hash();
 }
 
-BRepGraph_RevisionHash leafHash(const uint64_t theKey, const BRepGraph_RevisionHash& theValue)
+BRepGraph_RevisionHash BRepGraph_RevisionMerkleHasher::LeafHash(
+  const uint64_t                theKey,
+  const BRepGraph_RevisionHash& theValue)
 {
   HashInput anInput;
   anInput.AppendUInt32(0x4d4c4546u); // MLEF
@@ -83,282 +83,22 @@ BRepGraph_RevisionHash leafHash(const uint64_t theKey, const BRepGraph_RevisionH
   anInput.AppendHash(theValue);
   return anInput.Hash();
 }
-} // namespace
 
-struct BRepGraph_RevisionMerkle::Node
-{
-  struct Child
-  {
-    uint8_t Slot;
-    NodePtr Node;
-  };
-
-  using Children = NCollection_LinearVector<Child>;
-
-  static size_t ChildIndex(const Children& theChildren, const uint8_t theSlot)
-  {
-    const auto anIt = std::lower_bound(
-      theChildren.begin(),
-      theChildren.end(),
-      theSlot,
-      [](const Child& theChild, const uint8_t theValue) { return theChild.Slot < theValue; });
-    return static_cast<size_t>(anIt - theChildren.begin());
-  }
-
-  Node(const uint64_t theKey, const BRepGraph_RevisionHash& theHash)
-      : Hash(theHash),
-        Key(theKey),
-        Count(1),
-        IsLeaf(true)
-  {
-  }
-
-  Node(const Children& theChildren, const int theDepth)
-      : ChildrenBySlot(theChildren),
-        IsLeaf(false)
-  {
-    HashInput anInput;
-    anInput.AppendUInt32(0x4d42524eu); // MBRN
-    anInput.AppendUInt32(THE_FORMAT_VERSION);
-    anInput.AppendByte(static_cast<uint8_t>(theDepth));
-    anInput.AppendUInt16(static_cast<uint16_t>(ChildrenBySlot.Size()));
-    for (const Child& aChild : ChildrenBySlot)
-    {
-      Count += aChild.Node->Count;
-      anInput.AppendByte(aChild.Slot);
-      anInput.AppendHash(aChild.Node->Hash);
-    }
-    Hash = anInput.Hash();
-  }
-
-  Children               ChildrenBySlot;
-  BRepGraph_RevisionHash Hash;
-  uint64_t               Key    = 0;
-  size_t                 Count  = 0;
-  bool                   IsLeaf = false;
-};
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle::BRepGraph_RevisionMerkle()
-    : myRootHash(emptyRootHash())
-{
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle::BRepGraph_RevisionMerkle(const NodePtr&                theRoot,
-                                                   const BRepGraph_RevisionHash& theRootHash)
-    : myRoot(theRoot),
-      myRootHash(theRootHash)
-{
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle BRepGraph_RevisionMerkle::Build(NCollection_LinearVector<Entry> theEntries)
-{
-  if (theEntries.IsEmpty())
-  {
-    return BRepGraph_RevisionMerkle();
-  }
-
-  std::sort(theEntries.begin(), theEntries.end(), [](const Entry& theLeft, const Entry& theRight) {
-    return theLeft.Key < theRight.Key;
-  });
-  for (size_t anIndex = 1; anIndex < theEntries.Size(); ++anIndex)
-  {
-    if (theEntries.Value(anIndex - 1).Key == theEntries.Value(anIndex).Key)
-    {
-      throw Standard_DomainError("BRepGraph_RevisionMerkle::Build: duplicate key");
-    }
-  }
-
-  const NodePtr aRoot = build(theEntries, 0, theEntries.Size(), 0);
-  return BRepGraph_RevisionMerkle(aRoot, aRoot->Hash);
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle BRepGraph_RevisionMerkle::Insert(
-  const uint64_t                theKey,
-  const BRepGraph_RevisionHash& theValue) const
-{
-  const NodePtr aRoot = insert(myRoot, theKey, theValue, 0);
-  if (aRoot == myRoot)
-  {
-    return *this;
-  }
-  return BRepGraph_RevisionMerkle(aRoot, aRoot->Hash);
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle BRepGraph_RevisionMerkle::Remove(const uint64_t theKey) const
-{
-  const NodePtr aRoot = remove(myRoot, theKey, 0);
-  if (aRoot == myRoot)
-  {
-    return *this;
-  }
-  return BRepGraph_RevisionMerkle(aRoot, aRoot == nullptr ? emptyRootHash() : aRoot->Hash);
-}
-
-//=================================================================================================
-
-bool BRepGraph_RevisionMerkle::Contains(const uint64_t theKey) const
-{
-  return contains(myRoot, theKey, 0);
-}
-
-//=================================================================================================
-
-size_t BRepGraph_RevisionMerkle::Size() const noexcept
-{
-  return myRoot == nullptr ? 0 : myRoot->Count;
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle::NodePtr BRepGraph_RevisionMerkle::insert(
-  const NodePtr&                theNode,
-  const uint64_t                theKey,
-  const BRepGraph_RevisionHash& theValue,
-  const int                     theDepth)
-{
-  if (theDepth == THE_KEY_BYTES)
-  {
-    const BRepGraph_RevisionHash aHash = leafHash(theKey, theValue);
-    if (theNode != nullptr && theNode->IsLeaf && theNode->Key == theKey && theNode->Hash == aHash)
-    {
-      return theNode;
-    }
-    return std::make_shared<const Node>(theKey, aHash);
-  }
-
-  const uint8_t aSlot = keySlot(theKey, theDepth);
-  const size_t  aChildIndex =
-    theNode == nullptr ? 0 : Node::ChildIndex(theNode->ChildrenBySlot, aSlot);
-  const bool    hasChild   = theNode != nullptr && aChildIndex < theNode->ChildrenBySlot.Size()
-                             && theNode->ChildrenBySlot.Value(aChildIndex).Slot == aSlot;
-  const NodePtr anOldChild = hasChild ? theNode->ChildrenBySlot.Value(aChildIndex).Node : NodePtr();
-  const NodePtr aNewChild  = insert(anOldChild, theKey, theValue, theDepth + 1);
-  if (aNewChild == anOldChild)
-  {
-    return theNode;
-  }
-
-  Node::Children aChildren = theNode == nullptr ? Node::Children() : theNode->ChildrenBySlot;
-  if (hasChild)
-  {
-    aChildren.ChangeValue(aChildIndex).Node = aNewChild;
-  }
-  else
-  {
-    aChildren.InsertBefore(aChildIndex, {aSlot, aNewChild});
-  }
-  return std::make_shared<const Node>(aChildren, theDepth);
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle::NodePtr BRepGraph_RevisionMerkle::build(
-  const NCollection_LinearVector<Entry>& theEntries,
-  const size_t                           theFirst,
-  const size_t                           theLast,
-  const int                              theDepth)
-{
-  if (theDepth == THE_KEY_BYTES)
-  {
-    const Entry& anEntry = theEntries.Value(theFirst);
-    return std::make_shared<const Node>(anEntry.Key, leafHash(anEntry.Key, anEntry.Value));
-  }
-
-  Node::Children aChildren;
-  size_t         aFirst = theFirst;
-  while (aFirst < theLast)
-  {
-    const uint8_t aSlot = keySlot(theEntries.Value(aFirst).Key, theDepth);
-    size_t        aNext = aFirst + 1;
-    while (aNext < theLast && keySlot(theEntries.Value(aNext).Key, theDepth) == aSlot)
-    {
-      ++aNext;
-    }
-    aChildren.Append({aSlot, build(theEntries, aFirst, aNext, theDepth + 1)});
-    aFirst = aNext;
-  }
-  return std::make_shared<const Node>(aChildren, theDepth);
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionMerkle::NodePtr BRepGraph_RevisionMerkle::remove(const NodePtr& theNode,
-                                                                   const uint64_t theKey,
-                                                                   const int      theDepth)
-{
-  if (theNode == nullptr)
-  {
-    return theNode;
-  }
-  if (theDepth == THE_KEY_BYTES)
-  {
-    return theNode->IsLeaf && theNode->Key == theKey ? NodePtr() : theNode;
-  }
-
-  const uint8_t aSlot       = keySlot(theKey, theDepth);
-  const size_t  aChildIndex = Node::ChildIndex(theNode->ChildrenBySlot, aSlot);
-  if (aChildIndex == theNode->ChildrenBySlot.Size()
-      || theNode->ChildrenBySlot.Value(aChildIndex).Slot != aSlot)
-  {
-    return theNode;
-  }
-  const NodePtr& anOldChild = theNode->ChildrenBySlot.Value(aChildIndex).Node;
-  const NodePtr  aChild     = remove(anOldChild, theKey, theDepth + 1);
-  if (aChild == anOldChild)
-  {
-    return theNode;
-  }
-
-  Node::Children aChildren = theNode->ChildrenBySlot;
-  if (aChild != nullptr)
-  {
-    aChildren.ChangeValue(aChildIndex).Node = aChild;
-    return std::make_shared<const Node>(aChildren, theDepth);
-  }
-  aChildren.Erase(aChildIndex);
-  return aChildren.IsEmpty() ? NodePtr() : std::make_shared<const Node>(aChildren, theDepth);
-}
-
-//=================================================================================================
-
-bool BRepGraph_RevisionMerkle::contains(const NodePtr& theNode,
-                                        const uint64_t theKey,
-                                        const int      theDepth)
-{
-  if (theNode == nullptr)
-  {
-    return false;
-  }
-  if (theDepth == THE_KEY_BYTES)
-  {
-    return theNode->IsLeaf && theNode->Key == theKey;
-  }
-  const uint8_t aSlot       = keySlot(theKey, theDepth);
-  const size_t  aChildIndex = Node::ChildIndex(theNode->ChildrenBySlot, aSlot);
-  if (aChildIndex == theNode->ChildrenBySlot.Size()
-      || theNode->ChildrenBySlot.Value(aChildIndex).Slot != aSlot)
-  {
-    return false;
-  }
-  return contains(theNode->ChildrenBySlot.Value(aChildIndex).Node, theKey, theDepth + 1);
-}
-
-//=================================================================================================
-
-BRepGraph_RevisionHash BRepGraph_RevisionMerkle::emptyRootHash()
+BRepGraph_RevisionHash BRepGraph_RevisionMerkleHasher::BranchHash(
+  const size_t     theDepth,
+  const ChildHash* theChildren,
+  const size_t     theNbChildren)
 {
   HashInput anInput;
-  anInput.AppendUInt32(0x4d454d50u); // MEMP
+  anInput.AppendUInt32(0x4d42524eu); // MBRN
   anInput.AppendUInt32(THE_FORMAT_VERSION);
+  anInput.AppendByte(static_cast<uint8_t>(theDepth));
+  anInput.AppendUInt16(static_cast<uint16_t>(theNbChildren));
+  for (size_t anIndex = 0; anIndex < theNbChildren; ++anIndex)
+  {
+    const auto& [aSlot, aHash] = theChildren[anIndex];
+    anInput.AppendByte(aSlot);
+    anInput.AppendHash(aHash);
+  }
   return anInput.Hash();
 }

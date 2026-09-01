@@ -1436,10 +1436,10 @@ private:
   Standard_EXPORT void ClearShapeCache();
   Standard_EXPORT void ClearRelations();
 
-  //! Deep-copy independently mutable geometry, mesh, and TopoDS payloads at an
+  //! Deep-copy independently mutable geometry, mesh, and TopoDS representations at an
   //! immutable publication or compatibility-projection boundary. Shape maps
-  //! are rebuilt with the detached TopoDS payloads rather than left page-shared.
-  Standard_EXPORT bool cloneMutablePayloads();
+  //! are rebuilt with the detached TopoDS shapes rather than left page-shared.
+  Standard_EXPORT bool cloneMutableRepresentations();
 
   BRepGraphInc::FaceRelations& ChangeFaceRelationsInternal(const BRepGraph_FaceId theId)
   {
@@ -1570,7 +1570,7 @@ private:
           NbActive(theOther.NbActive),
           NextUIDCounter(theOther.NextUIDCounter.load(std::memory_order_relaxed))
     {
-      GuardFlags.Resize(theOther.GuardFlags.BitCount());
+      GuardFlags.Resize(theOther.GuardFlags.Size());
     }
 
     uint32_t Nb() const { return static_cast<uint32_t>(Entities.Size()); }
@@ -1677,7 +1677,7 @@ private:
           NbActive(theOther.NbActive),
           NextUIDCounter(theOther.NextUIDCounter.load(std::memory_order_relaxed))
     {
-      GuardFlags.Resize(theOther.GuardFlags.BitCount());
+      GuardFlags.Resize(theOther.GuardFlags.Size());
     }
 
     uint32_t Nb() const { return static_cast<uint32_t>(Refs.Size()); }

@@ -238,8 +238,10 @@ TEST(BRepGraphSupInc_TopologyStoreTest, GraphCompactCompactsSoftRemovedAttachmen
     anOwner, BRepGraphSupInc::TopologyAttachmentKind::VertexSupplementShape, makeVertex(gp_Pnt(2, 0, 0)));
   ASSERT_TRUE(aRemoved.IsValid());
   ASSERT_TRUE(aRetained.IsValid());
-  const BRepGraphSupInc_TopologyStore* aTopology = topologyStore(aGraph);
-  ASSERT_NE(aTopology, nullptr);
+  const occ::handle<BRepGraphSupInc_TopologyStore> aTopology =
+    occ::down_cast<BRepGraphSupInc_TopologyStore>(
+      aGraph.Supplements().FindStore(BRepGraphSupInc_TopologyStore::GetID()));
+  ASSERT_FALSE(aTopology.IsNull());
   const BRepGraphSupInc_ItemUID aRetainedUID = aTopology->ItemUID(aRetained);
   ASSERT_TRUE(aGraph.Supplements().RemoveAttachment(aRemoved));
   EXPECT_EQ(aTopology->Count(), 2u);
@@ -247,9 +249,13 @@ TEST(BRepGraphSupInc_TopologyStoreTest, GraphCompactCompactsSoftRemovedAttachmen
   const BRepGraph_Compact::Result aResult = BRepGraph_Compact::Perform(aGraph);
 
   EXPECT_EQ(aResult.NbNodesAfter, aResult.NbNodesBefore);
-  EXPECT_EQ(aTopology->Count(), 1u);
+  const BRepGraphSupInc_TopologyStore* aCompactedTopology = topologyStore(aGraph);
+  ASSERT_NE(aCompactedTopology, nullptr);
+  EXPECT_NE(aCompactedTopology, aTopology.get());
+  EXPECT_EQ(aCompactedTopology->Count(), 1u);
   EXPECT_TRUE(aGraph.Supplements().Has(aRetainedUID));
-  EXPECT_TRUE(aTopology->FindByUID(aRetainedUID).IsValid());
+  EXPECT_TRUE(aCompactedTopology->FindByUID(aRetainedUID).IsValid());
+  EXPECT_EQ(aTopology->Count(), 2u);
 }
 
 TEST(BRepGraphSupInc_TopologyStoreTest, RuntimeUIDLookupReturnsGenericAndTypedIDs)

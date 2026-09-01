@@ -120,6 +120,30 @@ bool BRepGraphSupInc_StoreRegistry::RegisterStore(
 
 //=================================================================================================
 
+bool BRepGraphSupInc_StoreRegistry::registerCompactedStore(
+  const occ::handle<BRepGraphSupInc_Store>& theStore,
+  const uint32_t                            theStoreId)
+{
+  if (theStore.IsNull() || theStore->ID() == Standard_GUID() || theStoreId == 0)
+  {
+    return false;
+  }
+
+  std::unique_lock<std::shared_mutex> aLock(myMutex);
+  if (myGUIDToSlot.Seek(theStore->ID()) != nullptr || myStoreIdToSlot.Seek(theStoreId) != nullptr
+      || !theStore->bindRegistry(theStoreId))
+  {
+    return false;
+  }
+  const uint32_t aSlot = static_cast<uint32_t>(myStores.Size());
+  myStores.Append(theStore);
+  myGUIDToSlot.Bind(theStore->ID(), aSlot);
+  myStoreIdToSlot.Bind(theStoreId, aSlot);
+  return true;
+}
+
+//=================================================================================================
+
 occ::handle<BRepGraphSupInc_Store> BRepGraphSupInc_StoreRegistry::FindStore(
   const uint32_t theStoreId) const
 {

@@ -32,6 +32,7 @@
 #include <NCollection_DataMap.hxx>
 #include <Standard_Failure.hxx>
 #include <Standard_ProgramError.hxx>
+#include <Standard_NotImplemented.hxx>
 
 #include <algorithm>
 #include <atomic>
@@ -77,9 +78,9 @@ BRepGraph_RevisionHash combineComponentHashes(
   const NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>>& theComponents,
   const bool                                                                theToUseStorageHash)
 {
-  constexpr size_t THE_PREFIX_SIZE    = sizeof(theCoreHash.Words) + sizeof(uint32_t);
-  constexpr size_t THE_COMPONENT_SIZE = sizeof(uint32_t) + 16 + sizeof(uint32_t)
-                                        + sizeof(BRepGraph_RevisionHash::Words);
+  constexpr size_t THE_PREFIX_SIZE = sizeof(theCoreHash.Words) + sizeof(uint32_t);
+  constexpr size_t THE_COMPONENT_SIZE =
+    sizeof(uint32_t) + 16 + sizeof(uint32_t) + sizeof(BRepGraph_RevisionHash::Words);
   BRepGraph_RevisionHash::Hasher::ByteAccumulator anAccumulator(
     THE_PREFIX_SIZE + THE_COMPONENT_SIZE * theComponents.Size());
 
@@ -115,7 +116,7 @@ BRepGraph_RevisionHash combineComponentHashes(
   for (const occ::handle<BRepGraph_RevisionComponent>& aRevision : theComponents)
   {
     const BRepGraph_RevisionComponent::ComponentDescriptor& aDescriptor = aRevision->Descriptor();
-    std::array<uint8_t, THE_COMPONENT_SIZE>                   aComponentBytes;
+    std::array<uint8_t, THE_COMPONENT_SIZE>                 aComponentBytes;
     aPosition = aComponentBytes.data();
     storeUInt32(aPosition, static_cast<uint32_t>(aDescriptor.ComponentDomain));
     const Standard_UUID aUUID = aDescriptor.StableGUID.ToUUID();
@@ -407,7 +408,7 @@ bool hasOnlyFreeCoEdgeValidationIssues(const BRepGraph&                  theGrap
       continue;
     }
     hasError = true;
-    if (anIssue.Description.Search("Orphan CoEdge") < 0)
+    if (anIssue.Code != BRepGraph_Validate::IssueCode::OrphanCoEdge)
     {
       return false;
     }
@@ -430,21 +431,27 @@ BRepGraph_Revision::BRepGraph_Revision(
       mySupportsSparseEdits(theSupportsSparseEdits),
       myComponents(theComponents)
 {
-  std::atomic_store(&myHashState, std::move(theHashState));
   for (uint32_t anIndex = 0; anIndex < myComponents.Size(); ++anIndex)
   {
     const occ::handle<BRepGraph_RevisionComponent>& aComponent = myComponents.Value(anIndex);
     if (!aComponent.IsNull())
     {
       myComponentIndices.Bind(aComponent->Descriptor().StableGUID, anIndex);
+      ComponentSnapshot aSnapshot;
+      aSnapshot.Descriptor      = aComponent->Descriptor();
+      aSnapshot.SemanticHash    = aComponent->SemanticHash();
+      aSnapshot.StorageHash     = aComponent->StorageHash();
+      aSnapshot.PersistentBytes = aComponent->PersistentBytes();
+      myComponentSnapshots.Append(std::move(aSnapshot));
     }
   }
+  std::atomic_store(&myHashState, std::move(theHashState));
 }
 
 //=================================================================================================
 
-std::shared_ptr<const BRepGraph_Revision::HashState>
-BRepGraph_Revision::hashStateIfAvailable() const noexcept
+std::shared_ptr<const BRepGraph_Revision::HashState> BRepGraph_Revision::hashStateIfAvailable()
+  const noexcept
 {
   return std::atomic_load(&myHashState);
 }
@@ -462,19 +469,15 @@ const BRepGraph_Revision::HashState& BRepGraph_Revision::ensureHashState() const
     const BRepGraph_RevisionHash::Hasher::Result aHashes =
       BRepGraph_RevisionHash::Hasher::Compute(*myCoreGraph);
     std::shared_ptr<HashState> aState = std::make_shared<HashState>();
-    aState->CoreSemantic             = aHashes.Semantic;
-    aState->CoreStorage              = aHashes.Storage;
-    aState->Index                    = aHashes.HashIndex;
-    aState->Semantic                 = myComponents.IsEmpty()
-                                         ? aState->CoreSemantic
-                                         : combineComponentHashes(aState->CoreSemantic,
-                                                                  myComponents,
-                                                                  false);
-    aState->Storage                  = myComponents.IsEmpty()
-                                         ? aState->CoreStorage
-                                         : combineComponentHashes(aState->CoreStorage,
-                                                                  myComponents,
-                                                                  true);
+    aState->CoreSemantic              = aHashes.Semantic;
+    aState->CoreStorage               = aHashes.Storage;
+    aState->Index                     = aHashes.HashIndex;
+    aState->Semantic = myComponents.IsEmpty()
+                         ? aState->CoreSemantic
+                         : combineComponentHashes(aState->CoreSemantic, myComponents, false);
+    aState->Storage  = myComponents.IsEmpty()
+                         ? aState->CoreStorage
+                         : combineComponentHashes(aState->CoreStorage, myComponents, true);
     std::atomic_store(&myHashState, std::shared_ptr<const HashState>(std::move(aState)));
   });
 
@@ -521,6 +524,15 @@ occ::handle<BRepGraph_RevisionComponent> BRepGraph_Revision::FindComponent(
 
 //=================================================================================================
 
+BRepGraph_RevisionHash BRepGraph_Revision::ComponentSemanticHash(const Standard_GUID& theGUID) const
+{
+  const uint32_t* anIndex = myComponentIndices.Seek(theGUID);
+  return anIndex == nullptr ? BRepGraph_RevisionHash()
+                            : myComponentSnapshots.Value(*anIndex).SemanticHash;
+}
+
+//=================================================================================================
+
 BRepGraph_Revision::CreateResult BRepGraph_Revision::Create(const BRepGraph& theGraph,
                                                             const Options&   theOptions)
 {
@@ -560,7 +572,7 @@ BRepGraph_Revision::CreateResult BRepGraph_Revision::Create(const BRepGraph& the
 
   try
   {
-    // This fork also rebuilds shape maps around detached TopoDS payloads.
+    // This fork also rebuilds shape maps around detached TopoDS shapes.
     std::unique_ptr<BRepGraph> aCoreGraph(new BRepGraph(theGraph.incStorage(), true));
 
     const bool aSupportsSparseEdits = supportsSparseEdits(*aCoreGraph);
@@ -570,8 +582,19 @@ BRepGraph_Revision::CreateResult BRepGraph_Revision::Create(const BRepGraph& the
                                               theOptions.SchemaVersion,
                                               aSupportsSparseEdits,
                                               aComponents);
-    aResult.Status   = BRepGraph_RevisionStatus::Code::Ok;
+    // Revision creation is the persistence boundary.  Do not return an object
+    // that can fail unexpectedly on its first lazy hash request.
+    (void)aResult.Revision->SemanticHash();
+    aResult.Status = BRepGraph_RevisionStatus::Code::Ok;
     return aResult;
+  }
+  catch (const Standard_NotImplemented& theFailure)
+  {
+    aResult.Status = BRepGraph_RevisionStatus::Code::HashFailed;
+    BRepGraph_RevisionStatus::Diagnostic aDiagnostic;
+    aDiagnostic.Code    = "UnsupportedGeometryHash";
+    aDiagnostic.Message = theFailure.what();
+    aResult.Diagnostics.Append(aDiagnostic);
   }
   catch (const Standard_Failure& theFailure)
   {
@@ -630,22 +653,70 @@ BRepGraph_Revision::CreateResult BRepGraph_Revision::FromTransactionGraph(
     return aResult;
   }
 
-  if (!theGraph->cloneMutablePayloads())
+  // Never adopt the transaction's externally exposed working graph as immutable
+  // revision storage. Graph() returns a raw pointer and representation handles obtained
+  // from that graph may outlive Commit(); adopting it would let those aliases
+  // mutate a committed revision without invalidating its cached hashes.
+  std::unique_ptr<BRepGraph> aDetachedCore;
+  try
+  {
+    aDetachedCore.reset(new BRepGraph(theGraph->incStorage(), true));
+  }
+  catch (const Standard_Failure& theFailure)
+  {
+    aResult.Status = BRepGraph_RevisionStatus::Code::CopyFailed;
+    BRepGraph_RevisionStatus::Diagnostic aDiagnostic;
+    aDiagnostic.Code    = "TransactionRepresentationIsolation";
+    aDiagnostic.Message = theFailure.what();
+    aResult.Diagnostics.Append(std::move(aDiagnostic));
+    return aResult;
+  }
+  catch (...)
   {
     aResult.Status = BRepGraph_RevisionStatus::Code::CopyFailed;
     appendDiagnostic(aResult.Diagnostics,
-                     "TransactionPayloadIsolation",
-                     "Mutable representation payloads could not be isolated");
+                     "TransactionRepresentationIsolation",
+                     "Mutable transaction representations could not be isolated");
     return aResult;
   }
 
-  const bool aSupportsSparseEdits = supportsSparseEdits(*theGraph);
-  std::shared_ptr<const BRepGraph> aCoreGraph(std::move(theGraph));
-  aResult.Revision = new BRepGraph_Revision(std::move(aCoreGraph),
-                                            theSchemaVersion,
-                                            aSupportsSparseEdits,
-                                            aComponents);
-  aResult.Status = BRepGraph_RevisionStatus::Code::Ok;
+  try
+  {
+    const bool                       aSupportsSparseEdits = supportsSparseEdits(*aDetachedCore);
+    std::shared_ptr<const BRepGraph> aCoreGraph(std::move(aDetachedCore));
+    aResult.Revision = new BRepGraph_Revision(std::move(aCoreGraph),
+                                              theSchemaVersion,
+                                              aSupportsSparseEdits,
+                                              aComponents);
+    (void)aResult.Revision->SemanticHash();
+    aResult.Status = BRepGraph_RevisionStatus::Code::Ok;
+  }
+  catch (const Standard_NotImplemented& theFailure)
+  {
+    aResult.Revision.Nullify();
+    aResult.Status = BRepGraph_RevisionStatus::Code::HashFailed;
+    BRepGraph_RevisionStatus::Diagnostic aDiagnostic;
+    aDiagnostic.Code    = "UnsupportedGeometryHash";
+    aDiagnostic.Message = theFailure.what();
+    aResult.Diagnostics.Append(aDiagnostic);
+  }
+  catch (const Standard_Failure& theFailure)
+  {
+    aResult.Revision.Nullify();
+    aResult.Status = BRepGraph_RevisionStatus::Code::HashFailed;
+    BRepGraph_RevisionStatus::Diagnostic aDiagnostic;
+    aDiagnostic.Code    = "RevisionHashConstruction";
+    aDiagnostic.Message = theFailure.what();
+    aResult.Diagnostics.Append(aDiagnostic);
+  }
+  catch (...)
+  {
+    aResult.Revision.Nullify();
+    aResult.Status = BRepGraph_RevisionStatus::Code::HashFailed;
+    appendDiagnostic(aResult.Diagnostics,
+                     "RevisionHashConstruction",
+                     "Unknown exception while hashing the committed revision");
+  }
   return aResult;
 }
 
@@ -1217,20 +1288,26 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromNativeChanges(
       }
     }
 
-    std::shared_ptr<const HashState> aHashState;
-    const std::shared_ptr<const HashState> aBaseHashState =
-      theBaseRevision->hashStateIfAvailable();
+    std::shared_ptr<const HashState>       aHashState;
+    const std::shared_ptr<const HashState> aBaseHashState = theBaseRevision->hashStateIfAvailable();
     if (aBaseHashState != nullptr && aBaseHashState->Index != nullptr)
     {
       NCollection_LinearVector<BRepGraph_UID>    aChangedNodes;
       NCollection_LinearVector<BRepGraph_RefUID> aChangedRefs;
-      for (const VertexChange& aChange : theChanges) aChangedNodes.Append(aChange.UID);
-      for (const EdgeChange& aChange : theEdgeChanges) aChangedNodes.Append(aChange.UID);
-      for (const CoEdgeChange& aChange : theCoEdgeChanges) aChangedNodes.Append(aChange.UID);
-      for (const WireChange& aChange : theWireChanges) aChangedNodes.Append(aChange.UID);
-      for (const FaceChange& aChange : theFaceChanges) aChangedNodes.Append(aChange.UID);
-      for (const VertexRefChange& aChange : theVertexRefChanges) aChangedRefs.Append(aChange.UID);
-      for (const WireRefChange& aChange : theWireRefChanges) aChangedRefs.Append(aChange.UID);
+      for (const VertexChange& aChange : theChanges)
+        aChangedNodes.Append(aChange.UID);
+      for (const EdgeChange& aChange : theEdgeChanges)
+        aChangedNodes.Append(aChange.UID);
+      for (const CoEdgeChange& aChange : theCoEdgeChanges)
+        aChangedNodes.Append(aChange.UID);
+      for (const WireChange& aChange : theWireChanges)
+        aChangedNodes.Append(aChange.UID);
+      for (const FaceChange& aChange : theFaceChanges)
+        aChangedNodes.Append(aChange.UID);
+      for (const VertexRefChange& aChange : theVertexRefChanges)
+        aChangedRefs.Append(aChange.UID);
+      for (const WireRefChange& aChange : theWireRefChanges)
+        aChangedRefs.Append(aChange.UID);
 
       const BRepGraph_RevisionHash::Hasher::Result aHashes =
         BRepGraph_RevisionHash::Hasher::Update(aBaseHashState->Index,
@@ -1241,16 +1318,16 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromNativeChanges(
       if (aHashes.HashIndex != nullptr)
       {
         std::shared_ptr<HashState> aNewHashState = std::make_shared<HashState>();
-        aNewHashState->CoreSemantic             = aHashes.Semantic;
-        aNewHashState->CoreStorage              = aHashes.Storage;
-        aNewHashState->Index                    = aHashes.HashIndex;
-        aNewHashState->Semantic = theComponents.IsEmpty()
-                                    ? aHashes.Semantic
-                                    : combineComponentHashes(aHashes.Semantic, theComponents, false);
-        aNewHashState->Storage  = theComponents.IsEmpty()
-                                    ? aHashes.Storage
-                                    : combineComponentHashes(aHashes.Storage, theComponents, true);
-        aHashState = std::move(aNewHashState);
+        aNewHashState->CoreSemantic              = aHashes.Semantic;
+        aNewHashState->CoreStorage               = aHashes.Storage;
+        aNewHashState->Index                     = aHashes.HashIndex;
+        aNewHashState->Semantic =
+          theComponents.IsEmpty() ? aHashes.Semantic
+                                  : combineComponentHashes(aHashes.Semantic, theComponents, false);
+        aNewHashState->Storage = theComponents.IsEmpty()
+                                   ? aHashes.Storage
+                                   : combineComponentHashes(aHashes.Storage, theComponents, true);
+        aHashState             = std::move(aNewHashState);
       }
     }
 
@@ -1302,29 +1379,41 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromComponents(
       return occ::handle<BRepGraph_Revision>();
     }
   }
-  std::shared_ptr<const HashState> aHashState;
-  const std::shared_ptr<const HashState> aBaseHashState =
-    theBaseRevision->hashStateIfAvailable();
-  if (aBaseHashState != nullptr)
+  try
   {
+    (void)theBaseRevision->SemanticHash();
+    const std::shared_ptr<const HashState> aBaseHashState = theBaseRevision->hashStateIfAvailable();
+    Standard_ProgramError_Raise_if(aBaseHashState == nullptr,
+                                   "BRepGraph_Revision: base hash state is unavailable");
     std::shared_ptr<HashState> aNewHashState = std::make_shared<HashState>(*aBaseHashState);
-    aNewHashState->Semantic = theComponents.IsEmpty()
-                                ? aNewHashState->CoreSemantic
-                                : combineComponentHashes(aNewHashState->CoreSemantic,
-                                                         theComponents,
-                                                         false);
-    aNewHashState->Storage  = theComponents.IsEmpty()
-                                ? aNewHashState->CoreStorage
-                                : combineComponentHashes(aNewHashState->CoreStorage,
-                                                         theComponents,
-                                                         true);
-    aHashState = std::move(aNewHashState);
+    aNewHashState->Semantic =
+      theComponents.IsEmpty()
+        ? aNewHashState->CoreSemantic
+        : combineComponentHashes(aNewHashState->CoreSemantic, theComponents, false);
+    aNewHashState->Storage =
+      theComponents.IsEmpty()
+        ? aNewHashState->CoreStorage
+        : combineComponentHashes(aNewHashState->CoreStorage, theComponents, true);
+    return new BRepGraph_Revision(theBaseRevision->myCoreGraph,
+                                  theBaseRevision->SchemaVersion(),
+                                  theBaseRevision->SupportsSparseEdits(),
+                                  theComponents,
+                                  std::move(aNewHashState));
   }
-  return new BRepGraph_Revision(theBaseRevision->myCoreGraph,
-                                theBaseRevision->SchemaVersion(),
-                                theBaseRevision->SupportsSparseEdits(),
-                                theComponents,
-                                std::move(aHashState));
+  catch (const Standard_Failure& theFailure)
+  {
+    BRepGraph_RevisionStatus::Diagnostic aDiagnostic;
+    aDiagnostic.Code    = "ComponentHashConstruction";
+    aDiagnostic.Message = theFailure.what();
+    theDiagnostics.Append(aDiagnostic);
+  }
+  catch (...)
+  {
+    appendDiagnostic(theDiagnostics,
+                     "ComponentHashConstruction",
+                     "Unknown exception while hashing persistent components");
+  }
+  return occ::handle<BRepGraph_Revision>();
 }
 
 //=================================================================================================
@@ -1338,7 +1427,17 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromCoreGraph(
     return occ::handle<BRepGraph_Revision>();
   }
   const bool aSupportsSparseEdits = supportsSparseEdits(*theGraph);
-  return new BRepGraph_Revision(std::move(theGraph), theSchemaVersion, aSupportsSparseEdits);
+  try
+  {
+    occ::handle<BRepGraph_Revision> aRevision =
+      new BRepGraph_Revision(std::move(theGraph), theSchemaVersion, aSupportsSparseEdits);
+    (void)aRevision->SemanticHash();
+    return aRevision;
+  }
+  catch (...)
+  {
+    return occ::handle<BRepGraph_Revision>();
+  }
 }
 
 //=================================================================================================
@@ -1408,11 +1507,30 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromDecodedCore(
     }
   }
 
-  const bool aSupportsSparseEdits = supportsSparseEdits(*theGraph);
-  return new BRepGraph_Revision(std::move(theGraph),
-                                theSchemaVersion,
-                                aSupportsSparseEdits,
-                                theComponents);
+  try
+  {
+    const bool                      aSupportsSparseEdits = supportsSparseEdits(*theGraph);
+    occ::handle<BRepGraph_Revision> aRevision = new BRepGraph_Revision(std::move(theGraph),
+                                                                       theSchemaVersion,
+                                                                       aSupportsSparseEdits,
+                                                                       theComponents);
+    (void)aRevision->SemanticHash();
+    return aRevision;
+  }
+  catch (const Standard_Failure& theFailure)
+  {
+    BRepGraph_RevisionStatus::Diagnostic aDiagnostic;
+    aDiagnostic.Code    = "DecodedRevisionHash";
+    aDiagnostic.Message = theFailure.what();
+    theDiagnostics.Append(aDiagnostic);
+  }
+  catch (...)
+  {
+    appendDiagnostic(theDiagnostics,
+                     "DecodedRevisionHash",
+                     "Unknown exception while hashing the decoded revision");
+  }
+  return occ::handle<BRepGraph_Revision>();
 }
 
 //=================================================================================================
@@ -1845,9 +1963,28 @@ std::unique_ptr<BRepGraph> BRepGraph_Revision::copyGraph() const
   // Restore components only into the new graph copy.
   std::unique_ptr<BRepGraph>            aGraph(new BRepGraph(myCoreGraph->incStorage(), true));
   BRepGraph_RevisionStatus::Diagnostics aDiagnostics;
-  for (const occ::handle<BRepGraph_RevisionComponent>& aComponent : myComponents)
+  for (size_t anIndex = 0; anIndex < myComponents.Size(); ++anIndex)
   {
-    if (aComponent.IsNull() || !aComponent->Restore(*aGraph, aDiagnostics))
+    const occ::handle<BRepGraph_RevisionComponent>& aComponent = myComponents.Value(anIndex);
+    const ComponentSnapshot&                        aSnapshot = myComponentSnapshots.Value(anIndex);
+    if (aComponent.IsNull())
+    {
+      return nullptr;
+    }
+    const BRepGraph_RevisionComponent::ComponentDescriptor& aDescriptor = aComponent->Descriptor();
+    const NCollection_LinearVector<uint8_t>&                aBytes = aComponent->PersistentBytes();
+    bool isByteIdentical = aBytes.Size() == aSnapshot.PersistentBytes.Size();
+    for (size_t aByte = 0; isByteIdentical && aByte < aBytes.Size(); ++aByte)
+    {
+      isByteIdentical = aBytes.Value(aByte) == aSnapshot.PersistentBytes.Value(aByte);
+    }
+    if (aDescriptor.StableGUID != aSnapshot.Descriptor.StableGUID
+        || aDescriptor.SchemaVersion != aSnapshot.Descriptor.SchemaVersion
+        || aDescriptor.ComponentDomain != aSnapshot.Descriptor.ComponentDomain
+        || aDescriptor.RetentionKind != aSnapshot.Descriptor.RetentionKind
+        || aComponent->SemanticHash() != aSnapshot.SemanticHash
+        || aComponent->StorageHash() != aSnapshot.StorageHash || !isByteIdentical
+        || !aComponent->Restore(*aGraph, aDiagnostics))
     {
       return nullptr;
     }
@@ -1902,8 +2039,8 @@ bool BRepGraph_Revision::CaptureComponents(
   const auto appendFailure =
     [&theDiagnostics](const char* theCode, const char* theMessage, const Standard_GUID& theGUID) {
       BRepGraph_RevisionStatus::Diagnostic aDiagnostic;
-      aDiagnostic.Code    = theCode;
-      aDiagnostic.Message = theMessage;
+      aDiagnostic.Code          = theCode;
+      aDiagnostic.Message       = theMessage;
       aDiagnostic.ComponentGUID = theGUID;
       theDiagnostics.Append(aDiagnostic);
     };

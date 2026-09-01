@@ -229,23 +229,12 @@ BRepGraph_Replace::Result BRepGraph_Replace::Perform(BRepGraph&  theGraph,
                                                BRepGraph_CopyRemap::Mode::Compact,
                                                BRepGraph_CopyRemap::FreshnessPolicy::MatchTarget);
 
-    // Install persistent graph data before migrating subscriber-bearing layers. Their
-    // callbacks therefore bind directly to the stable destination wrapper rather
-    // than to the temporary graph copy.
-    BRepGraph aPreviousGraph(std::move(theGraph));
-    aPreviousGraph.data()->myExternalCacheRegistries.Clear(false);
+    // Prepare every fallible migration against the detached replacement. Moving
+    // the completed graph rebinds its registries to the stable wrapper without
+    // allocation, so publication is the only operation after this point.
+    theGraph.LayerRegistry().CopyTransientLayersTo(theReplacement, anItemRemap);
     theGraph = std::move(theReplacement);
-    for (BRepGraph_CacheRegistry* aRegistry : theGraph.data()->myExternalCacheRegistries)
-    {
-      if (aRegistry != nullptr)
-      {
-        aRegistry->ClearAll();
-      }
-    }
-
-    // Persistent layers already represent the replacement graph. Only transient
-    // and recomputable services cross the replacement boundary.
-    aPreviousGraph.LayerRegistry().CopyTransientLayersTo(theGraph, anItemRemap);
+    theGraph.clearExternalCacheRegistries();
     aResult.StatusCode = Status::Done;
   }
   catch (const Standard_Failure&)
@@ -310,9 +299,21 @@ BRepGraph_Replace::Result BRepGraph_Replace::PerformCompaction(
       theCompactedCore.registerExternalCacheRegistry(aRegistry);
     }
 
-    theGraph.supplementStorage().Compact();
-    theCompactedCore.supplementStorage() = std::move(theGraph.supplementStorage());
-    theCompactedCore.supplementStorage().RemapCoreNodes(anOwnerMap);
+    if (!theGraph.supplementStorage().CloneCompactedTo(theCompactedCore.supplementStorage(),
+                                                       anOwnerMap))
+    {
+      aResult.StatusCode = Status::MigrationFailed;
+      return aResult;
+    }
+    BRepGraphSupInc_CopyContext aSupplementCopy(theGraph.supplementStorage(),
+                                                theCompactedCore.supplementStorage(),
+                                                BRepGraphSupInc_CopyContext::Mode::Compact);
+    for (NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>::Iterator anIt(anOwnerMap);
+         anIt.More();
+         anIt.Next())
+    {
+      (void)aSupplementCopy.AddNodeMapping(anIt.Key(), anIt.Value());
+    }
 
     for (const auto& [aShape, anOldNode] : aShapeBindings)
     {
@@ -331,36 +332,20 @@ BRepGraph_Replace::Result BRepGraph_Replace::PerformCompaction(
       }
     }
 
-    BRepGraph aPreviousGraph(std::move(theGraph));
-    aPreviousGraph.data()->myExternalCacheRegistries.Clear(false);
+    theGraph.CacheRegistry().CopyFreshCachesTo(theCompactedCore,
+                                               theItemRemap,
+                                               BRepGraph_CopyRemap::Mode::Compact);
+    theGraph.LayerRegistry().CopyLayersTo(theCompactedCore,
+                                          theItemRemap,
+                                          BRepGraph_CopyRemap::Mode::Compact);
+    theGraph.LayerSupplementRegistry().CopyLayersTo(theCompactedCore,
+                                                    theItemRemap,
+                                                    BRepGraph_CopyRemap::Mode::Compact,
+                                                    aSupplementCopy);
+
+    theCompactedCore.Editor().CommitMutation();
     theGraph = std::move(theCompactedCore);
-    for (BRepGraph_CacheRegistry* aRegistry : theGraph.data()->myExternalCacheRegistries)
-    {
-      if (aRegistry != nullptr)
-      {
-        aRegistry->ClearAll();
-      }
-    }
-    aPreviousGraph.CacheRegistry().CopyFreshCachesTo(theGraph,
-                                                     theItemRemap,
-                                                     BRepGraph_CopyRemap::Mode::Compact);
-    aPreviousGraph.LayerRegistry().CopyLayersTo(theGraph,
-                                                theItemRemap,
-                                                BRepGraph_CopyRemap::Mode::Compact);
-    BRepGraphSupInc_CopyContext aSupplementCopy(theGraph.supplementStorage(),
-                                                theGraph.supplementStorage(),
-                                                BRepGraphSupInc_CopyContext::Mode::Compact);
-    for (NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>::Iterator anIt(anOwnerMap);
-         anIt.More();
-         anIt.Next())
-    {
-      (void)aSupplementCopy.AddNodeMapping(anIt.Key(), anIt.Value());
-    }
-    aPreviousGraph.LayerSupplementRegistry().CopyLayersTo(theGraph,
-                                                          theItemRemap,
-                                                          BRepGraph_CopyRemap::Mode::Compact,
-                                                          aSupplementCopy);
-    theGraph.Editor().CommitMutation();
+    theGraph.clearExternalCacheRegistries();
     aResult.StatusCode = Status::Done;
   }
   catch (const Standard_Failure&)

@@ -30,9 +30,9 @@ BRepGraph_LayerSupplementRegistry::BRepGraph_LayerSupplementRegistry(
   BRepGraph_LayerSupplementRegistry&& theOther) noexcept
 {
   std::unique_lock<std::shared_mutex> aLock(theOther.myMutex);
-  myLayers     = std::move(theOther.myLayers);
-  myGuidToSlot = std::move(theOther.myGuidToSlot);
-  myGraph      = theOther.myGraph;
+  myLayers         = std::move(theOther.myLayers);
+  myGuidToSlot     = std::move(theOther.myGuidToSlot);
+  myGraph          = theOther.myGraph;
   theOther.myGraph = nullptr;
 }
 
@@ -48,9 +48,9 @@ BRepGraph_LayerSupplementRegistry& BRepGraph_LayerSupplementRegistry::operator=(
     std::lock(aThisLock, anOtherLock);
 
     clearLayersLocked();
-    myLayers     = std::move(theOther.myLayers);
-    myGuidToSlot = std::move(theOther.myGuidToSlot);
-    myGraph      = theOther.myGraph;
+    myLayers         = std::move(theOther.myLayers);
+    myGuidToSlot     = std::move(theOther.myGuidToSlot);
+    myGraph          = theOther.myGraph;
     theOther.myGraph = nullptr;
   }
   return *this;
@@ -71,7 +71,7 @@ uint32_t BRepGraph_LayerSupplementRegistry::registerLayerLocked(
   const occ::handle<BRepGraph_LayerSupplementBase>& theLayer)
 {
   Standard_ProgramError_Raise_if(theLayer.IsNull(),
-                                  "BRepGraph_LayerSupplementRegistry::RegisterLayer() - null layer");
+                                 "BRepGraph_LayerSupplementRegistry::RegisterLayer() - null layer");
 
   const Standard_GUID& aGUID = theLayer->ID();
   const uint32_t*      aSlot = myGuidToSlot.Seek(aGUID);
@@ -89,7 +89,7 @@ uint32_t BRepGraph_LayerSupplementRegistry::registerLayerLocked(
   }
 
   Standard_OutOfRange_Raise_if(myLayers.Size() > std::numeric_limits<uint32_t>::max(),
-                                "BRepGraph_LayerSupplementRegistry - too many registered layers");
+                               "BRepGraph_LayerSupplementRegistry - too many registered layers");
   const uint32_t aNewSlot = static_cast<uint32_t>(myLayers.Size());
   theLayer->attachGraph(myGraph);
   myLayers.Append(theLayer);
@@ -183,17 +183,17 @@ occ::handle<BRepGraph_LayerSupplementBase> BRepGraph_LayerSupplementRegistry::fi
 {
   const uint32_t* aSlot = myGuidToSlot.Seek(theGUID);
   return aSlot != nullptr ? myLayers.Value(static_cast<size_t>(*aSlot))
-                           : occ::handle<BRepGraph_LayerSupplementBase>();
+                          : occ::handle<BRepGraph_LayerSupplementBase>();
 }
 
 //=================================================================================================
 
 occ::handle<BRepGraph_LayerSupplementBase> BRepGraph_LayerSupplementRegistry::ensureLayer(
-  const Standard_GUID& theGUID,
+  const Standard_GUID&                                               theGUID,
   const std::function<occ::handle<BRepGraph_LayerSupplementBase>()>& theFactory)
 {
   {
-    std::shared_lock<std::shared_mutex> aLock(myMutex);
+    std::shared_lock<std::shared_mutex>        aLock(myMutex);
     occ::handle<BRepGraph_LayerSupplementBase> aLayer = findLayerLocked(theGUID);
     if (!aLayer.IsNull())
     {
@@ -201,7 +201,7 @@ occ::handle<BRepGraph_LayerSupplementBase> BRepGraph_LayerSupplementRegistry::en
     }
   }
 
-  std::unique_lock<std::shared_mutex> aLock(myMutex);
+  std::unique_lock<std::shared_mutex>        aLock(myMutex);
   occ::handle<BRepGraph_LayerSupplementBase> aLayer = findLayerLocked(theGUID);
   if (aLayer.IsNull())
   {
@@ -214,7 +214,7 @@ occ::handle<BRepGraph_LayerSupplementBase> BRepGraph_LayerSupplementRegistry::en
 //=================================================================================================
 
 bool BRepGraph_LayerSupplementRegistry::FindSlot(const Standard_GUID& theGUID,
-                                                  uint32_t&            theSlot) const
+                                                 uint32_t&            theSlot) const
 {
   std::shared_lock<std::shared_mutex> aLock(myMutex);
   const uint32_t*                     aSlot = myGuidToSlot.Seek(theGUID);
@@ -329,56 +329,26 @@ void BRepGraph_LayerSupplementRegistry::CopyLayersTo(
   const BRepGraph_CopyRemap::Mode                                    theMode,
   const BRepGraphSupInc_CopyContext&                                 theSupplementCopy) const
 {
-  BRepGraph* aSourceGraph = nullptr;
-  if (theMode == BRepGraph_CopyRemap::Mode::Compact)
-  {
-    BRepGraph_LayerSupplementRegistry& aSelf =
-      const_cast<BRepGraph_LayerSupplementRegistry&>(*this);
-    NCollection_LinearVector<occ::handle<BRepGraph_LayerSupplementBase>> anOldLayers;
-    {
-      std::unique_lock<std::shared_mutex> aLock(aSelf.myMutex);
-      aSourceGraph = aSelf.myGraph;
-      anOldLayers  = std::move(aSelf.myLayers);
-      aSelf.myGuidToSlot.Clear();
-      for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : anOldLayers)
-      {
-        if (!aLayer.IsNull())
-        {
-          aLayer->detachContext();
-        }
-      }
-    }
-
-    Standard_ProgramError_Raise_if(
-      aSourceGraph == nullptr,
-      "BRepGraph_LayerSupplementRegistry::CopyLayersTo() - detached source registry");
-    const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theItemRemap, theMode);
-    for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : anOldLayers)
-    {
-      if (!aLayer.IsNull())
-      {
-        aLayer->CopySupplementalTo(aCopy, theSupplementCopy);
-      }
-    }
-    return;
-  }
-
+  BRepGraph*                                                           aSourceGraph = nullptr;
+  NCollection_LinearVector<occ::handle<BRepGraph_LayerSupplementBase>> aLayers;
   {
     std::shared_lock<std::shared_mutex> aLock(myMutex);
     aSourceGraph = myGraph;
+    for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : myLayers)
+    {
+      if (!aLayer.IsNull())
+      {
+        aLayers.Append(aLayer);
+      }
+    }
   }
   Standard_ProgramError_Raise_if(
     aSourceGraph == nullptr,
     "BRepGraph_LayerSupplementRegistry::CopyLayersTo() - detached source registry");
 
   const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theItemRemap, theMode);
-  for (uint32_t aSlot = 0;; ++aSlot)
+  for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : aLayers)
   {
-    const occ::handle<BRepGraph_LayerSupplementBase> aLayer = layerAt(aSlot);
-    if (aLayer.IsNull())
-    {
-      return;
-    }
     aLayer->CopySupplementalTo(aCopy, theSupplementCopy);
   }
 }
@@ -388,59 +358,29 @@ void BRepGraph_LayerSupplementRegistry::CopyLayersTo(
 void BRepGraph_LayerSupplementRegistry::CopyLayersTo(
   BRepGraph&                             theTargetGraph,
   const BRepGraph_CopyRemap::MappingKind theMappingKind,
-  const BRepGraph_CopyRemap::Mode          theMode,
-  const BRepGraphSupInc_CopyContext&       theSupplementCopy) const
+  const BRepGraph_CopyRemap::Mode        theMode,
+  const BRepGraphSupInc_CopyContext&     theSupplementCopy) const
 {
-  BRepGraph* aSourceGraph = nullptr;
-  if (theMode == BRepGraph_CopyRemap::Mode::Compact)
-  {
-    BRepGraph_LayerSupplementRegistry& aSelf =
-      const_cast<BRepGraph_LayerSupplementRegistry&>(*this);
-    NCollection_LinearVector<occ::handle<BRepGraph_LayerSupplementBase>> anOldLayers;
-    {
-      std::unique_lock<std::shared_mutex> aLock(aSelf.myMutex);
-      aSourceGraph = aSelf.myGraph;
-      anOldLayers  = std::move(aSelf.myLayers);
-      aSelf.myGuidToSlot.Clear();
-      for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : anOldLayers)
-      {
-        if (!aLayer.IsNull())
-        {
-          aLayer->detachContext();
-        }
-      }
-    }
-
-    Standard_ProgramError_Raise_if(
-      aSourceGraph == nullptr,
-      "BRepGraph_LayerSupplementRegistry::CopyLayersTo() - detached source registry");
-    const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theMappingKind, theMode);
-    for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : anOldLayers)
-    {
-      if (!aLayer.IsNull())
-      {
-        aLayer->CopySupplementalTo(aCopy, theSupplementCopy);
-      }
-    }
-    return;
-  }
-
+  BRepGraph*                                                           aSourceGraph = nullptr;
+  NCollection_LinearVector<occ::handle<BRepGraph_LayerSupplementBase>> aLayers;
   {
     std::shared_lock<std::shared_mutex> aLock(myMutex);
     aSourceGraph = myGraph;
+    for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : myLayers)
+    {
+      if (!aLayer.IsNull())
+      {
+        aLayers.Append(aLayer);
+      }
+    }
   }
   Standard_ProgramError_Raise_if(
     aSourceGraph == nullptr,
     "BRepGraph_LayerSupplementRegistry::CopyLayersTo() - detached source registry");
 
   const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theMappingKind, theMode);
-  for (uint32_t aSlot = 0;; ++aSlot)
+  for (const occ::handle<BRepGraph_LayerSupplementBase>& aLayer : aLayers)
   {
-    const occ::handle<BRepGraph_LayerSupplementBase> aLayer = layerAt(aSlot);
-    if (aLayer.IsNull())
-    {
-      return;
-    }
     aLayer->CopySupplementalTo(aCopy, theSupplementCopy);
   }
 }

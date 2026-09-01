@@ -259,7 +259,7 @@ bool BRepGraph_Transaction::ReplaceComponent(
   }
   const BRepGraph_RevisionHash aPreviousSemantic  = aPrevious->SemanticHash();
   const BRepGraph_RevisionHash aComponentSemantic = theComponent->SemanticHash();
-  const bool                   hasSemanticChange   = aPreviousSemantic != aComponentSemantic;
+  const bool                   hasSemanticChange  = aPreviousSemantic != aComponentSemantic;
   if (!hasSemanticChange && aPrevious->StorageHash() == theComponent->StorageHash())
   {
     return true;
@@ -1322,8 +1322,12 @@ BRepGraph_Transaction::CommitResult BRepGraph_Transaction::Commit()
     }
 
     aResult.Revision = aCreated.Revision;
-    aResult.Diff = myBaseRevision->Diff(*aResult.Revision);
-    if (aResult.Diff.IsEmpty())
+    aResult.Diff     = myBaseRevision->Diff(*aResult.Revision);
+    // A semantic diff intentionally omits physical metadata such as durable UID
+    // watermarks and tombstone layout.  Reuse the base only when both semantic
+    // and physical revision identities are unchanged.
+    if (aResult.Diff.IsEmpty() && aResult.Revision->GraphGUID() == myBaseRevision->GraphGUID()
+        && aResult.Revision->StorageRootHash() == myBaseRevision->StorageRootHash())
     {
       aResult.Revision = myBaseRevision;
     }
@@ -1358,10 +1362,9 @@ BRepGraph_Transaction::CommitResult BRepGraph_Transaction::Commit()
   if (hasCoreChanges && !myBaseRevision->SupportsSparseEdits())
   {
     aResult.Status = BRepGraph_RevisionStatus::Code::UnsupportedComponent;
-    appendDiagnostic(
-      aResult.Diagnostics,
-      "SparseComponentUnavailable",
-      "This revision does not support sparse topology operations; use Graph()");
+    appendDiagnostic(aResult.Diagnostics,
+                     "SparseComponentUnavailable",
+                     "This revision does not support sparse topology operations; use Graph()");
     finish();
     return aResult;
   }
@@ -1436,8 +1439,8 @@ BRepGraph_RevisionDiff BRepGraph_Transaction::sparseDiff(
   using Operation = BRepGraph_Revision::VertexChange::Operation;
 
   BRepGraph_RevisionDiff aDiff;
-  const BRepGraph& aBaseGraph   = myBaseRevision->CoreGraph();
-  const BRepGraph& aResultGraph = theResultRevision.CoreGraph();
+  const BRepGraph&       aBaseGraph   = myBaseRevision->CoreGraph();
+  const BRepGraph&       aResultGraph = theResultRevision.CoreGraph();
 
   const auto appendNode = [&aDiff, &aBaseGraph, &aResultGraph](const BRepGraph_UID&   theUID,
                                                                const BRepGraph_NodeId theLocalId,

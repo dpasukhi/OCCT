@@ -15,10 +15,16 @@
 #define _NCollection_PagedArray_HeaderFile
 
 #include <NCollection_Array1.hxx>
+#include <Standard_DefineAlloc.hxx>
+#include <Standard_OutOfRange.hxx>
 
 #include <algorithm>
 #include <array>
+#include <cstddef>
+#include <iterator>
+#include <limits>
 #include <memory>
+#include <type_traits>
 #include <utility>
 #include <variant>
 
@@ -26,18 +32,283 @@
 //!
 //! Copying the array retains one radix-tree root. Const reads address shared
 //! immutable pages directly; the first write clones the radix path and the
-//! touched page. This gives snapshots O(1) retention, bounded indexed reads,
-//! and mutation cost independent of the total number of pages.
+//! touched page. This gives snapshots O(1) retention and bounded indexed reads.
+//! The container is dense: extending its visible range initializes every
+//! intervening value and therefore costs O(number of appended values).
 //! Concurrent const access to retained copies is safe. Mutation requires an
 //! externally serialized, privately owned array; atomic reference counts do
 //! not make simultaneous writes to the same array safe.
+//! Iterators retain the visible size captured at construction. Structural
+//! changes invalidate STL iterators; a legacy Iterator may safely observe
+//! value changes and deliberately ignores values appended after initialization.
 template <typename TheItemType>
 class NCollection_PagedArray
 {
 public:
+  DEFINE_STANDARD_ALLOC
+
   using value_type      = TheItemType;
+  using size_type       = size_t;
+  using difference_type = std::ptrdiff_t;
+  using pointer         = TheItemType*;
+  using const_pointer   = const TheItemType*;
   using reference       = TheItemType&;
   using const_reference = const TheItemType&;
+
+private:
+  template <bool IsConstant>
+  class BasicIterator
+  {
+  public:
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type        = TheItemType;
+    using difference_type   = std::ptrdiff_t;
+    using pointer           = std::conditional_t<IsConstant, const TheItemType*, TheItemType*>;
+    using reference         = std::conditional_t<IsConstant, const TheItemType&, TheItemType&>;
+    using container_pointer =
+      std::conditional_t<IsConstant, const NCollection_PagedArray*, NCollection_PagedArray*>;
+
+    BasicIterator() noexcept = default;
+
+    template <bool B = IsConstant, std::enable_if_t<!B>* = nullptr>
+    explicit BasicIterator(NCollection_PagedArray& theArray, const size_t theIndex = 0) noexcept
+        : myContainer(&theArray),
+          myIndex(theIndex),
+          myEnd(theArray.Size())
+    {
+    }
+
+    template <bool B = IsConstant, std::enable_if_t<B>* = nullptr>
+    explicit BasicIterator(const NCollection_PagedArray& theArray,
+                           const size_t                  theIndex = 0) noexcept
+        : myContainer(&theArray),
+          myIndex(theIndex),
+          myEnd(theArray.Size())
+    {
+    }
+
+    template <bool B = IsConstant, std::enable_if_t<B>* = nullptr>
+    BasicIterator(const BasicIterator<false>& theOther) noexcept
+        : myContainer(theOther.myContainer),
+          myIndex(theOther.myIndex),
+          myEnd(theOther.myEnd)
+    {
+    }
+
+    template <bool B = IsConstant, std::enable_if_t<B>* = nullptr>
+    BasicIterator& operator=(const BasicIterator<false>& theOther) noexcept
+    {
+      myContainer = theOther.myContainer;
+      myIndex     = theOther.myIndex;
+      myEnd       = theOther.myEnd;
+      return *this;
+    }
+
+    reference operator*() const noexcept(IsConstant)
+    {
+      if constexpr (IsConstant)
+      {
+        return myContainer->Value(myIndex);
+      }
+      else
+      {
+        return myContainer->ChangeValue(myIndex);
+      }
+    }
+
+    pointer operator->() const noexcept(IsConstant) { return &operator*(); }
+
+    reference Value() const noexcept(IsConstant) { return operator*(); }
+
+    template <bool B = IsConstant, std::enable_if_t<!B>* = nullptr>
+    reference ChangeValue() const
+    {
+      return operator*();
+    }
+
+    bool More() const noexcept { return myContainer != nullptr && myIndex < myEnd; }
+
+    BasicIterator& operator++() noexcept
+    {
+      ++myIndex;
+      return *this;
+    }
+
+    BasicIterator operator++(int) noexcept
+    {
+      BasicIterator anOld(*this);
+      ++(*this);
+      return anOld;
+    }
+
+    BasicIterator& operator--() noexcept
+    {
+      --myIndex;
+      return *this;
+    }
+
+    BasicIterator operator--(int) noexcept
+    {
+      BasicIterator anOld(*this);
+      --(*this);
+      return anOld;
+    }
+
+    BasicIterator& operator+=(const difference_type theOffset) noexcept
+    {
+      myIndex = static_cast<size_t>(static_cast<difference_type>(myIndex) + theOffset);
+      return *this;
+    }
+
+    BasicIterator operator+(const difference_type theOffset) const noexcept
+    {
+      BasicIterator anIterator(*this);
+      anIterator += theOffset;
+      return anIterator;
+    }
+
+    BasicIterator& operator-=(const difference_type theOffset) noexcept
+    {
+      return *this += -theOffset;
+    }
+
+    BasicIterator operator-(const difference_type theOffset) const noexcept
+    {
+      BasicIterator anIterator(*this);
+      anIterator -= theOffset;
+      return anIterator;
+    }
+
+    template <bool TheOtherIsConstant>
+    difference_type operator-(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return static_cast<difference_type>(myIndex) - static_cast<difference_type>(theOther.myIndex);
+    }
+
+    reference operator[](const difference_type theOffset) const noexcept(IsConstant)
+    {
+      return *(*this + theOffset);
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator==(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return myContainer == theOther.myContainer && myIndex == theOther.myIndex;
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator!=(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return !(*this == theOther);
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator<(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return (*this - theOther) < 0;
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator>(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return theOther < *this;
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator<=(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return !(theOther < *this);
+    }
+
+    template <bool TheOtherIsConstant>
+    bool operator>=(const BasicIterator<TheOtherIsConstant>& theOther) const noexcept
+    {
+      return !(*this < theOther);
+    }
+
+    friend BasicIterator operator+(const difference_type theOffset,
+                                   const BasicIterator&  theIterator) noexcept
+    {
+      return theIterator + theOffset;
+    }
+
+  private:
+    template <bool>
+    friend class BasicIterator;
+
+    container_pointer myContainer = nullptr;
+    size_t            myIndex     = 0;
+    size_t            myEnd       = 0;
+  };
+
+public:
+  using iterator       = BasicIterator<false>;
+  using const_iterator = BasicIterator<true>;
+
+  class Iterator : public iterator
+  {
+  public:
+    Iterator() noexcept = default;
+
+    explicit Iterator(NCollection_PagedArray& theArray) noexcept
+        : iterator(theArray)
+    {
+    }
+
+    explicit Iterator(const NCollection_PagedArray& theArray) noexcept
+        : iterator(const_cast<NCollection_PagedArray&>(theArray))
+    {
+    }
+
+    bool More() const noexcept { return iterator::More(); }
+
+    void Next() noexcept { ++(*this); }
+
+    const_reference Value() const { return iterator::Value(); }
+
+    reference ChangeValue() const { return iterator::ChangeValue(); }
+
+    void Init(NCollection_PagedArray& theArray) noexcept { *this = Iterator(theArray); }
+
+    void Init(const NCollection_PagedArray& theArray) noexcept { *this = Iterator(theArray); }
+
+    void Initialize(NCollection_PagedArray& theArray) noexcept { Init(theArray); }
+
+    void Initialize(const NCollection_PagedArray& theArray) noexcept { Init(theArray); }
+  };
+
+  class ConstIterator : public const_iterator
+  {
+  public:
+    ConstIterator() noexcept = default;
+
+    explicit ConstIterator(const NCollection_PagedArray& theArray) noexcept
+        : const_iterator(theArray)
+    {
+    }
+
+    bool More() const noexcept { return const_iterator::More(); }
+
+    void Next() noexcept { ++(*this); }
+
+    const_reference Value() const noexcept { return const_iterator::Value(); }
+
+    void Init(const NCollection_PagedArray& theArray) noexcept { *this = ConstIterator(theArray); }
+
+    void Initialize(const NCollection_PagedArray& theArray) noexcept { Init(theArray); }
+  };
+
+  iterator begin() noexcept { return iterator(*this); }
+
+  const_iterator begin() const noexcept { return const_iterator(*this); }
+
+  const_iterator cbegin() const noexcept { return const_iterator(*this); }
+
+  iterator end() noexcept { return iterator(*this, mySize); }
+
+  const_iterator end() const noexcept { return const_iterator(*this, mySize); }
+
+  const_iterator cend() const noexcept { return const_iterator(*this, mySize); }
 
   //! Construct an empty array.
   explicit NCollection_PagedArray(const size_t thePageSize = 256)
@@ -71,6 +342,14 @@ public:
 
   [[nodiscard]] reference operator[](const size_t theIndex) { return ChangeValue(theIndex); }
 
+  [[nodiscard]] const_reference First() const noexcept { return Value(0); }
+
+  [[nodiscard]] reference ChangeFirst() { return ChangeValue(0); }
+
+  [[nodiscard]] const_reference Last() const noexcept { return Value(mySize - 1); }
+
+  [[nodiscard]] reference ChangeLast() { return ChangeValue(mySize - 1); }
+
   //! Append a default-constructed value.
   reference Appended()
   {
@@ -84,16 +363,20 @@ public:
   //! Append a copied value.
   reference Append(const TheItemType& theValue)
   {
-    reference aValue = Appended();
+    ensurePage(pageIndex(mySize));
+    reference aValue = ChangeValue(mySize);
     aValue           = theValue;
+    ++mySize;
     return aValue;
   }
 
   //! Append a moved value.
   reference Append(TheItemType&& theValue)
   {
-    reference aValue = Appended();
+    ensurePage(pageIndex(mySize));
+    reference aValue = ChangeValue(mySize);
     aValue           = std::move(theValue);
+    ++mySize;
     return aValue;
   }
 
@@ -102,6 +385,8 @@ public:
   {
     if (theIndex >= mySize)
     {
+      Standard_OutOfRange_Raise_if(theIndex == std::numeric_limits<size_t>::max(),
+                                   "NCollection_PagedArray::SetValue: index is too large");
       Resize(theIndex + 1);
     }
     reference aValue = ChangeValue(theIndex);
@@ -114,6 +399,8 @@ public:
   {
     if (theIndex >= mySize)
     {
+      Standard_OutOfRange_Raise_if(theIndex == std::numeric_limits<size_t>::max(),
+                                   "NCollection_PagedArray::SetValue: index is too large");
       Resize(theIndex + 1);
     }
     reference aValue = ChangeValue(theIndex);
@@ -128,10 +415,17 @@ public:
     {
       const size_t anOldSize = mySize;
       ensurePage(pageIndex(theSize - 1));
-      mySize = theSize;
-      for (size_t anIndex = anOldSize; anIndex < theSize; ++anIndex)
+      size_t anIndex = anOldSize;
+      while (anIndex < theSize)
       {
-        ChangeValue(anIndex) = theValue;
+        Page& aPage = changePage(pageIndex(anIndex));
+        const size_t aPageEnd = anIndex + std::min(theSize - anIndex,
+                                                   myPageSize - pageOffset(anIndex));
+        for (; anIndex < aPageEnd; ++anIndex)
+        {
+          aPage.Values.ChangeAt(pageOffset(anIndex)) = theValue;
+          mySize                                      = anIndex + 1;
+        }
       }
       return;
     }
@@ -146,7 +440,8 @@ public:
     }
 
     const size_t aPageCount = pageIndex(theSize - 1) + 1;
-    const size_t anEnd      = std::min(mySize, aPageCount * myPageSize);
+    const size_t aTailSize  = std::min(mySize - theSize, myPageSize - pageOffset(theSize));
+    const size_t anEnd      = theSize + aTailSize;
     for (size_t anIndex = theSize; anIndex < anEnd; ++anIndex)
     {
       ChangeValue(anIndex) = TheItemType();

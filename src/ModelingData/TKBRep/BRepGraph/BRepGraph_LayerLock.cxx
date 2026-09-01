@@ -213,8 +213,8 @@ bool BRepGraph_LayerLock::HasOwner(const BRepGraph_ItemId theItem) const
 
 void BRepGraph_LayerLock::ReserveOwners(const size_t theNbOwners)
 {
-  myNodeOwners.Reserve(static_cast<size_t>(myNodeOwners.Extent()) + theNbOwners);
-  myRefOwners.Reserve(static_cast<size_t>(myRefOwners.Extent()) + theNbOwners);
+  myNodeOwners.Reserve(myNodeOwners.Size() + theNbOwners);
+  myRefOwners.Reserve(myRefOwners.Size() + theNbOwners);
 }
 
 //=================================================================================================
@@ -495,7 +495,7 @@ void BRepGraph_LayerLock::CopyTo(const BRepGraph_CopyRemap& theCopy) const
 
   occ::handle<BRepGraph_LayerLock> aTarget =
     theCopy.TargetGraph().LayerRegistry().Ensure<BRepGraph_LayerLock>();
-  aTarget->ReserveOwners(static_cast<size_t>(myNodeOwners.Extent() + myRefOwners.Extent()));
+  aTarget->ReserveOwners(myNodeOwners.Size() + myRefOwners.Size());
   bool hasCopied = false;
 
   // Copy node root entries.

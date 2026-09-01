@@ -345,7 +345,7 @@ void BRepGraph_LayerDeferred::UnregisterDeferred(const BRepGraph_ItemId theItem)
 
 void BRepGraph_LayerDeferred::ReserveDeferredItems(const size_t theNbItems)
 {
-  myEntries.Reserve(static_cast<size_t>(myEntries.Extent()) + theNbItems);
+  myEntries.Reserve(myEntries.Size() + theNbItems);
   if (BRepGraph* aGraph = AttachedGraph())
   {
     occ::handle<BRepGraph_LayerLock> aLockLayer =
@@ -455,7 +455,7 @@ void BRepGraph_LayerDeferred::CopyTo(const BRepGraph_CopyRemap& theCopy) const
 
   occ::handle<BRepGraph_LayerDeferred> aTarget =
     theCopy.TargetGraph().LayerRegistry().Ensure<BRepGraph_LayerDeferred>();
-  aTarget->ReserveDeferredItems(static_cast<size_t>(myEntries.Extent()));
+  aTarget->ReserveDeferredItems(myEntries.Size());
   aTarget->BeginBulkRegistration();
   for (NCollection_FlatDataMap<BRepGraph_ItemId, Entry>::Iterator anIt(myEntries); anIt.More();
        anIt.Next())

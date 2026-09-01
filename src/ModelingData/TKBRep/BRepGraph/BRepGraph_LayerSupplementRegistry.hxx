@@ -42,7 +42,7 @@ public:
 
   Standard_EXPORT BRepGraph_LayerSupplementRegistry();
 
-  BRepGraph_LayerSupplementRegistry(const BRepGraph_LayerSupplementRegistry&) = delete;
+  BRepGraph_LayerSupplementRegistry(const BRepGraph_LayerSupplementRegistry&)            = delete;
   BRepGraph_LayerSupplementRegistry& operator=(const BRepGraph_LayerSupplementRegistry&) = delete;
 
   Standard_EXPORT BRepGraph_LayerSupplementRegistry(
@@ -52,7 +52,8 @@ public:
 
   //! Register a supplemental layer, replacing an existing layer with the same GUID.
   //! @return slot index in the internal dense vector
-  Standard_EXPORT uint32_t RegisterLayer(const occ::handle<BRepGraph_LayerSupplementBase>& theLayer);
+  Standard_EXPORT uint32_t
+    RegisterLayer(const occ::handle<BRepGraph_LayerSupplementBase>& theLayer);
 
   //! Remove a supplemental layer by GUID.
   Standard_EXPORT void UnregisterLayer(const Standard_GUID& theGUID);
@@ -79,13 +80,14 @@ public:
   template <typename T>
   [[nodiscard]] occ::handle<T> Ensure()
   {
-    return occ::down_cast<T>(ensureLayer(
-       T::GetID(), []() -> occ::handle<BRepGraph_LayerSupplementBase> { return new T(); }));
+    return occ::down_cast<T>(
+      ensureLayer(T::GetID(),
+                  []() -> occ::handle<BRepGraph_LayerSupplementBase> { return new T(); }));
   }
 
   //! Return the current dense slot for a layer GUID.
   [[nodiscard]] Standard_EXPORT bool FindSlot(const Standard_GUID& theGUID,
-                                               uint32_t&            theSlot) const;
+                                              uint32_t&            theSlot) const;
 
   //! Return a layer by dense slot, or a null handle when the slot is invalid.
   [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_LayerSupplementBase> Layer(
@@ -103,7 +105,7 @@ public:
 
   //! Dispatch a node replacement to all supplemental layers.
   Standard_EXPORT void DispatchOnNodeReplaced(const BRepGraph_NodeId theOldNode,
-                                               const BRepGraph_NodeId theNewNode) noexcept;
+                                              const BRepGraph_NodeId theNewNode) noexcept;
 
   //! Dispatch supplemental store item removal to all supplemental layers.
   Standard_EXPORT void DispatchOnSupplementRemoved(const BRepGraphSupInc_ItemUID& theUID) noexcept;
@@ -112,19 +114,19 @@ public:
   Standard_EXPORT void ClearAll() noexcept;
 
   //! Copy supplemental layer data after supplemental store migration.
-  //! Compact migration first removes source registrations, then invokes the old
-  //! detached layers so they recreate themselves in the target registry.
+  //! The source registrations remain unchanged. Copy callbacks run from a stable
+  //! handle snapshot after the registry lock is released.
   Standard_EXPORT void CopyLayersTo(
     BRepGraph&                                                         theTargetGraph,
     const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap,
-    const BRepGraph_CopyRemap::Mode                                     theMode,
-    const BRepGraphSupInc_CopyContext&                                  theSupplementCopy) const;
+    const BRepGraph_CopyRemap::Mode                                    theMode,
+    const BRepGraphSupInc_CopyContext&                                 theSupplementCopy) const;
 
   //! Copy supplemental layer data using identity core item mapping.
-  Standard_EXPORT void CopyLayersTo(BRepGraph&                       theTargetGraph,
-                                     BRepGraph_CopyRemap::MappingKind theMappingKind,
-                                     const BRepGraph_CopyRemap::Mode  theMode,
-                                     const BRepGraphSupInc_CopyContext& theSupplementCopy) const;
+  Standard_EXPORT void CopyLayersTo(BRepGraph&                         theTargetGraph,
+                                    BRepGraph_CopyRemap::MappingKind   theMappingKind,
+                                    const BRepGraph_CopyRemap::Mode    theMode,
+                                    const BRepGraphSupInc_CopyContext& theSupplementCopy) const;
 
 private:
   friend class ::BRepGraph;
@@ -142,19 +144,19 @@ private:
   [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_LayerSupplementBase> findLayerLocked(
     const Standard_GUID& theGUID) const;
   [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_LayerSupplementBase> ensureLayer(
-    const Standard_GUID& theGUID,
+    const Standard_GUID&                                               theGUID,
     const std::function<occ::handle<BRepGraph_LayerSupplementBase>()>& theFactory);
   [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_LayerSupplementBase> layerAt(
     const uint32_t theSlot) const;
-  Standard_EXPORT uint32_t registerLayerLocked(
-    const occ::handle<BRepGraph_LayerSupplementBase>& theLayer);
+  Standard_EXPORT uint32_t
+       registerLayerLocked(const occ::handle<BRepGraph_LayerSupplementBase>& theLayer);
   void clearLayersLocked() noexcept;
 
 private:
   NCollection_LinearVector<occ::handle<BRepGraph_LayerSupplementBase>> myLayers;
-  NCollection_FlatDataMap<Standard_GUID, uint32_t>                 myGuidToSlot;
-  BRepGraph*                                                       myGraph = nullptr;
-  mutable std::shared_mutex                                        myMutex;
+  NCollection_FlatDataMap<Standard_GUID, uint32_t>                     myGuidToSlot;
+  BRepGraph*                                                           myGraph = nullptr;
+  mutable std::shared_mutex                                            myMutex;
 };
 
 #endif // _BRepGraph_LayerSupplementRegistry_HeaderFile

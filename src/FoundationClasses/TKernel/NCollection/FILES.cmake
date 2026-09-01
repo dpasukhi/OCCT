@@ -63,6 +63,7 @@ set(OCCT_NCollection_FILES
   NCollection_OrderedMap.hxx
   NCollection_PagedArray.hxx
   NCollection_PagedDataMap.hxx
+  NCollection_PersistentRadixMap.hxx
   NCollection_PackedMap.hxx
   NCollection_PackedMapAlgo.hxx
   NCollection_Primes.cxx

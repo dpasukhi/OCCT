@@ -41,6 +41,7 @@
 #include <Poly_PolygonOnTriangulation.hxx>
 #include <Poly_Triangulation.hxx>
 #include <Standard_Assert.hxx>
+#include <Standard_Failure.hxx>
 
 #include <algorithm>
 #include <utility>
@@ -1395,13 +1396,11 @@ static bool copyFullGraphIdentity(const BRepGraphInc_Storage&    aSrc,
 
 } // namespace
 
-//=================================================================================================
-
-bool BRepGraph_Copy::Perform(const BRepGraph& theSourceGraph,
-                             BRepGraph&       theTargetGraph,
-                             GeomPolicy       theGeomPolicy,
-                             MeshPolicy       theMeshPolicy,
-                             CachePolicy      theCachePolicy)
+bool BRepGraph_Copy::performInPlace(const BRepGraph& theSourceGraph,
+                                    BRepGraph&       theTargetGraph,
+                                    GeomPolicy       theGeomPolicy,
+                                    MeshPolicy       theMeshPolicy,
+                                    CachePolicy      theCachePolicy)
 {
   if (&theSourceGraph == &theTargetGraph)
   {
@@ -1512,12 +1511,64 @@ bool BRepGraph_Copy::Perform(const BRepGraph& theSourceGraph,
 
 //=================================================================================================
 
-BRepGraph_NodeId BRepGraph_Copy::CopyNode(const BRepGraph&       theSourceGraph,
-                                          BRepGraph&             theTargetGraph,
-                                          const BRepGraph_NodeId theNodeId,
-                                          GeomPolicy             theGeomPolicy,
-                                          MeshPolicy             theMeshPolicy,
-                                          CachePolicy            theCachePolicy)
+bool BRepGraph_Copy::Perform(const BRepGraph& theSourceGraph,
+                             BRepGraph&       theTargetGraph,
+                             GeomPolicy       theGeomPolicy,
+                             MeshPolicy       theMeshPolicy,
+                             CachePolicy      theCachePolicy)
+{
+  if (&theSourceGraph == &theTargetGraph)
+  {
+    return true;
+  }
+  if (!theSourceGraph.IsValid() || !theTargetGraph.IsValid())
+  {
+    return false;
+  }
+
+  try
+  {
+    BRepGraph aCandidate;
+    if (!theTargetGraph.IsEmpty()
+        && !performInPlace(theTargetGraph,
+                           aCandidate,
+                           GeomPolicy::Share,
+                           MeshPolicy::Share,
+                           CachePolicy::CopyFresh))
+    {
+      return false;
+    }
+    if (!performInPlace(theSourceGraph, aCandidate, theGeomPolicy, theMeshPolicy, theCachePolicy))
+    {
+      return false;
+    }
+
+    for (BRepGraph_CacheRegistry* aRegistry : theTargetGraph.data()->myExternalCacheRegistries)
+    {
+      aCandidate.registerExternalCacheRegistry(aRegistry);
+    }
+    theTargetGraph = std::move(aCandidate);
+    theTargetGraph.clearExternalCacheRegistries();
+    return true;
+  }
+  catch (const Standard_Failure&)
+  {
+    return false;
+  }
+  catch (...)
+  {
+    return false;
+  }
+}
+
+//=================================================================================================
+
+BRepGraph_NodeId BRepGraph_Copy::copyNodeInPlace(const BRepGraph& theSourceGraph,
+                                                 BRepGraph&       theTargetGraph,
+                                                 BRepGraph_NodeId theNodeId,
+                                                 GeomPolicy       theGeomPolicy,
+                                                 MeshPolicy       theMeshPolicy,
+                                                 CachePolicy      theCachePolicy)
 {
   if (theSourceGraph.IsEmpty())
   {
@@ -1602,4 +1653,66 @@ BRepGraph_NodeId BRepGraph_Copy::CopyNode(const BRepGraph&       theSourceGraph,
   }
 
   return mappedNode(theCtx, theNodeId);
+}
+
+//=================================================================================================
+
+BRepGraph_NodeId BRepGraph_Copy::CopyNode(const BRepGraph&       theSourceGraph,
+                                          BRepGraph&             theTargetGraph,
+                                          const BRepGraph_NodeId theNodeId,
+                                          GeomPolicy             theGeomPolicy,
+                                          MeshPolicy             theMeshPolicy,
+                                          CachePolicy            theCachePolicy)
+{
+  if (!theSourceGraph.IsValid() || !theTargetGraph.IsValid() || theSourceGraph.IsEmpty())
+  {
+    return BRepGraph_NodeId();
+  }
+
+  try
+  {
+    BRepGraph aCandidate;
+    if (!performInPlace(theTargetGraph,
+                        aCandidate,
+                        GeomPolicy::Share,
+                        MeshPolicy::Share,
+                        CachePolicy::CopyFresh))
+    {
+      return BRepGraph_NodeId();
+    }
+
+    const bool             isSelfCopy = &theSourceGraph == &theTargetGraph;
+    const BRepGraph_NodeId aMapped    = isSelfCopy ? copyNodeInPlace(aCandidate,
+                                                                     aCandidate,
+                                                                     theNodeId,
+                                                                     theGeomPolicy,
+                                                                     theMeshPolicy,
+                                                                     theCachePolicy)
+                                                   : copyNodeInPlace(theSourceGraph,
+                                                                     aCandidate,
+                                                                     theNodeId,
+                                                                     theGeomPolicy,
+                                                                     theMeshPolicy,
+                                                                     theCachePolicy);
+    if (!aMapped.IsValid())
+    {
+      return BRepGraph_NodeId();
+    }
+
+    for (BRepGraph_CacheRegistry* aRegistry : theTargetGraph.data()->myExternalCacheRegistries)
+    {
+      aCandidate.registerExternalCacheRegistry(aRegistry);
+    }
+    theTargetGraph = std::move(aCandidate);
+    theTargetGraph.clearExternalCacheRegistries();
+    return aMapped;
+  }
+  catch (const Standard_Failure&)
+  {
+    return BRepGraph_NodeId();
+  }
+  catch (...)
+  {
+    return BRepGraph_NodeId();
+  }
 }

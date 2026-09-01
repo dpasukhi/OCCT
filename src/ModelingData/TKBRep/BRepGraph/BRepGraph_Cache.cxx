@@ -123,7 +123,6 @@ void BRepGraph_Cache::RefEntry::Reset() noexcept
 {
   myRef        = BRepGraph_RefId();
   myGeneration = 0;
-  myIsBound    = false;
 }
 
 //=================================================================================================
@@ -140,7 +139,6 @@ bool BRepGraph_Cache::RefEntry::BindOwnGen(const BRepGraph_Cache& theCache,
 
   myRef        = theRef;
   myGeneration = aGeneration;
-  myIsBound    = true;
   return true;
 }
 
@@ -149,7 +147,7 @@ bool BRepGraph_Cache::RefEntry::BindOwnGen(const BRepGraph_Cache& theCache,
 bool BRepGraph_Cache::RefEntry::IsFreshOwn(const BRepGraph_Cache& theCache,
                                            const BRepGraph_RefId  theRef) const noexcept
 {
-  if (!myIsBound || myRef != theRef)
+  if (!myRef.IsValid() || myRef != theRef)
   {
     return false;
   }
@@ -171,7 +169,6 @@ void BRepGraph_Cache::ItemEntry::Reset() noexcept
 {
   myItem       = BRepGraph_ItemId();
   myGeneration = 0;
-  myIsBound    = false;
 }
 
 //=================================================================================================
@@ -188,7 +185,6 @@ bool BRepGraph_Cache::ItemEntry::BindOwnGen(const BRepGraph_Cache& theCache,
 
   myItem       = theItem;
   myGeneration = aGeneration;
-  myIsBound    = true;
   return true;
 }
 
@@ -197,7 +193,7 @@ bool BRepGraph_Cache::ItemEntry::BindOwnGen(const BRepGraph_Cache& theCache,
 bool BRepGraph_Cache::ItemEntry::IsFreshOwn(const BRepGraph_Cache& theCache,
                                             const BRepGraph_ItemId theItem) const noexcept
 {
-  if (!myIsBound || myItem != theItem)
+  if (!myItem.IsValid() || myItem != theItem)
   {
     return false;
   }
