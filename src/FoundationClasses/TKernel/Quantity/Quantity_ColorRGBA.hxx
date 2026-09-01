@@ -83,27 +83,29 @@ public:
     return *reinterpret_cast<const NCollection_Vec4<float>*>(this);
   }
 
-  //! Returns true if the distance between colors is greater than Epsilon().
+  //! Returns true if the distance between colors is greater than Quantity_Color::Epsilon().
   bool IsDifferent(const Quantity_ColorRGBA& theOther) const noexcept
   {
     return myRgb.IsDifferent(theOther.GetRGB())
            || std::abs(myAlpha - theOther.myAlpha) > (float)Quantity_Color::Epsilon();
   }
 
-  //! Returns true if the distance between colors is greater than Epsilon().
+  //! Returns true if the distance between colors is greater than Quantity_Color::Epsilon().
   bool operator!=(const Quantity_ColorRGBA& theOther) const noexcept
   {
     return IsDifferent(theOther);
   }
 
-  //! Two colors are considered to be equal if their distance is no greater than Epsilon().
+  //! Two colors are considered to be equal if their distance is no greater than
+  //! Quantity_Color::Epsilon().
   bool IsEqual(const Quantity_ColorRGBA& theOther) const noexcept
   {
     return myRgb.IsEqual(theOther.GetRGB())
            && std::abs(myAlpha - theOther.myAlpha) <= (float)Quantity_Color::Epsilon();
   }
 
-  //! Two colors are considered to be equal if their distance is no greater than Epsilon().
+  //! Two colors are considered to be equal if their distance is no greater than
+  //! Quantity_Color::Epsilon().
   bool operator==(const Quantity_ColorRGBA& theOther) const noexcept { return IsEqual(theOther); }
 
 public:

@@ -19,7 +19,6 @@
 
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepBuilderAPI.hxx>
 #include <BRepClass3d_SolidClassifier.hxx>
 #include <BRepLib.hxx>
 #include <BRepTools_WireExplorer.hxx>
@@ -222,7 +221,7 @@ static int XSHAPE_ssolid(Draw_Interpretor& di, int argc, const char** argv)
   B.Add(solid, sh);
   //   Pas encore fini : il faut une bonne orientation
   BRepClass3d_SolidClassifier bsc3d(solid);
-  bsc3d.PerformInfinitePoint(BRepBuilderAPI::Precision());
+  bsc3d.PerformInfinitePoint(Precision::Confusion());
   if (bsc3d.State() == TopAbs_IN)
   {
     //         Ensuite, inverser C-A-D REPRENDRE LES SHELLS

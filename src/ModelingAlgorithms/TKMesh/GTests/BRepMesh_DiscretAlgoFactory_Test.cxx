@@ -113,6 +113,19 @@ TEST_F(BRepMesh_DiscretAlgoFactoryTest, DiscretFactory_UsesRegistry)
   }
 }
 
+//! Test that factory callers can request parallel meshing without global state.
+TEST_F(BRepMesh_DiscretAlgoFactoryTest, DiscretFactory_ExplicitParallelMode)
+{
+  BRepMesh_DiscretFactory& aFactory = BRepMesh_DiscretFactory::Get();
+
+  occ::handle<BRepMesh_DiscretRoot> aRootAlgo = aFactory.Discret(myBox, 0.1, 0.5, true);
+  occ::handle<BRepMesh_IncrementalMesh> anAlgo =
+    occ::down_cast<BRepMesh_IncrementalMesh>(aRootAlgo);
+
+  ASSERT_FALSE(anAlgo.IsNull());
+  EXPECT_TRUE(anAlgo->Parameters().InParallel);
+}
+
 //! Test that SetDefaultName works with registry-based factories
 TEST_F(BRepMesh_DiscretAlgoFactoryTest, DiscretFactory_SetDefaultName)
 {

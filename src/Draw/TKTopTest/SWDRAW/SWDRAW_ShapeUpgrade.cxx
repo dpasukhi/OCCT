@@ -20,7 +20,6 @@
 
 #include <BRep_Tool.hxx>
 #include <BRep_Builder.hxx>
-#include <BRepBuilderAPI.hxx>
 #include <BRepBuilderAPI_Transform.hxx>
 #include <BRepTest_Objects.hxx>
 #include <BRepTools.hxx>

@@ -53,6 +53,12 @@ public:
                                                             double              theLinDeflection,
                                                             double              theAngDeflection);
 
+  //! Returns a triangulation algorithm instance with an explicit parallel-processing mode.
+  Standard_EXPORT occ::handle<BRepMesh_DiscretRoot> Discret(const TopoDS_Shape& theShape,
+                                                            double              theLinDeflection,
+                                                            double              theAngDeflection,
+                                                            bool                theInParallel);
+
 protected:
   //! Constructor
   BRepMesh_DiscretFactory();

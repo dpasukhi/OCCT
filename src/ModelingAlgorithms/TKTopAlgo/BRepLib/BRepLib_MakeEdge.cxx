@@ -20,7 +20,6 @@
 #include <Adaptor3d_CurveOnSurface.hxx>
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepLib.hxx>
 #include <BRepLib_MakeEdge.hxx>
 #include <ElCLib.hxx>
 #include <Extrema_ExtPC.hxx>
@@ -521,7 +520,7 @@ void BRepLib_MakeEdge::Init(const occ::handle<Geom_Curve>& C, const double p1, c
 
 void BRepLib_MakeEdge::Init(const occ::handle<Geom_Curve>& C, const gp_Pnt& P1, const gp_Pnt& P2)
 {
-  double Tol = BRepLib::Precision();
+  double Tol = Precision::Confusion();
 
   BRep_Builder  B;
   TopoDS_Vertex V1, V2;
@@ -578,7 +577,7 @@ void BRepLib_MakeEdge::Init(const occ::handle<Geom_Curve>& C,
                             const double                   p1,
                             const double                   p2)
 {
-  double       Tol = BRepLib::Precision();
+  double       Tol = Precision::Confusion();
   BRep_Builder B;
 
   TopoDS_Vertex V1, V2;
@@ -677,7 +676,7 @@ void BRepLib_MakeEdge::Init(const occ::handle<Geom_Curve>& CC,
     P2 = aCA.Value(p2);
   }
 
-  double       preci = BRepLib::Precision();
+  double       preci = Precision::Confusion();
   BRep_Builder B;
 
   // check for closed curve
@@ -823,7 +822,7 @@ void BRepLib_MakeEdge::Init(const occ::handle<Geom2d_Curve>& C,
                             const gp_Pnt&                    P1,
                             const gp_Pnt&                    P2)
 {
-  double Tol = BRepLib::Precision();
+  double Tol = Precision::Confusion();
 
   BRep_Builder  B;
   TopoDS_Vertex V1, V2;
@@ -882,7 +881,7 @@ void BRepLib_MakeEdge::Init(const occ::handle<Geom2d_Curve>& C,
                             const double                     p1,
                             const double                     p2)
 {
-  double       Tol = BRepLib::Precision();
+  double       Tol = Precision::Confusion();
   BRep_Builder B;
 
   TopoDS_Vertex V1, V2;
@@ -980,7 +979,7 @@ void BRepLib_MakeEdge::Init(const occ::handle<Geom2d_Curve>& CC,
     P2   = S->Value(P2d2.X(), P2d2.Y());
   }
 
-  double       preci = BRepLib::Precision();
+  double       preci = Precision::Confusion();
   BRep_Builder B;
 
   // check for closed curve

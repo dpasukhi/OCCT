@@ -39,6 +39,14 @@ class Quantity_Color
 public:
   DEFINE_STANDARD_ALLOC
 
+  //! Identifies a component of the linear RGB representation.
+  enum class Component : unsigned char
+  {
+    Red,
+    Green,
+    Blue
+  };
+
   //! Creates Quantity_NOC_YELLOW color (for historical reasons).
   Quantity_Color()
       : myRgb(valuesOf(Quantity_NOC_YELLOW, Quantity_TOC_RGB))
@@ -121,10 +129,18 @@ public:
   //! The variation is expressed as a percentage of the current value.
   Standard_EXPORT void ChangeContrast(const double theDelta);
 
+  //! Returns the fixed tolerance used for color and component comparisons.
+  static constexpr double Epsilon() noexcept { return 0.0001; }
+
   //! Returns TRUE if the distance between two colors is greater than Epsilon().
-  bool IsDifferent(const Quantity_Color& theOther) const noexcept
+  bool IsDifferent(const Quantity_Color& theOther) const noexcept { return !IsEqual(theOther); }
+
+  //! Returns TRUE if the specified RGB component differs from the value by more than the tolerance.
+  constexpr bool IsDifferent(const double    theValue,
+                             const Component theComponent,
+                             const double    theTolerance = Epsilon()) const noexcept
   {
-    return (SquareDistance(theOther) > Epsilon() * Epsilon());
+    return !IsEqual(theValue, theComponent, theTolerance);
   }
 
   //! Alias to IsDifferent().
@@ -134,6 +150,22 @@ public:
   bool IsEqual(const Quantity_Color& theOther) const noexcept
   {
     return (SquareDistance(theOther) <= Epsilon() * Epsilon());
+  }
+
+  //! Returns TRUE if the specified RGB component equals the value within the tolerance.
+  constexpr bool IsEqual(const double    theValue,
+                         const Component theComponent,
+                         const double    theTolerance = Epsilon()) const noexcept
+  {
+    if (theComponent > Component::Blue)
+    {
+      return false;
+    }
+    const double aComponent = theComponent == Component::Red     ? Red()
+                              : theComponent == Component::Green ? Green()
+                                                                 : Blue();
+    const double aDelta     = aComponent - theValue;
+    return aDelta >= -theTolerance && aDelta <= theTolerance;
   }
 
   //! Alias to IsEqual().
@@ -401,13 +433,6 @@ public:
     theL = aHls[1];
     theS = aHls[2];
   }
-
-public:
-  //! Returns the value used to compare two colors for equality; 0.0001 by default.
-  Standard_EXPORT static double Epsilon() noexcept;
-
-  //! Set the value used to compare two colors for equality.
-  Standard_EXPORT static void SetEpsilon(const double theEpsilon) noexcept;
 
   //! Dumps the content of me into the stream
   Standard_EXPORT void DumpJson(Standard_OStream& theOStream, int theDepth = -1) const;

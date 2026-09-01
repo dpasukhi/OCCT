@@ -49,7 +49,6 @@ static int mpnames(Draw_Interpretor&, int, const char**);
 static int mpsetdefaultname(Draw_Interpretor&, int, const char**);
 static int mpgetdefaultname(Draw_Interpretor&, int, const char**);
 static int mpincmesh(Draw_Interpretor&, int, const char**);
-static int mpparallel(Draw_Interpretor&, int, const char**);
 static int triarea(Draw_Interpretor&, int, const char**);
 static int tricheck(Draw_Interpretor&, int, const char**);
 
@@ -78,11 +77,6 @@ void MeshTest::PluginCommands(Draw_Interpretor& theCommands)
                   mpgetdefaultname,
                   g);
   theCommands.Add("mpincmesh", "mpincmesh shape deflection [angle]", __FILE__, mpincmesh, g);
-  theCommands.Add("mpparallel",
-                  "mpparallel [toTurnOn] : show / set multi-threading flag for incremental mesh",
-                  __FILE__,
-                  mpparallel,
-                  g);
   theCommands.Add("triarea",
                   "shape [eps]  (computes triangles and surface area)",
                   __FILE__,
@@ -586,15 +580,3 @@ static int tricheck(Draw_Interpretor& di, int n, const char** a)
 }
 
 //=================================================================================================
-
-static int mpparallel(Draw_Interpretor& /*di*/, int argc, const char** argv)
-{
-  if (argc == 2)
-  {
-    bool isParallelOn = Draw::Atoi(argv[1]) == 1;
-    BRepMesh_IncrementalMesh::SetParallelDefault(isParallelOn);
-  }
-  std::cout << "Incremental Mesh, multi-threading "
-            << (BRepMesh_IncrementalMesh::IsParallelDefault() ? "ON\n" : "OFF\n");
-  return 0;
-}

@@ -4,8 +4,8 @@ puts "============"
 puts ""
 
 pload MODELING VISUALIZATION
-mpparallel 1
 restore [locate_data_file bug22835_hello.brep] result
+incmesh result 0.1 -parallel
 vinit View1
 vdisplay result
 vsetdispmode 1

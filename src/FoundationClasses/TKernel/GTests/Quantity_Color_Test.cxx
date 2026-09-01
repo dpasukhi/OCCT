@@ -16,6 +16,7 @@
 
 #include <gtest/gtest.h>
 #include <cmath>
+#include <limits>
 
 // Test fixture for Quantity_Color tests
 class Quantity_ColorTest : public testing::Test
@@ -85,6 +86,35 @@ TEST_F(Quantity_ColorTest, EqualityComparison)
   EXPECT_FALSE(aColor1 == aColor3);
   EXPECT_TRUE(aColor1.IsDifferent(aColor3));
   EXPECT_TRUE(aColor1 != aColor3);
+}
+
+TEST_F(Quantity_ColorTest, ComponentComparison)
+{
+  static_assert(Quantity_Color::Epsilon() == 0.0001);
+
+  using Component = Quantity_Color::Component;
+  const Quantity_Color aColor(0.2, 0.4, 0.6, Quantity_TOC_RGB);
+
+  EXPECT_TRUE(aColor.IsEqual(aColor.Red(), Component::Red));
+  EXPECT_TRUE(aColor.IsEqual(aColor.Green() + 0.5 * Quantity_Color::Epsilon(), Component::Green));
+  EXPECT_TRUE(aColor.IsEqual(aColor.Blue() - 0.5 * Quantity_Color::Epsilon(), Component::Blue));
+
+  EXPECT_TRUE(aColor.IsDifferent(aColor.Red() + 2.0 * Quantity_Color::Epsilon(), Component::Red));
+  EXPECT_FALSE(aColor.IsDifferent(aColor.Green(), Component::Green));
+  EXPECT_FALSE(aColor.IsEqual(aColor.Blue(), Component::Red));
+
+  const Component anInvalidComponent = static_cast<Component>(255);
+  EXPECT_FALSE(aColor.IsEqual(aColor.Blue(), anInvalidComponent));
+  EXPECT_TRUE(aColor.IsDifferent(aColor.Blue(), anInvalidComponent));
+
+  EXPECT_TRUE(aColor.IsEqual(aColor.Red() + 0.01, Component::Red, 0.02));
+  EXPECT_FALSE(aColor.IsEqual(aColor.Red() + 0.01, Component::Red, 0.005));
+  EXPECT_TRUE(aColor.IsDifferent(aColor.Red() + 0.01, Component::Red, 0.005));
+  EXPECT_FALSE(aColor.IsDifferent(aColor.Red() + 0.01, Component::Red, 0.02));
+
+  const double aNan = std::numeric_limits<double>::quiet_NaN();
+  EXPECT_FALSE(aColor.IsEqual(aNan, Component::Red));
+  EXPECT_TRUE(aColor.IsDifferent(aNan, Component::Red));
 }
 
 // Test distance calculation (noexcept guarantee)
@@ -243,20 +273,6 @@ TEST_F(Quantity_ColorTest, HLS_Extraction)
   EXPECT_TRUE(IsNear(0.0, aHue, 5.0) || IsNear(360.0, aHue, 5.0)); // Hue wraps around
   EXPECT_TRUE(IsNear(1.0, aLight, 0.01));
   EXPECT_TRUE(IsNear(1.0, aSat, 0.01));
-}
-
-// Test thread-safety of Epsilon getter/setter
-TEST_F(Quantity_ColorTest, EpsilonThreadSafety)
-{
-  double aOriginalEpsilon = Quantity_Color::Epsilon();
-
-  // Set new epsilon
-  Quantity_Color::SetEpsilon(0.0002);
-  EXPECT_TRUE(IsNear(0.0002, Quantity_Color::Epsilon()));
-
-  // Restore original
-  Quantity_Color::SetEpsilon(aOriginalEpsilon);
-  EXPECT_TRUE(IsNear(aOriginalEpsilon, Quantity_Color::Epsilon()));
 }
 
 // Test color name string conversion

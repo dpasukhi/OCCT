@@ -50,21 +50,6 @@ class BRepLib
 public:
   DEFINE_STANDARD_ALLOC
 
-  //! Computes the max distance between edge
-  //! and its 2d representation on the face.
-  //! Sets the default precision. The current Precision
-  //! is returned.
-  Standard_EXPORT static void Precision(const double P);
-
-  //! Returns the default precision.
-  Standard_EXPORT static double Precision();
-
-  //! Sets the current plane to P.
-  Standard_EXPORT static void Plane(const occ::handle<Geom_Plane>& P);
-
-  //! Returns the current plane.
-  Standard_EXPORT static const occ::handle<Geom_Plane>& Plane();
-
   //! checks if the Edge is same range IGNORING
   //! the same range flag of the edge
   //! Confusion argument is to compare real numbers

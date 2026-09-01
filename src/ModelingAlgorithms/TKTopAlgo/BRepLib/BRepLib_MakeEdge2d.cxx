@@ -16,7 +16,6 @@
 
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepLib.hxx>
 #include <BRepLib_MakeEdge2d.hxx>
 #include <ElCLib.hxx>
 #include <ElSLib.hxx>
@@ -47,9 +46,9 @@
 // function : Point
 // purpose  : make a 3d point on the current plane
 //=======================================================================
-static gp_Pnt Point(const gp_Pnt2d& P)
+static gp_Pnt Point(const gp_Pnt2d& thePoint, const gp_Pln& thePlane)
 {
-  return BRepLib::Plane()->Value(P.X(), P.Y());
+  return ElSLib::Value(thePoint.X(), thePoint.Y(), thePlane);
 }
 
 //=======================================================================
@@ -57,27 +56,30 @@ static gp_Pnt Point(const gp_Pnt2d& P)
 // purpose  : project a vertex on the current plane
 //=======================================================================
 
-static gp_Pnt2d Project(const TopoDS_Vertex& Ve)
+static gp_Pnt2d Project(const TopoDS_Vertex& theVertex, const gp_Pln& thePlane)
 {
-  gp_Pnt P = BRep_Tool::Pnt(Ve);
+  const gp_Pnt aPoint = BRep_Tool::Pnt(theVertex);
   double U, V;
-  ElSLib::Parameters(BRepLib::Plane()->Pln(), P, U, V);
+  ElSLib::Parameters(thePlane, aPoint, U, V);
   return gp_Pnt2d(U, V);
 }
 
 //=================================================================================================
 
-static bool Project(const occ::handle<Geom2d_Curve>& C, const TopoDS_Vertex& V, double& p)
+static bool Project(const occ::handle<Geom2d_Curve>& theCurve,
+                    const TopoDS_Vertex&             theVertex,
+                    const gp_Pln&                    thePlane,
+                    double&                          theParameter)
 {
-  gp_Pnt2d            P = Project(V);
-  Geom2dAdaptor_Curve AC(C);
+  gp_Pnt2d            P = Project(theVertex, thePlane);
+  Geom2dAdaptor_Curve AC(theCurve);
   if (AC.GetType() == GeomAbs_Line)
   {
-    p = ElCLib::LineParameter(AC.Line().Position(), P);
+    theParameter = ElCLib::LineParameter(AC.Line().Position(), P);
   }
   else if (AC.GetType() == GeomAbs_Circle)
   {
-    p = ElCLib::CircleParameter(AC.Circle().Position(), P);
+    theParameter = ElCLib::CircleParameter(AC.Circle().Position(), P);
   }
   else
   {
@@ -94,7 +96,7 @@ static bool Project(const occ::handle<Geom2d_Curve>& C, const TopoDS_Vertex& V, 
         if (dd2 < d2)
         {
           d2 = dd2;
-          p  = extrema.Point(i).Parameter();
+          theParameter = extrema.Point(i).Parameter();
         }
         // OCC16852:}
       }
@@ -109,10 +111,40 @@ static bool Project(const occ::handle<Geom2d_Curve>& C, const TopoDS_Vertex& V, 
 
 //=================================================================================================
 
+BRepLib_MakeEdge2d::BRepLib_MakeEdge2d(const gp_Pln& thePlane)
+    : myPlane(new Geom_Plane(thePlane))
+{
+}
+
+//=================================================================================================
+
+void BRepLib_MakeEdge2d::reset()
+{
+  if (myPlane.IsNull())
+  {
+    myPlane = new Geom_Plane(gp::XOY());
+  }
+  NotDone();
+  myError = BRepLib_EdgeDone;
+  myShape.Nullify();
+  myVertex1.Nullify();
+  myVertex2.Nullify();
+}
+
+//=================================================================================================
+
 BRepLib_MakeEdge2d::BRepLib_MakeEdge2d(const TopoDS_Vertex& V1, const TopoDS_Vertex& V2)
 {
-  gp_Pnt2d P1 = Project(V1);
-  gp_Pnt2d P2 = Project(V2);
+  Init(V1, V2);
+}
+
+//=================================================================================================
+
+void BRepLib_MakeEdge2d::Init(const TopoDS_Vertex& V1, const TopoDS_Vertex& V2)
+{
+  reset();
+  gp_Pnt2d P1 = Project(V1, myPlane->Pln());
+  gp_Pnt2d P2 = Project(V2, myPlane->Pln());
   double   l  = P1.Distance(P2);
   if (l <= gp::Resolution())
   {
@@ -128,6 +160,14 @@ BRepLib_MakeEdge2d::BRepLib_MakeEdge2d(const TopoDS_Vertex& V1, const TopoDS_Ver
 
 BRepLib_MakeEdge2d::BRepLib_MakeEdge2d(const gp_Pnt2d& P1, const gp_Pnt2d& P2)
 {
+  Init(P1, P2);
+}
+
+//=================================================================================================
+
+void BRepLib_MakeEdge2d::Init(const gp_Pnt2d& P1, const gp_Pnt2d& P2)
+{
+  reset();
   double l = P1.Distance(P2);
   if (l <= gp::Resolution())
   {
@@ -369,6 +409,7 @@ BRepLib_MakeEdge2d::BRepLib_MakeEdge2d(const occ::handle<Geom2d_Curve>& L,
 
 void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C)
 {
+  reset();
   Init(C, C->FirstParameter(), C->LastParameter());
 }
 
@@ -376,6 +417,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C)
 
 void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C, const double p1, const double p2)
 {
+  reset();
   //  BRep_Builder B;
 
   TopoDS_Vertex V1, V2;
@@ -388,16 +430,17 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C,
                               const gp_Pnt2d&                  P1,
                               const gp_Pnt2d&                  P2)
 {
+  reset();
   BRep_Builder  B;
   TopoDS_Vertex V1, V2;
-  B.MakeVertex(V1, Point(P1), Precision::Confusion());
+  B.MakeVertex(V1, Point(P1, myPlane->Pln()), Precision::Confusion());
   if (P1.Distance(P2) < Precision::Confusion())
   {
     V2 = V1;
   }
   else
   {
-    B.MakeVertex(V2, Point(P2), Precision::Confusion());
+    B.MakeVertex(V2, Point(P2, myPlane->Pln()), Precision::Confusion());
   }
   Init(C, V1, V2);
 }
@@ -408,6 +451,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C,
                               const TopoDS_Vertex&             V1,
                               const TopoDS_Vertex&             V2)
 {
+  reset();
   // try projecting the vertices on the curve
 
   double p1, p2;
@@ -416,7 +460,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C,
   {
     p1 = C->FirstParameter();
   }
-  else if (!Project(C, V1, p1))
+  else if (!Project(C, V1, myPlane->Pln(), p1))
   {
     myError = BRepLib_PointProjectionFailed;
     return;
@@ -425,7 +469,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C,
   {
     p2 = C->LastParameter();
   }
-  else if (!Project(C, V2, p2))
+  else if (!Project(C, V2, myPlane->Pln(), p2))
   {
     myError = BRepLib_PointProjectionFailed;
     return;
@@ -442,17 +486,18 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& C,
                               const double                     p1,
                               const double                     p2)
 {
+  reset();
   BRep_Builder B;
 
   TopoDS_Vertex V1, V2;
-  B.MakeVertex(V1, Point(P1), Precision::Confusion());
+  B.MakeVertex(V1, Point(P1, myPlane->Pln()), Precision::Confusion());
   if (P1.Distance(P2) < Precision::Confusion())
   {
     V2 = V1;
   }
   else
   {
-    B.MakeVertex(V2, Point(P2), Precision::Confusion());
+    B.MakeVertex(V2, Point(P2, myPlane->Pln()), Precision::Confusion());
   }
 
   Init(C, V1, V2, p1, p2);
@@ -469,6 +514,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& CC,
                               const double                     pp1,
                               const double                     pp2)
 {
+  reset();
   // kill trimmed curves
   occ::handle<Geom2d_Curve>        C  = CC;
   occ::handle<Geom2d_TrimmedCurve> CT = occ::down_cast<Geom2d_TrimmedCurve>(C);
@@ -547,7 +593,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& CC,
   {
     if (V1.IsNull() && V2.IsNull())
     {
-      B.MakeVertex(V1, Point(P1), preci);
+      B.MakeVertex(V1, Point(P1, myPlane->Pln()), preci);
       V2 = V1;
     }
     else if (V1.IsNull())
@@ -565,7 +611,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& CC,
         myError = BRepLib_DifferentPointsOnClosedCurve;
         return;
       }
-      else if (Point(P1).Distance(BRep_Tool::Pnt(V1)) > preci)
+      else if (Point(P1, myPlane->Pln()).Distance(BRep_Tool::Pnt(V1)) > preci)
       {
         myError = BRepLib_DifferentPointsOnClosedCurve;
         return;
@@ -586,7 +632,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& CC,
     }
     else
     {
-      gp_Pnt P = Point(P1);
+      gp_Pnt P = Point(P1, myPlane->Pln());
       if (V1.IsNull())
       {
         B.MakeVertex(V1, P, preci);
@@ -603,7 +649,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& CC,
     }
     else
     {
-      gp_Pnt P = Point(P2);
+      gp_Pnt P = Point(P2, myPlane->Pln());
       if (V2.IsNull())
       {
         B.MakeVertex(V2, P, preci);
@@ -618,7 +664,7 @@ void BRepLib_MakeEdge2d::Init(const occ::handle<Geom2d_Curve>& CC,
 
   TopoDS_Edge& E = TopoDS::Edge(myShape);
   B.MakeEdge(E);
-  B.UpdateEdge(E, C, BRepLib::Plane(), TopLoc_Location(), preci);
+  B.UpdateEdge(E, C, myPlane, TopLoc_Location(), preci);
   if (!V1.IsNull())
   {
     B.Add(E, V1);

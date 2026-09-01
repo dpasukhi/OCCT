@@ -16,7 +16,6 @@
 
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
-#include <BRepBuilderAPI.hxx>
 #include <BRepTopAdaptor_FClass2d.hxx>
 #include <DBRep.hxx>
 #include <Draw.hxx>
@@ -76,7 +75,7 @@ static int edgesameparam(Draw_Interpretor& di, int argc, const char** argv)
   }
   TopoDS_Shape Shape = DBRep::Get(argv[1]);
 
-  if (!ShapeFix::SameParameter(Shape, (argc > 2 && arg2[0] == 'f'), BRepBuilderAPI::Precision()))
+  if (!ShapeFix::SameParameter(Shape, (argc > 2 && arg2[0] == 'f'), Precision::Confusion()))
   {
     di << "Some edges were not processed\n";
   }
@@ -265,7 +264,7 @@ static int stwire(Draw_Interpretor& di, int argc, const char** argv)
     {
       awire = expw.Current();
     }
-    saw->SetPrecision(BRepBuilderAPI::Precision());
+    saw->SetPrecision(Precision::Confusion());
   }
   if (awire.IsNull())
   {
@@ -326,7 +325,7 @@ static int stwire(Draw_Interpretor& di, int argc, const char** argv)
   //  Traitement
   if (orint)
   { // reorder ?
-    ShapeAnalysis_WireOrder WO((Shape.ShapeType() != TopAbs_FACE), BRepBuilderAPI::Precision());
+    ShapeAnalysis_WireOrder WO((Shape.ShapeType() != TopAbs_FACE), Precision::Confusion());
 
     int stwo = saw->CheckOrder(WO);
     int nb   = WO.NbEdges();

@@ -15,9 +15,9 @@
 // commercial license or contractual agreement.
 
 #include <BRep_Builder.hxx>
-#include <BRepLib.hxx>
 #include <BRepLib_MakeVertex.hxx>
 #include <gp_Pnt.hxx>
+#include <Precision.hxx>
 #include <TopoDS.hxx>
 #include <TopoDS_Vertex.hxx>
 
@@ -26,7 +26,7 @@
 BRepLib_MakeVertex::BRepLib_MakeVertex(const gp_Pnt& P)
 {
   BRep_Builder B;
-  B.MakeVertex(TopoDS::Vertex(myShape), P, BRepLib::Precision());
+  B.MakeVertex(TopoDS::Vertex(myShape), P, Precision::Confusion());
   Done();
 }
 
