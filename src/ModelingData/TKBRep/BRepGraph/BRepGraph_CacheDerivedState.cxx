@@ -50,7 +50,7 @@ const Standard_GUID& theGUID()
 }
 
 template <typename T>
-void ensureSize(NCollection_DynamicArray<T>& theArray, uint32_t theIndex)
+void ensureSize(NCollection_DynamicArray<T>& theArray, const uint32_t theIndex)
 {
   if (static_cast<size_t>(theIndex) >= theArray.Size())
   {
@@ -90,7 +90,7 @@ IdT remappedRef(const BRepGraph_CopyRemap& theCopy, const IdT theId)
 
 //=================================================================================================
 
-BRepGraph_VertexId resolveChildVertex(const BRepGraph& theGraph, BRepGraph_VertexRefId theRef)
+BRepGraph_VertexId resolveChildVertex(const BRepGraph& theGraph, const BRepGraph_VertexRefId theRef)
 {
   if (!theRef.IsValid(theGraph.Refs().Vertices().Nb()) || theRef.IsRemoved(theGraph))
   {
@@ -236,7 +236,7 @@ bool isCoEdgeSameParameter(const BRepGraph&                 theGraph,
 
 //=================================================================================================
 
-bool addWireUVBounds(const BRepGraph& theGraph, BRepGraph_WireId theWire, Bnd_Box2d& theBox)
+bool addWireUVBounds(const BRepGraph& theGraph, const BRepGraph_WireId theWire, Bnd_Box2d& theBox)
 {
   for (BRepGraph_CoEdgesOfWire aCoEdgeIt(theGraph, theWire); aCoEdgeIt.More(); aCoEdgeIt.Next())
   {
@@ -252,12 +252,12 @@ bool addWireUVBounds(const BRepGraph& theGraph, BRepGraph_WireId theWire, Bnd_Bo
 
 //=================================================================================================
 
-bool wireUVBounds(const BRepGraph& theGraph,
-                  BRepGraph_WireId theWire,
-                  double&          theUMin,
-                  double&          theUMax,
-                  double&          theVMin,
-                  double&          theVMax)
+bool wireUVBounds(const BRepGraph&       theGraph,
+                  const BRepGraph_WireId theWire,
+                  double&                theUMin,
+                  double&                theUMax,
+                  double&                theVMin,
+                  double&                theVMax)
 {
   Bnd_Box2d aBox;
   if (!addWireUVBounds(theGraph, theWire, aBox))
@@ -457,9 +457,9 @@ void BRepGraph_CacheDerivedState::CopyFreshTo(const BRepGraph_CopyRemap& theCopy
 
 //=================================================================================================
 
-void BRepGraph_CacheDerivedState::computeStatusOnly(const BRepGraph& theGraph,
-                                                    BRepGraph_EdgeId theEdge,
-                                                    EdgeEntry&       theEntry)
+void BRepGraph_CacheDerivedState::computeStatusOnly(const BRepGraph&       theGraph,
+                                                    const BRepGraph_EdgeId theEdge,
+                                                    EdgeEntry&             theEntry)
 {
   const BRepGraphInc::EdgeDef& aDef = theGraph.Topo().Edges().Definition(theEdge);
 
@@ -495,9 +495,9 @@ void BRepGraph_CacheDerivedState::computeStatusOnly(const BRepGraph& theGraph,
 
 //=================================================================================================
 
-void BRepGraph_CacheDerivedState::computeSameRange(const BRepGraph&      theGraph,
-                                                   BRepGraph_CoEdgeId    theCoEdge,
-                                                   CoEdgeSameRangeEntry& theEntry)
+void BRepGraph_CacheDerivedState::computeSameRange(const BRepGraph&         theGraph,
+                                                   const BRepGraph_CoEdgeId theCoEdge,
+                                                   CoEdgeSameRangeEntry&    theEntry)
 {
   if (!theCoEdge.IsValid(theGraph.Topo().CoEdges().Nb()) || theCoEdge.IsRemoved(theGraph))
   {
@@ -530,9 +530,9 @@ void BRepGraph_CacheDerivedState::computeSameRange(const BRepGraph&      theGrap
 
 //=================================================================================================
 
-void BRepGraph_CacheDerivedState::computeSameParameter(const BRepGraph&      theGraph,
-                                                       BRepGraph_CoEdgeId    theCoEdge,
-                                                       CoEdgeSameRangeEntry& theEntry)
+void BRepGraph_CacheDerivedState::computeSameParameter(const BRepGraph&         theGraph,
+                                                       const BRepGraph_CoEdgeId theCoEdge,
+                                                       CoEdgeSameRangeEntry&    theEntry)
 {
   if ((theEntry.Computed() & CoEdgeSameRangeEntry::ComputedSameRange) == 0)
   {
@@ -579,7 +579,8 @@ void BRepGraph_CacheDerivedState::computeSameParameter(const BRepGraph&      the
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::ensureEdgeEntry(BRepGraph_EdgeId theEdge, EdgeEntry& theEntry)
+bool BRepGraph_CacheDerivedState::ensureEdgeEntry(const BRepGraph_EdgeId theEdge,
+                                                  EdgeEntry&             theEntry)
 {
   {
     std::shared_lock aLock(myMutex);
@@ -626,8 +627,8 @@ bool BRepGraph_CacheDerivedState::ensureEdgeEntry(BRepGraph_EdgeId theEdge, Edge
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::ensureCoEdgeSameRangeEntry(BRepGraph_CoEdgeId    theCoEdge,
-                                                             uint8_t               theRequiredFlags,
+bool BRepGraph_CacheDerivedState::ensureCoEdgeSameRangeEntry(const BRepGraph_CoEdgeId theCoEdge,
+                                                             const uint8_t         theRequiredFlags,
                                                              CoEdgeSameRangeEntry& theEntry)
 {
   {
@@ -717,7 +718,7 @@ bool BRepGraph_CacheDerivedState::ensureCoEdgeSameRangeEntry(BRepGraph_CoEdgeId 
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::IsDegenerated(BRepGraph_EdgeId theEdge)
+bool BRepGraph_CacheDerivedState::IsDegenerated(const BRepGraph_EdgeId theEdge)
 {
   EdgeEntry aEntry;
   if (!ensureEdgeEntry(theEdge, aEntry))
@@ -729,7 +730,7 @@ bool BRepGraph_CacheDerivedState::IsDegenerated(BRepGraph_EdgeId theEdge)
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::SameParameter(BRepGraph_CoEdgeId theCoEdge)
+bool BRepGraph_CacheDerivedState::SameParameter(const BRepGraph_CoEdgeId theCoEdge)
 {
   CoEdgeSameRangeEntry aEntry;
   if (!ensureCoEdgeSameRangeEntry(theCoEdge, CoEdgeSameRangeEntry::ComputedSameParam, aEntry))
@@ -741,7 +742,7 @@ bool BRepGraph_CacheDerivedState::SameParameter(BRepGraph_CoEdgeId theCoEdge)
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::SameRange(BRepGraph_CoEdgeId theCoEdge)
+bool BRepGraph_CacheDerivedState::SameRange(const BRepGraph_CoEdgeId theCoEdge)
 {
   CoEdgeSameRangeEntry aEntry;
   if (!ensureCoEdgeSameRangeEntry(theCoEdge, CoEdgeSameRangeEntry::ComputedSameRange, aEntry))
@@ -753,7 +754,7 @@ bool BRepGraph_CacheDerivedState::SameRange(BRepGraph_CoEdgeId theCoEdge)
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::IsClosed(BRepGraph_EdgeId theEdge)
+bool BRepGraph_CacheDerivedState::IsClosed(const BRepGraph_EdgeId theEdge)
 {
   EdgeEntry aEntry;
   if (!ensureEdgeEntry(theEdge, aEntry))
@@ -765,10 +766,10 @@ bool BRepGraph_CacheDerivedState::IsClosed(BRepGraph_EdgeId theEdge)
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::ComputeEdgeProperties(const BRepGraph& theGraph,
-                                                        BRepGraph_EdgeId theEdge,
-                                                        bool&            theIsDegenerated,
-                                                        bool&            theIsClosed)
+bool BRepGraph_CacheDerivedState::ComputeEdgeProperties(const BRepGraph&       theGraph,
+                                                        const BRepGraph_EdgeId theEdge,
+                                                        bool&                  theIsDegenerated,
+                                                        bool&                  theIsClosed)
 {
   if (!theEdge.IsValid(theGraph.Topo().Edges().Nb()) || theEdge.IsRemoved(theGraph))
   {
@@ -785,8 +786,8 @@ bool BRepGraph_CacheDerivedState::ComputeEdgeProperties(const BRepGraph& theGrap
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::ComputeWireIsClosed(const BRepGraph& theGraph,
-                                                      BRepGraph_WireId theWire)
+bool BRepGraph_CacheDerivedState::ComputeWireIsClosed(const BRepGraph&       theGraph,
+                                                      const BRepGraph_WireId theWire)
 {
   if (!theWire.IsValid(theGraph.Topo().Wires().Nb()) || theWire.IsRemoved(theGraph))
   {
@@ -827,8 +828,8 @@ bool BRepGraph_CacheDerivedState::ComputeWireIsClosed(const BRepGraph& theGraph,
 
 //=================================================================================================
 
-uint32_t BRepGraph_CacheDerivedState::computeWireNbDistinctEdges(const BRepGraph& theGraph,
-                                                                 BRepGraph_WireId theWire)
+uint32_t BRepGraph_CacheDerivedState::computeWireNbDistinctEdges(const BRepGraph&       theGraph,
+                                                                 const BRepGraph_WireId theWire)
 {
   if (!theWire.IsValid(theGraph.Topo().Wires().Nb()) || theWire.IsRemoved(theGraph))
   {
@@ -850,8 +851,9 @@ uint32_t BRepGraph_CacheDerivedState::computeWireNbDistinctEdges(const BRepGraph
 
 //=================================================================================================
 
-BRepGraph_WireRefId BRepGraph_CacheDerivedState::computeFaceOuterWireRef(const BRepGraph& theGraph,
-                                                                         BRepGraph_FaceId theFace)
+BRepGraph_WireRefId BRepGraph_CacheDerivedState::computeFaceOuterWireRef(
+  const BRepGraph&       theGraph,
+  const BRepGraph_FaceId theFace)
 {
   if (!theFace.IsValid(theGraph.Topo().Faces().Nb()) || theFace.IsRemoved(theGraph))
   {
@@ -917,7 +919,7 @@ BRepGraph_WireRefId BRepGraph_CacheDerivedState::computeFaceOuterWireRef(const B
 //=================================================================================================
 
 BRepGraph_CacheDerivedState::ShellEntry::ClosureStatus BRepGraph_CacheDerivedState::
-  computeShellClosure(const BRepGraph& theGraph, BRepGraph_ShellId theShell)
+  computeShellClosure(const BRepGraph& theGraph, const BRepGraph_ShellId theShell)
 {
   if (!theShell.IsValid(theGraph.Topo().Shells().Nb()) || theShell.IsRemoved(theGraph))
   {
@@ -1048,7 +1050,7 @@ BRepGraph_CacheDerivedState::ShellEntry::ClosureStatus BRepGraph_CacheDerivedSta
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::GetWireIsClosed(BRepGraph_WireId theWire, bool& theClosed)
+bool BRepGraph_CacheDerivedState::GetWireIsClosed(const BRepGraph_WireId theWire, bool& theClosed)
 {
   {
     std::shared_lock aLock(myMutex);
@@ -1084,7 +1086,7 @@ bool BRepGraph_CacheDerivedState::GetWireIsClosed(BRepGraph_WireId theWire, bool
 
 //=================================================================================================
 
-uint32_t BRepGraph_CacheDerivedState::NbDistinctEdges(BRepGraph_WireId theWire)
+uint32_t BRepGraph_CacheDerivedState::NbDistinctEdges(const BRepGraph_WireId theWire)
 {
   {
     std::shared_lock aLock(myMutex);
@@ -1118,7 +1120,7 @@ uint32_t BRepGraph_CacheDerivedState::NbDistinctEdges(BRepGraph_WireId theWire)
 
 //=================================================================================================
 
-BRepGraph_WireId BRepGraph_CacheDerivedState::OuterWire(BRepGraph_FaceId theFace)
+BRepGraph_WireId BRepGraph_CacheDerivedState::OuterWire(const BRepGraph_FaceId theFace)
 {
   const BRepGraph&          aGraph   = Graph();
   const BRepGraph_WireRefId aWireRef = OuterWireRef(theFace);
@@ -1131,7 +1133,7 @@ BRepGraph_WireId BRepGraph_CacheDerivedState::OuterWire(BRepGraph_FaceId theFace
 
 //=================================================================================================
 
-BRepGraph_WireRefId BRepGraph_CacheDerivedState::OuterWireRef(BRepGraph_FaceId theFace)
+BRepGraph_WireRefId BRepGraph_CacheDerivedState::OuterWireRef(const BRepGraph_FaceId theFace)
 {
   const BRepGraph& aGraph = Graph();
   if (!theFace.IsValid(aGraph.Topo().Faces().Nb()) || theFace.IsRemoved(aGraph))
@@ -1171,7 +1173,7 @@ BRepGraph_WireRefId BRepGraph_CacheDerivedState::OuterWireRef(BRepGraph_FaceId t
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::IsShellClosed(BRepGraph_ShellId theShell)
+bool BRepGraph_CacheDerivedState::IsShellClosed(const BRepGraph_ShellId theShell)
 {
   {
     std::shared_lock aLock(myMutex);
@@ -1207,15 +1209,16 @@ bool BRepGraph_CacheDerivedState::IsShellClosed(BRepGraph_ShellId theShell)
 
 //=================================================================================================
 
-bool BRepGraph_CacheDerivedState::ComputeShellIsClosed(const BRepGraph&  theGraph,
-                                                       BRepGraph_ShellId theShell)
+bool BRepGraph_CacheDerivedState::ComputeShellIsClosed(const BRepGraph&        theGraph,
+                                                       const BRepGraph_ShellId theShell)
 {
   return computeShellClosure(theGraph, theShell) == ShellEntry::ClosureStatus::Closed;
 }
 
 //=================================================================================================
 
-void BRepGraph_CacheDerivedState::SetWireIsClosed(BRepGraph_WireId theWire, bool theClosed)
+void BRepGraph_CacheDerivedState::SetWireIsClosed(const BRepGraph_WireId theWire,
+                                                  const bool             theClosed)
 {
   std::lock_guard aLock(myMutex);
   ensureSize(myWireEntries, theWire.Index);

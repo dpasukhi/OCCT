@@ -168,6 +168,19 @@ void appendValidationDiagnostics(const BRepGraph_Validate::Result&      theResul
   }
 }
 
+template <class TheChangeType>
+bool hasStructuralChanges(const NCollection_LinearVector<TheChangeType>& theChanges)
+{
+  for (const TheChangeType& aChange : theChanges)
+  {
+    if (aChange.Kind != BRepGraph_Revision::VertexChange::Operation::Modify)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 template <typename TheId>
 bool containsRelationId(const NCollection_LinearVector<TheId>& theIds, const TheId theId)
 {
@@ -437,12 +450,11 @@ BRepGraph_Revision::BRepGraph_Revision(
     if (!aComponent.IsNull())
     {
       myComponentIndices.Bind(aComponent->Descriptor().StableGUID, anIndex);
-      ComponentSnapshot aSnapshot;
-      aSnapshot.Descriptor      = aComponent->Descriptor();
-      aSnapshot.SemanticHash    = aComponent->SemanticHash();
-      aSnapshot.StorageHash     = aComponent->StorageHash();
-      aSnapshot.PersistentBytes = aComponent->PersistentBytes();
-      myComponentSnapshots.Append(std::move(aSnapshot));
+      ComponentState aState;
+      aState.Descriptor   = aComponent->Descriptor();
+      aState.SemanticHash = aComponent->SemanticHash();
+      aState.StorageHash  = aComponent->StorageHash();
+      myComponentStates.Append(std::move(aState));
     }
   }
   std::atomic_store(&myHashState, std::move(theHashState));
@@ -528,7 +540,7 @@ BRepGraph_RevisionHash BRepGraph_Revision::ComponentSemanticHash(const Standard_
 {
   const uint32_t* anIndex = myComponentIndices.Seek(theGUID);
   return anIndex == nullptr ? BRepGraph_RevisionHash()
-                            : myComponentSnapshots.Value(*anIndex).SemanticHash;
+                            : myComponentStates.Value(*anIndex).SemanticHash;
 }
 
 //=================================================================================================
@@ -604,13 +616,6 @@ BRepGraph_Revision::CreateResult BRepGraph_Revision::Create(const BRepGraph& the
     aDiagnostic.Message = theFailure.what();
     aResult.Diagnostics.Append(aDiagnostic);
   }
-  catch (...)
-  {
-    aResult.Status = BRepGraph_RevisionStatus::Code::CopyFailed;
-    appendDiagnostic(aResult.Diagnostics,
-                     "RevisionCopyConstruction",
-                     "Unknown exception while copying the graph revision");
-  }
   return aResult;
 }
 
@@ -671,15 +676,6 @@ BRepGraph_Revision::CreateResult BRepGraph_Revision::FromTransactionGraph(
     aResult.Diagnostics.Append(std::move(aDiagnostic));
     return aResult;
   }
-  catch (...)
-  {
-    aResult.Status = BRepGraph_RevisionStatus::Code::CopyFailed;
-    appendDiagnostic(aResult.Diagnostics,
-                     "TransactionRepresentationIsolation",
-                     "Mutable transaction representations could not be isolated");
-    return aResult;
-  }
-
   try
   {
     const bool                       aSupportsSparseEdits = supportsSparseEdits(*aDetachedCore);
@@ -708,14 +704,6 @@ BRepGraph_Revision::CreateResult BRepGraph_Revision::FromTransactionGraph(
     aDiagnostic.Code    = "RevisionHashConstruction";
     aDiagnostic.Message = theFailure.what();
     aResult.Diagnostics.Append(aDiagnostic);
-  }
-  catch (...)
-  {
-    aResult.Revision.Nullify();
-    aResult.Status = BRepGraph_RevisionStatus::Code::HashFailed;
-    appendDiagnostic(aResult.Diagnostics,
-                     "RevisionHashConstruction",
-                     "Unknown exception while hashing the committed revision");
   }
   return aResult;
 }
@@ -1254,6 +1242,16 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromNativeChanges(
   {
     std::unique_ptr<BRepGraph> aResultGraph(
       new BRepGraph(theBaseRevision->CoreGraph().incStorage(), false));
+    const bool hasStructuralChange = hasStructuralChanges(theChanges)
+                                     || hasStructuralChanges(theEdgeChanges)
+                                     || hasStructuralChanges(theVertexRefChanges)
+                                     || hasStructuralChanges(theCoEdgeChanges)
+                                     || hasStructuralChanges(theWireChanges)
+                                     || hasStructuralChanges(theFaceChanges)
+                                     || hasStructuralChanges(theWireRefChanges);
+    // A valid immutable base remains relation-valid after modification-only sparse edits:
+    // these APIs change values, representations, orientations, or the order of an unchanged
+    // membership set. Creations and removals still require the complete relation audit.
     if (!ApplyCoreChanges(*aResultGraph,
                           theChanges,
                           theEdgeChanges,
@@ -1269,7 +1267,7 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromNativeChanges(
                           theNextWireCounter,
                           theNextFaceCounter,
                           theNextWireRefCounter)
-        || !aResultGraph->ValidateRelations())
+        || (hasStructuralChange && !aResultGraph->ValidateRelations()))
     {
       appendDiagnostic(theDiagnostics,
                        "RevisionUpdate",
@@ -1345,12 +1343,6 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromNativeChanges(
     aDiagnostic.Message = theFailure.what();
     theDiagnostics.Append(aDiagnostic);
   }
-  catch (...)
-  {
-    appendDiagnostic(theDiagnostics,
-                     "RevisionUpdateConstruction",
-                     "Unknown exception while constructing the updated graph revision");
-  }
   return occ::handle<BRepGraph_Revision>();
 }
 
@@ -1407,12 +1399,6 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromComponents(
     aDiagnostic.Message = theFailure.what();
     theDiagnostics.Append(aDiagnostic);
   }
-  catch (...)
-  {
-    appendDiagnostic(theDiagnostics,
-                     "ComponentHashConstruction",
-                     "Unknown exception while hashing persistent components");
-  }
   return occ::handle<BRepGraph_Revision>();
 }
 
@@ -1434,7 +1420,7 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromCoreGraph(
     (void)aRevision->SemanticHash();
     return aRevision;
   }
-  catch (...)
+  catch (const Standard_Failure&)
   {
     return occ::handle<BRepGraph_Revision>();
   }
@@ -1523,12 +1509,6 @@ occ::handle<BRepGraph_Revision> BRepGraph_Revision::FromDecodedCore(
     aDiagnostic.Code    = "DecodedRevisionHash";
     aDiagnostic.Message = theFailure.what();
     theDiagnostics.Append(aDiagnostic);
-  }
-  catch (...)
-  {
-    appendDiagnostic(theDiagnostics,
-                     "DecodedRevisionHash",
-                     "Unknown exception while hashing the decoded revision");
   }
   return occ::handle<BRepGraph_Revision>();
 }
@@ -1966,24 +1946,20 @@ std::unique_ptr<BRepGraph> BRepGraph_Revision::copyGraph() const
   for (size_t anIndex = 0; anIndex < myComponents.Size(); ++anIndex)
   {
     const occ::handle<BRepGraph_RevisionComponent>& aComponent = myComponents.Value(anIndex);
-    const ComponentSnapshot&                        aSnapshot = myComponentSnapshots.Value(anIndex);
+    const ComponentState&                           aState     = myComponentStates.Value(anIndex);
     if (aComponent.IsNull())
     {
       return nullptr;
     }
     const BRepGraph_RevisionComponent::ComponentDescriptor& aDescriptor = aComponent->Descriptor();
-    const NCollection_LinearVector<uint8_t>&                aBytes = aComponent->PersistentBytes();
-    bool isByteIdentical = aBytes.Size() == aSnapshot.PersistentBytes.Size();
-    for (size_t aByte = 0; isByteIdentical && aByte < aBytes.Size(); ++aByte)
-    {
-      isByteIdentical = aBytes.Value(aByte) == aSnapshot.PersistentBytes.Value(aByte);
-    }
-    if (aDescriptor.StableGUID != aSnapshot.Descriptor.StableGUID
-        || aDescriptor.SchemaVersion != aSnapshot.Descriptor.SchemaVersion
-        || aDescriptor.ComponentDomain != aSnapshot.Descriptor.ComponentDomain
-        || aDescriptor.RetentionKind != aSnapshot.Descriptor.RetentionKind
-        || aComponent->SemanticHash() != aSnapshot.SemanticHash
-        || aComponent->StorageHash() != aSnapshot.StorageHash || !isByteIdentical
+    if (aDescriptor.StableGUID != aState.Descriptor.StableGUID
+        || aDescriptor.SchemaVersion != aState.Descriptor.SchemaVersion
+        || aDescriptor.ComponentDomain != aState.Descriptor.ComponentDomain
+        || aDescriptor.RetentionKind != aState.Descriptor.RetentionKind
+        || aDescriptor.IsEditable != aState.Descriptor.IsEditable
+        || aDescriptor.IsArchivable != aState.Descriptor.IsArchivable
+        || aComponent->SemanticHash() != aState.SemanticHash
+        || aComponent->StorageHash() != aState.StorageHash
         || !aComponent->Restore(*aGraph, aDiagnostics))
     {
       return nullptr;

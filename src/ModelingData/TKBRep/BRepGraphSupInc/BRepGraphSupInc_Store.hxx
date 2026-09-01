@@ -122,7 +122,7 @@ protected:
   //! @param[in] theNodeMap source-to-target core-node mapping
   virtual void RemapCoreNodes(const NCollection_FlatDataMap<BRepGraph_NodeId, BRepGraph_NodeId>&) {}
 
-  //! Build a detached, compacted store snapshot while preserving every active runtime UID.
+  //! Build a detached, compacted store copy while preserving every active runtime UID.
   //! Implementations with compaction-visible state must override this method. Returning null
   //! rejects graph compaction before the source graph is modified.
   [[nodiscard]] virtual occ::handle<BRepGraphSupInc_Store> CloneForCompaction(

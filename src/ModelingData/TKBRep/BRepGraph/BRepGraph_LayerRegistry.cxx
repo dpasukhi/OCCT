@@ -416,7 +416,7 @@ void BRepGraph_LayerRegistry::CopyLayersTo(
     aSourceGraph == nullptr,
     "BRepGraph_LayerRegistry::CopyLayersTo() - detached source registry");
 
-  // Work from a stable handle snapshot. This keeps replacement failure-atomic
+  // Work from a stable handle list. This keeps replacement failure-atomic
   // and prevents concurrent registry changes from altering the copy pass.
   const BRepGraph_CopyRemap aCopy(*aSourceGraph, theTargetGraph, theItemRemap, theMode);
   for (const occ::handle<BRepGraph_Layer>& aLayer : aLayers)
@@ -427,9 +427,9 @@ void BRepGraph_LayerRegistry::CopyLayersTo(
 
 //=================================================================================================
 
-void BRepGraph_LayerRegistry::CopyLayersTo(BRepGraph&                       theTargetGraph,
-                                           BRepGraph_CopyRemap::MappingKind theMappingKind,
-                                           BRepGraph_CopyRemap::Mode        theMode) const
+void BRepGraph_LayerRegistry::CopyLayersTo(BRepGraph&                             theTargetGraph,
+                                           const BRepGraph_CopyRemap::MappingKind theMappingKind,
+                                           const BRepGraph_CopyRemap::Mode        theMode) const
 {
   BRepGraph*                                             aSourceGraph = nullptr;
   NCollection_LinearVector<occ::handle<BRepGraph_Layer>> aLayers;

@@ -174,8 +174,8 @@ static uint64_t attachSupplementToParent(BRepGraph&             theGraph,
 
 //=================================================================================================
 
-uint32_t BRepGraph::ShapesView::snapshotCountForKind(const BRepGraph&       theGraph,
-                                                     const TopAbs_ShapeEnum theShapeType)
+uint32_t BRepGraph::ShapesView::countForKind(const BRepGraph&       theGraph,
+                                             const TopAbs_ShapeEnum theShapeType)
 {
   const BRepGraphInc_Storage& aStorage = theGraph.myData->myIncStorage;
   switch (theShapeType)
@@ -207,7 +207,7 @@ BRepGraph_NodeId BRepGraph::ShapesView::detectTopologyRoot(const BRepGraph&     
                                                            const TopAbs_ShapeEnum theShapeType,
                                                            const uint32_t theOldCountOfShapeKind)
 {
-  const uint32_t aNewCount = snapshotCountForKind(theGraph, theShapeType);
+  const uint32_t aNewCount = countForKind(theGraph, theShapeType);
   if (aNewCount <= theOldCountOfShapeKind)
   {
     return BRepGraph_NodeId();
@@ -879,7 +879,7 @@ BRepGraph::ShapesView::Result BRepGraph::ShapesView::Add(
     return aResult;
   }
 
-  const uint32_t anOldCount = snapshotCountForKind(theGraph, theShape.ShapeType());
+  const uint32_t anOldCount = countForKind(theGraph, theShape.ShapeType());
   const bool     isRootLocationStoredInRef =
     shouldStoreRootLocationInRef(theOptions, BRepGraph_NodeId());
   const TopoDS_Shape aPopulateShape =
@@ -975,7 +975,7 @@ BRepGraph::ShapesView::Result BRepGraph::ShapesView::Add(
     return aResult;
   }
 
-  const uint32_t anOldCount                = snapshotCountForKind(theGraph, theShape.ShapeType());
+  const uint32_t     anOldCount                = countForKind(theGraph, theShape.ShapeType());
   const bool     isRootLocationStoredInRef = shouldStoreRootLocationInRef(theOptions, theParent);
   const TopoDS_Shape aPopulateShape =
     isRootLocationStoredInRef ? shapeWithoutOwnLocation(theShape) : theShape;

@@ -731,7 +731,7 @@ TEST(BRepGraph_ScenarioMatrix, Assembly_SharedPartBetweenTwoRootAssemblies)
     aGraph.Shapes().Add(BRepPrimAPI_MakeBox(5.0, 5.0, 5.0).Shape());
   ASSERT_FALSE(aGraph.IsEmpty());
 
-  // Snapshot topology entity counts before any assembly wiring.
+  // Store topology entity counts before any assembly wiring.
   const uint32_t aNbSolidsBefore = aGraph.Topo().Solids().Nb();
   const uint32_t aNbFacesBefore  = aGraph.Topo().Faces().Nb();
 

@@ -155,31 +155,33 @@ public:
   //! @param[in] theKind definition kind whose watermark is raised
   //! @param[in] theNextCounter first counter that may be allocated after the watermark
   //! @return true if the watermark was accepted, false for an invalid or lower counter
-  [[nodiscard]] Standard_EXPORT bool RaiseNextNodeUIDCounter(BRepGraph_NodeId::Kind theKind,
-                                                             uint32_t               theNextCounter);
+  [[nodiscard]] Standard_EXPORT bool RaiseNextNodeUIDCounter(const BRepGraph_NodeId::Kind theKind,
+                                                             const uint32_t theNextCounter);
 
   //! Set the next definition UID counter without overlapping an active UID.
   //! Intended for exact restoration by persistence providers.
-  [[nodiscard]] Standard_EXPORT bool SetNextNodeUIDCounter(BRepGraph_NodeId::Kind theKind,
-                                                           uint32_t               theNextCounter);
+  [[nodiscard]] Standard_EXPORT bool SetNextNodeUIDCounter(const BRepGraph_NodeId::Kind theKind,
+                                                           const uint32_t theNextCounter);
 
   //! Raise the next reference UID counter without ever moving it backwards.
   //! @param[in] theKind reference kind whose watermark is raised
   //! @param[in] theNextCounter first counter that may be allocated after the watermark
   //! @return true if the watermark was accepted, false for an invalid or lower counter
-  [[nodiscard]] Standard_EXPORT bool RaiseNextRefUIDCounter(BRepGraph_RefId::Kind theKind,
-                                                            uint32_t              theNextCounter);
+  [[nodiscard]] Standard_EXPORT bool RaiseNextRefUIDCounter(const BRepGraph_RefId::Kind theKind,
+                                                            const uint32_t theNextCounter);
 
   //! Set the next reference UID counter without overlapping an active UID.
   //! Intended for exact restoration by persistence providers.
-  [[nodiscard]] Standard_EXPORT bool SetNextRefUIDCounter(BRepGraph_RefId::Kind theKind,
-                                                          uint32_t              theNextCounter);
+  [[nodiscard]] Standard_EXPORT bool SetNextRefUIDCounter(const BRepGraph_RefId::Kind theKind,
+                                                          const uint32_t theNextCounter);
 
   //! Return the next allocatable durable node UID counter for a kind.
-  [[nodiscard]] Standard_EXPORT uint32_t NextNodeUIDCounter(BRepGraph_NodeId::Kind theKind) const;
+  [[nodiscard]] Standard_EXPORT uint32_t
+    NextNodeUIDCounter(const BRepGraph_NodeId::Kind theKind) const;
 
   //! Return the next allocatable durable reference UID counter for a kind.
-  [[nodiscard]] Standard_EXPORT uint32_t NextRefUIDCounter(BRepGraph_RefId::Kind theKind) const;
+  [[nodiscard]] Standard_EXPORT uint32_t
+    NextRefUIDCounter(const BRepGraph_RefId::Kind theKind) const;
 
   //! Return true when the graph contains no topology definitions.
   [[nodiscard]] Standard_EXPORT bool IsEmpty() const;
@@ -291,7 +293,7 @@ private:
   friend struct BRepGraph_RepId;
 
   //! Construct a graph facade over a page-sharing fork of native core storage.
-  BRepGraph(const BRepGraphInc_Storage& theStorage, bool theToCloneMutableRepresentations);
+  BRepGraph(const BRepGraphInc_Storage& theStorage, const bool theToCloneMutableRepresentations);
 
   //! Access the underlying storage.
   [[nodiscard]] Standard_EXPORT BRepGraphInc_Storage&       incStorage();
@@ -307,7 +309,7 @@ private:
 
   //! Bind graph-owned views and registries to this owner.
   //! Owner relocation preserves live service state without detach/attach callbacks.
-  Standard_EXPORT void initViewsAndRegistries(bool theIsOwnerRelocation = false) noexcept;
+  Standard_EXPORT void initViewsAndRegistries(const bool theIsOwnerRelocation = false) noexcept;
 
   //! Access the layer registry.
   [[nodiscard]] Standard_EXPORT BRepGraph_LayerRegistry&       layerRegistry();

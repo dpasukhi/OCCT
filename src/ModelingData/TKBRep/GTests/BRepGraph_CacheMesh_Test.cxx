@@ -678,7 +678,7 @@ TEST(BRepGraph_CacheMeshTest, CoEdge_Polygon2DStaleAfterSlotRecipeChange)
     << "Polygon2D must become stale after cache clear (SlotGeneration bump)";
 }
 
-TEST(BRepGraph_CacheMeshTest, CoEdge_FaceNotYetMeshed_SnapshotZero)
+TEST(BRepGraph_CacheMeshTest, CoEdge_FaceNotYetMeshed_RecordedGenerationZero)
 {
   BRepGraph              aGraph  = makeBoxGraph();
   const BRepGraph_FaceId aFaceId = firstFaceId(aGraph);
@@ -695,7 +695,7 @@ TEST(BRepGraph_CacheMeshTest, CoEdge_FaceNotYetMeshed_SnapshotZero)
 
   EXPECT_EQ(aGraph.CacheRegistry().Find<BRepGraph_CacheMesh>()->FindCoEdgePolygonOnTri(aCoEdgeId),
             nullptr)
-    << "PolygonOnTri must be stale when face has never been meshed (snapshot=0 vs default=0)";
+    << "PolygonOnTri must be stale when face has never been meshed (stored generation=0 vs default=0)";
 
   writeFaceMesh(aGraph, aFaceId);
 
@@ -826,7 +826,7 @@ TEST(BRepGraph_CacheMeshTest, MeshGeneration_MonotonicAcrossClear)
       aFaceId);
   ASSERT_NE(aFaceEntry, nullptr);
   EXPECT_GT(aFaceEntry->MeshGeneration, aAfterEntry->FaceMeshGeneration)
-    << "Face MeshGeneration must exceed coedge snapshot after clear+rewrite";
+    << "Face MeshGeneration must exceed the stored coedge generation after clear+rewrite";
 }
 
 TEST(BRepGraph_CacheMeshTest, FaceClear_PreservesCoEdgePolygon2D)

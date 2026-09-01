@@ -125,22 +125,26 @@ public:
   [[nodiscard]] Standard_EXPORT bool IsEmpty() const;
 
   //! Return the next UID counter for a given node kind.
-  [[nodiscard]] Standard_EXPORT uint32_t NextNodeUIDCounter(BRepGraph_NodeId::Kind theKind) const;
+  [[nodiscard]] Standard_EXPORT uint32_t
+    NextNodeUIDCounter(const BRepGraph_NodeId::Kind theKind) const;
 
   //! Override the next UID counter for a given node kind.
-  Standard_EXPORT void SetNextNodeUIDCounter(BRepGraph_NodeId::Kind theKind, uint32_t theCounter);
+  Standard_EXPORT void SetNextNodeUIDCounter(const BRepGraph_NodeId::Kind theKind,
+                                             const uint32_t               theCounter);
 
   //! Return the next UID counter for a given reference kind.
-  [[nodiscard]] Standard_EXPORT uint32_t NextRefUIDCounter(BRepGraph_RefId::Kind theKind) const;
+  [[nodiscard]] Standard_EXPORT uint32_t
+    NextRefUIDCounter(const BRepGraph_RefId::Kind theKind) const;
 
   //! Override the next UID counter for a given reference kind.
-  Standard_EXPORT void SetNextRefUIDCounter(BRepGraph_RefId::Kind theKind, uint32_t theCounter);
+  Standard_EXPORT void SetNextRefUIDCounter(const BRepGraph_RefId::Kind theKind,
+                                            const uint32_t              theCounter);
 
   //! Allocate a node UID: write counter into the entity, bind reverse map, advance counter.
-  Standard_EXPORT BRepGraph_UID AllocateNodeUID(BRepGraph_NodeId theNodeId);
+  Standard_EXPORT BRepGraph_UID AllocateNodeUID(const BRepGraph_NodeId theNodeId);
 
   //! Allocate a reference UID: write counter into the ref, bind reverse map, advance counter.
-  Standard_EXPORT BRepGraph_RefUID AllocateRefUID(BRepGraph_RefId theRefId);
+  Standard_EXPORT BRepGraph_RefUID AllocateRefUID(const BRepGraph_RefId theRefId);
 
   //! Return the current graph generation used by ItemStamp staleness checks.
   [[nodiscard]] uint32_t Generation() const { return myGeneration.load(std::memory_order_relaxed); }
@@ -1518,10 +1522,10 @@ private:
   void SetHasOccurrenceParentTyped(const T theId, const bool theVal);
 
   //! Set or clear the "has parent compound" flag for a generic NodeId (internal dispatch).
-  Standard_EXPORT void SetHasCompoundParent(const BRepGraph_NodeId theNode, bool theVal);
+  Standard_EXPORT void SetHasCompoundParent(const BRepGraph_NodeId theNode, const bool theVal);
 
   //! Set or clear the "has parent occurrence" flag for a generic NodeId (internal dispatch).
-  Standard_EXPORT void SetHasOccurrenceParent(const BRepGraph_NodeId theNode, bool theVal);
+  Standard_EXPORT void SetHasOccurrenceParent(const BRepGraph_NodeId theNode, const bool theVal);
 
   //! Template store for topology entity kinds.
   template <typename EntityT>

@@ -215,25 +215,24 @@ public:
   BRepGraph_CacheChart& operator=(const BRepGraph_CacheChart&) = delete;
 
   //! Build a chart directly without using a cache.
-  Standard_EXPORT static occ::handle<Result> Build(const BRepGraph& theGraph,
-                                                   BRepGraph_FaceId theFace);
+  Standard_EXPORT static occ::handle<Result> Build(const BRepGraph&       theGraph,
+                                                   const BRepGraph_FaceId theFace);
 
   //! Build a chart directly with an explicit policy and requirements.
-  Standard_EXPORT static occ::handle<Result> Build(const BRepGraph&    theGraph,
-                                                   BRepGraph_FaceId    theFace,
-                                                   const Policy&       thePolicy,
-                                                   const Requirements& theRequirements);
+  Standard_EXPORT static occ::handle<Result> Build(const BRepGraph&       theGraph,
+                                                   const BRepGraph_FaceId theFace,
+                                                   const Policy&          thePolicy,
+                                                   const Requirements&    theRequirements);
 
   //! Return a cached chart, rebuilding it when the face subtree is stale.
-  [[nodiscard]] Standard_EXPORT occ::handle<Result> Get(BRepGraph_FaceId theFace);
+  [[nodiscard]] Standard_EXPORT occ::handle<Result> Get(const BRepGraph_FaceId theFace);
 
-  [[nodiscard]] Standard_EXPORT occ::handle<Result> Get(BRepGraph_FaceId    theFace,
-                                                        const Policy&       thePolicy);
+  [[nodiscard]] Standard_EXPORT occ::handle<Result> Get(const BRepGraph_FaceId theFace,
+                                                        const Policy&          thePolicy);
 
-  [[nodiscard]] Standard_EXPORT occ::handle<Result> Get(
-    BRepGraph_FaceId       theFace,
-    const Policy&          thePolicy,
-    const Requirements&    theRequirements);
+  [[nodiscard]] Standard_EXPORT occ::handle<Result> Get(const BRepGraph_FaceId theFace,
+                                                        const Policy&          thePolicy,
+                                                        const Requirements&    theRequirements);
 
   //! Stable graph-cache service identity.
   [[nodiscard]] static Standard_EXPORT const Standard_GUID& GetID();
@@ -261,7 +260,6 @@ private:
     std::size_t            PolicyClassHash  = 0;
     std::size_t            RequirementsHash = 0;
     occ::handle<Result>    Chart;
-    uint64_t               LastUse          = 0;
     bool                   IsExplicit       = false;
 
     void Reset() noexcept
@@ -270,26 +268,29 @@ private:
       Face = BRepGraph_FaceId();
       PolicyHash = PolicyClassHash = RequirementsHash = 0;
       Chart.Nullify();
-      LastUse    = 0;
       IsExplicit = false;
     }
   };
 
-  [[nodiscard]] const Entry* findFreshLocked(BRepGraph_FaceId theFace,
-                                              std::size_t       thePolicyHash,
-                                              std::size_t       theRequirementsHash) const;
+  [[nodiscard]] const Entry* findFreshLocked(const BRepGraph_FaceId theFace,
+                                             const std::size_t      thePolicyHash,
+                                             const std::size_t      theRequirementsHash) const;
 
-  void eraseExplicitLocked(BRepGraph_FaceId theFace,
-                           std::size_t       thePolicyClassHash,
-                           std::size_t       theRequirementsHash);
+  void eraseExplicitLocked(const BRepGraph_FaceId theFace,
+                           const std::size_t      thePolicyClassHash,
+                           const std::size_t      theRequirementsHash);
 
-  void eraseIdentityLocked(BRepGraph_FaceId theFace,
-                           std::size_t       thePolicyHash,
-                           std::size_t       theRequirementsHash);
+  void eraseIdentityLocked(const BRepGraph_FaceId theFace,
+                           const std::size_t      thePolicyHash,
+                           const std::size_t      theRequirementsHash);
+
+  void trimFaceEntriesLocked(const BRepGraph_FaceId theFace);
+
+  //! Limit policy variants per face while allowing the cache to cover all faces.
+  static constexpr size_t THE_MAX_ENTRIES_PER_FACE = 8;
 
   mutable std::shared_mutex       myMutex;
   NCollection_LinearVector<Entry> myEntries;
-  uint64_t                        myUseClock = 0;
 };
 
 #endif // _BRepGraph_CacheChart_HeaderFile

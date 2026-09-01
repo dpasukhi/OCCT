@@ -31,12 +31,12 @@ public:
 
   [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash EmptyHash();
   [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash LeafHash(
-    uint64_t                      theKey,
+    const uint64_t                theKey,
     const BRepGraph_RevisionHash& theValue);
   [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash BranchHash(
-    size_t           theDepth,
+    const size_t     theDepth,
     const ChildHash* theChildren,
-    size_t           theNbChildren);
+    const size_t     theNbChildren);
 };
 
 using BRepGraph_RevisionMerkle = NCollection_PersistentRadixMap<uint64_t,

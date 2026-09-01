@@ -120,3 +120,23 @@ TEST(BRepGraph_CacheChartTest, CacheIsFreshPerFaceGenerationAndBoundsExplicitCut
   EXPECT_NE(aFirst, aAfterEdit);
   EXPECT_EQ(aCache->NbEntries(), 2u);
 }
+
+TEST(BRepGraph_CacheChartTest, CacheBoundsPolicyVariantsPerFace)
+{
+  BRepGraph aGraph;
+  ASSERT_TRUE(aGraph.Shapes().Add(BRepPrimAPI_MakeCylinder(5.0, 10.0).Shape()).IsOk());
+  const BRepGraph_FaceId aFace = findPeriodicFace(aGraph);
+  ASSERT_TRUE(aFace.IsValid());
+
+  const occ::handle<BRepGraph_CacheChart> aCache =
+    aGraph.CacheRegistry().Ensure<BRepGraph_CacheChart>();
+  ASSERT_FALSE(aCache.IsNull());
+
+  for (int anIndex = 0; anIndex < 16; ++anIndex)
+  {
+    BRepGraph_CacheChart::Policy aPolicy;
+    aPolicy.Tolerance.ToleranceU = 1.0e-9 * static_cast<double>(anIndex + 1);
+    EXPECT_FALSE(aCache->Get(aFace, aPolicy).IsNull());
+  }
+  EXPECT_LE(aCache->NbEntries(), 8u);
+}

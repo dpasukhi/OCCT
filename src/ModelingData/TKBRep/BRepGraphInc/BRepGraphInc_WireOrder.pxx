@@ -512,7 +512,7 @@ inline bool buildToleranceVertexClasses(const BRepGraphInc_Storage&             
     for (size_t anOuter = 0; anOuter < aNbVertices; ++anOuter)
     {
       const gp_Pnt& aPoint = aPoints.At(anOuter);
-      aTree.ForEachInRange(aPoint, aTolerances.At(anOuter), [&](size_t theResultIdx) {
+      aTree.ForEachInRange(aPoint, aTolerances.At(anOuter), [&](const size_t theResultIdx) {
         // NCollection_KDTree reports 1-based indices for the array passed to Build().
         const size_t anInner = theResultIdx - 1;
         if (anInner == anOuter || anInner >= aNbVertices)

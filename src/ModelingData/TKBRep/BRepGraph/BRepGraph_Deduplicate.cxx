@@ -61,7 +61,7 @@ BRepGraph_VertexId resolveCanonicalVertex(const VertexCanonicalMap& theCanonical
 }
 
 //! Redirect all OccurrenceDef.ChildNodeId entries that still point to theOldNodeId
-//! to theNewNodeId. Snapshots the occurrence ref list before iterating because
+//! to theNewNodeId. Copies the occurrence ref list before iterating because
 //! SetChildNodeId modifies the underlying OccurrenceRefsOfNode vector.
 void redirectOccurrenceChildren(BRepGraph&             theGraph,
                                 const BRepGraph_NodeId theOldNodeId,
@@ -73,13 +73,13 @@ void redirectOccurrenceChildren(BRepGraph&             theGraph,
   {
     return;
   }
-  // Snapshot - SetChildNodeId modifies the underlying vector.
-  NCollection_LinearVector<BRepGraph_OccurrenceRefId> aSnapshot(aOccRefs.Size());
+  // Keep the original IDs because SetChildNodeId modifies the underlying vector.
+  NCollection_LinearVector<BRepGraph_OccurrenceRefId> anOccRefIds(aOccRefs.Size());
   for (const BRepGraph_OccurrenceRefId& aRefId : aOccRefs)
   {
-    aSnapshot.Append(aRefId);
+    anOccRefIds.Append(aRefId);
   }
-  for (const BRepGraph_OccurrenceRefId& aOccRefId : aSnapshot)
+  for (const BRepGraph_OccurrenceRefId& aOccRefId : anOccRefIds)
   {
     if (!aOccRefId.IsValid() || theGraph.Refs().Gen().IsRemoved(aOccRefId))
     {
@@ -353,28 +353,32 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
       const gp_Pnt aBaseVtxPnt = BRepGraph_Tool::Vertex::Pnt(theGraph, aBaseVtxId);
       const double aBaseVtxTol = BRepGraph_Tool::Vertex::Tolerance(theGraph, aBaseVtxId);
 
-      aTree.ForEachInRange(aBaseVtxPnt, std::max(aTol, aBaseVtxTol), [&](size_t theResultIdx) {
-        const size_t anArrayIdx = theResultIdx - 1;
-        if (anArrayIdx <= aLocalIdx)
-        {
-          return; // skip self and already-processed
-        }
+      aTree.ForEachInRange(
+        aBaseVtxPnt,
+        std::max(aTol, aBaseVtxTol),
+        [&](const size_t theResultIdx) {
+          const size_t anArrayIdx = theResultIdx - 1;
+          if (anArrayIdx <= aLocalIdx)
+          {
+            return; // skip self and already-processed
+          }
 
-        const BRepGraph_VertexId aCandVtxId = aActiveVertices.Value(anArrayIdx).second;
-        const BRepGraph_VertexId aEffectiveCanon =
-          resolveCanonicalVertex(aCanonicalVertex, aCandVtxId);
-        if (aEffectiveCanon == aBaseVtxId)
-        {
-          return;
-        }
+          const BRepGraph_VertexId aCandVtxId = aActiveVertices.Value(anArrayIdx).second;
+          const BRepGraph_VertexId aEffectiveCanon =
+            resolveCanonicalVertex(aCanonicalVertex, aCandVtxId);
+          if (aEffectiveCanon == aBaseVtxId)
+          {
+            return;
+          }
 
-        const double aCandVtxTol = BRepGraph_Tool::Vertex::Tolerance(theGraph, aEffectiveCanon);
-        const double aMaxTol     = std::max(aBaseVtxTol, aCandVtxTol);
-        if (aBaseVtxPnt.Distance(BRepGraph_Tool::Vertex::Pnt(theGraph, aEffectiveCanon)) <= aMaxTol)
-        {
-          aCanonicalVertex.Bind(aCandVtxId, aBaseVtxId);
-        }
-      });
+          const double aCandVtxTol = BRepGraph_Tool::Vertex::Tolerance(theGraph, aEffectiveCanon);
+          const double aMaxTol     = std::max(aBaseVtxTol, aCandVtxTol);
+          if (aBaseVtxPnt.Distance(BRepGraph_Tool::Vertex::Pnt(theGraph, aEffectiveCanon))
+              <= aMaxTol)
+          {
+            aCanonicalVertex.Bind(aCandVtxId, aBaseVtxId);
+          }
+        });
     }
 
     if (!theOptions.AnalyzeOnly)
@@ -1084,7 +1088,7 @@ BRepGraph_Deduplicate::Result BRepGraph_Deduplicate::Perform(BRepGraph&     theG
         }
 
         // Redirect OccurrenceDef.ChildNodeId entries that still point to the old face.
-        // Snapshot first - SetChildNodeId modifies the underlying OccurrenceRefsOfNode vector.
+        // Copy first: SetChildNodeId modifies the underlying OccurrenceRefsOfNode vector.
         redirectOccurrenceChildren(theGraph, anOldId, aCanonId);
 
         theGraph.Editor().Gen().ReplaceNode(anOldId, aCanonId);

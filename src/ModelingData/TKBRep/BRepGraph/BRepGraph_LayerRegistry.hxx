@@ -84,7 +84,7 @@ public:
                                               uint32_t&            theSlot) const;
 
   //! Return layer by slot index, or null handle if the slot is out of range.
-  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Layer> Layer(uint32_t theSlot) const;
+  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Layer> Layer(const uint32_t theSlot) const;
 
   //! Number of registered layers.
   [[nodiscard]] uint32_t NbLayers() const
@@ -142,9 +142,9 @@ public:
   //! @param[in] theTargetGraph target graph to receive layer data
   //! @param[in] theMappingKind identity or explicit mapping
   //! @param[in] theMode        Copy or Compact semantics
-  Standard_EXPORT void CopyLayersTo(BRepGraph&                       theTargetGraph,
-                                    BRepGraph_CopyRemap::MappingKind theMappingKind,
-                                    BRepGraph_CopyRemap::Mode        theMode) const;
+  Standard_EXPORT void CopyLayersTo(BRepGraph&                             theTargetGraph,
+                                    const BRepGraph_CopyRemap::MappingKind theMappingKind,
+                                    const BRepGraph_CopyRemap::Mode        theMode) const;
 
   //! Migrate runtime and derived layers into a replacement graph.
   //! Persistent target layers remain authoritative and are never overwritten.
@@ -204,7 +204,7 @@ private:
     const Standard_GUID&                                 theGUID,
     const std::function<occ::handle<BRepGraph_Layer>()>& theFactory);
 
-  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Layer> layerAt(uint32_t theSlot) const;
+  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Layer> layerAt(const uint32_t theSlot) const;
 
   Standard_EXPORT uint32_t registerLayerLocked(const occ::handle<BRepGraph_Layer>& theLayer);
 

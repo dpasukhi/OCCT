@@ -78,8 +78,8 @@ public:
       const occ::handle<Geom_Curve>& theCurve);
 
     //! Compute a fixed-width content hash over a byte sequence.
-    [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash Bytes(const void* theData,
-                                                                      size_t      theSize);
+    [[nodiscard]] Standard_EXPORT static BRepGraph_RevisionHash Bytes(const void*  theData,
+                                                                      const size_t theSize);
 
     Hasher() = delete;
   };
@@ -119,13 +119,13 @@ public:
 class BRepGraph_RevisionHash::Hasher::ByteAccumulator
 {
 public:
-  Standard_EXPORT explicit ByteAccumulator(size_t theSize);
+  Standard_EXPORT explicit ByteAccumulator(const size_t theSize);
   Standard_EXPORT ~ByteAccumulator();
 
   ByteAccumulator(const ByteAccumulator&)            = delete;
   ByteAccumulator& operator=(const ByteAccumulator&) = delete;
 
-  [[nodiscard]] Standard_EXPORT bool Append(const void* theData, size_t theSize);
+  [[nodiscard]] Standard_EXPORT bool Append(const void* theData, const size_t theSize);
   [[nodiscard]] Standard_EXPORT bool Finish(BRepGraph_RevisionHash& theHash);
 
 private:

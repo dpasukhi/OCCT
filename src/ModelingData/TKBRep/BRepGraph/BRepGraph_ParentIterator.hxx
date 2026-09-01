@@ -100,8 +100,8 @@ public:
 
 private:
   Standard_EXPORT void seek();
-  Standard_EXPORT bool setParent(BRepGraph_NodeId theParent,
-                                 BRepGraph_RefId  theExpectedRef = BRepGraph_RefId());
+  Standard_EXPORT bool setParent(const BRepGraph_NodeId theParent,
+                                 const BRepGraph_RefId  theExpectedRef = BRepGraph_RefId());
 
   const BRepGraph* myGraph = nullptr;
   BRepGraph_NodeId myChild;

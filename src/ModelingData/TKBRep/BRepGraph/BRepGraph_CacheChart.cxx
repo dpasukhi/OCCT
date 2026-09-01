@@ -375,22 +375,31 @@ int countCutCrossings(const BRepGraph_CacheChart::Result& theResult,
       }
       const double aFirst = isU ? aUse.UVFirst.X() : aUse.UVFirst.Y();
       const double aLast  = isU ? aUse.UVLast.X() : aUse.UVLast.Y();
-      if (std::abs(aLast - aFirst) <= (isU ? 1.0e-12 : 1.0e-12))
+      if (std::abs(aLast - aFirst) <= Precision::Angular())
       {
         continue;
       }
       const double aMin = std::min(aFirst, aLast);
       const double aMax = std::max(aFirst, aLast);
-      double       aProbe = theCut;
-      while (aProbe < aMin)
+      const double aSpan = aMax - aMin;
+      double       anOffset;
+      const double aDelta = theCut - aMin;
+      if (isFinite(aDelta))
       {
-        aProbe += aPeriod;
+        anOffset = std::fmod(aDelta, aPeriod);
       }
-      while (aProbe > aMax)
+      else
       {
-        aProbe -= aPeriod;
+        // Avoid overflow in the subtraction when finite coordinates have
+        // opposite signs and very large magnitudes.
+        anOffset = std::fmod(theCut, aPeriod) - std::fmod(aMin, aPeriod);
+        anOffset = std::fmod(anOffset, aPeriod);
       }
-      if (aProbe > aMin && aProbe < aMax)
+      if (anOffset <= 0.0)
+      {
+        anOffset += aPeriod;
+      }
+      if (anOffset < aSpan)
       {
         ++aCount;
       }
@@ -895,7 +904,6 @@ void BRepGraph_CacheChart::Clear() noexcept
 {
   std::unique_lock<std::shared_mutex> aLock(myMutex);
   myEntries.Clear(true);
-  myUseClock = 0;
 }
 
 //=================================================================================================
@@ -976,6 +984,31 @@ void BRepGraph_CacheChart::eraseIdentityLocked(const BRepGraph_FaceId theFace,
 
 //=================================================================================================
 
+void BRepGraph_CacheChart::trimFaceEntriesLocked(const BRepGraph_FaceId theFace)
+{
+  size_t aFaceEntryCount = 0;
+  for (const Entry& anEntry : myEntries)
+  {
+    if (anEntry.Face == theFace)
+    {
+      ++aFaceEntryCount;
+    }
+  }
+  for (size_t anIndex = 0;
+       aFaceEntryCount >= THE_MAX_ENTRIES_PER_FACE && anIndex < myEntries.Size();)
+  {
+    if (myEntries.Value(anIndex).Face != theFace)
+    {
+      ++anIndex;
+      continue;
+    }
+    myEntries.Erase(anIndex);
+    --aFaceEntryCount;
+  }
+}
+
+//=================================================================================================
+
 occ::handle<BRepGraph_CacheChart::Result> BRepGraph_CacheChart::Get(
   const BRepGraph_FaceId theFace)
 {
@@ -1049,6 +1082,7 @@ occ::handle<BRepGraph_CacheChart::Result> BRepGraph_CacheChart::Get(
     // an archive after repeated graph edits.
     eraseIdentityLocked(theFace, aPolicyHash, aRequirementsHash);
   }
+  trimFaceEntriesLocked(theFace);
 
   Entry& anEntry          = myEntries.Appended();
   anEntry.Face             = theFace;
@@ -1056,7 +1090,6 @@ occ::handle<BRepGraph_CacheChart::Result> BRepGraph_CacheChart::Get(
   anEntry.PolicyClassHash  = aPolicyClassHash;
   anEntry.RequirementsHash = aRequirementsHash;
   anEntry.Chart            = aResult;
-  anEntry.LastUse          = ++myUseClock;
   anEntry.IsExplicit       = isExplicit;
   if (!anEntry.BindSubtreeGen(*this, BRepGraph_NodeId(theFace)))
   {

@@ -177,7 +177,7 @@ public:
     [[nodiscard]] virtual size_t               RecipeHash() const = 0;
 
     [[nodiscard]] virtual bool Fill(BRepGraph&                   theGraph,
-                                    SlotId                       theSlot,
+                                    const SlotId                 theSlot,
                                     const DirtySet&              theDirtySet,
                                     const Message_ProgressRange& theRange) = 0;
 
@@ -223,7 +223,7 @@ public:
   //! EffectiveView reads from this slot.
   [[nodiscard]] SlotId ActiveDisplaySlot() const { return myActiveSlot; }
 
-  void SetActiveDisplaySlot(SlotId theSlot)
+  void SetActiveDisplaySlot(const SlotId theSlot)
   {
     if (myActiveSlot != theSlot)
     {
@@ -233,129 +233,138 @@ public:
   }
 
   //! Register or replace a meshing driver for a cache slot.
-  Standard_EXPORT void RegisterDriver(SlotId theSlot, const occ::handle<Driver>& theDriver);
+  Standard_EXPORT void RegisterDriver(const SlotId theSlot, const occ::handle<Driver>& theDriver);
 
   //! Remove a meshing driver from a cache slot and invalidate the slot.
-  Standard_EXPORT void UnregisterDriver(SlotId theSlot);
+  Standard_EXPORT void UnregisterDriver(const SlotId theSlot);
 
   //! Return driver registered for a slot, or null.
-  [[nodiscard]] Standard_EXPORT const occ::handle<Driver>& DriverOf(SlotId theSlot) const;
+  [[nodiscard]] Standard_EXPORT const occ::handle<Driver>& DriverOf(const SlotId theSlot) const;
 
   //! Return current state of a cache slot.
-  [[nodiscard]] Standard_EXPORT SlotState State(SlotId theSlot = DefaultDisplaySlot) const;
+  [[nodiscard]] Standard_EXPORT SlotState State(const SlotId theSlot = DefaultDisplaySlot) const;
 
   //! Recompute stale data in a slot using its registered driver.
   [[nodiscard]] Standard_EXPORT bool Ensure(
     BRepGraph&                   theGraph,
-    SlotId                       theSlot  = DefaultDisplaySlot,
+    const SlotId                 theSlot  = DefaultDisplaySlot,
     const Message_ProgressRange& theRange = Message_ProgressRange());
 
   //! Recompute stale data below a topology node using the slot driver.
   [[nodiscard]] Standard_EXPORT bool Ensure(
     BRepGraph&                   theGraph,
     const BRepGraph_NodeId       theRoot,
-    SlotId                       theSlot  = DefaultDisplaySlot,
+    const SlotId                 theSlot  = DefaultDisplaySlot,
     const Message_ProgressRange& theRange = Message_ProgressRange());
 
   //! Recompute stale data for requested topology nodes using the slot driver.
   [[nodiscard]] Standard_EXPORT bool Ensure(
     BRepGraph&                                  theGraph,
     const NCollection_Array1<BRepGraph_NodeId>& theNodes,
-    SlotId                                      theSlot  = DefaultDisplaySlot,
+    const SlotId                                theSlot  = DefaultDisplaySlot,
     const Message_ProgressRange&                theRange = Message_ProgressRange());
 
   //! Return true when a cache slot has stale or missing mesh below the topology node.
   //! Uses the same actualness rules as Ensure() but does not invoke the driver.
-  [[nodiscard]] Standard_EXPORT bool Needs(BRepGraph&       theGraph,
-                                           BRepGraph_NodeId theRoot,
-                                           SlotId           theSlot = DefaultDisplaySlot) const;
+  [[nodiscard]] Standard_EXPORT bool Needs(BRepGraph&             theGraph,
+                                           const BRepGraph_NodeId theRoot,
+                                           const SlotId theSlot = DefaultDisplaySlot) const;
 
-  [[nodiscard]] Standard_EXPORT bool                 HasFaceMesh(BRepGraph_FaceId theFace) const;
-  [[nodiscard]] Standard_EXPORT const FaceMeshEntry* FindFaceMesh(BRepGraph_FaceId theFace) const;
-  [[nodiscard]] Standard_EXPORT FaceMeshEntry&       ChangeFaceMesh(BRepGraph_FaceId theFace);
-  Standard_EXPORT void                               ClearFaceMesh(BRepGraph_FaceId theFace);
-  Standard_EXPORT void                               InvalidateFaceMesh(BRepGraph_FaceId theFace);
+  [[nodiscard]] Standard_EXPORT bool HasFaceMesh(const BRepGraph_FaceId theFace) const;
+  [[nodiscard]] Standard_EXPORT const FaceMeshEntry* FindFaceMesh(
+    const BRepGraph_FaceId theFace) const;
+  [[nodiscard]] Standard_EXPORT FaceMeshEntry& ChangeFaceMesh(const BRepGraph_FaceId theFace);
+  Standard_EXPORT void                         ClearFaceMesh(const BRepGraph_FaceId theFace);
+  Standard_EXPORT void                         InvalidateFaceMesh(const BRepGraph_FaceId theFace);
 
-  [[nodiscard]] Standard_EXPORT bool             HasCoEdgeMesh(BRepGraph_CoEdgeId theCoEdge) const;
-  [[nodiscard]] Standard_EXPORT CoEdgeMeshEntry& ChangeCoEdgeMesh(BRepGraph_CoEdgeId theCoEdge);
-  Standard_EXPORT void                           ClearCoEdgeMesh(BRepGraph_CoEdgeId theCoEdge);
+  [[nodiscard]] Standard_EXPORT bool HasCoEdgeMesh(const BRepGraph_CoEdgeId theCoEdge) const;
+  [[nodiscard]] Standard_EXPORT CoEdgeMeshEntry& ChangeCoEdgeMesh(
+    const BRepGraph_CoEdgeId theCoEdge);
+  Standard_EXPORT void ClearCoEdgeMesh(const BRepGraph_CoEdgeId theCoEdge);
 
-  [[nodiscard]] Standard_EXPORT bool                 HasEdgeMesh(BRepGraph_EdgeId theEdge) const;
-  [[nodiscard]] Standard_EXPORT const EdgeMeshEntry* FindEdgeMesh(BRepGraph_EdgeId theEdge) const;
-  [[nodiscard]] Standard_EXPORT EdgeMeshEntry&       ChangeEdgeMesh(BRepGraph_EdgeId theEdge);
-  Standard_EXPORT void                               ClearEdgeMesh(BRepGraph_EdgeId theEdge);
+  [[nodiscard]] Standard_EXPORT bool HasEdgeMesh(const BRepGraph_EdgeId theEdge) const;
+  [[nodiscard]] Standard_EXPORT const EdgeMeshEntry* FindEdgeMesh(
+    const BRepGraph_EdgeId theEdge) const;
+  [[nodiscard]] Standard_EXPORT EdgeMeshEntry& ChangeEdgeMesh(const BRepGraph_EdgeId theEdge);
+  Standard_EXPORT void                         ClearEdgeMesh(const BRepGraph_EdgeId theEdge);
 
-  [[nodiscard]] Standard_EXPORT bool HasFaceMesh(SlotId theSlot, BRepGraph_FaceId theFace) const;
-  [[nodiscard]] Standard_EXPORT const FaceMeshEntry* FindFaceMesh(SlotId           theSlot,
-                                                                  BRepGraph_FaceId theFace) const;
-  [[nodiscard]] Standard_EXPORT FaceMeshEntry&       ChangeFaceMesh(SlotId           theSlot,
-                                                                    BRepGraph_FaceId theFace);
-  Standard_EXPORT void ClearFaceMesh(SlotId theSlot, BRepGraph_FaceId theFace);
+  [[nodiscard]] Standard_EXPORT bool HasFaceMesh(const SlotId           theSlot,
+                                                 const BRepGraph_FaceId theFace) const;
+  [[nodiscard]] Standard_EXPORT const FaceMeshEntry* FindFaceMesh(
+    const SlotId           theSlot,
+    const BRepGraph_FaceId theFace) const;
+  [[nodiscard]] Standard_EXPORT FaceMeshEntry& ChangeFaceMesh(const SlotId           theSlot,
+                                                              const BRepGraph_FaceId theFace);
+  Standard_EXPORT void ClearFaceMesh(const SlotId theSlot, const BRepGraph_FaceId theFace);
 
-  [[nodiscard]] Standard_EXPORT bool             HasCoEdgeMesh(SlotId             theSlot,
-                                                               BRepGraph_CoEdgeId theCoEdge) const;
-  [[nodiscard]] Standard_EXPORT CoEdgeMeshEntry& ChangeCoEdgeMesh(SlotId             theSlot,
-                                                                  BRepGraph_CoEdgeId theCoEdge);
-  Standard_EXPORT void ClearCoEdgeMesh(SlotId theSlot, BRepGraph_CoEdgeId theCoEdge);
+  [[nodiscard]] Standard_EXPORT bool HasCoEdgeMesh(const SlotId             theSlot,
+                                                   const BRepGraph_CoEdgeId theCoEdge) const;
+  [[nodiscard]] Standard_EXPORT CoEdgeMeshEntry& ChangeCoEdgeMesh(
+    const SlotId             theSlot,
+    const BRepGraph_CoEdgeId theCoEdge);
+  Standard_EXPORT void ClearCoEdgeMesh(const SlotId theSlot, const BRepGraph_CoEdgeId theCoEdge);
 
-  [[nodiscard]] Standard_EXPORT bool HasEdgeMesh(SlotId theSlot, BRepGraph_EdgeId theEdge) const;
-  [[nodiscard]] Standard_EXPORT const EdgeMeshEntry* FindEdgeMesh(SlotId           theSlot,
-                                                                  BRepGraph_EdgeId theEdge) const;
-  [[nodiscard]] Standard_EXPORT EdgeMeshEntry&       ChangeEdgeMesh(SlotId           theSlot,
-                                                                    BRepGraph_EdgeId theEdge);
-  Standard_EXPORT void ClearEdgeMesh(SlotId theSlot, BRepGraph_EdgeId theEdge);
+  [[nodiscard]] Standard_EXPORT bool HasEdgeMesh(const SlotId           theSlot,
+                                                 const BRepGraph_EdgeId theEdge) const;
+  [[nodiscard]] Standard_EXPORT const EdgeMeshEntry* FindEdgeMesh(
+    const SlotId           theSlot,
+    const BRepGraph_EdgeId theEdge) const;
+  [[nodiscard]] Standard_EXPORT EdgeMeshEntry& ChangeEdgeMesh(const SlotId           theSlot,
+                                                              const BRepGraph_EdgeId theEdge);
+  Standard_EXPORT void ClearEdgeMesh(const SlotId theSlot, const BRepGraph_EdgeId theEdge);
 
   //! Stamp a freshly written default-slot entry.
-  Standard_EXPORT void BindFresh(FaceMeshEntry& theEntry, BRepGraph_FaceId theFace) const;
-  Standard_EXPORT void BindFresh(CoEdgeMeshEntry& theEntry, BRepGraph_CoEdgeId theCoEdge) const;
-  Standard_EXPORT void BindFresh(EdgeMeshEntry& theEntry, BRepGraph_EdgeId theEdge) const;
+  Standard_EXPORT void BindFresh(FaceMeshEntry& theEntry, const BRepGraph_FaceId theFace) const;
+  Standard_EXPORT void BindFresh(CoEdgeMeshEntry&         theEntry,
+                                 const BRepGraph_CoEdgeId theCoEdge) const;
+  Standard_EXPORT void BindFresh(EdgeMeshEntry& theEntry, const BRepGraph_EdgeId theEdge) const;
 
   //! Stamp a freshly written slot-specific entry.
-  Standard_EXPORT void BindFresh(FaceMeshEntry&   theEntry,
-                                 BRepGraph_FaceId theFace,
-                                 SlotId           theSlot) const;
-  Standard_EXPORT void BindFresh(CoEdgeMeshEntry&   theEntry,
-                                 BRepGraph_CoEdgeId theCoEdge,
-                                 SlotId             theSlot) const;
-  Standard_EXPORT void BindFresh(EdgeMeshEntry&   theEntry,
-                                 BRepGraph_EdgeId theEdge,
-                                 SlotId           theSlot) const;
+  Standard_EXPORT void BindFresh(FaceMeshEntry&         theEntry,
+                                 const BRepGraph_FaceId theFace,
+                                 const SlotId           theSlot) const;
+  Standard_EXPORT void BindFresh(CoEdgeMeshEntry&         theEntry,
+                                 const BRepGraph_CoEdgeId theCoEdge,
+                                 const SlotId             theSlot) const;
+  Standard_EXPORT void BindFresh(EdgeMeshEntry&         theEntry,
+                                 const BRepGraph_EdgeId theEdge,
+                                 const SlotId           theSlot) const;
 
   //! Bump face mesh generation after cached content changed.
   //! This is the ONLY mutator for MeshGeneration. ClearRepresentation() does not bump.
   //! Creates the face entry if it doesn't exist yet (via ensureSize).
-  Standard_EXPORT void BumpFaceMeshGeneration(BRepGraph_FaceId theFace,
-                                              SlotId           theSlot = DefaultDisplaySlot);
+  Standard_EXPORT void BumpFaceMeshGeneration(const BRepGraph_FaceId theFace,
+                                              const SlotId           theSlot = DefaultDisplaySlot);
 
   //! Raw face entry access (no freshness filtering). For internal use.
   [[nodiscard]] Standard_EXPORT const FaceMeshEntry* findFaceEntryRaw(
-    SlotId           theSlot,
-    BRepGraph_FaceId theFace) const;
+    const SlotId           theSlot,
+    const BRepGraph_FaceId theFace) const;
 
   //! Raw coedge entry access (no freshness/generation filtering).
   //! Returns nullptr if the slot is absent or the entry has no representation.
   //! For internal use.
   [[nodiscard]] Standard_EXPORT const CoEdgeMeshEntry* findCoEdgeEntryRaw(
-    SlotId             theSlot,
-    BRepGraph_CoEdgeId theCoEdge) const;
+    const SlotId             theSlot,
+    const BRepGraph_CoEdgeId theCoEdge) const;
 
   //! Return coedge entry if Polygon2D is fresh, nullptr otherwise.
   [[nodiscard]] Standard_EXPORT const CoEdgeMeshEntry* FindCoEdgePolygon2D(
-    SlotId             theSlot,
-    BRepGraph_CoEdgeId theCoEdge) const;
+    const SlotId             theSlot,
+    const BRepGraph_CoEdgeId theCoEdge) const;
 
   //! Return coedge entry if PolygonsOnTri is fresh, nullptr otherwise.
   [[nodiscard]] Standard_EXPORT const CoEdgeMeshEntry* FindCoEdgePolygonOnTri(
-    SlotId             theSlot,
-    BRepGraph_CoEdgeId theCoEdge) const;
+    const SlotId             theSlot,
+    const BRepGraph_CoEdgeId theCoEdge) const;
 
   //! Return coedge entry if Polygon2D is fresh (default slot), nullptr otherwise.
   [[nodiscard]] Standard_EXPORT const CoEdgeMeshEntry* FindCoEdgePolygon2D(
-    BRepGraph_CoEdgeId theCoEdge) const;
+    const BRepGraph_CoEdgeId theCoEdge) const;
 
   //! Return coedge entry if PolygonsOnTri is fresh (default slot), nullptr otherwise.
   [[nodiscard]] Standard_EXPORT const CoEdgeMeshEntry* FindCoEdgePolygonOnTri(
-    BRepGraph_CoEdgeId theCoEdge) const;
+    const BRepGraph_CoEdgeId theCoEdge) const;
 
   DEFINE_STANDARD_RTTIEXT(BRepGraph_CacheMesh, BRepGraph_Cache)
 
@@ -363,18 +372,22 @@ private:
   struct Slot;
 
   template <typename T>
-  static void ensureSize(NCollection_DynamicArray<T>& theVec, size_t theIndex);
+  static void ensureSize(NCollection_DynamicArray<T>& theVec, const size_t theIndex);
 
-  [[nodiscard]] Slot&       changeSlot(SlotId theSlot);
-  [[nodiscard]] Slot*       findSlot(SlotId theSlot);
-  [[nodiscard]] const Slot* findSlot(SlotId theSlot) const;
+  [[nodiscard]] Slot&       changeSlot(const SlotId theSlot);
+  [[nodiscard]] Slot*       findSlot(const SlotId theSlot);
+  [[nodiscard]] const Slot* findSlot(const SlotId theSlot) const;
 
   [[nodiscard]] bool isSlotActual(const Slot& theSlot, const EntryStamp& theStamp) const noexcept;
-  void bindEntry(FaceMeshEntry& theEntry, BRepGraph_FaceId theFace, const Slot& theSlot) const;
-  void bindEntry(CoEdgeMeshEntry&   theEntry,
-                 BRepGraph_CoEdgeId theCoEdge,
-                 const Slot&        theSlot) const;
-  void bindEntry(EdgeMeshEntry& theEntry, BRepGraph_EdgeId theEdge, const Slot& theSlot) const;
+  void               bindEntry(FaceMeshEntry&         theEntry,
+                               const BRepGraph_FaceId theFace,
+                               const Slot&            theSlot) const;
+  void               bindEntry(CoEdgeMeshEntry&         theEntry,
+                               const BRepGraph_CoEdgeId theCoEdge,
+                               const Slot&              theSlot) const;
+  void               bindEntry(EdgeMeshEntry&         theEntry,
+                               const BRepGraph_EdgeId theEdge,
+                               const Slot&            theSlot) const;
 
   [[nodiscard]] bool isCoEdgePolygon2DFresh(const CoEdgeMeshEntry& theEntry,
                                             const Slot&            theSlot) const noexcept;
@@ -383,8 +396,8 @@ private:
   [[nodiscard]] bool isFaceMeshFresh(const CoEdgeMeshEntry& theEntry,
                                      const Slot&            theSlot) const noexcept;
 
-  [[nodiscard]] const CoEdgeMeshEntry* findCoEdgeMesh(SlotId             theSlot,
-                                                      BRepGraph_CoEdgeId theCoEdge) const;
+  [[nodiscard]] const CoEdgeMeshEntry* findCoEdgeMesh(const SlotId             theSlot,
+                                                      const BRepGraph_CoEdgeId theCoEdge) const;
 
   enum class DirtyCollectMode
   {
@@ -392,17 +405,17 @@ private:
     FirstOnly
   };
 
-  [[nodiscard]] DirtySet collectDirty(BRepGraph&       theGraph,
-                                      const Slot&      theSlot,
-                                      DirtyCollectMode theMode = DirtyCollectMode::All) const;
+  [[nodiscard]] DirtySet collectDirty(BRepGraph&             theGraph,
+                                      const Slot&            theSlot,
+                                      const DirtyCollectMode theMode = DirtyCollectMode::All) const;
   [[nodiscard]] DirtySet collectDirty(BRepGraph&             theGraph,
                                       const BRepGraph_NodeId theRoot,
                                       const Slot&            theSlot,
-                                      DirtyCollectMode       theMode = DirtyCollectMode::All) const;
+                                      const DirtyCollectMode theMode = DirtyCollectMode::All) const;
   [[nodiscard]] DirtySet collectDirty(BRepGraph&                                  theGraph,
                                       const NCollection_Array1<BRepGraph_NodeId>& theNodes,
                                       const Slot&                                 theSlot,
-                                      DirtyCollectMode theMode = DirtyCollectMode::All) const;
+                                      const DirtyCollectMode theMode = DirtyCollectMode::All) const;
 
   void bumpGeneration() const noexcept { myGeneration.fetch_add(1, std::memory_order_release); }
 

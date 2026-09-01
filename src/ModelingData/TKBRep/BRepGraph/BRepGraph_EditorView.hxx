@@ -271,13 +271,13 @@ public:
     //! Set the tolerance of an edge definition and fire immediate notification.
     //! @param[in] theEdge      typed edge definition identifier
     //! @param[in] theTolerance new tolerance value
-    Standard_EXPORT void SetTolerance(const BRepGraph_EdgeId theEdge, double theTolerance);
+    Standard_EXPORT void SetTolerance(const BRepGraph_EdgeId theEdge, const double theTolerance);
 
     //! Set the tolerance of an edge definition inside a batched mutation scope.
     //! @param[in] theMut       active mutable edge guard
     //! @param[in] theTolerance new tolerance value
     Standard_EXPORT void SetTolerance(BRepGraph_MutGuard<BRepGraphInc::EdgeDef>& theMut,
-                                      double                                     theTolerance);
+                                      const double                               theTolerance);
 
     //! Set the parametric range of an edge definition.
     Standard_EXPORT void SetParamRange(const BRepGraph_EdgeId theEdge,
@@ -387,16 +387,16 @@ public:
     //! @param[in] theFirst   new first parameter value
     //! @param[in] theLast    new last parameter value
     Standard_EXPORT void SetParamRange(const BRepGraph_CoEdgeId theCoEdge,
-                                       double                   theFirst,
-                                       double                   theLast);
+                                       const double             theFirst,
+                                       const double             theLast);
 
     //! Set the parametric range of a coedge definition inside a batched mutation scope.
     //! @param[in] theMut   active mutable coedge guard
     //! @param[in] theFirst new first parameter value
     //! @param[in] theLast  new last parameter value
     Standard_EXPORT void SetParamRange(BRepGraph_MutGuard<BRepGraphInc::CoEdgeDef>& theMut,
-                                       double                                       theFirst,
-                                       double                                       theLast);
+                                       const double                                 theFirst,
+                                       const double                                 theLast);
 
     //! Set the orientation of a coedge definition.
     Standard_EXPORT void SetOrientation(const BRepGraph_CoEdgeId              theCoEdge,
@@ -763,13 +763,13 @@ public:
     //! Set the tolerance of a face definition and fire immediate notification.
     //! @param[in] theFace      typed face definition identifier
     //! @param[in] theTolerance new tolerance value
-    Standard_EXPORT void SetTolerance(const BRepGraph_FaceId theFace, double theTolerance);
+    Standard_EXPORT void SetTolerance(const BRepGraph_FaceId theFace, const double theTolerance);
 
     //! Set the tolerance of a face definition inside a batched mutation scope.
     //! @param[in] theMut       active mutable face guard
     //! @param[in] theTolerance new tolerance value
     Standard_EXPORT void SetTolerance(BRepGraph_MutGuard<BRepGraphInc::FaceDef>& theMut,
-                                      double                                     theTolerance);
+                                      const double                               theTolerance);
 
     //! Set the surface on a face. Creates an owned FaceSurfaceRep record
     //! and an associated SurfaceRep for face geometry access.
@@ -797,14 +797,14 @@ public:
     //! Set the orientation of a face reference and fire immediate notification.
     //! @param[in] theFaceRef     typed face reference identifier
     //! @param[in] theOrientation new orientation value
-    Standard_EXPORT void SetRefOrientation(const BRepGraph_FaceRefId       theFaceRef,
-                                           BRepGraphInc::ParityOrientation theOrientation);
+    Standard_EXPORT void SetRefOrientation(const BRepGraph_FaceRefId             theFaceRef,
+                                           const BRepGraphInc::ParityOrientation theOrientation);
 
     //! Set the orientation of a face reference inside a batched mutation scope.
     //! @param[in] theMut         active mutable face reference guard
     //! @param[in] theOrientation new orientation value
     Standard_EXPORT void SetRefOrientation(BRepGraph_MutGuard<BRepGraphInc::FaceRef>& theMut,
-                                           BRepGraphInc::ParityOrientation theOrientation);
+                                           const BRepGraphInc::ParityOrientation theOrientation);
 
     //! Rewire a face reference to a different face def (rebinds FaceToShells if parent is Shell).
     Standard_EXPORT void SetRefFaceId(const BRepGraph_FaceRefId theFaceRef,

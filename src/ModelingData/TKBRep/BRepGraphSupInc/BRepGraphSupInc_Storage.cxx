@@ -245,10 +245,11 @@ bool BRepGraphSupInc_Storage::CloneCompactedTo(
     {
       return false;
     }
-    const occ::handle<BRepGraphSupInc_Store> aSnapshot =
+    const occ::handle<BRepGraphSupInc_Store> aCompactedStore =
       aSourceStore->CloneForCompaction(theNodeMap);
-    if (aSnapshot.IsNull() || !aSourceStore->IsCompatible(*aSnapshot)
-        || !aCandidate.ChangeRegistry().registerCompactedStore(aSnapshot, aSourceStore->StoreId()))
+    if (aCompactedStore.IsNull() || !aSourceStore->IsCompatible(*aCompactedStore)
+        || !aCandidate.ChangeRegistry().registerCompactedStore(aCompactedStore,
+                                                               aSourceStore->StoreId()))
     {
       return false;
     }

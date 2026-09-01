@@ -76,7 +76,7 @@ bool isValidNodeId(const BRepGraph& theGraph, const BRepGraph_NodeId theId)
 }
 
 //! Check if a topology def is removed.
-bool isEntityRemoved(const BRepGraph& theGraph, BRepGraph_NodeId theId)
+bool isEntityRemoved(const BRepGraph& theGraph, const BRepGraph_NodeId theId)
 {
   const BRepGraphInc::BaseDef* aDef = theGraph.Topo().Gen().TopoEntity(theId);
   return aDef != nullptr && theId.IsRemoved(theGraph);
@@ -1061,43 +1061,43 @@ void BRepGraph_Validate::CheckOwnedUseReferences(
   aCheckStore(
     "FaceSurfaceRep",
     aStorage.NbFaceSurfaces(),
-    [](uint32_t theIdx) { return BRepGraph_FaceSurfaceRepId(theIdx); },
+    [](const uint32_t theIdx) { return BRepGraph_FaceSurfaceRepId(theIdx); },
     aSurfaceOwners,
     aSurfaceOwner);
   aCheckStore(
     "FaceTriangulationRep",
     aStorage.NbFaceTriangulations(),
-    [](uint32_t theIdx) { return BRepGraph_FaceTriangulationRepId(theIdx); },
+    [](const uint32_t theIdx) { return BRepGraph_FaceTriangulationRepId(theIdx); },
     aTriangulationOwners,
     aTriangulationOwner);
   aCheckStore(
     "EdgeCurve3DRep",
     aStorage.NbEdgeCurves3D(),
-    [](uint32_t theIdx) { return BRepGraph_EdgeCurve3DRepId(theIdx); },
+    [](const uint32_t theIdx) { return BRepGraph_EdgeCurve3DRepId(theIdx); },
     aCurve3DOwners,
     aCurve3DOwner);
   aCheckStore(
     "EdgePolygon3DRep",
     aStorage.NbEdgePolygons3D(),
-    [](uint32_t theIdx) { return BRepGraph_EdgePolygon3DRepId(theIdx); },
+    [](const uint32_t theIdx) { return BRepGraph_EdgePolygon3DRepId(theIdx); },
     aPolygon3DOwners,
     aPolygon3DOwner);
   aCheckStore(
     "CoEdgeCurve2DRep",
     aStorage.NbCoEdgeCurves2D(),
-    [](uint32_t theIdx) { return BRepGraph_CoEdgeCurve2DRepId(theIdx); },
+    [](const uint32_t theIdx) { return BRepGraph_CoEdgeCurve2DRepId(theIdx); },
     aCurve2DOwners,
     aCurve2DOwner);
   aCheckStore(
     "CoEdgePolygon2DRep",
     aStorage.NbCoEdgePolygons2D(),
-    [](uint32_t theIdx) { return BRepGraph_CoEdgePolygon2DRepId(theIdx); },
+    [](const uint32_t theIdx) { return BRepGraph_CoEdgePolygon2DRepId(theIdx); },
     aPolygon2DOwners,
     aPolygon2DOwner);
   aCheckStore(
     "CoEdgePolygonOnTriRep",
     aStorage.NbCoEdgePolygonsOnTri(),
-    [](uint32_t theIdx) { return BRepGraph_CoEdgePolygonOnTriRepId(theIdx); },
+    [](const uint32_t theIdx) { return BRepGraph_CoEdgePolygonOnTriRepId(theIdx); },
     aPolygonOnTriOwners,
     aPolygonOnTriOwner);
 }
@@ -1249,7 +1249,7 @@ void checkActiveCounts(const BRepGraph&                                     theG
   using Issue                      = BRepGraph_Validate::Issue;
   const BRepGraph::TopoView& aDefs = theGraph.Topo();
 
-  auto countActive = [&](BRepGraph_NodeId::Kind theKind, int theNb) -> int {
+  auto countActive = [&](const BRepGraph_NodeId::Kind theKind, const int theNb) -> int {
     int aCount = 0;
     for (int anIdx = 0; anIdx < theNb; ++anIdx)
     {
@@ -1262,7 +1262,7 @@ void checkActiveCounts(const BRepGraph&                                     theG
     return aCount;
   };
 
-  auto verify = [&](const char* theName, int theActual, int theExpected) {
+  auto verify = [&](const char* theName, const int theActual, const int theExpected) {
     if (theActual != theExpected)
     {
       TCollection_AsciiString aDesc("NbActive");
@@ -1324,30 +1324,34 @@ void checkActiveCounts(const BRepGraph&                                     theG
   verify("FaceSurfaces",
          aDefs.Geometry().NbActiveFaceSurfaces(),
          countActiveUses(aDefs.Geometry().NbFaceSurfaces(),
-                         [](uint32_t theIdx) { return BRepGraph_FaceSurfaceRepId(theIdx); }));
+                         [](const uint32_t theIdx) { return BRepGraph_FaceSurfaceRepId(theIdx); }));
   verify("FaceTriangulations",
          theGraph.Mesh().Poly().NbActiveTriangulations(),
-         countActiveUses(theGraph.Mesh().Poly().NbFaceTriangulations(),
-                         [](uint32_t theIdx) { return BRepGraph_FaceTriangulationRepId(theIdx); }));
+         countActiveUses(theGraph.Mesh().Poly().NbFaceTriangulations(), [](const uint32_t theIdx) {
+           return BRepGraph_FaceTriangulationRepId(theIdx);
+         }));
   verify("EdgeCurves3D",
          aDefs.Geometry().NbActiveEdgeCurves3D(),
          countActiveUses(aDefs.Geometry().NbEdgeCurves3D(),
-                         [](uint32_t theIdx) { return BRepGraph_EdgeCurve3DRepId(theIdx); }));
+                         [](const uint32_t theIdx) { return BRepGraph_EdgeCurve3DRepId(theIdx); }));
   verify("EdgePolygons3D",
          theGraph.Mesh().Poly().NbActivePolygons3D(),
-         countActiveUses(theGraph.Mesh().Poly().NbEdgePolygons3D(),
-                         [](uint32_t theIdx) { return BRepGraph_EdgePolygon3DRepId(theIdx); }));
+         countActiveUses(theGraph.Mesh().Poly().NbEdgePolygons3D(), [](const uint32_t theIdx) {
+           return BRepGraph_EdgePolygon3DRepId(theIdx);
+         }));
   verify("CoEdgeCurves2D",
          aDefs.Geometry().NbActiveCoEdgeCurves2D(),
-         countActiveUses(aDefs.Geometry().NbCoEdgeCurves2D(),
-                         [](uint32_t theIdx) { return BRepGraph_CoEdgeCurve2DRepId(theIdx); }));
+         countActiveUses(aDefs.Geometry().NbCoEdgeCurves2D(), [](const uint32_t theIdx) {
+           return BRepGraph_CoEdgeCurve2DRepId(theIdx);
+         }));
   verify("CoEdgePolygons2D",
          theGraph.Mesh().Poly().NbActivePolygons2D(),
-         countActiveUses(theGraph.Mesh().Poly().NbCoEdgePolygons2D(),
-                         [](uint32_t theIdx) { return BRepGraph_CoEdgePolygon2DRepId(theIdx); }));
+         countActiveUses(theGraph.Mesh().Poly().NbCoEdgePolygons2D(), [](const uint32_t theIdx) {
+           return BRepGraph_CoEdgePolygon2DRepId(theIdx);
+         }));
   verify("CoEdgePolygonsOnTri",
          theGraph.Mesh().Poly().NbActivePolygonsOnTri(),
-         countActiveUses(theGraph.Mesh().Poly().NbCoEdgePolygonsOnTri(), [](uint32_t theIdx) {
+         countActiveUses(theGraph.Mesh().Poly().NbCoEdgePolygonsOnTri(), [](const uint32_t theIdx) {
            return BRepGraph_CoEdgePolygonOnTriRepId(theIdx);
          }));
 }

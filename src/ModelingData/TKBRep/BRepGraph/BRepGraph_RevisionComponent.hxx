@@ -93,7 +93,7 @@ public:
   virtual bool Restore(BRepGraph&, BRepGraph_RevisionStatus::Diagnostics&) const = 0;
 
 protected:
-  Standard_EXPORT explicit BRepGraph_RevisionComponent(uint64_t theGeneration = 1);
+  Standard_EXPORT explicit BRepGraph_RevisionComponent(const uint64_t theGeneration = 1);
 
 private:
   uint64_t myGeneration;

@@ -538,18 +538,17 @@ private:
 
   struct HashState;
 
-  struct ComponentSnapshot
+  struct ComponentState
   {
     BRepGraph_RevisionComponent::ComponentDescriptor Descriptor;
     BRepGraph_RevisionHash                           SemanticHash;
     BRepGraph_RevisionHash                           StorageHash;
-    NCollection_LinearVector<uint8_t>                PersistentBytes;
   };
 
   BRepGraph_Revision(
     std::shared_ptr<const BRepGraph> theGraph,
-    uint32_t                         theSchemaVersion,
-    bool                             theSupportsSparseEdits,
+    const uint32_t                   theSchemaVersion,
+    const bool                       theSupportsSparseEdits,
     const NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>>& theComponents = {},
     std::shared_ptr<const HashState>                                          theHashState  = {});
 
@@ -566,13 +565,13 @@ private:
     const NCollection_LinearVector<WireChange>&      theWireChanges,
     const NCollection_LinearVector<FaceChange>&      theFaceChanges,
     const NCollection_LinearVector<WireRefChange>&   theWireRefChanges,
-    uint32_t                                         theNextVertexCounter,
-    uint32_t                                         theNextEdgeCounter,
-    uint32_t                                         theNextVertexRefCounter,
-    uint32_t                                         theNextCoEdgeCounter,
-    uint32_t                                         theNextWireCounter,
-    uint32_t                                         theNextFaceCounter,
-    uint32_t                                         theNextWireRefCounter,
+    const uint32_t                                   theNextVertexCounter,
+    const uint32_t                                   theNextEdgeCounter,
+    const uint32_t                                   theNextVertexRefCounter,
+    const uint32_t                                   theNextCoEdgeCounter,
+    const uint32_t                                   theNextWireCounter,
+    const uint32_t                                   theNextFaceCounter,
+    const uint32_t                                   theNextWireRefCounter,
     const NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>>& theComponents,
     BRepGraph_RevisionStatus::Diagnostics&                                    theDiagnostics);
 
@@ -585,16 +584,16 @@ private:
   //! Construct a revision from an isolated core graph.
   [[nodiscard]] static occ::handle<BRepGraph_Revision> FromCoreGraph(
     std::shared_ptr<const BRepGraph> theGraph,
-    uint32_t                         theSchemaVersion);
+    const uint32_t                   theSchemaVersion);
 
   [[nodiscard]] static CreateResult FromTransactionGraph(std::unique_ptr<BRepGraph> theGraph,
-                                                         uint32_t theSchemaVersion);
+                                                         const uint32_t theSchemaVersion);
 
   //! Construct directly from a decoded core and decoded immutable components.
   //! This trusted ODE boundary never restores components into a mutable graph.
   [[nodiscard]] static occ::handle<BRepGraph_Revision> FromDecodedCore(
     std::shared_ptr<const BRepGraph>                                          theGraph,
-    uint32_t                                                                  theSchemaVersion,
+    const uint32_t                                                            theSchemaVersion,
     const NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>>& theComponents,
     BRepGraph_RevisionStatus::Diagnostics&                                    theDiagnostics);
 
@@ -622,13 +621,13 @@ private:
     const NCollection_LinearVector<WireChange>&      theWireChanges,
     const NCollection_LinearVector<FaceChange>&      theFaceChanges,
     const NCollection_LinearVector<WireRefChange>&   theWireRefChanges,
-    uint32_t                                         theNextVertexCounter,
-    uint32_t                                         theNextEdgeCounter,
-    uint32_t                                         theNextVertexRefCounter,
-    uint32_t                                         theNextCoEdgeCounter,
-    uint32_t                                         theNextWireCounter,
-    uint32_t                                         theNextFaceCounter,
-    uint32_t                                         theNextWireRefCounter);
+    const uint32_t                                   theNextVertexCounter,
+    const uint32_t                                   theNextEdgeCounter,
+    const uint32_t                                   theNextVertexRefCounter,
+    const uint32_t                                   theNextCoEdgeCounter,
+    const uint32_t                                   theNextWireCounter,
+    const uint32_t                                   theNextFaceCounter,
+    const uint32_t                                   theNextWireRefCounter);
 
   //! Validate the retained core graph relations.
   [[nodiscard]] bool ValidateRelations() const;
@@ -641,20 +640,21 @@ private:
 
   //! Resolve one persistent vertex record from the retained core graph.
   [[nodiscard]] bool ResolveVertex(const BRepGraph_UID& theUID, VertexChange& theChange) const;
-  [[nodiscard]] bool ResolveVertexLocal(uint32_t theIndex, VertexChange& theChange) const;
+  [[nodiscard]] bool ResolveVertexLocal(const uint32_t theIndex, VertexChange& theChange) const;
   [[nodiscard]] bool ResolveEdge(const BRepGraph_UID& theUID, EdgeChange& theChange) const;
-  [[nodiscard]] bool ResolveEdgeLocal(uint32_t theIndex, EdgeChange& theChange) const;
+  [[nodiscard]] bool ResolveEdgeLocal(const uint32_t theIndex, EdgeChange& theChange) const;
   [[nodiscard]] bool ResolveVertexRef(const BRepGraph_RefUID& theUID,
                                       VertexRefChange&        theChange) const;
-  [[nodiscard]] bool ResolveVertexRefLocal(uint32_t theIndex, VertexRefChange& theChange) const;
+  [[nodiscard]] bool ResolveVertexRefLocal(const uint32_t   theIndex,
+                                           VertexRefChange& theChange) const;
   [[nodiscard]] bool ResolveCoEdge(const BRepGraph_UID& theUID, CoEdgeChange& theChange) const;
-  [[nodiscard]] bool ResolveCoEdgeLocal(uint32_t theIndex, CoEdgeChange& theChange) const;
+  [[nodiscard]] bool ResolveCoEdgeLocal(const uint32_t theIndex, CoEdgeChange& theChange) const;
   [[nodiscard]] bool ResolveWire(const BRepGraph_UID& theUID, WireChange& theChange) const;
-  [[nodiscard]] bool ResolveWireLocal(uint32_t theIndex, WireChange& theChange) const;
+  [[nodiscard]] bool ResolveWireLocal(const uint32_t theIndex, WireChange& theChange) const;
   [[nodiscard]] bool ResolveFace(const BRepGraph_UID& theUID, FaceChange& theChange) const;
-  [[nodiscard]] bool ResolveFaceLocal(uint32_t theIndex, FaceChange& theChange) const;
+  [[nodiscard]] bool ResolveFaceLocal(const uint32_t theIndex, FaceChange& theChange) const;
   [[nodiscard]] bool ResolveWireRef(const BRepGraph_RefUID& theUID, WireRefChange& theChange) const;
-  [[nodiscard]] bool ResolveWireRefLocal(uint32_t theIndex, WireRefChange& theChange) const;
+  [[nodiscard]] bool ResolveWireRefLocal(const uint32_t theIndex, WireRefChange& theChange) const;
 
   //! Return native record counts and durable allocation counters.
   [[nodiscard]] uint32_t VertexCount() const noexcept;
@@ -680,7 +680,7 @@ private:
   uint32_t                                 mySchemaVersion       = THE_SCHEMA_VERSION;
   bool                                     mySupportsSparseEdits = false;
   NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>> myComponents;
-  NCollection_LinearVector<ComponentSnapshot>                        myComponentSnapshots;
+  NCollection_LinearVector<ComponentState>                           myComponentStates;
   NCollection_FlatDataMap<Standard_GUID, uint32_t>                   myComponentIndices;
 
 public:

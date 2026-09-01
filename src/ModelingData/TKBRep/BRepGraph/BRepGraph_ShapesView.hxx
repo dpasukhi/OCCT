@@ -58,7 +58,7 @@ public:
     ReconstructionScope& operator=(const ReconstructionScope&) = delete;
 
     //! Reconstruct one node through this scope's shared temporary cache.
-    [[nodiscard]] Standard_EXPORT TopoDS_Shape Shape(BRepGraph_NodeId theNode);
+    [[nodiscard]] Standard_EXPORT TopoDS_Shape Shape(const BRepGraph_NodeId theNode);
 
   private:
     struct Impl;
@@ -213,8 +213,8 @@ public:
   //! @param[in] theNode active node receiving the binding
   //! @param[in] theShape original shape to retain
   //! @return true when the binding was stored
-  [[nodiscard]] Standard_EXPORT bool BindOriginal(BRepGraph_NodeId    theNode,
-                                                  const TopoDS_Shape& theShape);
+  [[nodiscard]] Standard_EXPORT bool BindOriginal(const BRepGraph_NodeId theNode,
+                                                  const TopoDS_Shape&    theShape);
 
   //! Reconstruct a TopoDS_Shape from a graph node without using the persistent cache.
   //! Use this when the caller explicitly needs a fresh rebuild instead of the
@@ -304,8 +304,7 @@ private:
                                              const TopAbs_ShapeEnum theShapeType,
                                              const uint32_t         theOldCountOfShapeKind);
 
-  static uint32_t snapshotCountForKind(const BRepGraph&       theGraph,
-                                       const TopAbs_ShapeEnum theShapeType);
+  static uint32_t countForKind(const BRepGraph& theGraph, const TopAbs_ShapeEnum theShapeType);
 
   static void populateUIDsIncremental(BRepGraph&     theGraph,
                                       const uint32_t theOldVtx,

@@ -550,11 +550,11 @@ void BRepGraph_CacheRegistry::CopyFreshCachesTo(
 
 //=================================================================================================
 
-void BRepGraph_CacheRegistry::CopyFreshCachesTo(BRepGraph&                       theTargetGraph,
-                                                 BRepGraph_CopyRemap::MappingKind theMappingKind,
-                                                 BRepGraph_CopyRemap::Mode        theMode,
-                                                 const BRepGraph_CopyRemap::FreshnessPolicy
-                                                   theFreshnessPolicy) const
+void BRepGraph_CacheRegistry::CopyFreshCachesTo(
+  BRepGraph&                                 theTargetGraph,
+  const BRepGraph_CopyRemap::MappingKind     theMappingKind,
+  const BRepGraph_CopyRemap::Mode            theMode,
+  const BRepGraph_CopyRemap::FreshnessPolicy theFreshnessPolicy) const
 {
   BRepGraph* aSourceGraph = nullptr;
   {

@@ -114,19 +114,19 @@ BRepGraph_ParentExplorer::BRepGraph_ParentExplorer(
 
 //=================================================================================================
 
-BRepGraph_ParentExplorer::BRepGraph_ParentExplorer(const BRepGraph&       theGraph,
-                                                   const BRepGraph_NodeId theNode,
-                                                   BRepGraph_NodeId::Kind theTargetKind)
+BRepGraph_ParentExplorer::BRepGraph_ParentExplorer(const BRepGraph&             theGraph,
+                                                   const BRepGraph_NodeId       theNode,
+                                                   const BRepGraph_NodeId::Kind theTargetKind)
     : BRepGraph_ParentExplorer(theGraph, theNode, theTargetKind, TraversalMode::Recursive)
 {
 }
 
 //=================================================================================================
 
-BRepGraph_ParentExplorer::BRepGraph_ParentExplorer(const BRepGraph&       theGraph,
-                                                   const BRepGraph_NodeId theNode,
-                                                   BRepGraph_NodeId::Kind theTargetKind,
-                                                   const TraversalMode    theMode)
+BRepGraph_ParentExplorer::BRepGraph_ParentExplorer(const BRepGraph&             theGraph,
+                                                   const BRepGraph_NodeId       theNode,
+                                                   const BRepGraph_NodeId::Kind theTargetKind,
+                                                   const TraversalMode          theMode)
     : BRepGraph_ParentExplorer(theGraph, theNode, Config{theMode, theTargetKind, {}, false})
 {
 }
@@ -136,7 +136,7 @@ BRepGraph_ParentExplorer::BRepGraph_ParentExplorer(const BRepGraph&       theGra
 BRepGraph_ParentExplorer::BRepGraph_ParentExplorer(
   const BRepGraph&                             theGraph,
   const BRepGraph_NodeId                       theNode,
-  BRepGraph_NodeId::Kind                       theTargetKind,
+  const BRepGraph_NodeId::Kind                 theTargetKind,
   const std::optional<BRepGraph_NodeId::Kind>& theAvoidKind,
   const bool                                   theEmitAvoidKind,
   const TraversalMode                          theMode)

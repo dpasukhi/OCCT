@@ -57,20 +57,20 @@ public:
   using ItemMap = NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>;
 
   Standard_EXPORT BRepGraph_CopyRemap(
-    const BRepGraph& theSourceGraph,
-    BRepGraph&       theTargetGraph,
-    const ItemMap&   theItemRemap,
-    const Mode       theMode,
-    FreshnessPolicy  theFreshnessPolicy = FreshnessPolicy::SourceOnly) noexcept;
+    const BRepGraph&      theSourceGraph,
+    BRepGraph&            theTargetGraph,
+    const ItemMap&        theItemRemap,
+    const Mode            theMode,
+    const FreshnessPolicy theFreshnessPolicy = FreshnessPolicy::SourceOnly) noexcept;
 
   //! Identity-mapping constructor for full identity copy into an empty target.
   //! Source item ids are returned directly as target item ids after validation.
   Standard_EXPORT BRepGraph_CopyRemap(
-    const BRepGraph& theSourceGraph,
-    BRepGraph&       theTargetGraph,
-    MappingKind      theMappingKind,
-    Mode             theMode,
-    FreshnessPolicy  theFreshnessPolicy = FreshnessPolicy::SourceOnly) noexcept;
+    const BRepGraph&      theSourceGraph,
+    BRepGraph&            theTargetGraph,
+    const MappingKind     theMappingKind,
+    const Mode            theMode,
+    const FreshnessPolicy theFreshnessPolicy = FreshnessPolicy::SourceOnly) noexcept;
 
   //! Migration mode of this context.
   [[nodiscard]] Mode CopyMode() const noexcept { return myMode; }
@@ -116,22 +116,24 @@ public:
   //! Return true when source and mapped target have the same own generation.
   //! Runtime services use this to avoid carrying stale derived values across
   //! persistent graph replacement.
-  [[nodiscard]] Standard_EXPORT bool HasSameOwnGeneration(BRepGraph_ItemId theSourceItem) const;
+  [[nodiscard]] Standard_EXPORT bool HasSameOwnGeneration(
+    const BRepGraph_ItemId theSourceItem) const;
 
   //! Return true when source and mapped target nodes have the same subtree generation.
-  [[nodiscard]] Standard_EXPORT bool HasSameSubtreeGeneration(BRepGraph_NodeId theSourceNode) const;
+  [[nodiscard]] Standard_EXPORT bool HasSameSubtreeGeneration(
+    const BRepGraph_NodeId theSourceNode) const;
 
   //! Return true when an own-generation cache dependency may be copied to the target.
   //! Source-only migrations accept the mapped item; target-matching migrations also
   //! require the source and target item identity and own generation to match.
   [[nodiscard]] Standard_EXPORT bool IsOwnGenerationCompatible(
-    BRepGraph_ItemId theSourceItem) const;
+    const BRepGraph_ItemId theSourceItem) const;
 
   //! Return true when a subtree-generation cache dependency may be copied to the target.
   //! Source-only migrations accept the mapped node; target-matching migrations also
   //! require the source and target node identity and subtree generation to match.
   [[nodiscard]] Standard_EXPORT bool IsSubtreeGenerationCompatible(
-    BRepGraph_NodeId theSourceNode) const;
+    const BRepGraph_NodeId theSourceNode) const;
 
 private:
   const BRepGraph* mySourceGraph     = nullptr;

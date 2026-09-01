@@ -126,7 +126,7 @@ public:
 
   //! Return cache service by graph-local slot, or null handle if the slot is out of range.
   //! @param[in] theSlot graph-local cache slot
-  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Cache> Cache(uint32_t theSlot) const;
+  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Cache> Cache(const uint32_t theSlot) const;
 
   //! Number of registered cache services.
   [[nodiscard]] uint32_t NbCaches() const
@@ -145,16 +145,17 @@ public:
   Standard_EXPORT void CopyFreshCachesTo(
     BRepGraph&                                                         theTargetGraph,
     const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap,
-    BRepGraph_CopyRemap::Mode                                          theMode,
-    BRepGraph_CopyRemap::FreshnessPolicy                               theFreshnessPolicy =
+    const BRepGraph_CopyRemap::Mode                                    theMode,
+    const BRepGraph_CopyRemap::FreshnessPolicy                         theFreshnessPolicy =
       BRepGraph_CopyRemap::FreshnessPolicy::SourceOnly) const;
 
   //! Ask registered cache services to copy fresh data using identity mapping.
-  Standard_EXPORT void CopyFreshCachesTo(BRepGraph&                           theTargetGraph,
-                                         BRepGraph_CopyRemap::MappingKind     theMappingKind,
-                                         BRepGraph_CopyRemap::Mode            theMode,
-                                         BRepGraph_CopyRemap::FreshnessPolicy theFreshnessPolicy =
-                                           BRepGraph_CopyRemap::FreshnessPolicy::SourceOnly) const;
+  Standard_EXPORT void CopyFreshCachesTo(
+    BRepGraph&                                 theTargetGraph,
+    const BRepGraph_CopyRemap::MappingKind     theMappingKind,
+    const BRepGraph_CopyRemap::Mode            theMode,
+    const BRepGraph_CopyRemap::FreshnessPolicy theFreshnessPolicy =
+      BRepGraph_CopyRemap::FreshnessPolicy::SourceOnly) const;
 
   //! Unregister all cache services.
   Standard_EXPORT void Clear() noexcept;
@@ -187,13 +188,13 @@ private:
     const Standard_GUID&                                 theGUID,
     const std::function<occ::handle<BRepGraph_Cache>()>& theFactory);
 
-  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Cache> cacheAt(uint32_t theSlot) const;
+  [[nodiscard]] Standard_EXPORT occ::handle<BRepGraph_Cache> cacheAt(const uint32_t theSlot) const;
 
   Standard_EXPORT uint32_t registerCacheLocked(const occ::handle<BRepGraph_Cache>& theCache,
                                                occ::handle<BRepGraph_Cache>&       theRemoved,
                                                bool&                               theToAttach);
 
-  Standard_EXPORT void releaseCaches(bool theToClearDetached) noexcept;
+  Standard_EXPORT void releaseCaches(const bool theToClearDetached) noexcept;
 
   Standard_EXPORT void releaseIfUnregistered(const occ::handle<BRepGraph_Cache>& theCache) noexcept;
 

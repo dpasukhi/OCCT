@@ -552,10 +552,10 @@ using LocatedNodeBindingIndex = uint32_t;
 
 struct BuildContext;
 
-BRepGraph_NodeId findExistingNode(const BuildContext&    theBuild,
-                                  const TopoDS_Shape&    theShape,
-                                  BRepGraph_NodeId::Kind theExpectedKind,
-                                  const TopLoc_Location& theDefinitionLocation);
+BRepGraph_NodeId findExistingNode(const BuildContext&          theBuild,
+                                  const TopoDS_Shape&          theShape,
+                                  const BRepGraph_NodeId::Kind theExpectedKind,
+                                  const TopLoc_Location&       theDefinitionLocation);
 
 void bindLocatedNode(BuildContext&          theBuild,
                      const TopoDS_Shape&    theShape,
@@ -631,10 +631,10 @@ TopoDS_Shape shapeWithoutOwnLocation(const TopoDS_Shape& theShape)
   return aShape;
 }
 
-BRepGraph_NodeId findExistingNode(const BuildContext&    theBuild,
-                                  const TopoDS_Shape&    theShape,
-                                  BRepGraph_NodeId::Kind theExpectedKind,
-                                  const TopLoc_Location& theDefinitionLocation)
+BRepGraph_NodeId findExistingNode(const BuildContext&          theBuild,
+                                  const TopoDS_Shape&          theShape,
+                                  const BRepGraph_NodeId::Kind theExpectedKind,
+                                  const TopLoc_Location&       theDefinitionLocation)
 {
   const TopoDS_TShape* aTShape = theShape.TShape().get();
 
@@ -1831,7 +1831,7 @@ BRepGraphInc_Populate::BuildStatus buildTopology(
 
 BRepGraphInc_Populate::BuildStatus BRepGraphInc_Populate::Perform(BRepGraph&          theGraph,
                                                                   const TopoDS_Shape& theShape,
-                                                                  bool                theParallel,
+                                                                  const bool          theParallel,
                                                                   const Options&      theOptions)
 {
   theGraph.Clear();
@@ -1855,7 +1855,7 @@ BRepGraphInc_Populate::BuildStatus BRepGraphInc_Populate::Perform(BRepGraph&    
 BRepGraphInc_Populate::BuildStatus BRepGraphInc_Populate::AppendFlattened(
   BRepGraph&                                  theGraph,
   const TopoDS_Shape&                         theShape,
-  bool                                        theParallel,
+  const bool                                  theParallel,
   NCollection_LinearVector<BRepGraph_NodeId>& theAppendedRoots,
   const Options&                              theOptions)
 {
@@ -1878,7 +1878,7 @@ BRepGraphInc_Populate::BuildStatus BRepGraphInc_Populate::AppendFlattened(
 
 BRepGraphInc_Populate::BuildStatus BRepGraphInc_Populate::Append(BRepGraph&          theGraph,
                                                                  const TopoDS_Shape& theShape,
-                                                                 bool                theParallel,
+                                                                 const bool          theParallel,
                                                                  const Options&      theOptions)
 {
   if (theShape.IsNull())

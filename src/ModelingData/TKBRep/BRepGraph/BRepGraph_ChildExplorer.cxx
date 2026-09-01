@@ -136,9 +136,9 @@ BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(
 
 //=================================================================================================
 
-BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&       theGraph,
-                                                 const BRepGraph_NodeId theRoot,
-                                                 BRepGraph_NodeId::Kind theTargetKind)
+BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&             theGraph,
+                                                 const BRepGraph_NodeId       theRoot,
+                                                 const BRepGraph_NodeId::Kind theTargetKind)
     : BRepGraph_ChildExplorer(theGraph,
                               theRoot,
                               childExplorerConfig(TraversalMode::Recursive, theTargetKind))
@@ -147,19 +147,19 @@ BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&       theGraph
 
 //=================================================================================================
 
-BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&          theGraph,
-                                                 const BRepGraph_ProductId theProduct,
-                                                 BRepGraph_NodeId::Kind    theTargetKind)
+BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&             theGraph,
+                                                 const BRepGraph_ProductId    theProduct,
+                                                 const BRepGraph_NodeId::Kind theTargetKind)
     : BRepGraph_ChildExplorer(theGraph, BRepGraph_NodeId(theProduct), theTargetKind)
 {
 }
 
 //=================================================================================================
 
-BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&       theGraph,
-                                                 const BRepGraph_NodeId theRoot,
-                                                 BRepGraph_NodeId::Kind theTargetKind,
-                                                 const TraversalMode    theMode)
+BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&             theGraph,
+                                                 const BRepGraph_NodeId       theRoot,
+                                                 const BRepGraph_NodeId::Kind theTargetKind,
+                                                 const TraversalMode          theMode)
     : BRepGraph_ChildExplorer(theGraph, theRoot, childExplorerConfig(theMode, theTargetKind))
 {
 }
@@ -169,7 +169,7 @@ BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&       theGraph
 BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(
   const BRepGraph&                             theGraph,
   const BRepGraph_NodeId                       theRoot,
-  BRepGraph_NodeId::Kind                       theTargetKind,
+  const BRepGraph_NodeId::Kind                 theTargetKind,
   const std::optional<BRepGraph_NodeId::Kind>& theAvoidKind,
   const bool                                   theEmitAvoidKind,
   const TraversalMode                          theMode)
@@ -182,22 +182,22 @@ BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(
 
 //=================================================================================================
 
-BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&          theGraph,
-                                                 const BRepGraph_ProductId theProduct,
-                                                 BRepGraph_NodeId::Kind    theTargetKind,
-                                                 const TraversalMode       theMode)
+BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&             theGraph,
+                                                 const BRepGraph_ProductId    theProduct,
+                                                 const BRepGraph_NodeId::Kind theTargetKind,
+                                                 const TraversalMode          theMode)
     : BRepGraph_ChildExplorer(theGraph, BRepGraph_NodeId(theProduct), theTargetKind, theMode)
 {
 }
 
 //=================================================================================================
 
-BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&       theGraph,
-                                                 const BRepGraph_NodeId theRoot,
-                                                 BRepGraph_NodeId::Kind theTargetKind,
-                                                 const bool             theCumLoc,
-                                                 const bool             theCumOri,
-                                                 const TraversalMode    theMode)
+BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&             theGraph,
+                                                 const BRepGraph_NodeId       theRoot,
+                                                 const BRepGraph_NodeId::Kind theTargetKind,
+                                                 const bool                   theCumLoc,
+                                                 const bool                   theCumOri,
+                                                 const TraversalMode          theMode)
     : BRepGraph_ChildExplorer(
         theGraph,
         theRoot,
@@ -207,12 +207,12 @@ BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&       theGraph
 
 //=================================================================================================
 
-BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&          theGraph,
-                                                 const BRepGraph_ProductId theProduct,
-                                                 BRepGraph_NodeId::Kind    theTargetKind,
-                                                 const bool                theCumLoc,
-                                                 const bool                theCumOri,
-                                                 const TraversalMode       theMode)
+BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&             theGraph,
+                                                 const BRepGraph_ProductId    theProduct,
+                                                 const BRepGraph_NodeId::Kind theTargetKind,
+                                                 const bool                   theCumLoc,
+                                                 const bool                   theCumOri,
+                                                 const TraversalMode          theMode)
     : BRepGraph_ChildExplorer(theGraph,
                               BRepGraph_NodeId(theProduct),
                               theTargetKind,
@@ -224,12 +224,12 @@ BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&          theGr
 
 //=================================================================================================
 
-BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&         theGraph,
-                                                 const BRepGraph_NodeId   theRoot,
-                                                 BRepGraph_NodeId::Kind   theTargetKind,
-                                                 const TopLoc_Location&   theStartLoc,
-                                                 const TopAbs_Orientation theStartOri,
-                                                 const TraversalMode      theMode)
+BRepGraph_ChildExplorer::BRepGraph_ChildExplorer(const BRepGraph&             theGraph,
+                                                 const BRepGraph_NodeId       theRoot,
+                                                 const BRepGraph_NodeId::Kind theTargetKind,
+                                                 const TopLoc_Location&       theStartLoc,
+                                                 const TopAbs_Orientation     theStartOri,
+                                                 const TraversalMode          theMode)
     : BRepGraph_ChildExplorer(theGraph,
                               theRoot,
                               childExplorerConfig(theMode,

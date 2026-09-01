@@ -294,8 +294,8 @@ void BRepGraphSupInc_TopologyStore::RemoveOwner(const BRepGraph_NodeId theOwner)
   {
     return;
   }
-  const NCollection_LinearVector<BRepGraphSupInc_TopologyId> aSnapshot = *anItems;
-  for (const BRepGraphSupInc_TopologyId anID : aSnapshot)
+  const NCollection_LinearVector<BRepGraphSupInc_TopologyId> anOwnerItems = *anItems;
+  for (const BRepGraphSupInc_TopologyId anID : anOwnerItems)
   {
     Remove(anID);
   }
@@ -322,21 +322,21 @@ void BRepGraphSupInc_TopologyStore::ReplaceOwner(const BRepGraph_NodeId theOldOw
   {
     return;
   }
-  const NCollection_LinearVector<BRepGraphSupInc_TopologyId> aSnapshot = *anItems;
+  const NCollection_LinearVector<BRepGraphSupInc_TopologyId> anOwnerItems = *anItems;
   NCollection_LinearVector<BRepGraphSupInc_TopologyId>*      aNewItems =
     myOwnerToItems.ChangeSeek(theNewOwner);
   if (aNewItems == nullptr)
   {
-    myOwnerToItems.Bind(theNewOwner, aSnapshot);
+    myOwnerToItems.Bind(theNewOwner, anOwnerItems);
   }
   else
   {
-    for (const BRepGraphSupInc_TopologyId anID : aSnapshot)
+    for (const BRepGraphSupInc_TopologyId anID : anOwnerItems)
     {
       aNewItems->Append(anID);
     }
   }
-  for (const BRepGraphSupInc_TopologyId anID : aSnapshot)
+  for (const BRepGraphSupInc_TopologyId anID : anOwnerItems)
   {
     myItems.ChangeValue(static_cast<size_t>(anID.Index)).Owner = theNewOwner;
   }

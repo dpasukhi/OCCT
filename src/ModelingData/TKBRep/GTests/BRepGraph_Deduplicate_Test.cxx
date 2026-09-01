@@ -1482,7 +1482,7 @@ TEST(BRepGraph_DeduplicateTest, AnalyzeOnly_NoBackRefChangesOrNullification)
     aGraph.Shapes().Add(makeTwoCopiedIdenticalFaces());
   ASSERT_FALSE(aGraph.IsEmpty());
 
-  // Snapshot surface/curve pointers before.
+  // Store surface/curve pointers before deduplication.
   NCollection_DynamicArray<const Geom_Surface*> aSurfPtrs;
   for (BRepGraph_FullFaceIterator aFaceIt(aGraph); aFaceIt.More(); aFaceIt.Next())
   {

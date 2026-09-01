@@ -53,57 +53,58 @@ public:
   //! Computes and caches only Status - does NOT compute SameParameter/SameRange.
   //! @param[in] theEdge edge definition identifier
   //! @return true if the edge is degenerate
-  [[nodiscard]] Standard_EXPORT bool IsDegenerated(BRepGraph_EdgeId theEdge);
+  [[nodiscard]] Standard_EXPORT bool IsDegenerated(const BRepGraph_EdgeId theEdge);
 
   //! @brief Test if a single coedge has SameParameter.
   //! @param[in] theCoEdge coedge definition identifier
   //! @return true if the coedge has SameParameter
-  [[nodiscard]] Standard_EXPORT bool SameParameter(BRepGraph_CoEdgeId theCoEdge);
+  [[nodiscard]] Standard_EXPORT bool SameParameter(const BRepGraph_CoEdgeId theCoEdge);
 
   //! @brief Test if a single coedge has SameRange.
   //! @param[in] theCoEdge coedge definition identifier
   //! @return true if the coedge has SameRange
-  [[nodiscard]] Standard_EXPORT bool SameRange(BRepGraph_CoEdgeId theCoEdge);
+  [[nodiscard]] Standard_EXPORT bool SameRange(const BRepGraph_CoEdgeId theCoEdge);
 
   //! @brief Test if an edge is closed (start vertex == end vertex).
   //! Computes and caches only IsClosed.
   //! @param[in] theEdge edge definition identifier
   //! @return true if the edge is closed
-  [[nodiscard]] Standard_EXPORT bool IsClosed(BRepGraph_EdgeId theEdge);
+  [[nodiscard]] Standard_EXPORT bool IsClosed(const BRepGraph_EdgeId theEdge);
 
   //! @brief Return wire closure, computing and storing a fresh entry.
   //! @param[in]  theWire   wire definition identifier
   //! @param[out] theClosed filled with the fresh derived value
   //! @return true if computation succeeded
-  [[nodiscard]] Standard_EXPORT bool GetWireIsClosed(BRepGraph_WireId theWire, bool& theClosed);
+  [[nodiscard]] Standard_EXPORT bool GetWireIsClosed(const BRepGraph_WireId theWire,
+                                                     bool&                  theClosed);
 
   //! @brief Store a pre-computed wire closure value.
   //! @param[in] theWire   wire definition identifier
   //! @param[in] theClosed pre-computed closure value
-  Standard_EXPORT void SetWireIsClosed(BRepGraph_WireId theWire, bool theClosed);
+  Standard_EXPORT void SetWireIsClosed(const BRepGraph_WireId theWire, const bool theClosed);
 
   //! @brief Return number of distinct edge definitions used by a wire.
   //! Seam wires can contain two coedges referencing the same edge; this query counts
   //! such seam halves once.
   //! @param[in] theWire wire definition identifier
   //! @return number of distinct active edge definitions used by active coedges in the wire
-  [[nodiscard]] Standard_EXPORT uint32_t NbDistinctEdges(BRepGraph_WireId theWire);
+  [[nodiscard]] Standard_EXPORT uint32_t NbDistinctEdges(const BRepGraph_WireId theWire);
 
   //! @brief Return the outer wire reference of a face.
   //! Computes the wire whose UV bounds contain all other face wire UV boxes.
   //! @param[in] theFace face definition identifier
   //! @return outer wire reference id, or invalid id when no valid wire bounds exist
-  [[nodiscard]] Standard_EXPORT BRepGraph_WireRefId OuterWireRef(BRepGraph_FaceId theFace);
+  [[nodiscard]] Standard_EXPORT BRepGraph_WireRefId OuterWireRef(const BRepGraph_FaceId theFace);
 
   //! @brief Return the outer wire of a face.
   //! @param[in] theFace face definition identifier
   //! @return child wire id of OuterWireRef(), or invalid id when no valid wire bounds exist
-  [[nodiscard]] Standard_EXPORT BRepGraph_WireId OuterWire(BRepGraph_FaceId theFace);
+  [[nodiscard]] Standard_EXPORT BRepGraph_WireId OuterWire(const BRepGraph_FaceId theFace);
 
   //! @brief Test if a shell is closed.
   //! @param[in] theShell shell definition identifier
   //! @return true if the shell is closed
-  [[nodiscard]] Standard_EXPORT bool IsShellClosed(BRepGraph_ShellId theShell);
+  [[nodiscard]] Standard_EXPORT bool IsShellClosed(const BRepGraph_ShellId theShell);
 
   //! Compute edge-own derived state (Status, IsClosed).
   //! SameRange/SameParameter are per-CoEdge - use the per-CoEdge cache directly.
@@ -112,24 +113,24 @@ public:
   //! @param[out] theIsDegenerated true if edge is degenerate
   //! @param[out] theIsClosed      true if edge is closed
   //! @return true if computation succeeded
-  [[nodiscard]] Standard_EXPORT static bool ComputeEdgeProperties(const BRepGraph& theGraph,
-                                                                  BRepGraph_EdgeId theEdge,
-                                                                  bool&            theIsDegenerated,
-                                                                  bool&            theIsClosed);
+  [[nodiscard]] Standard_EXPORT static bool ComputeEdgeProperties(const BRepGraph&       theGraph,
+                                                                  const BRepGraph_EdgeId theEdge,
+                                                                  bool& theIsDegenerated,
+                                                                  bool& theIsClosed);
 
   //! Compute shell closure directly from a BRepGraph without caching.
   //! @param[in] theGraph source graph
   //! @param[in] theShell shell definition identifier
   //! @return true if the shell is closed
-  [[nodiscard]] Standard_EXPORT static bool ComputeShellIsClosed(const BRepGraph&  theGraph,
-                                                                 BRepGraph_ShellId theShell);
+  [[nodiscard]] Standard_EXPORT static bool ComputeShellIsClosed(const BRepGraph&        theGraph,
+                                                                 const BRepGraph_ShellId theShell);
 
   //! Compute wire closure directly from a BRepGraph without caching.
   //! @param[in] theGraph source graph
   //! @param[in] theWire  wire definition identifier
   //! @return true if the wire is closed
-  [[nodiscard]] Standard_EXPORT static bool ComputeWireIsClosed(const BRepGraph& theGraph,
-                                                                BRepGraph_WireId theWire);
+  [[nodiscard]] Standard_EXPORT static bool ComputeWireIsClosed(const BRepGraph&       theGraph,
+                                                                const BRepGraph_WireId theWire);
 
   DEFINE_STANDARD_RTTIEXT(BRepGraph_CacheDerivedState, BRepGraph_Cache)
 
@@ -187,7 +188,7 @@ private:
       return (Packed.load(std::memory_order_acquire) & FlagComputed) != 0;
     }
 
-    void Set(GeomStatus theStatus, bool theClosed)
+    void Set(const GeomStatus theStatus, const bool theClosed)
     {
       uint8_t aFlags = FlagComputed | static_cast<uint8_t>(theStatus);
       if (theClosed)
@@ -241,7 +242,7 @@ private:
 
     [[nodiscard]] uint8_t Computed() const { return Packed.load(std::memory_order_acquire); }
 
-    void SetSameRange(bool theVal)
+    void SetSameRange(const bool theVal)
     {
       uint8_t aFlags = ComputedSameRange;
       if (theVal)
@@ -251,7 +252,7 @@ private:
       Packed.fetch_or(aFlags, std::memory_order_release);
     }
 
-    void SetSameParameter(bool theVal)
+    void SetSameParameter(const bool theVal)
     {
       uint8_t aFlags = ComputedSameParam;
       if (theVal)
@@ -313,7 +314,7 @@ private:
       return DistinctEdges.load(std::memory_order_acquire);
     }
 
-    void SetClosed(bool theVal)
+    void SetClosed(const bool theVal)
     {
       uint8_t aFlags = Packed.load(std::memory_order_acquire)
                      & ~(FlagClosureComputed | FlagClosed);
@@ -325,7 +326,7 @@ private:
       Packed.store(aFlags, std::memory_order_release);
     }
 
-    void SetDistinctEdges(uint32_t theCount)
+    void SetDistinctEdges(const uint32_t theCount)
     {
       DistinctEdges.store(theCount, std::memory_order_release);
       Packed.fetch_or(FlagDistinctComputed, std::memory_order_release);
@@ -396,7 +397,7 @@ private:
 
     [[nodiscard]] BRepGraph_WireRefId OuterWireRef() const { return OuterWireRefId; }
 
-    void SetOuterWireRef(BRepGraph_WireRefId theWireRef)
+    void SetOuterWireRef(const BRepGraph_WireRefId theWireRef)
     {
       OuterWireRefId = theWireRef;
       Packed.store(FlagOuterWireComputed, std::memory_order_release);
@@ -404,33 +405,33 @@ private:
   };
 
   //! Ensure edge-own entry (Status, IsClosed) is fresh. Uses OwnGen only.
-  bool ensureEdgeEntry(BRepGraph_EdgeId theEdge, EdgeEntry& theEntry);
+  bool ensureEdgeEntry(const BRepGraph_EdgeId theEdge, EdgeEntry& theEntry);
 
   //! Ensure per-CoEdge entry is fresh. Bound to CoEdge OwnGen.
-  bool ensureCoEdgeSameRangeEntry(BRepGraph_CoEdgeId    theCoEdge,
-                                  uint8_t               theRequiredFlags,
-                                  CoEdgeSameRangeEntry& theEntry);
+  bool ensureCoEdgeSameRangeEntry(const BRepGraph_CoEdgeId theCoEdge,
+                                  const uint8_t            theRequiredFlags,
+                                  CoEdgeSameRangeEntry&    theEntry);
 
-  static void computeStatusOnly(const BRepGraph& theGraph,
-                                BRepGraph_EdgeId theEdge,
-                                EdgeEntry&       theEntry);
+  static void computeStatusOnly(const BRepGraph&       theGraph,
+                                const BRepGraph_EdgeId theEdge,
+                                EdgeEntry&             theEntry);
 
-  static void computeSameRange(const BRepGraph&      theGraph,
-                               BRepGraph_CoEdgeId    theCoEdge,
-                               CoEdgeSameRangeEntry& theEntry);
+  static void computeSameRange(const BRepGraph&         theGraph,
+                               const BRepGraph_CoEdgeId theCoEdge,
+                               CoEdgeSameRangeEntry&    theEntry);
 
-  static void computeSameParameter(const BRepGraph&      theGraph,
-                                   BRepGraph_CoEdgeId    theCoEdge,
-                                   CoEdgeSameRangeEntry& theEntry);
+  static void computeSameParameter(const BRepGraph&         theGraph,
+                                   const BRepGraph_CoEdgeId theCoEdge,
+                                   CoEdgeSameRangeEntry&    theEntry);
 
-  static ShellEntry::ClosureStatus computeShellClosure(const BRepGraph&  theGraph,
-                                                       BRepGraph_ShellId theShell);
+  static ShellEntry::ClosureStatus computeShellClosure(const BRepGraph&        theGraph,
+                                                       const BRepGraph_ShellId theShell);
 
-  static uint32_t computeWireNbDistinctEdges(const BRepGraph&  theGraph,
-                                             BRepGraph_WireId theWire);
+  static uint32_t computeWireNbDistinctEdges(const BRepGraph&       theGraph,
+                                             const BRepGraph_WireId theWire);
 
-  static BRepGraph_WireRefId computeFaceOuterWireRef(const BRepGraph&  theGraph,
-                                                      BRepGraph_FaceId theFace);
+  static BRepGraph_WireRefId computeFaceOuterWireRef(const BRepGraph&       theGraph,
+                                                     const BRepGraph_FaceId theFace);
 
   mutable std::shared_mutex myMutex;
 

@@ -110,7 +110,7 @@ public:
   //! @param[in] theMode  traversal strategy (recursive or direct parents)
   Standard_EXPORT BRepGraph_ParentExplorer(const BRepGraph&       theGraph,
                                            const BRepGraph_NodeId theNode,
-                                           TraversalMode          theMode);
+                                           const TraversalMode    theMode);
 
   //! Explore all parents while pruning branches at the avoid kind.
   //! @param[in] theGraph        graph to walk
@@ -122,26 +122,26 @@ public:
     const BRepGraph&                             theGraph,
     const BRepGraph_NodeId                       theNode,
     const std::optional<BRepGraph_NodeId::Kind>& theAvoidKind,
-    bool                                         theEmitAvoidKind,
-    TraversalMode                                theMode = TraversalMode::Recursive);
+    const bool                                   theEmitAvoidKind,
+    const TraversalMode                          theMode = TraversalMode::Recursive);
 
   //! Explore only parents of the given kind.
   //! @param[in] theGraph     graph to walk
   //! @param[in] theNode      starting node whose ancestors are explored
   //! @param[in] theTargetKind kind of nodes to emit
-  Standard_EXPORT BRepGraph_ParentExplorer(const BRepGraph&       theGraph,
-                                           const BRepGraph_NodeId theNode,
-                                           BRepGraph_NodeId::Kind theTargetKind);
+  Standard_EXPORT BRepGraph_ParentExplorer(const BRepGraph&             theGraph,
+                                           const BRepGraph_NodeId       theNode,
+                                           const BRepGraph_NodeId::Kind theTargetKind);
 
   //! Explore only parents of the given kind using the given traversal mode.
   //! @param[in] theGraph     graph to walk
   //! @param[in] theNode      starting node whose ancestors are explored
   //! @param[in] theTargetKind kind of nodes to emit
   //! @param[in] theMode      traversal strategy
-  Standard_EXPORT BRepGraph_ParentExplorer(const BRepGraph&       theGraph,
-                                           const BRepGraph_NodeId theNode,
-                                           BRepGraph_NodeId::Kind theTargetKind,
-                                           TraversalMode          theMode);
+  Standard_EXPORT BRepGraph_ParentExplorer(const BRepGraph&             theGraph,
+                                           const BRepGraph_NodeId       theNode,
+                                           const BRepGraph_NodeId::Kind theTargetKind,
+                                           const TraversalMode          theMode);
 
   //! Explore parents of the given kind while pruning branches at the avoid kind.
   //! @param[in] theGraph        graph to walk
@@ -153,10 +153,10 @@ public:
   Standard_EXPORT BRepGraph_ParentExplorer(
     const BRepGraph&                             theGraph,
     const BRepGraph_NodeId                       theNode,
-    BRepGraph_NodeId::Kind                       theTargetKind,
+    const BRepGraph_NodeId::Kind                 theTargetKind,
     const std::optional<BRepGraph_NodeId::Kind>& theAvoidKind,
-    bool                                         theEmitAvoidKind,
-    TraversalMode                                theMode = TraversalMode::Recursive);
+    const bool                                   theEmitAvoidKind,
+    const TraversalMode                          theMode = TraversalMode::Recursive);
 
   //! Returns the traversal configuration this explorer was constructed with.
   //! Read-only - configuration is fixed for the lifetime of the explorer.
@@ -245,8 +245,8 @@ private:
     const std::optional<BRepGraph_NodeId::Kind>& theTargetKind,
     const std::optional<BRepGraph_NodeId::Kind>& theAvoidKind);
 
-  static bool canContainTarget(BRepGraph_NodeId::Kind theParentKind,
-                               BRepGraph_NodeId::Kind theTargetKind);
+  static bool canContainTarget(const BRepGraph_NodeId::Kind theParentKind,
+                               const BRepGraph_NodeId::Kind theTargetKind);
 
   [[nodiscard]] Standard_EXPORT bool pushFrame(StackFrame&& theFrame);
   Standard_EXPORT void               popFrame();

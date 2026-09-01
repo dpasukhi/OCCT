@@ -158,11 +158,11 @@ public:
 private:
   friend class BRepGraphSupInc_Storage;
 
-  //! Register a detached compaction snapshot in the source store's runtime identity space.
+  //! Register a detached compacted store in the source store's runtime identity space.
   //! The target registry must remain private until it replaces the source registry.
   [[nodiscard]] Standard_EXPORT bool registerCompactedStore(
     const occ::handle<BRepGraphSupInc_Store>& theStore,
-    uint32_t                                  theStoreId);
+    const uint32_t                            theStoreId);
 
   //! Clear every registered store without unregistering it.
   Standard_EXPORT void ClearAll() noexcept;

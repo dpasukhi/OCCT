@@ -115,7 +115,7 @@ public:
 
   //! Copy supplemental layer data after supplemental store migration.
   //! The source registrations remain unchanged. Copy callbacks run from a stable
-  //! handle snapshot after the registry lock is released.
+  //! handle list after the registry lock is released.
   Standard_EXPORT void CopyLayersTo(
     BRepGraph&                                                         theTargetGraph,
     const NCollection_FlatDataMap<BRepGraph_ItemId, BRepGraph_ItemId>& theItemRemap,
@@ -123,10 +123,10 @@ public:
     const BRepGraphSupInc_CopyContext&                                 theSupplementCopy) const;
 
   //! Copy supplemental layer data using identity core item mapping.
-  Standard_EXPORT void CopyLayersTo(BRepGraph&                         theTargetGraph,
-                                    BRepGraph_CopyRemap::MappingKind   theMappingKind,
-                                    const BRepGraph_CopyRemap::Mode    theMode,
-                                    const BRepGraphSupInc_CopyContext& theSupplementCopy) const;
+  Standard_EXPORT void CopyLayersTo(BRepGraph&                             theTargetGraph,
+                                    const BRepGraph_CopyRemap::MappingKind theMappingKind,
+                                    const BRepGraph_CopyRemap::Mode        theMode,
+                                    const BRepGraphSupInc_CopyContext&     theSupplementCopy) const;
 
 private:
   friend class ::BRepGraph;

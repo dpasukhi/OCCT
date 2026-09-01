@@ -20,7 +20,7 @@
 #include <Standard_GUID.hxx>
 #include <cstdint>
 
-//! @brief Snapshot of a graph item identity and its freshness generation.
+//! @brief Record of a graph item identity and its freshness generation.
 //!
 //! Combines a persistent node or reference UID with OwnGen (own-data mutation counter)
 //! and graph Generation (BRepGraph::Clear() cycle). It is intended for custom cache and
@@ -46,8 +46,8 @@ struct BRepGraph_ItemStamp
 
   BRepGraph_UID    myNodeUID;     //!< Definition-node identity for node-domain stamps.
   BRepGraph_RefUID myRefUID;      //!< Reference-entry identity for reference-domain stamps.
-  uint32_t         myMutationGen; //!< OwnGen counter at snapshot time.
-  uint32_t         myGeneration;  //!< Graph BRepGraph::Clear() generation at snapshot time.
+  uint32_t         myMutationGen; //!< OwnGen counter when the stamp was recorded.
+  uint32_t         myGeneration;  //!< Graph BRepGraph::Clear() generation when recorded.
   Standard_GUID    myRuntimeIdentity; //!< Process-local graph branch identity.
   Domain           myDomain;      //!< Active identity domain.
 

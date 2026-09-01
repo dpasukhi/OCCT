@@ -17,7 +17,6 @@
 #include <BRepGraph_RevisionDiff.hxx>
 #include <BRepGraph_RevisionStatus.hxx>
 #include <BRepGraph_Revision.hxx>
-#include <NCollection_DataMap.hxx>
 #include <NCollection_FlatDataMap.hxx>
 #include <NCollection_FlatMap.hxx>
 #include <gp_Pnt.hxx>
@@ -117,15 +116,15 @@ public:
   //! Append a standalone vertex definition to the private edit.
   //! @return a graph-local ID valid in the resulting revision, or invalid on failure
   [[nodiscard]] Standard_EXPORT BRepGraph_VertexId AddVertex(const gp_Pnt& thePoint,
-                                                             double        theTolerance);
+                                                             const double  theTolerance);
 
   //! Append an edge definition between two visible durable vertices.
   [[nodiscard]] Standard_EXPORT BRepGraph_EdgeId AddEdge(const BRepGraph_UID& theStartVertexUID,
                                                          const BRepGraph_UID& theEndVertexUID,
                                                          const occ::handle<Geom_Curve>& theCurve,
-                                                         double theParamFirst,
-                                                         double theParamLast,
-                                                         double theTolerance);
+                                                         const double theParamFirst,
+                                                         const double theParamLast,
+                                                         const double theTolerance);
 
   //! Append a free coedge usage for an existing durable edge.
   [[nodiscard]] Standard_EXPORT BRepGraph_CoEdgeId
@@ -140,7 +139,7 @@ public:
   [[nodiscard]] Standard_EXPORT BRepGraph_FaceId
     AddFace(const BRepGraph_UID&                           theOuterWireUID,
             const NCollection_LinearVector<BRepGraph_UID>& theInnerWireUIDs,
-            double                                         theTolerance);
+            const double                                   theTolerance);
 
   //! Replace the point of an existing or newly created vertex by durable UID.
   [[nodiscard]] Standard_EXPORT bool SetVertexPoint(const BRepGraph_UID& theUID,
@@ -148,20 +147,20 @@ public:
 
   //! Replace the tolerance of an existing or newly created vertex by durable UID.
   [[nodiscard]] Standard_EXPORT bool SetVertexTolerance(const BRepGraph_UID& theUID,
-                                                        double               theTolerance);
+                                                        const double         theTolerance);
 
   //! Record removal of an existing vertex.
   [[nodiscard]] Standard_EXPORT bool RemoveVertex(const BRepGraph_UID& theUID);
 
   //! Replace the tolerance of an existing or newly created edge by durable UID.
   [[nodiscard]] Standard_EXPORT bool SetEdgeTolerance(const BRepGraph_UID& theUID,
-                                                      double               theTolerance);
+                                                      const double         theTolerance);
 
   //! Replace the 3D curve and parameter range of an existing or newly created edge.
   [[nodiscard]] Standard_EXPORT bool SetEdgeCurve(const BRepGraph_UID&           theUID,
                                                   const occ::handle<Geom_Curve>& theCurve,
-                                                  double                         theParamFirst,
-                                                  double                         theParamLast);
+                                                  const double                   theParamFirst,
+                                                  const double                   theParamLast);
 
   //! Record removal of an existing edge and its endpoint references.
   [[nodiscard]] Standard_EXPORT bool RemoveEdge(const BRepGraph_UID& theUID);
@@ -200,7 +199,7 @@ public:
   [[nodiscard]] Standard_EXPORT bool RemoveFace(const BRepGraph_UID& theUID);
 
   //! Raise the private vertex UID watermark. It never moves backwards.
-  [[nodiscard]] Standard_EXPORT bool RaiseVertexUIDWatermark(uint32_t theNextCounter);
+  [[nodiscard]] Standard_EXPORT bool RaiseVertexUIDWatermark(const uint32_t theNextCounter);
 
   //! Return the current durable definition for an edited or base vertex.
   [[nodiscard]] Standard_EXPORT bool Vertex(const BRepGraph_UID&     theUID,
@@ -304,13 +303,13 @@ private:
   NCollection_LinearVector<BRepGraph_Revision::WireChange>           myWireChanges;
   NCollection_LinearVector<BRepGraph_Revision::FaceChange>           myFaceChanges;
   NCollection_LinearVector<BRepGraph_Revision::WireRefChange>        myWireRefChanges;
-  NCollection_DataMap<BRepGraph_UID, uint32_t>                       myVertexChangeIndices;
-  NCollection_DataMap<BRepGraph_UID, uint32_t>                       myEdgeChangeIndices;
-  NCollection_DataMap<BRepGraph_RefUID, uint32_t>                    myVertexRefChangeIndices;
-  NCollection_DataMap<BRepGraph_UID, uint32_t>                       myCoEdgeChangeIndices;
-  NCollection_DataMap<BRepGraph_UID, uint32_t>                       myWireChangeIndices;
-  NCollection_DataMap<BRepGraph_UID, uint32_t>                       myFaceChangeIndices;
-  NCollection_DataMap<BRepGraph_RefUID, uint32_t>                    myWireRefChangeIndices;
+  NCollection_FlatDataMap<BRepGraph_UID, uint32_t>                   myVertexChangeIndices;
+  NCollection_FlatDataMap<BRepGraph_UID, uint32_t>                   myEdgeChangeIndices;
+  NCollection_FlatDataMap<BRepGraph_RefUID, uint32_t>                myVertexRefChangeIndices;
+  NCollection_FlatDataMap<BRepGraph_UID, uint32_t>                   myCoEdgeChangeIndices;
+  NCollection_FlatDataMap<BRepGraph_UID, uint32_t>                   myWireChangeIndices;
+  NCollection_FlatDataMap<BRepGraph_UID, uint32_t>                   myFaceChangeIndices;
+  NCollection_FlatDataMap<BRepGraph_RefUID, uint32_t>                myWireRefChangeIndices;
   NCollection_LinearVector<occ::handle<BRepGraph_RevisionComponent>> myComponents;
   NCollection_FlatDataMap<Standard_GUID, uint32_t>                    myComponentIndices;
   NCollection_FlatMap<Standard_GUID>                                 myChangedComponentGUIDs;
