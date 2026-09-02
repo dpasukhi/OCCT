@@ -15,7 +15,9 @@
 #include <gp_Pnt.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
+#include <gp_Vec.hxx>
 #include <Precision.hxx>
+#include <Standard_OutOfRange.hxx>
 
 #include <gtest/gtest.h>
 
@@ -36,4 +38,16 @@ TEST(gp_TrsfTest, OCC23361_TransformationComposition)
 
   // Points must be equal: equivalent transformations should produce equal points
   EXPECT_TRUE(aP2.IsEqual(aP3, Precision::Confusion()));
+}
+
+TEST(gp_TrsfTest, CoefficientAccess)
+{
+  gp_Trsf aTranslation;
+  aTranslation.SetTranslation(gp_Vec(1.0, 2.0, 3.0));
+
+  EXPECT_DOUBLE_EQ(aTranslation.Value(1, 1), 1.0);
+  EXPECT_DOUBLE_EQ(aTranslation.Value(size_t{1}, size_t{4}), 1.0);
+  EXPECT_DOUBLE_EQ(aTranslation.Value(gp_Trsf::Coefficient::A24), 2.0);
+  EXPECT_THROW(aTranslation.Value(-1, 1), Standard_OutOfRange);
+  EXPECT_THROW(aTranslation.Value(size_t{4}, size_t{1}), Standard_OutOfRange);
 }

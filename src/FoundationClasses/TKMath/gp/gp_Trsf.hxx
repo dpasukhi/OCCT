@@ -23,6 +23,8 @@
 #include <Standard_OutOfRange.hxx>
 #include <Standard_SStream.hxx>
 
+#include <cstddef>
+
 class gp_Pnt;
 class gp_Trsf2d;
 class gp_Ax1;
@@ -58,6 +60,23 @@ class gp_Vec;
 class gp_Trsf
 {
 public:
+  //! Identifies a coefficient of the 3x4 transformation matrix.
+  enum class Coefficient : size_t
+  {
+    A11,
+    A12,
+    A13,
+    A14,
+    A21,
+    A22,
+    A23,
+    A24,
+    A31,
+    A32,
+    A33,
+    A34
+  };
+
   DEFINE_STANDARD_ALLOC
 
   //! Returns the identity transformation.
@@ -253,11 +272,27 @@ public:
   //! scale factor to obtain the coefficients of the transformation.
   constexpr const gp_Mat& HVectorialPart() const noexcept { return matrix; }
 
-  //! Returns the coefficients of the transformation's matrix.
-  //! It is a 3 rows * 4 columns matrix.
-  //! This coefficient includes the scale factor.
-  //! Raises OutOfRanged if theRow < 1 or theRow > 3 or theCol < 1 or theCol > 4
-  constexpr double Value(const int theRow, const int theCol) const;
+  //! Returns a coefficient of the effective 3x4 transformation matrix.
+  //! @param[in] theRow 1-based row index in range [1, 3]
+  //! @param[in] theCol 1-based column index in range [1, 4]
+  //! @return matrix coefficient including the scale factor
+  //! @throws Standard_OutOfRange if an index is outside its valid range
+  constexpr double Value(const size_t theRow, const size_t theCol) const;
+
+  //! Returns a coefficient of the effective 3x4 transformation matrix.
+  //! @param[in] theRow 1-based row index in range [1, 3]
+  //! @param[in] theCol 1-based column index in range [1, 4]
+  //! @return matrix coefficient including the scale factor
+  //! @throws Standard_OutOfRange if an index is outside its valid range
+  constexpr double Value(const int theRow, const int theCol) const
+  {
+    return Value(static_cast<size_t>(theRow), static_cast<size_t>(theCol));
+  }
+
+  //! Returns a coefficient of the effective 3x4 transformation matrix.
+  //! @param[in] theCoefficient matrix coefficient identifier
+  //! @return matrix coefficient including the scale factor
+  constexpr double Value(const Coefficient theCoefficient) const;
 
   Standard_EXPORT void Invert();
 
@@ -417,18 +452,23 @@ inline constexpr void gp_Trsf::SetTranslation(const gp_Pnt& theP1, const gp_Pnt&
 
 //=================================================================================================
 
-inline constexpr double gp_Trsf::Value(const int theRow, const int theCol) const
+inline constexpr double gp_Trsf::Value(const size_t theRow, const size_t theCol) const
 {
-  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4, " ");
+  Standard_OutOfRange_Raise_if(theRow < 1 || theRow > 3 || theCol < 1 || theCol > 4,
+                               "gp_Trsf::Value");
   if (theCol < 4)
   {
-    // Access matrix data directly to avoid non-constexpr Value() call
     return scale * matrix.myMat[theRow - 1][theCol - 1];
   }
-  else
-  {
-    return loc.Coord(theRow);
-  }
+  return loc.Coord(static_cast<int>(theRow));
+}
+
+//=================================================================================================
+
+inline constexpr double gp_Trsf::Value(const Coefficient theCoefficient) const
+{
+  const size_t anIndex = static_cast<size_t>(theCoefficient);
+  return Value(anIndex / 4 + 1, anIndex % 4 + 1);
 }
 
 //=================================================================================================
