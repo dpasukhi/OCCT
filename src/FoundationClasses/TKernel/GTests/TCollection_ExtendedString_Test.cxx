@@ -909,8 +909,8 @@ TEST(TCollection_ExtendedStringTest, StringView_EmptyConstructor)
 
 TEST(TCollection_ExtendedStringTest, StringView_BoundedInput_PreservesCodeUnits)
 {
-  const char16_t aSource[] = {u'A', u'\0', 0xD800, 0xDC00, u'B'};
-  const std::u16string_view aView(aSource, 5);
+  const char16_t                   aSource[] = {u'A', u'\0', 0xD800, 0xDC00, u'B'};
+  const std::u16string_view        aView(aSource, 5);
   const TCollection_ExtendedString aString(aView);
   EXPECT_EQ(aString.Length(), 5);
   EXPECT_EQ(std::u16string_view(aString), aView);
