@@ -37,7 +37,6 @@
 #include <TDocStd_Document.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
-#include <TCollection_UtfString.hxx>
 #include <XCAFDimTolObjects_DatumObject.hxx>
 #include <XCAFDimTolObjects_DatumSingleModif.hxx>
 #include <XCAFDimTolObjects_DimensionObject.hxx>
@@ -376,14 +375,12 @@ static TCollection_AsciiString EncodeStepName(const TCollection_ExtendedString& 
   return TCollection_AsciiString(aBuffer);
 }
 
-static TCollection_AsciiString ReplaceStepName(const TCollection_AsciiString&    theTemplate,
-                                               const TCollection_ExtendedString& theName,
-                                               const Resource_FormatType         theFormat)
+static TCollection_AsciiString ReplaceStepName(const TCollection_AsciiString& theTemplate,
+                                               const TCollection_AsciiString& theEncodedName)
 {
   const TCollection_AsciiString aPlaceholder("@tmp_name@");
-  const int                     aPosition     = theTemplate.Search(aPlaceholder);
-  const TCollection_AsciiString anEncodedName = EncodeStepName(theName, theFormat);
-  if (aPosition < 1 || anEncodedName.IsEmpty())
+  const int                     aPosition = theTemplate.Search(aPlaceholder);
+  if (aPosition < 1 || theEncodedName.IsEmpty())
   {
     return TCollection_AsciiString();
   }
@@ -393,7 +390,7 @@ static TCollection_AsciiString ReplaceStepName(const TCollection_AsciiString&   
   {
     aResult.AssignCat(theTemplate.SubString(1, aPosition - 1));
   }
-  aResult.AssignCat(anEncodedName);
+  aResult.AssignCat(theEncodedName);
   const int aSuffixPosition = aPosition + aPlaceholder.Length();
   if (aSuffixPosition <= theTemplate.Length())
   {
@@ -431,26 +428,15 @@ static void ExpectStepCodePageName(const TCollection_AsciiString&    theTemplate
                                    const Resource_FormatType         theFormat)
 {
   const TCollection_AsciiString aUtf8Payload =
-    ReplaceStepName(theTemplate, theExpectedName, Resource_FormatType_UTF8);
+    ReplaceStepName(theTemplate, EncodeStepName(theExpectedName, Resource_FormatType_UTF8));
   const TCollection_AsciiString aTargetPayload =
-    ReplaceStepName(theTemplate, theExpectedName, theFormat);
+    ReplaceStepName(theTemplate, EncodeStepName(theExpectedName, theFormat));
   ASSERT_FALSE(aUtf8Payload.IsEmpty());
   ASSERT_FALSE(aTargetPayload.IsEmpty());
 
   EXPECT_EQ(ReadStepName(aUtf8Payload, Resource_FormatType_UTF8), theExpectedName);
   EXPECT_EQ(ReadStepName(aTargetPayload, theFormat), theExpectedName);
 
-  const TCollection_AsciiString anEncodedName = EncodeStepName(theExpectedName, theFormat);
-  TCollection_UtfString<char> aStrictUtf8;
-  ASSERT_FALSE(aStrictUtf8.FromUnicode(anEncodedName.ToCString()));
-
-  // These malformed UTF-8 inputs must preserve every byte through the legacy fallback.
-  TCollection_ExtendedString aFallbackName(anEncodedName.Length(), u'\0');
-  for (int anIndex = 1; anIndex <= anEncodedName.Length(); ++anIndex)
-  {
-    aFallbackName.SetValue(anIndex, static_cast<unsigned char>(anEncodedName.Value(anIndex)));
-  }
-  EXPECT_EQ(ReadStepName(aTargetPayload, Resource_FormatType_UTF8), aFallbackName);
   EXPECT_NE(ReadStepName(aUtf8Payload, theFormat), theExpectedName);
 }
 
@@ -635,6 +621,47 @@ TEST(DESTEP_Provider_StorageTest, StepBug_32310_SpecialName)
   occ::handle<TDocStd_Document> aRestored = RoundTrip(aDocument);
   ASSERT_FALSE(aRestored.IsNull());
   EXPECT_EQ(RestoredFirstShapeName(aRestored), anExpected);
+}
+
+TEST(DESTEP_Provider_StorageTest, ReadName_Latin1Bytes_PreservesFallbackName)
+{
+  const TCollection_AsciiString aTemplate = MakeStepNameTemplate();
+  ASSERT_FALSE(aTemplate.IsEmpty());
+  const TCollection_AsciiString aPayload =
+    ReplaceStepName(aTemplate, TCollection_AsciiString("Test Prob\xEDh\xE1"));
+  ASSERT_FALSE(aPayload.IsEmpty());
+  const TCollection_ExtendedString anExpected(u"Test Prob\u00EDh\u00E1");
+  EXPECT_EQ(ReadStepName(aPayload, Resource_FormatType_iso8859_1), anExpected);
+  EXPECT_EQ(ReadStepName(aPayload, Resource_FormatType_UTF8), anExpected);
+}
+
+TEST(DESTEP_Provider_StorageTest, ReadName_CP1250Bytes_DistinguishesCodePageFromFallback)
+{
+  const TCollection_AsciiString aTemplate = MakeStepNameTemplate();
+  ASSERT_FALSE(aTemplate.IsEmpty());
+  const TCollection_AsciiString aPayload =
+    ReplaceStepName(aTemplate, TCollection_AsciiString("Test \xF8"));
+  ASSERT_FALSE(aPayload.IsEmpty());
+  EXPECT_EQ(ReadStepName(aPayload, Resource_FormatType_CP1250),
+            TCollection_ExtendedString(u"Test \u0159"));
+  EXPECT_EQ(ReadStepName(aPayload, Resource_FormatType_UTF8),
+            TCollection_ExtendedString(u"Test \u00F8"));
+}
+
+TEST(DESTEP_Provider_StorageTest, ReadName_Utf8PrefixWithInvalidTail_FallsBackForWholeName)
+{
+  const TCollection_AsciiString aTemplate = MakeStepNameTemplate();
+  ASSERT_FALSE(aTemplate.IsEmpty());
+  const TCollection_AsciiString aValid =
+    ReplaceStepName(aTemplate, TCollection_AsciiString("Test \xC3\xA9"));
+  const TCollection_AsciiString anInvalid =
+    ReplaceStepName(aTemplate, TCollection_AsciiString("Test \xC3\xA9\xFF"));
+  ASSERT_FALSE(aValid.IsEmpty());
+  ASSERT_FALSE(anInvalid.IsEmpty());
+  EXPECT_EQ(ReadStepName(aValid, Resource_FormatType_UTF8),
+            TCollection_ExtendedString(u"Test \u00E9"));
+  EXPECT_EQ(ReadStepName(anInvalid, Resource_FormatType_UTF8),
+            TCollection_ExtendedString(u"Test \u00C3\u00A9\u00FF"));
 }
 
 // bugs/step/bug28454_1: STEP names encoded in ISO-8859-N are decoded using the selected code page.

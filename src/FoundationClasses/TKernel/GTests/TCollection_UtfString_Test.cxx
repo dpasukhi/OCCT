@@ -78,17 +78,58 @@ TEST(TCollection_UtfStringTest, ExtendedStringInteroperability)
 
 TEST(TCollection_UtfStringTest, ExtendedStringInvalidUtf8Fallback)
 {
-  const char*     aNames[]     = {"Test Prob\xEDh\xE1", "Test \xD6l\xE7" "ek"};
-  const char16_t* anExpected[] = {u"Test Prob\u00EDh\u00E1", u"Test \u00D6l\u00E7ek"};
-  for (size_t anIndex = 0; anIndex < 2; ++anIndex)
+  const struct
   {
-    const TCollection_ExtendedString aExpected(anExpected[anIndex]);
-    EXPECT_EQ(TCollection_ExtendedString(aNames[anIndex], true), aExpected);
-    EXPECT_EQ(TCollection_ExtendedString(TCollection_AsciiString(aNames[anIndex]), true),
-              aExpected);
-    TCollection_UtfString<char> aStrict;
-    EXPECT_FALSE(aStrict.FromUnicode(aNames[anIndex]));
+    const char*     Name;
+    const char*     Input;
+    const char16_t* Expected;
+  } aCases[] = {{"Czech", "Test Prob\xEDh\xE1", u"Test Prob\u00EDh\u00E1"},
+                {"Turkish",
+                 "Test \xD6l\xE7"
+                 "ek",
+                 u"Test \u00D6l\u00E7ek"},
+                {"UnexpectedContinuation", "A\x80Z", u"A\u0080Z"},
+                {"Overlong", "\xC0\xAF", u"\u00C0\u00AF"},
+                {"TruncatedTwoBytes", "A\xC2", u"A\u00C2"},
+                {"TruncatedThreeBytes", "A\xE2\x82", u"A\u00E2\u0082"},
+                {"TruncatedFourBytes", "A\xF0\x9F\x98", u"A\u00F0\u009F\u0098"},
+                {"Surrogate", "\xED\xA0\x80", u"\u00ED\u00A0\u0080"},
+                {"AboveUnicodeLimit", "\xF4\x90\x80\x80", u"\u00F4\u0090\u0080\u0080"},
+                {"ValidPrefixInvalidTail", "\xC3\xA9\xFF", u"\u00C3\u00A9\u00FF"},
+                {"InvalidPrefixValidTail", "\xFF\xC3\xA9", u"\u00FF\u00C3\u00A9"}};
+
+  for (const auto& aCase : aCases)
+  {
+    const TCollection_ExtendedString aExpected(aCase.Expected);
+    EXPECT_EQ(TCollection_ExtendedString(aCase.Input, true), aExpected) << aCase.Name;
+    EXPECT_EQ(TCollection_ExtendedString(TCollection_AsciiString(aCase.Input), true), aExpected)
+      << aCase.Name;
+
+    const auto checkStrict = [&aCase](auto& theString) {
+      const auto anOriginal = theString;
+      EXPECT_FALSE(theString.FromUnicode(aCase.Input)) << aCase.Name;
+      EXPECT_EQ(theString, anOriginal) << aCase.Name;
+      EXPECT_FALSE(theString.FromUnicode(std::string_view(aCase.Input))) << aCase.Name;
+      EXPECT_EQ(theString, anOriginal) << aCase.Name;
+    };
+    TCollection_UtfString<char>     aUtf8(U"keep\U0001F600");
+    TCollection_UtfString<char16_t> aUtf16(U"keep\U0001F600");
+    TCollection_UtfString<char32_t> aUtf32(U"keep\U0001F600");
+    checkStrict(aUtf8);
+    checkStrict(aUtf16);
+    checkStrict(aUtf32);
   }
+}
+
+TEST(TCollection_UtfStringTest, ExtendedStringValidUtf8_DecodesWithoutFallback)
+{
+  const char*                      anInput = "A\xC3\xA9\xE2\x82\xAC\xF0\x9F\x98\x80";
+  const TCollection_ExtendedString anExpected(u"A\u00E9\u20AC\U0001F600");
+  EXPECT_EQ(TCollection_ExtendedString(anInput, true), anExpected);
+  EXPECT_EQ(TCollection_ExtendedString(TCollection_AsciiString(anInput), true), anExpected);
+  TCollection_UtfString<char16_t> aStrict;
+  ASSERT_TRUE(aStrict.FromUnicode(anInput));
+  EXPECT_EQ(aStrict.View(), std::u16string_view(anExpected));
 }
 
 TEST(TCollection_UtfStringTest, ExtendedStringAliasedViews)
@@ -167,6 +208,24 @@ TYPED_TEST(TCollection_UtfStringGenericTest, CrossEncodingAndEverySubstring)
       EXPECT_EQ(aScalar[0], aSource[aStart]);
     }
   }
+}
+
+TYPED_TEST(TCollection_UtfStringGenericTest, FromUnicode_InvalidByteAfterNull_RespectsInputLength)
+{
+  const char                       aSource[] = {'A', 0, '\xFF', 0};
+  TCollection_UtfString<TypeParam> aString(U"unchanged\U0001F600");
+  const auto                       anOriginal = aString;
+  EXPECT_FALSE(aString.FromUnicode(aSource, 3));
+  EXPECT_EQ(aString, anOriginal);
+
+  ASSERT_TRUE(aString.FromUnicode(aSource, 2));
+  const char32_t anExpected[] = {U'A', 0};
+  EXPECT_EQ(aString.ToUtf32().View(), std::u32string_view(anExpected, 2));
+  EXPECT_EQ(aString.Length(), size_t(2));
+
+  ASSERT_TRUE(aString.FromUnicode(aSource));
+  EXPECT_EQ(aString.ToUtf32().View(), U"A");
+  EXPECT_EQ(aString.Length(), size_t(1));
 }
 
 TYPED_TEST(TCollection_UtfStringGenericTest, PartialScalarsRejectWithoutMutation)

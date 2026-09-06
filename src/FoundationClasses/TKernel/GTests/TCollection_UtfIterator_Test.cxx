@@ -215,6 +215,53 @@ TEST(TCollection_UtfIteratorTest, RejectMalformedUtf8)
   checkInvalid(anObsoleteLead, 1);
 }
 
+TEST(TCollection_UtfIteratorTest, MalformedLegacyBytes_DoNotConsumeFollowingAscii)
+{
+  const char aInput[] = {'\xED', 'h', '\xE1', ' ', '\xD6', 'l', '\xE7', 'e', 'k', 0};
+  using Iterator      = TCollection_UtfIterator<char>;
+  for (auto anIter : {Iterator(aInput, sizeof(aInput) - 1),
+                      Iterator(aInput, Iterator::InputMode::NullTerminated)})
+  {
+    for (size_t anIndex = 0; anIndex < sizeof(aInput) - 1; ++anIndex, ++anIter)
+    {
+      ASSERT_TRUE(anIter.More());
+      EXPECT_EQ(anIter.BufferHere(), aInput + anIndex);
+      EXPECT_EQ(anIter.BufferNext(), aInput + anIndex + 1);
+      if (static_cast<unsigned char>(aInput[anIndex]) < 0x80)
+      {
+        EXPECT_TRUE(anIter.IsValid());
+        EXPECT_EQ(*anIter, static_cast<char32_t>(aInput[anIndex]));
+      }
+      else
+      {
+        EXPECT_FALSE(anIter.IsValid());
+        EXPECT_EQ(anIter.AdvanceCodeUnitsUtf16(), 0);
+      }
+    }
+    EXPECT_FALSE(anIter.More());
+  }
+}
+
+TEST(TCollection_UtfIteratorTest, BoundedUtf8_DoesNotUseContinuationOutsideRange)
+{
+  const char                    aSource[] = {'\xE2', '\x82', '\xAC'};
+  TCollection_UtfIterator<char> aTruncated(aSource, 2);
+  EXPECT_FALSE(aTruncated.IsValid());
+  EXPECT_EQ(aTruncated.BufferNext(), aSource + 1);
+  ++aTruncated;
+  EXPECT_FALSE(aTruncated.IsValid());
+  EXPECT_EQ(aTruncated.BufferNext(), aSource + 2);
+  ++aTruncated;
+  EXPECT_FALSE(aTruncated.More());
+
+  TCollection_UtfIterator<char> aComplete(aSource, sizeof(aSource));
+  EXPECT_TRUE(aComplete.IsValid());
+  EXPECT_EQ(*aComplete, U'\u20AC');
+  EXPECT_EQ(aComplete.BufferNext(), aSource + sizeof(aSource));
+  ++aComplete;
+  EXPECT_FALSE(aComplete.More());
+}
+
 TEST(TCollection_UtfIteratorTest, RejectNonScalarUtf16AndUtf32)
 {
   constexpr char16_t aHighOnly[] = {0xD800, 0};
