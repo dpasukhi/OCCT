@@ -226,7 +226,7 @@ void OpenGl_Text::UpdateDrawStats(Graphic3d_FrameStatsDataTmp& theStats, bool th
 //=================================================================================================
 
 void OpenGl_Text::StringSize(const occ::handle<OpenGl_Context>& theCtx,
-                             const TCollection_UtfString<char>&          theText,
+                             const TCollection_UtfString<char>& theText,
                              const OpenGl_Aspects&              theTextAspect,
                              const float                        theHeight,
                              const unsigned int                 theResolution,

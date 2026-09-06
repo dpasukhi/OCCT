@@ -117,7 +117,7 @@ protected:
   occ::handle<Font_TextFormatter> myFormatter; //!< text formatter
 
   TCollection_UtfString<char> myText;        //!< text value
-  gp_Ax2             myOrientation; //!< Text orientation in 3D space.
+  gp_Ax2                      myOrientation; //!< Text orientation in 3D space.
 
   float                             myHeight; //!< height of text
   Graphic3d_HorizontalTextAlignment myHAlign; //!< horizontal alignment

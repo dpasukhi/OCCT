@@ -313,7 +313,7 @@ public:
   //! Note that bounding box takes into account the text alignment options.
   //! Its corners are relative to the text alignment anchor point, their coordinates can be
   //! negative.
-  Standard_EXPORT Font_Rect BoundingBox(const TCollection_UtfString<char>&               theString,
+  Standard_EXPORT Font_Rect BoundingBox(const TCollection_UtfString<char>&      theString,
                                         const Graphic3d_HorizontalTextAlignment theAlignX,
                                         const Graphic3d_VerticalTextAlignment   theAlignY);
 
@@ -325,7 +325,9 @@ public:
   //! @return true on success
   Standard_DEPRECATED("Deprecated method, Font_FTFont::Params should be used for passing "
                       "parameters")
-  bool Init(const TCollection_UtfString<char>& theFontPath, uint32_t thePointSize, uint32_t theResolution)
+  bool Init(const TCollection_UtfString<char>& theFontPath,
+            uint32_t                           thePointSize,
+            uint32_t                           theResolution)
   {
     Params aParams;
     aParams.PointSize  = thePointSize;
@@ -342,9 +344,9 @@ public:
   Standard_DEPRECATED("Deprecated method, Font_FTFont::Params should be used for passing "
                       "parameters")
   bool Init(const TCollection_UtfString<char>& theFontName,
-            Font_FontAspect           theFontAspect,
-            uint32_t                  thePointSize,
-            uint32_t                  theResolution)
+            Font_FontAspect                    theFontAspect,
+            uint32_t                           thePointSize,
+            uint32_t                           theResolution)
   {
     Params aParams;
     aParams.PointSize  = thePointSize;

@@ -290,9 +290,9 @@ protected:                                    //! @name configuration
   float                myMaxSymbolWidth; //!< maximum symbol width of the formatter string
   // clang-format on
 
-protected:                          //! @name input data
-  TCollection_UtfString<char>      myString; //!< currently rendered text
-  NCollection_Vec2<float> myPen;    //!< current pen position
+protected:                              //! @name input data
+  TCollection_UtfString<char> myString; //!< currently rendered text
+  NCollection_Vec2<float>     myPen;    //!< current pen position
   NCollection_DynamicArray<NCollection_Vec2<float>>
                                   myCorners; //!< The bottom left corners of a formatted rectangles.
   NCollection_DynamicArray<float> myNewLines; //!< position at LF

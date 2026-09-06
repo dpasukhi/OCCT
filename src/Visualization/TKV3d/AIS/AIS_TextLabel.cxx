@@ -371,7 +371,7 @@ bool AIS_TextLabel::calculateLabelParams(const gp_Pnt& thePosition,
   }
 
   const TCollection_UtfString<char> aText(myText.ToExtString());
-  Font_Rect                aBndBox =
+  Font_Rect                         aBndBox =
     aFont->BoundingBox(aText, anAsp->HorizontalJustification(), anAsp->VerticalJustification());
   theWidth  = std::abs(aBndBox.Width());
   theHeight = std::abs(aBndBox.Height());
