@@ -852,7 +852,7 @@ TEST(TCollection_ExtendedStringTest, IsSameString_DifferentLengths)
 // Tests for C++17 std::u16string_view support
 // ========================================
 
-#if __cplusplus >= 201703L
+#if Standard_CPP17_OR_HIGHER
 TEST(TCollection_ExtendedStringTest, StringView_Constructor)
 {
   std::u16string_view        aView(u"Hello World");
@@ -896,6 +896,16 @@ TEST(TCollection_ExtendedStringTest, StringView_EmptyConstructor)
   std::u16string_view        aView;
   TCollection_ExtendedString aString(aView);
   EXPECT_TRUE(aString.IsEmpty());
+}
+
+TEST(TCollection_ExtendedStringTest, StringView_BoundedInput_PreservesCodeUnits)
+{
+  const char16_t aSource[] = {u'A', u'\0', 0xD800, 0xDC00, u'B'};
+  const std::u16string_view aView(aSource, 5);
+  const TCollection_ExtendedString aString(aView);
+  EXPECT_EQ(aString.Length(), 5);
+  EXPECT_EQ(std::u16string_view(aString), aView);
+  EXPECT_EQ(aString.ToExtString()[aString.Length()], u'\0');
 }
 #endif
 

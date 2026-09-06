@@ -37,6 +37,7 @@
 #include <TDocStd_Document.hxx>
 #include <TCollection_HAsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
+#include <TCollection_UtfString.hxx>
 #include <XCAFDimTolObjects_DatumObject.hxx>
 #include <XCAFDimTolObjects_DatumSingleModif.hxx>
 #include <XCAFDimTolObjects_DimensionObject.hxx>
@@ -438,7 +439,19 @@ static void ExpectStepCodePageName(const TCollection_AsciiString&    theTemplate
 
   EXPECT_EQ(ReadStepName(aUtf8Payload, Resource_FormatType_UTF8), theExpectedName);
   EXPECT_EQ(ReadStepName(aTargetPayload, theFormat), theExpectedName);
-  EXPECT_NE(ReadStepName(aTargetPayload, Resource_FormatType_UTF8), theExpectedName);
+
+  const TCollection_AsciiString anEncodedName = EncodeStepName(theExpectedName, theFormat);
+  TCollection_UtfString<char> aStrictUtf8;
+  ASSERT_FALSE(aStrictUtf8.FromUnicode(anEncodedName.ToCString()));
+
+  // These malformed UTF-8 inputs must preserve every byte through the legacy fallback.
+  TCollection_ExtendedString aFallbackName(anEncodedName.Length(), u'\0');
+  for (int anIndex = 1; anIndex <= anEncodedName.Length(); ++anIndex)
+  {
+    aFallbackName.SetValue(anIndex, static_cast<unsigned char>(anEncodedName.Value(anIndex)));
+  }
+  EXPECT_EQ(ReadStepName(aTargetPayload, Resource_FormatType_UTF8), aFallbackName);
+  EXPECT_NE(ReadStepName(aUtf8Payload, theFormat), theExpectedName);
 }
 
 static TopoDS_Shape TranslateShape(const TopoDS_Shape& theShape,
@@ -488,7 +501,7 @@ static double ShapeDiagonal(const TopoDS_Shape& theShape)
 } // namespace
 
 // gdt/dimensions/A7: STEP AP242 preserves dimension descriptions.
-TEST(GDT_STEP_Storage_Test, A7_DimensionDescriptions)
+TEST(DESTEP_Provider_StorageTest, A7_DimensionDescriptions)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -519,7 +532,7 @@ TEST(GDT_STEP_Storage_Test, A7_DimensionDescriptions)
 }
 
 // gdt/dimensions/A8: STEP AP242 preserves the dimension annotation plane.
-TEST(GDT_STEP_Storage_Test, A8_DimensionAnnotationPlane)
+TEST(DESTEP_Provider_StorageTest, A8_DimensionAnnotationPlane)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -554,7 +567,7 @@ TEST(GDT_STEP_Storage_Test, A8_DimensionAnnotationPlane)
 }
 
 // gdt/dimensions/A9: STEP AP242 preserves both dimension connection points.
-TEST(GDT_STEP_Storage_Test, A9_DimensionConnectionPoints)
+TEST(DESTEP_Provider_StorageTest, A9_DimensionConnectionPoints)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -608,7 +621,7 @@ static TCollection_ExtendedString RestoredFirstShapeName(
 
 // bugs/step/bug32310: STEP stream export/import preserves names containing
 // quotes, backslashes, newlines, and tabs.
-TEST(GDT_STEP_Storage_Test, StepBug_32310_SpecialName)
+TEST(DESTEP_Provider_StorageTest, StepBug_32310_SpecialName)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -625,7 +638,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_32310_SpecialName)
 }
 
 // bugs/step/bug28454_1: STEP names encoded in ISO-8859-N are decoded using the selected code page.
-TEST(GDT_STEP_Storage_Test, StepBug_28454_1_ISO8859Names)
+TEST(DESTEP_Provider_StorageTest, StepBug_28454_1_ISO8859Names)
 {
   const TCollection_AsciiString aTemplate = MakeStepNameTemplate();
   ASSERT_FALSE(aTemplate.IsEmpty());
@@ -654,13 +667,12 @@ TEST(GDT_STEP_Storage_Test, StepBug_28454_1_ISO8859Names)
 
   for (int anIndex = aFormats.Lower(); anIndex <= aFormats.Upper(); ++anIndex)
   {
-    SCOPED_TRACE(anIndex);
     ExpectStepCodePageName(aTemplate, aNames.Value(anIndex), aFormats.Value(anIndex));
   }
 }
 
 // bugs/step/bug30694: STEP names encoded in GB2312 are decoded using the GB code page.
-TEST(GDT_STEP_Storage_Test, StepBug_30694_GB2312Name)
+TEST(DESTEP_Provider_StorageTest, StepBug_30694_GB2312Name)
 {
   const TCollection_AsciiString aTemplate = MakeStepNameTemplate();
   ASSERT_FALSE(aTemplate.IsEmpty());
@@ -670,7 +682,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_30694_GB2312Name)
 }
 
 // bugs/step/bug31670_1: STEP names encoded in CP1250..CP1258 are decoded using the selected page.
-TEST(GDT_STEP_Storage_Test, StepBug_31670_1_CP125xNames)
+TEST(DESTEP_Provider_StorageTest, StepBug_31670_1_CP125xNames)
 {
   const TCollection_AsciiString aTemplate = MakeStepNameTemplate();
   ASSERT_FALSE(aTemplate.IsEmpty());
@@ -696,13 +708,12 @@ TEST(GDT_STEP_Storage_Test, StepBug_31670_1_CP125xNames)
 
   for (int anIndex = aFormats.Lower(); anIndex <= aFormats.Upper(); ++anIndex)
   {
-    SCOPED_TRACE(anIndex);
     ExpectStepCodePageName(aTemplate, aNames.Value(anIndex), aFormats.Value(anIndex));
   }
 }
 
 // bugs/step/bug31923: STEP names encoded in DOS CP850 are decoded using the selected page.
-TEST(GDT_STEP_Storage_Test, StepBug_31923_CP850Name)
+TEST(DESTEP_Provider_StorageTest, StepBug_31923_CP850Name)
 {
   const TCollection_AsciiString aTemplate = MakeStepNameTemplate();
   ASSERT_FALSE(aTemplate.IsEmpty());
@@ -713,7 +724,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_31923_CP850Name)
 }
 
 // bugs/xde/bug22728: STEP export can write the result to a caller-owned stream.
-TEST(GDT_STEP_Storage_Test, XdeBug_22728_WriteStream)
+TEST(DESTEP_Provider_StorageTest, XdeBug_22728_WriteStream)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -730,7 +741,7 @@ TEST(GDT_STEP_Storage_Test, XdeBug_22728_WriteStream)
 }
 
 // bugs/step/bug33815: non-manifold STEP export retains the same special name.
-TEST(GDT_STEP_Storage_Test, StepBug_33815_NonmanifoldSpecialName)
+TEST(DESTEP_Provider_StorageTest, StepBug_33815_NonmanifoldSpecialName)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -766,7 +777,7 @@ static void ExpectStepEdgeExport(const TopoDS_Shape& theEdge)
 }
 
 // bugs/step/bug32817_1: STEP export accepts an untrimmed line edge.
-TEST(GDT_STEP_Storage_Test, StepBug_32817_1_UntrimmedLine)
+TEST(DESTEP_Provider_StorageTest, StepBug_32817_1_UntrimmedLine)
 {
   const gp_Lin       aLine(gp_Pnt(0.0, 0.0, 0.0), gp_Dir(0.0, 1.0, 0.0));
   const TopoDS_Shape anEdge = BRepBuilderAPI_MakeEdge(aLine).Edge();
@@ -775,7 +786,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_32817_1_UntrimmedLine)
 }
 
 // bugs/step/bug32817_2: STEP export accepts a line edge with a huge end value.
-TEST(GDT_STEP_Storage_Test, StepBug_32817_2_HugeEndParameter)
+TEST(DESTEP_Provider_StorageTest, StepBug_32817_2_HugeEndParameter)
 {
   const gp_Lin       aLine(gp_Pnt(0.0, 0.0, 0.0), gp_Dir(0.0, 1.0, 0.0));
   const TopoDS_Shape anEdge = BRepBuilderAPI_MakeEdge(aLine, 10.0, 2.0e100).Edge();
@@ -784,7 +795,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_32817_2_HugeEndParameter)
 }
 
 // bugs/step/bug32817_3: STEP export accepts a line edge with a huge negative start value.
-TEST(GDT_STEP_Storage_Test, StepBug_32817_3_HugeStartParameter)
+TEST(DESTEP_Provider_StorageTest, StepBug_32817_3_HugeStartParameter)
 {
   const gp_Lin       aLine(gp_Pnt(0.0, 0.0, 0.0), gp_Dir(1.0, 1.0, 0.0));
   const TopoDS_Shape anEdge = BRepBuilderAPI_MakeEdge(aLine, -2.0e100, 10.0).Edge();
@@ -793,7 +804,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_32817_3_HugeStartParameter)
 }
 
 // bugs/xde/bug25910: STEP writing accepts a material with zero density.
-TEST(GDT_STEP_Storage_Test, XdeBug_25910_ZeroDensityMaterial)
+TEST(DESTEP_Provider_StorageTest, XdeBug_25910_ZeroDensityMaterial)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -823,7 +834,7 @@ TEST(GDT_STEP_Storage_Test, XdeBug_25910_ZeroDensityMaterial)
 
 // bugs/step/bug27313: STEP writing accepts a PMI document with a datum and
 // angularity tolerance.
-TEST(GDT_STEP_Storage_Test, StepBug_27313_PmiExport)
+TEST(DESTEP_Provider_StorageTest, StepBug_27313_PmiExport)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -863,7 +874,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_27313_PmiExport)
 }
 
 // bugs/modalg_8/bug33165: STEP preserves names of assembly instances.
-TEST(GDT_STEP_Storage_Test, ModalgBug_33165_AssemblyInstanceNames)
+TEST(DESTEP_Provider_StorageTest, ModalgBug_33165_AssemblyInstanceNames)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -909,7 +920,7 @@ TEST(GDT_STEP_Storage_Test, ModalgBug_33165_AssemblyInstanceNames)
 
 // bugs/xde/bug7141: STEP export handles a large assembly of located instances
 // when the output is written to a caller-owned stream.
-TEST(GDT_STEP_Storage_Test, XdeBug_7141_LargeAssemblyExport)
+TEST(DESTEP_Provider_StorageTest, XdeBug_7141_LargeAssemblyExport)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -940,7 +951,7 @@ TEST(GDT_STEP_Storage_Test, XdeBug_7141_LargeAssemblyExport)
 }
 
 // bugs/step/bug30189_2: STEP preserves the top-level assembly structure and sharing.
-TEST(GDT_STEP_Storage_Test, StepBug_30189_2_LocatedRootStructure)
+TEST(DESTEP_Provider_StorageTest, StepBug_30189_2_LocatedRootStructure)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -987,7 +998,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_30189_2_LocatedRootStructure)
 }
 
 // bugs/xde/bug1669: STEP preserves names throughout a nested assembly.
-TEST(GDT_STEP_Storage_Test, XdeBug_1669_NestedAssemblyNames)
+TEST(DESTEP_Provider_StorageTest, XdeBug_1669_NestedAssemblyNames)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -1070,7 +1081,7 @@ TEST(GDT_STEP_Storage_Test, XdeBug_1669_NestedAssemblyNames)
 }
 
 // bugs/step/bug_ocp1949_2: STEP tessellated export applies the document unit scaling.
-TEST(GDT_STEP_Storage_Test, StepBug_Ocp1949_2_TessellatedScaling)
+TEST(DESTEP_Provider_StorageTest, StepBug_Ocp1949_2_TessellatedScaling)
 {
   const TopoDS_Shape       aBox = BRepPrimAPI_MakeBox(1.0, 1.0, 1.0).Shape();
   BRepMesh_IncrementalMesh aMesh(aBox, 1.0);
@@ -1111,7 +1122,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_Ocp1949_2_TessellatedScaling)
 }
 
 // bugs/step/bug30189_3: STEP preserves names and sharing of located roots.
-TEST(GDT_STEP_Storage_Test, StepBug_30189_3_LocatedRootSharing)
+TEST(DESTEP_Provider_StorageTest, StepBug_30189_3_LocatedRootSharing)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -1164,7 +1175,7 @@ TEST(GDT_STEP_Storage_Test, StepBug_30189_3_LocatedRootSharing)
 }
 
 // bugs/xde/bug13175: STEP preserves a document containing a single vertex.
-TEST(GDT_STEP_Storage_Test, XdeBug_13175_SingleVertex)
+TEST(DESTEP_Provider_StorageTest, XdeBug_13175_SingleVertex)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);
@@ -1189,7 +1200,7 @@ TEST(GDT_STEP_Storage_Test, XdeBug_13175_SingleVertex)
 }
 
 // bugs/xde/bug31851: STEP preserves Unicode shape names.
-TEST(GDT_STEP_Storage_Test, XdeBug_31851_UnicodeShapeName)
+TEST(DESTEP_Provider_StorageTest, XdeBug_31851_UnicodeShapeName)
 {
   occ::handle<TDocStd_Application> anApplication = new TDocStd_Application();
   occ::handle<TDocStd_Document>    aDocument     = NewDocument(anApplication);

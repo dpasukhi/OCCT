@@ -15,6 +15,7 @@
 
 #include <TCollection_UtfString.hxx>
 #include <TCollection_ExtendedString.hxx>
+#include <TCollection_AsciiString.hxx>
 #include <NCollection_UtfIterator.hxx>
 #include <NCollection_UtfString.hxx>
 #include <NCollection_String.hxx>
@@ -73,6 +74,21 @@ TEST(TCollection_UtfStringTest, ExtendedStringInteroperability)
   TCollection_UtfString<char16_t> aResult(u"unchanged");
   EXPECT_FALSE(aResult.FromUnicode(aBroken.ToExtString(), static_cast<size_t>(aBroken.Length())));
   EXPECT_EQ(aResult.View(), u"unchanged");
+}
+
+TEST(TCollection_UtfStringTest, ExtendedStringInvalidUtf8Fallback)
+{
+  const char*     aNames[]     = {"Test Prob\xEDh\xE1", "Test \xD6l\xE7" "ek"};
+  const char16_t* anExpected[] = {u"Test Prob\u00EDh\u00E1", u"Test \u00D6l\u00E7ek"};
+  for (size_t anIndex = 0; anIndex < 2; ++anIndex)
+  {
+    const TCollection_ExtendedString aExpected(anExpected[anIndex]);
+    EXPECT_EQ(TCollection_ExtendedString(aNames[anIndex], true), aExpected);
+    EXPECT_EQ(TCollection_ExtendedString(TCollection_AsciiString(aNames[anIndex]), true),
+              aExpected);
+    TCollection_UtfString<char> aStrict;
+    EXPECT_FALSE(aStrict.FromUnicode(aNames[anIndex]));
+  }
 }
 
 TEST(TCollection_UtfStringTest, ExtendedStringAliasedViews)

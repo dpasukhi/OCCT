@@ -149,17 +149,9 @@ public:
   //! @pre the code-unit count fits in int
   //! @param[in] theStringView the string view to copy
   explicit TCollection_ExtendedString(const std::u16string_view& theStringView)
+      : TCollection_ExtendedString(theStringView.empty() ? u"" : theStringView.data(),
+                                   static_cast<int>(theStringView.size()))
   {
-    myLength = static_cast<int>(theStringView.size());
-    if (myLength == 0)
-    {
-      allocate(0);
-    }
-    else
-    {
-      allocate(myLength);
-      memcpy(myString, theStringView.data(), myLength * sizeof(char16_t));
-    }
   }
 
   //! Assignment from a std::u16string_view.
