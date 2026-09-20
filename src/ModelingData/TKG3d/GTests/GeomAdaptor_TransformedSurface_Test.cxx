@@ -298,3 +298,25 @@ TEST(GeomAdaptor_TransformedSurfaceTest, GridEvalUsesTransformedGeometryOnlyOnce
   EXPECT_NEAR(aGrid.Value(1, 1).Z(), 5.0, THE_TOLERANCE);
   EXPECT_NEAR(aGrid.Value(2, 2).Z(), 5.0, THE_TOLERANCE);
 }
+
+//=================================================================================================
+
+TEST(GeomAdaptor_TransformedSurfaceTest, ResolutionUsesTransformedDistance)
+{
+  const occ::handle<Geom_Surface> aPlane = new Geom_Plane(gp_Pln());
+  for (const double aScale : {0.25, 1.0, 4.0, -2.0})
+  {
+    SCOPED_TRACE(aScale);
+    gp_Trsf aTrsf;
+    aTrsf.SetScale(gp_Pnt(1, -2, 3), aScale);
+    const GeomAdaptor_TransformedSurface aSurface(aPlane, aTrsf);
+    const gp_Pnt                         aOrigin    = aSurface.EvalD0(0, 0);
+    const double                         aTolerance = 0.01;
+    EXPECT_NEAR(aOrigin.Distance(aSurface.EvalD0(aSurface.UResolution(aTolerance), 0)),
+                aTolerance,
+                THE_TOLERANCE);
+    EXPECT_NEAR(aOrigin.Distance(aSurface.EvalD0(0, aSurface.VResolution(aTolerance))),
+                aTolerance,
+                THE_TOLERANCE);
+  }
+}

@@ -19,6 +19,8 @@
 #include <GeomAdaptor_Curve.hxx>
 #include <gp_Trsf.hxx>
 
+#include <cmath>
+
 //! An adaptor for curves with an applied transformation.
 //!
 //! This class wraps a GeomAdaptor_Curve (or an Adaptor3d_CurveOnSurface) and
@@ -157,9 +159,11 @@ public:
   //! DN evaluation. Applies transformation after evaluation.
   [[nodiscard]] Standard_EXPORT gp_Vec EvalDN(const double theU, const int theN) const final;
 
+  //! Return the parameter resolution for a distance after transformation.
   double Resolution(const double theR3d) const override
   {
-    return myConSurf.IsNull() ? myCurve.Resolution(theR3d) : myConSurf->Resolution(theR3d);
+    const double aDistance = theR3d / std::abs(myTrsf.ScaleFactor());
+    return myConSurf.IsNull() ? myCurve.Resolution(aDistance) : myConSurf->Resolution(aDistance);
   }
 
   GeomAbs_CurveType GetType() const override

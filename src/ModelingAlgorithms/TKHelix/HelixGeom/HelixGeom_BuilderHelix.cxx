@@ -62,6 +62,13 @@ void HelixGeom_BuilderHelix::Perform()
   aBHC.SetTolerance(myTolerance);
   aBHC.SetApproxParameters(myCont, myMaxDegree, myMaxSeg);
 
+  const double aTaperRate = fabs(myTaperAngle) > 1.e-4
+                               ? myPitch / aTwoPI * tan(myTaperAngle)
+                               : 0.;
+  const auto radiusAt = [this, aTaperRate](const double theT) {
+    return myRStart + aTaperRate * (theT - myT1);
+  };
+
   // Determine number of full turns for segmentation
   dT = myT2 - myT1;
   aN = (int)(dT / aTwoPI);
@@ -110,7 +117,12 @@ void HelixGeom_BuilderHelix::Perform()
         continue;
       }
 
-      aBHC.SetCurveParameters(aT1x, aT2x, myPitch, myRStart, myTaperAngle, myIsClockWise);
+      aBHC.SetCurveParameters(aT1x,
+                              aT2x,
+                              myPitch,
+                              radiusAt(aT1x),
+                              myTaperAngle,
+                              myIsClockWise);
       // Perform approximation for this segment
       aBHC.Perform();
       iErr = aBHC.ErrorStatus();
@@ -137,7 +149,12 @@ void HelixGeom_BuilderHelix::Perform()
     double eps = 1.e-7 * aTwoPI;
     if (fabs(aT2x - aT1x) > eps)
     {
-      aBHC.SetCurveParameters(aT1x, aT2x, myPitch, myRStart, myTaperAngle, myIsClockWise);
+      aBHC.SetCurveParameters(aT1x,
+                              aT2x,
+                              myPitch,
+                              radiusAt(aT1x),
+                              myTaperAngle,
+                              myIsClockWise);
       aBHC.Perform();
       iErr = aBHC.ErrorStatus();
       if (iErr)

@@ -14,6 +14,10 @@
 #include <gtest/gtest.h>
 
 #include <GeomAPI_IntCS.hxx>
+#include <GeomAdaptor_Surface.hxx>
+#include <Geom_Line.hxx>
+#include <Geom_Plane.hxx>
+#include <Geom_SphericalSurface.hxx>
 #include <Geom_BSplineSurface.hxx>
 #include <Geom_BezierSurface.hxx>
 #include <Geom_Circle.hxx>
@@ -145,4 +149,60 @@ TEST(GeomAPI_IntCSTest, OCC26979_ParabolaLinearExtrusion)
 TEST(GeomAPI_IntCSTest, OCC26979_ParabolaRevolution)
 {
   expectOCC26979Intersection(makeOCC26979RevolutionSurface());
+}
+
+TEST(GeomAPI_IntCSTest, BoundedAdaptorsRestrictIntersectionsAndCanBeReused)
+{
+  const occ::handle<Geom_Line>             aLine = new Geom_Line(gp_Pnt(-2, 0, 0), gp_Dir(1, 0, 0));
+  const occ::handle<Geom_SphericalSurface> aSphere = new Geom_SphericalSurface(gp_Ax3(), 1);
+  const GeomAdaptor_Curve                  aCurve(aLine, 0, 2);
+  const GeomAdaptor_Surface                aSurface(aSphere);
+  GeomAPI_IntCS                            anIntersection;
+  anIntersection.Perform(aCurve, aSurface);
+  ASSERT_TRUE(anIntersection.IsDone());
+  ASSERT_EQ(anIntersection.NbPoints(), 1);
+  double aU, aV, aW;
+  anIntersection.Parameters(1, aU, aV, aW);
+  EXPECT_NEAR(aW, 1, 1.e-12);
+  GeomAPI_IntCS aLegacy(new Geom_TrimmedCurve(aLine, 0, 2), aSphere);
+  ASSERT_TRUE(aLegacy.IsDone());
+  ASSERT_EQ(aLegacy.NbPoints(), 1);
+  EXPECT_LT(aLegacy.Point(1).Distance(anIntersection.Point(1)), 1.e-12);
+  anIntersection.Perform(GeomAdaptor_Curve(aLine, 0, 4), aSurface);
+  ASSERT_TRUE(anIntersection.IsDone());
+  EXPECT_EQ(anIntersection.NbPoints(), 2);
+  anIntersection.Perform(GeomAdaptor_Curve(aLine, 0, 0.5), aSurface);
+  ASSERT_TRUE(anIntersection.IsDone());
+  EXPECT_EQ(anIntersection.NbPoints(), 0);
+  EXPECT_EQ(aCurve.FirstParameter(), 0);
+  EXPECT_EQ(aCurve.LastParameter(), 2);
+}
+
+TEST(GeomAPI_IntCSTest, BoundedPeriodicCurveRetainsShiftedParameters)
+{
+  const occ::handle<Geom_Circle> aCircle = new Geom_Circle(gp_Ax2(), 1);
+  const GeomAdaptor_Curve        aCurve(aCircle, 7, 8);
+  const GeomAdaptor_Surface      aPlane(new Geom_Plane(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0)));
+  GeomAPI_IntCS                  anIntersection;
+  anIntersection.Perform(aCurve, aPlane);
+  ASSERT_TRUE(anIntersection.IsDone());
+  ASSERT_EQ(anIntersection.NbPoints(), 1);
+  double aU, aV, aW;
+  anIntersection.Parameters(1, aU, aV, aW);
+  EXPECT_NEAR(aW, 2.5 * M_PI, 1.e-12);
+  EXPECT_EQ(aCurve.FirstParameter(), 7);
+  EXPECT_EQ(aCurve.LastParameter(), 8);
+}
+
+TEST(GeomAPI_IntCSTest, BoundedSurfaceExcludesOutsideIntersection)
+{
+  const occ::handle<Geom_Plane> aPlane = new Geom_Plane(gp_Ax3());
+  const GeomAdaptor_Curve       aCurve(new Geom_Line(gp_Pnt(2, 0, -1), gp_Dir(0, 0, 1)), 0, 2);
+  GeomAPI_IntCS                 anIntersection;
+  anIntersection.Perform(aCurve, GeomAdaptor_Surface(aPlane));
+  ASSERT_TRUE(anIntersection.IsDone());
+  ASSERT_EQ(anIntersection.NbPoints(), 1);
+  anIntersection.Perform(aCurve, GeomAdaptor_Surface(aPlane, -1, 1, -1, 1));
+  ASSERT_TRUE(anIntersection.IsDone());
+  EXPECT_EQ(anIntersection.NbPoints(), 0);
 }

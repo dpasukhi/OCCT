@@ -76,9 +76,10 @@ static void CopyShape(
   for (; itv.More(); itv.Next())
   {
     const TopoDS_Shape& V = itv.Value();
-    if (myBounds.Contains(V))
+    const TopoDS_Shape* aBound = myBounds.Seek(V);
+    if (aBound != nullptr)
     {
-      B.Add(NE, myBounds.FindFromKey(V).Oriented(V.Orientation()));
+      B.Add(NE, aBound->Oriented(V.Orientation()));
     }
     else
     {
@@ -234,9 +235,10 @@ void BRepTools_Quilt::Add(const TopoDS_Shape& S)
         {
           const TopoDS_Edge& E  = TopoDS::Edge(ite.Value());
           TopAbs_Orientation OE = E.Orientation();
-          if (myBounds.Contains(E))
+          const TopoDS_Shape* aBound = myBounds.Seek(E);
+          if (aBound != nullptr)
           {
-            const TopoDS_Edge& NE = TopoDS::Edge(myBounds.FindFromKey(E));
+            const TopoDS_Edge& NE = TopoDS::Edge(*aBound);
             // pcurve.
             if (NE.Orientation() == TopAbs_FORWARD)
             {
@@ -286,10 +288,7 @@ void BRepTools_Quilt::Add(const TopoDS_Shape& S)
 
 void BRepTools_Quilt::Bind(const TopoDS_Vertex& Vold, const TopoDS_Vertex& Vnew)
 {
-  if (!myBounds.Contains(Vold))
-  {
-    myBounds.Add(Vold, Vnew);
-  }
+  myBounds.Add(Vold, Vnew);
 }
 
 //=================================================================================================
@@ -348,14 +347,8 @@ void BRepTools_Quilt::Bind(const TopoDS_Edge& Eold, const TopoDS_Edge& Enew)
 
 bool BRepTools_Quilt::IsCopied(const TopoDS_Shape& S) const
 {
-  if (myBounds.Contains(S))
-  {
-    return !S.IsSame(myBounds.FindFromKey(S));
-  }
-  else
-  {
-    return false;
-  }
+  const TopoDS_Shape* aBound = myBounds.Seek(S);
+  return aBound != nullptr && !S.IsSame(*aBound);
 }
 
 //=================================================================================================
@@ -417,9 +410,10 @@ TopoDS_Shape BRepTools_Quilt::Shells() const
       for (; itf1.More(); itf1.Next())
       {
         const TopoDS_Shape& E = itf1.Current();
-        if (M.IsBound(E))
+        const TopoDS_Shape* aShell = M.Seek(E);
+        if (aShell != nullptr)
         {
-          SH = TopoDS::Shell(M(E));
+          SH = TopoDS::Shell(*aShell);
           if (SH.Orientation() == E.Orientation())
           {
             NewO = TopAbs::Reverse(Shape.Orientation());
@@ -455,9 +449,10 @@ TopoDS_Shape BRepTools_Quilt::Shells() const
       {
         const TopoDS_Edge& E = TopoDS::Edge(itf.Current());
 
-        if (M.IsBound(E))
+        const TopoDS_Shape* aShell = M.Seek(E);
+        if (aShell != nullptr)
         {
-          const TopoDS_Shape oldShell = M(E);
+          const TopoDS_Shape oldShell = *aShell;
           if (!oldShell.IsSame(SH))
           {
             // Fuse the old shell with the new one
@@ -499,25 +494,24 @@ TopoDS_Shape BRepTools_Quilt::Shells() const
               // for (NCollection_DataMap<TopoDS_Shape, TopoDS_Shape,
               // TopTools_ShapeMapHasher>::Iterator itm(M);
               //		 itm.More(); ) {
-              if (!M.IsBound(aexp.Current()))
+              TopoDS_Shape* aFreeShell = M.ChangeSeek(aexp.Current());
+              if (aFreeShell == nullptr)
               {
                 continue;
               }
-              const TopoDS_Shape& ae = aexp.Current();
-              TopoDS_Shape        as = M.Find(ae);
-              if (as.IsSame(oldShell))
+              if (aFreeShell->IsSame(oldShell))
               {
                 // update the orientation of free edges in SH.
                 if (Rev)
                 {
-                  NewO = TopAbs::Reverse(as.Orientation());
+                  NewO = TopAbs::Reverse(aFreeShell->Orientation());
                 }
                 else
                 {
-                  NewO = as.Orientation();
+                  NewO = aFreeShell->Orientation();
                 }
 
-                M.Bind(ae, SH.Oriented(NewO));
+                *aFreeShell = SH.Oriented(NewO);
               }
             }
             // remove the old shell from the result
@@ -530,7 +524,7 @@ TopoDS_Shape BRepTools_Quilt::Shells() const
             anOrien = TopAbs::Reverse(anOrien);
           }
 
-          if (M(E).Orientation() == anOrien)
+          if (aShell->Orientation() == anOrien)
           {
             SH.Orientable(false);
           }
@@ -580,10 +574,13 @@ TopoDS_Shape BRepTools_Quilt::Shells() const
     MapOtherShape); // gka version for free edges
   for (; itother.More(); itother.Next())
   {
-    if (!EdgesFaces.Contains(itother.Key()) && myBounds.Contains(itother.Key()))
+    if (!EdgesFaces.Contains(itother.Key()))
     {
-      TopoDS_Shape aSh = myBounds.FindFromKey(itother.Key());
-      B.Add(result, aSh);
+      const TopoDS_Shape* aBound = myBounds.Seek(itother.Key());
+      if (aBound != nullptr)
+      {
+        B.Add(result, *aBound);
+      }
     }
   }
   return result;

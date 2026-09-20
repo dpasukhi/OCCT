@@ -25,11 +25,8 @@
 #include <gp_Elips.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_XYZ.hxx>
-#include <math_MultipleVarFunctionWithHessian.hxx>
-#include <math_NewtonMinimum.hxx>
-#include <math_PSO.hxx>
-#include <math_PSOParticlesPool.hxx>
 #include <math_TrigonometricFunctionRoots.hxx>
+#include <MathOpt_PSO.hxx>
 #include <OSD_Parallel.hxx>
 #include <Standard_ErrorHandler.hxx>
 #include <NCollection_Array1.hxx>
@@ -42,7 +39,6 @@ typedef NCollection_Array1<occ::handle<Adaptor3d_Curve>> Array1OfHCurve;
 class GeomLib_CheckCurveOnSurface_TargetFunc;
 
 static bool MinComputing(GeomLib_CheckCurveOnSurface_TargetFunc& theFunction,
-                         const double                            theEpsilon, // 1.0e-3
                          const int                               theNbParticles,
                          double&                                 theBestValue,
                          double&                                 theBestParameter);
@@ -56,7 +52,7 @@ static int FillSubIntervals(const occ::handle<Adaptor3d_Curve>&   theCurve3d,
 
 //=================================================================================================
 
-class GeomLib_CheckCurveOnSurface_TargetFunc : public math_MultipleVarFunctionWithHessian
+class GeomLib_CheckCurveOnSurface_TargetFunc
 {
 public:
   GeomLib_CheckCurveOnSurface_TargetFunc(const Adaptor3d_Curve& theC3D,
@@ -70,130 +66,30 @@ public:
   {
   }
 
-  // returns the number of parameters of the function
-  // (the function is one-dimension).
-  int NbVariables() const override { return 1; }
+  //! The optimizer works on [0, 1], independently of the curve's parameter scale.
+  bool Value(const math_Vector& theX, double& theValue) const
+  {
+    return Value(Parameter(theX.At(0)), theValue);
+  }
 
-  // returns value of the function when parameters are equal to theX
-  bool Value(const math_Vector& theX, double& theFVal) override { return Value(theX(1), theFVal); }
+  double Parameter(const double theUnitParameter) const
+  {
+    return theUnitParameter == 1
+             ? myLast
+             : std::clamp(myFirst + theUnitParameter * (myLast - myFirst), myFirst, myLast);
+  }
 
   // returns value of the one-dimension-function when parameter
   // is equal to theX
   bool Value(const double theX, double& theFVal) const
   {
-    try
-    {
-      OCC_CATCH_SIGNALS
-      if (!CheckParameter(theX))
-      {
-        return false;
-      }
-
-      const gp_Pnt aP1(myCurve1.Value(theX)), aP2(myCurve2.Value(theX));
-
-      theFVal = -1.0 * aP1.SquareDistance(aP2);
-    }
-    catch (Standard_Failure const&)
+    if (!CheckParameter(theX))
     {
       return false;
     }
-    return true;
+    theFVal = -myCurve1.Value(theX).SquareDistance(myCurve2.Value(theX));
+    return Precision::IsFinite(theFVal);
   }
-
-  // see analogical method for abstract owner class math_MultipleVarFunction
-  int GetStateNumber() override { return 0; }
-
-  // returns the gradient of the function when parameters are
-  // equal to theX
-  bool Gradient(const math_Vector& theX, math_Vector& theGrad) override
-  {
-    return Derive(theX(1), theGrad(1));
-  }
-
-  // returns 1st derivative of the one-dimension-function when
-  // parameter is equal to theX
-  bool Derive(const double theX, double& theDeriv1, double* const theDeriv2 = nullptr) const
-  {
-    try
-    {
-      OCC_CATCH_SIGNALS
-      if (!CheckParameter(theX))
-      {
-        return false;
-      }
-      //
-      gp_Pnt aP1, aP2;
-      gp_Vec aDC1, aDC2, aDCC1, aDCC2;
-      //
-      if (!theDeriv2)
-      {
-        myCurve1.D1(theX, aP1, aDC1);
-        myCurve2.D1(theX, aP2, aDC2);
-      }
-      else
-      {
-        myCurve1.D2(theX, aP1, aDC1, aDCC1);
-        myCurve2.D2(theX, aP2, aDC2, aDCC2);
-      }
-
-      const gp_Vec aVec1(aP1, aP2), aVec2(aDC2 - aDC1);
-      //
-      theDeriv1 = -2.0 * aVec1.Dot(aVec2);
-
-      if (theDeriv2)
-      {
-        const gp_Vec aVec3(aDCC2 - aDCC1);
-        *theDeriv2 = -2.0 * (aVec2.SquareMagnitude() + aVec1.Dot(aVec3));
-      }
-    }
-    catch (Standard_Failure const&)
-    {
-      return false;
-    }
-
-    return true;
-  }
-
-  // returns value and gradient
-  bool Values(const math_Vector& theX, double& theVal, math_Vector& theGrad) override
-  {
-    if (!Value(theX, theVal))
-    {
-      return false;
-    }
-    //
-    if (!Gradient(theX, theGrad))
-    {
-      return false;
-    }
-    //
-    return true;
-  }
-
-  // returns value, gradient and hessian
-  bool Values(const math_Vector& theX,
-              double&            theVal,
-              math_Vector&       theGrad,
-              math_Matrix&       theHessian) override
-  {
-    if (!Value(theX, theVal))
-    {
-      return false;
-    }
-    //
-    if (!Derive(theX(1), theGrad(1), &theHessian(1, 1)))
-    {
-      return false;
-    }
-    //
-    return true;
-  }
-
-  //
-  double FirstParameter() const { return myFirst; }
-
-  //
-  double LastParameter() const { return myLast; }
 
   // Computes the exact maximum for elementary compositions supported by the adaptors.
   bool ElementaryMaximum(double& theBestValue, double& theBestParameter) const
@@ -346,12 +242,10 @@ public:
   GeomLib_CheckCurveOnSurface_Local(const Array1OfHCurve&             theCurveArray,
                                     const Array1OfHCurve&             theCurveOnSurfaceArray,
                                     const NCollection_Array1<double>& theIntervalsArr,
-                                    const double                      theEpsilonRange,
                                     const int                         theNbParticles)
       : myCurveArray(theCurveArray),
         myCurveOnSurfaceArray(theCurveOnSurfaceArray),
         mySubIntervals(theIntervalsArr),
-        myEpsilonRange(theEpsilonRange),
         myNbParticles(theNbParticles),
         myArrOfDist(theIntervalsArr.Lower(), theIntervalsArr.Upper() - 1),
         myArrOfParam(theIntervalsArr.Lower(), theIntervalsArr.Upper() - 1)
@@ -372,10 +266,10 @@ public:
       mySubIntervals.Value(theElemIndex + 1));
 
     double aMinDist = RealLast(), aPar = 0.0;
-    if (!MinComputing(aFunc, myEpsilonRange, myNbParticles, aMinDist, aPar))
+    if (!MinComputing(aFunc, myNbParticles, aMinDist, aPar))
     {
       myArrOfDist(theElemIndex)  = RealLast();
-      myArrOfParam(theElemIndex) = aFunc.FirstParameter();
+      myArrOfParam(theElemIndex) = mySubIntervals.Value(theElemIndex);
       return;
     }
 
@@ -384,21 +278,26 @@ public:
   }
 
   // Returns optimal value (inverse of square of maximal distance)
-  void OptimalValues(double& theMinimalValue, double& theParameter) const
+  bool OptimalValues(double& theMinimalValue, double& theParameter) const
   {
     // This method looks for the minimal value of myArrOfDist.
 
     const int aStartInd = myArrOfDist.Lower();
     theMinimalValue     = myArrOfDist(aStartInd);
     theParameter        = myArrOfParam(aStartInd);
-    for (int i = aStartInd + 1; i <= myArrOfDist.Upper(); i++)
+    for (int i = aStartInd; i <= myArrOfDist.Upper(); i++)
     {
+      if (myArrOfDist(i) == RealLast())
+      {
+        return false;
+      }
       if (myArrOfDist(i) < theMinimalValue)
       {
         theMinimalValue = myArrOfDist(i);
         theParameter    = myArrOfParam(i);
       }
     }
+    return true;
   }
 
 private:
@@ -409,7 +308,6 @@ private:
   const Array1OfHCurve& myCurveOnSurfaceArray;
 
   const NCollection_Array1<double>&  mySubIntervals;
-  const double                       myEpsilonRange;
   const int                          myNbParticles;
   mutable NCollection_Array1<double> myArrOfDist;
   mutable NCollection_Array1<double> myArrOfParam;
@@ -474,29 +372,21 @@ void GeomLib_CheckCurveOnSurface::Perform(
     return;
   }
 
-  if ((myCurve->FirstParameter() - theCurveOnSurface->FirstParameter() > myTolRange)
-      || (myCurve->LastParameter() - theCurveOnSurface->LastParameter() < -myTolRange))
+  const double aFirst = myCurve->FirstParameter();
+  const double aLast  = myCurve->LastParameter();
+  if (!Precision::IsFinite(aFirst) || !Precision::IsFinite(aLast) || !(aFirst < aLast)
+      || (aFirst - theCurveOnSurface->FirstParameter() > myTolRange)
+      || (aLast - theCurveOnSurface->LastParameter() < -myTolRange))
   {
     myErrorStatus = 2;
     return;
   }
 
-  const double anEpsilonRange = 1.e-3;
-
   int aNbParticles = 3;
 
-  // Polynomial function with degree n has not more than n-1 maxima and
-  // minima (degree of 1st derivative is equal to n-1 => 1st derivative has
-  // no greater than n-1 roots). Consequently, this function has
-  // maximum n monotonicity intervals. That is a good idea to try to put
-  // at least one particle in every monotonicity interval. Therefore,
-  // number of particles should be equal to n.
-
-  const int aNbSubIntervals = FillSubIntervals(myCurve,
-                                               theCurveOnSurface->GetCurve(),
-                                               myCurve->FirstParameter(),
-                                               myCurve->LastParameter(),
-                                               aNbParticles);
+  // Polynomial degree guides the initial search density on each knot interval.
+  const int aNbSubIntervals =
+    FillSubIntervals(myCurve, theCurveOnSurface->GetCurve(), aFirst, aLast, aNbParticles);
 
   if (!aNbSubIntervals)
   {
@@ -511,8 +401,8 @@ void GeomLib_CheckCurveOnSurface::Perform(
     NCollection_Array1<double> anIntervals(1, aNbSubIntervals + 1);
     FillSubIntervals(myCurve,
                      theCurveOnSurface->GetCurve(),
-                     myCurve->FirstParameter(),
-                     myCurve->LastParameter(),
+                     aFirst,
+                     aLast,
                      aNbParticles,
                      &anIntervals);
 
@@ -533,7 +423,6 @@ void GeomLib_CheckCurveOnSurface::Perform(
     GeomLib_CheckCurveOnSurface_Local aComp(aCurveArray,
                                             aCurveOnSurfaceArray,
                                             anIntervals,
-                                            anEpsilonRange,
                                             aNbParticles);
     if (aNbThreads > 1)
     {
@@ -548,7 +437,11 @@ void GeomLib_CheckCurveOnSurface::Perform(
         aComp(0, anI);
       }
     }
-    aComp.OptimalValues(myMaxDistance, myMaxParameter);
+    if (!aComp.OptimalValues(myMaxDistance, myMaxParameter))
+    {
+      myErrorStatus = 3;
+      return;
+    }
 
     myMaxDistance = sqrt(std::abs(myMaxDistance));
   }
@@ -748,14 +641,16 @@ int FillSubIntervals(const occ::handle<Adaptor3d_Curve>&   theCurve3d,
       theSubIntervals->ChangeValue(aNbSubIntervals + 1) = theLast;
     }
 
-    if (!aBS3DCurv.IsNull())
+    if (!aBS3DCurv.IsNull() || theCurve3d->GetType() == GeomAbs_BezierCurve)
     {
-      theNbParticles = std::max(theNbParticles, aBS3DCurv->Degree());
+      theNbParticles =
+        std::max(theNbParticles, aBS3DCurv.IsNull() ? theCurve3d->Degree() : aBS3DCurv->Degree());
     }
 
-    if (!aBS2DCurv.IsNull())
+    if (!aBS2DCurv.IsNull() || theCurve2d->GetType() == GeomAbs_BezierCurve)
     {
-      theNbParticles = std::max(theNbParticles, aBS2DCurv->Degree());
+      theNbParticles =
+        std::max(theNbParticles, aBS2DCurv.IsNull() ? theCurve2d->Degree() : aBS2DCurv->Degree());
     }
   }
   catch (Standard_Failure const&)
@@ -774,62 +669,7 @@ int FillSubIntervals(const occ::handle<Adaptor3d_Curve>&   theCurve3d,
 
 //=================================================================================================
 
-bool PSO_Perform(GeomLib_CheckCurveOnSurface_TargetFunc& theFunction,
-                 const math_Vector&                      theParInf,
-                 const math_Vector&                      theParSup,
-                 const double                            theEpsilon,
-                 const int                               theNbParticles,
-                 double&                                 theBestValue,
-                 math_Vector&                            theOutputParam)
-{
-  const double aDeltaParam = theParSup(1) - theParInf(1);
-  if (aDeltaParam < Precision::PConfusion())
-  {
-    return false;
-  }
-
-  math_Vector aStepPar(1, 1);
-  aStepPar(1) = theEpsilon * aDeltaParam;
-
-  math_PSOParticlesPool aParticles(theNbParticles, 1);
-
-  // They are used for finding a position of theNbParticles worst places
-  const int aNbControlPoints = 3 * theNbParticles;
-
-  const double aStep  = aDeltaParam / (aNbControlPoints - 1);
-  int          aCount = 1;
-  for (double aPrm = theParInf(1); aCount <= aNbControlPoints;
-       aCount++, aPrm = (aCount == aNbControlPoints) ? theParSup(1) : aPrm + aStep)
-  {
-    double aVal = RealLast();
-    if (!theFunction.Value(aPrm, aVal))
-    {
-      continue;
-    }
-
-    PSO_Particle* aParticle = aParticles.GetWorstParticle();
-
-    if (aVal > aParticle->BestDistance)
-    {
-      continue;
-    }
-
-    aParticle->Position[0]     = aPrm;
-    aParticle->BestPosition[0] = aPrm;
-    aParticle->Distance        = aVal;
-    aParticle->BestDistance    = aVal;
-  }
-
-  math_PSO aPSO(&theFunction, theParInf, theParSup, aStepPar);
-  aPSO.Perform(aParticles, theNbParticles, theBestValue, theOutputParam);
-
-  return true;
-}
-
-//=================================================================================================
-
 bool MinComputing(GeomLib_CheckCurveOnSurface_TargetFunc& theFunction,
-                  const double                            theEpsilon, // 1.0e-3
                   const int                               theNbParticles,
                   double&                                 theBestValue,
                   double&                                 theBestParameter)
@@ -837,76 +677,34 @@ bool MinComputing(GeomLib_CheckCurveOnSurface_TargetFunc& theFunction,
   try
   {
     OCC_CATCH_SIGNALS
-
-    //
-    math_Vector aParInf(1, 1), aParSup(1, 1), anOutputParam(1, 1);
-    aParInf(1)       = theFunction.FirstParameter();
-    aParSup(1)       = theFunction.LastParameter();
-    theBestParameter = aParInf(1);
-    theBestValue     = RealLast();
-
     if (theFunction.ElementaryMaximum(theBestValue, theBestParameter))
     {
       return true;
     }
 
-    if (!PSO_Perform(theFunction,
-                     aParInf,
-                     aParSup,
-                     theEpsilon,
-                     theNbParticles,
-                     theBestValue,
-                     anOutputParam))
+    // Preserve degree-dependent coverage, including both interval endpoints.
+    MathOpt::PSOConfig aConfig(size_t(3 * theNbParticles), 100, Precision::PConfusion());
+    aConfig.InitMode = MathOpt::PSOInitMode::SeededOnly;
+    aConfig.AllowPartialDomain = false;
+    NCollection_DynamicArray<MathOpt::PSOSeedParticle> aSeeds;
+    math_Vector aPosition(size_t(1));
+    for (size_t i = 0; i < aConfig.NbParticles; ++i)
     {
-#ifdef OCCT_DEBUG
-      std::cout << "BRepLib_CheckCurveOnSurface::Compute(): math_PSO is failed!" << std::endl;
-#endif
+      aPosition.ChangeAt(0) = double(i) / double(aConfig.NbParticles - 1);
+      aSeeds.Append(MathOpt::PSOSeedParticle(aPosition));
+    }
+    const math_Vector aLower(1, 1, 0), anUpper(1, 1, 1);
+    const auto aResult = MathOpt::PSO(theFunction, aLower, anUpper, aConfig, &aSeeds);
+    if (!aResult.IsDone() || !aResult.Value || !aResult.Solution)
+    {
       return false;
     }
-
-    theBestParameter = anOutputParam(1);
-
-    // Here, anOutputParam contains parameter, which is near to optimal.
-    // It needs to be more precise. Precision is made by math_NewtonMinimum.
-    math_NewtonMinimum aMinSol(theFunction);
-    aMinSol.Perform(theFunction, anOutputParam);
-
-    if (aMinSol.IsDone() && (aMinSol.GetStatus() == math_OK))
-    { // math_NewtonMinimum has precised the value. We take it.
-      aMinSol.Location(anOutputParam);
-      theBestParameter = anOutputParam(1);
-      theBestValue     = aMinSol.Minimum();
-    }
-    else
-    { // Use math_PSO again but on smaller range.
-      const double aStep = theEpsilon * (aParSup(1) - aParInf(1));
-      aParInf(1)         = theBestParameter - 0.5 * aStep;
-      aParSup(1)         = theBestParameter + 0.5 * aStep;
-
-      double aValue = RealLast();
-      if (PSO_Perform(theFunction,
-                      aParInf,
-                      aParSup,
-                      theEpsilon,
-                      theNbParticles,
-                      aValue,
-                      anOutputParam))
-      {
-        if (aValue < theBestValue)
-        {
-          theBestValue     = aValue;
-          theBestParameter = anOutputParam(1);
-        }
-      }
-    }
+    theBestValue     = *aResult.Value;
+    theBestParameter = theFunction.Parameter(aResult.Solution->At(0));
+    return true;
   }
-  catch (Standard_Failure const&)
+  catch (const Standard_Failure&)
   {
-#ifdef OCCT_DEBUG
-    std::cout << "BRepLib_CheckCurveOnSurface.cxx: Exception in MinComputing()!" << std::endl;
-#endif
     return false;
   }
-
-  return true;
 }

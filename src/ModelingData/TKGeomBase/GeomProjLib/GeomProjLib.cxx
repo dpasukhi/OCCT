@@ -338,8 +338,10 @@ occ::handle<Geom_Curve> GeomProjLib::ProjectOnPlane(const occ::handle<Geom_Curve
 
   if (Curve->IsKind(STANDARD_TYPE(Geom_TrimmedCurve)))
   {
-    occ::handle<Geom_TrimmedCurve> CTrim = occ::down_cast<Geom_TrimmedCurve>(Curve);
-    GC = new Geom_TrimmedCurve(GC, Proj.FirstParameter(), Proj.LastParameter());
+    // Periodic normalization would shift the bounds even when the caller
+    // explicitly requests the source parameterization (for example [7, 11]).
+    GC = new Geom_TrimmedCurve(
+      GC, Proj.FirstParameter(), Proj.LastParameter(), true, !KeepParametrization);
   }
 
   return GC;

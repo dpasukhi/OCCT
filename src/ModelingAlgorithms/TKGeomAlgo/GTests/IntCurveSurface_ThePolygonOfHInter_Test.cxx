@@ -15,6 +15,7 @@
 
 #include <GeomAdaptor_Curve.hxx>
 #include <Geom_Line.hxx>
+#include <Geom_BezierCurve.hxx>
 #include <gp_Ax1.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Pnt.hxx>
@@ -31,4 +32,29 @@ TEST(IntCurveSurface_ThePolygonOfHInter_Test, ClosedFlagReflectsStoredState)
   EXPECT_FALSE(aPolygon.Closed());
   aPolygon.Closed(true);
   EXPECT_TRUE(aPolygon.Closed());
+}
+
+TEST(IntCurveSurface_ThePolygonOfHInter_Test, CollapsedChordRetainsMidpointDeparture)
+{
+  NCollection_Array1<gp_Pnt> aPoles(1, 3);
+  aPoles(1)                                   = gp_Pnt(0, 0, 0);
+  aPoles(2)                                   = gp_Pnt(0, 2, 0);
+  aPoles(3)                                   = gp_Pnt(0, 0, 0);
+  const occ::handle<GeomAdaptor_Curve> aCurve = new GeomAdaptor_Curve(new Geom_BezierCurve(aPoles));
+  NCollection_Array1<double>           aParameters(1, 4);
+  aParameters(1) = aParameters(2) = 0;
+  aParameters(3) = aParameters(4) = 1;
+  const IntCurveSurface_ThePolygonOfHInter aPolygon(aCurve, aParameters);
+  EXPECT_DOUBLE_EQ(aPolygon.DeflectionOverEstimation(), 1);
+  EXPECT_FALSE(aPolygon.Bounding().IsOut(gp_Pnt(0, 1, 0)));
+}
+
+TEST(IntCurveSurface_ThePolygonOfHInter_Test, UniformConstantCurveHasZeroDeflection)
+{
+  NCollection_Array1<gp_Pnt> aPoles(1, 3);
+  aPoles.Init(gp_Pnt(1, 2, 3));
+  const occ::handle<GeomAdaptor_Curve> aCurve = new GeomAdaptor_Curve(new Geom_BezierCurve(aPoles));
+  const IntCurveSurface_ThePolygonOfHInter aPolygon(aCurve, 5);
+  EXPECT_DOUBLE_EQ(aPolygon.DeflectionOverEstimation(), 0);
+  EXPECT_FALSE(aPolygon.Bounding().IsOut(gp_Pnt(1, 2, 3)));
 }

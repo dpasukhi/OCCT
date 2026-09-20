@@ -24,7 +24,6 @@
 #include <GeomAbs_Shape.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
-#include <math_Gauss.hxx>
 #include <math_Matrix.hxx>
 #include <PLib_HermitJacobi.hxx>
 #include <Standard_DomainError.hxx>

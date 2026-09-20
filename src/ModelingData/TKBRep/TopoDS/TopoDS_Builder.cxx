@@ -83,7 +83,7 @@ void TopoDS_Builder::Add(TopoDS_Shape& aShape, const TopoDS_Shape& aComponent) c
       const TopLoc_Location& aLoc = aShape.Location();
       if (!aLoc.IsIdentity())
       {
-        aChild.Move(aLoc.Inverted(), false);
+        aChild.Location(aChild.Location().Predivided(aLoc), false);
       }
 
       // Add to the subshapes list

@@ -75,57 +75,54 @@ static void GeomLib_ChangeVBounds(occ::handle<Geom_BSplineSurface>& aSurface,
   aSurface->SetVKnots(knots);
 }
 
-// find 3D curve from theEdge in theMap, and return the transformed curve or NULL
-static occ::handle<Geom_Curve> newCurve(
-  const NCollection_IndexedDataMap<occ::handle<Standard_Transient>,
-                                   occ::handle<Standard_Transient>>& theMap,
-  const TopoDS_Edge&                                                 theEdge,
-  double&                                                            theFirst,
-  double&                                                            theLast)
-{
-  occ::handle<Geom_Curve> aNewCurve;
+using GeometryMap =
+  NCollection_IndexedDataMap<occ::handle<Standard_Transient>, occ::handle<Standard_Transient>>;
 
-  TopLoc_Location         aLoc;
-  occ::handle<Geom_Curve> aCurve = BRep_Tool::Curve(theEdge, aLoc, theFirst, theLast);
-  if (!aCurve.IsNull() && theMap.Contains(aCurve))
+//! Return the mapped 3D geometry transformed into the shape's coordinate system.
+template <class Geometry>
+occ::handle<Geometry> transformedGeometry(const GeometryMap&           theMap,
+                                          const occ::handle<Geometry>& theGeometry,
+                                          const TopLoc_Location&       theLocation)
+{
+  const occ::handle<Standard_Transient>* aFound =
+    !theGeometry.IsNull() ? theMap.Seek(theGeometry) : nullptr;
+  if (aFound == nullptr)
   {
-    aNewCurve = occ::down_cast<Geom_Curve>(theMap.FindFromKey(aCurve));
-    aNewCurve = occ::down_cast<Geom_Curve>(aNewCurve->Transformed(aLoc.Transformation()));
+    return {};
   }
-  return aNewCurve;
+  const occ::handle<Geometry> aMapped = occ::down_cast<Geometry>(*aFound);
+  return occ::down_cast<Geometry>(aMapped->Transformed(theLocation.Transformation()));
+}
+
+// find 3D curve from theEdge in theMap, and return the transformed curve or NULL
+static occ::handle<Geom_Curve> newCurve(const GeometryMap& theMap,
+                                        const TopoDS_Edge& theEdge,
+                                        double&            theFirst,
+                                        double&            theLast)
+{
+  TopLoc_Location                aLoc;
+  const occ::handle<Geom_Curve>& aCurve = BRep_Tool::Curve(theEdge, aLoc, theFirst, theLast);
+  return transformedGeometry(theMap, aCurve, aLoc);
 }
 
 // find 2D curve from theEdge on theFace in theMap, and return the transformed curve or NULL
-static occ::handle<Geom2d_Curve> newCurve(
-  const NCollection_IndexedDataMap<occ::handle<Standard_Transient>,
-                                   occ::handle<Standard_Transient>>& theMap,
-  const TopoDS_Edge&                                                 theEdge,
-  const TopoDS_Face&                                                 theFace,
-  double&                                                            theFirst,
-  double&                                                            theLast)
+static occ::handle<Geom2d_Curve> newCurve(const GeometryMap& theMap,
+                                          const TopoDS_Edge& theEdge,
+                                          const TopoDS_Face& theFace,
+                                          double&            theFirst,
+                                          double&            theLast)
 {
   occ::handle<Geom2d_Curve> aC2d = BRep_Tool::CurveOnSurface(theEdge, theFace, theFirst, theLast);
-  return (!aC2d.IsNull() && theMap.Contains(aC2d))
-           ? occ::down_cast<Geom2d_Curve>(theMap.FindFromKey(aC2d))
-           : occ::handle<Geom2d_Curve>();
+  const occ::handle<Standard_Transient>* aFound = !aC2d.IsNull() ? theMap.Seek(aC2d) : nullptr;
+  return aFound != nullptr ? occ::down_cast<Geom2d_Curve>(*aFound) : occ::handle<Geom2d_Curve>();
 }
 
 // find surface from theFace in theMap, and return the transformed surface or NULL
-static occ::handle<Geom_Surface> newSurface(
-  const NCollection_IndexedDataMap<occ::handle<Standard_Transient>,
-                                   occ::handle<Standard_Transient>>& theMap,
-  const TopoDS_Face&                                                 theFace)
+static occ::handle<Geom_Surface> newSurface(const GeometryMap& theMap, const TopoDS_Face& theFace)
 {
-  occ::handle<Geom_Surface> aNewSurf;
-
-  TopLoc_Location           aLoc;
-  occ::handle<Geom_Surface> aSurf = BRep_Tool::Surface(theFace, aLoc);
-  if (!aSurf.IsNull() && theMap.Contains(aSurf))
-  {
-    aNewSurf = occ::down_cast<Geom_Surface>(theMap.FindFromKey(aSurf));
-    aNewSurf = occ::down_cast<Geom_Surface>(aNewSurf->Transformed(aLoc.Transformation()));
-  }
-  return aNewSurf;
+  TopLoc_Location                  aLoc;
+  const occ::handle<Geom_Surface>& aSurface = BRep_Tool::Surface(theFace, aLoc);
+  return transformedGeometry(theMap, aSurface, aLoc);
 }
 
 static bool newParameter(const gp_Pnt&                  thePoint,
@@ -334,10 +331,7 @@ bool BRepTools_NurbsConvertModification::NewSurface(const TopoDS_Face&         F
     GeomLib_ChangeVBounds(BS, V1, V2);
   }
 
-  if (!myMap.Contains(SS))
-  {
-    myMap.Add(SS, S);
-  }
+  myMap.Add(SS, S);
   return true;
 }
 
@@ -477,10 +471,7 @@ bool BRepTools_NurbsConvertModification::NewCurve(const TopoDS_Edge&       E,
     }
   }
 
-  if (!myMap.Contains(Caux))
-  {
-    myMap.Add(Caux, C);
-  }
+  myMap.Add(Caux, C);
   return true;
 }
 

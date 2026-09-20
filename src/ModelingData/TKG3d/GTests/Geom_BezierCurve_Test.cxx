@@ -555,3 +555,28 @@ TEST(Geom_BezierCurveTest, OCC2569_ThrowsForTooManyPoles)
 
   EXPECT_THROW(new Geom_BezierCurve(aPoles), Standard_Failure);
 }
+
+//=================================================================================================
+
+TEST_F(Geom_BezierCurve_Test, WeightArrayBounds)
+{
+  // Pole and weight arrays may have independent lower bounds. The last weight
+  // differs so rationality detection must visit the entire array.
+  NCollection_Array1<gp_Pnt> aPoles(-2, 0);
+  aPoles.ChangeAt(0) = gp_Pnt(0.0, 0.0, 0.0);
+  aPoles.ChangeAt(1) = gp_Pnt(1.0, 1.0, 0.0);
+  aPoles.ChangeAt(2) = gp_Pnt(2.0, 0.0, 0.0);
+  NCollection_Array1<double> aWeights(0, 2);
+  aWeights.Init(1.0);
+  aWeights.ChangeAt(2) = 2.0;
+
+  Geom_BezierCurve aCurve(aPoles, aWeights);
+  EXPECT_TRUE(aCurve.IsRational());
+  EXPECT_DOUBLE_EQ(aCurve.Weight(3), 2.0);
+  EXPECT_TRUE(aCurve.Value(0.5).IsEqual(gp_Pnt(1.2, 0.4, 0.0), 1.0e-14));
+
+  aWeights.Init(2.0);
+  Geom_BezierCurve aPolynomial(aPoles, aWeights);
+  EXPECT_FALSE(aPolynomial.IsRational());
+  EXPECT_TRUE(aPolynomial.Value(0.5).IsEqual(gp_Pnt(1.0, 0.5, 0.0), 1.0e-14));
+}

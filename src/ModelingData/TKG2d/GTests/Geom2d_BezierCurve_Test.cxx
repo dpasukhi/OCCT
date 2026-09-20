@@ -493,3 +493,28 @@ TEST_F(Geom2d_BezierCurve_Test, WeightsArray_Rational_ReturnsOwning)
   EXPECT_DOUBLE_EQ(aWeights(3), 1.0);
   EXPECT_EQ(&aWeights, &aRational->WeightsArray());
 }
+
+//=================================================================================================
+
+TEST_F(Geom2d_BezierCurve_Test, WeightArrayBounds)
+{
+  // Pole and weight arrays may have independent lower bounds. The last weight
+  // differs so rationality detection must visit the entire array.
+  NCollection_Array1<gp_Pnt2d> aPoles(-2, 0);
+  aPoles.ChangeAt(0) = gp_Pnt2d(0.0, 0.0);
+  aPoles.ChangeAt(1) = gp_Pnt2d(1.0, 1.0);
+  aPoles.ChangeAt(2) = gp_Pnt2d(2.0, 0.0);
+  NCollection_Array1<double> aWeights(0, 2);
+  aWeights.Init(1.0);
+  aWeights.ChangeAt(2) = 2.0;
+
+  Geom2d_BezierCurve aCurve(aPoles, aWeights);
+  EXPECT_TRUE(aCurve.IsRational());
+  EXPECT_DOUBLE_EQ(aCurve.Weight(3), 2.0);
+  EXPECT_TRUE(aCurve.Value(0.5).IsEqual(gp_Pnt2d(1.2, 0.4), 1.0e-14));
+
+  aWeights.Init(2.0);
+  Geom2d_BezierCurve aPolynomial(aPoles, aWeights);
+  EXPECT_FALSE(aPolynomial.IsRational());
+  EXPECT_TRUE(aPolynomial.Value(0.5).IsEqual(gp_Pnt2d(1.0, 0.5), 1.0e-14));
+}

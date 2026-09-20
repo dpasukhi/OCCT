@@ -194,88 +194,81 @@ inline bool CalculateD3(gp_Pnt2d&       theValue,
                         bool            theIsDirChange,
                         double          theOffset)
 {
-  // P(u) = p(u) + Offset * Ndir / R
-  // with R = || p' ^ Z|| and Ndir = P' ^ Z
+  // Differentiate the normalized normal N / |N| through order three.
 
-  // P'(u)  = p'(u) + (Offset / R**2) * (DNdir/DU * R -  Ndir * (DR/R))
+  gp_XY        aNormal(theD1.Y(), -theD1.X());
+  gp_XY        aNormalD1(theD2.Y(), -theD2.X());
+  gp_XY        aNormalD2(theD3.Y(), -theD3.X());
+  gp_XY        aNormalD3(theD4.Y(), -theD4.X());
+  const double aRadius2 = aNormal.SquareModulus();
+  const double aRadius  = std::sqrt(aRadius2);
+  const double aRadius3 = aRadius2 * aRadius;
+  const double aRadius4 = aRadius2 * aRadius2;
+  const double aRadius5 = aRadius3 * aRadius2;
+  const double aRadius6 = aRadius3 * aRadius3;
+  const double aRadius7 = aRadius5 * aRadius2;
+  const double aDotD1   = aNormal.Dot(aNormalD1);
+  const double aDotD2   = aNormal.Dot(aNormalD2) + aNormalD1.Dot(aNormalD1);
+  const double aDotD3   = aNormal.Dot(aNormalD3) + 3.0 * aNormalD1.Dot(aNormalD2);
 
-  // P"(u)  = p"(u) + (Offset / R) * (D2Ndir/DU - DNdir * (2.0 * Dr/ R**2) +
-  //          Ndir * ( (3.0 * Dr**2 / R**4) - (D2r / R**2)))
-
-  // P"'(u) = p"'(u) + (Offset / R) * (D3Ndir - (3.0 * Dr/R**2 ) * D2Ndir -
-  //          (3.0 * D2r / R2) * DNdir) + (3.0 * Dr * Dr / R4) * DNdir -
-  //          (D3r/R2) * Ndir + (6.0 * Dr * Dr / R4) * Ndir +
-  //          (6.0 * Dr * D2r / R4) * Ndir - (15.0 * Dr* Dr* Dr /R6) * Ndir
-
-  gp_XY  Ndir(theD1.Y(), -theD1.X());
-  gp_XY  DNdir(theD2.Y(), -theD2.X());
-  gp_XY  D2Ndir(theD3.Y(), -theD3.X());
-  gp_XY  D3Ndir(theD4.Y(), -theD4.X());
-  double R2  = Ndir.SquareModulus();
-  double R   = std::sqrt(R2);
-  double R3  = R2 * R;
-  double R4  = R2 * R2;
-  double R5  = R3 * R2;
-  double R6  = R3 * R3;
-  double R7  = R5 * R2;
-  double Dr  = Ndir.Dot(DNdir);
-  double D2r = Ndir.Dot(D2Ndir) + DNdir.Dot(DNdir);
-  double D3r = Ndir.Dot(D3Ndir) + 3.0 * DNdir.Dot(D2Ndir);
-
-  if (R7 <= gp::Resolution())
+  if (aRadius7 <= gp::Resolution())
   {
-    if (R6 <= gp::Resolution())
+    if (aRadius6 <= gp::Resolution())
     {
       return false;
     }
-    // We try another computation but the stability is not very good dixit ISG.
+    // Factor by radius to avoid dividing by the smaller seventh power.
     // V3 = P"' (U) :
-    D3Ndir.Subtract(D2Ndir.Multiplied(3.0 * Dr / R2));
-    D3Ndir.Subtract(DNdir.Multiplied(3.0 * ((D2r / R2) + (Dr * Dr / R4))));
-    D3Ndir.Add(
-      Ndir.Multiplied(6.0 * Dr * Dr / R4 + 6.0 * Dr * D2r / R4 - 15.0 * Dr * Dr * Dr / R6 - D3r));
-    D3Ndir.Multiply(theOffset / R);
+    aNormalD3.Subtract(aNormalD2.Multiplied(3.0 * aDotD1 / aRadius2));
+    aNormalD3.Subtract(
+      aNormalD1.Multiplied(3.0 * aDotD2 / aRadius2 - 9.0 * aDotD1 * aDotD1 / aRadius4));
+    aNormalD3.Add(aNormal.Multiplied(9.0 * aDotD1 * aDotD2 / aRadius4
+                                     - 15.0 * aDotD1 * aDotD1 * aDotD1 / aRadius6
+                                     - aDotD3 / aRadius2));
+    aNormalD3.Multiply(theOffset / aRadius);
     // V2 = P" (U) :
-    R4 = R2 * R2;
-    D2Ndir.Subtract(DNdir.Multiplied(2.0 * Dr / R2));
-    D2Ndir.Subtract(Ndir.Multiplied((3.0 * Dr * Dr / R4) - (D2r / R2)));
-    D2Ndir.Multiply(theOffset / R);
+    aNormalD2.Subtract(aNormalD1.Multiplied(2.0 * aDotD1 / aRadius2));
+    aNormalD2.Add(aNormal.Multiplied((3.0 * aDotD1 * aDotD1 / aRadius4) - (aDotD2 / aRadius2)));
+    aNormalD2.Multiply(theOffset / aRadius);
     // V1 = P' (U) :
-    DNdir.Multiply(R);
-    DNdir.Subtract(Ndir.Multiplied(Dr / R));
-    DNdir.Multiply(theOffset / R2);
+    aNormalD1.Multiply(aRadius);
+    aNormalD1.Subtract(aNormal.Multiplied(aDotD1 / aRadius));
+    aNormalD1.Multiply(theOffset / aRadius2);
   }
   else
   {
-    // Same computation as IICURV in EUCLID-IS because the stability is better.
     // V3 = P"' (U) :
-    D3Ndir.Multiply(theOffset / R);
-    D3Ndir.Subtract(D2Ndir.Multiplied(3.0 * theOffset * Dr / R3));
-    D3Ndir.Subtract(DNdir.Multiplied(((3.0 * theOffset) * ((D2r / R3) + (Dr * Dr) / R5))));
-    D3Ndir.Add(Ndir.Multiplied(
-      (theOffset * (6.0 * Dr * Dr / R5 + 6.0 * Dr * D2r / R5 - 15.0 * Dr * Dr * Dr / R7 - D3r))));
+    aNormalD3.Multiply(theOffset / aRadius);
+    aNormalD3.Subtract(aNormalD2.Multiplied(3.0 * theOffset * aDotD1 / aRadius3));
+    aNormalD3.Subtract(aNormalD1.Multiplied(
+      theOffset * (3.0 * aDotD2 / aRadius3 - 9.0 * aDotD1 * aDotD1 / aRadius5)));
+    aNormalD3.Add(
+      aNormal.Multiplied((theOffset
+                          * (9.0 * aDotD1 * aDotD2 / aRadius5
+                             - 15.0 * aDotD1 * aDotD1 * aDotD1 / aRadius7 - aDotD3 / aRadius3))));
     // V2 = P" (U) :
-    D2Ndir.Multiply(theOffset / R);
-    D2Ndir.Subtract(DNdir.Multiplied(2.0 * theOffset * Dr / R3));
-    D2Ndir.Subtract(Ndir.Multiplied(theOffset * (((3.0 * Dr * Dr) / R5) - (D2r / R3))));
+    aNormalD2.Multiply(theOffset / aRadius);
+    aNormalD2.Subtract(aNormalD1.Multiplied(2.0 * theOffset * aDotD1 / aRadius3));
+    aNormalD2.Add(
+      aNormal.Multiplied(theOffset * (((3.0 * aDotD1 * aDotD1) / aRadius5) - (aDotD2 / aRadius3))));
     // V1 = P' (U) :
-    DNdir.Multiply(theOffset / R);
-    DNdir.Subtract(Ndir.Multiplied(theOffset * Dr / R3));
+    aNormalD1.Multiply(theOffset / aRadius);
+    aNormalD1.Subtract(aNormal.Multiplied(theOffset * aDotD1 / aRadius3));
   }
 
-  Ndir.Multiply(theOffset / R);
+  aNormal.Multiply(theOffset / aRadius);
   // P(u)
-  theValue.ChangeCoord().Add(Ndir);
+  theValue.ChangeCoord().Add(aNormal);
   // P'(u) :
-  theD1.Add(gp_Vec2d(DNdir));
+  theD1.Add(gp_Vec2d(aNormalD1));
   // P"(u)
-  theD2.Add(gp_Vec2d(D2Ndir));
+  theD2.Add(gp_Vec2d(aNormalD2));
   // P"'(u)
   if (theIsDirChange)
   {
     theD3.Reverse();
   }
-  theD3.Add(gp_Vec2d(D3Ndir));
+  theD3.Add(gp_Vec2d(aNormalD3));
   return true;
 }
 

@@ -14,6 +14,7 @@
 #include <Extrema_ExtPC.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <Geom_Circle.hxx>
+#include <Geom_Line.hxx>
 #include <ElSLib.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Ax2.hxx>
@@ -58,4 +59,22 @@ TEST(Extrema_ExtPC_Test, Bug24945_CylinderParameterNormalization)
   // but the improved normalization now consistently returns 0.0 for the seam
   EXPECT_NEAR(aU, 0.0, 1.0e-4);
   EXPECT_NEAR(aV, 1260.613, 1.0e-2);
+}
+
+//=================================================================================================
+
+TEST(Extrema_ExtPC_Test, BoundedLineWithoutInteriorProjectionIsDone)
+{
+  const GeomAdaptor_Curve aLine(new Geom_Line(gp::Origin(), gp::DX()), 0, 1);
+  Extrema_ExtPC           aProjection;
+  aProjection.Initialize(aLine, 0, 1, Precision::PConfusion());
+  aProjection.Perform(gp_Pnt(0.5, 1, 0));
+  ASSERT_TRUE(aProjection.IsDone());
+  ASSERT_EQ(aProjection.NbExt(), 1);
+  for (const double aX : {-1.0, 2.0})
+  {
+    aProjection.Perform(gp_Pnt(aX, 1, 0));
+    ASSERT_TRUE(aProjection.IsDone());
+    EXPECT_EQ(aProjection.NbExt(), 0);
+  }
 }

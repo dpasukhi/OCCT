@@ -2,6 +2,7 @@
 set(OCCT_TKGeomAlgo_GTests_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}")
 
 set(OCCT_TKGeomAlgo_GTests_FILES
+  GeomFill_SectionGenerator_Test.cxx
   Geom2dAPI_InterCurveCurve_Test.cxx
   Geom2dAPI_ExtremaCurveCurve_Test.cxx
   Geom2dAPI_Interpolate_Test.cxx
@@ -39,4 +40,6 @@ set(OCCT_TKGeomAlgo_GTests_FILES
   GeomAPI_ProjectPointOnSurf_Test.cxx
   Geom2dConvert_BSplineCurveToBezierCurve_Test.cxx
   TopTrans_SurfaceTransition_Test.cxx
+  Intf_InterferencePolygon2d_Test.cxx
+  LocalAnalysis_SurfaceContinuity_Test.cxx
 )

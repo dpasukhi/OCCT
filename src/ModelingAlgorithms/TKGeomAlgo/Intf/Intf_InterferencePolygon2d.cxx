@@ -23,13 +23,41 @@
 #include <Precision.hxx>
 #include <Standard_Integer.hxx>
 #include <NCollection_List.hxx>
+#include <NCollection_Array1.hxx>
 
 // Angular precision (sinus) below that value two right segments
 // are considered as having a potential zone of tangency.
 namespace
 {
 static const double PRCANG = Precision::Angular();
+
+//! Geometry and conservative bounds of one polygon segment, reused for all pairs.
+//! Storage is zero-based; only the polygon API uses one-based segment IDs.
+struct SegmentData
+{
+  gp_Pnt2d  First;
+  gp_Pnt2d  Last;
+  Bnd_Box2d Box;
+};
+
+//=================================================================================================
+
+static NCollection_Array1<SegmentData> polygonSegments(const Intf_Polygon2d& thePolygon)
+{
+  const size_t                    aNbSegments = static_cast<size_t>(thePolygon.NbSegments());
+  NCollection_Array1<SegmentData> aSegments(aNbSegments);
+  const double                    aDeflection = thePolygon.DeflectionOverEstimation();
+  for (size_t i = 0; i < aSegments.Size(); ++i)
+  {
+    SegmentData& aSegment = aSegments.ChangeAt(i);
+    thePolygon.Segment(static_cast<int>(i) + 1, aSegment.First, aSegment.Last);
+    aSegment.Box.Add(aSegment.First);
+    aSegment.Box.Add(aSegment.Last);
+    aSegment.Box.Enlarge(aDeflection);
+  }
+  return aSegments;
 }
+} // namespace
 
 //=================================================================================================
 
@@ -141,33 +169,34 @@ gp_Pnt2d Intf_InterferencePolygon2d::Pnt2dValue(const int Index) const
 void Intf_InterferencePolygon2d::Interference(const Intf_Polygon2d& Obje1,
                                               const Intf_Polygon2d& Obje2)
 {
-  Bnd_Box2d bSO;
-  Bnd_Box2d bST;
-
-  int    iObje1, iObje2, n1 = nbso, n2 = Obje2.NbSegments();
-  double d1 = Obje1.DeflectionOverEstimation(), d2 = Obje2.DeflectionOverEstimation();
-
-  gp_Pnt2d p1b, p1e, p2b, p2e;
-  for (iObje1 = 1; iObje1 <= n1; iObje1++)
+  // The inner polygon is traversed once per outer segment. Cache its geometry
+  // and boxes once, preserving the original segment-pair order and predicates.
+  const NCollection_Array1<SegmentData> aSegments   = polygonSegments(Obje2);
+  const double                          aDeflection = Obje1.DeflectionOverEstimation();
+  Bnd_Box2d                             aBox;
+  gp_Pnt2d                              aFirst, aLast;
+  for (size_t i = 0; i < static_cast<size_t>(nbso); ++i)
   {
-    bSO.SetVoid();
-    Obje1.Segment(iObje1, p1b, p1e);
-    bSO.Add(p1b);
-    bSO.Add(p1e);
-    bSO.Enlarge(d1);
-    if (!Obje2.Bounding().IsOut(bSO))
+    aBox.SetVoid();
+    Obje1.Segment(static_cast<int>(i) + 1, aFirst, aLast);
+    aBox.Add(aFirst);
+    aBox.Add(aLast);
+    aBox.Enlarge(aDeflection);
+    if (Obje2.Bounding().IsOut(aBox))
     {
-      for (iObje2 = 1; iObje2 <= n2; iObje2++)
+      continue;
+    }
+    for (size_t j = 0; j < aSegments.Size(); ++j)
+    {
+      const SegmentData& aSegment = aSegments.At(j);
+      if (!aBox.IsOut(aSegment.Box))
       {
-        bST.SetVoid();
-        Obje2.Segment(iObje2, p2b, p2e);
-        bST.Add(p2b);
-        bST.Add(p2e);
-        bST.Enlarge(d2);
-        if (!bSO.IsOut(bST))
-        {
-          Intersect(iObje1, iObje2, p1b, p1e, p2b, p2e);
-        }
+        Intersect(static_cast<int>(i) + 1,
+                  static_cast<int>(j) + 1,
+                  aFirst,
+                  aLast,
+                  aSegment.First,
+                  aSegment.Last);
       }
     }
   }
@@ -177,33 +206,28 @@ void Intf_InterferencePolygon2d::Interference(const Intf_Polygon2d& Obje1,
 
 void Intf_InterferencePolygon2d::Interference(const Intf_Polygon2d& Obje)
 {
-  Bnd_Box2d bSO;
-  Bnd_Box2d bST;
-
-  int    iObje1, iObje2, n = Obje.NbSegments();
-  double d = Obje.DeflectionOverEstimation();
-
-  gp_Pnt2d p1b, p1e, p2b, p2e;
-  for (iObje1 = 1; iObje1 <= n; iObje1++)
+  // Both sides use the same records. Intersect() retains its existing handling
+  // of adjacent segments and closed-polygon endpoints.
+  const NCollection_Array1<SegmentData> aSegments = polygonSegments(Obje);
+  nbso                                            = static_cast<int>(aSegments.Size());
+  for (size_t i = 0; i < aSegments.Size(); ++i)
   {
-    bSO.SetVoid();
-    Obje.Segment(iObje1, p1b, p1e);
-    bSO.Add(p1b);
-    bSO.Add(p1e);
-    bSO.Enlarge(d);
-    if (!Obje.Bounding().IsOut(bSO))
+    const SegmentData& aFirst = aSegments.At(i);
+    if (Obje.Bounding().IsOut(aFirst.Box))
     {
-      for (iObje2 = iObje1 + 1; iObje2 <= n; iObje2++)
+      continue;
+    }
+    for (size_t j = i + 1; j < aSegments.Size(); ++j)
+    {
+      const SegmentData& aSecond = aSegments.At(j);
+      if (!aFirst.Box.IsOut(aSecond.Box))
       {
-        bST.SetVoid();
-        Obje.Segment(iObje2, p2b, p2e);
-        bST.Add(p2b);
-        bST.Add(p2e);
-        bST.Enlarge(d);
-        if (!bSO.IsOut(bST))
-        {
-          Intersect(iObje1, iObje2, p1b, p1e, p2b, p2e);
-        }
+        Intersect(static_cast<int>(i) + 1,
+                  static_cast<int>(j) + 1,
+                  aFirst.First,
+                  aFirst.Last,
+                  aSecond.First,
+                  aSecond.Last);
       }
     }
   }
@@ -715,7 +739,9 @@ void Intf_InterferencePolygon2d::Intersect(const int       iObje1,
         mySPoins.Append(thePi(1));
       }
     }
-    else if (iObje2 - iObje1 != 1 && (!oClos || (iObje1 != 1 && iObje2 != nbso)))
+    // Only the first/last pair shares the closure vertex. Other pairs that
+    // involve either end segment can contain genuine self-intersections.
+    else if (iObje2 - iObje1 != 1 && (!oClos || iObje1 != 1 || iObje2 != nbso))
     {
       mySPoins.Append(thePi(1));
     }

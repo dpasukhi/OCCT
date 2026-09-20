@@ -986,8 +986,7 @@ void BRep_Builder::UpdateEdge(const TopoDS_Edge&                 E,
 
   if (!P1.IsNull() && !P2.IsNull())
   {
-    occ::handle<BRep_PolygonOnClosedSurface> PS =
-      new BRep_PolygonOnClosedSurface(P1, P2, S, TopLoc_Location());
+    occ::handle<BRep_PolygonOnClosedSurface> PS = new BRep_PolygonOnClosedSurface(P1, P2, S, l);
     lcr.Append(PS);
   }
 
@@ -1207,7 +1206,7 @@ void BRep_Builder::UpdateVertex(const TopoDS_Vertex& V, const gp_Pnt& P, const d
   {
     throw TopoDS_LockedShape("BRep_Builder::UpdateVertex");
   }
-  TV->Pnt(P.Transformed(V.Location().Inverted().Transformation()));
+  TV->Pnt(P.Transformed(V.Location().Transformation().Inverted()));
   TV->UpdateTolerance(Tol);
   TV->Modified(true);
 }

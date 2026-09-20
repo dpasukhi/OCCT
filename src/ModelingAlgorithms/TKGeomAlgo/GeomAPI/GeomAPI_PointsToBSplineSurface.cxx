@@ -108,7 +108,7 @@ static void BuildParameters(const AppDef_MultiLine&          theLine,
   }
 }
 
-static void BuildPeriodicTangent(const AppDef_MultiLine&           theLine,
+static bool BuildPeriodicTangent(const AppDef_MultiLine&           theLine,
                                  const NCollection_Array1<double>& thePars,
                                  math_Vector&                      theTang)
 {
@@ -117,7 +117,7 @@ static void BuildPeriodicTangent(const AppDef_MultiLine&           theLine,
   //
   if (nbpoints <= 2)
   {
-    return;
+    return false;
   }
   //
   int i, nnpol, nnp = std::min(nbpoints, 9);
@@ -145,6 +145,10 @@ static void BuildPeriodicTangent(const AppDef_MultiLine&           theLine,
                                                                Cons,
                                                                nnpol);
   SQ1.Perform(P1);
+  if (!SQ1.IsDone())
+  {
+    return false;
+  }
   const AppParCurves_MultiCurve& C1 = SQ1.BezierValue();
   U                                 = 0.0;
   int j, nbP3d = theLine.NbPoints();
@@ -191,6 +195,10 @@ static void BuildPeriodicTangent(const AppDef_MultiLine&           theLine,
       P2(i) = thePars(i);
     }
     SQ2.Perform(P2);
+    if (!SQ2.IsDone())
+    {
+      return false;
+    }
 
     const AppParCurves_MultiCurve& C2 = SQ2.BezierValue();
     U                                 = 1.0;
@@ -206,6 +214,7 @@ static void BuildPeriodicTangent(const AppDef_MultiLine&           theLine,
   }
 
   theTang = 0.5 * (V1 + V2);
+  return true;
 }
 
 //=================================================================================================
@@ -385,6 +394,11 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<gp_Pnt>& Poin
     TheComputer.Perform(Line);
   }
 
+  if (!TheComputer.IsAllApproximated())
+  {
+    return;
+  }
+
   const AppParCurves_MultiBSpCurve& TheCurve = TheComputer.Value();
 
   int                               VDegree = TheCurve.Degree();
@@ -426,7 +440,10 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<gp_Pnt>& Poin
       NCollection_Array1<double> aPars(1, Line2.NbMultiPoints());
       BuildParameters(Line2, ParType, aPars);
       math_Vector aTang(1, 3 * Poles.Upper());
-      BuildPeriodicTangent(Line2, aPars, aTang);
+      if (!BuildPeriodicTangent(Line2, aPars, aTang))
+      {
+        return;
+      }
       int ind = 1;
       TheCurve.Curve(ind, Poles);
       AppDef_MultiPointConstraint MP1(Poles.Upper(), 0);
@@ -452,6 +469,11 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<gp_Pnt>& Poin
       Line2.SetValue(ind, MP2);
     }
     TheComputer2.Perform(Line2);
+  }
+
+  if (!TheComputer2.IsAllApproximated())
+  {
+    return;
   }
 
   const AppParCurves_MultiBSpCurve& TheCurve2 = TheComputer2.Value();
@@ -745,6 +767,11 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<double>& ZPoi
     TheComputer.Perform(Line);
   }
 
+  if (!TheComputer.IsAllApproximated())
+  {
+    return;
+  }
+
   const AppParCurves_MultiBSpCurve& TheCurve = TheComputer.Value();
 
   int                          VDegree = TheCurve.Degree();
@@ -829,6 +856,11 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<double>& ZPoi
   else
   {
     TheComputer2.Perform(Line2);
+  }
+
+  if (!TheComputer2.IsAllApproximated())
+  {
+    return;
   }
 
   const AppParCurves_MultiBSpCurve& TheCurve2 = TheComputer2.Value();

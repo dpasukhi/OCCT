@@ -27,6 +27,10 @@
 #include <TopoDS_Vertex.hxx>
 #include <TopoDS_Wire.hxx>
 #include <gp_Pnt.hxx>
+#include <gp_Ax1.hxx>
+#include <gp_Dir.hxx>
+#include <gp_Trsf.hxx>
+#include <gp_Vec.hxx>
 
 //=================================================================================================
 // Test TopoDS_Builder::MakeWire
@@ -544,4 +548,39 @@ TEST(TopoDS_Builder_Test, MixedShapesInCompound)
   EXPECT_EQ(aWireCount, 1);
   EXPECT_EQ(aShellCount, 1);
   EXPECT_EQ(aCompoundCount, 1);
+}
+
+TEST(TopoDS_Builder_Test, AddPreservesLocatedChild)
+{
+  gp_Trsf aTranslation;
+  aTranslation.SetTranslation(gp_Vec(3.0, -4.0, 5.0));
+  gp_Trsf aRotation;
+  aRotation.SetRotation(gp_Ax1(gp_Pnt(), gp_Dir(0.0, 0.0, 1.0)), 0.37);
+  const TopLoc_Location aParentLocation =
+    TopLoc_Location(aTranslation) * TopLoc_Location(aRotation);
+  const TopLoc_Location aChildLocations[] = {TopLoc_Location(),
+                                             aParentLocation,
+                                             aParentLocation * TopLoc_Location(aTranslation)};
+  BRep_Builder          aBuilder;
+  for (const TopLoc_Location& aChildLocation : aChildLocations)
+  {
+    TopoDS_Compound aParent;
+    aBuilder.MakeCompound(aParent);
+    aParent.Location(aParentLocation);
+    aParent.Reverse();
+    TopoDS_Vertex aChild;
+    aBuilder.MakeVertex(aChild, gp_Pnt(1.0, 2.0, 3.0), 1.e-7);
+    aChild.Location(aChildLocation);
+    aBuilder.Add(aParent, aChild);
+
+    TopoDS_Iterator anIterator(aParent);
+    ASSERT_TRUE(anIterator.More());
+    EXPECT_TRUE(anIterator.Value().IsEqual(aChild));
+    EXPECT_TRUE(aChild.Location().IsEqual(aChildLocation));
+    if (aChildLocation.IsEqual(aParentLocation))
+    {
+      TopoDS_Iterator aLocalIterator(aParent, false, false);
+      EXPECT_TRUE(aLocalIterator.Value().Location().IsIdentity());
+    }
+  }
 }

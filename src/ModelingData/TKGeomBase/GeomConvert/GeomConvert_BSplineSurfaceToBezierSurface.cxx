@@ -30,7 +30,9 @@ GeomConvert_BSplineSurfaceToBezierSurface::GeomConvert_BSplineSurfaceToBezierSur
   mySurface = occ::down_cast<Geom_BSplineSurface>(BasisSurface->Copy());
   double U1, U2, V1, V2;
   mySurface->Bounds(U1, U2, V1, V2);
-  mySurface->Segment(U1, U2, V1, V2);
+  // These are the exact support bounds. Snapping them to neighboring knots
+  // with PConfusion can remove valid short spans before Bezier decomposition.
+  mySurface->Segment(U1, U2, V1, V2, 0, 0);
   mySurface->IncreaseUMultiplicity(mySurface->FirstUKnotIndex(),
                                    mySurface->LastUKnotIndex(),
                                    mySurface->UDegree());

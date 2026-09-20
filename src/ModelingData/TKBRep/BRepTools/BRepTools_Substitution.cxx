@@ -146,21 +146,8 @@ void BRepTools_Substitution::Build(const TopoDS_Shape& S)
 
 bool BRepTools_Substitution::IsCopied(const TopoDS_Shape& S) const
 {
-  if (myMap.IsBound(S))
-  {
-    if (myMap(S).IsEmpty())
-    {
-      return true;
-    }
-    else
-    {
-      return !S.IsSame(myMap(S).First());
-    }
-  }
-  else
-  {
-    return false;
-  }
+  const NCollection_List<TopoDS_Shape>* aCopies = myMap.Seek(S);
+  return aCopies != nullptr && (aCopies->IsEmpty() || !S.IsSame(aCopies->First()));
 }
 
 //=================================================================================================

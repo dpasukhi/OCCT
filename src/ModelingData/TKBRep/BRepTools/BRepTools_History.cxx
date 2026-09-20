@@ -70,16 +70,12 @@ void BRepTools_History::AddGenerated(const TopoDS_Shape& theInitial,
     return;
   }
 
-  NCollection_List<TopoDS_Shape>* aGenerations = myShapeToGenerated.ChangeSeek(theInitial);
-  if (aGenerations == nullptr)
-  {
-    aGenerations = myShapeToGenerated.Bound(theInitial, NCollection_List<TopoDS_Shape>());
-  }
+  NCollection_List<TopoDS_Shape>& aGenerations = myShapeToGenerated.TryEmplaced(theInitial);
 
-  Standard_ASSERT_VOID(!aGenerations->Contains(theGenerated),
+  Standard_ASSERT_VOID(!aGenerations.Contains(theGenerated),
                        "Error: a duplicated generation of a shape.");
 
-  aGenerations->Append(theGenerated);
+  aGenerations.Append(theGenerated);
 }
 
 //=================================================================================================
@@ -91,16 +87,12 @@ void BRepTools_History::AddModified(const TopoDS_Shape& theInitial, const TopoDS
     return;
   }
 
-  NCollection_List<TopoDS_Shape>* aModifications = myShapeToModified.ChangeSeek(theInitial);
-  if (aModifications == nullptr)
-  {
-    aModifications = myShapeToModified.Bound(theInitial, NCollection_List<TopoDS_Shape>());
-  }
+  NCollection_List<TopoDS_Shape>& aModifications = myShapeToModified.TryEmplaced(theInitial);
 
-  Standard_ASSERT_VOID(!aModifications->Contains(theModified),
+  Standard_ASSERT_VOID(!aModifications.Contains(theModified),
                        "Error: a duplicated modification of a shape.");
 
-  aModifications->Append(theModified);
+  aModifications.Append(theModified);
 }
 
 //=================================================================================================
@@ -130,9 +122,7 @@ void BRepTools_History::ReplaceGenerated(const TopoDS_Shape& theInitial,
     return;
   }
 
-  NCollection_List<TopoDS_Shape>* aGenerations =
-    myShapeToGenerated.Bound(theInitial, NCollection_List<TopoDS_Shape>());
-  aGenerations->Append(theGenerated);
+  myShapeToGenerated.Emplaced(theInitial).Append(theGenerated);
 }
 
 //=================================================================================================
@@ -145,9 +135,7 @@ void BRepTools_History::ReplaceModified(const TopoDS_Shape& theInitial,
     return;
   }
 
-  NCollection_List<TopoDS_Shape>* aModifications =
-    myShapeToModified.Bound(theInitial, NCollection_List<TopoDS_Shape>());
-  aModifications->Append(theModified);
+  myShapeToModified.Emplaced(theInitial).Append(theModified);
 }
 
 //=================================================================================================
@@ -239,15 +227,19 @@ void BRepTools_History::Merge(const BRepTools_History& theHistory23)
           }
           else
           {
-            if (theHistory23.myShapeToGenerated.IsBound(aS2))
+            const NCollection_List<TopoDS_Shape>* aGenerated =
+              theHistory23.myShapeToGenerated.Seek(aS2);
+            if (aGenerated != nullptr)
             {
-              add(aAdditions[0], theHistory23.myShapeToGenerated(aS2));
+              add(aAdditions[0], *aGenerated);
               aMAndGPropagated.Add(aS2);
             }
 
-            if (theHistory23.myShapeToModified.IsBound(aS2))
+            const NCollection_List<TopoDS_Shape>* aModified =
+              theHistory23.myShapeToModified.Seek(aS2);
+            if (aModified != nullptr)
             {
-              add(aAdditions[aI], theHistory23.myShapeToModified(aS2));
+              add(aAdditions[aI], *aModified);
               aMAndGPropagated.Add(aS2);
 
               aL12.Remove(aSIt2);
@@ -263,13 +255,7 @@ void BRepTools_History::Merge(const BRepTools_History& theHistory23)
         if (aI != 0 && !aAdditions[0].IsEmpty())
         {
           const TopoDS_Shape&             aS1    = aMIt1.Key();
-          NCollection_List<TopoDS_Shape>* aGAndM = aS1ToGAndM[0]->ChangeSeek(aS1);
-          if (aGAndM == nullptr)
-          {
-            aGAndM = aS1ToGAndM[0]->Bound(aS1, NCollection_List<TopoDS_Shape>());
-          }
-
-          add(*aGAndM, aAdditions[0]);
+          add(aS1ToGAndM[0]->TryEmplaced(aS1), aAdditions[0]);
         }
       }
     }
@@ -291,13 +277,8 @@ void BRepTools_History::Merge(const BRepTools_History& theHistory23)
         const TopoDS_Shape& aS2 = aMIt2.Key();
         if (!aMAndGPropagated.Contains(aS2))
         {
-          if (!aS1ToGAndM[aI]->IsBound(aS2))
-          {
-            aS1ToGAndM[aI]->Bind(aS2, NCollection_List<TopoDS_Shape>());
-          }
-
           NCollection_List<TopoDS_Shape> aM2 = aMIt2.Value();
-          ((*aS1ToGAndM[aI])(aS2)).Append(aM2);
+          aS1ToGAndM[aI]->TryEmplaced(aS2).Append(aM2);
           myRemoved.Remove(aS2);
         }
       }
@@ -347,7 +328,8 @@ bool BRepTools_History::prepareGenerated(const TopoDS_Shape& theInitial,
                          THE_MSG_UNSUPPORTED_TYPE,
                          false);
 
-  if (myShapeToModified.IsBound(theInitial) && myShapeToModified(theInitial).Remove(theGenerated))
+  NCollection_List<TopoDS_Shape>* aModified = myShapeToModified.ChangeSeek(theInitial);
+  if (aModified != nullptr && aModified->Remove(theGenerated))
   {
     Standard_ASSERT_INVOKE_(, THE_MSG_GENERATED_AND_MODIFIED);
   }
@@ -367,7 +349,8 @@ bool BRepTools_History::prepareModified(const TopoDS_Shape& theInitial,
     Standard_ASSERT_INVOKE_(, THE_MSG_MODIFIED_AND_REMOVED);
   }
 
-  if (myShapeToGenerated.IsBound(theInitial) && myShapeToGenerated(theInitial).Remove(theModified))
+  NCollection_List<TopoDS_Shape>* aGenerated = myShapeToGenerated.ChangeSeek(theInitial);
+  if (aGenerated != nullptr && aGenerated->Remove(theModified))
   {
     Standard_ASSERT_INVOKE_(, THE_MSG_GENERATED_AND_MODIFIED);
   }

@@ -37,7 +37,8 @@ Geom2dConvert_BSplineCurveToBezierCurve::Geom2dConvert_BSplineCurveToBezierCurve
   }
   double Uf = myCurve->FirstParameter();
   double Ul = myCurve->LastParameter();
-  myCurve->Segment(Uf, Ul);
+  // Whole-curve decomposition must retain narrow endpoint knot spans.
+  myCurve->Segment(Uf, Ul, 0);
   myCurve->IncreaseMultiplicity(myCurve->FirstUKnotIndex(),
                                 myCurve->LastUKnotIndex(),
                                 myCurve->Degree());

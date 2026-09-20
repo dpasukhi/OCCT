@@ -13,12 +13,22 @@
 
 #include <BRep_Builder.hxx>
 #include <BRep_Tool.hxx>
+#include <BRep_TVertex.hxx>
+#include <BRep_TEdge.hxx>
+#include <BRep_TFace.hxx>
+#include <limits>
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom_BezierCurve.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Curve.hxx>
+#include <Geom_CylindricalSurface.hxx>
+#include <Poly_Polygon2D.hxx>
+#include <gp_Ax3.hxx>
+#include <gp_Pnt2d.hxx>
+#include <gp_Trsf.hxx>
+#include <gp_Vec.hxx>
 #include <Geom_Plane.hxx>
 #include <Geom_Surface.hxx>
 #include <gp.hxx>
@@ -260,4 +270,103 @@ TEST(BRep_Tool_Test, CurveOnPlane_RejectsEqualPeriodicRange)
   EXPECT_TRUE(aPCurve.IsNull());
   EXPECT_DOUBLE_EQ(aFirst, 0.0);
   EXPECT_DOUBLE_EQ(aLast, 0.0);
+}
+
+TEST(BRep_Tool_Test, ClosedSurfacePolygonsPreserveRelativeLocation)
+{
+  const occ::handle<Geom_Surface>   aSurface  = new Geom_CylindricalSurface(gp_Ax3(), 3.0);
+  const occ::handle<Poly_Polygon2D> aForward  = new Poly_Polygon2D(2);
+  const occ::handle<Poly_Polygon2D> aReversed = new Poly_Polygon2D(2);
+  aForward->ChangeNodes()(1)                  = gp_Pnt2d(0.0, 0.0);
+  aForward->ChangeNodes()(2)                  = gp_Pnt2d(0.0, 5.0);
+  aReversed->ChangeNodes()(1)                 = gp_Pnt2d(2.0 * M_PI, 0.0);
+  aReversed->ChangeNodes()(2)                 = gp_Pnt2d(2.0 * M_PI, 5.0);
+  for (const bool isSurfaceLocated : {false, true})
+  {
+    for (const bool isEdgeLocated : {false, true})
+    {
+      SCOPED_TRACE(isSurfaceLocated);
+      SCOPED_TRACE(isEdgeLocated);
+      gp_Trsf aSurfaceTransform, anEdgeTransform;
+      if (isSurfaceLocated)
+      {
+        aSurfaceTransform.SetTranslation(gp_Vec(10.0, 20.0, 30.0));
+      }
+      if (isEdgeLocated)
+      {
+        anEdgeTransform.SetTranslation(gp_Vec(1.0, 2.0, 3.0));
+      }
+      const TopLoc_Location aSurfaceLocation(aSurfaceTransform);
+      BRep_Builder          aBuilder;
+      TopoDS_Edge           anEdge;
+      aBuilder.MakeEdge(anEdge);
+      anEdge.Location(TopLoc_Location(anEdgeTransform));
+      aBuilder.UpdateEdge(anEdge, aForward, aReversed, aSurface, aSurfaceLocation);
+      EXPECT_EQ(BRep_Tool::PolygonOnSurface(anEdge, aSurface, aSurfaceLocation), aForward);
+      anEdge.Orientation(TopAbs_REVERSED);
+      EXPECT_EQ(BRep_Tool::PolygonOnSurface(anEdge, aSurface, aSurfaceLocation), aReversed);
+
+      aBuilder.UpdateEdge(anEdge, aReversed, aForward, aSurface, aSurfaceLocation);
+      EXPECT_EQ(BRep_Tool::PolygonOnSurface(anEdge, aSurface, aSurfaceLocation), aForward);
+      anEdge.Orientation(TopAbs_FORWARD);
+      EXPECT_EQ(BRep_Tool::PolygonOnSurface(anEdge, aSurface, aSurfaceLocation), aReversed);
+      aBuilder.UpdateEdge(anEdge, nullptr, nullptr, aSurface, aSurfaceLocation);
+      EXPECT_TRUE(BRep_Tool::PolygonOnSurface(anEdge, aSurface, aSurfaceLocation).IsNull());
+    }
+  }
+}
+
+TEST(BRep_Tool_Test, UpdateLocatedVertexPreservesWorldPoint)
+{
+  gp_Trsf aTranslation;
+  aTranslation.SetTranslation(gp_Vec(3.0, -4.0, 5.0));
+  gp_Trsf aRotation;
+  aRotation.SetRotation(gp::OZ(), 0.37);
+  const TopLoc_Location aLocation    = TopLoc_Location(aTranslation) * TopLoc_Location(aRotation);
+  const TopLoc_Location aLocations[] = {TopLoc_Location(), aLocation, aLocation.Powered(-2)};
+  BRep_Builder          aBuilder;
+  const gp_Pnt          aWorldPoint(7.0, 11.0, -13.0);
+  for (const TopLoc_Location& aLoc : aLocations)
+  {
+    TopoDS_Vertex aVertex;
+    aBuilder.MakeVertex(aVertex, gp_Pnt(), Precision::Confusion());
+    aVertex.Location(aLoc);
+    aBuilder.UpdateVertex(aVertex, aWorldPoint, 1.e-5);
+    EXPECT_LT(BRep_Tool::Pnt(aVertex).Distance(aWorldPoint), 1.e-12);
+    EXPECT_TRUE(aVertex.Location().IsEqual(aLoc));
+    EXPECT_DOUBLE_EQ(BRep_Tool::Tolerance(aVertex), 1.e-5);
+  }
+}
+
+TEST(BRep_Tool_Test, ToleranceFloorPreservesBoundaryAndNaNBehavior)
+{
+  BRep_Builder  aBuilder;
+  TopoDS_Vertex aVertex;
+  TopoDS_Edge   anEdge;
+  TopoDS_Face   aFace;
+  aBuilder.MakeVertex(aVertex);
+  aBuilder.MakeEdge(anEdge);
+  aBuilder.MakeFace(aFace);
+  auto*        aTVertex    = static_cast<BRep_TVertex*>(aVertex.TShape().get());
+  auto*        aTEdge      = static_cast<BRep_TEdge*>(anEdge.TShape().get());
+  auto*        aTFace      = static_cast<BRep_TFace*>(aFace.TShape().get());
+  const double aMin        = Precision::Confusion();
+  const double anInfinity  = std::numeric_limits<double>::infinity();
+  const double aCases[][2] = {{-1.0, aMin},
+                              {0.0, aMin},
+                              {aMin * 0.5, aMin},
+                              {aMin, aMin},
+                              {aMin * 2.0, aMin * 2.0},
+                              {anInfinity, anInfinity},
+                              {-anInfinity, aMin},
+                              {std::numeric_limits<double>::quiet_NaN(), aMin}};
+  for (const auto& aCase : aCases)
+  {
+    aTVertex->Tolerance(aCase[0]);
+    aTEdge->Tolerance(aCase[0]);
+    aTFace->Tolerance(aCase[0]);
+    EXPECT_DOUBLE_EQ(BRep_Tool::Tolerance(aVertex), aCase[1]);
+    EXPECT_DOUBLE_EQ(BRep_Tool::Tolerance(anEdge), aCase[1]);
+    EXPECT_DOUBLE_EQ(BRep_Tool::Tolerance(aFace), aCase[1]);
+  }
 }

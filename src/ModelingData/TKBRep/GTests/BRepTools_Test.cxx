@@ -18,6 +18,7 @@
 #include <BRepBuilderAPI_Transform.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_NurbsConvert.hxx>
+#include <BRepTools_Quilt.hxx>
 #include <BRepCheck_Analyzer.hxx>
 #include <BRepGProp.hxx>
 #include <BRepMesh_IncrementalMesh.hxx>
@@ -672,4 +673,96 @@ TEST(BRepTools_Test, ModalgBug_24404_BoxFaceUVBounds)
     MakeCircleFace(gp_Pnt(1177.73545803307, 1500.0, 1406.03245550006), aNormal, 150.768085993996));
   ASSERT_FALSE(aFace.IsNull());
   ExpectBoxUvBounds(aFace);
+}
+
+//=================================================================================================
+
+TEST(BRepToolsTest, SharedEdgeTriangulationsPreserveFaceNormals)
+{
+  const TopoDS_Shape aBox = BRepPrimAPI_MakeBox(1.0, 2.0, 3.0).Shape();
+  BRepMesh_IncrementalMesh aMesher(aBox, 0.01);
+  for (TopExp_Explorer aFaces(aBox, TopAbs_FACE); aFaces.More(); aFaces.Next())
+  {
+    TopLoc_Location aLocation;
+    const auto aMesh = BRep_Tool::Triangulation(TopoDS::Face(aFaces.Current()), aLocation);
+    ASSERT_FALSE(aMesh.IsNull());
+    aMesh->AddNormals();
+    for (int aNodeIndex = 1; aNodeIndex <= aMesh->NbNodes(); ++aNodeIndex)
+    {
+      aMesh->SetNormal(aNodeIndex, gp_Dir(1.0, 2.0, 3.0));
+    }
+  }
+
+  // A shared edge records both adjacent triangulations before the second face is visited.
+  for (const bool isBinary : {false, true})
+  {
+    for (const bool toWriteNormals : {false, true})
+    {
+      std::stringstream aStream(std::ios::in | std::ios::out | std::ios::binary);
+      TopoDS_Shape aRestored;
+      if (isBinary)
+      {
+        BinTools::Write(aBox, aStream, true, toWriteNormals, BinTools_FormatVersion_CURRENT);
+        aStream.seekg(0);
+        BinTools::Read(aRestored, aStream);
+      }
+      else
+      {
+        BRepTools::Write(aBox, aStream, true, toWriteNormals, TopTools_FormatVersion_CURRENT);
+        aStream.seekg(0);
+        BRepTools::Read(aRestored, aStream, BRep_Builder());
+      }
+      ASSERT_FALSE(aRestored.IsNull());
+      int aFaceCount = 0;
+      for (TopExp_Explorer aFaces(aRestored, TopAbs_FACE); aFaces.More(); aFaces.Next())
+      {
+        ++aFaceCount;
+        TopLoc_Location aLocation;
+        const auto aMesh = BRep_Tool::Triangulation(TopoDS::Face(aFaces.Current()), aLocation);
+        ASSERT_FALSE(aMesh.IsNull());
+        ASSERT_EQ(aMesh->HasNormals(), toWriteNormals) << isBinary << ": face " << aFaceCount;
+        if (toWriteNormals)
+        {
+          for (int aNodeIndex = 1; aNodeIndex <= aMesh->NbNodes(); ++aNodeIndex)
+          {
+            EXPECT_GT(aMesh->Normal(aNodeIndex).Dot(gp_Dir(1.0, 2.0, 3.0)),
+                      1.0 - Precision::Confusion());
+          }
+        }
+      }
+      EXPECT_EQ(aFaceCount, 6);
+    }
+  }
+}
+
+TEST(BRepTools_Test, QuiltPreservesBindingsAndAssemblesSharedEdges)
+{
+  BRep_Builder  aBuilder;
+  TopoDS_Vertex aFirst, aSecond, aThird;
+  aBuilder.MakeVertex(aFirst);
+  aBuilder.MakeVertex(aSecond);
+  aBuilder.MakeVertex(aThird);
+  BRepTools_Quilt aBindings;
+  aBindings.Bind(aFirst, aSecond);
+  aBindings.Bind(aFirst, aThird);
+  EXPECT_TRUE(aBindings.IsCopied(aFirst));
+  EXPECT_TRUE(aBindings.Copy(aFirst).IsSame(aSecond));
+  EXPECT_FALSE(aBindings.IsCopied(aThird));
+
+  const TopoDS_Shape aBox = BRepPrimAPI_MakeBox(2.0, 3.0, 4.0).Shape();
+  BRepTools_Quilt    aQuilt;
+  aQuilt.Add(aBox);
+  const TopoDS_Shape aResult     = aQuilt.Shells();
+  int                aShellCount = 0, aFaceCount = 0;
+  for (TopExp_Explorer anIt(aResult, TopAbs_SHELL); anIt.More(); anIt.Next())
+  {
+    ++aShellCount;
+    EXPECT_TRUE(anIt.Current().Closed());
+  }
+  for (TopExp_Explorer anIt(aResult, TopAbs_FACE); anIt.More(); anIt.Next())
+  {
+    ++aFaceCount;
+  }
+  EXPECT_EQ(aShellCount, 1);
+  EXPECT_EQ(aFaceCount, 6);
 }

@@ -170,17 +170,8 @@ const NCollection_List<occ::handle<Poly_Triangulation>>& BRep_Tool::Triangulatio
 
 double BRep_Tool::Tolerance(const TopoDS_Face& F)
 {
-  const BRep_TFace* TF   = static_cast<const BRep_TFace*>(F.TShape().get());
-  double            p    = TF->Tolerance();
-  constexpr double  pMin = Precision::Confusion();
-  if (p > pMin)
-  {
-    return p;
-  }
-  else
-  {
-    return pMin;
-  }
+  const BRep_TFace* TF = static_cast<const BRep_TFace*>(F.TShape().get());
+  return std::max(Precision::Confusion(), TF->Tolerance());
 }
 
 //=================================================================================================
@@ -869,7 +860,7 @@ bool BRep_Tool::IsClosed(const TopoDS_Edge&               E,
   while (itcr.More())
   {
     const occ::handle<BRep_CurveRepresentation>& cr = itcr.Value();
-    if (cr->IsCurveOnSurface(S, l) && cr->IsCurveOnClosedSurface())
+    if (cr->IsCurveOnClosedSurface() && cr->IsCurveOnSurface(S, l))
     {
       return true;
     }
@@ -902,7 +893,7 @@ bool BRep_Tool::IsClosed(const TopoDS_Edge&                     E,
   while (itcr.More())
   {
     const occ::handle<BRep_CurveRepresentation>& cr = itcr.Value();
-    if (cr->IsPolygonOnTriangulation(T, l) && cr->IsPolygonOnClosedTriangulation())
+    if (cr->IsPolygonOnClosedTriangulation() && cr->IsPolygonOnTriangulation(T, l))
     {
       return true;
     }
@@ -918,17 +909,8 @@ bool BRep_Tool::IsClosed(const TopoDS_Edge&                     E,
 
 double BRep_Tool::Tolerance(const TopoDS_Edge& E)
 {
-  const BRep_TEdge* TE   = static_cast<const BRep_TEdge*>(E.TShape().get());
-  double            p    = TE->Tolerance();
-  constexpr double  pMin = Precision::Confusion();
-  if (p > pMin)
-  {
-    return p;
-  }
-  else
-  {
-    return pMin;
-  }
+  const BRep_TEdge* TE = static_cast<const BRep_TEdge*>(E.TShape().get());
+  return std::max(Precision::Confusion(), TE->Tolerance());
 }
 
 //=================================================================================================
@@ -1358,16 +1340,7 @@ double BRep_Tool::Tolerance(const TopoDS_Vertex& V)
     throw Standard_NullObject("BRep_Tool:: TopoDS_Vertex hasn't gp_Pnt");
   }
 
-  double           p    = aTVert->Tolerance();
-  constexpr double pMin = Precision::Confusion();
-  if (p > pMin)
-  {
-    return p;
-  }
-  else
-  {
-    return pMin;
-  }
+  return std::max(Precision::Confusion(), aTVert->Tolerance());
 }
 
 //=================================================================================================

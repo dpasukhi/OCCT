@@ -200,9 +200,8 @@ void BRepTools_Modifier::Perform(const occ::handle<BRepTools_Modification>& M,
 
 void BRepTools_Modifier::Put(const TopoDS_Shape& S)
 {
-  if (!myMap.IsBound(S))
+  if (myMap.TryEmplace(S))
   {
-    myMap.Bind(S, TopoDS_Shape());
     for (TopoDS_Iterator theIterator(S, false); theIterator.More(); theIterator.Next())
     {
 
@@ -237,10 +236,11 @@ bool BRepTools_Modifier::Rebuild(const TopoDS_Shape&                        S,
   switch (ts)
   {
     case TopAbs_FACE: {
-      rebuild = myNSInfo.IsBound(TopoDS::Face(S));
+      const NewSurfaceInfo* aSurfaceInfo = myNSInfo.Seek(TopoDS::Face(S));
+      rebuild                            = aSurfaceInfo != nullptr;
       if (rebuild)
       {
-        const NewSurfaceInfo& aNSinfo = myNSInfo(TopoDS::Face(S));
+        const NewSurfaceInfo& aNSinfo = *aSurfaceInfo;
         RevWires                      = aNSinfo.myRevWires;
         B.MakeFace(TopoDS::Face(result),
                    aNSinfo.mySurface,
@@ -274,10 +274,11 @@ bool BRepTools_Modifier::Rebuild(const TopoDS_Shape&                        S,
     break;
 
     case TopAbs_EDGE: {
-      rebuild = myNCInfo.IsBound(TopoDS::Edge(S));
+      const NewCurveInfo* aCurveInfo = myNCInfo.Seek(TopoDS::Edge(S));
+      rebuild                        = aCurveInfo != nullptr;
       if (rebuild)
       {
-        const NewCurveInfo& aNCinfo = myNCInfo(TopoDS::Edge(S));
+        const NewCurveInfo& aNCinfo = *aCurveInfo;
         if (aNCinfo.myCurve.IsNull())
         {
           B.MakeEdge(TopoDS::Edge(result));
@@ -329,15 +330,7 @@ bool BRepTools_Modifier::Rebuild(const TopoDS_Shape&                        S,
   TopoDS_Iterator it;
 
   {
-    int aShapeCount = 0;
-    {
-      for (it.Initialize(S, false); it.More(); it.Next())
-      {
-        ++aShapeCount;
-      }
-    }
-
-    Message_ProgressScope aPS(theProgress, "Converting SubShapes", aShapeCount);
+    Message_ProgressScope aPS(theProgress, "Converting SubShapes", S.NbChildren());
     //
     for (it.Initialize(S, false); it.More() && aPS.More(); it.Next())
     {
@@ -420,7 +413,8 @@ bool BRepTools_Modifier::Rebuild(const TopoDS_Shape&                        S,
             if (!isClosed)
             {
               TopLoc_Location aLoc;
-              TopoDS_Shape    resface = (myMap.IsBound(face) ? myMap(face) : face);
+              const TopoDS_Shape* aMappedFace = myMap.Seek(face);
+              TopoDS_Shape        resface     = aMappedFace != nullptr ? *aMappedFace : face;
               if (resface.IsNull())
               {
                 resface = face;
@@ -435,7 +429,8 @@ bool BRepTools_Modifier::Rebuild(const TopoDS_Shape&                        S,
                 {
                   continue;
                 }
-                TopoDS_Shape resface2 = (myMap.IsBound(anOther) ? myMap(anOther) : anOther);
+                const TopoDS_Shape* aMappedOther = myMap.Seek(anOther);
+                TopoDS_Shape        resface2 = aMappedOther != nullptr ? *aMappedOther : anOther;
                 if (resface2.IsNull())
                 {
                   resface2 = anOther;
@@ -773,7 +768,8 @@ void BRepTools_Modifier::CreateOtherVertices(
       for (; it.More() && !toReplace; it.Next())
       {
         const TopoDS_Edge& anE = TopoDS::Edge(it.Value());
-        if (myNCInfo.IsBound(anE) && !myNCInfo(anE).myCurve.IsNull())
+        const NewCurveInfo* aCurveInfo = myNCInfo.Seek(anE);
+        if (aCurveInfo != nullptr && !aCurveInfo->myCurve.IsNull())
         {
           toReplace = true;
         }

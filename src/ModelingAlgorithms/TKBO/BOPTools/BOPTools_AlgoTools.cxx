@@ -638,8 +638,11 @@ TopAbs_State BOPTools_AlgoTools::ComputeStateByOnePoint(
       aState = ComputeState(TopoDS::Edge(theS), theRef, theTol, theContext);
       break;
     case TopAbs_FACE: {
-      NCollection_IndexedMap<TopoDS_Shape, TopTools_ShapeMapHasher> aBounds;
-      TopExp::MapShapes(theRef, TopAbs_EDGE, aBounds);
+      NCollection_Map<TopoDS_Shape, TopTools_ShapeMapHasher> aBounds;
+      for (TopExp_Explorer anExp(theRef, TopAbs_EDGE); anExp.More(); anExp.Next())
+      {
+        aBounds.Add(anExp.Current());
+      }
       aState = ComputeState(TopoDS::Face(theS), theRef, theTol, aBounds, theContext);
       break;
     }
@@ -658,11 +661,11 @@ TopAbs_State BOPTools_AlgoTools::ComputeStateByOnePoint(
 //=================================================================================================
 
 TopAbs_State BOPTools_AlgoTools::ComputeState(
-  const TopoDS_Face&                                                   theF,
-  const TopoDS_Solid&                                                  theRef,
-  const double                                                         theTol,
-  const NCollection_IndexedMap<TopoDS_Shape, TopTools_ShapeMapHasher>& theBounds,
-  const occ::handle<IntTools_Context>&                                 theContext)
+  const TopoDS_Face&                                            theF,
+  const TopoDS_Solid&                                           theRef,
+  const double                                                  theTol,
+  const NCollection_Map<TopoDS_Shape, TopTools_ShapeMapHasher>& theBounds,
+  const occ::handle<IntTools_Context>&                          theContext)
 {
   TopAbs_State aState = TopAbs_UNKNOWN;
 
@@ -882,9 +885,12 @@ bool BOPTools_AlgoTools::IsInternalFace(
   // 2. Classify face using classifier
   //
   TopAbs_State                                                  aState;
-  NCollection_IndexedMap<TopoDS_Shape, TopTools_ShapeMapHasher> aBounds;
+  NCollection_Map<TopoDS_Shape, TopTools_ShapeMapHasher>        aBounds;
   //
-  TopExp::MapShapes(theSolid, TopAbs_EDGE, aBounds);
+  for (TopExp_Explorer anExp(theSolid, TopAbs_EDGE); anExp.More(); anExp.Next())
+  {
+    aBounds.Add(anExp.Current());
+  }
   //
   aState = BOPTools_AlgoTools::ComputeState(theFace, theSolid, theTol, aBounds, theContext);
   return aState == TopAbs_IN;

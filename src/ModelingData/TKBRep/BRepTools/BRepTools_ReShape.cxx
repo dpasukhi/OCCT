@@ -188,7 +188,7 @@ void BRepTools_ReShape::replace(const TopoDS_Shape&    ashape,
   if (myConsiderLocation)
   {
     // sln 29.11.01 Bug22: Change location of 'newshape' in accordance with location of 'shape'
-    newshape.Location(newshape.Location().Multiplied(shape.Location().Inverted()), false);
+    newshape.Location(newshape.Location().Divided(shape.Location()), false);
     TopLoc_Location nullLoc;
     shape.Location(nullLoc);
   }
@@ -241,19 +241,18 @@ TopoDS_Shape BRepTools_ReShape::Value(const TopoDS_Shape& ashape) const
     shape.Location(nullLoc);
   }
 
-  bool fromMap = false;
-  if (!myShapeToReplacement.IsBound(shape))
+  const TReplacement* aReplacement = myShapeToReplacement.Seek(shape);
+  if (aReplacement == nullptr)
   {
     res = shape;
   }
   else
   {
-    res = myShapeToReplacement(shape).Result();
+    res = aReplacement->Result();
     if (shape.Orientation() == TopAbs_REVERSED)
     {
       res.Reverse();
     }
-    fromMap = true;
   }
   // for INTERNAL/EXTERNAL, since they are not fully supported, keep orientation
   if (shape.Orientation() == TopAbs_INTERNAL || shape.Orientation() == TopAbs_EXTERNAL)
@@ -265,7 +264,7 @@ TopoDS_Shape BRepTools_ReShape::Value(const TopoDS_Shape& ashape) const
   {
     // sln 29.11.01 Bug22: Recalculate location of resulting shape in accordance with
     // whether result is from map or not
-    if (fromMap)
+    if (aReplacement != nullptr)
     {
       res.Location(ashape.Location() * res.Location(), false);
     }
@@ -336,14 +335,15 @@ int BRepTools_ReShape::Status(const TopoDS_Shape& ashape, TopoDS_Shape& newsh, c
     shape.Location(nullLoc);
   }
 
-  if (!myShapeToReplacement.IsBound(shape))
+  const TReplacement* aReplacement = myShapeToReplacement.Seek(shape);
+  if (aReplacement == nullptr)
   {
     newsh = shape;
     res   = 0;
   }
   else
   {
-    newsh = myShapeToReplacement(shape).Result();
+    newsh = aReplacement->Result();
     res   = 1;
   }
   if (res > 0)

@@ -38,12 +38,16 @@ GeomAPI_IntCS::GeomAPI_IntCS(const occ::handle<Geom_Curve>& C, const occ::handle
 
 void GeomAPI_IntCS::Perform(const occ::handle<Geom_Curve>& C, const occ::handle<Geom_Surface>& S)
 {
-  myCurve = C;
+  Perform(GeomAdaptor_Curve(C), GeomAdaptor_Surface(S));
+}
 
-  occ::handle<GeomAdaptor_Curve>   HC = new GeomAdaptor_Curve(C);
-  occ::handle<GeomAdaptor_Surface> HS = new GeomAdaptor_Surface(S);
+//=================================================================================================
 
-  myIntCS.Perform(HC, HS);
+void GeomAPI_IntCS::Perform(const GeomAdaptor_Curve&   theCurve,
+                            const GeomAdaptor_Surface& theSurface)
+{
+  myCurve = theCurve.Curve();
+  myIntCS.Perform(theCurve.ShallowCopy(), theSurface.ShallowCopy());
 }
 
 //=================================================================================================

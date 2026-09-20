@@ -17,6 +17,9 @@
 #include <GeomProjLib.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <Geom_Hyperbola.hxx>
+#include <Geom_Circle.hxx>
+#include <Geom_Line.hxx>
+#include <Geom_Ellipse.hxx>
 #include <Geom_Parabola.hxx>
 #include <Geom_Plane.hxx>
 #include <Geom_TrimmedCurve.hxx>
@@ -92,4 +95,76 @@ TEST(GeomProjLibTest, OCC31661_2_ProjectHyperbolaOnPlane)
               2.0e-5);
   EXPECT_NEAR(aProjectedTrimmed->FirstParameter(), -5.23179933356147, 1.0e-7);
   EXPECT_NEAR(aProjectedTrimmed->LastParameter(), 4.76820064934972, 1.0e-7);
+}
+
+//=================================================================================================
+
+TEST(GeomProjLibTest, ConicProjectionPreservesShiftedTrimParameters)
+{
+  // Projection along Z from a parallel plane preserves the complete conic
+  // parameterization, including trims outside its principal periodic range.
+  const gp_Ax2                  anAxis(gp_Pnt(3, -2, 5), gp::DZ());
+  const occ::handle<Geom_Plane> aPlane    = new Geom_Plane(gp::XOY());
+  const occ::handle<Geom_Curve> aConics[] = {new Geom_Circle(anAxis, 2),
+                                             new Geom_Ellipse(anAxis, 3, 1)};
+  for (const occ::handle<Geom_Curve>& aConic : aConics)
+  {
+    const occ::handle<Geom_Curve> aTrim = new Geom_TrimmedCurve(aConic, 7.0, 11.0, true, false);
+    const occ::handle<Geom_Curve> aProjection =
+      GeomProjLib::ProjectOnPlane(aTrim, aPlane, gp::DZ(), true);
+    ASSERT_FALSE(aProjection.IsNull());
+    EXPECT_DOUBLE_EQ(aProjection->FirstParameter(), 7.0);
+    EXPECT_DOUBLE_EQ(aProjection->LastParameter(), 11.0);
+    for (int i = 0; i <= 16; ++i)
+    {
+      const double aParameter = 7.0 + i * 0.25;
+      gp_Pnt       anExpected = aTrim->Value(aParameter);
+      anExpected.SetZ(0);
+      EXPECT_LT(anExpected.Distance(aProjection->Value(aParameter)), Precision::Confusion());
+    }
+  }
+}
+
+//=================================================================================================
+
+TEST(GeomProjLibTest, ConicProjectionRecoversEndpointsWhenParametersChange)
+{
+  const occ::handle<Geom_Plane> aPlane = new Geom_Plane(gp::XOY());
+  const occ::handle<Geom_Curve> aConic =
+    new Geom_Ellipse(gp_Ax2(gp_Pnt(1, 2, 4), gp_Dir(1, 2, 3)), 3, 1);
+  const occ::handle<Geom_Curve> aTrim = new Geom_TrimmedCurve(aConic, 0.3, 2.7);
+  const occ::handle<Geom_Curve> aProjection =
+    GeomProjLib::ProjectOnPlane(aTrim, aPlane, gp::DZ(), false);
+  ASSERT_FALSE(aProjection.IsNull());
+  gp_Pnt aFirst = aTrim->Value(aTrim->FirstParameter());
+  gp_Pnt aLast  = aTrim->Value(aTrim->LastParameter());
+  aFirst.SetZ(0);
+  aLast.SetZ(0);
+  EXPECT_LT(aFirst.Distance(aProjection->Value(aProjection->FirstParameter())),
+            Precision::Confusion());
+  EXPECT_LT(aLast.Distance(aProjection->Value(aProjection->LastParameter())),
+            Precision::Confusion());
+}
+
+//=================================================================================================
+
+TEST(GeomProjLibTest, LineProjectionRetainsSourceRangeWhenProjectedEndpointsCoincide)
+{
+  // X cannot represent the projected displacement at this location. The source
+  // still has a nonzero parameter interval and a nonzero 3D displacement in Z.
+  const occ::handle<Geom_Curve> aLine  = new Geom_Line(gp_Pnt(1.e16, 0, 0), gp_Dir(1, 0, 1));
+  const occ::handle<Geom_Curve> aTrim  = new Geom_TrimmedCurve(aLine, 0, 1);
+  const occ::handle<Geom_Plane> aPlane = new Geom_Plane(gp_Pln(gp::XOY()));
+  occ::handle<Geom_Curve>       aProjected;
+  ASSERT_NO_THROW(aProjected = GeomProjLib::ProjectOnPlane(aTrim, aPlane, gp::DZ(), true));
+  ASSERT_FALSE(aProjected.IsNull());
+  EXPECT_DOUBLE_EQ(aProjected->FirstParameter(), 0);
+  EXPECT_DOUBLE_EQ(aProjected->LastParameter(), 1);
+  const GeomAdaptor_Curve anAdaptor(aProjected);
+  for (double t : {0.0, 0.5, 1.0})
+  {
+    EXPECT_DOUBLE_EQ(anAdaptor.EvalD0(t).X(), 1.e16);
+    EXPECT_DOUBLE_EQ(anAdaptor.EvalD0(t).Y(), 0);
+    EXPECT_DOUBLE_EQ(anAdaptor.EvalD0(t).Z(), 0);
+  }
 }

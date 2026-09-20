@@ -186,7 +186,10 @@ void IntImpParGen_Intersector::And_Domaine_Objet1_Intersections(
       }
       else
       { //====== la borne2 et la borne1 sont hors domaine =====
-        if (param1 < TheImpCurveDomain.FirstParameter()
+        // Two rejected endpoints can enclose the domain only when both domain
+        // bounds exist. For a half-line they lie on the same excluded side.
+        if (TheImpCurveDomain.HasFirstPoint() && TheImpCurveDomain.HasLastPoint()
+            && param1 < TheImpCurveDomain.FirstParameter()
             && param2 > TheImpCurveDomain.LastParameter())
         {
           double t;

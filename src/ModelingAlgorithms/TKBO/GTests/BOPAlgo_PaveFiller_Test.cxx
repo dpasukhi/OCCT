@@ -24,6 +24,9 @@
 #include <BRepOffsetAPI_ThruSections.hxx>
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeCone.hxx>
+#include <BRepPrimAPI_MakeCylinder.hxx>
+#include <BRepCheck_Analyzer.hxx>
+#include <gp_Ax2.hxx>
 #include <Geom2d_Curve.hxx>
 #include <Geom2d_Line.hxx>
 #include <Geom_ConicalSurface.hxx>
@@ -349,4 +352,34 @@ TEST_F(BOPAlgo_PaveFillerTest, FuseConeWithRemovedPCurve_NullPCurveHandling)
     BRepAlgoAPI_Fuse    aFuser(aCone, aBoxMaker.Shape());
     EXPECT_TRUE(aFuser.IsDone());
   }
+}
+
+// Near-coincident cylindrical seams must give the same union in either operand order.
+TEST_F(BOPAlgo_PaveFillerTest, FuseNearCoincidentSeamsBothOrders)
+{
+  const TopoDS_Shape aCylinder1 = BRepPrimAPI_MakeCylinder(1.0, 10.0).Shape();
+  const TopoDS_Shape aCylinder2 =
+    BRepPrimAPI_MakeCylinder(gp_Ax2(gp_Pnt(1.e-5, 0.0, 5.0), gp_Dir(0.0, 0.0, 1.0)), 1.0, 10.0)
+      .Shape();
+  const double anExpectedVolume = 1.5 * GetVolume(aCylinder1);
+  double       aVolumes[2]      = {0.0, 0.0};
+  for (int anOrder = 0; anOrder < 2; ++anOrder)
+  {
+    NCollection_List<TopoDS_Shape> anArguments;
+    NCollection_List<TopoDS_Shape> aTools;
+    anArguments.Append(anOrder == 0 ? aCylinder1 : aCylinder2);
+    aTools.Append(anOrder == 0 ? aCylinder2 : aCylinder1);
+    BRepAlgoAPI_Fuse aFuse;
+    aFuse.SetArguments(anArguments);
+    aFuse.SetTools(aTools);
+    aFuse.SetNonDestructive(true);
+    aFuse.SetFuzzyValue(1.e-4);
+    aFuse.Build();
+    ASSERT_TRUE(aFuse.IsDone());
+    ASSERT_FALSE(aFuse.Shape().IsNull());
+    EXPECT_TRUE(BRepCheck_Analyzer(aFuse.Shape()).IsValid());
+    aVolumes[anOrder] = GetVolume(aFuse.Shape());
+    EXPECT_NEAR(aVolumes[anOrder], anExpectedVolume, 1.e-3);
+  }
+  EXPECT_NEAR(aVolumes[0], aVolumes[1], 1.e-3);
 }

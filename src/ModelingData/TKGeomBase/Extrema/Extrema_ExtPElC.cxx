@@ -61,7 +61,8 @@ void Extrema_ExtPElC::Perform(const gp_Pnt& P,
                               const double  Uinf,
                               const double  Usup)
 {
-  myDone  = false;
+  // An out-of-range projection is a completed query with no interior extrema.
+  myDone  = true;
   myNbExt = 0;
   gp_Vec V1(L.Direction());
   gp_Pnt OR = L.Location();
@@ -76,7 +77,6 @@ void Extrema_ExtPElC::Perform(const gp_Pnt& P,
     myPoint[0]  = MyPOnCurve;
     myIsMin[0]  = true;
     myNbExt     = 1;
-    myDone      = true;
   }
 }
 

@@ -25,6 +25,7 @@
 #include <Standard_Boolean.hxx>
 #include <ChFiDS_TypeOfConcavity.hxx>
 #include <GeomAbs_Shape.hxx>
+#include <Precision.hxx>
 class BRepAdaptor_Surface;
 class TopoDS_Edge;
 class TopoDS_Face;
@@ -42,11 +43,20 @@ public:
                                                                   const double       SinTol,
                                                                   const bool         CorrectPoint);
 
-  //! Returns true if theEdge between theFace1 and theFace2 is tangent
-  Standard_EXPORT static bool IsTangentFaces(const TopoDS_Edge&  theEdge,
-                                             const TopoDS_Face&  theFace1,
-                                             const TopoDS_Face&  theFace2,
-                                             const GeomAbs_Shape Order = GeomAbs_G1);
+  //! Tests oriented G1 or G2 continuity by sampling along the edge.
+  //! Pcurves must have matching ranges and corresponding parameters.
+  //! @param[in] theEdge common edge
+  //! @param[in] theFace1 first adjacent face
+  //! @param[in] theFace2 second adjacent face
+  //! @param[in] theOrder continuity to test: GeomAbs_G1 or GeomAbs_G2
+  //! @param[in] theAngularTolerance angular tolerance in radians, in [0, Pi/2)
+  //! @return true if the sampled geometry satisfies the requested continuity
+  Standard_EXPORT static bool IsTangentFaces(
+    const TopoDS_Edge&  theEdge,
+    const TopoDS_Face&  theFace1,
+    const TopoDS_Face&  theFace2,
+    const GeomAbs_Shape theOrder            = GeomAbs_G1,
+    const double        theAngularTolerance = Precision::Angular());
 
   //! Returns Reversed in Or1 and(or) Or2 if
   //! the concave edge defined by the interior of faces F1 and F2,

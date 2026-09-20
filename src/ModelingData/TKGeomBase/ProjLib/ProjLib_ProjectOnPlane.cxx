@@ -29,8 +29,7 @@
 #include <Geom_Curve.hxx>
 #include <GeomAdaptor_Curve.hxx>
 #include <Geom_Line.hxx>
-#include <GeomConvert.hxx>
-#include <Geom_TrimmedCurve.hxx>
+#include <Geom_BSplineCurve.hxx>
 #include <Geom_Circle.hxx>
 #include <Geom_Parabola.hxx>
 #include <Geom_Hyperbola.hxx>
@@ -592,43 +591,34 @@ void ProjLib_ProjectOnPlane::Load(const occ::handle<Adaptor3d_Curve>& C,
         double Udeb, Ufin;
 
         // eval the first and last parameters of the projected curve
-        Udeb        = myCurve->FirstParameter();
-        Ufin        = myCurve->LastParameter();
-        gp_Pnt P1   = ProjectPnt(myPlane, myDirection, myCurve->Value(Udeb));
-        gp_Pnt P2   = ProjectPnt(myPlane, myDirection, myCurve->Value(Ufin));
-        myFirstPar  = gp_Vec(aLine.Direction()).Dot(gp_Vec(P, P1));
-        myLastPar   = gp_Vec(aLine.Direction()).Dot(gp_Vec(P, P2));
-        GeomLinePtr = new Geom_Line(aLine);
+        Udeb       = myCurve->FirstParameter();
+        Ufin       = myCurve->LastParameter();
+        gp_Pnt P1  = ProjectPnt(myPlane, myDirection, myCurve->Value(Udeb));
+        gp_Pnt P2  = ProjectPnt(myPlane, myDirection, myCurve->Value(Ufin));
+        myFirstPar = gp_Vec(aLine.Direction()).Dot(gp_Vec(P, P1));
+        myLastPar  = gp_Vec(aLine.Direction()).Dot(gp_Vec(P, P2));
         if (!myKeepParam)
         {
           //  Modified by Sergey KHROMOV - Tue Jan 29 16:57:29 2002 Begin
-          GeomAdaptor_Curve aGACurve(GeomLinePtr, myFirstPar, myLastPar);
+          GeomAdaptor_Curve aGACurve(new Geom_Line(aLine), myFirstPar, myLastPar);
           myResult = new GeomAdaptor_Curve(aGACurve);
           //  Modified by Sergey KHROMOV - Tue Jan 29 16:57:30 2002 End
         }
         else
         {
           myType = GeomAbs_BSplineCurve;
-          //
-          // make a linear BSpline of degree 1 between the end points of
-          // the projected line
-          //
-          occ::handle<Geom_TrimmedCurve> NewTrimCurvePtr =
-            new Geom_TrimmedCurve(GeomLinePtr, myFirstPar, myLastPar);
-
-          occ::handle<Geom_BSplineCurve> NewCurvePtr =
-            GeomConvert::CurveToBSplineCurve(NewTrimCurvePtr);
-          NCollection_Array1<double> BsplineKnots(NewCurvePtr->Knots());
-
-          BSplCLib::Reparametrize(myCurve->FirstParameter(),
-                                  myCurve->LastParameter(),
-                                  BsplineKnots);
-
-          NewCurvePtr->SetKnots(BsplineKnots);
-          //  Modified by Sergey KHROMOV - Tue Jan 29 16:57:29 2002 Begin
-          GeomAdaptor_Curve aGACurve(NewCurvePtr);
-          myResult = new GeomAdaptor_Curve(aGACurve);
-          //  Modified by Sergey KHROMOV - Tue Jan 29 16:57:30 2002 End
+          // Build the degree-one spline in the source chart directly. Projected
+          // endpoint parameters may coincide after rounding even when Udeb < Ufin;
+          // coincident poles are valid, but a temporary trimmed line would throw.
+          NCollection_Array1<gp_Pnt> aPoles(1, 2);
+          aPoles(1) = ElCLib::Value(myFirstPar, aLine);
+          aPoles(2) = ElCLib::Value(myLastPar, aLine);
+          NCollection_Array1<double> aKnots(1, 2);
+          aKnots(1) = Udeb;
+          aKnots(2) = Ufin;
+          NCollection_Array1<int> aMults(1, 2);
+          aMults.Init(2);
+          myResult = new GeomAdaptor_Curve(new Geom_BSplineCurve(aPoles, aKnots, aMults, 1));
         }
       }
       break;
@@ -780,7 +770,9 @@ void ProjLib_ProjectOnPlane::Load(const occ::handle<Adaptor3d_Curve>& C,
         myResult = new GeomAdaptor_Curve(aGACurve);
         //  Modified by Sergey KHROMOV - Tue Jan 29 16:57:30 2002 End
       }
-      else if (GeomCirclePtr || GeomEllipsePtr)
+      // Preserved parameters come directly from myCurve in FirstParameter()/
+      // LastParameter(). Recover endpoints only when the projection changes them.
+      else if (!myKeepParam && (GeomCirclePtr || GeomEllipsePtr))
       {
         occ::handle<Geom_Curve> aResultCurve = GeomCirclePtr;
         if (aResultCurve.IsNull())
@@ -884,8 +876,8 @@ void ProjLib_ProjectOnPlane::Load(const occ::handle<Adaptor3d_Curve>& C,
       {
         myType           = GeomAbs_Hyperbola;
         Hypr             = gp_Hypr(gp_Ax2(P, gp_Dir(Xc ^ Yc), gp_Dir(Xc)),
-                       aR1 * Xc.Magnitude(),
-                       aR2 * Yc.Magnitude());
+                                   aR1 * Xc.Magnitude(),
+                                   aR2 * Yc.Magnitude());
         GeomHyperbolaPtr = new Geom_Hyperbola(Hypr);
       }
       else if (Yc.Magnitude() < Precision::Confusion() || Yc.IsParallel(Xc, Precision::Angular()))

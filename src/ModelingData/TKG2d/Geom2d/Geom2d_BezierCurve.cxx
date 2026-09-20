@@ -55,19 +55,16 @@ void Geom2d_BezierCurve::SetEvalRepresentation(
 
 //=================================================================================================
 
-static bool Rational(const NCollection_Array1<double>& W)
+static bool Rational(const NCollection_Array1<double>& theWeights)
 {
-  int  i, n = W.Length();
-  bool rat = false;
-  for (i = 1; i < n; i++)
+  for (size_t anIndex = 1; anIndex < theWeights.Size(); ++anIndex)
   {
-    rat = std::abs(W(i) - W(i + 1)) > gp::Resolution();
-    if (rat)
+    if (std::abs(theWeights.At(anIndex - 1) - theWeights.At(anIndex)) > gp::Resolution())
     {
-      break;
+      return true;
     }
   }
-  return rat;
+  return false;
 }
 
 //=================================================================================================
@@ -100,9 +97,9 @@ Geom2d_BezierCurve::Geom2d_BezierCurve(const NCollection_Array1<gp_Pnt2d>& Poles
     throw Standard_ConstructionError();
   }
 
-  for (int i = 1; i <= nbpoles; i++)
+  for (size_t anIndex = 0; anIndex < Weights.Size(); ++anIndex)
   {
-    if (Weights(i) <= gp::Resolution())
+    if (Weights.At(anIndex) <= gp::Resolution())
     {
       throw Standard_ConstructionError();
     }

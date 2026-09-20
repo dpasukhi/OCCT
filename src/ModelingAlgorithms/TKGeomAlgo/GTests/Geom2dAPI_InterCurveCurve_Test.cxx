@@ -12,6 +12,10 @@
 // commercial license or contractual agreement.
 
 #include <Geom2dAPI_InterCurveCurve.hxx>
+#include <Adaptor2d_Line2d.hxx>
+#include <Geom2dAdaptor_Curve.hxx>
+#include <Geom2dInt_GInter.hxx>
+#include <Geom2d_BezierCurve.hxx>
 #include <Geom2d_BSplineCurve.hxx>
 #include <Geom2d_Ellipse.hxx>
 #include <Geom2d_Line.hxx>
@@ -232,4 +236,30 @@ TEST(Geom2dAPI_InterCurveCurve_Test, OCC29162_TrimmedEllipseLineIntersection)
   const gp_Pnt2d aPoint = anIntersector.Point(1);
   EXPECT_NEAR(aPoint.X(), -625.35188801291508, 1.e-7);
   EXPECT_NEAR(aPoint.Y(), -710.72104765746838, 1.e-7);
+}
+
+//=================================================================================================
+
+TEST(Geom2dAPI_InterCurveCurveTest, HalfLineRejectsDisjointCollinearBezier)
+{
+  // An overlap on the excluded side of a half-line has two rejected endpoints.
+  // Neither a missing first nor a missing last domain bound may be queried.
+  NCollection_Array1<gp_Pnt2d> aPoles(1, 3);
+  Geom2dInt_GInter             anIntersector;
+  for (const double aSign : {-1.0, 1.0})
+  {
+    aPoles(1)                                    = gp_Pnt2d(aSign * 1, 0);
+    aPoles(2)                                    = gp_Pnt2d(aSign * 2, 0);
+    aPoles(3)                                    = gp_Pnt2d(aSign * 3, 0);
+    const occ::handle<Geom2d_BezierCurve> aCurve = new Geom2d_BezierCurve(aPoles);
+    const Geom2dAdaptor_Curve             anArc(aCurve);
+    const Adaptor2d_Line2d                aRay(gp_Pnt2d(0, 0),
+                                               gp_Dir2d(1, 0),
+                                               aSign < 0 ? 0 : -RealLast(),
+                                               aSign < 0 ? RealLast() : 0);
+    anIntersector.Perform(aRay, anArc, 1.e-9, 1.e-9);
+    ASSERT_TRUE(anIntersector.IsDone());
+    EXPECT_EQ(anIntersector.NbPoints(), 0);
+    EXPECT_EQ(anIntersector.NbSegments(), 0);
+  }
 }

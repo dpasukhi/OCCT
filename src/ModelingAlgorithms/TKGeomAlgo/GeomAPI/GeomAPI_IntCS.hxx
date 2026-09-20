@@ -22,9 +22,11 @@
 #include <Standard_Handle.hxx>
 
 #include <IntCurveSurface_HInter.hxx>
+#include <GeomAdaptor_Curve.hxx>
 #include <Standard_Integer.hxx>
 class Geom_Curve;
 class Geom_Surface;
+class GeomAdaptor_Surface;
 class gp_Pnt;
 
 //! This class implements methods for
@@ -52,6 +54,13 @@ public:
   //! Use function IsDone to verify that the intersections are computed successfully.
   Standard_EXPORT void Perform(const occ::handle<Geom_Curve>&   C,
                                const occ::handle<Geom_Surface>& S);
+
+  //! Intersect bounded native geometry without constructing trimmed curves or surfaces.
+  //! Copies adaptor evaluation state and shares geometry; neither input is modified.
+  //! Bounds and reported parameters remain in the input adaptors' native charts.
+  //! Use IsDone() to check completion, as for the geometry-handle overload.
+  Standard_EXPORT void Perform(const GeomAdaptor_Curve&   theCurve,
+                               const GeomAdaptor_Surface& theSurface);
 
   //! Returns true if the intersections are successfully computed.
   Standard_EXPORT bool IsDone() const;
