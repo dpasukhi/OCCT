@@ -326,10 +326,16 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<gp_Pnt>& Poin
                                           const bool                        thePeriodic)
 {
   myIsDone = false;
+  mySurface.Nullify();
   int Imin = Points.LowerRow();
   int Imax = Points.UpperRow();
   int Jmin = Points.LowerCol();
   int Jmax = Points.UpperCol();
+
+  if (Imax <= Imin || Jmax <= Jmin)
+  {
+    return;
+  }
 
   double Tol2D = Tol3D;
 
@@ -514,10 +520,16 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<gp_Pnt>& Poin
                                           const double                      Tol3D)
 {
   myIsDone = false;
+  mySurface.Nullify();
   int Imin = Points.LowerRow();
   int Imax = Points.UpperRow();
   int Jmin = Points.LowerCol();
   int Jmax = Points.UpperCol();
+
+  if (Imax <= Imin || Jmax <= Jmin)
+  {
+    return;
+  }
 
   int nbit = 2;
   if (Tol3D <= 1.e-3)
@@ -708,12 +720,18 @@ void GeomAPI_PointsToBSplineSurface::Init(const NCollection_Array2<double>& ZPoi
                                           const GeomAbs_Shape               Continuity,
                                           const double                      Tol3D)
 {
-  myIsDone    = false;
+  myIsDone = false;
+  mySurface.Nullify();
   int    Imin = ZPoints.LowerRow();
   int    Imax = ZPoints.UpperRow();
   int    Jmin = ZPoints.LowerCol();
   int    Jmax = ZPoints.UpperCol();
   double length;
+
+  if (Imax <= Imin || Jmax <= Jmin)
+  {
+    return;
+  }
 
   double Tol2D = Tol3D;
 

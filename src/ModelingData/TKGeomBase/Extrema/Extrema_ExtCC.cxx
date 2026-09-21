@@ -432,7 +432,7 @@ void Extrema_ExtCC::PrepareParallelResult(const double theUt11,
                                   !isReversed ? theUt21 : theUt11,
                                   !isReversed ? theUt22 : theUt12);
 
-    if (ExtPLin.IsDone())
+    if (ExtPLin.IsDone() && ExtPLin.NbExt() > 0)
     {
       mySqDist.Append(theSqDist);
     }

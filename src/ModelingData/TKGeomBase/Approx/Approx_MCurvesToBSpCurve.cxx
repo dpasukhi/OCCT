@@ -17,10 +17,14 @@
 #include <BSplCLib.hxx>
 #include <Convert_CompBezierCurvesToBSplineCurve.hxx>
 #include <Convert_CompBezierCurves2dToBSplineCurve2d.hxx>
-#include <Standard_Integer.hxx>
 #include <NCollection_Array1.hxx>
+#include <Precision.hxx>
+#include <Standard_Integer.hxx>
 #include <gp_Pnt.hxx>
 #include <gp_Pnt2d.hxx>
+
+#include <algorithm>
+#include <cmath>
 
 Approx_MCurvesToBSpCurve::Approx_MCurvesToBSpCurve()
 {
@@ -46,85 +50,205 @@ void Approx_MCurvesToBSpCurve::Perform()
 void Approx_MCurvesToBSpCurve::Perform(
   const NCollection_Sequence<AppParCurves_MultiCurve>& theCurves)
 {
-  // All components must retain the same parameterization. Smoothing the first
-  // 3D component alone and copying its knot multiplicities to the PCurves changes
-  // those PCurves, even when each individual fit meets its tolerance.
-  const int aCount  = theCurves.Length();
-  int       aDegree = 0;
-  for (const auto& aCurve : theCurves)
+  myDone   = false;
+  mySpline = AppParCurves_MultiBSpCurve();
+
+  const int aNbSegments = theCurves.Length();
+  if (aNbSegments == 0)
   {
+    return;
+  }
+
+  const AppParCurves_MultiCurve& aFirstCurve = theCurves.First();
+  if (aFirstCurve.NbPoles() == 0)
+  {
+    return;
+  }
+
+  const AppParCurves_MultiPoint& aFirstPoint = aFirstCurve.Value(1);
+  const int                      aNb3d        = aFirstPoint.NbPoints();
+  const int                      aNb2d        = aFirstPoint.NbPoints2d();
+  if (aNb3d + aNb2d == 0)
+  {
+    return;
+  }
+
+  int aDegree = 0;
+  for (const AppParCurves_MultiCurve& aCurve : theCurves)
+  {
+    if (aCurve.NbPoles() == 0 || aCurve.NbCurves() != aNb3d + aNb2d)
+    {
+      return;
+    }
+
+    const AppParCurves_MultiPoint& aPoint = aCurve.Value(1);
+    if (aPoint.NbPoints() != aNb3d || aPoint.NbPoints2d() != aNb2d)
+    {
+      return;
+    }
     aDegree = std::max(aDegree, aCurve.Degree());
   }
-  const auto&                                 aFirst = theCurves.First().Value(1);
-  const int                                   aNb3d  = aFirst.NbPoints();
-  const int                                   aNb2d  = aFirst.NbPoints2d();
-  NCollection_Array1<AppParCurves_MultiPoint> aPoles(1, aCount * aDegree + 1);
-  for (auto& aPole : aPoles)
+
+  // Convert_CompBezierCurves* works with adjacent Bezier segments. Check all
+  // components, otherwise sharing a B-spline junction would alter geometry.
+  for (int aSegment = 2; aSegment <= aNbSegments; ++aSegment)
   {
-    aPole = AppParCurves_MultiPoint(aNb3d, aNb2d);
+    const AppParCurves_MultiCurve& aPrevious = theCurves.Value(aSegment - 1);
+    const AppParCurves_MultiCurve& aCurrent  = theCurves.Value(aSegment);
+    const AppParCurves_MultiPoint& aPreviousEnd = aPrevious.Value(aPrevious.NbPoles());
+    const AppParCurves_MultiPoint& aCurrentStart = aCurrent.Value(1);
+
+    for (int aComponent = 1; aComponent <= aNb3d; ++aComponent)
+    {
+      if (aPreviousEnd.Point(aComponent).Distance(aCurrentStart.Point(aComponent))
+          > Precision::Confusion())
+      {
+        return;
+      }
+    }
+    for (int aComponent = 1; aComponent <= aNb2d; ++aComponent)
+    {
+      const int aPointIndex = aNb3d + aComponent;
+      if (aPreviousEnd.Point2d(aPointIndex).Distance(aCurrentStart.Point2d(aPointIndex))
+          > Precision::PConfusion())
+      {
+        return;
+      }
+    }
   }
-  NCollection_Array1<double> aKnots(1, aCount + 1);
-  NCollection_Array1<int>    aMults(1, aCount + 1);
-  aMults.Init(aDegree);
-  aMults(1) = aMults(aCount + 1) = aDegree + 1;
-  // Retain the speed-based parameter spacing, without adopting the primary
-  // component's knot removal for unrelated components.
-  NCollection_Array1<int> aSuggestedMults(1, aCount + 1);
+
+  if (aNbSegments == 1)
+  {
+    NCollection_Array1<double> aKnots(1, 2);
+    NCollection_Array1<int>    aMults(1, 2);
+    aKnots(1) = 0.0;
+    aKnots(2) = 1.0;
+    aMults.Init(aDegree + 1);
+    mySpline = AppParCurves_MultiBSpCurve(aFirstCurve, aKnots, aMults);
+    myDone   = true;
+    return;
+  }
+
+  // Use one component to define a candidate smooth knot structure. It may be
+  // shared only if every other component independently produces the same one.
+  NCollection_Array1<double> aKnots(1, aNbSegments + 1);
+  NCollection_Array1<int>    aReferenceMults(1, aNbSegments + 1);
   if (aNb3d != 0)
   {
-    Convert_CompBezierCurvesToBSplineCurve aSpacing;
-    for (const auto& aCurve : theCurves)
+    Convert_CompBezierCurvesToBSplineCurve aConverter;
+    for (const AppParCurves_MultiCurve& aCurve : theCurves)
     {
-      NCollection_Array1<gp_Pnt> aPoints(1, aCurve.NbPoles());
-      aCurve.Curve(1, aPoints);
-      aSpacing.AddCurve(aPoints);
+      NCollection_Array1<gp_Pnt> aPoles(1, aCurve.NbPoles());
+      aCurve.Curve(1, aPoles);
+      aConverter.AddCurve(aPoles);
     }
-    aSpacing.Perform();
-    aSpacing.KnotsAndMults(aKnots, aSuggestedMults);
+    aConverter.Perform();
+    aConverter.KnotsAndMults(aKnots, aReferenceMults);
   }
   else
   {
-    Convert_CompBezierCurves2dToBSplineCurve2d aSpacing;
-    for (const auto& aCurve : theCurves)
+    Convert_CompBezierCurves2dToBSplineCurve2d aConverter;
+    for (const AppParCurves_MultiCurve& aCurve : theCurves)
     {
-      NCollection_Array1<gp_Pnt2d> aPoints(1, aCurve.NbPoles());
-      aCurve.Curve(1, aPoints);
-      aSpacing.AddCurve(aPoints);
+      NCollection_Array1<gp_Pnt2d> aPoles(1, aCurve.NbPoles());
+      aCurve.Curve(1, aPoles);
+      aConverter.AddCurve(aPoles);
     }
-    aSpacing.Perform();
-    aSpacing.KnotsAndMults(aKnots, aSuggestedMults);
+    aConverter.Perform();
+    aConverter.KnotsAndMults(aKnots, aReferenceMults);
   }
-  for (int i = 1; i <= aCount; ++i)
+
+  const auto hasSameStructure = [&](const auto& theConverter) {
+    if (theConverter.Degree() != aDegree || theConverter.NbKnots() != aKnots.Length())
+    {
+      return false;
+    }
+
+    NCollection_Array1<double> aComponentKnots(1, aKnots.Length());
+    NCollection_Array1<int>    aComponentMults(1, aReferenceMults.Length());
+    theConverter.KnotsAndMults(aComponentKnots, aComponentMults);
+    for (int aKnot = 1; aKnot <= aKnots.Length(); ++aKnot)
+    {
+      if (aComponentMults(aKnot) != aReferenceMults(aKnot)
+          || std::abs(aComponentKnots(aKnot) - aKnots(aKnot)) > Precision::PConfusion())
+      {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  bool isCommonStructure = true;
+  for (int aComponent = 1; aComponent <= aNb3d && isCommonStructure; ++aComponent)
   {
-    const auto& aCurve     = theCurves.Value(i);
-    const int   aFirstPole = i == 1 ? 1 : 2;
-    for (int c = 1; c <= aNb3d; ++c)
+    if (aNb3d != 0 && aComponent == 1)
     {
-      NCollection_Array1<gp_Pnt> aSource(1, aCurve.NbPoles());
-      NCollection_Array1<gp_Pnt> aTarget(1, aDegree + 1);
-      aCurve.Curve(c, aSource);
-      if (aCurve.Degree() == aDegree)
-      {
-        aTarget = aSource;
-      }
-      else
-      {
-        BSplCLib::IncreaseDegree(aDegree,
-                                 aSource,
-                                 BSplCLib::NoWeights(),
-                                 aTarget,
-                                 BSplCLib::NoWeights());
-      }
-      for (int k = aFirstPole; k <= aDegree + 1; ++k)
-      {
-        aPoles((i - 1) * aDegree + k).SetPoint(c, aTarget(k));
-      }
+      continue;
     }
-    for (int c = 1; c <= aNb2d; ++c)
+
+    Convert_CompBezierCurvesToBSplineCurve aConverter;
+    for (const AppParCurves_MultiCurve& aCurve : theCurves)
     {
-      NCollection_Array1<gp_Pnt2d> aSource(1, aCurve.NbPoles());
-      NCollection_Array1<gp_Pnt2d> aTarget(1, aDegree + 1);
-      aCurve.Curve(aNb3d + c, aSource);
+      NCollection_Array1<gp_Pnt> aPoles(1, aCurve.NbPoles());
+      aCurve.Curve(aComponent, aPoles);
+      aConverter.AddCurve(aPoles);
+    }
+    aConverter.Perform();
+    isCommonStructure = hasSameStructure(aConverter);
+  }
+
+  for (int aComponent = 1; aComponent <= aNb2d && isCommonStructure; ++aComponent)
+  {
+    if (aNb3d == 0 && aComponent == 1)
+    {
+      continue;
+    }
+
+    Convert_CompBezierCurves2dToBSplineCurve2d aConverter;
+    for (const AppParCurves_MultiCurve& aCurve : theCurves)
+    {
+      NCollection_Array1<gp_Pnt2d> aPoles(1, aCurve.NbPoles());
+      aCurve.Curve(aNb3d + aComponent, aPoles);
+      aConverter.AddCurve(aPoles);
+    }
+    aConverter.Perform();
+    isCommonStructure = hasSameStructure(aConverter);
+  }
+
+  NCollection_Array1<int> aMults(1, aReferenceMults.Length());
+  if (isCommonStructure)
+  {
+    aMults = aReferenceMults;
+  }
+  else
+  {
+    // Different components require different C1 parameterizations. Keep each
+    // Bezier segment exact and use C0 junctions with the reference knot spacing.
+    aMults.Init(aDegree);
+    aMults(1) = aMults(aMults.Upper()) = aDegree + 1;
+  }
+
+  int aNbPoles = -aDegree - 1;
+  for (int aMultiplicity : aMults)
+  {
+    aNbPoles += aMultiplicity;
+  }
+
+  NCollection_Array1<AppParCurves_MultiPoint> aPoles(1, aNbPoles);
+  for (AppParCurves_MultiPoint& aPole : aPoles)
+  {
+    aPole = AppParCurves_MultiPoint(aNb3d, aNb2d);
+  }
+
+  for (int aComponent = 1; aComponent <= aNb3d; ++aComponent)
+  {
+    int aResultPole = 1;
+    for (int aSegment = 1; aSegment <= aNbSegments; ++aSegment)
+    {
+      const AppParCurves_MultiCurve& aCurve = theCurves.Value(aSegment);
+      NCollection_Array1<gp_Pnt>     aSource(1, aCurve.NbPoles());
+      NCollection_Array1<gp_Pnt>     aTarget(1, aDegree + 1);
+      aCurve.Curve(aComponent, aSource);
       if (aCurve.Degree() == aDegree)
       {
         aTarget = aSource;
@@ -137,14 +261,70 @@ void Approx_MCurvesToBSpCurve::Perform(
                                  aTarget,
                                  BSplCLib::NoWeights());
       }
-      for (int k = aFirstPole; k <= aDegree + 1; ++k)
+
+      int aFirstPole = 1;
+      if (aSegment > 1 && (aMults(aSegment) == aDegree - 1 || aMults(aSegment) == aDegree))
       {
-        aPoles((i - 1) * aDegree + k).SetPoint2d(aNb3d + c, aTarget(k));
+        aFirstPole = 2;
+      }
+      int aLastPole = aDegree;
+      if (aSegment == aNbSegments || aMults(aSegment + 1) == aDegree)
+      {
+        aLastPole = aDegree + 1;
+      }
+      for (int aPole = aFirstPole; aPole <= aLastPole; ++aPole)
+      {
+        aPoles(aResultPole++).SetPoint(aComponent, aTarget(aPole));
       }
     }
   }
+
+  for (int aComponent = 1; aComponent <= aNb2d; ++aComponent)
+  {
+    int aResultPole = 1;
+    for (int aSegment = 1; aSegment <= aNbSegments; ++aSegment)
+    {
+      const AppParCurves_MultiCurve& aCurve = theCurves.Value(aSegment);
+      NCollection_Array1<gp_Pnt2d>   aSource(1, aCurve.NbPoles());
+      NCollection_Array1<gp_Pnt2d>   aTarget(1, aDegree + 1);
+      aCurve.Curve(aNb3d + aComponent, aSource);
+      if (aCurve.Degree() == aDegree)
+      {
+        aTarget = aSource;
+      }
+      else
+      {
+        BSplCLib::IncreaseDegree(aDegree,
+                                 aSource,
+                                 BSplCLib::NoWeights(),
+                                 aTarget,
+                                 BSplCLib::NoWeights());
+      }
+
+      int aFirstPole = 1;
+      if (aSegment > 1 && (aMults(aSegment) == aDegree - 1 || aMults(aSegment) == aDegree))
+      {
+        aFirstPole = 2;
+      }
+      int aLastPole = aDegree;
+      if (aSegment == aNbSegments || aMults(aSegment + 1) == aDegree)
+      {
+        aLastPole = aDegree + 1;
+      }
+      for (int aPole = aFirstPole; aPole <= aLastPole; ++aPole)
+      {
+        aPoles(aResultPole++).SetPoint2d(aNb3d + aComponent, aTarget(aPole));
+      }
+    }
+  }
+
   mySpline = AppParCurves_MultiBSpCurve(aPoles, aKnots, aMults);
-  myDone = true;
+  myDone   = true;
+}
+
+bool Approx_MCurvesToBSpCurve::IsDone() const
+{
+  return myDone;
 }
 
 const AppParCurves_MultiBSpCurve& Approx_MCurvesToBSpCurve::Value() const

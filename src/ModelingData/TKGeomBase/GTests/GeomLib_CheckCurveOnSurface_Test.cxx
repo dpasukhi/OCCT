@@ -421,6 +421,28 @@ TEST(GeomLib_CheckCurveOnSurfaceTest, NonFiniteDistanceIsAnEvaluationFailure)
   }
 }
 
+TEST(GeomLib_CheckCurveOnSurfaceTest, RepeatedPerformResetsFailureState)
+{
+  const occ::handle<Geom_Line> aLine = new Geom_Line(gp_Pnt(0.0, 0.0, 0.0), gp_Dir(1.0, 0.0, 0.0));
+  const occ::handle<GeomAdaptor_Curve> aC3d = new GeomAdaptor_Curve(aLine, 0.0, 1.0);
+  const occ::handle<Geom2dAdaptor_Curve> aPCurve =
+    new Geom2dAdaptor_Curve(new Geom2d_Line(gp_Pnt2d(), gp_Dir2d(1.0, 0.0)), 0.0, 1.0);
+  const occ::handle<GeomAdaptor_Surface> aSurface =
+    new GeomAdaptor_Surface(new Geom_Plane(gp_Ax3()));
+  const occ::handle<Adaptor3d_CurveOnSurface> aCurveOnSurface =
+    new Adaptor3d_CurveOnSurface(aPCurve, aSurface);
+
+  GeomLib_CheckCurveOnSurface aCheck(aC3d);
+  aCheck.Perform(occ::handle<Adaptor3d_CurveOnSurface>());
+  ASSERT_FALSE(aCheck.IsDone());
+  ASSERT_EQ(aCheck.ErrorStatus(), 1);
+
+  aCheck.Perform(aCurveOnSurface);
+  ASSERT_TRUE(aCheck.IsDone());
+  EXPECT_EQ(aCheck.ErrorStatus(), 0);
+  EXPECT_NEAR(aCheck.MaxDistance(), 0.0, Precision::Confusion());
+}
+
 TEST(GeomLib_CheckCurveOnSurfaceTest, MultimodalBezierDeviationIsIndependentOfSpatialScale)
 {
   const double               aHeights[] = {0, 1, 4, -8, 2, 9, -3, 1, 0};

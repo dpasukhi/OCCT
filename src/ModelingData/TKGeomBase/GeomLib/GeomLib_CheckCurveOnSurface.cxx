@@ -366,6 +366,10 @@ void GeomLib_CheckCurveOnSurface::Init(const occ::handle<Adaptor3d_Curve>& theCu
 void GeomLib_CheckCurveOnSurface::Perform(
   const occ::handle<Adaptor3d_CurveOnSurface>& theCurveOnSurface)
 {
+  myErrorStatus  = 0;
+  myMaxDistance  = RealLast();
+  myMaxParameter = 0.0;
+
   if (myCurve.IsNull() || theCurveOnSurface.IsNull())
   {
     myErrorStatus = 1;
@@ -408,7 +412,8 @@ void GeomLib_CheckCurveOnSurface::Perform(
 
     const int aNbThreads =
       myIsParallel
-        ? std::min(anIntervals.Length(), OSD_ThreadPool::DefaultPool()->NbDefaultThreadsToLaunch())
+        ? std::min(anIntervals.Length() - 1,
+                   OSD_ThreadPool::DefaultPool()->NbDefaultThreadsToLaunch())
         : 1;
     Array1OfHCurve aCurveArray(0, aNbThreads - 1);
     Array1OfHCurve aCurveOnSurfaceArray(0, aNbThreads - 1);
@@ -695,7 +700,10 @@ bool MinComputing(GeomLib_CheckCurveOnSurface_TargetFunc& theFunction,
     }
     const math_Vector aLower(1, 1, 0), anUpper(1, 1, 1);
     const auto aResult = MathOpt::PSO(theFunction, aLower, anUpper, aConfig, &aSeeds);
-    if (!aResult.IsDone() || !aResult.Value || !aResult.Solution)
+    // The best point remains usable when the iteration limit is reached.
+    if ((aResult.Status != MathUtils::Status::OK
+         && aResult.Status != MathUtils::Status::MaxIterations)
+        || !aResult.Value || !aResult.Solution)
     {
       return false;
     }

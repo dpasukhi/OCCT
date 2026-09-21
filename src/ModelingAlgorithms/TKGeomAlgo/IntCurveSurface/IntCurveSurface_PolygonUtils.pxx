@@ -15,6 +15,7 @@
 #define IntCurveSurface_PolygonUtils_pxx_HeaderFile
 
 #include <Bnd_Box.hxx>
+#include <gp.hxx>
 #include <gp_Dir.hxx>
 #include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
@@ -26,6 +27,20 @@
 //! These template functions implement the core logic previously in IntCurveSurface_Polygon.gxx.
 namespace IntCurveSurface_PolygonUtils
 {
+
+//! Computes the distance from a point to a chord.
+//! A collapsed chord is treated as a point instead of constructing an invalid gp_Dir.
+inline double DistanceToChord(const gp_Pnt& theFirst,
+                              const gp_Pnt& theLast,
+                              const gp_Pnt& thePoint)
+{
+  const gp_Vec aChord(theFirst, theLast);
+  if (aChord.Magnitude() <= gp::Resolution())
+  {
+    return thePoint.Distance(theFirst);
+  }
+  return gp_Lin(theFirst, gp_Dir(aChord)).Distance(thePoint);
+}
 
 //! Initialize polygon with uniform parameter sampling.
 //! Samples theNbPntIn points along the curve from theBinf to theBsup with equal parameter spacing.
@@ -70,8 +85,7 @@ void InitUniform(const CurveType&            theCurve,
       const gp_Pnt  Pm = CurveTool::Value(theCurve, u);
       const gp_Pnt& P1 = thePnts.Value(i);
       const gp_Pnt& P2 = thePnts.Value(i + 1);
-      const gp_Lin  L(P1, gp_Dir(gp_Vec(P1, P2)));
-      const double  t = L.Distance(Pm);
+      const double  t  = DistanceToChord(P1, P2, Pm);
       if (t > theDeflection)
       {
         theDeflection = t;
@@ -128,8 +142,7 @@ void InitWithParams(const CurveType&                          theCurve,
       const gp_Pnt  Pm = CurveTool::Value(theCurve, u);
       const gp_Pnt& P1 = thePnts.Value(i);
       const gp_Pnt& P2 = thePnts.Value(i + 1);
-      const gp_Lin  L(P1, gp_Dir(gp_Vec(P1, P2)));
-      const double  t = L.Distance(Pm);
+      const double  t  = DistanceToChord(P1, P2, Pm);
       if (t > theDeflection)
       {
         theDeflection = t;

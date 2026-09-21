@@ -9,6 +9,7 @@ set(OCCT_TKGeomBase_GTests_FILES
   AdvApp2Var_Network_Test.cxx
   AdvApp2Var_Node_Test.cxx
   AppCont_ContMatrices_Test.cxx
+  Approx_MCurvesToBSpCurve_Test.cxx
   BndLib_Test.cxx
   GeomBndLib_Curve_Test.cxx
   GeomBndLib_Curve2d_Test.cxx

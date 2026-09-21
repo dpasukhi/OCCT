@@ -40,6 +40,9 @@ public:
 
   Standard_EXPORT void Perform(const NCollection_Sequence<AppParCurves_MultiCurve>& TheSeq);
 
+  //! Returns true if the conversion has been completed.
+  Standard_EXPORT bool IsDone() const;
+
   //! return the composite MultiCurves as a MultiBSpCurve.
   Standard_EXPORT const AppParCurves_MultiBSpCurve& Value() const;
 
